@@ -48,11 +48,19 @@ func (s Sprite) GetRGBA() *image.RGBA {
 	return (*s.buffer).RGBA()
 }
 
+func (s Sprite) HasBuffer() bool {
+	if s.buffer != nil {
+		return true
+	}
+	return false
+}
+
 //func (s *Sprite) ApplyColor(*image.color) *Renderable {
 
 ///}
 
 //func (s *Sprite) ApplyMask(??) *Renderable
+
 //func (s *Sprite) Rotate(degrees int) *Renderable {
 
 //}
