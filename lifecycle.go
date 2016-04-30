@@ -30,6 +30,8 @@ var (
 	runEventLoop = false
 	black        = color.RGBA{0x00, 0x00, 0x00, 0xff}
 	b            screen.Buffer
+	esc          = false
+	l_debug      = false
 )
 
 func Init(scene string) {
@@ -119,8 +121,9 @@ func eventLoop(s screen.Screen) {
 		if _, ok := e.(fmt.Stringer); ok {
 			format = "got %v\n"
 		}
-		fmt.Printf(format, e)
-
+		if l_debug {
+			fmt.Printf(format, e)
+		}
 		switch e := e.(type) {
 
 		case lifecycle.Event:
@@ -145,6 +148,16 @@ func eventLoop(s screen.Screen) {
 
 		case error:
 			log.Print(e)
+		}
+		if IsDown("Escape") {
+			if esc {
+				fmt.Println("\n\n~~~~~~~~~~~~Now Escaping~~~~~~~~~~~~~~\n\n\n")
+				ev := lifecycle.Event{0, 0, nil}
+				w.Send(ev)
+			}
+			esc = true
+		} else {
+			esc = false
 		}
 	}
 }
