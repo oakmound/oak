@@ -8,6 +8,7 @@ import (
 	"image"
 	"image/color"
 	"log"
+	"math/rand"
 	"time"
 
 	"golang.org/x/exp/shiny/driver"
@@ -20,22 +21,27 @@ import (
 )
 
 var (
-	initCh       = make(chan bool)
-	sceneCh      = make(chan bool)
-	quitCh       = make(chan bool)
-	screenWidth  = 640
-	screenHeight = 480
-	press        = key.DirPress
-	release      = key.DirRelease
-	runEventLoop = false
-	black        = color.RGBA{0x00, 0x00, 0x00, 0xff}
-	b            screen.Buffer
-	esc          = false
-	l_debug      = false
+	initCh        = make(chan bool)
+	sceneCh       = make(chan bool)
+	quitCh        = make(chan bool)
+	ScreenWidth   = 640
+	ScreenHeight  = 480
+	press         = key.DirPress
+	release       = key.DirRelease
+	runEventLoop  = false
+	black         = color.RGBA{0x00, 0x00, 0x00, 0xff}
+	b             screen.Buffer
+	viewX         = 0
+	viewY         = 0
+	useViewBounds = false
+	viewBounds    []int
+	esc           = false
+	l_debug       = false
 )
 
 func Init(scene string) {
 	collision.Init()
+	rand.Seed(time.Now().UTC().UnixNano())
 
 	go driver.Main(eventLoop)
 
@@ -63,8 +69,8 @@ func Init(scene string) {
 }
 
 func eventLoop(s screen.Screen) {
-	b, _ = s.NewBuffer(image.Point{screenWidth, screenHeight})
-	w, err := s.NewWindow(&screen.NewWindowOptions{screenWidth, screenHeight})
+	b, _ = s.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
+	w, err := s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,7 +106,7 @@ func eventLoop(s screen.Screen) {
 				// fillScreen(w, black)
 				eb.Trigger("Draw", b)
 
-				w.Upload(image.Point{0, 0}, b, b.Bounds())
+				w.Upload(image.Point{viewX, viewY}, b, b.Bounds())
 				// x := w.Publish()
 				// fmt.Println(x)
 
@@ -164,4 +170,23 @@ func eventLoop(s screen.Screen) {
 
 func fillScreen(w screen.Window, c color.RGBA) {
 	w.Fill(b.Bounds(), black, screen.Src)
+}
+
+func SetScreen(x, y int) {
+	if useViewBounds {
+		if viewBounds[0] > x && viewBounds[2] < x-ScreenWidth {
+			viewX = x
+		}
+		if viewBounds[1] > y && viewBounds[3] < y-ScreenHeight {
+			viewY = y
+		}
+
+	} else {
+		viewX = x
+		viewY = y
+	}
+}
+func SetViewportBounds(x1, y1, x2, y2 int) {
+	useViewBounds = true
+	viewBounds = []int{x1, y1, x2, y2}
 }
