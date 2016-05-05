@@ -9,11 +9,12 @@ import (
 )
 
 var (
-	byt       = bytes.NewBuffer(make([]byte, 0))
-	theFilter = ""
+	byt        = bytes.NewBuffer(make([]byte, 0))
+	debugLevel = 0
+	theFilter  = ""
 )
 
-func DLog(s string) {
+func dLog(s string) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)
 	if ok {
@@ -40,7 +41,7 @@ func DLog(s string) {
 	}
 }
 
-func DILog(s string, nums ...int) {
+func dILog(s string, nums ...int) {
 
 	_, f, line, ok := runtime.Caller(2)
 	if ok {
@@ -68,7 +69,6 @@ func DILog(s string, nums ...int) {
 		byt.Reset()
 		// [filename:lineNum]  output
 	}
-
 }
 
 func truncateFileName(f string) string {
@@ -79,11 +79,58 @@ func truncateFileName(f string) string {
 
 func checkFilter(f, s string) bool {
 	return strings.Contains(s, theFilter) || strings.Contains(f, theFilter)
-
 }
 
 func SetDebugFilter(filter string) {
 	theFilter = filter
+}
+
+func SetDebugLevel(dL string) {
+	switch dL {
+	case "VERBOSE":
+		debugLevel = 4
+	case "INFO":
+		debugLevel = 3
+	case "WARN":
+		debugLevel = 2
+
+	case "ERROR":
+		debugLevel = 1
+	default:
+		debugLevel = 0
+	}
+}
+
+func Warn(s string) {
+	if debugLevel > 1 {
+		dLog(s)
+	}
+
+}
+func WarnI(s string, nums ...int) {
+	if debugLevel > 1 {
+		dILog(s, nums...)
+	}
+}
+func Info(s string) {
+	if debugLevel > 2 {
+		dLog(s)
+	}
+}
+func InfoI(s string, nums ...int) {
+	if debugLevel > 2 {
+		dILog(s, nums...)
+	}
+}
+func Verb(s string) {
+	if debugLevel > 3 {
+		dLog(s)
+	}
+}
+func VerbI(s string, nums ...int) {
+	if debugLevel > 3 {
+		dILog(s, nums...)
+	}
 }
 
 // dlog.WarnI(somestring)
