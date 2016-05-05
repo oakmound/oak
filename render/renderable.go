@@ -74,14 +74,10 @@ func (s_p *Sprite) ShiftY(y float64) {
 	s_p.y += y
 }
 
-// func (s_p *Sprite) Draw(w screen.Window) {
-// 	s := *s_p
-// 	w.Upload(image.Point{s.x, s.y}, *(s.buffer), (*(s.buffer)).Bounds())
-// }
 func (s Sprite) Draw(buff screen.Buffer) {
 	// s := *s_p
 	img := (&s).GetRGBA()
 	draw.Draw(buff.RGBA(), buff.Bounds(),
 		img, image.Point{int((&s).x),
-			int((&s).y)}, draw.Src)
+			int((&s).y)}, draw.Over)
 }

@@ -93,7 +93,6 @@ func SetDebugLevel(dL string) {
 		debugLevel = 3
 	case "WARN":
 		debugLevel = 2
-
 	case "ERROR":
 		debugLevel = 1
 	default:
@@ -101,17 +100,28 @@ func SetDebugLevel(dL string) {
 	}
 }
 
+func Error(s string) {
+	if debugLevel > 0 {
+		dLog(s)
+	}
+}
+func ErrorI(s string, nums ...int) {
+	if debugLevel > 0 {
+		dILog(s, nums...)
+	}
+}
+
 func Warn(s string) {
 	if debugLevel > 1 {
 		dLog(s)
 	}
-
 }
 func WarnI(s string, nums ...int) {
 	if debugLevel > 1 {
 		dILog(s, nums...)
 	}
 }
+
 func Info(s string) {
 	if debugLevel > 2 {
 		dLog(s)
@@ -122,6 +132,7 @@ func InfoI(s string, nums ...int) {
 		dILog(s, nums...)
 	}
 }
+
 func Verb(s string) {
 	if debugLevel > 3 {
 		dLog(s)

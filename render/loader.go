@@ -1,6 +1,8 @@
 package render
 
 import (
+	"errors"
+	"fmt"
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/draw"
@@ -18,7 +20,7 @@ var (
 		filepath.Dir(wd),
 		"assets",
 		"images")
-	loadedSprites = make(map[string]*screen.Buffer)
+	loadedImages = make(map[string]*screen.Buffer)
 )
 
 func loadPNG(fileName string) *screen.Buffer {
@@ -43,23 +45,64 @@ func loadPNG(fileName string) *screen.Buffer {
 
 	draw.Draw(buff.RGBA(), img.Bounds(), img, image.Point{0, 0}, draw.Src)
 
+	fmt.Println(fileName, "buffer on load:", buff)
+
 	return &buff
 }
 
 func LoadSprite(fileName string) Sprite {
-	if _, ok := loadedSprites[fileName]; !ok {
-		loadedSprites[fileName] = loadPNG(fileName)
+	if _, ok := loadedImages[fileName]; !ok {
+		loadedImages[fileName] = loadPNG(fileName)
 	}
-	return Sprite{buffer: loadedSprites[fileName]}
+	return Sprite{buffer: loadedImages[fileName]}
 }
 
-// For loading a sheet as an array of images
+func LoadSheet(fileName string, w, h, pad int) (*Sheet, error) {
+	if _, ok := loadedImages[fileName]; !ok {
+		loadedImages[fileName] = loadPNG(fileName)
+	}
+	buffer := loadedImages[fileName]
+	bounds := (*buffer).Size()
+	rgba := (*buffer).RGBA()
 
-//func loadSheet(fileName s, frameWidth int, frameHeight int) {
-//
-//}
+	sheetW := bounds.X / w
+	remainderW := bounds.X % w
+	sheetH := bounds.Y / h
+	remainderH := bounds.Y % h
 
-// I don't know if we need this.
-//func unloadFile(fileName s) {
-//
-//}
+	widthBuffers := remainderW / pad
+	heightBuffers := remainderH / pad
+
+	if sheetW < 1 || sheetH < 1 ||
+		widthBuffers != sheetW-1 ||
+		heightBuffers != sheetH-1 {
+		return nil, errors.New("Bad dimensions given to load sheet")
+	}
+
+	sheet := make(Sheet, sheetW)
+	i := 0
+	for x := 0; x < bounds.X; x += (w + pad) {
+		sheet[i] = make([]*image.RGBA, sheetH)
+		j := 0
+		for y := 0; y < bounds.Y; y += (h + pad) {
+			sheet[i][j] = subImage(rgba, x, y, w, h)
+			j++
+		}
+		i++
+	}
+
+	//fmt.Println("Sheet[0][0]", sheet[0][0])
+
+	return &sheet, nil
+
+}
+
+func subImage(rgba *image.RGBA, x, y, w, h int) *image.RGBA {
+	out := image.NewRGBA(image.Rect(0, 0, w, h))
+	for i := 0; i < w; i++ {
+		for j := 0; j < h; j++ {
+			out.Set(i, j, rgba.At(x+i, y+j))
+		}
+	}
+	return out
+}
