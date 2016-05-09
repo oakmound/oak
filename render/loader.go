@@ -2,7 +2,7 @@ package render
 
 import (
 	"errors"
-	"fmt"
+	//"fmt"
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/draw"
@@ -45,7 +45,7 @@ func loadPNG(fileName string) *screen.Buffer {
 
 	draw.Draw(buff.RGBA(), img.Bounds(), img, image.Point{0, 0}, draw.Src)
 
-	fmt.Println(fileName, "buffer on load:", buff)
+	//fmt.Println(fileName, "buffer on load:", buff)
 
 	return &buff
 }

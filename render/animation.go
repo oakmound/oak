@@ -2,7 +2,8 @@ package render
 
 import (
 	"errors"
-	"fmt"
+	//"fmt"
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/draw"
@@ -62,7 +63,7 @@ func (a Animation) SetPos(x, y float64) {
 
 func (a_p *Animation) updateAnimation() {
 	if time.Since(a_p.lastChange).Nanoseconds() > a_p.frameTime {
-		fmt.Println("Increment sheetPos")
+		dlog.Verb("Increment sheetPos")
 		a_p.lastChange = time.Now()
 		a_p.sheetPos = (a_p.sheetPos + 1) % len(a_p.frames)
 	}

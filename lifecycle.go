@@ -4,6 +4,8 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
+
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"fmt"
 	"image"
 	"image/color"
@@ -76,6 +78,7 @@ func eventLoop(s screen.Screen) {
 	}
 	defer w.Release()
 
+	render.InitFont(&b)
 	render.SetScreen((&s))
 
 	frameRate := 60
@@ -157,7 +160,7 @@ func eventLoop(s screen.Screen) {
 		}
 		if IsDown("Escape") {
 			if esc {
-				fmt.Println("\n\n~~~~~~~~~~~~Now Escaping~~~~~~~~~~~~~~\n\n\n")
+				dlog.Warn("\n\n~~~~~~~~~~~~Now Escaping~~~~~~~~~~~~~~\n\n\n")
 				ev := lifecycle.Event{0, 0, nil}
 				w.Send(ev)
 			}

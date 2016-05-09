@@ -1,7 +1,8 @@
 package event
 
 import (
-	"fmt"
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	// "fmt"
 )
 
 var (
@@ -95,7 +96,7 @@ func (eb *EventBus) BindPriority(fn Bindable, opt BindingOption) (Binding, error
 
 	// fmt.Println(list)
 
-	fmt.Println("Stored at", i)
+	dlog.InfoI("Stored at", i)
 
 	return Binding{opt, i}, nil
 }
