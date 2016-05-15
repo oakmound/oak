@@ -43,7 +43,10 @@ var (
 
 func Init(scene string) {
 	collision.Init()
-	rand.Seed(time.Now().UTC().UnixNano())
+
+	curSeed := time.Now().UTC().UnixNano()
+	rand.Seed(curSeed)
+	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
 
 	go driver.Main(eventLoop)
 
