@@ -10,7 +10,10 @@ import (
 var (
 	gameScreen *screen.Screen
 	// spriteNames = []string{"Empty":"textures/tile1.png", "textures/tile2.png"}
-	spriteNames = map[string]string{"Empty": "textures/tile1.png", "Wall": "textures/tile2.png"}
+	spriteNames = map[string]string{
+		"Empty": "textures/tile1.png",
+		"Wall":  "textures/wall.png",
+		"Floor": "textures/floor.png"}
 )
 
 type Renderable interface {
@@ -29,6 +32,17 @@ type Renderable interface {
 
 func ParseSprite(s string) Sprite {
 	return LoadSprite(spriteNames[s])
+}
+
+func ParseSubSprite(s string, x, y, w, h, pad int) Sprite {
+	sh, _ := LoadSheet(spriteNames[s], w, h, pad)
+	b, _ := (*GetScreen()).NewBuffer(image.Point{w, h})
+	draw.Draw(b.RGBA(), b.Bounds(), (*sh)[x][y], image.Point{0, 0}, draw.Src)
+	return Sprite{
+		x:      0,
+		y:      0,
+		buffer: &b,
+	}
 }
 
 func SetScreen(s *screen.Screen) {

@@ -45,6 +45,7 @@ func Init(scene string) {
 	collision.Init()
 
 	curSeed := time.Now().UTC().UnixNano()
+	curSeed = 1463358974925095300
 	rand.Seed(curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
 

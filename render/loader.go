@@ -70,8 +70,14 @@ func LoadSheet(fileName string, w, h, pad int) (*Sheet, error) {
 	sheetH := bounds.Y / h
 	remainderH := bounds.Y % h
 
-	widthBuffers := remainderW / pad
-	heightBuffers := remainderH / pad
+	var widthBuffers, heightBuffers int
+	if pad != 0 {
+		widthBuffers = remainderW / pad
+		heightBuffers = remainderH / pad
+	} else {
+		widthBuffers = sheetW - 1
+		heightBuffers = sheetH - 1
+	}
 
 	if sheetW < 1 || sheetH < 1 ||
 		widthBuffers != sheetW-1 ||
@@ -90,8 +96,6 @@ func LoadSheet(fileName string, w, h, pad int) (*Sheet, error) {
 		}
 		i++
 	}
-
-	//fmt.Println("Sheet[0][0]", sheet[0][0])
 
 	return &sheet, nil
 
