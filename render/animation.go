@@ -87,3 +87,6 @@ func (a Animation) Draw(buff screen.Buffer) {
 		img, image.Point{int((&a).x),
 			int((&a).y)}, draw.Over)
 }
+
+// Creates a new sheet and then sets the animation's sheet to be the new sheet
+// func (a Animation) Scale()
