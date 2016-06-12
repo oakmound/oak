@@ -14,12 +14,12 @@ var (
 	theFilter  = ""
 )
 
-func dLog(s string) {
+func dLog(in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)
 	if ok {
 		f = truncateFileName(f)
-		if !checkFilter(f, s) {
+		if !checkFilter(f, in) {
 			return
 		}
 
@@ -30,43 +30,15 @@ func dLog(s string) {
 		byt.WriteRune(':')
 		byt.WriteString(lineStr)
 		byt.WriteString("]  ")
-		byt.WriteString(s)
-		byt.WriteRune('\n')
-
-		fmt.Print(byt.String())
-
-		byt.Reset()
-
-		// [filename:lineNum]  output
-	}
-}
-
-func dILog(s string, nums ...int) {
-
-	_, f, line, ok := runtime.Caller(2)
-	if ok {
-
-		f = truncateFileName(f)
-		lineStr := strconv.Itoa(line)
-		if !checkFilter(f, s) {
-			return
-		}
-
-		byt.WriteRune('[')
-		byt.WriteString(f)
-		byt.WriteRune(':')
-		byt.WriteString(lineStr)
-		byt.WriteString("]  ")
-		byt.WriteString(s)
-		for _, num := range nums {
-			byt.WriteRune(' ')
-			byt.WriteString(strconv.Itoa(num))
+		for _, elem := range in {
+			byt.WriteString(fmt.Sprintf("%s ", elem))
 		}
 		byt.WriteRune('\n')
 
 		fmt.Print(byt.String())
 
 		byt.Reset()
+
 		// [filename:lineNum]  output
 	}
 }
@@ -77,8 +49,12 @@ func truncateFileName(f string) string {
 	return f[index+1 : lIndex]
 }
 
-func checkFilter(f, s string) bool {
-	return strings.Contains(s, theFilter) || strings.Contains(f, theFilter)
+func checkFilter(f string, in ...interface{}) bool {
+	ret := false
+	for _, elem := range in {
+		ret = ret || strings.Contains(fmt.Sprintf("%s", elem), theFilter)
+	}
+	return ret || strings.Contains(f, theFilter)
 }
 
 func SetDebugFilter(filter string) {
@@ -100,53 +76,33 @@ func SetDebugLevel(dL string) {
 	}
 }
 
-func Error(s string) {
+func Error(in ...interface{}) {
 	if debugLevel > 0 {
-		dLog(s)
-	}
-}
-func ErrorI(s string, nums ...int) {
-	if debugLevel > 0 {
-		dILog(s, nums...)
+		dLog(in)
 	}
 }
 
-func Warn(s string) {
+func Warn(in ...interface{}) {
 	if debugLevel > 1 {
-		dLog(s)
-	}
-}
-func WarnI(s string, nums ...int) {
-	if debugLevel > 1 {
-		dILog(s, nums...)
+		dLog(in)
 	}
 }
 
-func Info(s string) {
+func Info(in ...interface{}) {
 	if debugLevel > 2 {
-		dLog(s)
-	}
-}
-func InfoI(s string, nums ...int) {
-	if debugLevel > 2 {
-		dILog(s, nums...)
+		dLog(in)
 	}
 }
 
-func Verb(s string) {
+func Verb(in ...interface{}) {
 	if debugLevel > 3 {
-		dLog(s)
-	}
-}
-func VerbI(s string, nums ...int) {
-	if debugLevel > 3 {
-		dILog(s, nums...)
+		dLog(in)
 	}
 }
 
-// dlog.WarnI(somestring)
-// dlog.InfoI()
-// dlog.VerboseI()
+// dlog.Warn()
+// dlog.Info()
+// dlog.Verb()
 
 // Verbose
 // Info

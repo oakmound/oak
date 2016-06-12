@@ -31,6 +31,7 @@ var (
 	press         = key.DirPress
 	release       = key.DirRelease
 	runEventLoop  = false
+	drawChannel   = make(chan bool)
 	black         = color.RGBA{0x00, 0x00, 0x00, 0xff}
 	b             screen.Buffer
 	viewX         = 0
@@ -55,10 +56,12 @@ func Init(scene string) {
 	sceneMap[scene].active = true
 	<-initCh
 	close(initCh)
+	runEventLoop = true
 	for {
+		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
 		sceneMap[scene].start(prevScene)
+		drawChannel <- true
 		cont := true
-		runEventLoop = true
 		for cont {
 			select {
 			case <-quitCh:
@@ -68,7 +71,6 @@ func Init(scene string) {
 				cont = sceneMap[scene].loop()
 			}
 		}
-		runEventLoop = false
 		prevScene = scene
 		scene = sceneMap[scene].end()
 	}
@@ -95,82 +97,83 @@ func eventLoop(s screen.Screen) {
 		}
 	}(frameCh, int64(frameRate))
 
-	eb := event.GetEventBus()
-
-	go func(eb event.EventBus, w screen.Window) {
+	go func() {
 		for {
-			for runEventLoop {
+			// Handle window events
+			e := w.NextEvent()
+			// This print message is to help programmers learn what events this
+			// example program generates. A real program shouldn't print such
+			// messages; they're not important to end users.
+			format := "got %#v\n"
+			if _, ok := e.(fmt.Stringer); ok {
+				format = "got %v\n"
+			}
+			if l_debug {
+				fmt.Printf(format, e)
+			}
+			switch e := e.(type) {
 
-				<-frameCh
+			case lifecycle.Event:
+				if e.To == lifecycle.StageDead {
+					quitCh <- true
+					return
+				}
 
-				eb.Trigger("EnterFrame", nil)
+			case key.Event:
+				if e.Direction == press {
+					fmt.Println("--------------------", e.Code.String()[4:])
+					SetDown(e.Code.String()[4:])
+				} else if e.Direction == release {
+					SetUp(e.Code.String()[4:])
+				}
 
-				sceneCh <- true
+			case mouse.Event:
 
-				// To satisfy pc master race,
-				// could pull this out into another
-				// channel which happens as fast as possible
-				// fillScreen(w, black)
-				eb.Trigger("Draw", b)
+			case paint.Event:
 
-				w.Upload(image.Point{viewX, viewY}, b, b.Bounds())
-				// x := w.Publish()
-				// fmt.Println(x)
+			case size.Event:
 
-				eb.Trigger("ExitFrame", nil)
+			case error:
+				log.Print(e)
+			}
+			if IsDown("Escape") {
+				if esc {
+					dlog.Warn("\n\n~~~~~~~~~~~~Now Escaping~~~~~~~~~~~~~~\n\n\n")
+					ev := lifecycle.Event{0, 0, nil}
+					w.Send(ev)
+				}
+				esc = true
+			} else {
+				esc = false
 			}
 		}
-	}(eb, w)
+	}()
+
+	eb := event.GetEventBus()
 
 	initCh <- true
 
+	go func() {
+		<-drawChannel
+		for {
+			eb.Trigger("Draw", b)
+			w.Upload(image.Point{viewX, viewY}, b, b.Bounds())
+		}
+	}()
+
 	for {
-		// Handle window events
-		e := w.NextEvent()
-		// This print message is to help programmers learn what events this
-		// example program generates. A real program shouldn't print such
-		// messages; they're not important to end users.
-		format := "got %#v\n"
-		if _, ok := e.(fmt.Stringer); ok {
-			format = "got %v\n"
-		}
-		if l_debug {
-			fmt.Printf(format, e)
-		}
-		switch e := e.(type) {
+		for runEventLoop {
 
-		case lifecycle.Event:
-			if e.To == lifecycle.StageDead {
-				quitCh <- true
-				return
-			}
+			<-frameCh
 
-		case key.Event:
-			if e.Direction == press {
-				fmt.Println("--------------------", e.Code.String()[4:])
-				SetDown(e.Code.String()[4:])
-			} else if e.Direction == release {
-				SetUp(e.Code.String()[4:])
-			}
+			eb.Trigger("EnterFrame", nil)
 
-		case mouse.Event:
+			sceneCh <- true
 
-		case paint.Event:
+			// x := w.Publish()
+			// fmt.Println(x)
 
-		case size.Event:
-
-		case error:
-			log.Print(e)
-		}
-		if IsDown("Escape") {
-			if esc {
-				dlog.Warn("\n\n~~~~~~~~~~~~Now Escaping~~~~~~~~~~~~~~\n\n\n")
-				ev := lifecycle.Event{0, 0, nil}
-				w.Send(ev)
-			}
-			esc = true
-		} else {
-			esc = false
+			eb.Trigger("ExitFrame", nil)
 		}
 	}
 }

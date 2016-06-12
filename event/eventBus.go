@@ -96,7 +96,7 @@ func (eb *EventBus) BindPriority(fn Bindable, opt BindingOption) (Binding, error
 
 	// fmt.Println(list)
 
-	dlog.InfoI("Stored at", i)
+	dlog.Info("Stored at", i)
 
 	return Binding{opt, i}, nil
 }
