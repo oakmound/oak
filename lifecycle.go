@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/draw"
 	"log"
 	"math/rand"
 	"time"
@@ -153,11 +154,17 @@ func eventLoop(s screen.Screen) {
 
 	initCh <- true
 
+	// Draw loop
+	// Pulled away from the framerate loop below
 	go func() {
 		<-drawChannel
 		for {
+			// Comment out this for smearing, but visible text
+			draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{viewX, viewY}, screen.Src)
+
 			eb.Trigger("Draw", b)
 			w.Upload(image.Point{viewX, viewY}, b, b.Bounds())
+			w.Publish()
 		}
 	}()
 
