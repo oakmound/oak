@@ -35,6 +35,7 @@ var (
 	drawChannel   = make(chan bool)
 	black         = color.RGBA{0x00, 0x00, 0x00, 0xff}
 	b             screen.Buffer
+	eb            event.EventBus
 	viewX         = 0
 	viewY         = 0
 	useViewBounds = false
@@ -88,6 +89,8 @@ func eventLoop(s screen.Screen) {
 	render.InitFont(&b)
 	render.SetScreen((&s))
 
+	eb = event.GetEventBus()
+
 	frameRate := 60
 	frameCh := make(chan bool, 100)
 
@@ -124,8 +127,10 @@ func eventLoop(s screen.Screen) {
 				if e.Direction == press {
 					fmt.Println("--------------------", e.Code.String()[4:])
 					SetDown(e.Code.String()[4:])
+					eb.Trigger("KeyDown", e.Code.String()[4:])
 				} else if e.Direction == release {
 					SetUp(e.Code.String()[4:])
+					eb.Trigger("KeyUp", e.Code.String()[4:])
 				}
 
 			case mouse.Event:
@@ -149,8 +154,6 @@ func eventLoop(s screen.Screen) {
 			}
 		}
 	}()
-
-	eb := event.GetEventBus()
 
 	initCh <- true
 

@@ -22,3 +22,7 @@ func NextID(e Entity) event.CID {
 func GetEntity(i int) interface{} {
 	return callers[i-1]
 }
+
+func DestroyEntity(i int) {
+	callers[i-1] = nil
+}

@@ -127,6 +127,11 @@ func (eb *EventBus) Unbind(b Binding) error {
 	return nil
 }
 
+func (b Binding) Unbind() error {
+	eb := GetEventBus()
+	return eb.Unbind(b)
+}
+
 // Store a bindable into a BindableList.
 func (bl_p *BindableList) storeBindable(fn Bindable) int {
 
