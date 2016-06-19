@@ -1,4 +1,4 @@
-package plastic
+package winaudio
 
 import (
 	"os"
