@@ -134,7 +134,15 @@ func eventLoop(s screen.Screen) {
 				}
 
 			case mouse.Event:
-
+				dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", e.Button)
+				button := getMouseButton(int32(e.Button))
+				if e.Direction == mouse.DirPress {
+					SetDown(button)
+					eb.Trigger("KeyDown", button)
+				} else if e.Direction == mouse.DirRelease {
+					SetUp(button)
+					eb.Trigger("KeyUp", button)
+				}
 			case paint.Event:
 
 			case size.Event:
