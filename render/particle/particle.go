@@ -62,7 +62,7 @@ func (pg *ParticleGenerator) Generate() *ParticleSource {
 	cID := ps.Init()
 	binding, _ := cID.Bind(rotateParticles, "EnterFrame")
 	ps.rotateBinding = binding
-	drawBinding, _ := cID.Bind(drawParticles, "Draw")
+	drawBinding, _ := cID.Bind(drawParticles, "PostDraw")
 	ps.drawBinding = drawBinding
 
 	return &ps
@@ -178,5 +178,5 @@ func uint8Spread(n, r uint32) uint8 {
 }
 
 func unit8OnScale(n, endN uint32, progress float64) uint8 {
-	return uint8(float64(n) + float64(n-endN)*(1-progress))
+	return uint8((float64(n) - float64(n)*(1.0-progress) + float64(endN)*(1.0-progress)) / 257)
 }

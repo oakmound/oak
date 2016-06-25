@@ -180,7 +180,7 @@ func eventLoop(s screen.Screen) {
 
 			eb.Trigger("PreDraw", nil)
 			render.DrawHeap(b)
-			eb.Trigger("PostDraw", nil)
+			eb.Trigger("PostDraw", b)
 			w.Upload(image.Point{viewX, viewY}, b, b.Bounds())
 			w.Publish()
 		}
