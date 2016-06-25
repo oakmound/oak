@@ -1,11 +1,14 @@
 package dlog
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
+	"os"
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -20,6 +23,7 @@ var (
 	byt         = bytes.NewBuffer(make([]byte, 0))
 	debugLevel  = NONE
 	debugFilter = ""
+	writer_p    *bufio.Writer
 )
 
 func dLog(in ...interface{}) {
@@ -42,6 +46,11 @@ func dLog(in ...interface{}) {
 		byt.WriteRune('\n')
 
 		fmt.Print(byt.String())
+		//w := writer(io.Writer)
+		//fmt.Fprintln(w, byt.String())
+		writer := *writer_p
+		writer.WriteString(byt.String())
+		writer.Flush()
 
 		byt.Reset()
 
@@ -74,6 +83,18 @@ func SetDebugLevel(dL int) {
 	} else {
 		debugLevel = dL
 	}
+}
+
+func CreateLogFile() {
+	file := "../logs/dlog"
+	file += strconv.Itoa(int(time.Now().Unix()))
+	file += ".txt"
+	fHandle, _ := os.Create(file)
+	//fHandle, _ := os.OpenFile("./dlog.txt", os.O_APPEND, 0666)
+
+	writer_p = bufio.NewWriter(fHandle)
+	//writer = *writer_p
+	//defer fHandle.Close()
 }
 
 func Error(in ...interface{}) {
