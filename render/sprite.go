@@ -18,21 +18,18 @@ var (
 type Sprite struct {
 	x, y   float64
 	buffer *screen.Buffer
+	layer  int
 }
 
-func ParseSprite(s string) Sprite {
+func ParseSprite(s string) *Sprite {
 	return LoadSprite(spriteNames[s])
 }
 
-func ParseSubSprite(s string, x, y, w, h, pad int) Sprite {
+func ParseSubSprite(s string, x, y, w, h, pad int) *Sprite {
 	sh, _ := LoadSheet(spriteNames[s], w, h, pad)
 	b, _ := (*GetScreen()).NewBuffer(image.Point{w, h})
 	draw.Draw(b.RGBA(), b.Bounds(), (*sh)[x][y], image.Point{0, 0}, draw.Src)
-	return Sprite{
-		x:      0,
-		y:      0,
-		buffer: &b,
-	}
+	return &Sprite{buffer: &b}
 }
 
 func (s Sprite) GetRGBA() *image.RGBA {
@@ -46,7 +43,7 @@ func (s Sprite) HasBuffer() bool {
 	return false
 }
 
-func (s *Sprite) ApplyColor(c color.Color) Renderable {
+func (s *Sprite) ApplyColor(c color.Color) {
 	r1, g1, b1, _ := c.RGBA()
 	bounds := (*s.buffer).Size()
 	rgba := (*s.buffer).RGBA()
@@ -64,10 +61,10 @@ func (s *Sprite) ApplyColor(c color.Color) Renderable {
 		}
 	}
 	out := RGBAtoBuffer(newRgba)
-	return &Sprite{s.x, s.y, out}
+	s.buffer = out
 }
 
-func (s *Sprite) ApplyMask(img image.RGBA) Renderable {
+func (s *Sprite) ApplyMask(img image.RGBA) {
 	// Instead of static color it just two buffers melding
 	bounds := (*s.buffer).Size()
 	rgba := (*s.buffer).RGBA()
@@ -86,10 +83,10 @@ func (s *Sprite) ApplyMask(img image.RGBA) Renderable {
 		}
 	}
 	out := RGBAtoBuffer(newRgba)
-	return &Sprite{s.x, s.y, out}
+	s.buffer = out
 }
 
-func (s *Sprite) Rotate(degrees int) Renderable {
+func (s *Sprite) Rotate(degrees int) {
 	//otates clockwise by the given degrees
 	// Will shear any pixels that land outside the given buffer
 	angle := float64(degrees) / 180 * math.Pi
@@ -111,9 +108,9 @@ func (s *Sprite) Rotate(degrees int) Renderable {
 		}
 	}
 	out := RGBAtoBuffer(newRgba)
-	return &Sprite{s.x, s.y, out}
+	s.buffer = out
 }
-func (s *Sprite) Scale(xRatio float64, yRatio float64) Renderable {
+func (s *Sprite) Scale(xRatio float64, yRatio float64) {
 	bounds := (*s.buffer).Size()
 	rgba := (*s.buffer).RGBA()
 	w := int(math.Floor(float64(bounds.X) * xRatio))
@@ -125,8 +122,7 @@ func (s *Sprite) Scale(xRatio float64, yRatio float64) Renderable {
 		}
 	}
 	out := RGBAtoBuffer(newRgba)
-	return &Sprite{s.x, s.y, out}
-
+	s.buffer = out
 }
 
 func (s_p *Sprite) ShiftX(x float64) {
@@ -142,4 +138,12 @@ func (s Sprite) Draw(buff screen.Buffer) {
 	draw.Draw(buff.RGBA(), buff.Bounds(),
 		img, image.Point{int((&s).x),
 			int((&s).y)}, draw.Over)
+}
+
+func (s *Sprite) GetLayer() int {
+	return s.layer
+}
+
+func (s *Sprite) SetLayer(l int) {
+	s.layer = l
 }

@@ -50,11 +50,11 @@ func loadPNG(fileName string) *screen.Buffer {
 	return &buff
 }
 
-func LoadSprite(fileName string) Sprite {
+func LoadSprite(fileName string) *Sprite {
 	if _, ok := loadedImages[fileName]; !ok {
 		loadedImages[fileName] = loadPNG(fileName)
 	}
-	return Sprite{buffer: loadedImages[fileName]}
+	return &Sprite{buffer: loadedImages[fileName]}
 }
 
 func LoadSheet(fileName string, w, h, pad int) (*Sheet, error) {
@@ -98,7 +98,18 @@ func LoadSheet(fileName string, w, h, pad int) (*Sheet, error) {
 	}
 
 	return &sheet, nil
+}
 
+func LoadSheetAnimation(fileName string, w, h, pad int, fps float64, frames []int) (*Animation, error) {
+	sheet, err := LoadSheet(fileName, w, h, pad)
+	if err != nil {
+		return nil, err
+	}
+	animation, err := NewAnimation(sheet, fps, frames)
+	if err != nil {
+		return nil, err
+	}
+	return animation, nil
 }
 
 func subImage(rgba *image.RGBA, x, y, w, h int) *image.RGBA {

@@ -25,10 +25,16 @@ const (
 )
 
 var (
-	user32           = syscall.MustLoadDLL("user32.dll")
-	GetDesktopWindow = user32.MustFindProc("GetDesktopWindow")
-	ds               = InitializeDirectSound()
+	user32           *syscall.DLL
+	GetDesktopWindow *syscall.Proc
+	ds               *dsound.IDirectSound
 )
+
+func InitAudio() {
+	user32 = syscall.MustLoadDLL("user32.dll")
+	GetDesktopWindow = user32.MustFindProc("GetDesktopWindow")
+	ds = InitializeDirectSound()
+}
 
 func PlayWav(filename string) error {
 	// Load a wave audio file onto a secondary buffer.
@@ -109,6 +115,8 @@ func LoadWaveFile(filename string) (*dsound.IDirectSoundBuffer, error) {
 	}
 
 	// Reserve some space in the sound buffer object to write to.
+	// The Lock function (and by extension LockBytes) actually
+	// reserves two spaces, but we ignore the second.
 	by1, by2, err := dsbuff.LockBytes(0, w.Subchunk2Size, 0)
 	if err != nil {
 		panic(err)
@@ -125,6 +133,9 @@ func LoadWaveFile(filename string) (*dsound.IDirectSoundBuffer, error) {
 
 	return dsbuff, nil
 }
+
+// This is an abbreviated form of the go-wav library, which was copied
+// as we required access to the unexported data field
 
 type WavData struct {
 	bChunkID  [4]byte // B
@@ -148,7 +159,7 @@ type WavData struct {
 func ReadWavData(fn string) (wav WavData) {
 	ftotal, err := os.OpenFile(fn, os.O_RDONLY, 0)
 	if err != nil {
-		fmt.Printf("Error opening\n")
+		fmt.Printf("Error opening file", fn)
 	}
 	file := bufio.NewReader(ftotal)
 

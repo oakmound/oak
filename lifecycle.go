@@ -6,6 +6,7 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/winaudio"
 	"fmt"
 	"image"
 	"image/color"
@@ -44,8 +45,11 @@ var (
 	l_debug       = false
 )
 
-func Init(scene string) {
+// Scene loop initialization
+func Init(firstScene string) {
 	collision.Init()
+	render.InitDrawHeap()
+	winaudio.InitAudio()
 
 	curSeed := time.Now().UTC().UnixNano()
 	curSeed = 1463358974925095300
@@ -55,10 +59,11 @@ func Init(scene string) {
 	go driver.Main(eventLoop)
 
 	prevScene := ""
-	sceneMap[scene].active = true
+	sceneMap[firstScene].active = true
 	<-initCh
 	close(initCh)
 	runEventLoop = true
+	scene := firstScene
 	for {
 		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
 		sceneMap[scene].start(prevScene)
@@ -173,7 +178,9 @@ func eventLoop(s screen.Screen) {
 			// Comment out this for smearing, but visible text
 			draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{viewX, viewY}, screen.Src)
 
-			eb.Trigger("Draw", b)
+			eb.Trigger("PreDraw", nil)
+			render.DrawHeap(b)
+			eb.Trigger("PostDraw", nil)
 			w.Upload(image.Point{viewX, viewY}, b, b.Bounds())
 			w.Publish()
 		}
@@ -187,9 +194,6 @@ func eventLoop(s screen.Screen) {
 			eb.Trigger("EnterFrame", nil)
 
 			sceneCh <- true
-
-			// x := w.Publish()
-			// fmt.Println(x)
 
 			eb.Trigger("ExitFrame", nil)
 		}

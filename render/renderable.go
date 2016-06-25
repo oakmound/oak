@@ -23,6 +23,8 @@ type Renderable interface {
 	//ShiftX(x int)
 	//ShiftY(y int)
 	Draw(buff screen.Buffer)
+	GetLayer() int
+	SetLayer(l int)
 
 	// Squish the renderable into a geometry
 	// FitTo(geometry) *Renderable
