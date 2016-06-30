@@ -91,5 +91,9 @@ func (a *Animation) SetLayer(l int) {
 	a.layer = l
 }
 
+func (a *Animation) UnDraw() {
+	a.layer = -1
+}
+
 // Creates a new sheet and then sets the animation's sheet to be the new sheet
 // func (a Animation) Scale()

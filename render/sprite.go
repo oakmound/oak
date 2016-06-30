@@ -147,3 +147,7 @@ func (s *Sprite) GetLayer() int {
 func (s *Sprite) SetLayer(l int) {
 	s.layer = l
 }
+
+func (s *Sprite) UnDraw() {
+	s.layer = -1
+}

@@ -25,6 +25,7 @@ type Renderable interface {
 	Draw(buff screen.Buffer)
 	GetLayer() int
 	SetLayer(l int)
+	UnDraw()
 
 	// Squish the renderable into a geometry
 	// FitTo(geometry) *Renderable
