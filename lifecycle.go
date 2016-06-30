@@ -36,6 +36,7 @@ var (
 	drawChannel   = make(chan bool)
 	black         = color.RGBA{0x00, 0x00, 0x00, 0xff}
 	b             screen.Buffer
+	winBuffer     screen.Buffer
 	eb            event.EventBus
 	viewX         = 0
 	viewY         = 0
@@ -85,7 +86,8 @@ func Init(firstScene string) {
 }
 
 func eventLoop(s screen.Screen) {
-	b, _ = s.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
+	b, _ = s.NewBuffer(image.Point{4000, 4000})
+	winBuffer, _ = s.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
 	w, err := s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight})
 	if err != nil {
 		log.Fatal(err)
@@ -159,6 +161,7 @@ func eventLoop(s screen.Screen) {
 			case paint.Event:
 
 			case size.Event:
+				fmt.Println("Window resized")
 
 			case error:
 				log.Print(e)
@@ -184,12 +187,14 @@ func eventLoop(s screen.Screen) {
 		<-drawChannel
 		for {
 			// Comment out this for smearing, but visible text
-			draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{viewX, viewY}, screen.Src)
+			draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
 
 			eb.Trigger("PreDraw", nil)
 			render.DrawHeap(b)
 			eb.Trigger("PostDraw", b)
-			w.Upload(image.Point{viewX, viewY}, b, b.Bounds())
+			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b.RGBA(), image.Point{-viewX, -viewY}, screen.Src)
+
+			w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
 			w.Publish()
 		}
 	}()
