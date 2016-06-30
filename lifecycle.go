@@ -47,6 +47,7 @@ var (
 
 // Scene loop initialization
 func Init(firstScene string) {
+	dlog.CreateLogFile()
 	collision.Init()
 	render.InitDrawHeap()
 	winaudio.InitAudio()
@@ -90,7 +91,6 @@ func eventLoop(s screen.Screen) {
 		log.Fatal(err)
 	}
 	defer w.Release()
-
 	render.InitFont(&b)
 	render.SetScreen((&s))
 
@@ -139,15 +139,23 @@ func eventLoop(s screen.Screen) {
 				}
 
 			case mouse.Event:
-				dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", e.Button)
 				button := getMouseButton(int32(e.Button))
+				dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", button)
+				mevent := MouseEvent{e.X, e.Y, button}
 				if e.Direction == mouse.DirPress {
 					SetDown(button)
-					eb.Trigger("KeyDown", button)
+					eb.Trigger("MousePress", mevent)
 				} else if e.Direction == mouse.DirRelease {
 					SetUp(button)
-					eb.Trigger("KeyUp", button)
+					eb.Trigger("MouseRelease", mevent)
+				} else if e.Button == -2 {
+					eb.Trigger("MouseScrollDown", mevent)
+				} else if e.Button == -1 {
+					eb.Trigger("MouseScrollUp", mevent)
+				} else {
+					eb.Trigger("MouseDrag", mevent)
 				}
+
 			case paint.Event:
 
 			case size.Event:
