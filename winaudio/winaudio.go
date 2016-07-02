@@ -40,7 +40,7 @@ func PlayWav(filename string) error {
 	// Load a wave audio file onto a secondary buffer.
 	dsbuff, err := LoadWaveFile(filename)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Play the wave file now that it has been loaded.
@@ -160,6 +160,7 @@ func ReadWavData(fn string) (wav WavData) {
 	ftotal, err := os.OpenFile(fn, os.O_RDONLY, 0)
 	if err != nil {
 		fmt.Printf("Error opening file", fn)
+		return
 	}
 	file := bufio.NewReader(ftotal)
 
