@@ -30,30 +30,91 @@ var (
 	ds               *dsound.IDirectSound
 )
 
+type Audio interface {
+	Pause() error
+	Stop() error
+	Resume()
+	Play()
+	SetLooping()
+	SetVolume(volumne int32)
+	SetPan(pan int32)
+	SetFrequency(freq uint32)
+}
+
+type Dbuffer struct {
+	dsbuff *dsound.IDirectSoundBuffer
+	flags  dsound.BufferPlayFlag
+}
+
 func InitAudio() {
 	user32 = syscall.MustLoadDLL("user32.dll")
 	GetDesktopWindow = user32.MustFindProc("GetDesktopWindow")
 	ds = InitializeDirectSound()
 }
 
-func PlayWav(filename string) error {
+func LoadWav(filename string) (*Dbuffer, error) {
 	// Load a wave audio file onto a secondary buffer.
 	dsbuff, err := LoadWaveFile(filename)
 	if err != nil {
+		return nil, err
+	}
+	return &Dbuffer{dsbuff, 0}, nil
+}
+
+func (db *Dbuffer) SetLooping(loop bool) {
+	if loop {
+		db.flags = dsound.DSBPLAY_LOOPING
+	} else {
+		db.flags = 0
+	}
+}
+
+func (db *Dbuffer) SetVolume(volume int32) error {
+	return db.dsbuff.SetVolume(volume)
+}
+
+func (db *Dbuffer) SetPan(pan int32) error {
+	return db.dsbuff.SetPan(pan)
+}
+
+func (db *Dbuffer) SetFrequency(freq uint32) error {
+	return db.dsbuff.SetFrequency(freq)
+}
+
+func (db *Dbuffer) Pause() error {
+	err := db.dsbuff.Stop()
+	return err
+}
+
+func (db *Dbuffer) Stop() error {
+	err := db.dsbuff.Stop()
+	if err != nil {
 		return err
 	}
+	err = db.dsbuff.SetCurrentPosition(0)
+	return err
+}
 
-	// Play the wave file now that it has been loaded.
-	go func(dsbuff *dsound.IDirectSoundBuffer) {
-		dsbuff.SetCurrentPosition(0)
-		// Play the contents of the secondary sound buffer.
-		err := dsbuff.Play(0, 0)
+func (db *Dbuffer) Resume() {
+	go func(dsbuff *dsound.IDirectSoundBuffer, flags dsound.BufferPlayFlag) {
+		err := dsbuff.Play(0, flags)
 		if err != nil {
 			panic(err)
 		}
-	}(dsbuff)
+	}(db.dsbuff, db.flags)
+}
 
-	return nil
+func (db *Dbuffer) Play() {
+	go func(dsbuff *dsound.IDirectSoundBuffer, flags dsound.BufferPlayFlag) {
+		err := db.dsbuff.SetCurrentPosition(0)
+		if err != nil {
+			panic(err)
+		}
+		err = dsbuff.Play(0, flags)
+		if err != nil {
+			panic(err)
+		}
+	}(db.dsbuff, db.flags)
 }
 
 func InitializeDirectSound() *dsound.IDirectSound {

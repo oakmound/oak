@@ -101,6 +101,11 @@ func (eb *EventBus) BindPriority(fn Bindable, opt BindingOption) (Binding, error
 	return Binding{opt, i}, nil
 }
 
+func GlobalBind(fn Bindable, name string) (Binding, error) {
+	eb := GetEventBus()
+	return eb.Bind(fn, name, 0)
+}
+
 func (eb *EventBus) Bind(fn Bindable, name string, callerID int) (Binding, error) {
 
 	bOpt := BindingOption{}

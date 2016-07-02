@@ -1,11 +1,11 @@
 package render
 
 import (
-	"errors"
-	//"fmt"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"errors"
 	"golang.org/x/exp/shiny/screen"
 	"image"
+	"image/color"
 	"image/draw"
 	"math"
 	"time"
@@ -79,8 +79,62 @@ func (a_p *Animation) Draw(buff screen.Buffer) {
 			int(a_p.y)}, draw.Over)
 }
 
-func (a Animation) GetRGBA() *image.RGBA {
-	return (*a.sheet)[a.frames[a.sheetPos][0]][a.frames[a.sheetPos][1]]
+func (a_p *Animation) GetRGBA() *image.RGBA {
+	return (*a_p.sheet)[a_p.frames[a_p.sheetPos][0]][a_p.frames[a_p.sheetPos][1]]
+}
+
+func (a *Animation) ApplyColor(c color.Color) {
+	sheet := *a.sheet
+	for x, row := range sheet {
+		for y, rgba := range row {
+			sheet[x][y] = ApplyColor(rgba, c)
+		}
+	}
+}
+
+func (a *Animation) ApplyMask(img image.RGBA) {
+	sheet := *a.sheet
+	for x, row := range sheet {
+		for y, rgba := range row {
+			sheet[x][y] = ApplyMask(rgba, img)
+		}
+	}
+}
+
+func (a *Animation) Rotate(degrees int) {
+	sheet := *a.sheet
+	for x, row := range sheet {
+		for y, rgba := range row {
+			sheet[x][y] = Rotate(rgba, degrees)
+		}
+	}
+}
+
+func (a *Animation) Scale(xRatio float64, yRatio float64) {
+	sheet := *a.sheet
+	for x, row := range sheet {
+		for y, rgba := range row {
+			sheet[x][y] = Scale(rgba, xRatio, yRatio)
+		}
+	}
+}
+
+func (a *Animation) FlipX() {
+	sheet := *a.sheet
+	for x, row := range sheet {
+		for y, rgba := range row {
+			sheet[x][y] = FlipX(rgba)
+		}
+	}
+}
+
+func (a *Animation) FlipY() {
+	sheet := *a.sheet
+	for x, row := range sheet {
+		for y, rgba := range row {
+			sheet[x][y] = FlipY(rgba)
+		}
+	}
 }
 
 func (a *Animation) GetLayer() int {
@@ -94,6 +148,3 @@ func (a *Animation) SetLayer(l int) {
 func (a *Animation) UnDraw() {
 	a.layer = -1
 }
-
-// Creates a new sheet and then sets the animation's sheet to be the new sheet
-// func (a Animation) Scale()
