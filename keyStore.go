@@ -27,18 +27,3 @@ func IsDown(key string) bool {
 	keyLock.Unlock()
 	return k
 }
-
-func getMouseButton(i int32) string {
-	s := ""
-	switch i {
-	case 1:
-		s = "Left"
-	case 2:
-		s = "Right"
-	case 3:
-		s = "Middle"
-	default:
-		s = ""
-	}
-	return s
-}

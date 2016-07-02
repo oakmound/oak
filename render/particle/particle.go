@@ -3,6 +3,7 @@ package particle
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
@@ -32,7 +33,7 @@ type ParticleSource struct {
 	Generator     ParticleGenerator
 	particles     []Particle
 	rotateBinding event.Binding
-	drawBinding   event.Binding
+	layer         int
 }
 
 // A particle is a colored pixel at a given position, moving in a certain direction.
@@ -51,7 +52,7 @@ func (ps *ParticleSource) Init() event.CID {
 }
 
 // Todo: add draw priority to call
-func (pg *ParticleGenerator) Generate() *ParticleSource {
+func (pg *ParticleGenerator) Generate(layer int) *ParticleSource {
 	// Make a source
 	ps := ParticleSource{
 		Generator: *pg,
@@ -62,15 +63,11 @@ func (pg *ParticleGenerator) Generate() *ParticleSource {
 	cID := ps.Init()
 	binding, _ := cID.Bind(rotateParticles, "EnterFrame")
 	ps.rotateBinding = binding
-	drawBinding, _ := cID.Bind(drawParticles, "PostDraw")
-	ps.drawBinding = drawBinding
-
+	render.Draw(&ps, layer)
 	return &ps
 }
 
-func drawParticles(id int, b interface{}) error {
-	ps := plastic.GetEntity(id).(*ParticleSource)
-	buff := b.(screen.Buffer)
+func (ps *ParticleSource) Draw(buff screen.Buffer) {
 	for _, p := range ps.particles {
 
 		r, g, b, a := p.startColor.RGBA()
@@ -90,7 +87,6 @@ func drawParticles(id int, b interface{}) error {
 		draw.Draw(buff.RGBA(), buff.Bounds(),
 			img, image.Point{int(p.x), int(p.y)}, draw.Over)
 	}
-	return nil
 }
 
 func rotateParticles(id int, nothing interface{}) error {
@@ -147,7 +143,6 @@ func rotateParticles(id int, nothing interface{}) error {
 func Stop(ps *ParticleSource) {
 
 	ps.rotateBinding.Unbind()
-	ps.drawBinding.Unbind()
 	// Delete the source
 }
 
@@ -179,4 +174,18 @@ func uint8Spread(n, r uint32) uint8 {
 
 func unit8OnScale(n, endN uint32, progress float64) uint8 {
 	return uint8((float64(n) - float64(n)*(1.0-progress) + float64(endN)*(1.0-progress)) / 257)
+}
+
+func (ps *ParticleSource) GetLayer() int {
+	return ps.layer
+}
+func (ps *ParticleSource) SetLayer(l int) {
+	ps.layer = l
+}
+func (ps *ParticleSource) UnDraw() {
+	ps.layer = -1
+}
+
+func (ps *ParticleSource) GetRGBA() *image.RGBA {
+	return nil
 }

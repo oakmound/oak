@@ -49,8 +49,10 @@ func DrawHeap(b screen.Buffer) {
 	newRh := &RenderableHeap{}
 	for rh.Len() > 0 {
 		r := heap.Pop(rh).(Renderable)
-		r.Draw(b)
-		heap.Push(newRh, r)
+		if r.GetLayer() != -1 {
+			r.Draw(b)
+			heap.Push(newRh, r)
+		}
 	}
 	rh = newRh
 }
