@@ -5,8 +5,8 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 
+	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/winaudio"
 	"fmt"
 	"image"
 	"image/color"
@@ -51,7 +51,7 @@ func Init(firstScene string) {
 	dlog.CreateLogFile()
 	collision.Init()
 	render.InitDrawHeap()
-	winaudio.InitAudio()
+	winaudio.InitWinAudio()
 
 	curSeed := time.Now().UTC().UnixNano()
 	curSeed = 1463358974925095300

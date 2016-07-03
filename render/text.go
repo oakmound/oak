@@ -91,7 +91,6 @@ func ResetFontFormat() {
 }
 
 func LoadFont(fontFile string) {
-	// Read the font data.
 	fontBytes, err := ioutil.ReadFile(filepath.Join(fontdir, fontFile))
 	if err != nil {
 		dlog.Error(err.Error())
