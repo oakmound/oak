@@ -54,7 +54,10 @@ func Init(firstScene string) {
 	winaudio.InitWinAudio()
 
 	curSeed := time.Now().UTC().UnixNano()
-	curSeed = 1463358974925095300
+	// Basic seed
+	//curSeed = 1463358974925095300
+	// Seed that required modifying connection algorithm 7/2
+	//curSeed = 1467565587127684400
 	rand.Seed(curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
 
