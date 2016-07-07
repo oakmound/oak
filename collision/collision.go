@@ -5,6 +5,7 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"github.com/dhconnelly/rtreego"
 	"log"
+	"math"
 )
 
 var (
@@ -16,12 +17,19 @@ type Space struct {
 	cID      event.CID
 }
 
+type CollisionPoint struct {
+	Zone *Space
+	X    float64
+	y    float64
+}
+
 func (s Space) Bounds() *rtreego.Rect {
 	return s.Location
 }
 
 func Init() {
 	rt = rtreego.NewTree(2, 20, 40)
+	//data structure for raycast
 }
 
 func Clear() {
@@ -30,6 +38,7 @@ func Clear() {
 
 func Add(sp Space) {
 	rt.Insert(sp)
+	//space with type
 }
 
 func Remove(sp Space) {
@@ -75,4 +84,55 @@ func NewRect(x, y, w, h float64) *rtreego.Rect {
 		log.Fatal(err)
 	}
 	return rect
+}
+
+func RayCast(x, y, degrees, length float64) []CollisionPoint {
+	results := []CollisionPoint{}
+	resultHash := make(map[Space]bool)
+
+	s := math.Sin(degrees * math.Pi / 180)
+	c := math.Cos(degrees * math.Pi / 180)
+	for i := 0.0; i < length; i++ {
+		loc := NewRect(x, y, .1, .1)
+
+		next := rt.SearchIntersect(loc)
+
+		for k := 0; k < len(next); k++ {
+			nx := (next[k].(Space))
+			nx_p := &nx
+			if _, ok := resultHash[nx]; !ok {
+				resultHash[nx] = true
+				results = append(results, CollisionPoint{nx_p, x, y})
+			}
+		}
+		x += c
+		y += s
+	}
+	return results
+}
+
+func RayCastSingle(x, y, degrees, length float64, invalidIDS []event.CID) CollisionPoint {
+
+	s := math.Sin(degrees * math.Pi / 180)
+	c := math.Cos(degrees * math.Pi / 180)
+	for i := 0.0; i < length; i++ {
+		loc := NewRect(x, y, .1, .1)
+		next := rt.SearchIntersect(loc)
+	output:
+		for k := 0; k < len(next); k++ {
+			nx := (next[k].(Space))
+			nx_p := &nx
+			for e := 0; e < len(invalidIDS); e++ {
+				if nx_p.cID == invalidIDS[e] {
+
+					continue output
+				}
+			}
+			return CollisionPoint{nx_p, x, y}
+		}
+		x += c
+		y += s
+
+	}
+	return CollisionPoint{}
 }
