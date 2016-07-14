@@ -1,0 +1,9 @@
+package collision
+
+import( 
+	"testing"
+	"github.com/dhconnelly/rtreego"
+)
+
+
+func BenchmarkRTree()
