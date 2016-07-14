@@ -3,6 +3,7 @@ package render
 import (
 	"container/heap"
 	"golang.org/x/exp/shiny/screen"
+	"image/color"
 )
 
 var (
@@ -38,6 +39,14 @@ func Draw(r Renderable, l int) Renderable {
 	r.SetLayer(l)
 	heap.Push(rh, r)
 	return r
+}
+
+// For testing rectangle spaces
+func DrawColor(c color.Color, x1, y1, x2, y2 float64, l int) {
+	cb := NewColorBox(int(x2), int(y2), c)
+	cb.ShiftX(x1)
+	cb.ShiftY(y1)
+	Draw(cb, l)
 }
 
 func LoadSpriteAndDraw(filename string, l int) *Sprite {

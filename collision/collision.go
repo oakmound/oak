@@ -3,7 +3,9 @@ package collision
 import (
 	//"fmt"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 	"github.com/dhconnelly/rtreego"
+	"image/color"
 	"log"
 )
 
@@ -67,6 +69,14 @@ func NewSpace(x, y, w, h float64, cID event.CID) Space {
 		rect,
 		cID,
 	}
+}
+
+func NewUnassignedSpace(x, y, w, h float64) Space {
+	render.DrawColor(color.RGBA{128, 0, 128, 255}, x, y, w, h, 10)
+	x -= w
+	y -= h
+	rect := NewRect(x, y, w, h)
+	return Space{Location: rect}
 }
 
 func NewRect(x, y, w, h float64) *rtreego.Rect {
