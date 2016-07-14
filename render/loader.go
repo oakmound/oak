@@ -2,11 +2,12 @@ package render
 
 import (
 	"errors"
-	//"fmt"
+	// "fmt"
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/draw"
 	"image/png"
+	// "io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -121,3 +122,25 @@ func subImage(rgba *image.RGBA, x, y, w, h int) *image.RGBA {
 	}
 	return out
 }
+
+// func BatchLoad(baseFolder string) {
+
+// 	// dir2 := filepath.Join(dir, "textures")
+// 	folders, _ := ioutil.ReadDir(baseFolder)
+
+// 	for i, folder := range folders {
+// 		//Pull in from alias file here to grab things correectly for size
+
+// 		// fmt.Println("folder ", i, folder.Name())
+// 		if folder.IsDir() {
+// 			files, _ := ioutil.ReadDir(filepath.Join(baseFolder, folder.Name()))
+// 			for _, file := range files {
+// 				image.DecodeConfig(file)
+// 				fmt.Println(file.Name())
+// 			}
+// 		} else {
+// 			// fmt.Println("Not Folder")
+// 		}
+
+// 	}
+// }

@@ -52,6 +52,7 @@ func Init(firstScene string) {
 	collision.Init()
 	render.InitDrawHeap()
 	winaudio.InitWinAudio()
+	// render.BatchLoad("")
 
 	curSeed := time.Now().UTC().UnixNano()
 	// Basic seed
