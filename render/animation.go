@@ -13,6 +13,12 @@ import (
 
 type Sheet [][]*image.RGBA
 
+func (sh *Sheet) SubSprite(x, y int) *Sprite {
+	b, _ := (*GetScreen()).NewBuffer((*sh)[x][y].Bounds().Max)
+	draw.Draw(b.RGBA(), b.Bounds(), (*sh)[x][y], image.Point{0, 0}, draw.Src)
+	return &Sprite{buffer: &b}
+}
+
 type Animation struct {
 	x, y       float64
 	sheetPos   int

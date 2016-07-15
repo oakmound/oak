@@ -13,6 +13,8 @@ import (
 	"image/draw"
 	"log"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"time"
 
 	"golang.org/x/exp/shiny/driver"
@@ -44,6 +46,11 @@ var (
 	viewBounds    []int
 	esc           = false
 	l_debug       = false
+	wd, _         = os.Getwd()
+	dir           = filepath.Join(
+		filepath.Dir(wd),
+		"assets",
+		"images")
 )
 
 // Scene loop initialization
@@ -52,7 +59,6 @@ func Init(firstScene string) {
 	collision.Init()
 	render.InitDrawHeap()
 	winaudio.InitWinAudio()
-	// render.BatchLoad("")
 
 	curSeed := time.Now().UTC().UnixNano()
 	// Basic seed
@@ -99,6 +105,12 @@ func eventLoop(s screen.Screen) {
 	defer w.Release()
 	render.InitFont(&b)
 	render.SetScreen((&s))
+
+	err = render.BatchLoad(dir)
+	if err != nil {
+		dlog.Error(err)
+		return
+	}
 
 	eb = event.GetEventBus()
 

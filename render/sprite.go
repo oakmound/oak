@@ -9,9 +9,9 @@ import (
 
 var (
 	spriteNames = map[string]string{
-		"Empty": "textures/tile1.png",
-		"Wall":  "textures/wall.png",
-		"Floor": "textures/floor.png"}
+		"Empty": "16/tile1.png",
+		"Wall":  "16\\wall.png",
+		"Floor": "16\\floor.png"}
 )
 
 type Sprite struct {
@@ -20,15 +20,18 @@ type Sprite struct {
 	layer  int
 }
 
+func (s *Sprite) Copy() *Sprite {
+	newS := *s
+	return &newS
+}
+
 func ParseSprite(s string) *Sprite {
 	return LoadSprite(spriteNames[s])
 }
 
 func ParseSubSprite(s string, x, y, w, h, pad int) *Sprite {
-	sh, _ := LoadSheet(spriteNames[s], w, h, pad)
-	b, _ := (*GetScreen()).NewBuffer(image.Point{w, h})
-	draw.Draw(b.RGBA(), b.Bounds(), (*sh)[x][y], image.Point{0, 0}, draw.Src)
-	return &Sprite{buffer: &b}
+	sh, _ := LoadSheet(dir, spriteNames[s], w, h, pad)
+	return sh.SubSprite(x, y)
 }
 
 func (s Sprite) GetRGBA() *image.RGBA {
