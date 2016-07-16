@@ -30,8 +30,8 @@ var (
 	initCh        = make(chan bool)
 	sceneCh       = make(chan bool)
 	quitCh        = make(chan bool)
-	ScreenWidth   = 640
-	ScreenHeight  = 480
+	ScreenWidth   int
+	ScreenHeight  int
 	press         = key.DirPress
 	release       = key.DirRelease
 	runEventLoop  = false
@@ -47,15 +47,26 @@ var (
 	esc           = false
 	l_debug       = false
 	wd, _         = os.Getwd()
-	dir           = filepath.Join(
-		filepath.Dir(wd),
-		"assets",
-		"images")
+	dir           string
 )
 
 // Scene loop initialization
 func Init(firstScene string) {
 	dlog.CreateLogFile()
+
+	loadDefaultConf()
+	//Set variables from conf file
+	dlog.SetStringDebugLevel(conf.Debug.Level)
+	dlog.SetDebugFilter(conf.Debug.Filter)
+
+	ScreenWidth = conf.Screen.Width
+	ScreenHeight = conf.Screen.Height
+
+	dir = filepath.Join(filepath.Dir(wd),
+		conf.Assets.AssetPath,
+		conf.Assets.ImagePath)
+	//END of loading variables from configuration
+
 	collision.Init()
 	render.InitDrawHeap()
 	winaudio.InitWinAudio()
@@ -65,7 +76,9 @@ func Init(firstScene string) {
 	//curSeed = 1463358974925095300
 	// Seed that required modifying connection algorithm 7/2
 	//curSeed = 1467565587127684400
+	// curSeed = 1468688167
 	rand.Seed(curSeed)
+	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
 
 	go driver.Main(eventLoop)

@@ -22,7 +22,7 @@ const (
 
 var (
 	byt         = bytes.NewBuffer(make([]byte, 0))
-	debugLevel  = NONE
+	debugLevel  = ERROR
 	debugFilter = ""
 	writer_p    *bufio.Writer
 )
@@ -49,9 +49,12 @@ func dLog(in ...interface{}) {
 		fmt.Print(byt.String())
 		//w := writer(io.Writer)
 		//fmt.Fprintln(w, byt.String())
-		writer := *writer_p
-		writer.WriteString(byt.String())
-		writer.Flush()
+
+		if writer_p != nil {
+			writer := *writer_p
+			writer.WriteString(byt.String())
+			writer.Flush()
+		}
 
 		byt.Reset()
 
@@ -120,6 +123,28 @@ func Verb(in ...interface{}) {
 	if debugLevel > INFO {
 		dLog(in)
 	}
+}
+
+func SetStringDebugLevel(debugL string) {
+
+	var dLevel int
+	switch debugL {
+	case "INFO":
+		dLevel = INFO
+	case "VERBOSE":
+		dLevel = VERBOSE
+	case "ERROR":
+		dLevel = ERROR
+	case "WARN":
+		dLevel = WARN
+	case "NONE":
+		dLevel = NONE
+	default:
+		dLevel = ERROR
+		fmt.Println("setting dlog level to \"", debugL, "\" failed, it is now set to ERROR")
+	}
+
+	SetDebugLevel(dLevel)
 }
 
 // dlog.Warn()
