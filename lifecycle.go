@@ -1,12 +1,11 @@
 package plastic
 
 import (
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/audio"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
-
-	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"fmt"
 	"image"
 	"image/color"
@@ -47,7 +46,8 @@ var (
 	esc           = false
 	l_debug       = false
 	wd, _         = os.Getwd()
-	dir           string
+	imageDir      string
+	audioDir      string
 )
 
 // Scene loop initialization
@@ -55,21 +55,24 @@ func Init(firstScene string) {
 	dlog.CreateLogFile()
 
 	loadDefaultConf()
-	//Set variables from conf file
+	// Set variables from conf file
 	dlog.SetStringDebugLevel(conf.Debug.Level)
 	dlog.SetDebugFilter(conf.Debug.Filter)
 
 	ScreenWidth = conf.Screen.Width
 	ScreenHeight = conf.Screen.Height
 
-	dir = filepath.Join(filepath.Dir(wd),
+	imageDir = filepath.Join(filepath.Dir(wd),
 		conf.Assets.AssetPath,
 		conf.Assets.ImagePath)
-	//END of loading variables from configuration
+	audioDir = filepath.Join(filepath.Dir(wd),
+		conf.Assets.AssetPath,
+		conf.Assets.AudioPath)
+	// END of loading variables from configuration
 
 	collision.Init()
 	render.InitDrawHeap()
-	winaudio.InitWinAudio()
+	audio.InitWinAudio()
 
 	curSeed := time.Now().UTC().UnixNano()
 	// Basic seed
@@ -119,7 +122,12 @@ func eventLoop(s screen.Screen) {
 	render.InitFont(&b)
 	render.SetScreen((&s))
 
-	err = render.BatchLoad(dir)
+	err = render.BatchLoad(imageDir)
+	if err != nil {
+		dlog.Error(err)
+		return
+	}
+	err = audio.BatchLoad(audioDir)
 	if err != nil {
 		dlog.Error(err)
 		return

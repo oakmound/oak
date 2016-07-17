@@ -20,6 +20,22 @@ var (
 	err     error
 )
 
+type plasticConfig struct {
+	Assets struct {
+		AssetPath string `json:"assetPath"`
+		AudioPath string `json:"audioPath"`
+		ImagePath string `json:"imagePath"`
+	} `json:"assets"`
+	Debug struct {
+		Filter string `json:"filter"`
+		Level  string `json:"level"`
+	} `json:"debug"`
+	Screen struct {
+		Height int `json:"height"`
+		Width  int `json:"width"`
+	} `json:"screen"`
+}
+
 func LoadConf(fileName string) error {
 	wd, _ := os.Getwd()
 	dlog.Verb(conf)
@@ -79,20 +95,4 @@ func loadPlasticConfig(fileName string) (plasticConfig, error) {
 	json.Unmarshal(confFile, &config)
 
 	return config, nil
-}
-
-type plasticConfig struct {
-	Assets struct {
-		AssetPath string `json:"assetPath"`
-		AudioPath string `json:"audioPath"`
-		ImagePath string `json:"imagePath"`
-	} `json:"assets"`
-	Debug struct {
-		Filter string `json:"filter"`
-		Level  string `json:"level"`
-	} `json:"debug"`
-	Screen struct {
-		Height int `json:"height"`
-		Width  int `json:"width"`
-	} `json:"screen"`
 }
