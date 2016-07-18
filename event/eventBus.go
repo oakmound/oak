@@ -80,6 +80,10 @@ func GetEventBus() EventBus {
 	return thisBus
 }
 
+func ResetEventBus() {
+	thisBus = EventBus{make(map[string]map[int]*BindableStore)}
+}
+
 // Called by entities.
 // Entities pass in a bindable function,
 // and a set of options which
@@ -113,6 +117,8 @@ func (eb *EventBus) Bind(fn Bindable, name string, callerID int) (Binding, error
 		Name:     name,
 		CallerID: callerID,
 	}
+
+	dlog.Verb("Binding ", callerID, " with name ", name)
 
 	return eb.BindPriority(fn, bOpt)
 }
@@ -234,13 +240,19 @@ func (eb *EventBus) UnbindAll(opt BindingOption) {
 
 	if opt.CallerID != 0 {
 		for _, k := range namekeys {
-			eb.bindingMap[k][opt.CallerID] = nil
+			dlog.Verb("Deleting bindingMap: ", k, " callerId, ", opt.CallerID)
+			delete(eb.bindingMap[k], opt.CallerID)
 		}
 	} else {
 		for _, k := range namekeys {
-			eb.bindingMap[k] = nil
+			delete(eb.bindingMap, k)
 		}
 	}
+	dlog.Verb(eb.bindingMap)
+}
+
+func (eb *EventBus) UnbindAllCID(cID CID) {
+
 }
 
 // Called externally by game logic
@@ -252,12 +264,13 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) error {
 
 	var err error
 
+	//dlog.Verb("Triggering, ", eventName)
+
 	// Loop through all bindableStores for this eventName
 	for id, bs := range eb.bindingMap[eventName] {
 		// Loop through all bindables
 
 		// Top to bottom, high priority
-		//
 		for i := bs.highIndex - 1; i >= 0; i-- {
 			for _, bnd := range (*bs.highPriority[i]).sl {
 				if bnd != nil {

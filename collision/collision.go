@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"log"
 	"math"
+	"strconv"
 )
 
 var (
@@ -16,6 +17,7 @@ var (
 
 type Space struct {
 	Location *rtreego.Rect
+	Label    string
 	cID      event.CID
 }
 
@@ -76,6 +78,7 @@ func NewSpace(x, y, w, h float64, cID event.CID) Space {
 	rect := NewRect(x, y, w, h)
 	return Space{
 		rect,
+		strconv.Itoa(int(cID)),
 		cID,
 	}
 }
@@ -86,6 +89,27 @@ func NewUnassignedSpace(x, y, w, h float64) Space {
 	y -= h
 	rect := NewRect(x, y, w, h)
 	return Space{Location: rect}
+}
+
+func NewLabeledSpace(x, y, w, h float64, s string) Space {
+	x -= w
+	y -= h
+	rect := NewRect(x, y, w, h)
+	return Space{
+		Location: rect,
+		Label:    s,
+	}
+}
+
+func NewFullSpace(x, y, w, h float64, s string, cID event.CID) Space {
+	x -= w
+	y -= h
+	rect := NewRect(x, y, w, h)
+	return Space{
+		rect,
+		s,
+		cID,
+	}
 }
 
 func NewRect(x, y, w, h float64) *rtreego.Rect {

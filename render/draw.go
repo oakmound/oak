@@ -28,10 +28,13 @@ func (h_p *RenderableHeap) Pop() interface{} {
 	return x
 }
 
+func ResetDrawHeap() {
+	InitDrawHeap()
+}
+
 func InitDrawHeap() {
 	rh = &RenderableHeap{}
 	heap.Init(rh)
-
 }
 
 func Draw(r Renderable, l int) Renderable {

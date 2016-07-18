@@ -48,6 +48,7 @@ var (
 	wd, _         = os.Getwd()
 	imageDir      string
 	audioDir      string
+	drawInit      = false
 )
 
 // Scene loop initialization
@@ -82,6 +83,9 @@ func Init(firstScene string) {
 	// curSeed = 1468688167
 	// 1468801666142059500
 	// curSeed = 1468801776272358600
+	// Similar seed to 7/2 seed
+	// curSeed = 1468874433523115600
+	curSeed = 1468877941710772400
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
@@ -97,7 +101,11 @@ func Init(firstScene string) {
 	for {
 		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
 		sceneMap[scene].start(prevScene)
-		drawChannel <- true
+		dlog.Info("Start finished")
+		if !drawInit {
+			drawChannel <- true
+			drawInit = true
+		}
 		cont := true
 		for cont {
 			select {
@@ -105,9 +113,11 @@ func Init(firstScene string) {
 				return
 
 			case <-sceneCh:
+				//dlog.Info("Scene Loop")
 				cont = sceneMap[scene].loop()
 			}
 		}
+		dlog.Info("~~~~~~~~Scene End~~~~~~~~~~")
 		prevScene = scene
 		scene = sceneMap[scene].end()
 	}
@@ -261,10 +271,14 @@ func SetScreen(x, y int) {
 		if viewBounds[0] > x && viewBounds[2] < x-ScreenWidth {
 			dlog.Verb("Set viewX to ", x)
 			viewX = x
+		} else if viewBounds[0] < x {
+			viewX = viewBounds[0]
 		}
 		if viewBounds[1] > y && viewBounds[3] < y-ScreenHeight {
 			dlog.Verb("Set viewY to ", y)
 			viewY = y
+		} else if viewBounds[1] < y {
+			viewY = viewBounds[1]
 		}
 
 	} else {
@@ -272,6 +286,7 @@ func SetScreen(x, y int) {
 		viewX = x
 		viewY = y
 	}
+	dlog.Verb("viewX, Y: ", viewX, " ", viewY)
 }
 func SetViewportBounds(x1, y1, x2, y2 int) {
 	useViewBounds = true
