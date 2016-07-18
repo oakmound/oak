@@ -62,10 +62,16 @@ func (a_p *Animation) ShiftX(x float64) {
 func (a_p *Animation) ShiftY(y float64) {
 	a_p.y += y
 }
+func (a_p *Animation) GetX() float64 {
+	return a_p.x
+}
+func (a_p *Animation) GetY() float64 {
+	return a_p.y
+}
 
-func (a Animation) SetPos(x, y float64) {
-	(&a).x = x
-	(&a).y = y
+func (a_p *Animation) SetPos(x, y float64) {
+	a_p.x = x
+	a_p.y = y
 }
 
 func (a_p *Animation) updateAnimation() {

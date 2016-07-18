@@ -80,6 +80,8 @@ func Init(firstScene string) {
 	// Seed that required modifying connection algorithm 7/2
 	//curSeed = 1467565587127684400
 	// curSeed = 1468688167
+	// 1468801666142059500
+	// curSeed = 1468801776272358600
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
@@ -257,13 +259,16 @@ func fillScreen(w screen.Window, c color.RGBA) {
 func SetScreen(x, y int) {
 	if useViewBounds {
 		if viewBounds[0] > x && viewBounds[2] < x-ScreenWidth {
+			dlog.Verb("Set viewX to ", x)
 			viewX = x
 		}
 		if viewBounds[1] > y && viewBounds[3] < y-ScreenHeight {
+			dlog.Verb("Set viewY to ", y)
 			viewY = y
 		}
 
 	} else {
+		dlog.Verb("Set viewXY to ", x, " ", y)
 		viewX = x
 		viewY = y
 	}
