@@ -32,6 +32,13 @@ var (
 	defaultFontFile = "luxisr.ttf"
 )
 
+type Text struct {
+	text  string
+	x, y  int
+	d_p   *font.Drawer
+	layer int
+}
+
 func InitFont(b_p *screen.Buffer) {
 	b := *b_p
 	LoadFont(defaultFontFile)
@@ -53,6 +60,36 @@ func setFace() {
 		DPI:     faceDPI,
 		Hinting: faceHinting,
 	})
+}
+
+func NewText(str string, x, y int) *Text {
+	return &Text{
+		text: str,
+		x:    x,
+		y:    y,
+		d_p:  d,
+	}
+}
+
+func (t_p *Text) GetRGBA() *image.RGBA {
+	return nil
+}
+
+func (t_p *Text) GetLayer() int {
+	return t_p.layer
+}
+
+func (t_p *Text) SetLayer(l int) {
+	t_p.layer = l
+}
+
+func (t_p *Text) UnDraw() {
+	t_p.layer = -1
+}
+
+func (t_p *Text) Draw(buff screen.Buffer) {
+	t_p.d_p.Dot = fixed.P(t_p.x, t_p.y)
+	t_p.d_p.DrawString(t_p.text)
 }
 
 func DrawText(str string, x, y int) {

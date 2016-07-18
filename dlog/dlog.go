@@ -91,14 +91,10 @@ func SetDebugLevel(dL int) {
 
 func CreateLogFile() {
 	file := "../logs/dlog"
-	file += strconv.Itoa(int(time.Now().Unix()))
+	file += time.Now().Format("_Jan_2_15-04-05_2006")
 	file += ".txt"
 	fHandle, _ := os.Create(file)
-	//fHandle, _ := os.OpenFile("./dlog.txt", os.O_APPEND, 0666)
-
 	writer_p = bufio.NewWriter(fHandle)
-	//writer = *writer_p
-	//defer fHandle.Close()
 }
 
 func Error(in ...interface{}) {
