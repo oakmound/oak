@@ -10,6 +10,7 @@ import (
 	"image/draw"
 	"math"
 	"math/rand"
+	"time"
 )
 
 // Modeled after Parcycle
@@ -34,6 +35,7 @@ type ParticleSource struct {
 	particles     []Particle
 	rotateBinding event.Binding
 	layer         int
+	cID           event.CID
 }
 
 // A particle is a colored pixel at a given position, moving in a certain direction.
@@ -63,7 +65,16 @@ func (pg *ParticleGenerator) Generate(layer int) *ParticleSource {
 	cID := ps.Init()
 	binding, _ := cID.Bind(rotateParticles, "EnterFrame")
 	ps.rotateBinding = binding
+	ps.cID = cID
 	render.Draw(&ps, layer)
+	if pg.Duration != -1 {
+		go func(ps_p *ParticleSource, duration int) {
+			select {
+			case <-time.After(time.Duration(duration) * time.Millisecond):
+				Stop(ps_p)
+			}
+		}(&ps, pg.Duration)
+	}
 	return &ps
 }
 
@@ -140,10 +151,41 @@ func rotateParticles(id int, nothing interface{}) error {
 	return nil
 }
 
-func Stop(ps *ParticleSource) {
+func clearParticles(id int, nothing interface{}) error {
 
+	ps := plastic.GetEntity(id).(*ParticleSource)
+	pg := ps.Generator
+
+	if len(ps.particles) > 0 {
+		newParticles := make([]Particle, 0)
+		for _, p := range ps.particles {
+
+			// Ignore dead particles
+			if p.life > 0 {
+
+				// Move towards doom
+				p.life--
+
+				// Be dragged down by the weight of the soul
+				p.velX -= pg.GravityX
+				p.velY -= pg.GravityY
+				p.x += p.velX
+				p.y += p.velY
+
+				newParticles = append(newParticles, p)
+			}
+		}
+		ps.particles = newParticles
+	} else {
+		ps.UnDraw()
+		ps.rotateBinding.Unbind()
+	}
+	return nil
+}
+
+func Stop(ps *ParticleSource) {
 	ps.rotateBinding.Unbind()
-	// Delete the source
+	ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
 }
 
 func floatFromSpread(f float64) float64 {

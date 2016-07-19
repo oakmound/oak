@@ -24,7 +24,7 @@ type Space struct {
 type CollisionPoint struct {
 	Zone *Space
 	X    float64
-	y    float64
+	Y    float64
 }
 
 func (s Space) Bounds() *rtreego.Rect {
@@ -158,7 +158,6 @@ func RayCastSingle(x, y, degrees, length float64, invalidIDS []event.CID) Collis
 			nx_p := &nx
 			for e := 0; e < len(invalidIDS); e++ {
 				if nx_p.cID == invalidIDS[e] {
-
 					continue output
 				}
 			}

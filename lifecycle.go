@@ -184,9 +184,11 @@ func eventLoop(s screen.Screen) {
 					fmt.Println("--------------------", e.Code.String()[4:])
 					SetDown(e.Code.String()[4:])
 					eb.Trigger("KeyDown", e.Code.String()[4:])
+					eb.Trigger("KeyDown"+e.Code.String()[4:], nil)
 				} else if e.Direction == release {
 					SetUp(e.Code.String()[4:])
 					eb.Trigger("KeyUp", e.Code.String()[4:])
+					eb.Trigger("KeyUp"+e.Code.String()[4:], nil)
 				}
 
 			case mouse.Event:
