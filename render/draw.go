@@ -46,7 +46,6 @@ func InitDrawHeap() {
 }
 
 func Draw(r Renderable, l int) Renderable {
-	// Bind to PostDraw if this causes synchronization issues with DrawHeap
 	r.SetLayer(l)
 	toPushRenderables = append(toPushRenderables, r)
 	return r
