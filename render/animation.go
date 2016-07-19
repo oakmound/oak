@@ -56,6 +56,11 @@ func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error)
 	return &animation, nil
 }
 
+func (a_p *Animation) Copy() *Animation {
+	newA := *a_p
+	return &newA
+}
+
 func (a_p *Animation) ShiftX(x float64) {
 	a_p.x += x
 }

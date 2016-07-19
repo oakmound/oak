@@ -12,6 +12,7 @@ var (
 	toPushRenderables []Renderable
 	postDrawBind      event.Binding
 	bindingInit       bool
+	resetHeap         bool
 )
 
 type RenderableHeap []Renderable
@@ -33,7 +34,7 @@ func (h_p *RenderableHeap) Pop() interface{} {
 }
 
 func ResetDrawHeap() {
-	InitDrawHeap()
+	resetHeap = true
 }
 
 func InitDrawHeap() {
@@ -52,8 +53,13 @@ func Draw(r Renderable, l int) Renderable {
 }
 
 func PreDraw(no int, nothing interface{}) error {
-	for _, r := range toPushRenderables {
-		heap.Push(rh, r)
+	if resetHeap == true {
+		InitDrawHeap()
+		resetHeap = false
+	} else {
+		for _, r := range toPushRenderables {
+			heap.Push(rh, r)
+		}
 	}
 	toPushRenderables = []Renderable{}
 	return nil

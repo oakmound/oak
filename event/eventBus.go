@@ -251,10 +251,6 @@ func (eb *EventBus) UnbindAll(opt BindingOption) {
 	dlog.Verb(eb.bindingMap)
 }
 
-func (eb *EventBus) UnbindAllCID(cID CID) {
-
-}
-
 // Called externally by game logic
 // and internally by plastic itself
 // at specific integral points
