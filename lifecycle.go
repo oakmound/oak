@@ -29,12 +29,13 @@ var (
 	initCh        = make(chan bool)
 	sceneCh       = make(chan bool)
 	quitCh        = make(chan bool)
+	drawChannel   = make(chan bool)
+	drawInit      = false
+	runEventLoop  = false
 	ScreenWidth   int
 	ScreenHeight  int
 	press         = key.DirPress
 	release       = key.DirRelease
-	runEventLoop  = false
-	drawChannel   = make(chan bool)
 	black         = color.RGBA{0x00, 0x00, 0x00, 0xff}
 	b             screen.Buffer
 	winBuffer     screen.Buffer
@@ -48,7 +49,6 @@ var (
 	wd, _         = os.Getwd()
 	imageDir      string
 	audioDir      string
-	drawInit      = false
 )
 
 // Scene loop initialization
@@ -83,9 +83,9 @@ func Init(firstScene string) {
 	// curSeed = 1468688167
 	// 1468801666142059500
 	// curSeed = 1468801776272358600
-	// Similar seed to 7/2 seed
-	// curSeed = 1468874433523115600
-	curSeed = 1468877941710772400
+	// Similar seed to 7/2 seed, resolved 7/18
+	curSeed = 1468874433523115600
+	// curSeed = 1468877941710772400
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
