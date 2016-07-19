@@ -1,13 +1,17 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"container/heap"
 	"golang.org/x/exp/shiny/screen"
 	"image/color"
 )
 
 var (
-	rh *RenderableHeap
+	rh                *RenderableHeap
+	toPushRenderables []Renderable
+	postDrawBind      event.Binding
+	bindingInit       bool
 )
 
 type RenderableHeap []Renderable
@@ -35,13 +39,25 @@ func ResetDrawHeap() {
 func InitDrawHeap() {
 	rh = &RenderableHeap{}
 	heap.Init(rh)
+	if bindingInit == false {
+		postDrawBind, _ = event.GlobalBind(PostDraw, "PostDraw")
+		bindingInit = true
+	}
 }
 
 func Draw(r Renderable, l int) Renderable {
 	// Bind to PostDraw if this causes synchronization issues with DrawHeap
 	r.SetLayer(l)
-	heap.Push(rh, r)
+	toPushRenderables = append(toPushRenderables, r)
 	return r
+}
+
+func PostDraw(no int, nothing interface{}) error {
+	for _, r := range toPushRenderables {
+		heap.Push(rh, r)
+	}
+	toPushRenderables = []Renderable{}
+	return nil
 }
 
 // For testing rectangle spaces
