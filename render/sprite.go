@@ -72,6 +72,11 @@ func (s *Sprite) FlipY() {
 	s.buffer = RGBAtoBuffer(out)
 }
 
+func (s_p *Sprite) SetPos(x, y float64) {
+	s_p.x = x
+	s_p.y = y
+}
+
 func (s_p *Sprite) ShiftX(x float64) {
 	s_p.x += x
 }
