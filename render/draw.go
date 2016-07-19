@@ -40,7 +40,7 @@ func InitDrawHeap() {
 	rh = &RenderableHeap{}
 	heap.Init(rh)
 	if bindingInit == false {
-		postDrawBind, _ = event.GlobalBind(PostDraw, "PostDraw")
+		postDrawBind, _ = event.GlobalBind(PreDraw, "PreDraw")
 		bindingInit = true
 	}
 }
@@ -52,7 +52,7 @@ func Draw(r Renderable, l int) Renderable {
 	return r
 }
 
-func PostDraw(no int, nothing interface{}) error {
+func PreDraw(no int, nothing interface{}) error {
 	for _, r := range toPushRenderables {
 		heap.Push(rh, r)
 	}
