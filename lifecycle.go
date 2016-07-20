@@ -86,6 +86,7 @@ func Init(firstScene string) {
 	// Similar seed to 7/2 seed, resolved 7/18
 	// curSeed = 1468874433523115600
 	// curSeed = 1468877941710772400
+	curSeed = 1468984074791237400
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")

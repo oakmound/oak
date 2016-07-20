@@ -84,7 +84,7 @@ func NewSpace(x, y, w, h float64, cID event.CID) Space {
 }
 
 func NewUnassignedSpace(x, y, w, h float64) Space {
-	render.DrawColor(color.RGBA{128, 0, 128, 255}, x, y, w, h, 10)
+	render.DrawColor(color.RGBA{128, 0, 128, 100}, x, y, w, h, 10)
 	x -= w
 	y -= h
 	rect := NewRect(x, y, w, h)

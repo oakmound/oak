@@ -8,6 +8,7 @@ import (
 )
 
 type Modifiable interface {
+	Renderable
 	FlipX()
 	FlipY()
 	ApplyColor(c color.Color)
