@@ -2,7 +2,6 @@ package event
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
-	// "fmt"
 )
 
 var (
@@ -93,12 +92,7 @@ func ResetEventBus() {
 func (eb *EventBus) BindPriority(fn Bindable, opt BindingOption) (Binding, error) {
 
 	list := eb.getBindableList(opt)
-
-	// fmt.Println(list)
-
 	i := list.storeBindable(fn)
-
-	// fmt.Println(list)
 
 	dlog.Info("Stored at", i)
 

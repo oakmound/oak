@@ -163,10 +163,8 @@ func clearParticles(id int, nothing interface{}) error {
 			// Ignore dead particles
 			if p.life > 0 {
 
-				// Move towards doom
 				p.life--
 
-				// Be dragged down by the weight of the soul
 				p.velX -= pg.GravityX
 				p.velY -= pg.GravityY
 				p.x += p.velX

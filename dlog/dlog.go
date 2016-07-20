@@ -47,8 +47,6 @@ func dLog(in ...interface{}) {
 		byt.WriteRune('\n')
 
 		fmt.Print(byt.String())
-		//w := writer(io.Writer)
-		//fmt.Fprintln(w, byt.String())
 
 		if writer_p != nil {
 			writer := *writer_p
@@ -57,8 +55,6 @@ func dLog(in ...interface{}) {
 		}
 
 		byt.Reset()
-
-		// [filename:lineNum]  output
 	}
 }
 
@@ -142,11 +138,3 @@ func SetStringDebugLevel(debugL string) {
 
 	SetDebugLevel(dLevel)
 }
-
-// dlog.Warn()
-// dlog.Info()
-// dlog.Verb()
-
-// Verbose
-// Info
-// Warn

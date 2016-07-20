@@ -1,25 +1,15 @@
 package collision
 
 import (
-	//"fmt"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 	"github.com/dhconnelly/rtreego"
-	"image/color"
 	"log"
 	"math"
-	"strconv"
 )
 
 var (
 	rt *rtreego.Rtree
 )
-
-type Space struct {
-	Location *rtreego.Rect
-	Label    string
-	cID      event.CID
-}
 
 type CollisionPoint struct {
 	Zone *Space
@@ -27,13 +17,8 @@ type CollisionPoint struct {
 	Y    float64
 }
 
-func (s Space) Bounds() *rtreego.Rect {
-	return s.Location
-}
-
 func Init() {
 	rt = rtreego.NewTree(2, 20, 40)
-	//data structure for raycast
 }
 
 func Clear() {
@@ -42,7 +27,6 @@ func Clear() {
 
 func Add(sp Space) {
 	rt.Insert(sp)
-	//space with type
 }
 
 func Remove(sp Space) {
@@ -70,46 +54,6 @@ func Hits(sp Space) []Space {
 		out[index] = v.(Space)
 	}
 	return out
-}
-
-func NewSpace(x, y, w, h float64, cID event.CID) Space {
-	x -= w
-	y -= h
-	rect := NewRect(x, y, w, h)
-	return Space{
-		rect,
-		strconv.Itoa(int(cID)),
-		cID,
-	}
-}
-
-func NewUnassignedSpace(x, y, w, h float64) Space {
-	render.DrawColor(color.RGBA{128, 0, 128, 100}, x, y, w, h, 10)
-	x -= w
-	y -= h
-	rect := NewRect(x, y, w, h)
-	return Space{Location: rect}
-}
-
-func NewLabeledSpace(x, y, w, h float64, s string) Space {
-	x -= w
-	y -= h
-	rect := NewRect(x, y, w, h)
-	return Space{
-		Location: rect,
-		Label:    s,
-	}
-}
-
-func NewFullSpace(x, y, w, h float64, s string, cID event.CID) Space {
-	x -= w
-	y -= h
-	rect := NewRect(x, y, w, h)
-	return Space{
-		rect,
-		s,
-		cID,
-	}
 }
 
 func NewRect(x, y, w, h float64) *rtreego.Rect {

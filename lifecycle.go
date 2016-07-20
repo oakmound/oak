@@ -80,13 +80,9 @@ func Init(firstScene string) {
 	//curSeed = 1463358974925095300
 	// Seed that required modifying connection algorithm 7/2
 	//curSeed = 1467565587127684400
-	// curSeed = 1468688167
-	// 1468801666142059500
 	// curSeed = 1468801776272358600
 	// Similar seed to 7/2 seed, resolved 7/18
 	// curSeed = 1468874433523115600
-	// curSeed = 1468877941710772400
-	curSeed = 1468984074791237400
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
@@ -99,14 +95,10 @@ func Init(firstScene string) {
 	close(initCh)
 	runEventLoop = true
 	scene := firstScene
+	dlog.Info("First Scene Start")
+	sceneMap[scene].start(prevScene)
+	drawChannel <- true
 	for {
-		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
-		sceneMap[scene].start(prevScene)
-		dlog.Info("Start finished")
-		if !drawInit {
-			drawChannel <- true
-			drawInit = true
-		}
 		cont := true
 		for cont {
 			select {
@@ -114,13 +106,15 @@ func Init(firstScene string) {
 				return
 
 			case <-sceneCh:
-				//dlog.Info("Scene Loop")
 				cont = sceneMap[scene].loop()
 			}
 		}
 		dlog.Info("~~~~~~~~Scene End~~~~~~~~~~")
 		prevScene = scene
 		scene = sceneMap[scene].end()
+
+		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
+		sceneMap[scene].start(prevScene)
 	}
 }
 
@@ -238,7 +232,6 @@ func eventLoop(s screen.Screen) {
 	go func() {
 		<-drawChannel
 		for {
-			// Comment out this for smearing, but visible text
 			draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
 
 			eb.Trigger("PreDraw", nil)
@@ -253,11 +246,9 @@ func eventLoop(s screen.Screen) {
 
 	for {
 		for runEventLoop {
-
 			<-frameCh
 
 			eb.Trigger("EnterFrame", nil)
-
 			sceneCh <- true
 
 			eb.Trigger("ExitFrame", nil)

@@ -91,35 +91,12 @@ func ApplyMask(rgba *image.RGBA, img image.RGBA) *image.RGBA {
 }
 
 func Rotate(rgba *image.RGBA, degrees int) *image.RGBA {
-	// rotates clockwise by the given degrees
-	// Will shear any pixels that land outside the given buffer
-
 	filter := gift.New(
 		gift.Rotate(float32(degrees), color.Black, gift.CubicInterpolation))
 	dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
 	filter.Draw(dst, rgba)
 	return dst
 
-	// angle := float64(degrees) / 180 * math.Pi
-	// bounds := rgba.Bounds()
-	// w := bounds.Max.X
-	// h := bounds.Max.Y
-	// centerX := float64(w / 2)
-	// centerY := float64(h / 2)
-	// cosAngle := math.Cos(angle)
-	// sinAngle := math.Sin(angle)
-
-	// newRgba := image.NewRGBA(image.Rect(0, 0, w, h))
-	// for x := 0; x < w; x++ {
-	// 	for y := 0; y < h; y++ {
-	// 		xf := float64(x)
-	// 		yf := float64(y)
-	// 		newX := round(cosAngle*(xf-centerX) - sinAngle*(yf-centerY) + centerX)
-	// 		newY := round(sinAngle*(xf-centerX) + cosAngle*(yf-centerY) + centerY)
-	// 		newRgba.Set(newX, newY, rgba.At(x, y))
-	// 	}
-	// }
-	// return newRgba
 }
 
 func Scale(rgba *image.RGBA, xRatio float64, yRatio float64) *image.RGBA {
