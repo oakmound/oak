@@ -2,7 +2,6 @@ package render
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
-	"fmt"
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
@@ -74,12 +73,14 @@ func drawLineBetween(y1, x2, y2 int, c color.Color) *image.RGBA {
 	}
 
 	xSlope := -1
+	if x2 < 0 {
+		xSlope = 1
+	}
 	ySlope := -1
 	h := int(yDelta) + 1
 	if y2 == 0 {
 		ySlope = 1
 	}
-	fmt.Println(h)
 	rect := image.Rect(0, 0, x2, h)
 	rgba := image.NewRGBA(rect)
 
@@ -87,7 +88,7 @@ func drawLineBetween(y1, x2, y2 int, c color.Color) *image.RGBA {
 	var err2 float64
 	y3 := y2
 	for i := 0; true; i++ {
-		fmt.Println("Setting ", x2, " ", y2-h)
+		dlog.Verb("Setting ", x2, " ", y2-h)
 		rgba.Set(x2, y3-y2, c)
 		if x2 == 0 && y2 == y1 {
 			break
