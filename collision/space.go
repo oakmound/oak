@@ -11,7 +11,7 @@ import (
 type Space struct {
 	Location *rtreego.Rect
 	Label    string
-	cID      event.CID
+	CID      event.CID
 }
 
 func (s Space) Bounds() *rtreego.Rect {

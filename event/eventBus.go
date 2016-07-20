@@ -245,6 +245,49 @@ func (eb *EventBus) UnbindAll(opt BindingOption) {
 	dlog.Verb(eb.bindingMap)
 }
 
+// Trigger an event, but only
+// for one ID. Use case example:
+// on onHit event
+func (id CID) Trigger(eventName string, data interface{}) error {
+	eb := GetEventBus()
+
+	var err error
+
+	if idMap, ok := eb.bindingMap[eventName]; ok {
+		if bs, ok := idMap[int(id)]; ok {
+			for i := bs.highIndex - 1; i >= 0; i-- {
+				for _, bnd := range (*bs.highPriority[i]).sl {
+					if bnd != nil {
+						err = bnd(int(id), data)
+						if err != nil {
+							return err
+						}
+					}
+				}
+			}
+			for _, bnd := range (bs.defaultPriority).sl {
+				if bnd != nil {
+					err = bnd(int(id), data)
+					if err != nil {
+						return err
+					}
+				}
+			}
+			for i := 0; i < bs.lowIndex; i++ {
+				for _, bnd := range (*bs.lowPriority[i]).sl {
+					if bnd != nil {
+						err = bnd(int(id), data)
+						if err != nil {
+							return err
+						}
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
 // Called externally by game logic
 // and internally by plastic itself
 // at specific integral points

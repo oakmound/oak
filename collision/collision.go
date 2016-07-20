@@ -101,7 +101,7 @@ func RayCastSingle(x, y, degrees, length float64, invalidIDS []event.CID) Collis
 			nx := (next[k].(Space))
 			nx_p := &nx
 			for e := 0; e < len(invalidIDS); e++ {
-				if nx_p.cID == invalidIDS[e] {
+				if nx_p.CID == invalidIDS[e] {
 					continue output
 				}
 			}
