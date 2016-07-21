@@ -30,7 +30,6 @@ var (
 	sceneCh       = make(chan bool)
 	quitCh        = make(chan bool)
 	drawChannel   = make(chan bool)
-	resumeDrawCh  = make(chan bool)
 	drawInit      = false
 	runEventLoop  = false
 	ScreenWidth   int
@@ -84,6 +83,7 @@ func Init(firstScene string) {
 	// curSeed = 1468801776272358600
 	// Similar seed to 7/2 seed, resolved 7/18
 	// curSeed = 1469060874842175800
+	curSeed = 1469141388620221700
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
@@ -116,10 +116,13 @@ func Init(firstScene string) {
 		dlog.Info("~~~~~~~~Scene End~~~~~~~~~~")
 		prevScene = scene
 
-		// Send a signal to stop drawing,
-		// and wait for a confirmation
+		// Send a signal to stop drawing
 		drawChannel <- true
-		<-drawChannel
+
+		event.ResetEventBus()
+		render.ResetDrawHeap()
+		collision.Clear()
+		render.PreDraw(0, nil)
 
 		scene = sceneMap[scene].end()
 
@@ -243,7 +246,6 @@ func eventLoop(s screen.Screen) {
 		for {
 			select {
 			case <-drawChannel:
-				drawChannel <- true
 				<-drawChannel
 			default:
 				eb = event.GetEventBus()

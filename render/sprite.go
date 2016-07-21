@@ -7,13 +7,6 @@ import (
 	"image/draw"
 )
 
-var (
-	spriteNames = map[string]string{
-		"Empty": "16/tile1.png",
-		"Wall":  "16\\wall.png",
-		"Floor": "16\\floor.png"}
-)
-
 type Sprite struct {
 	x, y   float64
 	buffer *screen.Buffer
@@ -25,12 +18,8 @@ func (s *Sprite) Copy() *Sprite {
 	return &newS
 }
 
-func ParseSprite(s string) *Sprite {
-	return LoadSprite(spriteNames[s])
-}
-
 func ParseSubSprite(s string, x, y, w, h, pad int) *Sprite {
-	sh, _ := LoadSheet(dir, spriteNames[s], w, h, pad)
+	sh, _ := LoadSheet(dir, s, w, h, pad)
 	return sh.SubSprite(x, y)
 }
 

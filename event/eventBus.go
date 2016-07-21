@@ -160,6 +160,9 @@ func (bl_p *BindableList) storeBindable(fn Bindable) int {
 // Remove a bindable from a BindableList
 func (bl *BindableList) removeBindable(b Binding) {
 	i := b.index //store for messing with nextempty
+	if len(bl.sl) < i+1 {
+		return
+	}
 	bl.sl[i] = nil
 	if i < bl.nextEmpty {
 		bl.nextEmpty = i
