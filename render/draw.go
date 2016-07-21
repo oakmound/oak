@@ -34,6 +34,7 @@ func (h_p *RenderableHeap) Pop() interface{} {
 }
 
 func ResetDrawHeap() {
+	bindingInit = false
 	resetHeap = true
 }
 

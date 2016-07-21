@@ -75,8 +75,8 @@ type Binding struct {
 
 type CID int
 
-func GetEventBus() EventBus {
-	return thisBus
+func GetEventBus() *EventBus {
+	return &thisBus
 }
 
 func ResetEventBus() {

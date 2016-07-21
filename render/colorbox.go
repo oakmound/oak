@@ -53,3 +53,8 @@ func (cb *ColorBox) SetLayer(l int) {
 func (cb *ColorBox) UnDraw() {
 	cb.layer = -1
 }
+
+func (cb *ColorBox) SetPos(x, y float64) {
+	cb.x = x
+	cb.y = y
+}

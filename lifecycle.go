@@ -30,6 +30,8 @@ var (
 	sceneCh       = make(chan bool)
 	quitCh        = make(chan bool)
 	drawChannel   = make(chan bool)
+	resumeDrawCh  = make(chan bool)
+	pauseDrawCh   = make(chan bool)
 	drawInit      = false
 	runEventLoop  = false
 	ScreenWidth   int
@@ -39,9 +41,9 @@ var (
 	black         = color.RGBA{0x00, 0x00, 0x00, 0xff}
 	b             screen.Buffer
 	winBuffer     screen.Buffer
-	eb            event.EventBus
-	viewX         = 0
-	viewY         = 0
+	eb            *event.EventBus
+	ViewX         = 0
+	ViewY         = 0
 	useViewBounds = false
 	viewBounds    []int
 	esc           = false
@@ -82,7 +84,7 @@ func Init(firstScene string) {
 	//curSeed = 1467565587127684400
 	// curSeed = 1468801776272358600
 	// Similar seed to 7/2 seed, resolved 7/18
-	// curSeed = 1468874433523115600
+	// curSeed = 1469060874842175800
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
@@ -113,8 +115,12 @@ func Init(firstScene string) {
 		prevScene = scene
 		scene = sceneMap[scene].end()
 
+		pauseDrawCh <- true
+		eb = event.GetEventBus()
+
 		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
 		sceneMap[scene].start(prevScene)
+		resumeDrawCh <- true
 	}
 }
 
@@ -232,15 +238,21 @@ func eventLoop(s screen.Screen) {
 	go func() {
 		<-drawChannel
 		for {
-			draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
+			select {
+			case <-pauseDrawCh:
+				<-resumeDrawCh
+			default:
+				eb = event.GetEventBus()
+				draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
 
-			eb.Trigger("PreDraw", nil)
-			render.DrawHeap(b)
-			eb.Trigger("PostDraw", b)
-			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b.RGBA(), image.Point{-viewX, -viewY}, screen.Src)
+				eb.Trigger("PreDraw", nil)
+				render.DrawHeap(b)
+				eb.Trigger("PostDraw", b)
+				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b.RGBA(), image.Point{-ViewX, -ViewY}, screen.Src)
 
-			w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
-			w.Publish()
+				w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
+				w.Publish()
+			}
 		}
 	}()
 
@@ -263,24 +275,25 @@ func fillScreen(w screen.Window, c color.RGBA) {
 func SetScreen(x, y int) {
 	if useViewBounds {
 		if viewBounds[0] > x && viewBounds[2] < x-ScreenWidth {
-			dlog.Verb("Set viewX to ", x)
-			viewX = x
+			dlog.Verb("Set ViewX to ", x)
+			ViewX = x
 		} else if viewBounds[0] < x {
-			viewX = viewBounds[0]
+			ViewX = viewBounds[0]
 		}
 		if viewBounds[1] > y && viewBounds[3] < y-ScreenHeight {
-			dlog.Verb("Set viewY to ", y)
-			viewY = y
+			dlog.Verb("Set ViewY to ", y)
+			ViewY = y
 		} else if viewBounds[1] < y {
-			viewY = viewBounds[1]
+			ViewY = viewBounds[1]
 		}
 
 	} else {
-		dlog.Verb("Set viewXY to ", x, " ", y)
-		viewX = x
-		viewY = y
+		dlog.Verb("Set ViewXY to ", x, " ", y)
+		ViewX = x
+		ViewY = y
 	}
-	dlog.Verb("viewX, Y: ", viewX, " ", viewY)
+	dlog.Verb("ViewX, Y: ", ViewX, " ", ViewY)
+	eb.Trigger("ViewportUpdate", []float64{float64(ViewX), float64(ViewY)})
 }
 func SetViewportBounds(x1, y1, x2, y2 int) {
 	useViewBounds = true

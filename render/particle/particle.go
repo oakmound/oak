@@ -229,3 +229,8 @@ func (ps *ParticleSource) UnDraw() {
 func (ps *ParticleSource) GetRGBA() *image.RGBA {
 	return nil
 }
+
+func (ps *ParticleSource) SetPos(x, y float64) {
+	ps.Generator.X = x
+	ps.Generator.Y = y
+}

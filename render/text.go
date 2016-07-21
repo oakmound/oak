@@ -87,6 +87,11 @@ func (t_p *Text) UnDraw() {
 	t_p.layer = -1
 }
 
+func (t_p *Text) SetPos(x, y float64) {
+	t_p.x = int(x)
+	t_p.y = int(y)
+}
+
 func (t_p *Text) Draw(buff screen.Buffer) {
 	t_p.d_p.Dot = fixed.P(t_p.x, t_p.y)
 	t_p.d_p.DrawString(t_p.text)

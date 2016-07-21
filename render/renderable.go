@@ -26,7 +26,7 @@ type Renderable interface {
 	GetLayer() int
 	SetLayer(l int)
 	UnDraw()
-
+	SetPos(x, y float64)
 	// Squish the renderable into a geometry
 	// FitTo(geometry) *Renderable
 }

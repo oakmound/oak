@@ -57,6 +57,11 @@ func (ln *Line) UnDraw() {
 	ln.layer = -1
 }
 
+func (ln *Line) SetPos(x, y float64) {
+	ln.x = x
+	ln.y = y
+}
+
 // x1 is always 0
 // either y1 or y2 is always 0
 func drawLineBetween(y1, x2, y2 int, c color.Color) *image.RGBA {
