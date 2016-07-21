@@ -31,8 +31,6 @@ var (
 	quitCh        = make(chan bool)
 	drawChannel   = make(chan bool)
 	resumeDrawCh  = make(chan bool)
-	pauseDrawCh   = make(chan bool)
-	drawPausedCh  = make(chan bool)
 	drawInit      = false
 	runEventLoop  = false
 	ScreenWidth   int
@@ -99,9 +97,12 @@ func Init(firstScene string) {
 	runEventLoop = true
 	scene := firstScene
 	dlog.Info("First Scene Start")
-	sceneMap[scene].start(prevScene)
-	drawChannel <- true
 	for {
+		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
+		sceneMap[scene].start(prevScene)
+		// Send a signal to resume (or begin) drawing
+		drawChannel <- true
+
 		cont := true
 		for cont {
 			select {
@@ -114,15 +115,15 @@ func Init(firstScene string) {
 		}
 		dlog.Info("~~~~~~~~Scene End~~~~~~~~~~")
 		prevScene = scene
-		pauseDrawCh <- true
-		<-drawPausedCh
+
+		// Send a signal to stop drawing,
+		// and wait for a confirmation
+		drawChannel <- true
+		<-drawChannel
+
 		scene = sceneMap[scene].end()
 
 		eb = event.GetEventBus()
-
-		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
-		sceneMap[scene].start(prevScene)
-		resumeDrawCh <- true
 	}
 }
 
@@ -241,9 +242,9 @@ func eventLoop(s screen.Screen) {
 		<-drawChannel
 		for {
 			select {
-			case <-pauseDrawCh:
-				drawPausedCh <- true
-				<-resumeDrawCh
+			case <-drawChannel:
+				drawChannel <- true
+				<-drawChannel
 			default:
 				eb = event.GetEventBus()
 				draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
