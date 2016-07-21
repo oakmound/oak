@@ -209,6 +209,8 @@ func randColor(c, ra color.Color) color.Color {
 }
 
 func uint8Spread(n, r uint32) uint8 {
+	n = n / 257
+	r = r / 257
 	return uint8(math.Min(float64(int(n)+roundFloat(floatFromSpread(float64(r)))), 255.0))
 }
 
