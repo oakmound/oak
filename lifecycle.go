@@ -32,6 +32,7 @@ var (
 	drawChannel   = make(chan bool)
 	resumeDrawCh  = make(chan bool)
 	pauseDrawCh   = make(chan bool)
+	drawPausedCh  = make(chan bool)
 	drawInit      = false
 	runEventLoop  = false
 	ScreenWidth   int
@@ -113,9 +114,10 @@ func Init(firstScene string) {
 		}
 		dlog.Info("~~~~~~~~Scene End~~~~~~~~~~")
 		prevScene = scene
+		pauseDrawCh <- true
+		<-drawPausedCh
 		scene = sceneMap[scene].end()
 
-		pauseDrawCh <- true
 		eb = event.GetEventBus()
 
 		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
@@ -240,6 +242,7 @@ func eventLoop(s screen.Screen) {
 		for {
 			select {
 			case <-pauseDrawCh:
+				drawPausedCh <- true
 				<-resumeDrawCh
 			default:
 				eb = event.GetEventBus()
