@@ -236,3 +236,12 @@ func (ps *ParticleSource) SetPos(x, y float64) {
 	ps.Generator.X = x
 	ps.Generator.Y = y
 }
+
+func (ps *ParticleSource) Pause() {
+	ps.rotateBinding.Unbind()
+}
+
+func (ps *ParticleSource) UnPause() {
+	binding, _ := ps.cID.Bind(rotateParticles, "EnterFrame")
+	ps.rotateBinding = binding
+}
