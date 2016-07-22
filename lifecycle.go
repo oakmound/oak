@@ -5,6 +5,7 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	pmouse "bitbucket.org/oakmoundstudio/plasticpiston/plastic/mouse"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 	"fmt"
 	"image"
@@ -72,6 +73,7 @@ func Init(firstScene string) {
 	// END of loading variables from configuration
 
 	collision.Init()
+	pmouse.Init()
 	render.InitDrawHeap()
 	audio.InitWinAudio()
 
@@ -199,22 +201,25 @@ func eventLoop(s screen.Screen) {
 				}
 
 			case mouse.Event:
-				button := getMouseButton(int32(e.Button))
+				button := pmouse.GetMouseButton(int32(e.Button))
 				dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", button)
-				mevent := MouseEvent{e.X, e.Y, button}
+				mevent := pmouse.MouseEvent{e.X, e.Y, button}
+				var eventName string
 				if e.Direction == mouse.DirPress {
 					SetDown(button)
-					eb.Trigger("MousePress", mevent)
+					eventName = "MousePress"
 				} else if e.Direction == mouse.DirRelease {
 					SetUp(button)
-					eb.Trigger("MouseRelease", mevent)
+					eventName = "MouseRelease"
 				} else if e.Button == -2 {
-					eb.Trigger("MouseScrollDown", mevent)
+					eventName = "MouseScrollDown"
 				} else if e.Button == -1 {
-					eb.Trigger("MouseScrollUp", mevent)
+					eventName = "MouseScrollUp"
 				} else {
-					eb.Trigger("MouseDrag", mevent)
+					eventName = "MouseDrag"
 				}
+				eb.Trigger(eventName, mevent)
+				pmouse.Propagate(eventName+"On", mevent)
 
 			case paint.Event:
 
