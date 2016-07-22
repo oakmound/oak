@@ -216,6 +216,20 @@ func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 	return list
 }
 
+// Unbind all events for
+// the given CID
+func (cid *CID) UnbindAll() {
+	eb := GetEventBus()
+	bo := BindingOption{
+		Event{
+			"",
+			int(*cid),
+		},
+		0,
+	}
+	eb.UnbindAll(bo)
+}
+
 // Called by entities or by game logic.
 // Unbinds all events in this bus which
 // match the given binding options.
@@ -246,6 +260,14 @@ func (eb *EventBus) UnbindAll(opt BindingOption) {
 		}
 	}
 	dlog.Verb(eb.bindingMap)
+}
+
+func Alias(eventName, alias string) {
+	eb := GetEventBus()
+	fn := func(id int, data interface{}) error {
+		return eb.Trigger(alias, data)
+	}
+	GlobalBind(fn, eventName)
 }
 
 // Trigger an event, but only

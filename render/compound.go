@@ -108,3 +108,17 @@ func (c *Compound) SetLayer(l int) {
 func (c *Compound) UnDraw() {
 	c.layer = -1
 }
+
+func (c *Compound) Pause() {
+	switch c.subRenderables[c.curRenderable].(type) {
+	case *Animation:
+		c.subRenderables[c.curRenderable].(*Animation).playing = false
+	}
+}
+
+func (c *Compound) Unpause() {
+	switch c.subRenderables[c.curRenderable].(type) {
+	case *Animation:
+		c.subRenderables[c.curRenderable].(*Animation).playing = true
+	}
+}

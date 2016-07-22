@@ -50,7 +50,7 @@ func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error)
 		frames:     splitFrames,
 		sheet:      sheet_p,
 		lastChange: time.Now(),
-		playing:    false,
+		playing:    true,
 	}
 
 	return &animation, nil
@@ -80,7 +80,7 @@ func (a_p *Animation) SetPos(x, y float64) {
 }
 
 func (a_p *Animation) updateAnimation() {
-	if time.Since(a_p.lastChange).Nanoseconds() > a_p.frameTime {
+	if a_p.playing && time.Since(a_p.lastChange).Nanoseconds() > a_p.frameTime {
 		dlog.Verb("Increment sheetPos")
 		a_p.lastChange = time.Now()
 		a_p.sheetPos = (a_p.sheetPos + 1) % len(a_p.frames)
@@ -88,7 +88,6 @@ func (a_p *Animation) updateAnimation() {
 }
 
 func (a_p *Animation) Draw(buff screen.Buffer) {
-	a_p.playing = true
 	a_p.updateAnimation()
 	img := a_p.GetRGBA()
 	draw.Draw(buff.RGBA(), buff.Bounds(),
@@ -164,4 +163,12 @@ func (a *Animation) SetLayer(l int) {
 
 func (a *Animation) UnDraw() {
 	a.layer = -1
+}
+
+func (a *Animation) Pause() {
+	a.playing = false
+}
+
+func (a *Animation) Unpause() {
+	a.playing = true
 }
