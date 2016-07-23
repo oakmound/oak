@@ -91,7 +91,7 @@ func (c *Compound) Draw(buff screen.Buffer) {
 	case *Animation:
 		t.updateAnimation()
 	}
-	shinyDraw(buff, img, int(c.x), int(c.y))
+	ShinyDraw(buff, img, int(c.x), int(c.y))
 }
 
 func (c *Compound) GetLayer() int {

@@ -30,10 +30,7 @@ func (cb *ColorBox) GetRGBA() *image.RGBA {
 }
 
 func (cb *ColorBox) Draw(buff screen.Buffer) {
-	shinyDraw(buff, cb.r, int(cb.x), int(cb.y))
-	draw.Draw(buff.RGBA(), buff.Bounds(),
-		cb.r, image.Point{int(cb.x),
-			int(cb.y)}, draw.Over)
+	ShinyDraw(buff, cb.r, int(cb.x), int(cb.y))
 }
 
 func (cb *ColorBox) ShiftX(x float64) {

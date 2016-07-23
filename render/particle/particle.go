@@ -7,7 +7,6 @@ import (
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
-	"image/draw"
 	"math"
 	"math/rand"
 	"time"
@@ -95,8 +94,7 @@ func (ps *ParticleSource) Draw(buff screen.Buffer) {
 
 		img.SetRGBA(0, 0, c)
 
-		draw.Draw(buff.RGBA(), buff.Bounds(),
-			img, image.Point{int(p.x), int(p.y)}, draw.Over)
+		render.ShinyDraw(buff, img, int(p.x), int(p.y))
 	}
 }
 
@@ -116,8 +114,8 @@ func rotateParticles(id int, nothing interface{}) error {
 			p.life--
 
 			// Be dragged down by the weight of the soul
-			p.velX -= pg.GravityX
-			p.velY -= pg.GravityY
+			p.velX += pg.GravityX
+			p.velY += pg.GravityY
 			p.x += p.velX
 			p.y += p.velY
 
@@ -138,7 +136,7 @@ func rotateParticles(id int, nothing interface{}) error {
 			x:          pg.X + floatFromSpread(pg.SpreadX),
 			y:          pg.Y + floatFromSpread(pg.SpreadY),
 			velX:       speed * math.Cos(angle) * -1,
-			velY:       speed * math.Sin(angle),
+			velY:       speed * math.Sin(angle) * -1,
 			startColor: randColor(pg.StartColor, pg.StartColorRand),
 			endColor:   randColor(pg.EndColor, pg.EndColorRand),
 			life:       startLife,

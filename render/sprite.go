@@ -75,7 +75,7 @@ func (s_p *Sprite) ShiftY(y float64) {
 func (s *Sprite) Draw(buff screen.Buffer) {
 	// s := *s_p
 	img := s.GetRGBA()
-	shinyDraw(buff, img, int(s.x), int(s.y))
+	ShinyDraw(buff, img, int(s.x), int(s.y))
 }
 
 func (s *Sprite) GetLayer() int {

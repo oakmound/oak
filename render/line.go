@@ -5,7 +5,6 @@ import (
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
-	"image/draw"
 	"math"
 )
 
@@ -21,8 +20,8 @@ func NewLine(x1, y1, x2, y2 float64, c color.Color) *Line {
 	rgba := drawLineBetween(int(y1), int(xDelta), int(y2), c)
 
 	return &Line{
-		math.Max(x1, x2),
-		math.Max(y1, y2),
+		math.Min(x1, x2),
+		math.Min(y1, y2),
 		rgba,
 		0,
 	}
@@ -33,9 +32,7 @@ func (ln *Line) GetRGBA() *image.RGBA {
 }
 
 func (ln *Line) Draw(buff screen.Buffer) {
-	draw.Draw(buff.RGBA(), buff.Bounds(),
-		ln.r, image.Point{int(ln.x),
-			int(ln.y)}, draw.Over)
+	ShinyDraw(buff, ln.r, int(ln.x), int(ln.y))
 }
 
 func (ln *Line) ShiftX(x float64) {
