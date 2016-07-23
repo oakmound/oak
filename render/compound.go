@@ -43,6 +43,12 @@ func (c *Compound) ApplyColor(co color.Color) {
 	}
 }
 
+func (c *Compound) FillMask(img image.RGBA) {
+	for _, rend := range c.subRenderables {
+		rend.FillMask(img)
+	}
+}
+
 func (c *Compound) ApplyMask(img image.RGBA) {
 	for _, rend := range c.subRenderables {
 		rend.ApplyMask(img)

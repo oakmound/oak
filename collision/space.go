@@ -5,12 +5,11 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 	"github.com/dhconnelly/rtreego"
 	"image/color"
-	"strconv"
 )
 
 type Space struct {
 	Location *rtreego.Rect
-	Label    string
+	Label    int
 	CID      event.CID
 }
 
@@ -28,24 +27,24 @@ func NewSpace(x, y, w, h float64, cID event.CID) Space {
 	rect := NewRect(x, y, w, h)
 	return Space{
 		rect,
-		strconv.Itoa(int(cID)),
+		-1,
 		cID,
 	}
 }
 
-func NewLabeledSpace(x, y, w, h float64, s string) Space {
+func NewLabeledSpace(x, y, w, h float64, l int) Space {
 	rect := NewRect(x, y, w, h)
 	return Space{
 		Location: rect,
-		Label:    s,
+		Label:    l,
 	}
 }
 
-func NewFullSpace(x, y, w, h float64, s string, cID event.CID) Space {
+func NewFullSpace(x, y, w, h float64, l int, cID event.CID) Space {
 	rect := NewRect(x, y, w, h)
 	return Space{
 		rect,
-		s,
+		l,
 		cID,
 	}
 }

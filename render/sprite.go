@@ -38,6 +38,11 @@ func (s *Sprite) ApplyColor(c color.Color) {
 	s.buffer = RGBAtoBuffer(out)
 }
 
+func (s *Sprite) FillMask(img image.RGBA) {
+	out := FillMask((*s.buffer).RGBA(), img)
+	s.buffer = RGBAtoBuffer(out)
+}
+
 func (s *Sprite) ApplyMask(img image.RGBA) {
 	out := ApplyMask((*s.buffer).RGBA(), img)
 	s.buffer = RGBAtoBuffer(out)

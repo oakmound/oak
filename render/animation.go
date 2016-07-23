@@ -106,6 +106,15 @@ func (a *Animation) ApplyColor(c color.Color) {
 	}
 }
 
+func (a *Animation) FillMask(img image.RGBA) {
+	sheet := *a.sheet
+	for x, row := range sheet {
+		for y, rgba := range row {
+			sheet[x][y] = FillMask(rgba, img)
+		}
+	}
+}
+
 func (a *Animation) ApplyMask(img image.RGBA) {
 	sheet := *a.sheet
 	for x, row := range sheet {
