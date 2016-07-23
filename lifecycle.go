@@ -259,7 +259,7 @@ func eventLoop(s screen.Screen) {
 				eb.Trigger("PreDraw", nil)
 				render.DrawHeap(b)
 				eb.Trigger("PostDraw", b)
-				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b.RGBA(), image.Point{-ViewX, -ViewY}, screen.Src)
+				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
 
 				w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
 				w.Publish()
@@ -285,16 +285,16 @@ func fillScreen(w screen.Window, c color.RGBA) {
 
 func SetScreen(x, y int) {
 	if useViewBounds {
-		if viewBounds[0] > x && viewBounds[2] < x-ScreenWidth {
+		if viewBounds[0] < x && viewBounds[2] > x+ScreenWidth {
 			dlog.Verb("Set ViewX to ", x)
 			ViewX = x
-		} else if viewBounds[0] < x {
+		} else if viewBounds[0] > x {
 			ViewX = viewBounds[0]
 		}
-		if viewBounds[1] > y && viewBounds[3] < y-ScreenHeight {
+		if viewBounds[1] < y && viewBounds[3] > y+ScreenHeight {
 			dlog.Verb("Set ViewY to ", y)
 			ViewY = y
-		} else if viewBounds[1] < y {
+		} else if viewBounds[1] > y {
 			ViewY = viewBounds[1]
 		}
 
@@ -307,6 +307,7 @@ func SetScreen(x, y int) {
 	eb.Trigger("ViewportUpdate", []float64{float64(ViewX), float64(ViewY)})
 }
 func SetViewportBounds(x1, y1, x2, y2 int) {
+	dlog.Info("Viewport bounds set to, ", x1, y1, x2, y2)
 	useViewBounds = true
 	viewBounds = []int{x1, y1, x2, y2}
 }

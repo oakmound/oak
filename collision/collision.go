@@ -34,8 +34,6 @@ func Remove(sp Space) {
 }
 
 func UpdateSpace(x, y, w, h float64, s Space) *rtreego.Rect {
-	x -= w
-	y -= h
 	loc := NewRect(x, y, w, h)
 	Update(s, loc)
 	return loc

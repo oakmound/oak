@@ -4,7 +4,6 @@ import (
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
-	"image/draw"
 )
 
 type Compound struct {
@@ -92,9 +91,7 @@ func (c *Compound) Draw(buff screen.Buffer) {
 	case *Animation:
 		t.updateAnimation()
 	}
-	draw.Draw(buff.RGBA(), buff.Bounds(),
-		img, image.Point{int(c.x),
-			int(c.y)}, draw.Over)
+	shinyDraw(buff, img, int(c.x), int(c.y))
 }
 
 func (c *Compound) GetLayer() int {

@@ -4,7 +4,6 @@ import (
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
-	"image/draw"
 )
 
 type Sprite struct {
@@ -73,12 +72,10 @@ func (s_p *Sprite) ShiftY(y float64) {
 	s_p.y += y
 }
 
-func (s Sprite) Draw(buff screen.Buffer) {
+func (s *Sprite) Draw(buff screen.Buffer) {
 	// s := *s_p
-	img := (&s).GetRGBA()
-	draw.Draw(buff.RGBA(), buff.Bounds(),
-		img, image.Point{int((&s).x),
-			int((&s).y)}, draw.Over)
+	img := s.GetRGBA()
+	shinyDraw(buff, img, int(s.x), int(s.y))
 }
 
 func (s *Sprite) GetLayer() int {

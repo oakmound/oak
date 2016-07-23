@@ -4,7 +4,9 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"container/heap"
 	"golang.org/x/exp/shiny/screen"
+	"image"
 	"image/color"
+	"image/draw"
 )
 
 var (
@@ -89,4 +91,9 @@ func DrawHeap(b screen.Buffer) {
 		}
 	}
 	rh = newRh
+}
+
+func shinyDraw(buff screen.Buffer, img image.Image, x, y int) {
+	draw.Draw(buff.RGBA(), buff.Bounds(),
+		img, image.Point{-x, -y}, draw.Over)
 }

@@ -90,9 +90,7 @@ func (a_p *Animation) updateAnimation() {
 func (a_p *Animation) Draw(buff screen.Buffer) {
 	a_p.updateAnimation()
 	img := a_p.GetRGBA()
-	draw.Draw(buff.RGBA(), buff.Bounds(),
-		img, image.Point{int(a_p.x),
-			int(a_p.y)}, draw.Over)
+	shinyDraw(buff, img, int(a_p.x), int(a_p.y))
 }
 
 func (a_p *Animation) GetRGBA() *image.RGBA {

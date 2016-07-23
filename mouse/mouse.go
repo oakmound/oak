@@ -2,7 +2,6 @@ package mouse
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
-	"fmt"
 	"github.com/dhconnelly/rtreego"
 )
 
@@ -40,7 +39,6 @@ func UpdateSpace(x, y, w, h float64, s collision.Space) *rtreego.Rect {
 func Update(s collision.Space, loc *rtreego.Rect) {
 	mt.Delete(s)
 	s.Location = loc
-	fmt.Println(s)
 	mt.Insert(s)
 }
 
@@ -48,7 +46,6 @@ func Update(s collision.Space, loc *rtreego.Rect) {
 // which are clicked
 func Propagate(eventName string, me MouseEvent) {
 	mouseLoc := collision.NewUnassignedSpace(float64(me.X), float64(me.Y), 0.01, 0.01)
-	fmt.Println(mouseLoc)
 	hits := mt.SearchIntersect(mouseLoc.Bounds())
 	for _, v := range hits {
 		sp := v.(collision.Space)

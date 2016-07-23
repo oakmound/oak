@@ -20,15 +20,11 @@ func (s Space) Bounds() *rtreego.Rect {
 
 func NewUnassignedSpace(x, y, w, h float64) Space {
 	render.DrawColor(color.RGBA{128, 0, 128, 100}, x, y, w, h, 10)
-	x -= w
-	y -= h
 	rect := NewRect(x, y, w, h)
 	return Space{Location: rect}
 }
 
 func NewSpace(x, y, w, h float64, cID event.CID) Space {
-	x -= w
-	y -= h
 	rect := NewRect(x, y, w, h)
 	return Space{
 		rect,
@@ -38,8 +34,6 @@ func NewSpace(x, y, w, h float64, cID event.CID) Space {
 }
 
 func NewLabeledSpace(x, y, w, h float64, s string) Space {
-	x -= w
-	y -= h
 	rect := NewRect(x, y, w, h)
 	return Space{
 		Location: rect,
@@ -48,8 +42,6 @@ func NewLabeledSpace(x, y, w, h float64, s string) Space {
 }
 
 func NewFullSpace(x, y, w, h float64, s string, cID event.CID) Space {
-	x -= w
-	y -= h
 	rect := NewRect(x, y, w, h)
 	return Space{
 		rect,
