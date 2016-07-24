@@ -97,3 +97,8 @@ func ShinyDraw(buff screen.Buffer, img image.Image, x, y int) {
 	draw.Draw(buff.RGBA(), buff.Bounds(),
 		img, image.Point{-x, -y}, draw.Over)
 }
+
+func ShinyOverwrite(buff screen.Buffer, img image.Image, x, y int) {
+	draw.Draw(buff.RGBA(), buff.Bounds(),
+		img, image.Point{-x, -y}, draw.Src)
+}
