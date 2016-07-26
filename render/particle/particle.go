@@ -8,7 +8,6 @@ import (
 	"image"
 	"image/color"
 	"math"
-	"math/rand"
 	"time"
 )
 
@@ -30,10 +29,10 @@ type ParticleGenerator struct {
 }
 
 type ParticleSource struct {
+	render.Layered
 	Generator     ParticleGenerator
 	particles     []Particle
 	rotateBinding event.Binding
-	layer         int
 	cID           event.CID
 }
 
@@ -70,7 +69,7 @@ func (pg *ParticleGenerator) Generate(layer int) *ParticleSource {
 		go func(ps_p *ParticleSource, duration int) {
 			select {
 			case <-time.After(time.Duration(duration) * time.Millisecond):
-				Stop(ps_p)
+				ps_p.Stop()
 			}
 		}(&ps, pg.Duration)
 	}
@@ -179,63 +178,21 @@ func clearParticles(id int, nothing interface{}) error {
 	return nil
 }
 
-func Stop(ps *ParticleSource) {
+func (ps *ParticleSource) Stop() {
 	ps.rotateBinding.Unbind()
 	ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
 }
 
-func floatFromSpread(f float64) float64 {
-	return (f * 2 * rand.Float64()) - f
-}
-
-func roundFloat(f float64) int {
-	if f < 0 {
-		return int(math.Ceil(f - 0.5))
-	}
-	return int(math.Floor(f + 0.5))
-}
-
-func randColor(c, ra color.Color) color.Color {
-	r, g, b, a := c.RGBA()
-	r2, g2, b2, a2 := ra.RGBA()
-	return color.RGBA64{
-		uint16Spread(r, r2),
-		uint16Spread(g, g2),
-		uint16Spread(b, b2),
-		uint16Spread(a, a2),
-	}
-}
-
-func uint16Spread(n, r uint32) uint16 {
-	return uint16(math.Min(float64(int(n)+roundFloat(floatFromSpread(float64(r)))), 65535.0))
-}
-
-func uint8Spread(n, r uint32) uint8 {
-	n = n / 257
-	r = r / 257
-	return uint8(math.Min(float64(int(n)+roundFloat(floatFromSpread(float64(r)))), 255.0))
-}
-
-func unit16OnScale(n, endN uint32, progress float64) uint16 {
-	return uint16((float64(n) - float64(n)*(1.0-progress) + float64(endN)*(1.0-progress)))
-}
-
-func unit8OnScale(n, endN uint32, progress float64) uint8 {
-	return uint8((float64(n) - float64(n)*(1.0-progress) + float64(endN)*(1.0-progress)) / 257)
-}
-
-func (ps *ParticleSource) GetLayer() int {
-	return ps.layer
-}
-func (ps *ParticleSource) SetLayer(l int) {
-	ps.layer = l
-}
-func (ps *ParticleSource) UnDraw() {
-	ps.layer = -1
-}
-
 func (ps *ParticleSource) GetRGBA() *image.RGBA {
 	return nil
+}
+
+func (ps *ParticleSource) ShiftX(x float64) {
+	ps.Generator.X += x
+}
+
+func (ps *ParticleSource) ShiftY(y float64) {
+	ps.Generator.Y += y
 }
 
 func (ps *ParticleSource) SetPos(x, y float64) {

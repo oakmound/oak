@@ -7,9 +7,17 @@ import (
 )
 
 type Sprite struct {
-	x, y   float64
-	buffer *screen.Buffer
-	layer  int
+	Point
+	Layered
+	r *image.RGBA
+}
+
+func (s *Sprite) GetRGBA() *image.RGBA {
+	return s.r
+}
+
+func (s *Sprite) Draw(buff screen.Buffer) {
+	ShinyDraw(buff, s.r, int(s.X), int(s.Y))
 }
 
 func (s *Sprite) Copy() Modifiable {
@@ -18,80 +26,36 @@ func (s *Sprite) Copy() Modifiable {
 	return newS
 }
 
-func ParseSubSprite(s string, x, y, w, h, pad int) *Sprite {
-	sh, _ := LoadSheet(dir, s, w, h, pad)
-	return sh.SubSprite(x, y)
-}
-
-func (s Sprite) GetRGBA() *image.RGBA {
-	return (*s.buffer).RGBA()
-}
-
-func (s Sprite) HasBuffer() bool {
-	if s.buffer != nil {
-		return true
-	}
-	return false
+func (s *Sprite) IsNil() bool {
+	return s.r == nil
 }
 
 func (s *Sprite) ApplyColor(c color.Color) {
-	out := ApplyColor((*s.buffer).RGBA(), c)
-	s.buffer = RGBAtoBuffer(out)
+	s.r = ApplyColor(s.r, c)
 }
 
 func (s *Sprite) FillMask(img image.RGBA) {
-	out := FillMask((*s.buffer).RGBA(), img)
-	s.buffer = RGBAtoBuffer(out)
+	s.r = FillMask(s.r, img)
 }
 
 func (s *Sprite) ApplyMask(img image.RGBA) {
-	out := ApplyMask((*s.buffer).RGBA(), img)
-	s.buffer = RGBAtoBuffer(out)
+	s.r = ApplyMask(s.r, img)
 }
 
 func (s *Sprite) Rotate(degrees int) {
-	out := Rotate((*s.buffer).RGBA(), degrees)
-	s.buffer = RGBAtoBuffer(out)
+	s.r = Rotate(s.r, degrees)
 }
 func (s *Sprite) Scale(xRatio float64, yRatio float64) {
-	out := Scale((*s.buffer).RGBA(), xRatio, yRatio)
-	s.buffer = RGBAtoBuffer(out)
+	s.r = Scale(s.r, xRatio, yRatio)
 }
 func (s *Sprite) FlipX() {
-	out := FlipX((*s.buffer).RGBA())
-	s.buffer = RGBAtoBuffer(out)
+	s.r = FlipX(s.r)
 }
 func (s *Sprite) FlipY() {
-	out := FlipY((*s.buffer).RGBA())
-	s.buffer = RGBAtoBuffer(out)
+	s.r = FlipY(s.r)
 }
 
-func (s_p *Sprite) SetPos(x, y float64) {
-	s_p.x = x
-	s_p.y = y
-}
-
-func (s_p *Sprite) ShiftX(x float64) {
-	s_p.x += x
-}
-func (s_p *Sprite) ShiftY(y float64) {
-	s_p.y += y
-}
-
-func (s *Sprite) Draw(buff screen.Buffer) {
-	// s := *s_p
-	img := s.GetRGBA()
-	ShinyDraw(buff, img, int(s.x), int(s.y))
-}
-
-func (s *Sprite) GetLayer() int {
-	return s.layer
-}
-
-func (s *Sprite) SetLayer(l int) {
-	s.layer = l
-}
-
-func (s *Sprite) UnDraw() {
-	s.layer = -1
+func ParseSubSprite(s string, x, y, w, h, pad int) *Sprite {
+	sh, _ := LoadSheet(dir, s, w, h, pad)
+	return sh.SubSprite(x, y)
 }

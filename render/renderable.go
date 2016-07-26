@@ -3,9 +3,6 @@ package render
 import (
 	"golang.org/x/exp/shiny/screen"
 	"image"
-	"image/draw"
-	"log"
-	//"image/color"
 )
 
 var (
@@ -20,8 +17,8 @@ type Renderable interface {
 	//ApplyMask(??) *Renderable
 	//Rotate(degrees int) *Renderable
 	//Scale(xRatio int, yRatio int) *Renderable
-	//ShiftX(x int)
-	//ShiftY(y int)
+	ShiftX(x float64)
+	ShiftY(y float64)
 	Draw(buff screen.Buffer)
 	GetLayer() int
 	SetLayer(l int)
@@ -37,13 +34,4 @@ func SetScreen(s *screen.Screen) {
 
 func GetScreen() *screen.Screen {
 	return gameScreen
-}
-
-func RGBAtoBuffer(img *image.RGBA) *screen.Buffer {
-	buff, err := (*gameScreen).NewBuffer(img.Bounds().Max)
-	if err != nil {
-		log.Fatal(err)
-	}
-	draw.Draw(buff.RGBA(), img.Bounds(), img, image.Point{0, 0}, draw.Src)
-	return &buff
 }

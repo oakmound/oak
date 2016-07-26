@@ -7,10 +7,10 @@ import (
 )
 
 type Compound struct {
-	x, y           float64
+	Point
+	Layered
 	subRenderables map[string]Modifiable
 	curRenderable  string
-	layer          int
 }
 
 func NewCompound(start string, m map[string]Modifiable) *Compound {
@@ -89,37 +89,13 @@ func (c *Compound) FlipY() {
 	}
 }
 
-func (c *Compound) SetPos(x, y float64) {
-	c.x = x
-	c.y = y
-}
-
-func (c *Compound) ShiftX(x float64) {
-	c.x += x
-}
-func (c *Compound) ShiftY(y float64) {
-	c.y += y
-}
-
 func (c *Compound) Draw(buff screen.Buffer) {
 	img := c.GetRGBA()
 	switch t := c.subRenderables[c.curRenderable].(type) {
 	case *Animation:
 		t.updateAnimation()
 	}
-	ShinyDraw(buff, img, int(c.x), int(c.y))
-}
-
-func (c *Compound) GetLayer() int {
-	return c.layer
-}
-
-func (c *Compound) SetLayer(l int) {
-	c.layer = l
-}
-
-func (c *Compound) UnDraw() {
-	c.layer = -1
+	ShinyDraw(buff, img, int(c.X), int(c.Y))
 }
 
 func (c *Compound) Pause() {

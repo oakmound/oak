@@ -2,22 +2,15 @@ package render
 
 import (
 	"errors"
-	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
 	"math"
 )
 
 type Polygon struct {
+	Sprite
 	points                 []Point
-	x, y                   float64
-	r                      *image.RGBA
-	layer                  int
 	minX, maxX, minY, maxY float64
-}
-
-type Point struct {
-	X, Y float64
 }
 
 func ScreenPolygon(points []Point, w, h int) (*Polygon, error) {
@@ -31,12 +24,18 @@ func ScreenPolygon(points []Point, w, h int) (*Polygon, error) {
 	rgba := image.NewRGBA(rect)
 
 	return &Polygon{
-		points,
-		0,
-		0,
-		rgba,
-		0,
-		minX, minY, maxX, maxY,
+		Sprite: Sprite{
+			Point: Point{
+				0.0,
+				0.0,
+			},
+			r: rgba,
+		},
+		points: points,
+		minX:   minX,
+		minY:   minY,
+		maxX:   maxX,
+		maxY:   maxY,
 	}, nil
 }
 
@@ -54,12 +53,18 @@ func NewPolygon(points []Point) (*Polygon, error) {
 	rgba := image.NewRGBA(rect)
 
 	return &Polygon{
-		points,
-		minX,
-		minY,
-		rgba,
-		0,
-		minX, minY, maxX, maxY,
+		Sprite: Sprite{
+			Point: Point{
+				minX,
+				minY,
+			},
+			r: rgba,
+		},
+		points: points,
+		minX:   minX,
+		minY:   minY,
+		maxX:   maxX,
+		maxY:   maxY,
 	}, nil
 }
 
@@ -121,38 +126,6 @@ func BoundingRect(points []Point) (minX, minY, maxX, maxY float64, w, h int) {
 	w = int(maxX - minX)
 	h = int(maxY - minY)
 	return
-}
-
-func (pg *Polygon) GetRGBA() *image.RGBA {
-	return pg.r
-}
-
-func (pg *Polygon) Draw(buff screen.Buffer) {
-	ShinyDraw(buff, pg.r, int(pg.x), int(pg.y))
-}
-
-func (pg *Polygon) ShiftX(x float64) {
-	pg.x += x
-}
-func (pg *Polygon) ShiftY(y float64) {
-	pg.y += y
-}
-
-func (pg *Polygon) GetLayer() int {
-	return pg.layer
-}
-
-func (pg *Polygon) SetLayer(l int) {
-	pg.layer = l
-}
-
-func (pg *Polygon) UnDraw() {
-	pg.layer = -1
-}
-
-func (pg *Polygon) SetPos(x, y float64) {
-	pg.x = x
-	pg.y = y
 }
 
 // Returns whether or not the current Polygon contains the passed in Point.

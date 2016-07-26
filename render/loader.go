@@ -3,10 +3,8 @@ package render
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"errors"
-	// "fmt"
-	"golang.org/x/exp/shiny/screen"
 	"image"
-	"image/draw"
+	"image/color"
 	"image/png"
 	"io/ioutil"
 	"log"
@@ -30,19 +28,17 @@ var (
 		filepath.Dir(wd),
 		"assets",
 		"images")
-	loadedImages = make(map[string]*screen.Buffer)
+	loadedImages = make(map[string]*image.RGBA)
 	loadedSheets = make(map[string]*Sheet)
 	// move to some batch load settings
 	defaultPad = 0
 )
 
-func loadPNG(directory, fileName string) *screen.Buffer {
+func loadPNG(directory, fileName string) *image.RGBA {
 
 	if _, ok := loadedImages[fileName]; ok {
 		return loadedImages[fileName]
 	}
-
-	s := *GetScreen()
 
 	imgFile, err := os.Open(filepath.Join(directory, fileName))
 	if err != nil {
@@ -55,22 +51,25 @@ func loadPNG(directory, fileName string) *screen.Buffer {
 		log.Fatal(err)
 	}
 
-	buff, err := s.NewBuffer(img.Bounds().Max)
-	if err != nil {
-		log.Fatal(err)
+	bounds := img.Bounds()
+	rgba := image.NewRGBA(bounds)
+	for x := 0; x < bounds.Max.X; x++ {
+		for y := 0; y < bounds.Max.Y; y++ {
+			rgba.Set(x, y, color.RGBAModel.Convert(img.At(x, y)))
+		}
 	}
 
-	draw.Draw(buff.RGBA(), img.Bounds(), img, image.Point{0, 0}, draw.Src)
-
-	loadedImages[fileName] = &buff
+	loadedImages[fileName] = rgba
 
 	dlog.Verb("Loaded filename: ", fileName)
 
-	return &buff
+	return loadedImages[fileName]
 }
 
 func LoadSprite(fileName string) *Sprite {
-	return &Sprite{buffer: loadPNG(dir, fileName)}
+	return &Sprite{
+		r: loadPNG(dir, fileName),
+	}
 }
 
 func GetSheet(fileName string) [][]*Sprite {
@@ -96,14 +95,13 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 	if sheet_p, ok := loadedSheets[fileName]; ok {
 		return sheet_p, nil
 	}
-	buffer := loadedImages[fileName]
-	bounds := (*buffer).Size()
-	rgba := (*buffer).RGBA()
+	rgba := loadedImages[fileName]
+	bounds := rgba.Bounds()
 
-	sheetW := bounds.X / w
-	remainderW := bounds.X % w
-	sheetH := bounds.Y / h
-	remainderH := bounds.Y % h
+	sheetW := bounds.Max.X / w
+	remainderW := bounds.Max.X % w
+	sheetH := bounds.Max.Y / h
+	remainderH := bounds.Max.Y % h
 
 	var widthBuffers, heightBuffers int
 	if pad != 0 {
@@ -123,10 +121,10 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 
 	sheet := make(Sheet, sheetW)
 	i := 0
-	for x := 0; x < bounds.X; x += (w + pad) {
+	for x := 0; x < bounds.Max.X; x += (w + pad) {
 		sheet[i] = make([]*image.RGBA, sheetH)
 		j := 0
-		for y := 0; y < bounds.Y; y += (h + pad) {
+		for y := 0; y < bounds.Max.Y; y += (h + pad) {
 			sheet[i][j] = subImage(rgba, x, y, w, h)
 			j++
 		}
@@ -204,9 +202,8 @@ func BatchLoad(baseFolder string) error {
 					case ".png":
 						dlog.Verb("loading file ", n)
 						buff := loadPNG(baseFolder, filepath.Join(folder.Name(), n))
-
-						w := (*buff).Size().X
-						h := (*buff).Size().Y
+						w := buff.Bounds().Max.X
+						h := buff.Bounds().Max.Y
 
 						dlog.Verb("buffer: ", w, h, " frame: ", frameW, frameH)
 

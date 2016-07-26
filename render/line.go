@@ -2,16 +2,13 @@ package render
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
-	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
 	"math"
 )
 
 type Line struct {
-	x, y  float64
-	r     *image.RGBA
-	layer int
+	Sprite
 }
 
 func NewLine(x1, y1, x2, y2 float64, c color.Color) *Line {
@@ -20,43 +17,14 @@ func NewLine(x1, y1, x2, y2 float64, c color.Color) *Line {
 	rgba := drawLineBetween(int(y1), int(xDelta), int(y2), c)
 
 	return &Line{
-		math.Min(x1, x2),
-		math.Min(y1, y2),
-		rgba,
-		0,
+		Sprite{
+			Point: Point{
+				math.Min(x1, x2),
+				math.Min(y1, y2),
+			},
+			r: rgba,
+		},
 	}
-}
-
-func (ln *Line) GetRGBA() *image.RGBA {
-	return ln.r
-}
-
-func (ln *Line) Draw(buff screen.Buffer) {
-	ShinyDraw(buff, ln.r, int(ln.x), int(ln.y))
-}
-
-func (ln *Line) ShiftX(x float64) {
-	ln.x += x
-}
-func (ln *Line) ShiftY(y float64) {
-	ln.y += y
-}
-
-func (ln *Line) GetLayer() int {
-	return ln.layer
-}
-
-func (ln *Line) SetLayer(l int) {
-	ln.layer = l
-}
-
-func (ln *Line) UnDraw() {
-	ln.layer = -1
-}
-
-func (ln *Line) SetPos(x, y float64) {
-	ln.x = x
-	ln.y = y
 }
 
 // x1 is always 0

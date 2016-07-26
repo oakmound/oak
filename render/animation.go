@@ -6,7 +6,6 @@ import (
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
-	"image/draw"
 	"math"
 	"time"
 )
@@ -14,20 +13,20 @@ import (
 type Sheet [][]*image.RGBA
 
 func (sh *Sheet) SubSprite(x, y int) *Sprite {
-	b, _ := (*GetScreen()).NewBuffer((*sh)[x][y].Bounds().Max)
-	draw.Draw(b.RGBA(), b.Bounds(), (*sh)[x][y], image.Point{0, 0}, draw.Src)
-	return &Sprite{buffer: &b}
+	return &Sprite{
+		r: (*sh)[x][y],
+	}
 }
 
 type Animation struct {
-	x, y       float64
+	Point
+	Layered
 	sheetPos   int
 	frameTime  int64
 	frames     [][]int
 	sheet      *Sheet
 	lastChange time.Time
 	playing    bool
-	layer      int
 }
 
 func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error) {
@@ -43,8 +42,10 @@ func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error)
 	}
 
 	animation := Animation{
-		x:          0.0,
-		y:          0.0,
+		Point: Point{
+			X: 0.0,
+			Y: 0.0,
+		},
 		sheetPos:   0,
 		frameTime:  int64(frameTime),
 		frames:     splitFrames,
@@ -76,24 +77,6 @@ func (a_p *Animation) Copy() Modifiable {
 	return newA
 }
 
-func (a_p *Animation) ShiftX(x float64) {
-	a_p.x += x
-}
-func (a_p *Animation) ShiftY(y float64) {
-	a_p.y += y
-}
-func (a_p *Animation) GetX() float64 {
-	return a_p.x
-}
-func (a_p *Animation) GetY() float64 {
-	return a_p.y
-}
-
-func (a_p *Animation) SetPos(x, y float64) {
-	a_p.x = x
-	a_p.y = y
-}
-
 func (a_p *Animation) updateAnimation() {
 	if a_p.playing && time.Since(a_p.lastChange).Nanoseconds() > a_p.frameTime {
 		dlog.Verb("Increment sheetPos")
@@ -105,7 +88,7 @@ func (a_p *Animation) updateAnimation() {
 func (a_p *Animation) Draw(buff screen.Buffer) {
 	a_p.updateAnimation()
 	img := a_p.GetRGBA()
-	ShinyDraw(buff, img, int(a_p.x), int(a_p.y))
+	ShinyDraw(buff, img, int(a_p.X), int(a_p.Y))
 }
 
 func (a_p *Animation) GetRGBA() *image.RGBA {
@@ -173,18 +156,6 @@ func (a *Animation) FlipY() {
 			sheet[x][y] = FlipY(rgba)
 		}
 	}
-}
-
-func (a *Animation) GetLayer() int {
-	return a.layer
-}
-
-func (a *Animation) SetLayer(l int) {
-	a.layer = l
-}
-
-func (a *Animation) UnDraw() {
-	a.layer = -1
 }
 
 func (a *Animation) Pause() {

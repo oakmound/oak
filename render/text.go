@@ -33,10 +33,10 @@ var (
 )
 
 type Text struct {
-	text  string
-	x, y  int
-	d_p   *font.Drawer
-	layer int
+	Point
+	Layered
+	text string
+	d_p  *font.Drawer
 }
 
 func InitFont(b_p *screen.Buffer) {
@@ -62,11 +62,13 @@ func setFace() {
 	})
 }
 
-func NewText(str string, x, y int) *Text {
+func NewText(str string, x, y float64) *Text {
 	return &Text{
+		Point: Point{
+			x,
+			y,
+		},
 		text: str,
-		x:    x,
-		y:    y,
 		d_p:  d,
 	}
 }
@@ -75,25 +77,8 @@ func (t_p *Text) GetRGBA() *image.RGBA {
 	return nil
 }
 
-func (t_p *Text) GetLayer() int {
-	return t_p.layer
-}
-
-func (t_p *Text) SetLayer(l int) {
-	t_p.layer = l
-}
-
-func (t_p *Text) UnDraw() {
-	t_p.layer = -1
-}
-
-func (t_p *Text) SetPos(x, y float64) {
-	t_p.x = int(x)
-	t_p.y = int(y)
-}
-
 func (t_p *Text) Draw(buff screen.Buffer) {
-	t_p.d_p.Dot = fixed.P(t_p.x, t_p.y)
+	t_p.d_p.Dot = fixed.P(int(t_p.X), int(t_p.Y))
 	t_p.d_p.DrawString(t_p.text)
 }
 

@@ -1,16 +1,13 @@
 package render
 
 import (
-	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
 	"image/draw"
 )
 
 type ColorBox struct {
-	x, y  float64
-	r     *image.RGBA
-	layer int
+	Sprite
 }
 
 func NewColorBox(w, h int, c color.Color) *ColorBox {
@@ -18,41 +15,12 @@ func NewColorBox(w, h int, c color.Color) *ColorBox {
 	rgba := image.NewRGBA(rect)
 	draw.Draw(rgba, rect, image.NewUniform(c), image.Point{0, 0}, draw.Src)
 	return &ColorBox{
-		0.0,
-		0.0,
-		rgba,
-		0,
+		Sprite{
+			Point: Point{
+				0.0,
+				0.0,
+			},
+			r: rgba,
+		},
 	}
-}
-
-func (cb *ColorBox) GetRGBA() *image.RGBA {
-	return cb.r
-}
-
-func (cb *ColorBox) Draw(buff screen.Buffer) {
-	ShinyDraw(buff, cb.r, int(cb.x), int(cb.y))
-}
-
-func (cb *ColorBox) ShiftX(x float64) {
-	cb.x += x
-}
-func (cb *ColorBox) ShiftY(y float64) {
-	cb.y += y
-}
-
-func (cb *ColorBox) GetLayer() int {
-	return cb.layer
-}
-
-func (cb *ColorBox) SetLayer(l int) {
-	cb.layer = l
-}
-
-func (cb *ColorBox) UnDraw() {
-	cb.layer = -1
-}
-
-func (cb *ColorBox) SetPos(x, y float64) {
-	cb.x = x
-	cb.y = y
 }
