@@ -88,6 +88,17 @@ func (pg *Polygon) Fill(c color.Color) {
 	pg.r = rgba
 }
 
+func (pg *Polygon) GetOutline(c color.Color) *CompositeSlice {
+	sl := new(CompositeSlice)
+	j := len(pg.points) - 1
+	for i, p2 := range pg.points {
+		p1 := pg.points[j]
+		sl.Append(NewLine(p1.X, p1.Y, p2.X, p2.Y, c))
+		j = i
+	}
+	return sl
+}
+
 func (pg *Polygon) FillInverse(c color.Color) {
 	bounds := pg.r.Bounds()
 	rect := image.Rect(0, 0, bounds.Max.X, bounds.Max.Y)

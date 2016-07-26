@@ -78,14 +78,6 @@ func Init(firstScene string) {
 	audio.InitWinAudio()
 
 	curSeed := time.Now().UTC().UnixNano()
-	// Basic seed
-	//curSeed = 1463358974925095300
-	// Seed that required modifying connection algorithm 7/2
-	//curSeed = 1467565587127684400
-	// curSeed = 1468801776272358600
-	// Similar seed to 7/2 seed, resolved 7/18
-	// curSeed = 1469060874842175800
-	curSeed = 1469141388620221700
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
@@ -133,6 +125,7 @@ func Init(firstScene string) {
 }
 
 func eventLoop(s screen.Screen) {
+	// Todo: ratify these world size points
 	b, _ = s.NewBuffer(image.Point{4000, 4000})
 	winBuffer, _ = s.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
 	w, err := s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight})
@@ -141,7 +134,6 @@ func eventLoop(s screen.Screen) {
 	}
 	defer w.Release()
 	render.InitFont(&b)
-	render.SetScreen((&s))
 
 	err = render.BatchLoad(imageDir)
 	if err != nil {
@@ -290,12 +282,16 @@ func SetScreen(x, y int) {
 			ViewX = x
 		} else if viewBounds[0] > x {
 			ViewX = viewBounds[0]
+		} else if viewBounds[2] < x+ScreenWidth {
+			ViewX = viewBounds[2] - ScreenWidth
 		}
 		if viewBounds[1] < y && viewBounds[3] > y+ScreenHeight {
 			dlog.Verb("Set ViewY to ", y)
 			ViewY = y
 		} else if viewBounds[1] > y {
 			ViewY = viewBounds[1]
+		} else if viewBounds[3] < y+ScreenHeight {
+			ViewY = viewBounds[3] - ScreenHeight
 		}
 
 	} else {
