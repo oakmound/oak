@@ -56,9 +56,24 @@ func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error)
 	return &animation, nil
 }
 
-func (a_p *Animation) Copy() *Animation {
-	newA := *a_p
-	return &newA
+func (a_p *Animation) Copy() Modifiable {
+	newA := new(Animation)
+	*newA = *a_p
+	// Manual deep copy of pointers
+	aSheet := *a_p.sheet
+	sheetPointer := new(Sheet)
+	newSheet := make(Sheet, len(aSheet))
+	for x, col := range aSheet {
+		newSheet[x] = make([]*image.RGBA, len(aSheet[x]))
+		for y, val := range col {
+			newRGBA := new(image.RGBA)
+			*newRGBA = *val
+			newSheet[x][y] = newRGBA
+		}
+	}
+	*sheetPointer = newSheet
+	newA.sheet = sheetPointer
+	return newA
 }
 
 func (a_p *Animation) ShiftX(x float64) {

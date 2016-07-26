@@ -12,9 +12,10 @@ type Sprite struct {
 	layer  int
 }
 
-func (s *Sprite) Copy() *Sprite {
-	newS := *s
-	return &newS
+func (s *Sprite) Copy() Modifiable {
+	newS := new(Sprite)
+	*newS = *s
+	return newS
 }
 
 func ParseSubSprite(s string, x, y, w, h, pad int) *Sprite {

@@ -20,6 +20,10 @@ func NewCompound(start string, m map[string]Modifiable) *Compound {
 	}
 }
 
+func (c *Compound) ResetTo(newC *Compound) {
+	c.subRenderables = newC.subRenderables
+}
+
 func (c *Compound) Add(k string, v Modifiable) {
 	c.subRenderables[k] = v
 }
@@ -29,8 +33,14 @@ func (c *Compound) Set(k string) {
 }
 
 func (c *Compound) Copy() *Compound {
-	newC := *c
-	return &newC
+	newC := new(Compound)
+	*newC = *c
+	newSubRenderables := make(map[string]Modifiable)
+	for k, v := range c.subRenderables {
+		newSubRenderables[k] = v.Copy()
+	}
+	newC.subRenderables = newSubRenderables
+	return newC
 }
 
 func (c *Compound) GetRGBA() *image.RGBA {
