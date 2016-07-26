@@ -7,6 +7,17 @@ import (
 	"math"
 )
 
+// Modifications enum
+const (
+	F_FlipX = iota
+	F_FlipY
+	F_ApplyColor
+	F_FillMask
+	F_ApplyMask
+	F_Rotate
+	F_Scale
+)
+
 type Modifiable interface {
 	Renderable
 	FlipX()
@@ -55,6 +66,10 @@ func ApplyColor(rgba *image.RGBA, c color.Color) *image.RGBA {
 		for y := 0; y < h; y++ {
 			r2, g2, b2, a2 := rgba.At(x, y).RGBA()
 			a3 := a1 + a2
+			if a3 == 0 {
+				newRgba.Set(x, y, color.RGBA{0, 0, 0, 0})
+				continue
+			}
 			tmp := color.RGBA64{
 				uint16(((a1 * r1) + (a2 * r2)) / a3),
 				uint16(((a1 * g1) + (a2 * g2)) / a3),

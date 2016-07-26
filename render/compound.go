@@ -92,6 +92,8 @@ func (c *Compound) FlipY() {
 func (c *Compound) Draw(buff screen.Buffer) {
 	img := c.GetRGBA()
 	switch t := c.subRenderables[c.curRenderable].(type) {
+	case *Reverting:
+		t.updateAnimation()
 	case *Animation:
 		t.updateAnimation()
 	}
@@ -109,5 +111,12 @@ func (c *Compound) Unpause() {
 	switch c.subRenderables[c.curRenderable].(type) {
 	case *Animation:
 		c.subRenderables[c.curRenderable].(*Animation).playing = true
+	}
+}
+
+func (c *Compound) Revert(mod int) {
+	switch t := c.subRenderables[c.curRenderable].(type) {
+	case *Reverting:
+		t.Revert(mod)
 	}
 }

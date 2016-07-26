@@ -1,8 +1,6 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
-	//"fmt"
 	"image"
 	"image/color"
 	"math"
