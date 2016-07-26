@@ -83,16 +83,16 @@ func (ps *ParticleSource) Draw(buff screen.Buffer) {
 		r, g, b, a := p.startColor.RGBA()
 		r2, g2, b2, a2 := p.endColor.RGBA()
 		progress := p.life / p.totalLife
-		c := color.RGBA{
-			unit8OnScale(r, r2, progress),
-			unit8OnScale(g, g2, progress),
-			unit8OnScale(b, b2, progress),
-			unit8OnScale(a, a2, progress),
+		c := color.RGBA64{
+			unit16OnScale(r, r2, progress),
+			unit16OnScale(g, g2, progress),
+			unit16OnScale(b, b2, progress),
+			unit16OnScale(a, a2, progress),
 		}
 
-		img := image.NewRGBA(image.Rect(0, 0, 1, 1))
+		img := image.NewRGBA64(image.Rect(0, 0, 1, 1))
 
-		img.SetRGBA(0, 0, c)
+		img.SetRGBA64(0, 0, c)
 
 		render.ShinyDraw(buff, img, int(p.x), int(p.y))
 	}
@@ -198,18 +198,26 @@ func roundFloat(f float64) int {
 func randColor(c, ra color.Color) color.Color {
 	r, g, b, a := c.RGBA()
 	r2, g2, b2, a2 := ra.RGBA()
-	return color.RGBA{
-		uint8Spread(r, r2),
-		uint8Spread(g, g2),
-		uint8Spread(b, b2),
-		uint8Spread(a, a2),
+	return color.RGBA64{
+		uint16Spread(r, r2),
+		uint16Spread(g, g2),
+		uint16Spread(b, b2),
+		uint16Spread(a, a2),
 	}
+}
+
+func uint16Spread(n, r uint32) uint16 {
+	return uint16(math.Min(float64(int(n)+roundFloat(floatFromSpread(float64(r)))), 65535.0))
 }
 
 func uint8Spread(n, r uint32) uint8 {
 	n = n / 257
 	r = r / 257
 	return uint8(math.Min(float64(int(n)+roundFloat(floatFromSpread(float64(r)))), 255.0))
+}
+
+func unit16OnScale(n, endN uint32, progress float64) uint16 {
+	return uint16((float64(n) - float64(n)*(1.0-progress) + float64(endN)*(1.0-progress)))
 }
 
 func unit8OnScale(n, endN uint32, progress float64) uint8 {
