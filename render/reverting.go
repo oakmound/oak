@@ -6,21 +6,33 @@ import (
 	"image/color"
 )
 
+var (
+	emptyMods = [7]interface{}{
+		false,
+		false,
+		color.RGBA{0, 0, 0, 0},
+		image.RGBA{Stride: 0},
+		image.RGBA{Stride: 0},
+		0,
+		[2]float64{0, 0},
+	}
+)
+
 type Reverting struct {
 	root, current Modifiable
-	mods          map[int]interface{}
+	mods          [7]interface{}
 }
 
 func NewReverting(m Modifiable) *Reverting {
 	rv := new(Reverting)
 	rv.root = m
 	rv.current = m
-	rv.mods = make(map[int]interface{})
+	rv.mods = emptyMods
 	return rv
 }
 
 func (rv *Reverting) Revert(mod int) {
-	delete(rv.mods, mod)
+	rv.mods[mod] = emptyMods[mod]
 	rv.current = rv.root.Copy()
 	for mod, in := range rv.mods {
 		switch mod {
@@ -36,19 +48,29 @@ func (rv *Reverting) Revert(mod int) {
 			}
 		case F_ApplyColor:
 			v := (in).(color.Color)
-			rv.current.ApplyColor(v)
+			if v != (color.RGBA{0, 0, 0, 0}) {
+				rv.current.ApplyColor(v)
+			}
 		case F_FillMask:
 			v := (in).(image.RGBA)
-			rv.current.FillMask(v)
+			if v.Stride != 0 {
+				rv.current.FillMask(v)
+			}
 		case F_ApplyMask:
 			v := (in).(image.RGBA)
-			rv.current.ApplyMask(v)
+			if v.Stride != 0 {
+				rv.current.ApplyMask(v)
+			}
 		case F_Rotate:
 			v := (in).(int)
-			rv.current.Rotate(v)
+			if v != 0 {
+				rv.current.Rotate(v)
+			}
 		case F_Scale:
 			v := (in).([2]float64)
-			rv.current.Scale(v[0], v[1])
+			if v[0] != 0 && v[1] != 0 {
+				rv.current.Scale(v[0], v[1])
+			}
 		}
 	}
 }
@@ -80,53 +102,35 @@ func (rv *Reverting) UnDraw() {
 
 func (rv *Reverting) FlipX() {
 	rv.current.FlipX()
-	if v, ok := rv.mods[F_FlipX]; ok {
-		rv.mods[F_FlipX] = !(v).(bool)
-	} else {
-		rv.mods[F_FlipX] = true
-	}
+	rv.mods[F_FlipX] = !(rv.mods[F_FlipX]).(bool)
 }
 func (rv *Reverting) FlipY() {
 	rv.current.FlipY()
-	if v, ok := rv.mods[F_FlipY]; ok {
-		rv.mods[F_FlipY] = !(v).(bool)
-	} else {
-		rv.mods[F_FlipY] = true
-	}
+	rv.mods[F_FlipY] = !(rv.mods[F_FlipY]).(bool)
 }
 func (rv *Reverting) ApplyColor(c color.Color) {
-	if _, ok := rv.mods[F_ApplyColor]; ok {
-		rv.Revert(F_ApplyColor)
-	}
+	rv.Revert(F_ApplyColor)
 	rv.current.ApplyColor(c)
 	rv.mods[F_ApplyColor] = c
 }
 
 func (rv *Reverting) FillMask(img image.RGBA) {
-	if _, ok := rv.mods[F_FillMask]; ok {
-		rv.Revert(F_FillMask)
-	}
+	rv.Revert(F_FillMask)
 	rv.current.FillMask(img)
 	rv.mods[F_FillMask] = img
 }
 func (rv *Reverting) ApplyMask(img image.RGBA) {
-	if _, ok := rv.mods[F_ApplyMask]; ok {
-		rv.Revert(F_ApplyMask)
-	}
+	rv.Revert(F_ApplyMask)
 	rv.current.ApplyMask(img)
 	rv.mods[F_ApplyMask] = img
 }
 func (rv *Reverting) Rotate(degrees int) {
-	if _, ok := rv.mods[F_Rotate]; ok {
-		rv.Revert(F_Rotate)
-	}
+	rv.Revert(F_Rotate)
 	rv.current.Rotate(degrees)
 	rv.mods[F_Rotate] = degrees
 }
 func (rv *Reverting) Scale(xRatio float64, yRatio float64) {
-	if _, ok := rv.mods[F_Scale]; ok {
-		rv.Revert(F_Scale)
-	}
+	rv.Revert(F_Scale)
 	rv.current.Scale(xRatio, yRatio)
 	rv.mods[F_Scale] = [2]float64{xRatio, yRatio}
 }
@@ -140,6 +144,10 @@ func (rv *Reverting) Copy() Modifiable {
 
 func (rv *Reverting) updateAnimation() {
 	switch t := rv.current.(type) {
+	case *Animation:
+		t.updateAnimation()
+	}
+	switch t := rv.root.(type) {
 	case *Animation:
 		t.updateAnimation()
 	}
