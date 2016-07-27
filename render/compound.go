@@ -6,6 +6,13 @@ import (
 	"image/color"
 )
 
+// The Compound type is intended for use to easily swap between multiple
+// renderables that are drawn at the same position on the same layer.
+// A common use case for this would be a character entitiy who switches
+// their animation based on how they are moving or what they are doing.
+//
+// The Compound type removes the need to repeatedly draw and undraw elements
+// of a character, which has a tendency to leave nothing drawn for a draw frame.
 type Compound struct {
 	Point
 	Layered

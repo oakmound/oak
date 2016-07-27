@@ -21,10 +21,6 @@ type SceneEnd func() string
 type SceneStart func(prevScene string)
 type SceneLoop func() bool
 
-func GetCurrentScene() *Scene {
-	return activeScene
-}
-
 func GetScene(s string) *Scene {
 	return sceneMap[s]
 }

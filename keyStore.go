@@ -9,13 +9,17 @@ var (
 	keyLock  = sync.Mutex{}
 )
 
-func SetUp(key string) {
+// SetUp, SetDown, and IsDown all
+// control access to a keystate map
+// from key strings to down or up boolean
+// states.
+func setUp(key string) {
 	keyLock.Lock()
 	keyState[key] = false
 	keyLock.Unlock()
 }
 
-func SetDown(key string) {
+func setDown(key string) {
 	keyLock.Lock()
 	keyState[key] = true
 	keyLock.Unlock()

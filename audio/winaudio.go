@@ -12,7 +12,7 @@ var (
 	loadedWavs = make(map[string]Audio, 0)
 )
 
-// Alias the winaudio package's interface here
+// We alias the winaudio package's interface here
 // so game files don't need to import winaudio
 type Audio winaudio.Audio
 

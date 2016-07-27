@@ -1,7 +1,5 @@
 package plastic
 
-//Load configs
-
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"encoding/json"

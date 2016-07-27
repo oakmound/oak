@@ -1,3 +1,4 @@
+// Package plastic is a game engine...
 package plastic
 
 import (
@@ -27,36 +28,35 @@ import (
 )
 
 var (
-	initCh        = make(chan bool)
-	sceneCh       = make(chan bool)
-	quitCh        = make(chan bool)
-	drawChannel   = make(chan bool)
-	drawInit      = false
-	runEventLoop  = false
-	ScreenWidth   int
-	ScreenHeight  int
-	press         = key.DirPress
-	release       = key.DirRelease
-	black         = color.RGBA{0x00, 0x00, 0x00, 0xff}
-	b             screen.Buffer
-	winBuffer     screen.Buffer
-	eb            *event.EventBus
-	ViewX         = 0
-	ViewY         = 0
-	useViewBounds = false
-	viewBounds    []int
-	esc           = false
-	l_debug       = false
-	wd, _         = os.Getwd()
-	imageDir      string
-	audioDir      string
+	initCh       = make(chan bool)
+	sceneCh      = make(chan bool)
+	quitCh       = make(chan bool)
+	drawChannel  = make(chan bool)
+	drawInit     = false
+	runEventLoop = false
+	ScreenWidth  int
+	ScreenHeight int
+	press        = key.DirPress
+	release      = key.DirRelease
+	black        = color.RGBA{0x00, 0x00, 0x00, 0xff}
+	b            screen.Buffer
+	winBuffer    screen.Buffer
+	eb           *event.EventBus
+	esc          = false
+	l_debug      = false
+	wd, _        = os.Getwd()
+	imageDir     string
+	audioDir     string
 )
 
-// Scene loop initialization
+// Init initializes the plastic engine.
+// It spawns off an event loop of several goroutines
+// and loops through scenes after initalization.
 func Init(firstScene string) {
 	dlog.CreateLogFile()
 
 	loadDefaultConf()
+
 	// Set variables from conf file
 	dlog.SetStringDebugLevel(conf.Debug.Level)
 	dlog.SetDebugFilter(conf.Debug.Filter)
@@ -72,22 +72,40 @@ func Init(firstScene string) {
 		conf.Assets.AudioPath)
 	// END of loading variables from configuration
 
+	// Init various engine pieces
 	collision.Init()
 	pmouse.Init()
 	render.InitDrawHeap()
 	audio.InitWinAudio()
 
+	// Seed the rng
 	curSeed := time.Now().UTC().UnixNano()
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
 
+	// Load in assets
+	err = render.BatchLoad(imageDir)
+	if err != nil {
+		dlog.Error(err)
+		return
+	}
+	err = audio.BatchLoad(audioDir)
+	if err != nil {
+		dlog.Error(err)
+		return
+	}
+
+	// Spawn off event loop goroutines
 	go driver.Main(eventLoop)
 
 	prevScene := ""
 	sceneMap[firstScene].active = true
+
 	<-initCh
 	close(initCh)
+
+	// Loop through scenes
 	runEventLoop = true
 	scene := firstScene
 	dlog.Info("First Scene Start")
@@ -100,6 +118,8 @@ func Init(firstScene string) {
 		cont := true
 		for cont {
 			select {
+			// The quit channel represents a signal
+			// for the engine to stop.
 			case <-quitCh:
 				return
 
@@ -113,9 +133,11 @@ func Init(firstScene string) {
 		// Send a signal to stop drawing
 		drawChannel <- true
 
+		// Reset transient portions of the engine
 		event.ResetEventBus()
 		render.ResetDrawHeap()
 		collision.Clear()
+		pmouse.Clear()
 		render.PreDraw(0, nil)
 
 		scene = sceneMap[scene].end()
@@ -125,7 +147,12 @@ func Init(firstScene string) {
 }
 
 func eventLoop(s screen.Screen) {
-	// Todo: ratify these world size points
+
+	// The event loop requires information about
+	// the size of the world and screen that is
+	// being dealt with, and so initializes it here.
+	//
+	// Todo: add world size to config
 	b, _ = s.NewBuffer(image.Point{4000, 4000})
 	winBuffer, _ = s.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
 	w, err := s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight})
@@ -133,24 +160,18 @@ func eventLoop(s screen.Screen) {
 		log.Fatal(err)
 	}
 	defer w.Release()
-	render.InitFont(&b)
 
-	err = render.BatchLoad(imageDir)
-	if err != nil {
-		dlog.Error(err)
-		return
-	}
-	err = audio.BatchLoad(audioDir)
-	if err != nil {
-		dlog.Error(err)
-		return
-	}
+	// This initialization happens here on account of font's initialization
+	// requiring a buffer to draw to. Can probably change in the future.
+	render.InitFont(&b)
 
 	eb = event.GetEventBus()
 
+	// Todo: add frame rate to config
 	frameRate := 60
 	frameCh := make(chan bool, 100)
 
+	// This goroutine maintains a logical framerate
 	go func(frameCh chan bool, frameRate int64) {
 		c := time.Tick(time.Second / time.Duration(frameRate))
 		for range c {
@@ -158,13 +179,10 @@ func eventLoop(s screen.Screen) {
 		}
 	}(frameCh, int64(frameRate))
 
+	// Native go event handler
 	go func() {
 		for {
-			// Handle window events
 			e := w.NextEvent()
-			// This print message is to help programmers learn what events this
-			// example program generates. A real program shouldn't print such
-			// messages; they're not important to end users.
 			format := "got %#v\n"
 			if _, ok := e.(fmt.Stringer); ok {
 				format = "got %v\n"
@@ -174,34 +192,55 @@ func eventLoop(s screen.Screen) {
 			}
 			switch e := e.(type) {
 
+			// We only currently respond to death lifecycle events.
 			case lifecycle.Event:
 				if e.To == lifecycle.StageDead {
 					quitCh <- true
 					return
 				}
 
+			// Send key events
+			//
+			// Key events have two varieties:
+			// The "KeyDown" and "KeyUp" events, which trigger for all keys
+			// and specific "KeyDown$key", etc events which trigger only for $key.
+			// The specific key that is pressed is passed as the data interface for
+			// the former events, but not for the latter.
 			case key.Event:
 				if e.Direction == press {
 					fmt.Println("--------------------", e.Code.String()[4:])
-					SetDown(e.Code.String()[4:])
+					setDown(e.Code.String()[4:])
 					eb.Trigger("KeyDown", e.Code.String()[4:])
 					eb.Trigger("KeyDown"+e.Code.String()[4:], nil)
 				} else if e.Direction == release {
-					SetUp(e.Code.String()[4:])
+					setUp(e.Code.String()[4:])
 					eb.Trigger("KeyUp", e.Code.String()[4:])
 					eb.Trigger("KeyUp"+e.Code.String()[4:], nil)
 				}
 
+			// Send mouse events
+			//
+			// Mouse events are parsed based on their button
+			// and direction into an event name and then triggered:
+			// 'MousePress', 'MouseRelease', 'MouseScrollDown', 'MouseScrollUp', and 'MouseDrag'
+			//
+			// The basic event name is meant for entities which
+			// want to respond to the mouse event happening -anywhere-.
+			//
+			// For events which have mouse collision enabled, they'll recieve
+			// $eventName+"On" when the event occurs within their collision area.
+			//
+			// Mouse events all recieve an x, y, and button string.
 			case mouse.Event:
 				button := pmouse.GetMouseButton(int32(e.Button))
 				dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", button)
 				mevent := pmouse.MouseEvent{e.X, e.Y, button}
 				var eventName string
 				if e.Direction == mouse.DirPress {
-					SetDown(button)
+					setDown(button)
 					eventName = "MousePress"
 				} else if e.Direction == mouse.DirRelease {
-					SetUp(button)
+					setUp(button)
 					eventName = "MouseRelease"
 				} else if e.Button == -2 {
 					eventName = "MouseScrollDown"
@@ -213,19 +252,23 @@ func eventLoop(s screen.Screen) {
 				eb.Trigger(eventName, mevent)
 				pmouse.Propagate(eventName+"On", mevent)
 
+			// I don't really know what a paint event is to be honest.
 			case paint.Event:
 
+			// We hypothetically don't allow the user to manually resize
+			// their window, so we don't do anything special for such events.
 			case size.Event:
 				fmt.Println("Window resized")
 
 			case error:
-				log.Print(e)
+				dlog.Error(e)
 			}
+
+			// This is a hardcoded quit function bound to the escape key.
 			if IsDown("Escape") {
 				if esc {
-					dlog.Warn("\n\n~~~~~~~~~~~~Now Escaping~~~~~~~~~~~~~~\n\n\n")
-					ev := lifecycle.Event{0, 0, nil}
-					w.Send(ev)
+					dlog.Warn("Quiting plastic from holding ESCAPE")
+					w.Send(lifecycle.Event{0, 0, nil})
 				}
 				esc = true
 			} else {
@@ -234,10 +277,17 @@ func eventLoop(s screen.Screen) {
 		}
 	}()
 
+	// This sends a signal to initiate the first scene
 	initCh <- true
 
-	// Draw loop
-	// Pulled away from the framerate loop below
+	// The draw loop
+	// Unless told to stop, the draw channel will repeatedly
+	// 1. draw black to a temporary buffer
+	// 2. run any functions bound to precede drawing.
+	// 3. draw all elements onto the temporary buffer.
+	// 4. run any functions bound to follow drawing.
+	// 5. draw the buffer's data at the viewport's position to the screen.
+	// 6. publish the screen to display in window.
 	go func() {
 		<-drawChannel
 		for {
@@ -259,51 +309,17 @@ func eventLoop(s screen.Screen) {
 		}
 	}()
 
+	// The logical loop.
+	// In order, it waits on receiving a signal to begin a logical frame.
+	// It then runs any functions bound to when a frame begins.
+	// It then allows a scene to perform it's loop operation.
+	// It then runs any functions bound to when a frame ends.
 	for {
 		for runEventLoop {
 			<-frameCh
-
 			eb.Trigger("EnterFrame", nil)
 			sceneCh <- true
-
 			eb.Trigger("ExitFrame", nil)
 		}
 	}
-}
-
-func fillScreen(w screen.Window, c color.RGBA) {
-	w.Fill(b.Bounds(), black, screen.Src)
-}
-
-func SetScreen(x, y int) {
-	if useViewBounds {
-		if viewBounds[0] < x && viewBounds[2] > x+ScreenWidth {
-			dlog.Verb("Set ViewX to ", x)
-			ViewX = x
-		} else if viewBounds[0] > x {
-			ViewX = viewBounds[0]
-		} else if viewBounds[2] < x+ScreenWidth {
-			ViewX = viewBounds[2] - ScreenWidth
-		}
-		if viewBounds[1] < y && viewBounds[3] > y+ScreenHeight {
-			dlog.Verb("Set ViewY to ", y)
-			ViewY = y
-		} else if viewBounds[1] > y {
-			ViewY = viewBounds[1]
-		} else if viewBounds[3] < y+ScreenHeight {
-			ViewY = viewBounds[3] - ScreenHeight
-		}
-
-	} else {
-		dlog.Verb("Set ViewXY to ", x, " ", y)
-		ViewX = x
-		ViewY = y
-	}
-	dlog.Verb("ViewX, Y: ", ViewX, " ", ViewY)
-	eb.Trigger("ViewportUpdate", []float64{float64(ViewX), float64(ViewY)})
-}
-func SetViewportBounds(x1, y1, x2, y2 int) {
-	dlog.Info("Viewport bounds set to, ", x1, y1, x2, y2)
-	useViewBounds = true
-	viewBounds = []int{x1, y1, x2, y2}
 }

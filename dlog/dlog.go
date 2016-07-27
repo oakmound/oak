@@ -31,6 +31,11 @@ var (
 	writer_p    *bufio.Writer
 )
 
+// The primary function of the package,
+// dLog prints out and writes to file a string
+// containing the logged data seperated by spaces,
+// prepended with file and line information.
+// It only includes logs which pass the current filters.
 func dLog(in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)
