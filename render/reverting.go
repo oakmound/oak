@@ -28,6 +28,7 @@ func NewReverting(m Modifiable) *Reverting {
 	rv.root = m
 	rv.current = m
 	rv.mods = emptyMods
+	rv.mods[F_FlipX] = true
 	return rv
 }
 
@@ -150,5 +151,47 @@ func (rv *Reverting) updateAnimation() {
 	switch t := rv.root.(type) {
 	case *Animation:
 		t.updateAnimation()
+	}
+}
+
+func (rv *Reverting) Set(k string) {
+	switch t := rv.current.(type) {
+	case *Compound:
+		t.Set(k)
+	}
+	switch t := rv.root.(type) {
+	case *Compound:
+		t.Set(k)
+	}
+}
+
+func (rv *Reverting) Pause() {
+	switch t := rv.current.(type) {
+	case *Animation:
+		t.playing = false
+	case *Compound:
+		t.Pause()
+	}
+	switch t := rv.root.(type) {
+	case *Animation:
+		t.playing = false
+	case *Compound:
+		t.Pause()
+	}
+
+}
+
+func (rv *Reverting) Unpause() {
+	switch t := rv.current.(type) {
+	case *Animation:
+		t.playing = true
+	case *Compound:
+		t.Unpause()
+	}
+	switch t := rv.root.(type) {
+	case *Animation:
+		t.playing = true
+	case *Compound:
+		t.Unpause()
 	}
 }

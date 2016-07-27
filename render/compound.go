@@ -20,10 +20,6 @@ func NewCompound(start string, m map[string]Modifiable) *Compound {
 	}
 }
 
-func (c *Compound) ResetTo(newC *Compound) {
-	c.subRenderables = newC.subRenderables
-}
-
 func (c *Compound) Add(k string, v Modifiable) {
 	c.subRenderables[k] = v
 }
@@ -32,7 +28,7 @@ func (c *Compound) Set(k string) {
 	c.curRenderable = k
 }
 
-func (c *Compound) Copy() *Compound {
+func (c *Compound) Copy() Modifiable {
 	newC := new(Compound)
 	*newC = *c
 	newSubRenderables := make(map[string]Modifiable)
@@ -115,8 +111,10 @@ func (c *Compound) Unpause() {
 }
 
 func (c *Compound) Revert(mod int) {
-	switch t := c.subRenderables[c.curRenderable].(type) {
-	case *Reverting:
-		t.Revert(mod)
+	for _, v := range c.subRenderables {
+		switch t := v.(type) {
+		case *Reverting:
+			t.Revert(mod)
+		}
 	}
 }
