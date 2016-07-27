@@ -7,42 +7,50 @@ import (
 	"image/color"
 )
 
+// Spaces are a rectangle
+// with a couple of ways of identifying
+// the underlying object.
 type Space struct {
 	Location *rtreego.Rect
-	Label    int
-	CID      event.CID
+	// A label can store type information.
+	// Recommended to use with an enum.
+	Label int
+	// A CID can be used to get the exact
+	// entity which this rectangle belongs to.
+	CID event.CID
 }
 
-func (s Space) Bounds() *rtreego.Rect {
+// Bounds satisfies the rtreego.Spatial interface.
+func (s *Space) Bounds() *rtreego.Rect {
 	return s.Location
 }
 
-func NewUnassignedSpace(x, y, w, h float64) Space {
+func NewUnassignedSpace(x, y, w, h float64) *Space {
 	render.DrawColor(color.RGBA{128, 0, 128, 100}, x, y, w, h, 10)
 	rect := NewRect(x, y, w, h)
-	return Space{Location: rect}
+	return &Space{Location: rect}
 }
 
-func NewSpace(x, y, w, h float64, cID event.CID) Space {
+func NewSpace(x, y, w, h float64, cID event.CID) *Space {
 	rect := NewRect(x, y, w, h)
-	return Space{
+	return &Space{
 		rect,
 		-1,
 		cID,
 	}
 }
 
-func NewLabeledSpace(x, y, w, h float64, l int) Space {
+func NewLabeledSpace(x, y, w, h float64, l int) *Space {
 	rect := NewRect(x, y, w, h)
-	return Space{
+	return &Space{
 		Location: rect,
 		Label:    l,
 	}
 }
 
-func NewFullSpace(x, y, w, h float64, l int, cID event.CID) Space {
+func NewFullSpace(x, y, w, h float64, l int, cID event.CID) *Space {
 	rect := NewRect(x, y, w, h)
-	return Space{
+	return &Space{
 		rect,
 		l,
 		cID,

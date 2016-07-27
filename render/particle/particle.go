@@ -1,3 +1,5 @@
+// Package particle provides options for generating renderable
+// particle sources.
 package particle
 
 import (
@@ -11,23 +13,48 @@ import (
 	"time"
 )
 
+// ParticleGenerator represents the various options
+// one needs to or may provide in order to generate a
+// ParticleSource.
 // Modeled after Parcycle
 type ParticleGenerator struct {
+	// This float is currently forced to an integer
+	// at new particle rotation. This should be changed
+	// to something along the lines of 'new per 30 frames',
+	// or allow low fractional values to be meaningful,
+	// so that more fine-tuned particle generation speeds are possible.
 	NewPerFrame, NewPerFrameRand float64
 	X, Y                         float64
-	//Size, SizeRand               int
+	// The number of frames each particle should persist
+	// before being removed.
 	LifeSpan, LifeSpanRand float64
 	// 0 - between quadrant 1 and 4
 	// 90 - between quadrant 2 and 1
-	Angle, AngleRand           float64
-	Speed, SpeedRand           float64
-	SpreadX, SpreadY           float64
-	Duration                   int
+	Angle, AngleRand float64
+	Speed, SpeedRand float64
+	SpreadX, SpreadY float64
+	// Duration in milliseconds for the particle source.
+	// After this many milliseconds have passed, it will
+	// stop sending out new particles. Old particles will
+	// not be removed until their individual lifespans run
+	// out.
+	// A duration of -1 represents never stopping.
+	Duration int
+	// Gravity X and Gravity Y represent particle acceleration per frame.
 	GravityX, GravityY         float64
 	StartColor, StartColorRand color.Color
 	EndColor, EndColorRand     color.Color
+	// Future potential options:
+	// The size, in pixel radius, of spawned particles
+	// Size, SizeRand int
+	//
+	// Some sort of particle type, for rendering triangles or squares or circles...
+	//
+	// Rotational acceleration, to change angle over time
+	// Rotation, RotationRand float64
 }
 
+// A ParticleSource is used to store and control a set of particles.
 type ParticleSource struct {
 	render.Layered
 	Generator     ParticleGenerator
@@ -51,7 +78,9 @@ func (ps *ParticleSource) Init() event.CID {
 	return plastic.NextID(ps)
 }
 
-// Todo: add draw priority to call
+// Generate takes a generator and converts it into a source,
+// drawing particles and binding functions for particle generation
+// and rotation.
 func (pg *ParticleGenerator) Generate(layer int) *ParticleSource {
 	// Make a source
 	ps := ParticleSource{
@@ -83,10 +112,10 @@ func (ps *ParticleSource) Draw(buff screen.Buffer) {
 		r2, g2, b2, a2 := p.endColor.RGBA()
 		progress := p.life / p.totalLife
 		c := color.RGBA64{
-			unit16OnScale(r, r2, progress),
-			unit16OnScale(g, g2, progress),
-			unit16OnScale(b, b2, progress),
-			unit16OnScale(a, a2, progress),
+			uint16OnScale(r, r2, progress),
+			uint16OnScale(g, g2, progress),
+			uint16OnScale(b, b2, progress),
+			uint16OnScale(a, a2, progress),
 		}
 
 		img := image.NewRGBA64(image.Rect(0, 0, 1, 1))
@@ -97,6 +126,8 @@ func (ps *ParticleSource) Draw(buff screen.Buffer) {
 	}
 }
 
+// rotateParticles updates particles over time as long
+// as a ParticleSource is active.
 func rotateParticles(id int, nothing interface{}) error {
 
 	ps := plastic.GetEntity(id).(*ParticleSource)
@@ -148,6 +179,8 @@ func rotateParticles(id int, nothing interface{}) error {
 	return nil
 }
 
+// clearParticles is used after a ParticleSource has been stopped
+// to continue moving old particles for as long as they exist.
 func clearParticles(id int, nothing interface{}) error {
 
 	ps := plastic.GetEntity(id).(*ParticleSource)
@@ -178,11 +211,16 @@ func clearParticles(id int, nothing interface{}) error {
 	return nil
 }
 
+// Stop manually stops a ParticleSource, if its duration is infinite
+// or if it should be stopped before expriring naturally.
 func (ps *ParticleSource) Stop() {
 	ps.rotateBinding.Unbind()
 	ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
 }
 
+// A particle source has no concept of an individual
+// rgba buffer, and so it returns nothing when its
+// rgba buffer is queried. This may change.
 func (ps *ParticleSource) GetRGBA() *image.RGBA {
 	return nil
 }
@@ -200,10 +238,15 @@ func (ps *ParticleSource) SetPos(x, y float64) {
 	ps.Generator.Y = y
 }
 
+// Pausing a ParticleSource just stops the repetition
+// of its rotation function, which moves, destroys,
+// ages and generates particles. Existing particles will
+// stay in place.
 func (ps *ParticleSource) Pause() {
 	ps.rotateBinding.Unbind()
 }
 
+// Unpausing a ParticleSource rebinds it's rotate function.
 func (ps *ParticleSource) UnPause() {
 	binding, _ := ps.cID.Bind(rotateParticles, "EnterFrame")
 	ps.rotateBinding = binding

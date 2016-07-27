@@ -18,6 +18,9 @@ const (
 	F_Scale
 )
 
+// Modifiables are Renderables that have functions to change their
+// underlying image.
+// This may be replaced with the gift library down the line
 type Modifiable interface {
 	Renderable
 	FlipX()
@@ -30,6 +33,8 @@ type Modifiable interface {
 	Scale(xRatio float64, yRatio float64)
 }
 
+// FlipX returns a new rgba which is flipped
+// over the horizontal axis.
 func FlipX(rgba *image.RGBA) *image.RGBA {
 	bounds := rgba.Bounds()
 	w := bounds.Max.X
@@ -43,6 +48,8 @@ func FlipX(rgba *image.RGBA) *image.RGBA {
 	return newRgba
 }
 
+// FlipY returns a new rgba which is flipped
+// over the vertical axis.
 func FlipY(rgba *image.RGBA) *image.RGBA {
 	bounds := rgba.Bounds()
 	w := bounds.Max.X
@@ -56,6 +63,8 @@ func FlipY(rgba *image.RGBA) *image.RGBA {
 	return newRgba
 }
 
+// Apply color mixes a color into the rgba values of an image
+// and returns that new rgba.
 func ApplyColor(rgba *image.RGBA, c color.Color) *image.RGBA {
 	r1, g1, b1, a1 := c.RGBA()
 	bounds := rgba.Bounds()
@@ -81,6 +90,8 @@ func ApplyColor(rgba *image.RGBA, c color.Color) *image.RGBA {
 	return newRgba
 }
 
+// FillMask replaces alpha 0 pixels in an RGBA with corresponding
+// pixels in a second RGBA.
 func FillMask(rgba *image.RGBA, img image.RGBA) *image.RGBA {
 	// Instead of static color it just two buffers melding
 	bounds := rgba.Bounds()
@@ -124,6 +135,8 @@ func FillMask(rgba *image.RGBA, img image.RGBA) *image.RGBA {
 	return newRgba
 }
 
+// ApplyMask mixes the rgba values of two images, according to
+// their alpha levels, and returns that as a new rgba.
 func ApplyMask(rgba *image.RGBA, img image.RGBA) *image.RGBA {
 	// Instead of static color it just two buffers melding
 	bounds := rgba.Bounds()
@@ -166,6 +179,7 @@ func ApplyMask(rgba *image.RGBA, img image.RGBA) *image.RGBA {
 	return newRgba
 }
 
+// Rotate returns a rotated rgba.
 func Rotate(rgba *image.RGBA, degrees int) *image.RGBA {
 	filter := gift.New(
 		gift.Rotate(float32(degrees), color.Black, gift.CubicInterpolation))
@@ -175,6 +189,7 @@ func Rotate(rgba *image.RGBA, degrees int) *image.RGBA {
 
 }
 
+// Scale returns a scaled rgba.
 func Scale(rgba *image.RGBA, xRatio float64, yRatio float64) *image.RGBA {
 	bounds := rgba.Bounds()
 	w := int(math.Floor(float64(bounds.Max.X) * xRatio))

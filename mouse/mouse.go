@@ -1,3 +1,6 @@
+// Package mouse handles the propagation of mouse events
+// though clickable regions.
+// It has a lot of functions which are equivalent to those in the collision package.
 package mouse
 
 import (
@@ -22,21 +25,19 @@ func Clear() {
 	Init()
 }
 
-func Add(sp collision.Space) {
+func Add(sp *collision.Space) {
 	mt.Insert(sp)
 }
 
-func Remove(sp collision.Space) {
+func Remove(sp *collision.Space) {
 	mt.Delete(sp)
 }
 
-func UpdateSpace(x, y, w, h float64, s collision.Space) *rtreego.Rect {
+func UpdateSpace(x, y, w, h float64, s *collision.Space) {
+	if s == nil {
+		return
+	}
 	loc := collision.NewRect(x, y, w, h)
-	Update(s, loc)
-	return loc
-}
-
-func Update(s collision.Space, loc *rtreego.Rect) {
 	mt.Delete(s)
 	s.Location = loc
 	mt.Insert(s)
@@ -48,7 +49,7 @@ func Propagate(eventName string, me MouseEvent) {
 	mouseLoc := collision.NewUnassignedSpace(float64(me.X), float64(me.Y), 0.01, 0.01)
 	hits := mt.SearchIntersect(mouseLoc.Bounds())
 	for _, v := range hits {
-		sp := v.(collision.Space)
+		sp := v.(*collision.Space)
 
 		// Todo:
 		// Talk about what event should be triggered here
@@ -56,6 +57,9 @@ func Propagate(eventName string, me MouseEvent) {
 	}
 }
 
+// GetMouseButton is a utitilty function which translates
+// integer values of mouse keys from golang's event/mouse library
+// into strings.
 func GetMouseButton(i int32) string {
 	s := ""
 	switch i {
