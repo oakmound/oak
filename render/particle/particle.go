@@ -40,6 +40,8 @@ type ParticleGenerator struct {
 	// out.
 	// A duration of -1 represents never stopping.
 	Duration int
+	// Rotational acceleration, to change angle over time
+	//Rotation, RotationRand float64
 	// Gravity X and Gravity Y represent particle acceleration per frame.
 	GravityX, GravityY         float64
 	StartColor, StartColorRand color.Color
@@ -50,8 +52,6 @@ type ParticleGenerator struct {
 	//
 	// Some sort of particle type, for rendering triangles or squares or circles...
 	//
-	// Rotational acceleration, to change angle over time
-	// Rotation, RotationRand float64
 }
 
 // A ParticleSource is used to store and control a set of particles.

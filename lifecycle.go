@@ -12,7 +12,6 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -157,7 +156,7 @@ func eventLoop(s screen.Screen) {
 	winBuffer, _ = s.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
 	w, err := s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight})
 	if err != nil {
-		log.Fatal(err)
+		dlog.Error(err)
 	}
 	defer w.Release()
 
