@@ -8,26 +8,30 @@ var (
 	ViewX         = 0
 	ViewY         = 0
 	useViewBounds = false
-	viewBounds    []int
+	viewBounds    Rect
 )
+
+type Rect struct {
+	minX, minY, maxX, maxY int
+}
 
 func SetScreen(x, y int) {
 	if useViewBounds {
-		if viewBounds[0] < x && viewBounds[2] > x+ScreenWidth {
+		if viewBounds.minX < x && viewBounds.maxX > x+ScreenWidth {
 			dlog.Verb("Set ViewX to ", x)
 			ViewX = x
-		} else if viewBounds[0] > x {
-			ViewX = viewBounds[0]
-		} else if viewBounds[2] < x+ScreenWidth {
-			ViewX = viewBounds[2] - ScreenWidth
+		} else if viewBounds.minX > x {
+			ViewX = viewBounds.minX
+		} else if viewBounds.maxX < x+ScreenWidth {
+			ViewX = viewBounds.maxX - ScreenWidth
 		}
-		if viewBounds[1] < y && viewBounds[3] > y+ScreenHeight {
+		if viewBounds.minY < y && viewBounds.maxY > y+ScreenHeight {
 			dlog.Verb("Set ViewY to ", y)
 			ViewY = y
-		} else if viewBounds[1] > y {
-			ViewY = viewBounds[1]
-		} else if viewBounds[3] < y+ScreenHeight {
-			ViewY = viewBounds[3] - ScreenHeight
+		} else if viewBounds.minY > y {
+			ViewY = viewBounds.minY
+		} else if viewBounds.maxY < y+ScreenHeight {
+			ViewY = viewBounds.maxY - ScreenHeight
 		}
 
 	} else {
@@ -42,5 +46,5 @@ func SetScreen(x, y int) {
 func SetViewportBounds(x1, y1, x2, y2 int) {
 	dlog.Info("Viewport bounds set to, ", x1, y1, x2, y2)
 	useViewBounds = true
-	viewBounds = []int{x1, y1, x2, y2}
+	viewBounds = Rect{x1, y1, x2, y2}
 }

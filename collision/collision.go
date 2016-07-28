@@ -18,8 +18,7 @@ var (
 // what was collided with.
 type CollisionPoint struct {
 	Zone *Space
-	X    float64
-	Y    float64
+	X, Y float64
 }
 
 func Init() {

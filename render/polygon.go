@@ -7,10 +7,14 @@ import (
 	"math"
 )
 
+type Rect struct {
+	minX, maxX, minY, maxY float64
+}
+
 type Polygon struct {
 	Sprite
-	points                 []Point
-	minX, maxX, minY, maxY float64
+	Rect
+	points []Point
 }
 
 func ScreenPolygon(points []Point, w, h int) (*Polygon, error) {
@@ -31,11 +35,13 @@ func ScreenPolygon(points []Point, w, h int) (*Polygon, error) {
 			},
 			r: rgba,
 		},
+		Rect: Rect{
+			minX: minX,
+			minY: minY,
+			maxX: maxX,
+			maxY: maxY,
+		},
 		points: points,
-		minX:   minX,
-		minY:   minY,
-		maxX:   maxX,
-		maxY:   maxY,
 	}, nil
 }
 
@@ -60,11 +66,13 @@ func NewPolygon(points []Point) (*Polygon, error) {
 			},
 			r: rgba,
 		},
+		Rect: Rect{
+			minX: minX,
+			minY: minY,
+			maxX: maxX,
+			maxY: maxY,
+		},
 		points: points,
-		minX:   minX,
-		minY:   minY,
-		maxX:   maxX,
-		maxY:   maxY,
 	}, nil
 }
 
