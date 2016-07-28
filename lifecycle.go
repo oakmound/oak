@@ -54,11 +54,15 @@ var (
 func Init(firstScene string) {
 	dlog.CreateLogFile()
 
-	loadDefaultConf()
+	err := loadDefaultConf()
 
 	// Set variables from conf file
 	dlog.SetStringDebugLevel(conf.Debug.Level)
 	dlog.SetDebugFilter(conf.Debug.Filter)
+
+	if err != nil {
+		dlog.Verb(err)
+	}
 
 	ScreenWidth = conf.Screen.Width
 	ScreenHeight = conf.Screen.Height
@@ -69,6 +73,10 @@ func Init(firstScene string) {
 	audioDir = filepath.Join(filepath.Dir(wd),
 		conf.Assets.AssetPath,
 		conf.Assets.AudioPath)
+
+	render.SetFontDefaults(wd, conf.Assets.AssetPath, conf.Assets.FontPath,
+		conf.Font.Hinting, conf.Font.Color, conf.Font.File, conf.Font.Size,
+		conf.Font.DPI)
 	// END of loading variables from configuration
 
 	// Init various engine pieces

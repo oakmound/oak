@@ -8,28 +8,28 @@ import (
 	"image"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 )
 
 var (
-	fontdir = filepath.Join(
-		filepath.Dir(wd),
-		"assets",
-		"font")
+	fontdir string
 
-	d              *font.Drawer
-	f              *truetype.Font
-	defaultHinting = font.HintingNone
-	defaultSize    = 12.0
-	defaultDPI     = 72.0
-	defaultColor   = image.White
+	d *font.Drawer
+	f *truetype.Font
 
-	faceHinting     = defaultHinting
-	faceSize        = defaultSize
-	faceDPI         = defaultDPI
-	loadedFonts     = make(map[string]*truetype.Font)
-	defaultFontFile = "luxisr.ttf"
+	defaultHinting  font.Hinting
+	defaultSize     float64
+	defaultDPI      float64
+	defaultColor    image.Image
+	defaultFontFile string
+
+	faceHinting font.Hinting
+	faceSize    float64
+	faceDPI     float64
+	faceColor   image.Image
+	loadedFonts = make(map[string]*truetype.Font)
 )
 
 type Text struct {
@@ -39,17 +39,32 @@ type Text struct {
 	d_p  *font.Drawer
 }
 
+func SetFontDefaults(wd, assetPath, fontPath, hinting, color, file string, size, dpi float64) {
+	fontdir = filepath.Join(filepath.Dir(wd),
+		assetPath,
+		fontPath)
+	parseFontHinting(hinting)
+	defaultHinting = faceHinting
+	faceSize = size
+	defaultSize = faceSize
+	faceDPI = dpi
+	defaultDPI = faceDPI
+	faceColor = parseFontColor(color)
+	defaultColor = faceColor
+	defaultFontFile = file
+}
+
 func InitFont(b_p *screen.Buffer) {
 	b := *b_p
 	LoadFont(defaultFontFile)
 	f = loadedFonts[defaultFontFile]
 	d = &font.Drawer{
 		Dst: b.RGBA(),
-		Src: defaultColor,
+		Src: faceColor,
 		Face: truetype.NewFace(f, &truetype.Options{
-			Size:    defaultSize,
-			DPI:     defaultDPI,
-			Hinting: defaultHinting,
+			Size:    faceSize,
+			DPI:     faceDPI,
+			Hinting: faceHinting,
 		}),
 	}
 }
@@ -99,6 +114,12 @@ func SetFontDPI(dpi float64) {
 	setFace()
 }
 func SetFontHinting(hintType string) {
+	parseFontHinting(hintType)
+	setFace()
+}
+
+func parseFontHinting(hintType string) {
+	hintType = strings.ToLower(hintType)
 	switch hintType {
 	case "none":
 		faceHinting = font.HintingNone
@@ -106,9 +127,24 @@ func SetFontHinting(hintType string) {
 		faceHinting = font.HintingVertical
 	case "full":
 		faceHinting = font.HintingFull
+	default:
+		dlog.Error("Unable to parse font hinting, ", hintType)
+		faceHinting = font.HintingNone
 	}
-	setFace()
 }
+
+func parseFontColor(s string) image.Image {
+	s = strings.ToLower(s)
+	switch s {
+	case "white":
+		return image.White
+	case "black":
+		return image.Black
+	default:
+		return image.Black
+	}
+}
+
 func ResetFontFormat() {
 	faceHinting = defaultHinting
 	faceSize = defaultSize

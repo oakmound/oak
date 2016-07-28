@@ -23,6 +23,7 @@ type plasticConfig struct {
 		AssetPath string `json:"assetPath"`
 		AudioPath string `json:"audioPath"`
 		ImagePath string `json:"imagePath"`
+		FontPath  string `json:"fontPath"`
 	} `json:"assets"`
 	Debug struct {
 		Filter string `json:"filter"`
@@ -32,6 +33,13 @@ type plasticConfig struct {
 		Height int `json:"height"`
 		Width  int `json:"width"`
 	} `json:"screen"`
+	Font struct {
+		Hinting string  `json:"hinting"`
+		Size    float64 `json:"size"`
+		DPI     float64 `json:"dpi"`
+		File    string  `json:"file"`
+		Color   string  `json:"color"`
+	} `json:"font"`
 }
 
 func LoadConf(fileName string) error {
@@ -50,6 +58,7 @@ func loadDefaultConf() error {
 	dlog.Error(filepath.Join(os.Getenv("GOPATH"), plasticPath, "default.config"))
 
 	conf, err = loadPlasticConfig(filepath.Join(os.Getenv("GOPATH"), plasticPath, "default.config"))
+	dlog.Error(conf, err)
 	if err != nil {
 		return err
 	}
@@ -62,6 +71,9 @@ func loadDefaultConf() error {
 	}
 	if tmpConf.Assets.AudioPath != "" {
 		conf.Assets.AudioPath = tmpConf.Assets.AudioPath
+	}
+	if tmpConf.Assets.FontPath != "" {
+		conf.Assets.FontPath = tmpConf.Assets.FontPath
 	}
 
 	if tmpConf.Debug.Filter != "" {
@@ -78,12 +90,30 @@ func loadDefaultConf() error {
 		conf.Screen.Height = tmpConf.Screen.Height
 	}
 
-	dlog.Verb(conf)
+	if tmpConf.Font.Hinting != "" {
+		conf.Font.Hinting = tmpConf.Font.Hinting
+	}
+	if tmpConf.Font.Size != 0 {
+		conf.Font.Size = tmpConf.Font.Size
+	}
+	if tmpConf.Font.DPI != 0 {
+		conf.Font.DPI = tmpConf.Font.DPI
+	}
+	if tmpConf.Font.File != "" {
+		conf.Font.File = tmpConf.Font.File
+	}
+	if tmpConf.Font.Color != "" {
+		conf.Font.Color = tmpConf.Font.Color
+	}
+
+	dlog.Error(conf)
 
 	return err
 }
 
 func loadPlasticConfig(fileName string) (plasticConfig, error) {
+
+	dlog.Error("Loading config:", fileName)
 
 	confFile, err := ioutil.ReadFile(fileName)
 	if err != nil {
@@ -91,6 +121,7 @@ func loadPlasticConfig(fileName string) (plasticConfig, error) {
 	}
 	var config plasticConfig
 	json.Unmarshal(confFile, &config)
+	dlog.Error(config)
 
 	return config, nil
 }
