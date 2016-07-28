@@ -2,6 +2,7 @@ package render
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"encoding/json"
 	"errors"
 	"image"
 	"image/color"
@@ -169,8 +170,18 @@ func BatchLoad(baseFolder string) error {
 	// dir2 := filepath.Join(dir, "textures")
 	folders, _ := ioutil.ReadDir(baseFolder)
 
+	aliasFile, err := ioutil.ReadFile(filepath.Join(baseFolder, "alias.json"))
+	aliases := make(map[string]string)
+	if err == nil {
+		err = json.Unmarshal(aliasFile, &aliases)
+		if err != nil {
+			dlog.Error("Alias file unparseable: ", err)
+		} else {
+			dlog.Verb(aliases)
+		}
+	}
+
 	for i, folder := range folders {
-		//Pull in from alias file here to grab things correectly for size
 
 		dlog.Verb("folder ", i, folder.Name())
 		if folder.IsDir() {
@@ -191,7 +202,22 @@ func BatchLoad(baseFolder string) error {
 				frameW = val
 				frameH = val
 			} else {
-				return errors.New("Aliases for folders are not implemented yet")
+				if aliased, ok := aliases[folder.Name()]; ok {
+					if result := regexpTwoNumbers.Find([]byte(aliased)); result != nil {
+						vals := strings.Split(string(result), "x")
+						dlog.Verb("Extracted dimensions: ", vals)
+						frameW, _ = strconv.Atoi(vals[0])
+						frameH, _ = strconv.Atoi(vals[1])
+					} else if result := regexpSingleNumber.Find([]byte(aliased)); result != nil {
+						val, _ := strconv.Atoi(string(result))
+						frameW = val
+						frameH = val
+					} else {
+						return errors.New("Alias value not parseable as a frame width and height pair.")
+					}
+				} else {
+					return errors.New("Alias name not found in alias file.")
+				}
 			}
 
 			files, _ := ioutil.ReadDir(filepath.Join(baseFolder, folder.Name()))
