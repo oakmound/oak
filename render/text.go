@@ -97,6 +97,13 @@ func (t_p *Text) Draw(buff screen.Buffer) {
 	t_p.d_p.DrawString(t_p.text)
 }
 
+// Center will shift the text so that the existing leftmost point
+// where the text sits becomes the center of the new text.
+func (t_p *Text) Center() {
+	textWidth := t_p.d_p.MeasureString(t_p.text).Round()
+	t_p.ShiftX(float64(-textWidth / 2))
+}
+
 func DrawText(str string, x, y int) {
 	d.Dot = fixed.P(x, y)
 	d.DrawString(str)
