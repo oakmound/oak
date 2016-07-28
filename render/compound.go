@@ -104,16 +104,20 @@ func (c *Compound) Draw(buff screen.Buffer) {
 }
 
 func (c *Compound) Pause() {
-	switch c.subRenderables[c.curRenderable].(type) {
+	switch t := c.subRenderables[c.curRenderable].(type) {
 	case *Animation:
-		c.subRenderables[c.curRenderable].(*Animation).playing = false
+		t.playing = false
+	case *Reverting:
+		t.Pause()
 	}
 }
 
 func (c *Compound) Unpause() {
-	switch c.subRenderables[c.curRenderable].(type) {
+	switch t := c.subRenderables[c.curRenderable].(type) {
 	case *Animation:
-		c.subRenderables[c.curRenderable].(*Animation).playing = true
+		t.playing = true
+	case *Reverting:
+		t.Unpause()
 	}
 }
 
