@@ -75,7 +75,7 @@ func ApplyColor(rgba *image.RGBA, c color.Color) *image.RGBA {
 		for y := 0; y < h; y++ {
 			r2, g2, b2, a2 := rgba.At(x, y).RGBA()
 			a3 := a1 + a2
-			if a3 == 0 {
+			if a2 == 0 {
 				newRgba.Set(x, y, color.RGBA{0, 0, 0, 0})
 				continue
 			}
