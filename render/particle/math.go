@@ -12,6 +12,10 @@ func floatFromSpread(f float64) float64 {
 	return (f * 2 * rand.Float64()) - f
 }
 
+func intFromSpread(i int) int {
+	return roundFloat(float64(i*2)*rand.Float64()) - i
+}
+
 // roundFloat returns a properly rounded
 // integer of a given float64
 func roundFloat(f float64) int {

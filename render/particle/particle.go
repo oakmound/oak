@@ -46,10 +46,10 @@ type ParticleGenerator struct {
 	GravityX, GravityY         float64
 	StartColor, StartColorRand color.Color
 	EndColor, EndColorRand     color.Color
-	// Future potential options:
 	// The size, in pixel radius, of spawned particles
-	// Size, SizeRand int
+	Size, SizeRand int
 	//
+	// Future potential options:
 	// Some sort of particle type, for rendering triangles or squares or circles...
 	//
 }
@@ -72,6 +72,7 @@ type Particle struct {
 	endColor   color.Color
 	life       float64
 	totalLife  float64
+	size       int
 }
 
 func (ps *ParticleSource) Init() event.CID {
@@ -123,11 +124,17 @@ func (ps *ParticleSource) Draw(buff screen.Buffer) {
 			uint16OnScale(a, a2, progress),
 		}
 
-		img := image.NewRGBA64(image.Rect(0, 0, 1, 1))
+		img := image.NewRGBA64(image.Rect(0, 0, p.size, p.size))
 
-		img.SetRGBA64(0, 0, c)
+		for i := 0; i < p.size; i++ {
+			for j := 0; j < p.size; j++ {
+				img.SetRGBA64(i, j, c)
+			}
+		}
 
-		render.ShinyDraw(buff, img, int(p.x), int(p.y))
+		halfSize := float64(p.size / 2)
+
+		render.ShinyDraw(buff, img, int(p.x-halfSize), int(p.y-halfSize))
 	}
 }
 
@@ -189,6 +196,7 @@ func rotateParticles(id int, nothing interface{}) error {
 			endColor:   randColor(pg.EndColor, pg.EndColorRand),
 			life:       startLife,
 			totalLife:  startLife,
+			size:       pg.Size + intFromSpread(pg.SizeRand),
 		})
 	}
 
