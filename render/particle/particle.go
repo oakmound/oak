@@ -6,7 +6,6 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
-	"fmt"
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
@@ -155,18 +154,14 @@ func rotateParticles(id int, nothing interface{}) error {
 
 			// Apply rotational acceleration
 			if pg.Rotation != 0 && pg.RotationRand != 0 {
-				fmt.Println(p.velX, p.velY)
 				magnitude := math.Abs(p.velX) + math.Abs(p.velY)
 				angle := math.Atan2(p.velX, p.velY)
-				fmt.Println("Old", angle)
 				angle += pg.Rotation + floatFromSpread(pg.RotationRand)
-				fmt.Println("New", angle)
 				p.velX = math.Sin(angle)
 				p.velY = math.Cos(angle)
 				magnitude = magnitude / (math.Abs(p.velX) + math.Abs(p.velY))
 				p.velX = p.velX * magnitude
 				p.velY = p.velY * magnitude
-				fmt.Println(p.velX, p.velY)
 			}
 
 			p.x += p.velX
@@ -223,18 +218,14 @@ func clearParticles(id int, nothing interface{}) error {
 
 				// Apply rotational acceleration
 				if pg.Rotation != 0 && pg.RotationRand != 0 {
-					fmt.Println(p.velX, p.velY)
 					magnitude := math.Abs(p.velX) + math.Abs(p.velY)
 					angle := math.Atan2(p.velX, p.velY)
-					fmt.Println("Old", angle)
 					angle += pg.Rotation + floatFromSpread(pg.RotationRand)
-					fmt.Println("New", angle)
 					p.velX = math.Sin(angle)
 					p.velY = math.Cos(angle)
 					magnitude = magnitude / (math.Abs(p.velX) + math.Abs(p.velY))
 					p.velX = p.velX * magnitude
 					p.velY = p.velY * magnitude
-					fmt.Println(p.velX, p.velY)
 				}
 
 				p.x += p.velX
