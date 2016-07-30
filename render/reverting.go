@@ -26,9 +26,8 @@ type Reverting struct {
 func NewReverting(m Modifiable) *Reverting {
 	rv := new(Reverting)
 	rv.root = m
-	rv.current = m
+	rv.current = m.Copy()
 	rv.mods = emptyMods
-	rv.mods[F_FlipX] = true
 	return rv
 }
 
