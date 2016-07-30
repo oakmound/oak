@@ -6,6 +6,7 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
+	"fmt"
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
@@ -41,7 +42,7 @@ type ParticleGenerator struct {
 	// A duration of -1 represents never stopping.
 	Duration int
 	// Rotational acceleration, to change angle over time
-	//Rotation, RotationRand float64
+	Rotation, RotationRand float64
 	// Gravity X and Gravity Y represent particle acceleration per frame.
 	GravityX, GravityY         float64
 	StartColor, StartColorRand color.Color
@@ -82,6 +83,11 @@ func (ps *ParticleSource) Init() event.CID {
 // drawing particles and binding functions for particle generation
 // and rotation.
 func (pg *ParticleGenerator) Generate(layer int) *ParticleSource {
+
+	// Convert rotation from degrees to radians
+	pg.Rotation = pg.Rotation / 180 * math.Pi
+	pg.RotationRand = pg.Rotation / 180 * math.Pi
+
 	// Make a source
 	ps := ParticleSource{
 		Generator: *pg,
@@ -146,6 +152,23 @@ func rotateParticles(id int, nothing interface{}) error {
 			// Be dragged down by the weight of the soul
 			p.velX += pg.GravityX
 			p.velY += pg.GravityY
+
+			// Apply rotational acceleration
+			if pg.Rotation != 0 && pg.RotationRand != 0 {
+				fmt.Println(p.velX, p.velY)
+				magnitude := math.Abs(p.velX) + math.Abs(p.velY)
+				angle := math.Atan2(p.velX, p.velY)
+				fmt.Println("Old", angle)
+				angle += pg.Rotation + floatFromSpread(pg.RotationRand)
+				fmt.Println("New", angle)
+				p.velX = math.Sin(angle)
+				p.velY = math.Cos(angle)
+				magnitude = magnitude / (math.Abs(p.velX) + math.Abs(p.velY))
+				p.velX = p.velX * magnitude
+				p.velY = p.velY * magnitude
+				fmt.Println(p.velX, p.velY)
+			}
+
 			p.x += p.velX
 			p.y += p.velY
 
@@ -197,6 +220,23 @@ func clearParticles(id int, nothing interface{}) error {
 
 				p.velX -= pg.GravityX
 				p.velY -= pg.GravityY
+
+				// Apply rotational acceleration
+				if pg.Rotation != 0 && pg.RotationRand != 0 {
+					fmt.Println(p.velX, p.velY)
+					magnitude := math.Abs(p.velX) + math.Abs(p.velY)
+					angle := math.Atan2(p.velX, p.velY)
+					fmt.Println("Old", angle)
+					angle += pg.Rotation + floatFromSpread(pg.RotationRand)
+					fmt.Println("New", angle)
+					p.velX = math.Sin(angle)
+					p.velY = math.Cos(angle)
+					magnitude = magnitude / (math.Abs(p.velX) + math.Abs(p.velY))
+					p.velX = p.velX * magnitude
+					p.velY = p.velY * magnitude
+					fmt.Println(p.velX, p.velY)
+				}
+
 				p.x += p.velX
 				p.y += p.velY
 
