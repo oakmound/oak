@@ -235,8 +235,8 @@ func clearParticles(id int, nothing interface{}) error {
 
 				p.life--
 
-				p.velX -= pg.GravityX
-				p.velY -= pg.GravityY
+				p.velX += pg.GravityX
+				p.velY += pg.GravityY
 
 				// Apply rotational acceleration
 				if pg.Rotation != 0 && pg.RotationRand != 0 {
