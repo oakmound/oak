@@ -13,6 +13,16 @@ import (
 	"time"
 )
 
+var (
+	Square = func(x, y, size int) bool {
+		return true
+	}
+	Diamond = func(x, y, size int) bool {
+		radius := size / 2
+		return math.Abs(float64(x-radius))+math.Abs(float64(y-radius)) < float64(radius)
+	}
+)
+
 // ParticleGenerator represents the various options
 // one needs to or may provide in order to generate a
 // ParticleSource.
@@ -51,7 +61,7 @@ type ParticleGenerator struct {
 	//
 	// Future potential options:
 	// Some sort of particle type, for rendering triangles or squares or circles...
-	//
+	Shape ShapeFunction
 }
 
 // A ParticleSource is used to store and control a set of particles.
@@ -62,6 +72,8 @@ type ParticleSource struct {
 	rotateBinding event.Binding
 	cID           event.CID
 }
+
+type ShapeFunction func(x, y, size int) bool
 
 // A particle is a colored pixel at a given position, moving in a certain direction.
 // After a while, it will dissipate.
@@ -128,7 +140,9 @@ func (ps *ParticleSource) Draw(buff screen.Buffer) {
 
 		for i := 0; i < p.size; i++ {
 			for j := 0; j < p.size; j++ {
-				img.SetRGBA64(i, j, c)
+				if ps.Generator.Shape(i, j, p.size) {
+					img.SetRGBA64(i, j, c)
+				}
 			}
 		}
 
