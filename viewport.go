@@ -39,8 +39,8 @@ func SetScreen(x, y int) {
 		ViewX = x
 		ViewY = y
 	}
-	dlog.Verb("ViewX, Y: ", ViewX, " ", ViewY)
 	eb.Trigger("ViewportUpdate", []float64{float64(ViewX), float64(ViewY)})
+	dlog.Verb("ViewX, Y: ", ViewX, " ", ViewY)
 }
 
 func SetViewportBounds(x1, y1, x2, y2 int) {

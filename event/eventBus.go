@@ -10,6 +10,7 @@ import (
 
 var (
 	thisBus = EventBus{make(map[string]map[int]*BindableStore)}
+	progCh  = make(chan error)
 )
 
 // This is a way of saying "Any function
@@ -295,11 +296,20 @@ func (id CID) Trigger(eventName string, data interface{}) error {
 				}
 			}
 			for _, bnd := range (bs.defaultPriority).sl {
-				if bnd != nil {
-					err = bnd(int(id), data)
-					if err != nil {
-						return err
+				go func(bnd Bindable, id int, data interface{}, progCh chan error) {
+					if bnd != nil {
+						err = bnd(id, data)
+						if err != nil {
+							progCh <- err
+						}
 					}
+					progCh <- nil
+				}(bnd, int(id), data, progCh)
+			}
+			for range (bs.defaultPriority).sl {
+				err := <-progCh
+				if err != nil {
+					return err
 				}
 			}
 			for i := 0; i < bs.lowIndex; i++ {
@@ -346,17 +356,23 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) error {
 	}
 
 	for id, bs := range eb.bindingMap[eventName] {
-
 		for _, bnd := range (bs.defaultPriority).sl {
-			if bnd != nil {
-				err = bnd(id, data)
-				if err != nil {
-					return err
+			go func(bnd Bindable, id int, data interface{}, progCh chan error) {
+				if bnd != nil {
+					err = bnd(id, data)
+					if err != nil {
+						progCh <- err
+					}
 				}
+				progCh <- nil
+			}(bnd, id, data, progCh)
+		}
+		for range (bs.defaultPriority).sl {
+			err := <-progCh
+			if err != nil {
+				return err
 			}
 		}
-
-		//err <- errCh
 	}
 
 	for id, bs := range eb.bindingMap[eventName] {
