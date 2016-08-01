@@ -300,12 +300,12 @@ func eventLoop(s screen.Screen) {
 		<-drawChannel
 		lastTime := time.Now()
 		text := render.NewText("", float64(10+ViewX), float64(20+ViewY))
-		render.Draw(text, 1000)
+		render.Draw(text, 60000)
 		for {
 			select {
 			case <-drawChannel:
 				<-drawChannel
-				render.Draw(text, 1000)
+				render.Draw(text, 60000)
 			default:
 				eb = event.GetEventBus()
 				draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
