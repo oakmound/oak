@@ -10,7 +10,6 @@ import (
 
 var (
 	thisBus = EventBus{make(map[string]map[int]*BindableStore)}
-	progCh  = make(chan error)
 )
 
 // This is a way of saying "Any function
@@ -295,6 +294,7 @@ func (id CID) Trigger(eventName string, data interface{}) error {
 					}
 				}
 			}
+			progCh := make(chan error)
 			for _, bnd := range (bs.defaultPriority).sl {
 				go func(bnd Bindable, id int, data interface{}, progCh chan error) {
 					if bnd != nil {
@@ -356,6 +356,7 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) error {
 	}
 
 	for id, bs := range eb.bindingMap[eventName] {
+		progCh := make(chan error)
 		for _, bnd := range (bs.defaultPriority).sl {
 			go func(bnd Bindable, id int, data interface{}, progCh chan error) {
 				if bnd != nil {
