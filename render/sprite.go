@@ -1,9 +1,9 @@
 package render
 
 import (
-	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
+	"image/draw"
 )
 
 type Sprite struct {
@@ -16,7 +16,7 @@ func (s *Sprite) GetRGBA() *image.RGBA {
 	return s.r
 }
 
-func (s *Sprite) Draw(buff screen.Buffer) {
+func (s *Sprite) Draw(buff draw.Image) {
 	ShinyDraw(buff, s.r, int(s.X), int(s.Y))
 }
 

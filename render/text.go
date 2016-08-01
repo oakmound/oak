@@ -6,6 +6,7 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 	"image"
+	"image/draw"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -92,7 +93,7 @@ func (t_p *Text) GetRGBA() *image.RGBA {
 	return nil
 }
 
-func (t_p *Text) Draw(buff screen.Buffer) {
+func (t_p *Text) Draw(buff draw.Image) {
 	t_p.d_p.Dot = fixed.P(int(t_p.X), int(t_p.Y))
 	t_p.d_p.DrawString(t_p.text)
 }
@@ -102,6 +103,10 @@ func (t_p *Text) Draw(buff screen.Buffer) {
 func (t_p *Text) Center() {
 	textWidth := t_p.d_p.MeasureString(t_p.text).Round()
 	t_p.ShiftX(float64(-textWidth / 2))
+}
+
+func (t_p *Text) SetText(str string) {
+	t_p.text = str
 }
 
 func DrawText(str string, x, y int) {

@@ -1,8 +1,8 @@
 package render
 
 import (
-	"golang.org/x/exp/shiny/screen"
 	"image"
+	"image/draw"
 )
 
 // Composite Types, distinct from Compound Types,
@@ -24,7 +24,7 @@ func (cm *CompositeMap) Get(s string) Renderable {
 	return (*cm)[s]
 }
 
-func (cm *CompositeMap) Draw(buff screen.Buffer) {
+func (cm *CompositeMap) Draw(buff draw.Image) {
 	for _, v := range *cm {
 		v.Draw(buff)
 	}

@@ -1,8 +1,8 @@
 package render
 
 import (
-	"golang.org/x/exp/shiny/screen"
 	"image"
+	"image/draw"
 )
 
 type CompositeSlice []Renderable
@@ -24,7 +24,7 @@ func (cs *CompositeSlice) Get(i int) Renderable {
 	return (*cs)[i]
 }
 
-func (cs *CompositeSlice) Draw(buff screen.Buffer) {
+func (cs *CompositeSlice) Draw(buff draw.Image) {
 	for _, v := range *cs {
 		v.Draw(buff)
 	}

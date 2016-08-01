@@ -4,8 +4,8 @@
 package render
 
 import (
-	"golang.org/x/exp/shiny/screen"
 	"image"
+	"image/draw"
 	"time"
 )
 
@@ -28,7 +28,7 @@ type Renderable interface {
 	// buffers, but in certain implementations
 	// (i.e Animation) would have unintended
 	// consequences.
-	Draw(buff screen.Buffer)
+	Draw(buff draw.Image)
 	GetRGBA() *image.RGBA
 	// Basic Implementing struct: Point
 	ShiftX(x float64)

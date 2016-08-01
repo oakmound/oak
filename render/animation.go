@@ -3,9 +3,9 @@ package render
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"errors"
-	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
+	"image/draw"
 	"math"
 	"time"
 )
@@ -85,7 +85,7 @@ func (a_p *Animation) updateAnimation() {
 	}
 }
 
-func (a_p *Animation) Draw(buff screen.Buffer) {
+func (a_p *Animation) Draw(buff draw.Image) {
 	a_p.updateAnimation()
 	img := a_p.GetRGBA()
 	ShinyDraw(buff, img, int(a_p.X), int(a_p.Y))

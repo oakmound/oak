@@ -355,6 +355,8 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) error {
 				}
 			}
 		}
+
+		//err <- errCh
 	}
 
 	for id, bs := range eb.bindingMap[eventName] {

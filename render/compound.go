@@ -1,9 +1,9 @@
 package render
 
 import (
-	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
+	"image/draw"
 )
 
 // The Compound type is intended for use to easily swap between multiple
@@ -92,7 +92,7 @@ func (c *Compound) FlipY() {
 	}
 }
 
-func (c *Compound) Draw(buff screen.Buffer) {
+func (c *Compound) Draw(buff draw.Image) {
 	img := c.GetRGBA()
 	switch t := c.subRenderables[c.curRenderable].(type) {
 	case *Reverting:

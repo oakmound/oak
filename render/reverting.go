@@ -1,9 +1,9 @@
 package render
 
 import (
-	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
+	"image/draw"
 )
 
 var (
@@ -75,7 +75,7 @@ func (rv *Reverting) Revert(mod int) {
 	}
 }
 
-func (rv *Reverting) Draw(buff screen.Buffer) {
+func (rv *Reverting) Draw(buff draw.Image) {
 	rv.current.Draw(buff)
 }
 func (rv *Reverting) GetRGBA() *image.RGBA {

@@ -6,9 +6,9 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
-	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
+	"image/draw"
 	"math"
 	"time"
 )
@@ -123,7 +123,7 @@ func (pg *ParticleGenerator) Generate(layer int) *ParticleSource {
 	return &ps
 }
 
-func (ps *ParticleSource) Draw(buff screen.Buffer) {
+func (ps *ParticleSource) Draw(buff draw.Image) {
 	for _, p := range ps.particles {
 
 		r, g, b, a := p.startColor.RGBA()

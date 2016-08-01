@@ -15,6 +15,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"golang.org/x/exp/shiny/driver"
@@ -297,10 +298,14 @@ func eventLoop(s screen.Screen) {
 	// 6. publish the screen to display in window.
 	go func() {
 		<-drawChannel
+		lastTime := time.Now()
+		text := render.NewText("", float64(10+ViewX), float64(20+ViewY))
+		render.Draw(text, 1000)
 		for {
 			select {
 			case <-drawChannel:
 				<-drawChannel
+				render.Draw(text, 1000)
 			default:
 				eb = event.GetEventBus()
 				draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
@@ -312,6 +317,11 @@ func eventLoop(s screen.Screen) {
 
 				w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
 				w.Publish()
+
+				timeSince := 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
+				text.SetText(strconv.Itoa(int(timeSince)))
+				text.SetPos(float64(10+ViewX), float64(20+ViewY))
+				lastTime = time.Now()
 			}
 		}
 	}()
