@@ -113,7 +113,7 @@ func (pg *Polygon) FillInverse(c color.Color) {
 	rgba := image.NewRGBA(rect)
 	for x := 0; x < bounds.Max.X; x++ {
 		for y := 0; y < bounds.Max.Y; y++ {
-			if !pg.Contains(float64(x), float64(y)) {
+			if !pg.ConvexContains(float64(x), float64(y)) {
 				rgba.Set(x, y, c)
 			}
 		}
@@ -159,12 +159,78 @@ func (pg *Polygon) Contains(x, y float64) (contains bool) {
 	for i := 0; i < len(pg.points); i++ {
 		tp1 := pg.points[i]
 		tp2 := pg.points[j]
-		if (tp1.Y > y) != (tp2.Y > y) {
-			if x < (tp2.X-tp1.X)*(y-tp1.Y)/(tp2.Y-tp1.Y)+tp1.X {
+		if (tp1.Y > y) != (tp2.Y > y) { // Three comparisons
+			if x < (tp2.X-tp1.X)*(y-tp1.Y)/(tp2.Y-tp1.Y)+tp1.X { // One Comparison, Four add/sub, Two mult/div
 				contains = !contains
 			}
 		}
 		j = i
 	}
 	return
+}
+
+func (pg *Polygon) WrappingContains(x, y float64) bool {
+
+	if x < pg.minX || x > pg.maxX || y < pg.minY || y > pg.maxY {
+		return false
+	}
+
+	wn := 0
+
+	j := len(pg.points) - 1
+	for i := 0; i < len(pg.points); i++ {
+		tp1 := pg.points[i]
+		tp2 := pg.points[j]
+		if tp1.Y <= y && tp2.Y > y && isLeft(tp1, tp2, x, y) > 0 { // Three comparison, Five add/sub, Two mult/div
+			wn++
+		}
+		if tp2.Y >= y && isLeft(tp1, tp2, x, y) < 0 { // Two Comparison, Five add/sub, Two mult/div
+			wn--
+		}
+		j = i
+	}
+	return wn == 0
+}
+
+func (pg *Polygon) ConvexContains(x, y float64) bool {
+
+	if x < pg.minX || x > pg.maxX || y < pg.minY || y > pg.maxY {
+		return false
+	}
+
+	prev := 0
+	for i := 0; i < len(pg.points); i++ {
+		tp1 := pg.points[i]
+		tp2 := pg.points[(i+1)%len(pg.points)]
+		tp3 := vSub(tp2, tp1)
+		tp4 := vSub(Point{x, y}, tp1)
+		cur := getSide(tp3, tp4)
+		if cur == 0 {
+			return false
+		} else if prev == 0 {
+		} else if prev != cur {
+			return false
+		}
+		prev = cur
+	}
+	return true
+}
+
+func getSide(a, b Point) int {
+	x := a.X*b.Y - a.Y*b.X
+	if x == 0 {
+		return 0
+	} else if x < 1 {
+		return -1
+	} else {
+		return 1
+	}
+}
+
+func vSub(a, b Point) Point {
+	return Point{a.X - b.X, a.Y - b.Y}
+}
+
+func isLeft(p1, p2 Point, x, y float64) float64 {
+	return (p1.X-x)*(p2.Y-y) - (p2.X-x)*(p1.Y-y)
 }
