@@ -2,9 +2,9 @@ package collision
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
+	//"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 	"github.com/dhconnelly/rtreego"
-	"image/color"
+	//"image/color"
 )
 
 // Spaces are a rectangle
@@ -26,7 +26,7 @@ func (s *Space) Bounds() *rtreego.Rect {
 }
 
 func NewUnassignedSpace(x, y, w, h float64) *Space {
-	render.DrawColor(color.RGBA{128, 0, 128, 100}, x, y, w, h, 10)
+	//render.DrawColor(color.RGBA{128, 0, 128, 100}, x, y, w, h, 10)
 	rect := NewRect(x, y, w, h)
 	return &Space{Location: rect}
 }
