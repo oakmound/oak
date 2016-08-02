@@ -69,6 +69,7 @@ type ParticleSource struct {
 	Generator     ParticleGenerator
 	particles     []Particle
 	rotateBinding event.Binding
+	clearBinding  event.Binding
 	cID           event.CID
 }
 
@@ -263,11 +264,18 @@ func clearParticles(id int, nothing interface{}) error {
 	return nil
 }
 
+func clearAtExit(id int, nothing interface{}) error {
+	ps := plastic.GetEntity(id).(*ParticleSource)
+	ps.clearBinding.Unbind()
+	ps.rotateBinding.Unbind()
+	ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
+	return nil
+}
+
 // Stop manually stops a ParticleSource, if its duration is infinite
 // or if it should be stopped before expriring naturally.
 func (ps *ParticleSource) Stop() {
-	ps.rotateBinding.Unbind()
-	ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
+	ps.clearBinding, _ = ps.cID.Bind(clearAtExit, "ExitFrame")
 }
 
 // A particle source has no concept of an individual
