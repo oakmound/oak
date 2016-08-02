@@ -99,6 +99,8 @@ func (c *Compound) Draw(buff draw.Image) {
 		t.updateAnimation()
 	case *Animation:
 		t.updateAnimation()
+	case *Sequence:
+		t.update()
 	}
 	ShinyDraw(buff, img, int(c.X), int(c.Y))
 }
@@ -106,7 +108,9 @@ func (c *Compound) Draw(buff draw.Image) {
 func (c *Compound) Pause() {
 	switch t := c.subRenderables[c.curRenderable].(type) {
 	case *Animation:
-		t.playing = false
+		t.Pause()
+	case *Sequence:
+		t.Pause()
 	case *Reverting:
 		t.Pause()
 	}
@@ -115,7 +119,9 @@ func (c *Compound) Pause() {
 func (c *Compound) Unpause() {
 	switch t := c.subRenderables[c.curRenderable].(type) {
 	case *Animation:
-		t.playing = true
+		t.Unpause()
+	case *Sequence:
+		t.Unpause()
 	case *Reverting:
 		t.Unpause()
 	}

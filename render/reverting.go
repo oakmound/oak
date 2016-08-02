@@ -152,10 +152,14 @@ func (rv *Reverting) updateAnimation() {
 	switch t := rv.current.(type) {
 	case *Animation:
 		t.updateAnimation()
+	case *Sequence:
+		t.update()
 	}
 	switch t := rv.root.(type) {
 	case *Animation:
 		t.updateAnimation()
+	case *Sequence:
+		t.update()
 	}
 }
 
@@ -176,11 +180,15 @@ func (rv *Reverting) Pause() {
 		t.playing = false
 	case *Compound:
 		t.Pause()
+	case *Sequence:
+		t.Pause()
 	}
 	switch t := rv.root.(type) {
 	case *Animation:
 		t.playing = false
 	case *Compound:
+		t.Pause()
+	case *Sequence:
 		t.Pause()
 	}
 
@@ -192,11 +200,15 @@ func (rv *Reverting) Unpause() {
 		t.playing = true
 	case *Compound:
 		t.Unpause()
+	case *Sequence:
+		t.Unpause()
 	}
 	switch t := rv.root.(type) {
 	case *Animation:
 		t.playing = true
 	case *Compound:
+		t.Unpause()
+	case *Sequence:
 		t.Unpause()
 	}
 }
