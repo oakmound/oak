@@ -9,27 +9,29 @@ import (
 	"time"
 )
 
-func BenchmarkParticles(b *testing.B) {
-	curSeed := time.Now().UTC().UnixNano()
-	rand.Seed(curSeed)
-
-	pg := ParticleGenerator{
-		11, 3,
-		0, 0,
-		6, 3,
+var (
+	pg = ParticleGenerator{
+		100, 5,
+		2, 1,
+		90, 3,
 		0, 360,
 		3, 0.5,
 		50, 50,
 		200,
-		0, 0,
-		0, 0,
+		4, 3,
+		4, 3,
 		color.RGBA{100, 200, 200, 255},
 		color.RGBA{0, 0, 0, 0},
-		color.RGBA{100, 200, 200, 200},
+		color.RGBA{0, 0, 0, 0},
 		color.RGBA{0, 0, 0, 0},
 		15, 9,
-		Square,
+		Diamond,
 	}
+)
+
+func BenchmarkParticles(b *testing.B) {
+	curSeed := time.Now().UTC().UnixNano()
+	rand.Seed(curSeed)
 
 	pg.Rotation = pg.Rotation / 180 * math.Pi
 	pg.RotationRand = pg.Rotation / 180 * math.Pi
@@ -127,27 +129,13 @@ func BenchmarkParticles(b *testing.B) {
 	}
 }
 
+const (
+	channelCount = 32
+)
+
 func BenchmarkParticlesParallel(b *testing.B) {
 	curSeed := time.Now().UTC().UnixNano()
 	rand.Seed(curSeed)
-
-	pg := ParticleGenerator{
-		11, 3,
-		0, 0,
-		6, 3,
-		0, 360,
-		3, 0.5,
-		50, 50,
-		200,
-		0, 0,
-		0, 0,
-		color.RGBA{100, 200, 200, 255},
-		color.RGBA{0, 0, 0, 0},
-		color.RGBA{100, 200, 200, 200},
-		color.RGBA{0, 0, 0, 0},
-		15, 9,
-		Square,
-	}
 
 	pg.Rotation = pg.Rotation / 180 * math.Pi
 	pg.RotationRand = pg.Rotation / 180 * math.Pi
@@ -158,10 +146,9 @@ func BenchmarkParticlesParallel(b *testing.B) {
 		particles: make([]Particle, 0),
 	}
 
-	getRotateCh := make(chan *Particle, 100)
-	getNewCh := make(chan *Particle, 100)
-	rotateChs := [8]chan *Particle{}
-	for i := 0; i < 8; i++ {
+	getRotateCh := make(chan *Particle)
+	rotateChs := [channelCount]chan *Particle{}
+	for i := 0; i < channelCount; i++ {
 		rotateChs[i] = make(chan *Particle)
 		go func(pg ParticleGenerator, rotateCh chan *Particle, pCh chan *Particle) {
 			for {
@@ -198,8 +185,8 @@ func BenchmarkParticlesParallel(b *testing.B) {
 			}
 		}(pg, rotateChs[i], getRotateCh)
 	}
-	newChs := [8]chan bool{}
-	for i := 0; i < 8; i++ {
+	newChs := [channelCount]chan bool{}
+	for i := 0; i < channelCount; i++ {
 		newChs[i] = make(chan bool)
 		go func(pg ParticleGenerator, newCh chan bool, pCh chan *Particle) {
 			for {
@@ -219,13 +206,13 @@ func BenchmarkParticlesParallel(b *testing.B) {
 					size:       pg.Size + intFromSpread(pg.SizeRand),
 				}
 			}
-		}(pg, newChs[i], getNewCh)
+		}(pg, newChs[i], getRotateCh)
 	}
 
 	doneCh := make(chan bool, 100)
 
-	drawChs := [8]chan *Particle{}
-	for i := 0; i < 8; i++ {
+	drawChs := [channelCount]chan *Particle{}
+	for i := 0; i < channelCount; i++ {
 		drawChs[i] = make(chan *Particle)
 		go func(drawCh chan *Particle, doneCh chan bool) {
 			for {
@@ -254,27 +241,50 @@ func BenchmarkParticlesParallel(b *testing.B) {
 		}(drawChs[i], doneCh)
 	}
 
+	rotateAggregateCh := make(chan *ParticleSource)
+	go func(rotateChs [channelCount]chan *Particle, aggCh chan *ParticleSource) {
+		for {
+			ps := <-aggCh
+			for i, p := range ps.particles {
+				rotateChs[i%channelCount] <- &p
+			}
+		}
+	}(rotateChs, rotateAggregateCh)
+
+	newAggregateCh := make(chan int)
+	go func(newChs [channelCount]chan bool, aggCh chan int) {
+		for {
+			newParticleCount := <-aggCh
+			for i := 0; i < newParticleCount; i++ {
+				newChs[i%channelCount] <- true
+			}
+		}
+	}(newChs, newAggregateCh)
+
+	drawAggregateCh := make(chan *ParticleSource)
+	go func(drawChs [channelCount]chan *Particle, aggCh chan *ParticleSource) {
+		for {
+			ps := <-aggCh
+			for i, p := range ps.particles {
+				drawChs[i%channelCount] <- &p
+			}
+		}
+	}(drawChs, drawAggregateCh)
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
+
+		rotateAggregateCh <- &ps
+
 		pg := ps.Generator
-
-		for i, p := range ps.particles {
-			rotateChs[i%8] <- &p
-		}
-
 		newParticleRand := roundFloat(floatFromSpread(pg.NewPerFrameRand))
 		newParticleCount := int(pg.NewPerFrame) + newParticleRand
 
-		for i := 0; i < newParticleCount; i++ {
-			newChs[i%8] <- true
-		}
+		newAggregateCh <- newParticleCount
 
 		newParticles := make([]Particle, 0)
 
-		for i := 0; i < newParticleCount; i++ {
-			newParticles = append(newParticles, *<-getNewCh)
-		}
-		for i := 0; i < len(ps.particles); i++ {
+		for i := 0; i < newParticleCount+len(ps.particles); i++ {
 			next := <-getRotateCh
 			if next != nil {
 				newParticles = append(newParticles, *next)
@@ -282,9 +292,7 @@ func BenchmarkParticlesParallel(b *testing.B) {
 		}
 		ps.particles = newParticles
 
-		for i, p := range ps.particles {
-			drawChs[i%8] <- &p
-		}
+		drawAggregateCh <- &ps
 
 		for range ps.particles {
 			<-doneCh

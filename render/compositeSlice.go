@@ -3,6 +3,7 @@ package render
 import (
 	"image"
 	"image/draw"
+	"math"
 )
 
 type CompositeSlice []Renderable
@@ -43,8 +44,18 @@ func (cs *CompositeSlice) ShiftY(y float64) {
 	}
 }
 func (cs *CompositeSlice) SetPos(x, y float64) {
+	minX := math.MaxFloat64
+	minY := math.MaxFloat64
 	for _, v := range *cs {
-		v.SetPos(x, y)
+		if minX > v.GetX() {
+			minX = v.GetX()
+		}
+		if minY > v.GetY() {
+			minY = v.GetY()
+		}
+	}
+	for _, v := range *cs {
+		v.SetPos(x+v.GetX()-minX, y+v.GetY()-minY)
 	}
 }
 func (cs *CompositeSlice) GetLayer() int {

@@ -84,6 +84,12 @@ func (rv *Reverting) GetRGBA() *image.RGBA {
 func (rv *Reverting) ShiftX(x float64) {
 	rv.current.ShiftX(x)
 }
+func (rv *Reverting) GetX() float64 {
+	return rv.current.GetX()
+}
+func (rv *Reverting) GetY() float64 {
+	return rv.current.GetY()
+}
 func (rv *Reverting) ShiftY(y float64) {
 	rv.current.ShiftY(y)
 }

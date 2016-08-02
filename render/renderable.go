@@ -32,7 +32,9 @@ type Renderable interface {
 	GetRGBA() *image.RGBA
 	// Basic Implementing struct: Point
 	ShiftX(x float64)
+	GetX() float64
 	ShiftY(y float64)
+	GetY() float64
 	SetPos(x, y float64)
 	// Basic Implementing struct: Layered
 	GetLayer() int

@@ -285,6 +285,13 @@ func (ps *ParticleSource) ShiftY(y float64) {
 	ps.Generator.Y += y
 }
 
+func (ps *ParticleSource) GetX() float64 {
+	return ps.Generator.X
+}
+
+func (ps *ParticleSource) GetY() float64 {
+	return ps.Generator.Y
+}
 func (ps *ParticleSource) SetPos(x, y float64) {
 	ps.Generator.X = x
 	ps.Generator.Y = y
