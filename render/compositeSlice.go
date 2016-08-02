@@ -43,6 +43,10 @@ func (cs *CompositeSlice) ShiftY(y float64) {
 		v.ShiftY(y)
 	}
 }
+
+// This should be changed so that compositeSlice (and map)
+// has a persistent concept of what it's smallest
+// x and y are.
 func (cs *CompositeSlice) SetPos(x, y float64) {
 	minX := math.MaxFloat64
 	minY := math.MaxFloat64

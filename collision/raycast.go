@@ -81,3 +81,37 @@ func RayCastSingleLabel(x, y, degrees, length float64, label int) CollisionPoint
 	}
 	return CollisionPoint{}
 }
+
+// ConeCast advances COUNTER-CLOCKWISE
+func ConeCast(x, y, angle, angleWidth, length float64) (points []CollisionPoint) {
+	da := angleWidth / 10
+	for a := angle; a < angle+angleWidth; a += da {
+		cps := RayCast(x, y, a, length)
+		if len(cps) > 0 {
+			points = append(points, cps...)
+		}
+	}
+	return
+}
+
+func ConeCastSingle(x, y, angle, angleWidth, length float64, invalidIDS []event.CID) (points []CollisionPoint) {
+	da := angleWidth / 10
+	for a := angle; a < angle+angleWidth; a += da {
+		cp := RayCastSingle(x, y, a, length, invalidIDS)
+		if cp.Zone != nil {
+			points = append(points, cp)
+		}
+	}
+	return
+}
+
+func ConeCastSingleLabel(x, y, angle, angleWidth, length float64, label int) (points []CollisionPoint) {
+	da := angleWidth / 10
+	for a := angle; a < angle+angleWidth; a += da {
+		cp := RayCastSingleLabel(x, y, a, length, label)
+		if cp.Zone != nil {
+			points = append(points, cp)
+		}
+	}
+	return
+}
