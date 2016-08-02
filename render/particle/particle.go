@@ -59,7 +59,6 @@ type ParticleGenerator struct {
 	// The size, in pixel radius, of spawned particles
 	Size, SizeRand int
 	//
-	// Future potential options:
 	// Some sort of particle type, for rendering triangles or squares or circles...
 	Shape ShapeFunction
 }
