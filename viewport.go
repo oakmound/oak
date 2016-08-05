@@ -33,7 +33,6 @@ func SetScreen(x, y int) {
 		} else if viewBounds.maxY < y+ScreenHeight {
 			ViewY = viewBounds.maxY - ScreenHeight
 		}
-
 	} else {
 		dlog.Verb("Set ViewXY to ", x, " ", y)
 		ViewX = x

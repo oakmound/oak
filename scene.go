@@ -17,8 +17,8 @@ type Scene struct {
 	end    SceneEnd
 }
 
-type SceneEnd func() string
-type SceneStart func(prevScene string)
+type SceneEnd func() (string, interface{})
+type SceneStart func(prevScene string, data interface{})
 type SceneLoop func() bool
 
 func GetScene(s string) *Scene {

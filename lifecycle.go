@@ -116,10 +116,11 @@ func Init(firstScene string) {
 	// Loop through scenes
 	runEventLoop = true
 	scene := firstScene
+	var data interface{} = nil
 	dlog.Info("First Scene Start")
 	for {
 		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
-		sceneMap[scene].start(prevScene)
+		sceneMap[scene].start(prevScene, data)
 		// Send a signal to resume (or begin) drawing
 		drawChannel <- true
 
@@ -148,7 +149,7 @@ func Init(firstScene string) {
 		pmouse.Clear()
 		render.PreDraw(0, nil)
 
-		scene = sceneMap[scene].end()
+		scene, data = sceneMap[scene].end()
 
 		eb = event.GetEventBus()
 	}
@@ -177,7 +178,7 @@ func eventLoop(s screen.Screen) {
 
 	// Todo: add frame rate to config
 	frameRate := 60
-	frameCh := make(chan bool, 100)
+	frameCh := make(chan bool)
 
 	// This goroutine maintains a logical framerate
 	go func(frameCh chan bool, frameRate int64) {
