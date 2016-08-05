@@ -11,7 +11,7 @@ import (
 
 var (
 	pg = ParticleGenerator{
-		100, 5,
+		10, 5,
 		2, 1,
 		90, 3,
 		0, 360,
@@ -39,7 +39,7 @@ func BenchmarkParticles(b *testing.B) {
 	// Make a source
 	ps := ParticleSource{
 		Generator: pg,
-		particles: make([]Particle, 0),
+		particles: make([]*Particle, 0),
 	}
 
 	b.ResetTimer()
@@ -47,7 +47,7 @@ func BenchmarkParticles(b *testing.B) {
 
 		pg := ps.Generator
 
-		newParticles := make([]Particle, 0)
+		newParticles := make([]*Particle, 0)
 
 		for _, p := range ps.particles {
 
@@ -89,7 +89,7 @@ func BenchmarkParticles(b *testing.B) {
 			speed := pg.Speed + floatFromSpread(pg.SpeedRand)
 			startLife := pg.LifeSpan + floatFromSpread(pg.LifeSpanRand)
 
-			newParticles = append(newParticles, Particle{
+			newParticles = append(newParticles, &Particle{
 				x:          pg.X + floatFromSpread(pg.SpreadX),
 				y:          pg.Y + floatFromSpread(pg.SpreadY),
 				velX:       speed * math.Cos(angle) * -1,
@@ -129,10 +129,6 @@ func BenchmarkParticles(b *testing.B) {
 	}
 }
 
-const (
-	channelCount = 32
-)
-
 func BenchmarkParticlesParallel(b *testing.B) {
 	curSeed := time.Now().UTC().UnixNano()
 	rand.Seed(curSeed)
@@ -143,7 +139,7 @@ func BenchmarkParticlesParallel(b *testing.B) {
 	// Make a source
 	ps := ParticleSource{
 		Generator: pg,
-		particles: make([]Particle, 0),
+		particles: make([]*Particle, 0),
 	}
 
 	getRotateCh := make(chan *Particle)
@@ -246,7 +242,7 @@ func BenchmarkParticlesParallel(b *testing.B) {
 		for {
 			ps := <-aggCh
 			for i, p := range ps.particles {
-				rotateChs[i%channelCount] <- &p
+				rotateChs[i%channelCount] <- p
 			}
 		}
 	}(rotateChs, rotateAggregateCh)
@@ -266,7 +262,7 @@ func BenchmarkParticlesParallel(b *testing.B) {
 		for {
 			ps := <-aggCh
 			for i, p := range ps.particles {
-				drawChs[i%channelCount] <- &p
+				drawChs[i%channelCount] <- p
 			}
 		}
 	}(drawChs, drawAggregateCh)
@@ -282,12 +278,12 @@ func BenchmarkParticlesParallel(b *testing.B) {
 
 		newAggregateCh <- newParticleCount
 
-		newParticles := make([]Particle, 0)
+		newParticles := make([]*Particle, 0)
 
 		for i := 0; i < newParticleCount+len(ps.particles); i++ {
 			next := <-getRotateCh
 			if next != nil {
-				newParticles = append(newParticles, *next)
+				newParticles = append(newParticles, next)
 			}
 		}
 		ps.particles = newParticles

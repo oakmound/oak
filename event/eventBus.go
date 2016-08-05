@@ -12,10 +12,22 @@ var (
 	thisBus = EventBus{make(map[string]map[int]*BindableStore)}
 )
 
+const (
+	NO_RESPONSE = iota
+	ERROR
+	// UNBIND_EVENT unbinds everything for a specific
+	// event name from an entity at the bindable's
+	// priority.
+	UNBIND_EVENT
+	// We can't unbind a single bindable efficiently,
+	// so UNBIND_EVENT is recommended.
+	// UNBIND_SINGLE
+)
+
 // This is a way of saying "Any function
 // that takes a generic struct of data
 // and returns an error can be bound".
-type Bindable func(int, interface{}) error
+type Bindable func(int, interface{}) int
 
 // This just stores other relevant data
 // that a list of bindables needs to
@@ -266,75 +278,48 @@ func (eb *EventBus) UnbindAll(opt BindingOption) {
 	dlog.Verb(eb.bindingMap)
 }
 
-func Alias(eventName, alias string) {
-	eb := GetEventBus()
-	fn := func(id int, data interface{}) error {
-		return eb.Trigger(alias, data)
-	}
-	GlobalBind(fn, eventName)
-}
-
 // Trigger an event, but only
 // for one ID. Use case example:
 // on onHit event
-func (id CID) Trigger(eventName string, data interface{}) error {
+func (id CID) Trigger(eventName string, data interface{}) {
 	eb := GetEventBus()
-
-	var err error
 
 	if idMap, ok := eb.bindingMap[eventName]; ok {
 		if bs, ok := idMap[int(id)]; ok {
 			for i := bs.highIndex - 1; i >= 0; i-- {
 				for _, bnd := range (*bs.highPriority[i]).sl {
 					if bnd != nil {
-						err = bnd(int(id), data)
-						if err != nil {
-							return err
+						response := bnd(int(id), data)
+						switch response {
+						case UNBIND_EVENT:
+							thisBus.bindingMap[eventName][int(id)].highPriority[i] = (new(BindableList))
 						}
 					}
 				}
 			}
-			progCh := make(chan error)
-			for _, bnd := range (bs.defaultPriority).sl {
-				go func(bnd Bindable, id int, data interface{}, progCh chan error) {
-					if bnd != nil {
-						err = bnd(id, data)
-						if err != nil {
-							progCh <- err
-						}
-					}
-					progCh <- nil
-				}(bnd, int(id), data, progCh)
-			}
-			for range (bs.defaultPriority).sl {
-				err := <-progCh
-				if err != nil {
-					return err
-				}
-			}
+			triggerDefault((bs.defaultPriority).sl, int(id), eventName, data)
+
 			for i := 0; i < bs.lowIndex; i++ {
 				for _, bnd := range (*bs.lowPriority[i]).sl {
 					if bnd != nil {
-						err = bnd(int(id), data)
-						if err != nil {
-							return err
+						response := bnd(int(id), data)
+						switch response {
+						case UNBIND_EVENT:
+							thisBus.bindingMap[eventName][int(id)].lowPriority[i] = (new(BindableList))
 						}
 					}
 				}
 			}
 		}
 	}
-	return nil
 }
 
 // Called externally by game logic
 // and internally by plastic itself
 // at specific integral points
-func (eb_p *EventBus) Trigger(eventName string, data interface{}) error {
+func (eb_p *EventBus) Trigger(eventName string, data interface{}) {
 
 	eb := (*eb_p)
-
-	var err error
 
 	//dlog.Verb("Triggering, ", eventName)
 
@@ -346,9 +331,10 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) error {
 		for i := bs.highIndex - 1; i >= 0; i-- {
 			for _, bnd := range (*bs.highPriority[i]).sl {
 				if bnd != nil {
-					err = bnd(id, data)
-					if err != nil {
-						return err
+					response := bnd(id, data)
+					switch response {
+					case UNBIND_EVENT:
+						thisBus.bindingMap[eventName][id].highPriority[i] = (new(BindableList))
 					}
 				}
 			}
@@ -356,24 +342,7 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) error {
 	}
 
 	for id, bs := range eb.bindingMap[eventName] {
-		progCh := make(chan error)
-		for _, bnd := range (bs.defaultPriority).sl {
-			go func(bnd Bindable, id int, data interface{}, progCh chan error) {
-				if bnd != nil {
-					err = bnd(id, data)
-					if err != nil {
-						progCh <- err
-					}
-				}
-				progCh <- nil
-			}(bnd, id, data, progCh)
-		}
-		for range (bs.defaultPriority).sl {
-			err := <-progCh
-			if err != nil {
-				return err
-			}
-		}
+		triggerDefault((bs.defaultPriority).sl, id, eventName, data)
 	}
 
 	for id, bs := range eb.bindingMap[eventName] {
@@ -381,14 +350,32 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) error {
 		for i := 0; i < bs.lowIndex; i++ {
 			for _, bnd := range (*bs.lowPriority[i]).sl {
 				if bnd != nil {
-					err = bnd(id, data)
-					if err != nil {
-						return err
+					response := bnd(id, data)
+					switch response {
+					case UNBIND_EVENT:
+						thisBus.bindingMap[eventName][id].lowPriority[i] = (new(BindableList))
 					}
 				}
 			}
 		}
 	}
+}
 
-	return nil
+func triggerDefault(sl []Bindable, id int, eventName string, data interface{}) {
+	progCh := make(chan bool)
+	for _, bnd := range sl {
+		go func(bnd Bindable, id int, eventName string, data interface{}, progCh chan bool) {
+			if bnd != nil {
+				response := bnd(id, data)
+				switch response {
+				case UNBIND_EVENT:
+					thisBus.bindingMap[eventName][id].defaultPriority = (new(BindableList))
+				}
+			}
+			progCh <- true
+		}(bnd, id, eventName, data, progCh)
+	}
+	for range sl {
+		<-progCh
+	}
 }

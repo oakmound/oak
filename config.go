@@ -13,33 +13,43 @@ const (
 )
 
 var (
-	conf    plasticConfig
 	tmpConf plasticConfig
 	err     error
+	conf    = plasticConfig{
+		Assets{"assets/", "audio/", "images/", "font/"},
+		Debug{"", "ERROR"},
+		Screen{480, 640},
+		Font{"none", 12.0, 72.0, "luxisr.ttf", "white"},
+	}
 )
 
 type plasticConfig struct {
-	Assets struct {
-		AssetPath string `json:"assetPath"`
-		AudioPath string `json:"audioPath"`
-		ImagePath string `json:"imagePath"`
-		FontPath  string `json:"fontPath"`
-	} `json:"assets"`
-	Debug struct {
-		Filter string `json:"filter"`
-		Level  string `json:"level"`
-	} `json:"debug"`
-	Screen struct {
-		Height int `json:"height"`
-		Width  int `json:"width"`
-	} `json:"screen"`
-	Font struct {
-		Hinting string  `json:"hinting"`
-		Size    float64 `json:"size"`
-		DPI     float64 `json:"dpi"`
-		File    string  `json:"file"`
-		Color   string  `json:"color"`
-	} `json:"font"`
+	Assets Assets `json:"assets"`
+	Debug  Debug  `json:"debug"`
+	Screen Screen `json:"screen"`
+	Font   Font   `json:"font"`
+}
+
+type Assets struct {
+	AssetPath string `json:"assetPath"`
+	AudioPath string `json:"audioPath"`
+	ImagePath string `json:"imagePath"`
+	FontPath  string `json:"fontPath"`
+}
+type Debug struct {
+	Filter string `json:"filter"`
+	Level  string `json:"level"`
+}
+type Screen struct {
+	Height int `json:"height"`
+	Width  int `json:"width"`
+}
+type Font struct {
+	Hinting string  `json:"hinting"`
+	Size    float64 `json:"size"`
+	DPI     float64 `json:"dpi"`
+	File    string  `json:"file"`
+	Color   string  `json:"color"`
 }
 
 func LoadConf(fileName string) error {
@@ -54,14 +64,6 @@ func LoadConf(fileName string) error {
 }
 
 func loadDefaultConf() error {
-
-	dlog.Error(filepath.Join(os.Getenv("GOPATH"), plasticPath, "default.config"))
-
-	conf, err = loadPlasticConfig(filepath.Join(os.Getenv("GOPATH"), plasticPath, "default.config"))
-	dlog.Error(conf, err)
-	if err != nil {
-		return err
-	}
 
 	if tmpConf.Assets.AssetPath != "" {
 		conf.Assets.AssetPath = tmpConf.Assets.AssetPath

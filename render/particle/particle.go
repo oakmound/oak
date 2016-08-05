@@ -154,7 +154,7 @@ func (ps *ParticleSource) Draw(buff draw.Image) {
 
 // rotateParticles updates particles over time as long
 // as a ParticleSource is active.
-func rotateParticles(id int, nothing interface{}) error {
+func rotateParticles(id int, nothing interface{}) int {
 
 	ps := plastic.GetEntity(id).(*ParticleSource)
 	pg := ps.Generator
@@ -216,12 +216,12 @@ func rotateParticles(id int, nothing interface{}) error {
 
 	ps.particles = newParticles
 
-	return nil
+	return 0
 }
 
 // clearParticles is used after a ParticleSource has been stopped
 // to continue moving old particles for as long as they exist.
-func clearParticles(id int, nothing interface{}) error {
+func clearParticles(id int, nothing interface{}) int {
 
 	ps := plastic.GetEntity(id).(*ParticleSource)
 	pg := ps.Generator
@@ -261,15 +261,15 @@ func clearParticles(id int, nothing interface{}) error {
 		ps.UnDraw()
 		ps.rotateBinding.Unbind()
 	}
-	return nil
+	return 0
 }
 
-func clearAtExit(id int, nothing interface{}) error {
+func clearAtExit(id int, nothing interface{}) int {
 	ps := plastic.GetEntity(id).(*ParticleSource)
 	ps.clearBinding.Unbind()
 	ps.rotateBinding.Unbind()
 	ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
-	return nil
+	return 0
 }
 
 // Stop manually stops a ParticleSource, if its duration is infinite

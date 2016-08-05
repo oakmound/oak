@@ -59,7 +59,7 @@ func Draw(r Renderable, l int) Renderable {
 
 // PreDraw parses through renderables to be pushed
 // and adds them to the drawheap.
-func PreDraw(no int, nothing interface{}) error {
+func PreDraw(no int, nothing interface{}) int {
 	if resetHeap == true {
 		InitDrawHeap()
 		resetHeap = false
@@ -69,7 +69,7 @@ func PreDraw(no int, nothing interface{}) error {
 		}
 	}
 	toPushRenderables = []Renderable{}
-	return nil
+	return 0
 }
 
 // LoadSpriteAndDraw is shorthand for LoadSprite

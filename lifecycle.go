@@ -340,3 +340,7 @@ func eventLoop(s screen.Screen) {
 		}
 	}
 }
+
+func GetScreen() draw.Image {
+	return b.RGBA()
+}
