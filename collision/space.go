@@ -25,6 +25,22 @@ func (s *Space) Bounds() *rtreego.Rect {
 	return s.Location
 }
 
+func (s *Space) GetY() float64 {
+	return s.Location.PointCoord(0)
+}
+
+func (s *Space) GetX() float64 {
+	return s.Location.PointCoord(1)
+}
+
+func (s *Space) Below(other *Space) float64 {
+	return s.GetY() - other.GetY()
+}
+
+func (s *Space) LeftOf(other *Space) float64 {
+	return s.GetX() - other.GetX()
+}
+
 func NewUnassignedSpace(x, y, w, h float64) *Space {
 	//render.DrawColor(color.RGBA{128, 0, 128, 100}, x, y, w, h, 10)
 	rect := NewRect(x, y, w, h)
