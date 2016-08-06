@@ -28,25 +28,26 @@ import (
 )
 
 var (
-	initCh       = make(chan bool)
-	sceneCh      = make(chan bool)
-	quitCh       = make(chan bool)
-	drawChannel  = make(chan bool)
-	drawInit     = false
-	runEventLoop = false
-	ScreenWidth  int
-	ScreenHeight int
-	press        = key.DirPress
-	release      = key.DirRelease
-	black        = color.RGBA{0x00, 0x00, 0x00, 0xff}
-	b            screen.Buffer
-	winBuffer    screen.Buffer
-	eb           *event.EventBus
-	esc          = false
-	l_debug      = false
-	wd, _        = os.Getwd()
-	imageDir     string
-	audioDir     string
+	initCh          = make(chan bool)
+	sceneCh         = make(chan bool)
+	quitCh          = make(chan bool)
+	drawChannel     = make(chan bool)
+	viewportChannel = make(chan [2]int)
+	drawInit        = false
+	runEventLoop    = false
+	ScreenWidth     int
+	ScreenHeight    int
+	press           = key.DirPress
+	release         = key.DirRelease
+	black           = color.RGBA{0x00, 0x00, 0x00, 0xff}
+	b               screen.Buffer
+	winBuffer       screen.Buffer
+	eb              *event.EventBus
+	esc             = false
+	l_debug         = false
+	wd, _           = os.Getwd()
+	imageDir        string
+	audioDir        string
 )
 
 // Init initializes the plastic engine.
@@ -119,6 +120,9 @@ func Init(firstScene string) {
 	var data interface{} = nil
 	dlog.Info("First Scene Start")
 	for {
+		ViewX = 0
+		ViewY = 0
+		useViewBounds = false
 		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
 		sceneMap[scene].start(prevScene, data)
 		// Send a signal to resume (or begin) drawing
@@ -131,7 +135,6 @@ func Init(firstScene string) {
 			// for the engine to stop.
 			case <-quitCh:
 				return
-
 			case <-sceneCh:
 				cont = sceneMap[scene].loop()
 			}
@@ -149,9 +152,6 @@ func Init(firstScene string) {
 		collision.Clear()
 		pmouse.Clear()
 		render.PreDraw(0, nil)
-		ViewX = 0
-		ViewY = 0
-		useViewBounds = false
 
 		scene, data = sceneMap[scene].end()
 
@@ -307,11 +307,28 @@ func eventLoop(s screen.Screen) {
 		text := render.NewText("", float64(10+ViewX), float64(20+ViewY))
 		render.Draw(text, 60000)
 		for {
+			dlog.Verb("Draw Loop")
+		drawSelect:
 			select {
+
 			case <-drawChannel:
-				<-drawChannel
-				render.Draw(text, 60000)
+				dlog.Verb("Got something from draw channel")
+				for {
+					select {
+					case <-drawChannel:
+						render.Draw(text, 60000)
+						break drawSelect
+					case viewPoint := <-viewportChannel:
+						dlog.Verb("Got something from viewport channel (waiting on draw)")
+						updateScreen(viewPoint[0], viewPoint[1])
+					}
+
+				}
+			case viewPoint := <-viewportChannel:
+				dlog.Verb("Got something from viewport channel")
+				updateScreen(viewPoint[0], viewPoint[1])
 			default:
+				// dlog.Verb("Default")
 				eb = event.GetEventBus()
 				draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
 

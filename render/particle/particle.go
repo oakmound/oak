@@ -231,7 +231,8 @@ func clearParticles(id int, nothing interface{}) int {
 
 	ps_p := plastic.GetEntity(id)
 	if ps_p == nil {
-		return event.UNBIND_EVENT
+		return 0
+		// return event.UNBIND_EVENT
 	}
 	ps := ps_p.(*ParticleSource)
 	pg := ps.Generator

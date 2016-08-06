@@ -16,6 +16,12 @@ type Rect struct {
 }
 
 func SetScreen(x, y int) {
+	dlog.Verb("Requesting ViewPoint ", x, y)
+	viewportChannel <- [2]int{x, y}
+	// updateScreen(x, y)
+}
+
+func updateScreen(x, y int) {
 	if useViewBounds {
 		if viewBounds.minX < x && viewBounds.maxX > x+ScreenWidth {
 			dlog.Verb("Set ViewX to ", x)
