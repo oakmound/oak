@@ -6,10 +6,12 @@ package event
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"sync"
 )
 
 var (
 	thisBus = EventBus{make(map[string]map[int]*BindableStore)}
+	mutex   = sync.Mutex{}
 )
 
 const (
@@ -187,13 +189,15 @@ func (bl *BindableList) removeBindable(b Binding) {
 
 func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 
-	if _, ok := eb.bindingMap[opt.Name]; !ok {
+	if m, ok := eb.bindingMap[opt.Name]; !ok || m == nil {
 		eb.bindingMap[opt.Name] = make(map[int]*BindableStore)
 	}
 
-	if _, ok := eb.bindingMap[opt.Name][opt.CallerID]; !ok {
+	if m, ok := eb.bindingMap[opt.Name][opt.CallerID]; !ok || m == nil {
+		mutex.Lock()
 		eb.bindingMap[opt.Name][opt.CallerID] = new(BindableStore)
 		eb.bindingMap[opt.Name][opt.CallerID].defaultPriority = (new(BindableList))
+		mutex.Unlock()
 	}
 
 	store := eb.bindingMap[opt.Name][opt.CallerID]

@@ -143,11 +143,14 @@ func Init(firstScene string) {
 		drawChannel <- true
 
 		// Reset transient portions of the engine
+		ResetEntities()
 		event.ResetEventBus()
 		render.ResetDrawHeap()
 		collision.Clear()
 		pmouse.Clear()
 		render.PreDraw(0, nil)
+		ViewX = 0
+		ViewY = 0
 
 		scene, data = sceneMap[scene].end()
 
@@ -336,8 +339,8 @@ func eventLoop(s screen.Screen) {
 		for runEventLoop {
 			<-frameCh
 			eb.Trigger("EnterFrame", nil)
-			sceneCh <- true
 			eb.Trigger("ExitFrame", nil)
+			sceneCh <- true
 		}
 	}
 }

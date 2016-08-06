@@ -116,7 +116,9 @@ func (pg *ParticleGenerator) Generate(layer int) *ParticleSource {
 		go func(ps_p *ParticleSource, duration int) {
 			select {
 			case <-time.After(time.Duration(duration) * time.Millisecond):
-				ps_p.Stop()
+				if ps_p.GetLayer() != -1 {
+					ps_p.Stop()
+				}
 			}
 		}(&ps, pg.Duration)
 	}
@@ -156,7 +158,11 @@ func (ps *ParticleSource) Draw(buff draw.Image) {
 // as a ParticleSource is active.
 func rotateParticles(id int, nothing interface{}) int {
 
-	ps := plastic.GetEntity(id).(*ParticleSource)
+	ps_p := plastic.GetEntity(id)
+	if ps_p == nil {
+		return event.UNBIND_EVENT
+	}
+	ps := ps_p.(*ParticleSource)
 	pg := ps.Generator
 
 	newParticles := make([]Particle, 0)
@@ -223,7 +229,11 @@ func rotateParticles(id int, nothing interface{}) int {
 // to continue moving old particles for as long as they exist.
 func clearParticles(id int, nothing interface{}) int {
 
-	ps := plastic.GetEntity(id).(*ParticleSource)
+	ps_p := plastic.GetEntity(id)
+	if ps_p == nil {
+		return event.UNBIND_EVENT
+	}
+	ps := ps_p.(*ParticleSource)
 	pg := ps.Generator
 
 	if len(ps.particles) > 0 {
@@ -265,10 +275,12 @@ func clearParticles(id int, nothing interface{}) int {
 }
 
 func clearAtExit(id int, nothing interface{}) int {
-	ps := plastic.GetEntity(id).(*ParticleSource)
-	ps.clearBinding.Unbind()
-	ps.rotateBinding.Unbind()
-	ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
+	if plastic.HasEntity(id) {
+		ps := plastic.GetEntity(id).(*ParticleSource)
+		ps.clearBinding.Unbind()
+		ps.rotateBinding.Unbind()
+		ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
+	}
 	return 0
 }
 

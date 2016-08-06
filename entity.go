@@ -20,9 +20,21 @@ func NextID(e Entity) event.CID {
 }
 
 func GetEntity(i int) interface{} {
-	return callers[i-1]
+	if HasEntity(i) {
+		return callers[i-1]
+	}
+	return nil
+}
+
+func HasEntity(i int) bool {
+	return len(callers) >= i
 }
 
 func DestroyEntity(i int) {
 	callers[i-1] = nil
+}
+
+func ResetEntities() {
+	highestID = 0
+	callers = []Entity{}
 }
