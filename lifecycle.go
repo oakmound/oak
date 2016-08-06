@@ -151,6 +151,7 @@ func Init(firstScene string) {
 		render.PreDraw(0, nil)
 		ViewX = 0
 		ViewY = 0
+		useViewBounds = false
 
 		scene, data = sceneMap[scene].end()
 
