@@ -49,6 +49,12 @@ func updateScreen(x, y int) {
 }
 
 func SetViewportBounds(x1, y1, x2, y2 int) {
+	if x2 < ScreenWidth {
+		x2 = ScreenWidth
+	}
+	if y2 < ScreenHeight {
+		y2 = ScreenHeight
+	}
 	dlog.Info("Viewport bounds set to, ", x1, y1, x2, y2)
 	useViewBounds = true
 	viewBounds = Rect{x1, y1, x2, y2}
