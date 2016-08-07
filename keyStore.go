@@ -5,6 +5,7 @@ import (
 )
 
 var (
+	keyBinds = make(map[string]string)
 	keyState = make(map[string]bool)
 	keyLock  = sync.Mutex{}
 )
@@ -30,4 +31,15 @@ func IsDown(key string) bool {
 	k := keyState[key]
 	keyLock.Unlock()
 	return k
+}
+
+func BindKey(key string, binding string) {
+	keyBinds[key] = binding
+}
+
+func GetKeyBind(key string) string {
+	if v, ok := keyBinds[key]; ok {
+		return v
+	}
+	return key
 }

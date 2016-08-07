@@ -196,13 +196,13 @@ func eventLoop(s screen.Screen) {
 	go func() {
 		for {
 			e := w.NextEvent()
-			format := "got %#v\n"
-			if _, ok := e.(fmt.Stringer); ok {
-				format = "got %v\n"
-			}
-			if l_debug {
-				fmt.Printf(format, e)
-			}
+			// format := "got %#v\n"
+			// if _, ok := e.(fmt.Stringer); ok {
+			// 	format = "got %v\n"
+			// }
+			// if l_debug {
+			// 	fmt.Printf(format, e)
+			// }
 			switch e := e.(type) {
 
 			// We only currently respond to death lifecycle events.
@@ -220,15 +220,16 @@ func eventLoop(s screen.Screen) {
 			// The specific key that is pressed is passed as the data interface for
 			// the former events, but not for the latter.
 			case key.Event:
+				k := GetKeyBind(e.Code.String()[4:])
 				if e.Direction == press {
-					fmt.Println("--------------------", e.Code.String()[4:])
-					setDown(e.Code.String()[4:])
-					eb.Trigger("KeyDown", e.Code.String()[4:])
-					eb.Trigger("KeyDown"+e.Code.String()[4:], nil)
+					fmt.Println("--------------------", e.Code.String()[4:], k)
+					setDown(k)
+					eb.Trigger("KeyDown", k)
+					eb.Trigger("KeyDown"+k, nil)
 				} else if e.Direction == release {
-					setUp(e.Code.String()[4:])
-					eb.Trigger("KeyUp", e.Code.String()[4:])
-					eb.Trigger("KeyUp"+e.Code.String()[4:], nil)
+					setUp(k)
+					eb.Trigger("KeyUp", k)
+					eb.Trigger("KeyUp"+k, nil)
 				}
 
 			// Send mouse events
