@@ -12,8 +12,21 @@ type Sprite struct {
 	r *image.RGBA
 }
 
+func NewSprite(x, y float64, r *image.RGBA) *Sprite {
+	return &Sprite{
+		Point: Point{
+			x, y,
+		},
+		r: r,
+	}
+}
+
 func (s *Sprite) GetRGBA() *image.RGBA {
 	return s.r
+}
+
+func (s *Sprite) SetRGBA(r *image.RGBA) {
+	s.r = r
 }
 
 func (s *Sprite) Draw(buff draw.Image) {
