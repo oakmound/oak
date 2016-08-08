@@ -17,8 +17,9 @@ import (
 var (
 	fontdir string
 
-	d *font.Drawer
-	f *truetype.Font
+	d        *font.Drawer
+	static_d *font.Drawer
+	f        *truetype.Font
 
 	defaultHinting  font.Hinting
 	defaultSize     float64
@@ -55,12 +56,20 @@ func SetFontDefaults(wd, assetPath, fontPath, hinting, color, file string, size,
 	defaultFontFile = file
 }
 
-func InitFont(b_p *screen.Buffer) {
-	b := *b_p
+func InitFont(b screen.Buffer, static_b screen.Buffer) {
 	LoadFont(defaultFontFile)
 	f = loadedFonts[defaultFontFile]
 	d = &font.Drawer{
 		Dst: b.RGBA(),
+		Src: faceColor,
+		Face: truetype.NewFace(f, &truetype.Options{
+			Size:    faceSize,
+			DPI:     faceDPI,
+			Hinting: faceHinting,
+		}),
+	}
+	static_d = &font.Drawer{
+		Dst: static_b.RGBA(),
 		Src: faceColor,
 		Face: truetype.NewFace(f, &truetype.Options{
 			Size:    faceSize,
@@ -76,6 +85,22 @@ func setFace() {
 		DPI:     faceDPI,
 		Hinting: faceHinting,
 	})
+	static_d.Face = truetype.NewFace(f, &truetype.Options{
+		Size:    faceSize,
+		DPI:     faceDPI,
+		Hinting: faceHinting,
+	})
+}
+
+func NewStaticText(str string, x, y float64) *Text {
+	return &Text{
+		Point: Point{
+			x,
+			y,
+		},
+		text: str,
+		d_p:  static_d,
+	}
 }
 
 func NewText(str string, x, y float64) *Text {
@@ -107,6 +132,11 @@ func (t_p *Text) Center() {
 
 func (t_p *Text) SetText(str string) {
 	t_p.text = str
+}
+
+func StaticDrawText(str string, x, y int) {
+	static_d.Dot = fixed.P(x, y)
+	static_d.DrawString(str)
 }
 
 func DrawText(str string, x, y int) {
@@ -163,6 +193,7 @@ func ResetFontFormat() {
 	faceDPI = defaultDPI
 	setFace()
 	d.Src = defaultColor
+	static_d.Src = defaultColor
 }
 
 func LoadFont(fontFile string) {
@@ -177,5 +208,4 @@ func LoadFont(fontFile string) {
 		return
 	}
 	loadedFonts[fontFile] = font
-
 }

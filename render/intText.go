@@ -26,6 +26,17 @@ func NewIntText(str *int, x, y float64) *IntText {
 	}
 }
 
+func NewStaticIntText(str *int, x, y float64) *IntText {
+	return &IntText{
+		Point: Point{
+			x,
+			y,
+		},
+		text: str,
+		d_p:  static_d,
+	}
+}
+
 func (t_p *IntText) GetRGBA() *image.RGBA {
 	return nil
 }

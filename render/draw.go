@@ -11,7 +11,9 @@ import (
 
 var (
 	rh                *RenderableHeap
+	srh               *RenderableHeap
 	toPushRenderables []Renderable
+	toPushStatic      []Renderable
 	preDrawBind       event.Binding
 	resetHeap         bool
 )
@@ -43,7 +45,9 @@ func ResetDrawHeap() {
 
 func InitDrawHeap() {
 	rh = &RenderableHeap{}
+	srh = &RenderableHeap{}
 	heap.Init(rh)
+	heap.Init(srh)
 	preDrawBind, _ = event.GlobalBind(PreDraw, "PreDraw")
 }
 
@@ -57,6 +61,12 @@ func Draw(r Renderable, l int) Renderable {
 	return r
 }
 
+func StaticDraw(r Renderable, l int) Renderable {
+	r.SetLayer(l)
+	toPushStatic = append(toPushStatic, r)
+	return r
+}
+
 // PreDraw parses through renderables to be pushed
 // and adds them to the drawheap.
 func PreDraw(no int, nothing interface{}) int {
@@ -67,7 +77,11 @@ func PreDraw(no int, nothing interface{}) int {
 		for _, r := range toPushRenderables {
 			heap.Push(rh, r)
 		}
+		for _, r := range toPushStatic {
+			heap.Push(srh, r)
+		}
 	}
+	toPushStatic = []Renderable{}
 	toPushRenderables = []Renderable{}
 	return 0
 }
@@ -93,15 +107,23 @@ func DrawColor(c color.Color, x1, y1, x2, y2 float64, l int) {
 // filters out elements who have the layer
 // -1, reserved for elements to be undrawn.
 func DrawHeap(b screen.Buffer) {
+	drawRenderableHeap(b, rh)
+}
+
+func DrawStaticHeap(b screen.Buffer) {
+	drawRenderableHeap(b, srh)
+}
+
+func drawRenderableHeap(b screen.Buffer, rheap *RenderableHeap) {
 	newRh := &RenderableHeap{}
-	for rh.Len() > 0 {
-		r := heap.Pop(rh).(Renderable)
+	for rheap.Len() > 0 {
+		r := heap.Pop(rheap).(Renderable)
 		if r.GetLayer() != -1 {
 			r.Draw(b.RGBA())
 			heap.Push(newRh, r)
 		}
 	}
-	rh = newRh
+	*rheap = *newRh
 }
 
 // ShinyDraw performs a draw operation at -x, -y, because

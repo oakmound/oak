@@ -176,7 +176,7 @@ func eventLoop(s screen.Screen) {
 
 	// This initialization happens here on account of font's initialization
 	// requiring a buffer to draw to. Can probably change in the future.
-	render.InitFont(&b)
+	render.InitFont(b, winBuffer)
 
 	eb = event.GetEventBus()
 
@@ -335,8 +335,9 @@ func eventLoop(s screen.Screen) {
 
 				eb.Trigger("PreDraw", nil)
 				render.DrawHeap(b)
-				eb.Trigger("PostDraw", b)
 				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
+				render.DrawStaticHeap(winBuffer)
+				eb.Trigger("PostDraw", b)
 
 				w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
 				w.Publish()
