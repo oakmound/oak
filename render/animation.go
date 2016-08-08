@@ -1,7 +1,7 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"errors"
 	"image"
 	"image/color"
@@ -27,6 +27,7 @@ type Animation struct {
 	sheet      *Sheet
 	lastChange time.Time
 	playing    bool
+	cID        event.CID
 }
 
 func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error) {
@@ -77,11 +78,17 @@ func (a_p *Animation) Copy() Modifiable {
 	return newA
 }
 
+func (a_p *Animation) SetTriggerID(id event.CID) {
+	a_p.cID = id
+}
+
 func (a_p *Animation) updateAnimation() {
 	if a_p.playing && time.Since(a_p.lastChange).Nanoseconds() > a_p.frameTime {
-		dlog.Verb("Increment sheetPos")
 		a_p.lastChange = time.Now()
 		a_p.sheetPos = (a_p.sheetPos + 1) % len(a_p.frames)
+		if a_p.sheetPos == 0 && a_p.cID != 0 {
+			a_p.cID.Trigger("AnimationEnd", nil)
+		}
 	}
 }
 

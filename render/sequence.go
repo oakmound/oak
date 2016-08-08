@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"image"
 	"image/color"
 	"image/draw"
@@ -16,6 +17,7 @@ type Sequence struct {
 	playing    bool
 	sheetPos   int
 	frameTime  int64
+	cID        event.CID
 }
 
 func NewSequence(mods []Modifiable, fps float64) *Sequence {
@@ -45,10 +47,17 @@ func (sq *Sequence) Copy() Modifiable {
 	return newSq
 }
 
+func (sq *Sequence) SetTriggerID(id event.CID) {
+	sq.cID = id
+}
+
 func (sq *Sequence) update() {
 	if sq.playing && time.Since(sq.lastChange).Nanoseconds() > sq.frameTime {
 		sq.lastChange = time.Now()
 		sq.sheetPos = (sq.sheetPos + 1) % len(sq.rs)
+		if sq.sheetPos == 0 && sq.cID != 0 {
+			sq.cID.Trigger("AnimationEnd", nil)
+		}
 	}
 }
 

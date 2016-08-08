@@ -367,6 +367,10 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) {
 	}
 }
 
+func Trigger(eventName string, data interface{}) {
+	thisBus.Trigger(eventName, data)
+}
+
 func triggerDefault(sl []Bindable, id int, eventName string, data interface{}) {
 	progCh := make(chan bool)
 	for _, bnd := range sl {
