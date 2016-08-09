@@ -22,11 +22,11 @@ var (
 	}
 )
 
-// ParticleGenerator represents the various options
+// Generator represents the various options
 // one needs to or may provide in order to generate a
-// ParticleSource.
+// Source.
 // Modeled after Parcycle
-type ParticleGenerator struct {
+type Generator struct {
 	// This float is currently forced to an integer
 	// at new particle rotation. This should be changed
 	// to something along the lines of 'new per 30 frames',
@@ -62,10 +62,10 @@ type ParticleGenerator struct {
 	Shape ShapeFunction
 }
 
-// A ParticleSource is used to store and control a set of particles.
-type ParticleSource struct {
+// A Source is used to store and control a set of particles.
+type Source struct {
 	render.Layered
-	Generator     ParticleGenerator
+	Generator     Generator
 	particles     []Particle
 	rotateBinding event.Binding
 	clearBinding  event.Binding
@@ -86,21 +86,21 @@ type Particle struct {
 	size       int
 }
 
-func (ps *ParticleSource) Init() event.CID {
+func (ps *Source) Init() event.CID {
 	return event.NextID(ps)
 }
 
 // Generate takes a generator and converts it into a source,
 // drawing particles and binding functions for particle generation
 // and rotation.
-func (pg *ParticleGenerator) Generate(layer int) *ParticleSource {
+func (pg *Generator) Generate(layer int) *Source {
 
 	// Convert rotation from degrees to radians
 	pg.Rotation = pg.Rotation / 180 * math.Pi
 	pg.RotationRand = pg.Rotation / 180 * math.Pi
 
 	// Make a source
-	ps := ParticleSource{
+	ps := Source{
 		Generator: *pg,
 		particles: make([]Particle, 0),
 	}
@@ -112,7 +112,7 @@ func (pg *ParticleGenerator) Generate(layer int) *ParticleSource {
 	ps.cID = cID
 	render.Draw(&ps, layer)
 	if pg.Duration != -1 {
-		go func(ps_p *ParticleSource, duration int) {
+		go func(ps_p *Source, duration int) {
 			select {
 			case <-time.After(time.Duration(duration) * time.Millisecond):
 				if ps_p.GetLayer() != -1 {
@@ -124,7 +124,7 @@ func (pg *ParticleGenerator) Generate(layer int) *ParticleSource {
 	return &ps
 }
 
-func (ps *ParticleSource) Draw(buff draw.Image) {
+func (ps *Source) Draw(buff draw.Image) {
 	for _, p := range ps.particles {
 
 		r, g, b, a := p.startColor.RGBA()
@@ -154,14 +154,9 @@ func (ps *ParticleSource) Draw(buff draw.Image) {
 }
 
 // rotateParticles updates particles over time as long
-// as a ParticleSource is active.
+// as a Source is active.
 func rotateParticles(id int, nothing interface{}) int {
-
-	ps_p := event.GetEntity(id)
-	if ps_p == nil {
-		return 0
-	}
-	ps := ps_p.(*ParticleSource)
+	ps := event.GetEntity(id).(*Source)
 	pg := ps.Generator
 
 	newParticles := make([]Particle, 0)
@@ -224,16 +219,10 @@ func rotateParticles(id int, nothing interface{}) int {
 	return 0
 }
 
-// clearParticles is used after a ParticleSource has been stopped
+// clearParticles is used after a Source has been stopped
 // to continue moving old particles for as long as they exist.
 func clearParticles(id int, nothing interface{}) int {
-
-	ps_p := event.GetEntity(id)
-	if ps_p == nil {
-		return 0
-		// return event.UNBIND_EVENT
-	}
-	ps := ps_p.(*ParticleSource)
+	ps := event.GetEntity(id).(*Source)
 	pg := ps.Generator
 
 	if len(ps.particles) > 0 {
@@ -276,7 +265,7 @@ func clearParticles(id int, nothing interface{}) int {
 
 func clearAtExit(id int, nothing interface{}) int {
 	if event.HasEntity(id) {
-		ps := event.GetEntity(id).(*ParticleSource)
+		ps := event.GetEntity(id).(*Source)
 		ps.clearBinding.Unbind()
 		ps.rotateBinding.Unbind()
 		ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
@@ -284,49 +273,49 @@ func clearAtExit(id int, nothing interface{}) int {
 	return 0
 }
 
-// Stop manually stops a ParticleSource, if its duration is infinite
+// Stop manually stops a Source, if its duration is infinite
 // or if it should be stopped before expriring naturally.
-func (ps *ParticleSource) Stop() {
+func (ps *Source) Stop() {
 	ps.clearBinding, _ = ps.cID.Bind(clearAtExit, "ExitFrame")
 }
 
 // A particle source has no concept of an individual
 // rgba buffer, and so it returns nothing when its
 // rgba buffer is queried. This may change.
-func (ps *ParticleSource) GetRGBA() *image.RGBA {
+func (ps *Source) GetRGBA() *image.RGBA {
 	return nil
 }
 
-func (ps *ParticleSource) ShiftX(x float64) {
+func (ps *Source) ShiftX(x float64) {
 	ps.Generator.X += x
 }
 
-func (ps *ParticleSource) ShiftY(y float64) {
+func (ps *Source) ShiftY(y float64) {
 	ps.Generator.Y += y
 }
 
-func (ps *ParticleSource) GetX() float64 {
+func (ps *Source) GetX() float64 {
 	return ps.Generator.X
 }
 
-func (ps *ParticleSource) GetY() float64 {
+func (ps *Source) GetY() float64 {
 	return ps.Generator.Y
 }
-func (ps *ParticleSource) SetPos(x, y float64) {
+func (ps *Source) SetPos(x, y float64) {
 	ps.Generator.X = x
 	ps.Generator.Y = y
 }
 
-// Pausing a ParticleSource just stops the repetition
+// Pausing a Source just stops the repetition
 // of its rotation function, which moves, destroys,
 // ages and generates particles. Existing particles will
 // stay in place.
-func (ps *ParticleSource) Pause() {
+func (ps *Source) Pause() {
 	ps.rotateBinding.Unbind()
 }
 
-// Unpausing a ParticleSource rebinds it's rotate function.
-func (ps *ParticleSource) UnPause() {
+// Unpausing a Source rebinds it's rotate function.
+func (ps *Source) UnPause() {
 	binding, _ := ps.cID.Bind(rotateParticles, "EnterFrame")
 	ps.rotateBinding = binding
 }

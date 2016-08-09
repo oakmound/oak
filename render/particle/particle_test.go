@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	pg = ParticleGenerator{
+	pg = Generator{
 		10, 5,
 		2, 1,
 		90, 3,
@@ -37,7 +37,7 @@ func BenchmarkParticles(b *testing.B) {
 	pg.RotationRand = pg.Rotation / 180 * math.Pi
 
 	// Make a source
-	ps := ParticleSource{
+	ps := Source{
 		Generator: pg,
 		particles: make([]*Particle, 0),
 	}
@@ -137,7 +137,7 @@ func BenchmarkParticlesParallel(b *testing.B) {
 	pg.RotationRand = pg.Rotation / 180 * math.Pi
 
 	// Make a source
-	ps := ParticleSource{
+	ps := Source{
 		Generator: pg,
 		particles: make([]*Particle, 0),
 	}
@@ -146,7 +146,7 @@ func BenchmarkParticlesParallel(b *testing.B) {
 	rotateChs := [channelCount]chan *Particle{}
 	for i := 0; i < channelCount; i++ {
 		rotateChs[i] = make(chan *Particle)
-		go func(pg ParticleGenerator, rotateCh chan *Particle, pCh chan *Particle) {
+		go func(pg Generator, rotateCh chan *Particle, pCh chan *Particle) {
 			for {
 				p := <-rotateCh
 				// Ignore dead particles
@@ -184,7 +184,7 @@ func BenchmarkParticlesParallel(b *testing.B) {
 	newChs := [channelCount]chan bool{}
 	for i := 0; i < channelCount; i++ {
 		newChs[i] = make(chan bool)
-		go func(pg ParticleGenerator, newCh chan bool, pCh chan *Particle) {
+		go func(pg Generator, newCh chan bool, pCh chan *Particle) {
 			for {
 				<-newCh
 				angle := (pg.Angle + floatFromSpread(pg.AngleRand)) * math.Pi / 180.0
@@ -237,8 +237,8 @@ func BenchmarkParticlesParallel(b *testing.B) {
 		}(drawChs[i], doneCh)
 	}
 
-	rotateAggregateCh := make(chan *ParticleSource)
-	go func(rotateChs [channelCount]chan *Particle, aggCh chan *ParticleSource) {
+	rotateAggregateCh := make(chan *Source)
+	go func(rotateChs [channelCount]chan *Particle, aggCh chan *Source) {
 		for {
 			ps := <-aggCh
 			for i, p := range ps.particles {
@@ -257,8 +257,8 @@ func BenchmarkParticlesParallel(b *testing.B) {
 		}
 	}(newChs, newAggregateCh)
 
-	drawAggregateCh := make(chan *ParticleSource)
-	go func(drawChs [channelCount]chan *Particle, aggCh chan *ParticleSource) {
+	drawAggregateCh := make(chan *Source)
+	go func(drawChs [channelCount]chan *Particle, aggCh chan *Source) {
 		for {
 			ps := <-aggCh
 			for i, p := range ps.particles {

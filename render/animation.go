@@ -78,16 +78,16 @@ func (a_p *Animation) Copy() Modifiable {
 	return newA
 }
 
-func (a_p *Animation) SetTriggerID(id event.CID) {
-	a_p.cID = id
+func (a *Animation) SetTriggerID(id event.CID) {
+	a.cID = id
 }
 
-func (a_p *Animation) updateAnimation() {
-	if a_p.playing && time.Since(a_p.lastChange).Nanoseconds() > a_p.frameTime {
-		a_p.lastChange = time.Now()
-		a_p.sheetPos = (a_p.sheetPos + 1) % len(a_p.frames)
-		if a_p.sheetPos == 0 && a_p.cID != 0 {
-			a_p.cID.Trigger("AnimationEnd", nil)
+func (a *Animation) updateAnimation() {
+	if a.playing && time.Since(a.lastChange).Nanoseconds() > a.frameTime {
+		a.lastChange = time.Now()
+		a.sheetPos = (a.sheetPos + 1) % len(a.frames)
+		if a.sheetPos == 0 && a.cID != 0 {
+			a.cID.Trigger("AnimationEnd", nil)
 		}
 	}
 }
