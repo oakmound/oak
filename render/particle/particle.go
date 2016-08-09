@@ -3,7 +3,6 @@
 package particle
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 	"image"
@@ -88,7 +87,7 @@ type Particle struct {
 }
 
 func (ps *ParticleSource) Init() event.CID {
-	return plastic.NextID(ps)
+	return event.NextID(ps)
 }
 
 // Generate takes a generator and converts it into a source,
@@ -158,7 +157,7 @@ func (ps *ParticleSource) Draw(buff draw.Image) {
 // as a ParticleSource is active.
 func rotateParticles(id int, nothing interface{}) int {
 
-	ps_p := plastic.GetEntity(id)
+	ps_p := event.GetEntity(id)
 	if ps_p == nil {
 		return 0
 	}
@@ -229,7 +228,7 @@ func rotateParticles(id int, nothing interface{}) int {
 // to continue moving old particles for as long as they exist.
 func clearParticles(id int, nothing interface{}) int {
 
-	ps_p := plastic.GetEntity(id)
+	ps_p := event.GetEntity(id)
 	if ps_p == nil {
 		return 0
 		// return event.UNBIND_EVENT
@@ -276,8 +275,8 @@ func clearParticles(id int, nothing interface{}) int {
 }
 
 func clearAtExit(id int, nothing interface{}) int {
-	if plastic.HasEntity(id) {
-		ps := plastic.GetEntity(id).(*ParticleSource)
+	if event.HasEntity(id) {
+		ps := event.GetEntity(id).(*ParticleSource)
 		ps.clearBinding.Unbind()
 		ps.rotateBinding.Unbind()
 		ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")

@@ -146,7 +146,7 @@ func Init(firstScene string) {
 		drawChannel <- true
 
 		// Reset transient portions of the engine
-		ResetEntities()
+		event.ResetEntities()
 		event.ResetEventBus()
 		render.ResetDrawHeap()
 		collision.Clear()

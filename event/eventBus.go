@@ -376,10 +376,12 @@ func triggerDefault(sl []Bindable, id int, eventName string, data interface{}) {
 	for _, bnd := range sl {
 		go func(bnd Bindable, id int, eventName string, data interface{}, progCh chan bool) {
 			if bnd != nil {
-				response := bnd(id, data)
-				switch response {
-				case UNBIND_EVENT:
-					thisBus.bindingMap[eventName][id].defaultPriority = (new(BindableList))
+				if id == 0 || GetEntity(id) != nil {
+					response := bnd(id, data)
+					switch response {
+					case UNBIND_EVENT:
+						thisBus.bindingMap[eventName][id].defaultPriority = (new(BindableList))
+					}
 				}
 			}
 			progCh <- true

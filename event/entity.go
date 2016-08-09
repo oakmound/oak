@@ -1,19 +1,15 @@
-package plastic
-
-import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
-)
+package event
 
 var (
-	highestID event.CID = 0
-	callers             = make([]Entity, 0)
+	highestID CID = 0
+	callers       = make([]Entity, 0)
 )
 
 type Entity interface {
-	Init() event.CID
+	Init() CID
 }
 
-func NextID(e Entity) event.CID {
+func NextID(e Entity) CID {
 	highestID++
 	callers = append(callers, e)
 	return highestID
