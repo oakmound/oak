@@ -1,6 +1,8 @@
 package interfaces
 
 type Point interface {
+	GetX() float64
+	GetY() float64
 	SetPos(x, y float64)
 	GetLogicPos() (float64, float64)
 	SetLogicPos(x, y float64)

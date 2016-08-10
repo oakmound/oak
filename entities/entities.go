@@ -10,6 +10,12 @@ type Point struct {
 	X, Y float64
 }
 
+func (p *Point) GetX() float64 {
+	return p.X
+}
+func (p *Point) GetY() float64 {
+	return p.Y
+}
 func (p *Point) SetPos(x, y float64) {
 	p.SetLogicPos(x, y)
 }
