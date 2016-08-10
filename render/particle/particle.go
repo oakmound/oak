@@ -20,6 +20,16 @@ var (
 		radius := size / 2
 		return math.Abs(float64(x-radius))+math.Abs(float64(y-radius)) < float64(radius)
 	}
+	Circle = func(x, y, size int) bool {
+		radius := size / 2
+		dx := math.Abs(float64(x - radius))
+		dy := math.Abs(float64(y - radius))
+		radiusf64 := float64(radius)
+		if dx+dy <= radiusf64 {
+			return true
+		}
+		return math.Pow(dx, 2)+math.Pow(dy, 2) < math.Pow(radiusf64, 2)
+	}
 )
 
 // Generator represents the various options

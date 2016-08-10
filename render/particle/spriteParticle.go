@@ -115,6 +115,7 @@ func rotateSprites(id int, nothing interface{}) int {
 				s.velX = s.velX * magnitude
 				s.velY = s.velY * magnitude
 			}
+			s.rotation += s.rotation
 
 			s.x += s.velX
 			s.y += s.velY
@@ -177,6 +178,7 @@ func clearSprites(id int, nothing interface{}) int {
 					s.velX = s.velX * magnitude
 					s.velY = s.velY * magnitude
 				}
+				s.rotation += s.rotation
 
 				s.x += s.velX
 				s.y += s.velY
