@@ -16,6 +16,7 @@ const (
 	F_ApplyMask
 	F_Rotate
 	F_Scale
+	F_Fade
 )
 
 // Modifiables are Renderables that have functions to change their
@@ -31,6 +32,7 @@ type Modifiable interface {
 	ApplyMask(img image.RGBA)
 	Rotate(degrees int)
 	Scale(xRatio float64, yRatio float64)
+	Fade(alpha int)
 }
 
 // FlipX returns a new rgba which is flipped
@@ -53,6 +55,32 @@ func FlipY(rgba *image.RGBA) *image.RGBA {
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
 			newRgba.Set(x, y, rgba.At(x, h-y))
+		}
+	}
+	return newRgba
+}
+
+func Fade(rgba *image.RGBA, alpha int) *image.RGBA {
+	bounds := rgba.Bounds()
+	a2 := uint32(alpha * 257)
+	w := bounds.Max.X
+	h := bounds.Max.Y
+	newRgba := image.NewRGBA(image.Rect(0, 0, w, h))
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			r, g, b, a := rgba.At(x, y).RGBA()
+			var a3 uint16
+			if a2 > a {
+				a3 = 0
+			} else {
+				a3 = uint16(a - a2)
+			}
+			tmp := color.NRGBA64{
+				uint16(r),
+				uint16(g),
+				uint16(b),
+				a3}
+			newRgba.Set(x, y, tmp)
 		}
 	}
 	return newRgba

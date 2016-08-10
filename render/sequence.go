@@ -112,6 +112,11 @@ func (sq *Sequence) FlipY() {
 		r.FlipY()
 	}
 }
+func (sq *Sequence) Fade(alpha int) {
+	for _, r := range sq.rs {
+		r.Fade(alpha)
+	}
+}
 
 func (sq *Sequence) Pause() {
 	sq.playing = false

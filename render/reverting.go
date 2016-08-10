@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	emptyMods = [7]interface{}{
+	emptyMods = [8]interface{}{
 		false,
 		false,
 		color.RGBA{0, 0, 0, 0},
@@ -15,12 +15,13 @@ var (
 		image.RGBA{Stride: 0},
 		0,
 		[2]float64{0, 0},
+		0,
 	}
 )
 
 type Reverting struct {
 	root, current Modifiable
-	mods          [7]interface{}
+	mods          [8]interface{}
 }
 
 func NewReverting(m Modifiable) *Reverting {
@@ -70,6 +71,11 @@ func (rv *Reverting) Revert(mod int) {
 			v := (in).([2]float64)
 			if v[0] != 0 && v[1] != 0 {
 				rv.current.Scale(v[0], v[1])
+			}
+		case F_Fade:
+			v := (in).(int)
+			if v != 0 {
+				rv.current.Fade(v)
 			}
 		}
 	}
@@ -139,6 +145,11 @@ func (rv *Reverting) Scale(xRatio float64, yRatio float64) {
 	rv.Revert(F_Scale)
 	rv.current.Scale(xRatio, yRatio)
 	rv.mods[F_Scale] = [2]float64{xRatio, yRatio}
+}
+func (rv *Reverting) Fade(alpha int) {
+	rv.Revert(F_Fade)
+	rv.current.Fade(alpha)
+	rv.mods[F_Fade] = alpha
 }
 func (rv *Reverting) Copy() Modifiable {
 	newRv := new(Reverting)

@@ -67,6 +67,9 @@ func (s *Sprite) FlipX() {
 func (s *Sprite) FlipY() {
 	s.r = FlipY(s.r)
 }
+func (s *Sprite) Fade(alpha int) {
+	s.r = Fade(s.r, alpha)
+}
 
 func ParseSubSprite(s string, x, y, w, h, pad int) *Sprite {
 	sh, _ := LoadSheet(dir, s, w, h, pad)

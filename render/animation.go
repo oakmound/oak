@@ -164,6 +164,14 @@ func (a *Animation) FlipY() {
 		}
 	}
 }
+func (a *Animation) Fade(alpha int) {
+	sheet := *a.sheet
+	for x, row := range sheet {
+		for y, rgba := range row {
+			sheet[x][y] = Fade(rgba, alpha)
+		}
+	}
+}
 
 func (a *Animation) Pause() {
 	a.playing = false

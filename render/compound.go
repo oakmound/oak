@@ -91,6 +91,11 @@ func (c *Compound) FlipY() {
 		rend.FlipY()
 	}
 }
+func (c *Compound) Fade(alpha int) {
+	for _, rend := range c.subRenderables {
+		rend.Fade(alpha)
+	}
+}
 
 func (c *Compound) Draw(buff draw.Image) {
 	img := c.GetRGBA()
