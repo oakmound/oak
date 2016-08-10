@@ -33,12 +33,27 @@ func (s *Space) GetX() float64 {
 	return s.Location.PointCoord(1)
 }
 
+func (s *Space) GetPos() (float64, float64) {
+	return s.Location.PointCoord(1), s.Location.PointCoord(0)
+}
+
 func (s *Space) Below(other *Space) float64 {
 	return s.GetY() - other.GetY()
 }
 
 func (s *Space) LeftOf(other *Space) float64 {
 	return s.GetX() - other.GetX()
+}
+
+func (s *Space) SetDim(w, h float64) {
+	s.Update(s.GetX(), s.GetY(), w, h)
+}
+
+func (s *Space) Update(x, y, w, h float64) {
+	loc := NewRect(x, y, w, h)
+	rt.Delete(s)
+	s.Location = loc
+	rt.Insert(s)
 }
 
 func NewUnassignedSpace(x, y, w, h float64) *Space {
