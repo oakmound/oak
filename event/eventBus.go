@@ -271,7 +271,6 @@ func (eb *EventBus) UnbindAll(opt BindingOption) {
 
 	if opt.CallerID != 0 {
 		for _, k := range namekeys {
-			dlog.Verb("Deleting bindingMap: ", k, " callerId, ", opt.CallerID)
 			delete(eb.bindingMap[k], opt.CallerID)
 		}
 	} else {
