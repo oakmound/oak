@@ -136,8 +136,7 @@ func (eb *EventBus) Bind(fn Bindable, name string, callerID int) (Binding, error
 }
 
 func (cid CID) Bind(fn Bindable, name string) (Binding, error) {
-	eb := GetEventBus()
-	return eb.Bind(fn, name, int(cid))
+	return thisBus.Bind(fn, name, int(cid))
 }
 
 // Called by entities,

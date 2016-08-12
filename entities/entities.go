@@ -41,12 +41,12 @@ func (d *Doodad) Init() event.CID {
 	return cID
 }
 
-func (d *Doodad) GetRenderable() render.Renderable {
-	return d.R
-}
-
 func (d *Doodad) GetID() event.CID {
 	return d.CID
+}
+
+func (d *Doodad) GetRenderable() render.Renderable {
+	return d.R
 }
 
 func (d *Doodad) Destroy() {
