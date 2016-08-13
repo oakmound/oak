@@ -17,6 +17,7 @@ type Compound struct {
 	Point
 	Layered
 	subRenderables map[string]Modifiable
+	offsets        map[string]Point
 	curRenderable  string
 }
 
@@ -24,6 +25,7 @@ func NewCompound(start string, m map[string]Modifiable) *Compound {
 	return &Compound{
 		subRenderables: m,
 		curRenderable:  start,
+		offsets:        make(map[string]Point),
 	}
 }
 
@@ -33,6 +35,10 @@ func (c *Compound) Add(k string, v Modifiable) {
 
 func (c *Compound) Set(k string) {
 	c.curRenderable = k
+}
+
+func (c *Compound) SetOffsets(k string, offsets Point) {
+	c.offsets[k] = offsets
 }
 
 func (c *Compound) Copy() Modifiable {
@@ -107,7 +113,13 @@ func (c *Compound) Draw(buff draw.Image) {
 	case *Sequence:
 		t.update()
 	}
-	ShinyDraw(buff, img, int(c.X), int(c.Y))
+	drawX := int(c.X)
+	drawY := int(c.Y)
+	if offsets, ok := c.offsets[c.curRenderable]; ok {
+		drawX += int(offsets.X)
+		drawY += int(offsets.Y)
+	}
+	ShinyDraw(buff, img, drawX, drawY)
 }
 
 func (c *Compound) Pause() {
