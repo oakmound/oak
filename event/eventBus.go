@@ -180,7 +180,9 @@ func (bl *BindableList) removeBindable(b Binding) {
 	if len(bl.sl) < i+1 {
 		return
 	}
+	mutex.Lock()
 	bl.sl[i] = nil
+	mutex.Unlock()
 	if i < bl.nextEmpty {
 		bl.nextEmpty = i
 	}
@@ -188,16 +190,16 @@ func (bl *BindableList) removeBindable(b Binding) {
 
 func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 
+	mutex.Lock()
 	if m, ok := eb.bindingMap[opt.Name]; !ok || m == nil {
 		eb.bindingMap[opt.Name] = make(map[int]*BindableStore)
 	}
 
 	if m, ok := eb.bindingMap[opt.Name][opt.CallerID]; !ok || m == nil {
-		mutex.Lock()
 		eb.bindingMap[opt.Name][opt.CallerID] = new(BindableStore)
 		eb.bindingMap[opt.Name][opt.CallerID].defaultPriority = (new(BindableList))
-		mutex.Unlock()
 	}
+	mutex.Unlock()
 
 	store := eb.bindingMap[opt.Name][opt.CallerID]
 
@@ -269,9 +271,11 @@ func (eb *EventBus) UnbindAll(opt BindingOption) {
 	}
 
 	if opt.CallerID != 0 {
+		mutex.Lock()
 		for _, k := range namekeys {
 			delete(eb.bindingMap[k], opt.CallerID)
 		}
+		mutex.Unlock()
 	} else {
 		for _, k := range namekeys {
 			delete(eb.bindingMap, k)
@@ -328,6 +332,9 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) {
 	// Loop through all bindableStores for this eventName
 	for id, bs := range eb.bindingMap[eventName] {
 		// Loop through all bindables
+		if bs == nil {
+			continue
+		}
 
 		// Top to bottom, high priority
 		for i := bs.highIndex - 1; i >= 0; i-- {
