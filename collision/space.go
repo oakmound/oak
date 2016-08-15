@@ -41,6 +41,10 @@ func (s *Space) GetH() float64 {
 	return s.Location.LengthsCoord(1)
 }
 
+func (s *Space) GetCenter() (float64, float64) {
+	return s.GetX() + s.GetW()/2, s.GetY() + s.GetH()/2
+}
+
 func (s *Space) GetPos() (float64, float64) {
 	return s.Location.PointCoord(1), s.Location.PointCoord(0)
 }
