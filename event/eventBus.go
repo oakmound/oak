@@ -351,7 +351,7 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) {
 	}
 
 	for id, bs := range eb.bindingMap[eventName] {
-		if bs.defaultPriority != nil {
+		if bs != nil && bs.defaultPriority != nil {
 			triggerDefault((bs.defaultPriority).sl, id, eventName, data)
 		}
 	}

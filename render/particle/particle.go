@@ -269,6 +269,7 @@ func clearParticles(id int, nothing interface{}) int {
 	} else {
 		ps.UnDraw()
 		ps.rotateBinding.Unbind()
+		event.DestroyEntity(id)
 	}
 	return 0
 }
