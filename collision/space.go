@@ -25,16 +25,28 @@ func (s *Space) Bounds() *rtreego.Rect {
 	return s.Location
 }
 
-func (s *Space) GetY() float64 {
+func (s *Space) GetX() float64 {
 	return s.Location.PointCoord(0)
 }
 
-func (s *Space) GetX() float64 {
+func (s *Space) GetY() float64 {
 	return s.Location.PointCoord(1)
+}
+
+func (s *Space) GetW() float64 {
+	return s.Location.LengthsCoord(0)
+}
+
+func (s *Space) GetH() float64 {
+	return s.Location.LengthsCoord(1)
 }
 
 func (s *Space) GetPos() (float64, float64) {
 	return s.Location.PointCoord(1), s.Location.PointCoord(0)
+}
+
+func (s *Space) Above(other *Space) float64 {
+	return other.GetY() - s.GetY()
 }
 
 func (s *Space) Below(other *Space) float64 {
@@ -42,6 +54,10 @@ func (s *Space) Below(other *Space) float64 {
 }
 
 func (s *Space) LeftOf(other *Space) float64 {
+	return other.GetX() - s.GetX()
+}
+
+func (s *Space) RightOf(other *Space) float64 {
 	return s.GetX() - other.GetX()
 }
 

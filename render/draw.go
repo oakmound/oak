@@ -117,10 +117,13 @@ func DrawStaticHeap(b screen.Buffer) {
 func drawRenderableHeap(b screen.Buffer, rheap *RenderableHeap) {
 	newRh := &RenderableHeap{}
 	for rheap.Len() > 0 {
-		r := heap.Pop(rheap).(Renderable)
-		if r.GetLayer() != -1 {
-			r.Draw(b.RGBA())
-			heap.Push(newRh, r)
+		rp := heap.Pop(rheap)
+		if rp != nil {
+			r := rp.(Renderable)
+			if r.GetLayer() != -1 {
+				r.Draw(b.RGBA())
+				heap.Push(newRh, r)
+			}
 		}
 	}
 	*rheap = *newRh
