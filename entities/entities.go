@@ -116,3 +116,29 @@ func (s *Solid) Destroy() {
 	s.CID.UnbindAll()
 	event.DestroyEntity(int(s.CID))
 }
+
+type Moving struct {
+	Solid
+	DX, DY, SpeedX, SpeedY float64
+}
+
+func (m *Moving) GetDX() float64 {
+	return m.DX
+}
+func (m *Moving) GetDY() float64 {
+	return m.DY
+}
+func (m *Moving) SetDXY(x, y float64) {
+	m.DX = x
+	m.DY = y
+}
+func (m *Moving) GetSpeedX() float64 {
+	return m.SpeedX
+}
+func (m *Moving) GetSpeedY() float64 {
+	return m.SpeedY
+}
+func (m *Moving) SetSpeedXY(x, y float64) {
+	m.SpeedX = x
+	m.SpeedY = y
+}

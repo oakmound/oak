@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"time"
 )
 
 var (
@@ -26,6 +27,9 @@ func (h RenderableHeap) Less(i, j int) bool { return h[i].GetLayer() < h[j].GetL
 func (h RenderableHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
 func (h *RenderableHeap) Push(x interface{}) {
+	if x == nil {
+		return
+	}
 	*h = append(*h, x.(Renderable))
 }
 
@@ -143,4 +147,21 @@ func ShinyDraw(buff draw.Image, img image.Image, x, y int) {
 func ShinyOverwrite(buff screen.Buffer, img image.Image, x, y int) {
 	draw.Draw(buff.RGBA(), buff.Bounds(),
 		img, image.Point{-x, -y}, draw.Src)
+}
+
+// UndrawAfter will trigger a renderable's undraw function
+// after a given time has passed
+func UndrawAfter(r Renderable, t time.Duration) {
+	go func(r Renderable, t time.Duration) {
+		select {
+		case <-time.After(t):
+			r.UnDraw()
+		}
+	}(r, t)
+}
+
+// DrawForTime is a wrapper for Draw and UndrawAfter
+func DrawForTime(r Renderable, l int, t time.Duration) {
+	Draw(r, l)
+	UndrawAfter(r, t)
 }

@@ -24,3 +24,13 @@ type Solid interface {
 	GetSpace() *collision.Space
 	SetSpace(s *collision.Space)
 }
+
+type Moving interface {
+	Doodad
+	GetDX() float64
+	GetDY() float64
+	SetDXY(x, y float64)
+	GetSpeedX() float64
+	GetSpeedY() float64
+	SetSpeedXY(x, y float64)
+}

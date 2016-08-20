@@ -57,6 +57,16 @@ func Hits(sp *Space) []*Space {
 	return out
 }
 
+func HitLabel(sp *Space, label int) bool {
+	results := rt.SearchIntersect(sp.Bounds())
+	for _, v := range results {
+		if v.(*Space).Label == label {
+			return true
+		}
+	}
+	return false
+}
+
 // NewRect is a wrapper around rtreego.NewRect,
 // casting the given x,y to an rtreego.Point.
 // Used to not expose rtreego.Point to the user.

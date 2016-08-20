@@ -6,7 +6,6 @@ package render
 import (
 	"image"
 	"image/draw"
-	"time"
 )
 
 // A Renderable is anything which can
@@ -40,13 +39,4 @@ type Renderable interface {
 	GetLayer() int
 	SetLayer(l int)
 	UnDraw()
-}
-
-func UndrawAfter(r Renderable, t time.Duration) {
-	go func(r Renderable, t time.Duration) {
-		select {
-		case <-time.After(t):
-			r.UnDraw()
-		}
-	}(r, t)
 }
