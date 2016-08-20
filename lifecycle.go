@@ -335,7 +335,7 @@ func eventLoop(s screen.Screen) {
 				draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
 
 				eb.Trigger("PreDraw", nil)
-				render.DrawHeap(b)
+				render.DrawHeap(b, ViewX, ViewY, ScreenWidth, ScreenHeight)
 				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
 				render.DrawStaticHeap(winBuffer)
 				eb.Trigger("PostDraw", b)

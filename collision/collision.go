@@ -57,11 +57,13 @@ func Hits(sp *Space) []*Space {
 	return out
 }
 
-func HitLabel(sp *Space, label int) bool {
+func HitLabel(sp *Space, labels ...int) bool {
 	results := rt.SearchIntersect(sp.Bounds())
 	for _, v := range results {
-		if v.(*Space).Label == label {
-			return true
+		for _, label := range labels {
+			if v.(*Space).Label == label {
+				return true
+			}
 		}
 	}
 	return false

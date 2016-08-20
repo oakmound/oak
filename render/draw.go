@@ -110,22 +110,46 @@ func DrawColor(c color.Color, x1, y1, x2, y2 float64, l int) {
 // and draws them as it removes them. It
 // filters out elements who have the layer
 // -1, reserved for elements to be undrawn.
-func DrawHeap(b screen.Buffer) {
-	drawRenderableHeap(b, rh)
+func DrawHeap(b screen.Buffer, vx, vy, screenW, screenH int) {
+	drawRenderableHeap(b, rh, vx, vy, screenW, screenH)
 }
 
 func DrawStaticHeap(b screen.Buffer) {
-	drawRenderableHeap(b, srh)
+	newRh := &RenderableHeap{}
+	for srh.Len() > 0 {
+		rp := heap.Pop(srh)
+		if rp != nil {
+			r := rp.(Renderable)
+			if r.GetLayer() != -1 {
+				r.Draw(b.RGBA())
+				heap.Push(newRh, r)
+			}
+		}
+	}
+	*srh = *newRh
 }
 
-func drawRenderableHeap(b screen.Buffer, rheap *RenderableHeap) {
+func drawRenderableHeap(b screen.Buffer, rheap *RenderableHeap, vx, vy, screenW, screenH int) {
 	newRh := &RenderableHeap{}
 	for rheap.Len() > 0 {
 		rp := heap.Pop(rheap)
 		if rp != nil {
 			r := rp.(Renderable)
 			if r.GetLayer() != -1 {
-				r.Draw(b.RGBA())
+				x := int(r.GetX())
+				y := int(r.GetY())
+				x2 := x
+				y2 := y
+				rgba := r.GetRGBA()
+				if rgba != nil {
+					max := rgba.Bounds().Max
+					x += max.X
+					y += max.Y
+				}
+				if x > vx && y > vy &&
+					x2 < vx+screenW && y2 < vy+screenH {
+					r.Draw(b.RGBA())
+				}
 				heap.Push(newRh, r)
 			}
 		}
