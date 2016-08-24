@@ -199,9 +199,9 @@ func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 		eb.bindingMap[opt.Name][opt.CallerID] = new(BindableStore)
 		eb.bindingMap[opt.Name][opt.CallerID].defaultPriority = (new(BindableList))
 	}
-	mutex.Unlock()
 
 	store := eb.bindingMap[opt.Name][opt.CallerID]
+	mutex.Unlock()
 
 	var list *BindableList
 
@@ -277,9 +277,11 @@ func (eb *EventBus) UnbindAll(opt BindingOption) {
 		}
 		mutex.Unlock()
 	} else {
+		mutex.Lock()
 		for _, k := range namekeys {
 			delete(eb.bindingMap, k)
 		}
+		mutex.Unlock()
 	}
 	dlog.Verb(eb.bindingMap)
 }
