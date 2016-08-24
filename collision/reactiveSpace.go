@@ -2,17 +2,17 @@ package collision
 
 type ReactiveSpace struct {
 	s      *Space
-	onHits map[int]onHit
+	onHits map[int]OnHit
 }
 
 func NewEmptyReactiveSpace(s *Space) *ReactiveSpace {
 	return &ReactiveSpace{
 		s:      s,
-		onHits: make(map[int]onHit),
+		onHits: make(map[int]OnHit),
 	}
 }
 
-func NewReactiveSpace(s *Space, onHits map[int]onHit) *ReactiveSpace {
+func NewReactiveSpace(s *Space, onHits map[int]OnHit) *ReactiveSpace {
 	return &ReactiveSpace{
 		s:      s,
 		onHits: onHits,
@@ -25,7 +25,7 @@ func (rs *ReactiveSpace) CallOnHits() chan bool {
 	return doneCh
 }
 
-func (rs *ReactiveSpace) Add(i int, oh onHit) {
+func (rs *ReactiveSpace) Add(i int, oh OnHit) {
 	rs.onHits[i] = oh
 }
 
@@ -34,9 +34,13 @@ func (rs *ReactiveSpace) Remove(i int) {
 }
 
 func (rs *ReactiveSpace) Clear() {
-	rs.onHits = make(map[int]onHit)
+	rs.onHits = make(map[int]OnHit)
 }
 
 func (rs *ReactiveSpace) Space() *Space {
 	return rs.s
+}
+
+func (rs *ReactiveSpace) SetDim(w, h float64) {
+	rs.s.Update(rs.s.GetX(), rs.s.GetY(), w, h)
 }

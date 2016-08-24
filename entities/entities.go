@@ -117,28 +117,91 @@ func (s *Solid) Destroy() {
 	event.DestroyEntity(int(s.CID))
 }
 
-type Moving struct {
-	Solid
+//////////////
+
+type moving struct {
 	DX, DY, SpeedX, SpeedY float64
 }
 
-func (m *Moving) GetDX() float64 {
+func (m *moving) GetDX() float64 {
 	return m.DX
 }
-func (m *Moving) GetDY() float64 {
+func (m *moving) GetDY() float64 {
 	return m.DY
 }
-func (m *Moving) SetDXY(x, y float64) {
+func (m *moving) SetDXY(x, y float64) {
 	m.DX = x
 	m.DY = y
 }
-func (m *Moving) GetSpeedX() float64 {
+func (m *moving) GetSpeedX() float64 {
 	return m.SpeedX
 }
-func (m *Moving) GetSpeedY() float64 {
+func (m *moving) GetSpeedY() float64 {
 	return m.SpeedY
 }
-func (m *Moving) SetSpeedXY(x, y float64) {
+func (m *moving) SetSpeedXY(x, y float64) {
 	m.SpeedX = x
 	m.SpeedY = y
+}
+
+type Moving struct {
+	Solid
+	moving
+}
+
+//////////
+
+type Reactive struct {
+	Doodad
+	W, H   float64
+	RSpace *collision.ReactiveSpace
+}
+
+func (r *Reactive) SetDim(w, h float64) {
+	r.SetLogicDim(w, h)
+	r.RSpace.SetDim(w, h)
+}
+
+func (r *Reactive) GetLogicDim() (float64, float64) {
+	return r.W, r.H
+}
+
+func (r *Reactive) SetLogicDim(w, h float64) {
+	r.W = w
+	r.H = h
+}
+
+func (r *Reactive) SetSpace(sp *collision.ReactiveSpace) {
+	collision.Remove(r.RSpace.Space())
+	r.RSpace = sp
+	collision.Add(r.RSpace.Space())
+}
+
+func (r *Reactive) GetSpace() *collision.ReactiveSpace {
+	return r.RSpace
+}
+
+// Overwrites
+
+func (r *Reactive) SetPos(x float64, y float64) {
+	r.SetLogicPos(x, y)
+	r.R.SetPos(x, y)
+
+	if r.RSpace != nil {
+		collision.UpdateSpace(r.X, r.Y, r.W, r.H, r.RSpace.Space())
+	}
+}
+
+func (r *Reactive) Destroy() {
+	r.R.UnDraw()
+	collision.Remove(r.RSpace.Space())
+	r.CID.UnbindAll()
+	event.DestroyEntity(int(r.CID))
+}
+
+/////////
+
+type Interactive struct {
+	Reactive
+	moving
 }
