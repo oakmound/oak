@@ -26,13 +26,27 @@ func (s *Solid) SetLogicDim(w, h float64) {
 }
 
 func (s *Solid) SetSpace(sp *collision.Space) {
-	collision.Remove(s.Space)
+	if s.Space != nil {
+		collision.Remove(s.Space)
+	}
 	s.Space = sp
 	collision.Add(s.Space)
 }
 
 func (s *Solid) GetSpace() *collision.Space {
 	return s.Space
+}
+
+func (s *Solid) ShiftX(x float64) {
+	s.SetPos(s.X+x, s.Y)
+}
+
+func (s *Solid) ShiftY(y float64) {
+	s.SetPos(s.X, s.Y+y)
+}
+
+func (s *Solid) ShiftPos(x, y float64) {
+	s.SetPos(s.X+x, s.Y+y)
 }
 
 // Overwrites

@@ -1,8 +1,18 @@
 package entities
 
+import (
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+)
+
 type Moving struct {
 	Solid
 	moving
+}
+
+func (m *Moving) Init() event.CID {
+	cID := event.NextID(m)
+	m.CID = cID
+	return cID
 }
 
 type moving struct {

@@ -10,6 +10,12 @@ type Interactive struct {
 	moving
 }
 
+func (i *Interactive) Init() event.CID {
+	cID := event.NextID(i)
+	i.CID = cID
+	return cID
+}
+
 type Reactive struct {
 	Doodad
 	W, H   float64
@@ -41,6 +47,12 @@ func (r *Reactive) GetSpace() *collision.ReactiveSpace {
 }
 
 // Overwrites
+
+func (r *Reactive) Init() event.CID {
+	cID := event.NextID(r)
+	r.CID = cID
+	return cID
+}
 
 func (r *Reactive) SetPos(x float64, y float64) {
 	r.SetLogicPos(x, y)
