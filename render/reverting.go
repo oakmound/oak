@@ -112,44 +112,52 @@ func (rv *Reverting) UnDraw() {
 	rv.current.UnDraw()
 }
 
-func (rv *Reverting) FlipX() {
+func (rv *Reverting) FlipX() Modifiable {
 	rv.current.FlipX()
 	rv.mods[F_FlipX] = !(rv.mods[F_FlipX]).(bool)
+	return rv
 }
-func (rv *Reverting) FlipY() {
+func (rv *Reverting) FlipY() Modifiable {
 	rv.current.FlipY()
 	rv.mods[F_FlipY] = !(rv.mods[F_FlipY]).(bool)
+	return rv
 }
-func (rv *Reverting) ApplyColor(c color.Color) {
+func (rv *Reverting) ApplyColor(c color.Color) Modifiable {
 	rv.Revert(F_ApplyColor)
 	rv.current.ApplyColor(c)
 	rv.mods[F_ApplyColor] = c
+	return rv
 }
 
-func (rv *Reverting) FillMask(img image.RGBA) {
+func (rv *Reverting) FillMask(img image.RGBA) Modifiable {
 	rv.Revert(F_FillMask)
 	rv.current.FillMask(img)
 	rv.mods[F_FillMask] = img
+	return rv
 }
-func (rv *Reverting) ApplyMask(img image.RGBA) {
+func (rv *Reverting) ApplyMask(img image.RGBA) Modifiable {
 	rv.Revert(F_ApplyMask)
 	rv.current.ApplyMask(img)
 	rv.mods[F_ApplyMask] = img
+	return rv
 }
-func (rv *Reverting) Rotate(degrees int) {
+func (rv *Reverting) Rotate(degrees int) Modifiable {
 	rv.Revert(F_Rotate)
 	rv.current.Rotate(degrees)
 	rv.mods[F_Rotate] = degrees
+	return rv
 }
-func (rv *Reverting) Scale(xRatio float64, yRatio float64) {
+func (rv *Reverting) Scale(xRatio float64, yRatio float64) Modifiable {
 	rv.Revert(F_Scale)
 	rv.current.Scale(xRatio, yRatio)
 	rv.mods[F_Scale] = [2]float64{xRatio, yRatio}
+	return rv
 }
-func (rv *Reverting) Fade(alpha int) {
+func (rv *Reverting) Fade(alpha int) Modifiable {
 	rv.Revert(F_Fade)
 	rv.current.Fade(alpha)
 	rv.mods[F_Fade] = alpha
+	return rv
 }
 func (rv *Reverting) Copy() Modifiable {
 	newRv := new(Reverting)

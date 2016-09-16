@@ -24,15 +24,15 @@ const (
 // This may be replaced with the gift library down the line
 type Modifiable interface {
 	Renderable
-	FlipX()
-	FlipY()
-	ApplyColor(c color.Color)
+	FlipX() Modifiable
+	FlipY() Modifiable
+	ApplyColor(c color.Color) Modifiable
 	Copy() Modifiable
-	FillMask(img image.RGBA)
-	ApplyMask(img image.RGBA)
-	Rotate(degrees int)
-	Scale(xRatio float64, yRatio float64)
-	Fade(alpha int)
+	FillMask(img image.RGBA) Modifiable
+	ApplyMask(img image.RGBA) Modifiable
+	Rotate(degrees int) Modifiable
+	Scale(xRatio float64, yRatio float64) Modifiable
+	Fade(alpha int) Modifiable
 }
 
 // FlipX returns a new rgba which is flipped

@@ -71,51 +71,59 @@ func (sq *Sequence) GetRGBA() *image.RGBA {
 	return sq.rs[sq.sheetPos].GetRGBA()
 }
 
-func (sq *Sequence) ApplyColor(c color.Color) {
+func (sq *Sequence) ApplyColor(c color.Color) Modifiable {
 	for _, r := range sq.rs {
 		r.ApplyColor(c)
 	}
+	return sq
 }
 
-func (sq *Sequence) FillMask(img image.RGBA) {
+func (sq *Sequence) FillMask(img image.RGBA) Modifiable {
 	for _, r := range sq.rs {
 		r.FillMask(img)
 	}
+	return sq
 }
 
-func (sq *Sequence) ApplyMask(img image.RGBA) {
+func (sq *Sequence) ApplyMask(img image.RGBA) Modifiable {
 	for _, r := range sq.rs {
 		r.ApplyMask(img)
 	}
+	return sq
 }
 
-func (sq *Sequence) Rotate(degrees int) {
+func (sq *Sequence) Rotate(degrees int) Modifiable {
 	for _, r := range sq.rs {
 		r.Rotate(degrees)
 	}
+	return sq
 }
 
-func (sq *Sequence) Scale(xRatio float64, yRatio float64) {
+func (sq *Sequence) Scale(xRatio float64, yRatio float64) Modifiable {
 	for _, r := range sq.rs {
 		r.Scale(xRatio, yRatio)
 	}
+	return sq
 }
 
-func (sq *Sequence) FlipX() {
+func (sq *Sequence) FlipX() Modifiable {
 	for _, r := range sq.rs {
 		r.FlipX()
 	}
+	return sq
 }
 
-func (sq *Sequence) FlipY() {
+func (sq *Sequence) FlipY() Modifiable {
 	for _, r := range sq.rs {
 		r.FlipY()
 	}
+	return sq
 }
-func (sq *Sequence) Fade(alpha int) {
+func (sq *Sequence) Fade(alpha int) Modifiable {
 	for _, r := range sq.rs {
 		r.Fade(alpha)
 	}
+	return sq
 }
 
 func (sq *Sequence) Pause() {

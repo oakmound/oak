@@ -56,51 +56,59 @@ func (c *Compound) GetRGBA() *image.RGBA {
 	return c.subRenderables[c.curRenderable].GetRGBA()
 }
 
-func (c *Compound) ApplyColor(co color.Color) {
+func (c *Compound) ApplyColor(co color.Color) Modifiable {
 	for _, rend := range c.subRenderables {
 		rend.ApplyColor(co)
 	}
+	return c
 }
 
-func (c *Compound) FillMask(img image.RGBA) {
+func (c *Compound) FillMask(img image.RGBA) Modifiable {
 	for _, rend := range c.subRenderables {
 		rend.FillMask(img)
 	}
+	return c
 }
 
-func (c *Compound) ApplyMask(img image.RGBA) {
+func (c *Compound) ApplyMask(img image.RGBA) Modifiable {
 	for _, rend := range c.subRenderables {
 		rend.ApplyMask(img)
 	}
+	return c
 }
 
-func (c *Compound) Rotate(degrees int) {
+func (c *Compound) Rotate(degrees int) Modifiable {
 	for _, rend := range c.subRenderables {
 		rend.Rotate(degrees)
 	}
+	return c
 }
 
-func (c *Compound) Scale(xRatio float64, yRatio float64) {
+func (c *Compound) Scale(xRatio float64, yRatio float64) Modifiable {
 	for _, rend := range c.subRenderables {
 		rend.Scale(xRatio, yRatio)
 	}
+	return c
 }
 
-func (c *Compound) FlipX() {
+func (c *Compound) FlipX() Modifiable {
 	for _, rend := range c.subRenderables {
 		rend.FlipX()
 	}
+	return c
 }
 
-func (c *Compound) FlipY() {
+func (c *Compound) FlipY() Modifiable {
 	for _, rend := range c.subRenderables {
 		rend.FlipY()
 	}
+	return c
 }
-func (c *Compound) Fade(alpha int) {
+func (c *Compound) Fade(alpha int) Modifiable {
 	for _, rend := range c.subRenderables {
 		rend.Fade(alpha)
 	}
+	return c
 }
 
 func (c *Compound) Draw(buff draw.Image) {

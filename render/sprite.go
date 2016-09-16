@@ -43,32 +43,40 @@ func (s *Sprite) IsNil() bool {
 	return s.r == nil
 }
 
-func (s *Sprite) ApplyColor(c color.Color) {
+func (s *Sprite) ApplyColor(c color.Color) Modifiable {
 	s.r = ApplyColor(s.r, c)
+	return s
 }
 
-func (s *Sprite) FillMask(img image.RGBA) {
+func (s *Sprite) FillMask(img image.RGBA) Modifiable {
 	s.r = FillMask(s.r, img)
+	return s
 }
 
-func (s *Sprite) ApplyMask(img image.RGBA) {
+func (s *Sprite) ApplyMask(img image.RGBA) Modifiable {
 	s.r = ApplyMask(s.r, img)
+	return s
 }
 
-func (s *Sprite) Rotate(degrees int) {
+func (s *Sprite) Rotate(degrees int) Modifiable {
 	s.r = Rotate(s.r, degrees)
+	return s
 }
-func (s *Sprite) Scale(xRatio float64, yRatio float64) {
+func (s *Sprite) Scale(xRatio float64, yRatio float64) Modifiable {
 	s.r = Scale(s.r, xRatio, yRatio)
+	return s
 }
-func (s *Sprite) FlipX() {
+func (s *Sprite) FlipX() Modifiable {
 	s.r = FlipX(s.r)
+	return s
 }
-func (s *Sprite) FlipY() {
+func (s *Sprite) FlipY() Modifiable {
 	s.r = FlipY(s.r)
+	return s
 }
-func (s *Sprite) Fade(alpha int) {
+func (s *Sprite) Fade(alpha int) Modifiable {
 	s.r = Fade(s.r, alpha)
+	return s
 }
 
 func ParseSubSprite(s string, x, y, w, h, pad int) *Sprite {

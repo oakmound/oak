@@ -102,75 +102,83 @@ func (a_p *Animation) GetRGBA() *image.RGBA {
 	return (*a_p.sheet)[a_p.frames[a_p.sheetPos][0]][a_p.frames[a_p.sheetPos][1]]
 }
 
-func (a *Animation) ApplyColor(c color.Color) {
+func (a *Animation) ApplyColor(c color.Color) Modifiable {
 	sheet := *a.sheet
 	for x, row := range sheet {
 		for y, rgba := range row {
 			sheet[x][y] = ApplyColor(rgba, c)
 		}
 	}
+	return a
 }
 
-func (a *Animation) FillMask(img image.RGBA) {
+func (a *Animation) FillMask(img image.RGBA) Modifiable {
 	sheet := *a.sheet
 	for x, row := range sheet {
 		for y, rgba := range row {
 			sheet[x][y] = FillMask(rgba, img)
 		}
 	}
+	return a
 }
 
-func (a *Animation) ApplyMask(img image.RGBA) {
+func (a *Animation) ApplyMask(img image.RGBA) Modifiable {
 	sheet := *a.sheet
 	for x, row := range sheet {
 		for y, rgba := range row {
 			sheet[x][y] = ApplyMask(rgba, img)
 		}
 	}
+	return a
 }
 
-func (a *Animation) Rotate(degrees int) {
+func (a *Animation) Rotate(degrees int) Modifiable {
 	sheet := *a.sheet
 	for x, row := range sheet {
 		for y, rgba := range row {
 			sheet[x][y] = Rotate(rgba, degrees)
 		}
 	}
+	return a
 }
 
-func (a *Animation) Scale(xRatio float64, yRatio float64) {
+func (a *Animation) Scale(xRatio float64, yRatio float64) Modifiable {
 	sheet := *a.sheet
 	for x, row := range sheet {
 		for y, rgba := range row {
 			sheet[x][y] = Scale(rgba, xRatio, yRatio)
 		}
 	}
+	return a
 }
 
-func (a *Animation) FlipX() {
+func (a *Animation) FlipX() Modifiable {
 	sheet := *a.sheet
 	for x, row := range sheet {
 		for y, rgba := range row {
 			sheet[x][y] = FlipX(rgba)
 		}
 	}
+	return a
 }
 
-func (a *Animation) FlipY() {
+func (a *Animation) FlipY() Modifiable {
 	sheet := *a.sheet
 	for x, row := range sheet {
 		for y, rgba := range row {
 			sheet[x][y] = FlipY(rgba)
 		}
 	}
+	return a
 }
-func (a *Animation) Fade(alpha int) {
+func (a *Animation) Fade(alpha int) Modifiable {
 	sheet := *a.sheet
 	for x, row := range sheet {
 		for y, rgba := range row {
 			sheet[x][y] = Fade(rgba, alpha)
 		}
 	}
+	return a
 }
 
 func (a *Animation) Pause() {
