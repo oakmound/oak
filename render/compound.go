@@ -36,6 +36,9 @@ func (c *Compound) Add(k string, v Modifiable) {
 func (c *Compound) Set(k string) {
 	c.curRenderable = k
 }
+func (c *Compound) Get() string {
+	return c.curRenderable
+}
 
 func (c *Compound) SetOffsets(k string, offsets Point) {
 	c.offsets[k] = offsets
