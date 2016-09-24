@@ -28,26 +28,28 @@ import (
 )
 
 var (
-	initCh          = make(chan bool)
-	sceneCh         = make(chan bool)
-	quitCh          = make(chan bool)
-	drawChannel     = make(chan bool)
-	viewportChannel = make(chan [2]int)
-	drawInit        = false
-	runEventLoop    = false
-	ScreenWidth     int
-	ScreenHeight    int
-	press           = key.DirPress
-	release         = key.DirRelease
-	black           = color.RGBA{0x00, 0x00, 0x00, 0xff}
-	b               screen.Buffer
-	winBuffer       screen.Buffer
-	eb              *event.EventBus
-	esc             = false
-	l_debug         = false
-	wd, _           = os.Getwd()
-	imageDir        string
-	audioDir        string
+	initCh               = make(chan bool)
+	sceneCh              = make(chan bool)
+	quitCh               = make(chan bool)
+	drawChannel          = make(chan bool)
+	debugResetCh         = make(chan bool)
+	viewportChannel      = make(chan [2]int)
+	drawInit             = false
+	runEventLoop         = false
+	ScreenWidth          int
+	ScreenHeight         int
+	press                = key.DirPress
+	release              = key.DirRelease
+	black                = color.RGBA{0x00, 0x00, 0x00, 0xff}
+	b                    screen.Buffer
+	winBuffer            screen.Buffer
+	eb                   *event.EventBus
+	esc                  = false
+	l_debug              = false
+	wd, _                = os.Getwd()
+	imageDir             string
+	audioDir             string
+	debugResetInProgress = false
 )
 
 // Init initializes the plastic engine.
@@ -89,7 +91,7 @@ func Init(firstScene string) {
 
 	// Seed the rng
 	curSeed := time.Now().UTC().UnixNano()
-	//curSeed = 1471104995917281000
+	curSeed = 1471104995917281000
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
@@ -100,14 +102,16 @@ func Init(firstScene string) {
 		dlog.Error(err)
 		return
 	}
-	err = audio.BatchLoad(audioDir)
-	if err != nil {
-		dlog.Error(err)
-		return
-	}
+	// err = audio.BatchLoad(audioDir)
+	// if err != nil {
+	// 	dlog.Error(err)
+	// 	return
+	// }
 
 	// Spawn off event loop goroutines
 	go driver.Main(eventLoop)
+
+	go DebugConsole(debugResetCh)
 
 	prevScene := ""
 	sceneMap[firstScene].active = true
@@ -157,6 +161,14 @@ func Init(firstScene string) {
 		scene, data = sceneMap[scene].end()
 
 		eb = event.GetEventBus()
+		if !debugResetInProgress {
+			debugResetInProgress = true
+			go func() {
+				debugResetCh <- true
+				debugResetInProgress = false
+
+			}()
+		}
 	}
 }
 

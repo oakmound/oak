@@ -59,3 +59,25 @@ func SetViewportBounds(x1, y1, x2, y2 int) {
 	useViewBounds = true
 	viewBounds = Rect{x1, y1, x2, y2}
 }
+
+func moveViewportBinding(speed int) func(int, interface{}) int {
+	return func(cID int, n interface{}) int {
+		dX := 0
+		dY := 0
+		if IsDown("UpArrow") {
+			dY--
+		}
+		if IsDown("DownArrow") {
+			dY++
+		}
+		if IsDown("LeftArrow") {
+			dX--
+		}
+		if IsDown("RightArrow") {
+			dX++
+		}
+		ViewX += dX * speed
+		ViewY += dY * speed
+		return 0
+	}
+}
