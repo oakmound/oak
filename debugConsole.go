@@ -11,7 +11,7 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 )
 
-func DebugConsole(resetCh chan bool) {
+func DebugConsole(resetCh, skipScene chan bool) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	var viewportBinding event.Binding
@@ -66,7 +66,16 @@ func DebugConsole(resetCh chan bool) {
 				} else {
 					fmt.Println("Unrecognized length for fade")
 				}
+			case "skip":
+				if len(tokenString) > 1 {
+					switch tokenString[1] {
+					case "scene":
+						skipScene <- true
 
+					default:
+						fmt.Println("Bad Skip Input")
+					}
+				}
 			default:
 				fmt.Println("Unrecognized Input")
 			}

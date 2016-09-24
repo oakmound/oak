@@ -30,6 +30,7 @@ import (
 var (
 	initCh               = make(chan bool)
 	sceneCh              = make(chan bool)
+	skipSceneCh          = make(chan bool)
 	quitCh               = make(chan bool)
 	drawChannel          = make(chan bool)
 	debugResetCh         = make(chan bool)
@@ -111,7 +112,7 @@ func Init(firstScene string) {
 	// Spawn off event loop goroutines
 	go driver.Main(eventLoop)
 
-	go DebugConsole(debugResetCh)
+	go DebugConsole(debugResetCh, skipSceneCh)
 
 	prevScene := ""
 	sceneMap[firstScene].active = true
@@ -142,6 +143,8 @@ func Init(firstScene string) {
 				return
 			case <-sceneCh:
 				cont = sceneMap[scene].loop()
+			case <-skipSceneCh:
+				cont = false
 			}
 		}
 		dlog.Info("~~~~~~~~Scene End~~~~~~~~~~")
