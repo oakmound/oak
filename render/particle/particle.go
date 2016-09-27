@@ -6,7 +6,6 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 	"image"
-	"image/color"
 	"image/draw"
 	"math"
 	"time"
@@ -32,11 +31,17 @@ var (
 	}
 )
 
-// Generator represents the various options
+type Generator interface {
+	GetBaseGenerator() *BaseGenerator
+	GenerateParticle(BaseParticle) Particle
+	Generate(int) *Source
+}
+
+// Represents the various options
 // one needs to or may provide in order to generate a
 // Source.
 // Modeled after Parcycle
-type Generator struct {
+type BaseGenerator struct {
 	// This float is currently forced to an integer
 	// at new particle rotation. This should be changed
 	// to something along the lines of 'new per 30 frames',
@@ -62,14 +67,7 @@ type Generator struct {
 	// Rotational acceleration, to change angle over time
 	Rotation, RotationRand float64
 	// Gravity X and Gravity Y represent particle acceleration per frame.
-	GravityX, GravityY         float64
-	StartColor, StartColorRand color.Color
-	EndColor, EndColorRand     color.Color
-	// The size, in pixel radius, of spawned particles
-	Size, SizeRand int
-	//
-	// Some sort of particle type, for rendering triangles or squares or circles...
-	Shape ShapeFunction
+	GravityX, GravityY float64
 }
 
 // A Source is used to store and control a set of particles.
@@ -84,44 +82,24 @@ type Source struct {
 
 type ShapeFunction func(x, y, size int) bool
 
-// A particle is a colored pixel at a given position, moving in a certain direction.
-// After a while, it will dissipate.
-type Particle struct {
+type Particle interface {
+	GetBaseParticle() *BaseParticle
+	Draw(Generator, draw.Image)
+}
+
+type BaseParticle struct {
 	x, y       float64
 	velX, velY float64
-	startColor color.Color
-	endColor   color.Color
 	life       float64
 	totalLife  float64
-	size       int
 }
 
 func (ps *Source) Init() event.CID {
-	return event.NextID(ps)
-}
-
-// Generate takes a generator and converts it into a source,
-// drawing particles and binding functions for particle generation
-// and rotation.
-func (pg *Generator) Generate(layer int) *Source {
-
-	// Convert rotation from degrees to radians
-	pg.Rotation = pg.Rotation / 180 * math.Pi
-	pg.RotationRand = pg.Rotation / 180 * math.Pi
-
-	// Make a source
-	ps := Source{
-		Generator: *pg,
-		particles: make([]Particle, 0),
-	}
-
-	// Bind things to that source:
-	cID := ps.Init()
+	cID := event.NextID(ps)
 	binding, _ := cID.Bind(rotateParticles, "EnterFrame")
 	ps.rotateBinding = binding
 	ps.cID = cID
-	render.Draw(&ps, layer)
-	if pg.Duration != -1 {
+	if ps.Generator.GetBaseGenerator().Duration != -1 {
 		go func(ps_p *Source, duration int) {
 			select {
 			case <-time.After(time.Duration(duration) * time.Millisecond):
@@ -129,37 +107,14 @@ func (pg *Generator) Generate(layer int) *Source {
 					ps_p.Stop()
 				}
 			}
-		}(&ps, pg.Duration)
+		}(ps, ps.Generator.GetBaseGenerator().Duration)
 	}
-	return &ps
+	return event.NextID(ps)
 }
 
 func (ps *Source) Draw(buff draw.Image) {
 	for _, p := range ps.particles {
-
-		r, g, b, a := p.startColor.RGBA()
-		r2, g2, b2, a2 := p.endColor.RGBA()
-		progress := p.life / p.totalLife
-		c := color.RGBA64{
-			uint16OnScale(r, r2, progress),
-			uint16OnScale(g, g2, progress),
-			uint16OnScale(b, b2, progress),
-			uint16OnScale(a, a2, progress),
-		}
-
-		img := image.NewRGBA64(image.Rect(0, 0, p.size, p.size))
-
-		for i := 0; i < p.size; i++ {
-			for j := 0; j < p.size; j++ {
-				if ps.Generator.Shape(i, j, p.size) {
-					img.SetRGBA64(i, j, c)
-				}
-			}
-		}
-
-		halfSize := float64(p.size / 2)
-
-		render.ShinyDraw(buff, img, int(p.x-halfSize), int(p.y-halfSize))
+		p.Draw(ps.Generator, buff)
 	}
 }
 
@@ -167,36 +122,38 @@ func (ps *Source) Draw(buff draw.Image) {
 // as a Source is active.
 func rotateParticles(id int, nothing interface{}) int {
 	ps := event.GetEntity(id).(*Source)
-	pg := ps.Generator
+	pg := ps.Generator.GetBaseGenerator()
 
 	newParticles := make([]Particle, 0)
 
 	for _, p := range ps.particles {
 
+		bp := p.GetBaseParticle()
+
 		// Ignore dead particles
-		if p.life > 0 {
+		if bp.life > 0 {
 
 			// Move towards doom
-			p.life--
+			bp.life--
 
 			// Be dragged down by the weight of the soul
-			p.velX += pg.GravityX
-			p.velY += pg.GravityY
+			bp.velX += pg.GravityX
+			bp.velY += pg.GravityY
 
 			// Apply rotational acceleration
 			if pg.Rotation != 0 && pg.RotationRand != 0 {
-				magnitude := math.Abs(p.velX) + math.Abs(p.velY)
-				angle := math.Atan2(p.velX, p.velY)
+				magnitude := math.Abs(bp.velX) + math.Abs(bp.velY)
+				angle := math.Atan2(bp.velX, bp.velY)
 				angle += pg.Rotation + floatFromSpread(pg.RotationRand)
-				p.velX = math.Sin(angle)
-				p.velY = math.Cos(angle)
-				magnitude = magnitude / (math.Abs(p.velX) + math.Abs(p.velY))
-				p.velX = p.velX * magnitude
-				p.velY = p.velY * magnitude
+				bp.velX = math.Sin(angle)
+				bp.velY = math.Cos(angle)
+				magnitude = magnitude / (math.Abs(bp.velX) + math.Abs(bp.velY))
+				bp.velX = bp.velX * magnitude
+				bp.velY = bp.velY * magnitude
 			}
 
-			p.x += p.velX
-			p.y += p.velY
+			bp.x += bp.velX
+			bp.y += bp.velY
 
 			newParticles = append(newParticles, p)
 		}
@@ -211,17 +168,18 @@ func rotateParticles(id int, nothing interface{}) int {
 		speed := pg.Speed + floatFromSpread(pg.SpeedRand)
 		startLife := pg.LifeSpan + floatFromSpread(pg.LifeSpanRand)
 
-		newParticles = append(newParticles, Particle{
-			x:          pg.X + floatFromSpread(pg.SpreadX),
-			y:          pg.Y + floatFromSpread(pg.SpreadY),
-			velX:       speed * math.Cos(angle) * -1,
-			velY:       speed * math.Sin(angle) * -1,
-			startColor: randColor(pg.StartColor, pg.StartColorRand),
-			endColor:   randColor(pg.EndColor, pg.EndColorRand),
-			life:       startLife,
-			totalLife:  startLife,
-			size:       pg.Size + intFromSpread(pg.SizeRand),
-		})
+		bp := BaseParticle{
+			x:         pg.X + floatFromSpread(pg.SpreadX),
+			y:         pg.Y + floatFromSpread(pg.SpreadY),
+			velX:      speed * math.Cos(angle) * -1,
+			velY:      speed * math.Sin(angle) * -1,
+			life:      startLife,
+			totalLife: startLife,
+		}
+
+		p := ps.Generator.GenerateParticle(bp)
+
+		newParticles = append(newParticles, p)
 	}
 
 	ps.particles = newParticles
@@ -233,34 +191,38 @@ func rotateParticles(id int, nothing interface{}) int {
 // to continue moving old particles for as long as they exist.
 func clearParticles(id int, nothing interface{}) int {
 	ps := event.GetEntity(id).(*Source)
-	pg := ps.Generator
+	pg := ps.Generator.GetBaseGenerator()
 
 	if len(ps.particles) > 0 {
 		newParticles := make([]Particle, 0)
 		for _, p := range ps.particles {
 
+			bp := p.GetBaseParticle()
+
 			// Ignore dead particles
-			if p.life > 0 {
+			if bp.life > 0 {
 
-				p.life--
+				// Move towards doom
+				bp.life--
 
-				p.velX += pg.GravityX
-				p.velY += pg.GravityY
+				// Be dragged down by the weight of the soul
+				bp.velX += pg.GravityX
+				bp.velY += pg.GravityY
 
 				// Apply rotational acceleration
 				if pg.Rotation != 0 && pg.RotationRand != 0 {
-					magnitude := math.Abs(p.velX) + math.Abs(p.velY)
-					angle := math.Atan2(p.velX, p.velY)
+					magnitude := math.Abs(bp.velX) + math.Abs(bp.velY)
+					angle := math.Atan2(bp.velX, bp.velY)
 					angle += pg.Rotation + floatFromSpread(pg.RotationRand)
-					p.velX = math.Sin(angle)
-					p.velY = math.Cos(angle)
-					magnitude = magnitude / (math.Abs(p.velX) + math.Abs(p.velY))
-					p.velX = p.velX * magnitude
-					p.velY = p.velY * magnitude
+					bp.velX = math.Sin(angle)
+					bp.velY = math.Cos(angle)
+					magnitude = magnitude / (math.Abs(bp.velX) + math.Abs(bp.velY))
+					bp.velX = bp.velX * magnitude
+					bp.velY = bp.velY * magnitude
 				}
 
-				p.x += p.velX
-				p.y += p.velY
+				bp.x += bp.velX
+				bp.y += bp.velY
 
 				newParticles = append(newParticles, p)
 			}
@@ -298,23 +260,23 @@ func (ps *Source) GetRGBA() *image.RGBA {
 }
 
 func (ps *Source) ShiftX(x float64) {
-	ps.Generator.X += x
+	ps.Generator.GetBaseGenerator().X += x
 }
 
 func (ps *Source) ShiftY(y float64) {
-	ps.Generator.Y += y
+	ps.Generator.GetBaseGenerator().Y += y
 }
 
 func (ps *Source) GetX() float64 {
-	return ps.Generator.X
+	return ps.Generator.GetBaseGenerator().X
 }
 
 func (ps *Source) GetY() float64 {
-	return ps.Generator.Y
+	return ps.Generator.GetBaseGenerator().Y
 }
 func (ps *Source) SetPos(x, y float64) {
-	ps.Generator.X = x
-	ps.Generator.Y = y
+	ps.Generator.GetBaseGenerator().X = x
+	ps.Generator.GetBaseGenerator().Y = y
 }
 
 // Pausing a Source just stops the repetition
