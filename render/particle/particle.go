@@ -11,26 +11,6 @@ import (
 	"time"
 )
 
-var (
-	Square = func(x, y, size int) bool {
-		return true
-	}
-	Diamond = func(x, y, size int) bool {
-		radius := size / 2
-		return math.Abs(float64(x-radius))+math.Abs(float64(y-radius)) < float64(radius)
-	}
-	Circle = func(x, y, size int) bool {
-		radius := size / 2
-		dx := math.Abs(float64(x - radius))
-		dy := math.Abs(float64(y - radius))
-		radiusf64 := float64(radius)
-		if dx+dy <= radiusf64 {
-			return true
-		}
-		return math.Pow(dx, 2)+math.Pow(dy, 2) < math.Pow(radiusf64, 2)
-	}
-)
-
 type Generator interface {
 	GetBaseGenerator() *BaseGenerator
 	GenerateParticle(BaseParticle) Particle
@@ -79,8 +59,6 @@ type Source struct {
 	clearBinding  event.Binding
 	cID           event.CID
 }
-
-type ShapeFunction func(x, y, size int) bool
 
 type Particle interface {
 	GetBaseParticle() *BaseParticle

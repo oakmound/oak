@@ -8,6 +8,28 @@ import (
 	"math"
 )
 
+type ShapeFunction func(x, y, size int) bool
+
+var (
+	Square = func(x, y, size int) bool {
+		return true
+	}
+	Diamond = func(x, y, size int) bool {
+		radius := size / 2
+		return math.Abs(float64(x-radius))+math.Abs(float64(y-radius)) < float64(radius)
+	}
+	Circle = func(x, y, size int) bool {
+		radius := size / 2
+		dx := math.Abs(float64(x - radius))
+		dy := math.Abs(float64(y - radius))
+		radiusf64 := float64(radius)
+		if dx+dy <= radiusf64 {
+			return true
+		}
+		return math.Pow(dx, 2)+math.Pow(dy, 2) < math.Pow(radiusf64, 2)
+	}
+)
+
 type ColorGenerator struct {
 	BaseGenerator
 	StartColor, StartColorRand color.Color
@@ -35,7 +57,7 @@ func (cg *ColorGenerator) GetBaseGenerator() *BaseGenerator {
 // Generate takes a generator and converts it into a source,
 // drawing particles and binding functions for particle generation
 // and rotation.
-func (cg ColorGenerator) Generate(layer int) *Source {
+func (cg *ColorGenerator) Generate(layer int) *Source {
 
 	// Convert rotation from degrees to radians
 	cg.Rotation = cg.Rotation / 180 * math.Pi
@@ -43,7 +65,7 @@ func (cg ColorGenerator) Generate(layer int) *Source {
 
 	// Make a source
 	ps := Source{
-		Generator: &cg,
+		Generator: cg,
 		particles: make([]Particle, 0),
 	}
 
