@@ -75,6 +75,9 @@ func (cg *ColorGenerator) Generate(layer int) *Source {
 
 	return &ps
 }
+func (cp *ColorGenerator) GetParticleSize() (float64, float64, bool) {
+	return 0, 0, true
+}
 
 // A particle is a colored pixel at a given position, moving in a certain direction.
 // After a while, it will dissipate.
@@ -116,4 +119,13 @@ func (cp *ColorParticle) Draw(generator Generator, buff draw.Image) {
 
 func (cp *ColorParticle) GetBaseParticle() *BaseParticle {
 	return &cp.BaseParticle
+}
+
+func (cp *ColorParticle) GetPos() (float64, float64) {
+	fSize := float64(cp.size)
+	return cp.x - fSize/2, cp.y - fSize/2
+}
+func (cp *ColorParticle) GetSize() (float64, float64) {
+	fSize := float64(cp.size)
+	return fSize, fSize
 }

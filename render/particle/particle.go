@@ -15,6 +15,7 @@ type Generator interface {
 	GetBaseGenerator() *BaseGenerator
 	GenerateParticle(BaseParticle) Particle
 	Generate(int) *Source
+	GetParticleSize() (float64, float64, bool)
 }
 
 // Represents the various options
@@ -63,6 +64,8 @@ type Source struct {
 type Particle interface {
 	GetBaseParticle() *BaseParticle
 	Draw(Generator, draw.Image)
+	GetPos() (float64, float64)
+	GetSize() (float64, float64)
 }
 
 type BaseParticle struct {

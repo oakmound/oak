@@ -56,3 +56,19 @@ func (sp *SpriteParticle) Draw(generator Generator, buff draw.Image) {
 func (sp *SpriteParticle) GetBaseParticle() *BaseParticle {
 	return &sp.BaseParticle
 }
+
+func (sg *SpriteGenerator) GetParticleSize() (float64, float64, bool) {
+
+	bounds := sg.Base.GetRGBA().Rect.Max
+
+	return float64(bounds.X), float64(bounds.Y), false
+}
+
+func (sp *SpriteParticle) GetPos() (float64, float64) {
+	return sp.x, sp.y
+}
+
+func (sp *SpriteParticle) GetSize() (float64, float64) {
+
+	return 0, 0
+}
