@@ -36,12 +36,12 @@ var (
 // containing the logged data seperated by spaces,
 // prepended with file and line information.
 // It only includes logs which pass the current filters.
-func dLog(in ...interface{}) {
+func dLog(override bool, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)
 	if ok {
 		f = truncateFileName(f)
-		if !checkFilter(f, in) {
+		if !checkFilter(f, in) && !override {
 			return
 		}
 
@@ -104,25 +104,25 @@ func CreateLogFile() {
 
 func Error(in ...interface{}) {
 	if debugLevel > NONE {
-		dLog(in)
+		dLog(true, in)
 	}
 }
 
 func Warn(in ...interface{}) {
 	if debugLevel > ERROR {
-		dLog(in)
+		dLog(true, in)
 	}
 }
 
 func Info(in ...interface{}) {
 	if debugLevel > WARN {
-		dLog(in)
+		dLog(false, in)
 	}
 }
 
 func Verb(in ...interface{}) {
 	if debugLevel > INFO {
-		dLog(in)
+		dLog(false, in)
 	}
 }
 
