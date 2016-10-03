@@ -347,7 +347,7 @@ func eventLoop(s screen.Screen) {
 			default:
 				// dlog.Verb("Default")
 				eb = event.GetEventBus()
-				draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
+				//draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
 
 				eb.Trigger("PreDraw", nil)
 				render.DrawHeap(b, ViewX, ViewY, ScreenWidth, ScreenHeight)

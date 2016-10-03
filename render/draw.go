@@ -153,13 +153,16 @@ func drawRenderableHeap(b screen.Buffer, rheap *RenderableHeap, vx, vy, screenW,
 				}
 				if x > vx && y > vy &&
 					x2 < vx+screenW && y2 < vy+screenH {
-					r.Draw(b.RGBA())
+					if IsDirty(x2, y2) {
+						r.Draw(b.RGBA())
+					}
 				}
 				heap.Push(newRh, r)
 			}
 		}
 	}
 	*rheap = *newRh
+	dirtyZones = [dirtyZonesX][dirtyZonesY]bool{}
 }
 
 // ShinyDraw performs a draw operation at -x, -y, because
