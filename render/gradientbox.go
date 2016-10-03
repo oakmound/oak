@@ -11,14 +11,14 @@ type GradientBox struct {
 }
 
 var (
-	horizontalProgress = func(x, y, w, h int) float64 {
+	HorizontalProgress = func(x, y, w, h int) float64 {
 		return float64(x) / float64(w)
 	}
-	verticalProgress = func(x, y, w, h int) float64 {
+	VerticalProgress = func(x, y, w, h int) float64 {
 		return float64(y) / float64(h)
 	}
 
-	circularProgress = func(x, y, w, h int) float64 {
+	CircularProgress = func(x, y, w, h int) float64 {
 		xRadius := float64(w) / 2
 		yRadius := float64(h) / 2
 		dX := math.Abs(float64(x) - xRadius)
@@ -62,16 +62,15 @@ func NewGradientBox(w, h int, startColor, endColor color.Color, pFunction progre
 }
 
 func NewHorizontalGradientBox(w, h int, startColor, endColor color.Color) *GradientBox {
-
-	return NewGradientBox(w, h, startColor, endColor, horizontalProgress)
+	return NewGradientBox(w, h, startColor, endColor, HorizontalProgress)
 }
 
 func NewVerticalGradientBox(w, h int, startColor, endColor color.Color) *GradientBox {
-	return NewGradientBox(w, h, startColor, endColor, verticalProgress)
+	return NewGradientBox(w, h, startColor, endColor, VerticalProgress)
 }
 
 func NewCircularGradientBox(w, h int, startColor, endColor color.Color) *GradientBox {
-	return NewGradientBox(w, h, startColor, endColor, circularProgress)
+	return NewGradientBox(w, h, startColor, endColor, CircularProgress)
 }
 
 func uint16OnScale(n, endN uint32, progress float64) uint16 {
