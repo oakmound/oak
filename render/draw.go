@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"container/heap"
 	"golang.org/x/exp/shiny/screen"
@@ -79,6 +80,10 @@ func PreDraw(no int, nothing interface{}) int {
 		resetHeap = false
 	} else {
 		for _, r := range toPushRenderables {
+			if r == nil {
+				dlog.Warn("A nil was added to the draw heap")
+				continue
+			}
 			heap.Push(rh, r)
 		}
 		for _, r := range toPushStatic {

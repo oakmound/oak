@@ -34,6 +34,9 @@ func (c *Compound) Add(k string, v Modifiable) {
 }
 
 func (c *Compound) Set(k string) {
+	if _, ok := c.subRenderables[k]; !ok {
+		panic("Unknown renderable for string " + k + " on compound")
+	}
 	c.curRenderable = k
 }
 func (c *Compound) Get() string {
