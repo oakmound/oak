@@ -16,7 +16,7 @@ func (sg *SpriteGenerator) Generate(layer int) *Source {
 
 	// Convert rotation from degrees to radians
 	sg.Rotation = sg.Rotation / 180 * math.Pi
-	sg.RotationRand = sg.Rotation / 180 * math.Pi
+	sg.RotationRand = sg.RotationRand / 180 * math.Pi
 
 	// Make a source
 	ps := Source{

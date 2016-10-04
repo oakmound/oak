@@ -61,7 +61,7 @@ func (cg *ColorGenerator) Generate(layer int) *Source {
 
 	// Convert rotation from degrees to radians
 	cg.Rotation = cg.Rotation / 180 * math.Pi
-	cg.RotationRand = cg.Rotation / 180 * math.Pi
+	cg.RotationRand = cg.RotationRand / 180 * math.Pi
 
 	// Make a source
 	ps := Source{

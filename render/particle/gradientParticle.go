@@ -44,7 +44,7 @@ func (gg *GradientGenerator) Generate(layer int) *Source {
 
 	// Convert rotation from degrees to radians
 	gg.Rotation = gg.Rotation / 180 * math.Pi
-	gg.RotationRand = gg.Rotation / 180 * math.Pi
+	gg.RotationRand = gg.RotationRand / 180 * math.Pi
 
 	// Make a source
 	ps := Source{

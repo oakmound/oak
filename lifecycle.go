@@ -92,7 +92,7 @@ func Init(firstScene string) {
 
 	// Seed the rng
 	curSeed := time.Now().UTC().UnixNano()
-	curSeed = 1471104995917281000
+	//curSeed = 1471104995917281000
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
