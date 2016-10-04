@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	rh                *RenderableHeap
+	rh                *LambdaHeap
 	srh               *RenderableHeap
 	toPushRenderables []Renderable
 	toPushStatic      []Renderable
@@ -49,9 +49,8 @@ func ResetDrawHeap() {
 }
 
 func InitDrawHeap() {
-	rh = &RenderableHeap{}
+	rh = &LambdaHeap{}
 	srh = &RenderableHeap{}
-	heap.Init(rh)
 	heap.Init(srh)
 	preDrawBind, _ = event.GlobalBind(PreDraw, "PreDraw")
 }
@@ -84,7 +83,8 @@ func PreDraw(no int, nothing interface{}) int {
 				dlog.Warn("A nil was added to the draw heap")
 				continue
 			}
-			heap.Push(rh, r)
+			rh.Push(r)
+			//heap.Push(rh, r)
 		}
 		for _, r := range toPushStatic {
 			heap.Push(srh, r)
@@ -134,12 +134,11 @@ func DrawStaticHeap(b screen.Buffer) {
 	*srh = *newRh
 }
 
-func drawRenderableHeap(b screen.Buffer, rheap *RenderableHeap, vx, vy, screenW, screenH int) {
-	newRh := &RenderableHeap{}
-	for rheap.Len() > 0 {
-		rp := heap.Pop(rheap)
-		if rp != nil {
-			r := rp.(Renderable)
+func drawRenderableHeap(b screen.Buffer, rheap *LambdaHeap, vx, vy, screenW, screenH int) {
+	newRh := &LambdaHeap{}
+	for len(rheap.bh) > 0 {
+		r := rheap.Pop()
+		if r != nil {
 			if r.GetLayer() != -1 {
 				x := int(r.GetX())
 				y := int(r.GetY())
@@ -155,7 +154,7 @@ func drawRenderableHeap(b screen.Buffer, rheap *RenderableHeap, vx, vy, screenW,
 					x2 < vx+screenW && y2 < vy+screenH {
 					r.Draw(b.RGBA())
 				}
-				heap.Push(newRh, r)
+				newRh.Push(r)
 			}
 		}
 	}
