@@ -50,6 +50,7 @@ type BaseGenerator struct {
 	// Gravity X and Gravity Y represent particle acceleration per frame.
 	GravityX, GravityY       float64
 	SpeedDecayX, SpeedDecayY float64
+	EndFunc                  func(Particle)
 }
 
 // A Source is used to store and control a set of particles.
@@ -151,6 +152,10 @@ func rotateParticles(id int, nothing interface{}) int {
 			bp.y += bp.velY
 
 			newParticles = append(newParticles, p)
+		} else {
+			if pg.EndFunc != nil {
+				pg.EndFunc(p)
+			}
 		}
 	}
 
@@ -233,6 +238,10 @@ func clearParticles(id int, nothing interface{}) int {
 				bp.y += bp.velY
 
 				newParticles = append(newParticles, p)
+			} else {
+				if pg.EndFunc != nil {
+					pg.EndFunc(p)
+				}
 			}
 		}
 		ps.particles = newParticles
