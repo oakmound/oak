@@ -45,7 +45,7 @@ func (lh *LambdaHeap) down(i, n int) {
 	h := lh.bh
 	for {
 		j1 := 2*i + 1
-		if j1 >= n || j1 < 0 { // j1 < 0 after int overflow
+		if j1 >= n { // j1 < 0 after int overflow, ignored
 			break
 		}
 		j := j1 // left child

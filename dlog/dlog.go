@@ -40,7 +40,7 @@ func dLog(override bool, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)
 	if ok {
-		f = truncateFileName(f)
+		f = TruncateFileName(f)
 		if !checkFilter(f, in) && !override {
 			return
 		}
@@ -67,7 +67,7 @@ func dLog(override bool, in ...interface{}) {
 	}
 }
 
-func truncateFileName(f string) string {
+func TruncateFileName(f string) string {
 	index := strings.LastIndex(f, "/")
 	lIndex := strings.LastIndex(f, ".")
 	return f[index+1 : lIndex]
