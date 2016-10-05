@@ -9,6 +9,7 @@ import (
 	// "bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
+	"reflect"
 )
 
 func DebugConsole(resetCh, skipScene chan bool) {
@@ -74,6 +75,19 @@ func DebugConsole(resetCh, skipScene chan bool) {
 
 					default:
 						fmt.Println("Bad Skip Input")
+					}
+				}
+			case "print":
+				if len(tokenString) > 1 {
+					if i, err := strconv.Atoi(tokenString[1]); err == nil {
+						if i > 0 && event.HasEntity(i) {
+							e := event.GetEntity(i)
+							fmt.Println(reflect.TypeOf(e), e)
+						} else {
+							fmt.Println("No entity ", i)
+						}
+					} else {
+						fmt.Println("Unable to parse", tokenString[1])
 					}
 				}
 			default:
