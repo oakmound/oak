@@ -358,6 +358,7 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) {
 		}
 	}
 
+	//mutex.Lock()
 	for id, bs := range eb.bindingMap[eventName] {
 		// Bottom to top, low priority
 		for i := 0; i < bs.lowIndex; i++ {
@@ -372,6 +373,7 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) {
 			}
 		}
 	}
+	//mutex.Unlock()
 }
 
 func Trigger(eventName string, data interface{}) {
