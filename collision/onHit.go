@@ -12,9 +12,10 @@ func CallOnHits(s *Space, m map[int]OnHit, doneCh chan bool) {
 			if fn, ok := m[s2.Label]; ok {
 				fn(int(s.CID), int(s2.CID))
 				progCh <- true
-			} else {
-				progCh <- false
+				return
 			}
+			progCh <- false
+			return
 		}(s, s2, m, progCh)
 	}
 	// This waits to send our signal that we've
