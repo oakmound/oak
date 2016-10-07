@@ -3,8 +3,7 @@
 package collision
 
 import (
-	"github.com/dhconnelly/rtreego"
-	"log"
+	"github.com/Sythe2o0/rtreego"
 )
 
 var (
@@ -20,7 +19,7 @@ type CollisionPoint struct {
 }
 
 func Init() {
-	rt = rtreego.NewTree(2, 20, 40)
+	rt = rtreego.NewTree(20, 40)
 }
 
 func Clear() {
@@ -67,15 +66,4 @@ func HitLabel(sp *Space, labels ...int) bool {
 		}
 	}
 	return false
-}
-
-// NewRect is a wrapper around rtreego.NewRect,
-// casting the given x,y to an rtreego.Point.
-// Used to not expose rtreego.Point to the user.
-func NewRect(x, y, w, h float64) *rtreego.Rect {
-	rect, err := rtreego.NewRect(rtreego.Point{x, y}, []float64{w, h})
-	if err != nil {
-		log.Fatal(err)
-	}
-	return rect
 }
