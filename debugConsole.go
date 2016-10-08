@@ -7,9 +7,15 @@ import (
 	"strconv"
 	"strings"
 	// "bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/mouse"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
 	"reflect"
+)
+
+var (
+	mouseDebug event.Binding
 )
 
 func DebugConsole(resetCh, skipScene chan bool) {
@@ -25,7 +31,6 @@ func DebugConsole(resetCh, skipScene chan bool) {
 		default:
 		}
 		for scanner.Scan() {
-			fmt.Println(scanner.Text())
 			select {
 			case <-resetCh: //reset all vars in debug console that save state
 				viewportLocked = true
@@ -90,6 +95,16 @@ func DebugConsole(resetCh, skipScene chan bool) {
 						fmt.Println("Unable to parse", tokenString[1])
 					}
 				}
+			case "mouse":
+				if len(tokenString) > 1 {
+					switch tokenString[1] {
+					case "details":
+						mouseDebug, _ = event.GlobalBind(mouseDetails, "MouseRelease")
+
+					default:
+						fmt.Println("Bad Mouse Input")
+					}
+				}
 			default:
 				fmt.Println("Unrecognized Input")
 			}
@@ -105,4 +120,22 @@ func parseTokenAsInt(tokenString []string, arrIndex int, defaultVal int) int {
 		}
 	}
 	return defaultVal
+}
+
+func mouseDetails(nothing int, mevent interface{}) int {
+	me := mevent.(mouse.MouseEvent)
+	x := int(me.X) + ViewX
+	y := int(me.Y) + ViewY
+	loc := collision.NewUnassignedSpace(float64(x), float64(y), 16, 16)
+	results := collision.Hits(loc)
+	if len(results) > 0 {
+		i := int(results[0].CID)
+		if i > 0 && event.HasEntity(i) {
+			e := event.GetEntity(i)
+			fmt.Println(reflect.TypeOf(e), e)
+		} else {
+			fmt.Println("No entity ", i)
+		}
+	}
+	return 0
 }
