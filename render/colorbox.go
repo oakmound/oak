@@ -16,9 +16,11 @@ func NewColorBox(w, h int, c color.Color) *ColorBox {
 	draw.Draw(rgba, rect, image.NewUniform(c), image.Point{0, 0}, draw.Src)
 	return &ColorBox{
 		Sprite{
-			Point: Point{
-				0.0,
-				0.0,
+			LayeredPoint: LayeredPoint{
+				Point: Point{
+					X: 0.0,
+					Y: 0.0,
+				},
 			},
 			r: rgba,
 		},

@@ -6,6 +6,7 @@ import (
 	"github.com/Sythe2o0/rtreego"
 	//"image/color"
 	"log"
+	"strconv"
 )
 
 // Spaces are a rectangle
@@ -75,6 +76,13 @@ func (s *Space) Update(x, y, w, h float64) {
 	rt.Delete(s)
 	s.Location = loc
 	rt.Insert(s)
+}
+
+func (s *Space) String() string {
+	return strconv.FormatFloat(s.GetX(), 'f', 2, 32) + "," +
+		strconv.FormatFloat(s.GetY(), 'f', 2, 32) + "," +
+		strconv.FormatFloat(s.GetW(), 'f', 2, 32) + "," +
+		strconv.FormatFloat(s.GetH(), 'f', 2, 32)
 }
 
 func NewUnassignedSpace(x, y, w, h float64) *Space {

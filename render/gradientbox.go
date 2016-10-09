@@ -52,9 +52,11 @@ func NewGradientBox(w, h int, startColor, endColor color.Color, pFunction progre
 	}
 	return &GradientBox{
 		Sprite{
-			Point: Point{
-				0.0,
-				0.0,
+			LayeredPoint: LayeredPoint{
+				Point: Point{
+					X: 0.0,
+					Y: 0.0,
+				},
 			},
 			r: rgba,
 		},

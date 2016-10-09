@@ -1,5 +1,9 @@
 package render
 
+import (
+	"strconv"
+)
+
 type Layered struct {
 	layer int
 }
@@ -14,4 +18,16 @@ func (ld *Layered) SetLayer(l int) {
 
 func (ld *Layered) UnDraw() {
 	ld.layer = -1
+}
+
+type LayeredPoint struct {
+	Point
+	Layered
+}
+
+func (ldp *LayeredPoint) String() string {
+	x := strconv.FormatFloat(ldp.X, 'f', 2, 32)
+	y := strconv.FormatFloat(ldp.Y, 'f', 2, 32)
+	l := strconv.Itoa(ldp.layer)
+	return "X: " + x + ", Y: " + y + ", L: " + l
 }

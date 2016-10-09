@@ -2,6 +2,7 @@ package entities
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	"strconv"
 )
 
 type Moving struct {
@@ -13,6 +14,13 @@ func (m *Moving) Init() event.CID {
 	cID := event.NextID(m)
 	m.CID = cID
 	return cID
+}
+
+func (m *Moving) String() string {
+	st := "Moving: \n{"
+	st += m.Solid.String()
+	st += "} \n" + m.moving.String()
+	return st
 }
 
 type moving struct {
@@ -38,4 +46,12 @@ func (m *moving) GetSpeedY() float64 {
 func (m *moving) SetSpeedXY(x, y float64) {
 	m.SpeedX = x
 	m.SpeedY = y
+}
+
+func (m *moving) String() string {
+	dx := strconv.FormatFloat(m.DX, 'f', 2, 32)
+	dy := strconv.FormatFloat(m.DY, 'f', 2, 32)
+	sx := strconv.FormatFloat(m.SpeedX, 'f', 2, 32)
+	sy := strconv.FormatFloat(m.SpeedY, 'f', 2, 32)
+	return "DX: " + dx + ", DY: " + dy + ", SX: " + sx + ", SY: " + sy
 }

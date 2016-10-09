@@ -14,8 +14,7 @@ import (
 // The Compound type removes the need to repeatedly draw and undraw elements
 // of a character, which has a tendency to leave nothing drawn for a draw frame.
 type Compound struct {
-	Point
-	Layered
+	LayeredPoint
 	subRenderables map[string]Modifiable
 	offsets        map[string]Point
 	curRenderable  string

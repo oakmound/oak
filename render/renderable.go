@@ -39,4 +39,5 @@ type Renderable interface {
 	GetLayer() int
 	SetLayer(l int)
 	UnDraw()
+	String() string
 }

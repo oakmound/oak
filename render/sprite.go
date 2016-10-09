@@ -7,15 +7,17 @@ import (
 )
 
 type Sprite struct {
-	Point
-	Layered
+	LayeredPoint
 	r *image.RGBA
 }
 
 func NewSprite(x, y float64, r *image.RGBA) *Sprite {
 	return &Sprite{
-		Point: Point{
-			x, y,
+		LayeredPoint: LayeredPoint{
+			Point: Point{
+				X: 0.0,
+				Y: 0.0,
+			},
 		},
 		r: r,
 	}

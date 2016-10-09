@@ -309,3 +309,8 @@ func (ps *Source) UnPause() {
 	binding, _ := ps.cID.Bind(rotateParticles, "EnterFrame")
 	ps.rotateBinding = binding
 }
+
+// Placeholder
+func (ps *Source) String() string {
+	return "ParticleSource"
+}

@@ -36,3 +36,14 @@ func (d *Doodad) SetPos(x, y float64) {
 	d.SetLogicPos(x, y)
 	d.R.SetPos(x, y)
 }
+
+func (d *Doodad) String() string {
+	s := "Doodad: \nP{ "
+	s += d.Point.String()
+	s += " }\nR:{ "
+	s += d.R.String()
+	s += " }\nID:{ "
+	s += d.CID.String()
+	s += " }"
+	return s
+}

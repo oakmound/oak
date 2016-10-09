@@ -21,9 +21,11 @@ func NewLine(x1, y1, x2, y2 float64, c color.Color) *Line {
 
 	return &Line{
 		Sprite{
-			Point: Point{
-				math.Min(x1, x2),
-				math.Min(y1, y2),
+			LayeredPoint: LayeredPoint{
+				Point: Point{
+					X: 0.0,
+					Y: 0.0,
+				},
 			},
 			r: rgba,
 		},

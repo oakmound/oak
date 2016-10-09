@@ -10,8 +10,7 @@ import (
 )
 
 type Sequence struct {
-	Point
-	Layered
+	LayeredPoint
 	rs         []Modifiable
 	lastChange time.Time
 	playing    bool
@@ -22,9 +21,11 @@ type Sequence struct {
 
 func NewSequence(mods []Modifiable, fps float64) *Sequence {
 	return &Sequence{
-		Point: Point{
-			X: 0.0,
-			Y: 0.0,
+		LayeredPoint: LayeredPoint{
+			Point: Point{
+				X: 0.0,
+				Y: 0.0,
+			},
 		},
 		sheetPos:   0,
 		frameTime:  int64(math.Pow(10, 9) / fps),

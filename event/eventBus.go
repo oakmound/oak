@@ -6,6 +6,7 @@ package event
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"strconv"
 	"sync"
 )
 
@@ -92,6 +93,10 @@ type Binding struct {
 }
 
 type CID int
+
+func (cid CID) String() string {
+	return strconv.Itoa(int(cid))
+}
 
 func GetEventBus() *EventBus {
 	return &thisBus

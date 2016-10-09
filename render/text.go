@@ -134,6 +134,10 @@ func (t_p *Text) SetText(str string) {
 	t_p.text = str
 }
 
+func (t *Text) String() string {
+	return "Text[" + t.text + "]"
+}
+
 func StaticDrawText(str string, x, y int) {
 	static_d.Dot = fixed.P(x, y)
 	static_d.DrawString(str)

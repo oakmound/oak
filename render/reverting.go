@@ -231,3 +231,7 @@ func (rv *Reverting) Unpause() {
 		t.Unpause()
 	}
 }
+
+func (rv *Reverting) String() string {
+	return rv.current.String()
+}

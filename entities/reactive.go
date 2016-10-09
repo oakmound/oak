@@ -3,6 +3,7 @@ package entities
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	"strconv"
 )
 
 type Interactive struct {
@@ -14,6 +15,13 @@ func (i *Interactive) Init() event.CID {
 	cID := event.NextID(i)
 	i.CID = cID
 	return cID
+}
+
+func (i *Interactive) String() string {
+	st := "Interactive: \n{"
+	st += i.Reactive.String()
+	st += "}\n " + i.moving.String()
+	return st
 }
 
 type Reactive struct {
@@ -68,4 +76,17 @@ func (r *Reactive) Destroy() {
 	collision.Remove(r.RSpace.Space())
 	r.CID.UnbindAll()
 	event.DestroyEntity(int(r.CID))
+}
+
+func (r *Reactive) String() string {
+	st := "Reactive:\n{"
+	st += r.Doodad.String()
+	st += " }, \n"
+	w := strconv.FormatFloat(r.W, 'f', 2, 32)
+	h := strconv.FormatFloat(r.H, 'f', 2, 32)
+	st += "W: " + w + ", H: " + h
+	st += ",\nS:{ "
+	st += r.RSpace.Space().String()
+	st += "}"
+	return st
 }
