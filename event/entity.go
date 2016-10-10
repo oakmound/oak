@@ -1,8 +1,13 @@
 package event
 
+import (
+	"sync"
+)
+
 var (
 	highestID CID = 0
 	callers       = make([]Entity, 0)
+	idMutex       = sync.Mutex{}
 )
 
 type Entity interface {
@@ -10,9 +15,12 @@ type Entity interface {
 }
 
 func NextID(e Entity) CID {
+	idMutex.Lock()
 	highestID++
 	callers = append(callers, e)
-	return highestID
+	id := highestID
+	idMutex.Unlock()
+	return id
 }
 
 func GetEntity(i int) interface{} {
@@ -31,6 +39,8 @@ func DestroyEntity(i int) {
 }
 
 func ResetEntities() {
+	idMutex.Lock()
 	highestID = 0
 	callers = []Entity{}
+	idMutex.Unlock()
 }
