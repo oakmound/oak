@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -28,6 +29,7 @@ func GetWav(fileName string) (Audio, error) {
 }
 
 func LoadWav(directory, fileName string) (Audio, error) {
+	dlog.Verb("Loading", directory, fileName)
 	if _, ok := loadedWavs[fileName]; !ok {
 		buffer, err := winaudio.LoadWav(filepath.Join(directory, fileName))
 		if err != nil {
@@ -45,7 +47,8 @@ func BatchLoad(baseFolder string) error {
 	for _, file := range files {
 		if !file.IsDir() {
 			n := file.Name()
-			switch n[len(n)-4:] {
+			dlog.Verb(n)
+			switch strings.ToLower(n[len(n)-4:]) {
 			case ".wav":
 				dlog.Verb("loading file ", n)
 				LoadWav(baseFolder, n)
@@ -54,5 +57,6 @@ func BatchLoad(baseFolder string) error {
 			}
 		}
 	}
+	dlog.Verb("Loading complete")
 	return nil
 }

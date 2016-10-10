@@ -103,11 +103,13 @@ func Init(firstScene string) {
 		dlog.Error(err)
 		return
 	}
-	// err = audio.BatchLoad(audioDir)
-	// if err != nil {
-	// 	dlog.Error(err)
-	// 	return
-	// }
+
+	go func() {
+		err = audio.BatchLoad(audioDir)
+		if err != nil {
+			dlog.Error(err)
+		}
+	}()
 
 	// Spawn off event loop goroutines
 	go driver.Main(eventLoop)

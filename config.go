@@ -119,6 +119,7 @@ func loadPlasticConfig(fileName string) (plasticConfig, error) {
 
 	confFile, err := ioutil.ReadFile(fileName)
 	if err != nil {
+		dlog.Error(err)
 		return plasticConfig{}, err
 	}
 	var config plasticConfig
