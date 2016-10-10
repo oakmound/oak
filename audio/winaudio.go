@@ -5,8 +5,10 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"errors"
 	"io/ioutil"
+	"math/rand"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var (
@@ -19,6 +21,48 @@ type Audio winaudio.Audio
 
 func InitWinAudio() {
 	winaudio.InitWinAudio()
+}
+
+func GetActiveWavChannel(frequency, freqRand int, fileNames ...string) (chan int, error) {
+	var err error
+
+	sounds := make([]Audio, len(fileNames))
+	for i, f := range fileNames {
+		sounds[i], err = GetWav(f)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	soundCh := make(chan int)
+	go func() {
+		for {
+			delay := time.Duration(rand.Intn(freqRand) + frequency)
+			<-time.After(delay * time.Millisecond)
+			// Every once in a while, after some delay,
+			// we play an audio that slipped through the
+			// above routine.
+			a := <-soundCh
+			sounds[a].Play()
+		}
+	}()
+	return soundCh, nil
+}
+
+func GetWavChannel(frequency, freqRand int, fileNames ...string) (chan int, error) {
+
+	soundCh, err := GetActiveWavChannel(frequency, freqRand, fileNames...)
+	if err != nil {
+		return soundCh, err
+	}
+	// This routine serves to steal almost every
+	// attempt to play audio
+	go func() {
+		for {
+			<-soundCh
+		}
+	}()
+	return soundCh, nil
 }
 
 func GetWav(fileName string) (Audio, error) {
