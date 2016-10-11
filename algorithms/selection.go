@@ -6,6 +6,9 @@ import (
 	"math/rand"
 )
 
+//
+// This algorithm reacts very poorly to zero or negative weights.
+//
 func WeightedChoose(weights []float64, toChoose int) ([]int, error) {
 	toChoose_f64 := float64(toChoose)
 	lengthWeights := len(weights)
@@ -39,6 +42,16 @@ func WeightedChoose(weights []float64, toChoose int) ([]int, error) {
 
 }
 
+// AKA Roulette search
+//
+// This algorithm works well, the only issue relative to above
+// is that it can choose the same element multiple times, which
+// is not always the desired effect.
+//
+// A version of it could easily be made to only pick each element
+// once, however. It would benefit from the linear psuedo-random
+// roulette search, where forced increments would happen once an
+// index was chosen.
 func ChooseX(weights []float64, times int) []int {
 	lengthWeights := len(weights)
 	out := make([]int, times)
