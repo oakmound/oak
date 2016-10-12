@@ -72,6 +72,14 @@ func GetWav(fileName string) (Audio, error) {
 	return loadedWavs[fileName], nil
 }
 
+func PlayWav(fileName string) error {
+	a, err := GetWav(fileName)
+	if err != nil {
+		a.Play()
+	}
+	return err
+}
+
 func LoadWav(directory, fileName string) (Audio, error) {
 	dlog.Verb("Loading", directory, fileName)
 	if _, ok := loadedWavs[fileName]; !ok {
