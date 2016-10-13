@@ -51,6 +51,8 @@ var (
 	imageDir             string
 	audioDir             string
 	debugResetInProgress = false
+	globalFirstScene     string
+	startupLoadComplete  bool
 )
 
 // Init initializes the plastic engine.
@@ -98,17 +100,19 @@ func Init(firstScene string) {
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
 
 	// Load in assets
-	err = render.BatchLoad(imageDir)
-	if err != nil {
-		dlog.Error(err)
-		return
-	}
-
 	go func() {
+		err = render.BatchLoad(imageDir)
+		if err != nil {
+			dlog.Error(err)
+			return
+		}
+
 		err = audio.BatchLoad(audioDir)
 		if err != nil {
 			dlog.Error(err)
 		}
+
+		startupLoadComplete = true
 	}()
 
 	// Spawn off event loop goroutines
@@ -124,7 +128,8 @@ func Init(firstScene string) {
 
 	// Loop through scenes
 	runEventLoop = true
-	scene := firstScene
+	globalFirstScene = firstScene
+	scene := "loading"
 	var data interface{} = nil
 	dlog.Info("First Scene Start")
 	for {
