@@ -42,6 +42,10 @@ func WeightedChoose(weights []float64, toChoose int) ([]int, error) {
 
 }
 
+func UniqueChooseX(weights []float64, x int) []int {
+	return ChooseX(weights, x)
+}
+
 // AKA Roulette search
 //
 // This algorithm works well, the only issue relative to above
@@ -94,39 +98,3 @@ func CumWeightedChooseOne(remainingWeights []float64) int {
 		}
 	}
 }
-
-// // Stochastic Universal alternative to Roulette search.
-// // Will only return each index at most once.
-// func UniqueChooseX(weights []float64, x int) []int {
-
-// 	lengthWeights := len(weights)
-
-// 	if x > lengthWeights {
-// 		dlog.Error("Not enough weights to choose ", x, " values in UniqueChooseX")
-// 		return []int{}
-// 	}
-
-// 	out := make([]int, x)
-// 	remainingWeights := make([]float64, lengthWeights)
-// 	remainingWeights[lengthWeights-1] = weights[lengthWeights-1]
-// 	for i := lengthWeights - 2; i >= 0; i-- {
-// 		remainingWeights[i] = remainingWeights[i+1] + weights[i]
-// 	}
-
-// 	i := len(remainingWeights) - 1
-// 	j := 0
-// 	next := 0.0
-// 	inc := remainingWeights[0] / float64(x)
-// 	for i >= 0 {
-// 		if remainingWeights[i] < next {
-// 			i--
-// 		} else if j > 0 && out[j-1] == i {
-// 			next += inc
-// 		} else {
-// 			out[j] = i
-// 			j++
-// 			next += inc
-// 		}
-// 	}
-// 	return out
-// }
