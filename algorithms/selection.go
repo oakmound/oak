@@ -1,7 +1,7 @@
 package algorithms
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	// "bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"errors"
 	"math/rand"
 )
@@ -73,7 +73,6 @@ func CumWeightedChooseOne(remainingWeights []float64) int {
 	start := 0
 	end := len(remainingWeights) - 1
 	for {
-		dlog.Error("Idx", i)
 		if remainingWeights[i] < choice {
 			if remainingWeights[i-1] < choice {
 				end = i
