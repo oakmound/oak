@@ -65,7 +65,11 @@ func ChooseX(weights []float64, x int) []int {
 		remainingWeights[i] = remainingWeights[i+1] + weights[i]
 	}
 	for i := 0; i < x; i++ {
-		out[i] = CumWeightedChooseOne(remainingWeights)
+		j := CumWeightedChooseOne(remainingWeights)
+		for weights[j] == 0 {
+			j = CumWeightedChooseOne(remainingWeights)
+		}
+		out[i] = j
 	}
 	return out
 }
