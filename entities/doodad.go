@@ -25,6 +25,12 @@ func (d *Doodad) GetRenderable() render.Renderable {
 	return d.R
 }
 
+func (d *Doodad) SetRenderable(r render.Renderable) {
+	d.R.UnDraw()
+	d.R = r
+	render.Draw(d.R, d.R.GetLayer())
+}
+
 func (d *Doodad) Destroy() {
 	d.R.UnDraw()
 	d.CID.UnbindAll()
