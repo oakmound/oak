@@ -2,10 +2,7 @@ package collision
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
-	"image/color"
 	"math"
-	"time"
 )
 
 // RayCast returns the set of points where a line
@@ -125,9 +122,9 @@ func ConeCastSingle(x, y, angle, angleWidth, length float64, invalidIDS []event.
 		cp := RayCastSingle(x, y, a, length, invalidIDS)
 		if cp.Zone != nil {
 			points = append(points, cp)
-			sweep := render.NewLine(x, y, cp.X, cp.Y, color.RGBA{255, 255, 255, 255})
-			render.Draw(sweep, 5000)
-			render.UndrawAfter(sweep, 50*time.Millisecond)
+			//sweep := render.NewLine(x, y, cp.X, cp.Y, color.RGBA{255, 255, 255, 255})
+			//render.Draw(sweep, 5000)
+			//render.UndrawAfter(sweep, 50*time.Millisecond)
 		}
 	}
 	return

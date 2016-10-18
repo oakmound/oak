@@ -5,11 +5,11 @@ import (
 )
 
 const (
-	dirtyWidth  = 40
-	dirtyHeight = 40
+	dirtyWidth  = 64
+	dirtyHeight = 64
 	// World size 4000
-	dirtyZonesX = 4000 / dirtyWidth
-	dirtyZonesY = 4000 / dirtyHeight
+	dirtyZonesX = 4096 / dirtyWidth
+	dirtyZonesY = 4096 / dirtyHeight
 )
 
 var (

@@ -132,6 +132,7 @@ func (t_p *Text) Center() {
 
 func (t_p *Text) SetText(str string) {
 	t_p.text = str
+	SetDirty(t_p.X, t_p.Y)
 }
 
 func StaticDrawText(str string, x, y int) {

@@ -153,7 +153,7 @@ func drawRenderableHeap(b screen.Buffer, rheap *RenderableHeap, vx, vy, screenW,
 				}
 				if x > vx && y > vy &&
 					x2 < vx+screenW && y2 < vy+screenH {
-					if IsDirty(x2, y2) {
+					if r.AlwaysDirty() || IsDirty(x2, y2) {
 						r.Draw(b.RGBA())
 					}
 				}

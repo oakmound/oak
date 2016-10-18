@@ -231,3 +231,7 @@ func (rv *Reverting) Unpause() {
 		t.Unpause()
 	}
 }
+
+func (rv *Reverting) AlwaysDirty() bool {
+	return false
+}

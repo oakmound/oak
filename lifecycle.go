@@ -182,7 +182,7 @@ func eventLoop(s screen.Screen) {
 	// being dealt with, and so initializes it here.
 	//
 	// Todo: add world size to config
-	b, _ = s.NewBuffer(image.Point{4000, 4000})
+	b, _ = s.NewBuffer(image.Point{4096, 4096})
 	winBuffer, _ = s.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
 	w, err := s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight})
 	if err != nil {
@@ -320,6 +320,7 @@ func eventLoop(s screen.Screen) {
 	// 6. publish the screen to display in window.
 	go func() {
 		<-drawChannel
+		//cb := render.CompositeFilter(render.NewColorBox(4096, 4096, color.RGBA{0, 0, 0, 125}).Sprite)
 		lastTime := time.Now()
 		text := render.NewText("", float64(10+ViewX), float64(20+ViewY))
 		render.Draw(text, 60000)
@@ -347,6 +348,7 @@ func eventLoop(s screen.Screen) {
 			default:
 				// dlog.Verb("Default")
 				eb = event.GetEventBus()
+				//cb.Draw(b.RGBA())
 				//draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
 
 				eb.Trigger("PreDraw", nil)

@@ -99,6 +99,10 @@ func (ps *Source) Draw(buff draw.Image) {
 	}
 }
 
+func (ps *Source) AlwaysDirty() bool {
+	return true
+}
+
 // rotateParticles updates particles over time as long
 // as a Source is active.
 func rotateParticles(id int, nothing interface{}) int {
@@ -135,6 +139,7 @@ func rotateParticles(id int, nothing interface{}) int {
 
 			bp.x += bp.velX
 			bp.y += bp.velY
+			render.SetDirty(bp.x, bp.y)
 
 			newParticles = append(newParticles, p)
 		}
