@@ -42,6 +42,18 @@ func (c *Compound) Get() string {
 	return c.curRenderable
 }
 
+func (c *Compound) IsStatic() bool {
+	switch c.subRenderables[c.curRenderable].(type) {
+	case *Animation, *Sequence:
+		return false
+	case *Reverting:
+		return c.subRenderables[c.curRenderable].(*Reverting).IsStatic()
+	case *Compound:
+		return c.subRenderables[c.curRenderable].(*Compound).IsStatic()
+	}
+	return true
+}
+
 func (c *Compound) SetOffsets(k string, offsets Point) {
 	c.offsets[k] = offsets
 }

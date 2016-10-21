@@ -32,6 +32,18 @@ func NewReverting(m Modifiable) *Reverting {
 	return rv
 }
 
+func (rv *Reverting) IsStatic() bool {
+	switch rv.root.(type) {
+	case *Animation, *Sequence:
+		return false
+	case *Reverting:
+		return rv.root.(*Reverting).IsStatic()
+	case *Compound:
+		return rv.root.(*Compound).IsStatic()
+	}
+	return true
+}
+
 func (rv *Reverting) Revert(mod int) {
 	rv.mods[mod] = emptyMods[mod]
 	rv.current = rv.root.Copy()
