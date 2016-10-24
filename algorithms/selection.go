@@ -43,7 +43,12 @@ func WeightedChoose(weights []float64, toChoose int) ([]int, error) {
 }
 
 func UniqueChooseX(weights []float64, x int) []int {
-	return ChooseX(weights, x)
+	out := make([]int, x)
+	stwh := NewSTWHeap(weights)
+	for i := 0; i < x; i++ {
+		out[i] = stwh.Pop()
+	}
+	return out
 }
 
 // AKA Roulette search
