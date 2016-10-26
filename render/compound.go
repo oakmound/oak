@@ -129,8 +129,10 @@ func (c *Compound) Fade(alpha int) Modifiable {
 }
 
 func (c *Compound) Draw(buff draw.Image) {
-	img := c.GetRGBA()
 	switch t := c.subRenderables[c.curRenderable].(type) {
+	case *CompositeSlice:
+		t.Draw(buff)
+		return
 	case *Reverting:
 		t.updateAnimation()
 	case *Animation:
@@ -138,6 +140,7 @@ func (c *Compound) Draw(buff draw.Image) {
 	case *Sequence:
 		t.update()
 	}
+	img := c.GetRGBA()
 	drawX := int(c.X)
 	drawY := int(c.Y)
 	if offsets, ok := c.offsets[c.curRenderable]; ok {
@@ -145,6 +148,16 @@ func (c *Compound) Draw(buff draw.Image) {
 		drawY += int(offsets.Y)
 	}
 	ShinyDraw(buff, img, drawX, drawY)
+}
+
+func (c *Compound) SetPos(x, y float64) {
+	for _, v := range c.subRenderables {
+		switch t := v.(type) {
+		case *CompositeSlice:
+			t.SetPos(x, y)
+		}
+	}
+	c.LayeredPoint.SetPos(x, y)
 }
 
 func (c *Compound) Pause() {

@@ -50,5 +50,5 @@ func (stwh *STWHeap) Pop() int {
 		stwh.weightsBelow[i] -= w
 		i >>= 1
 	}
-	return i2
+	return i2 - 1
 }
