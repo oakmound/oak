@@ -23,8 +23,8 @@ func NewLine(x1, y1, x2, y2 float64, c color.Color) *Line {
 		Sprite{
 			LayeredPoint: LayeredPoint{
 				Point: Point{
-					X: 0.0,
-					Y: 0.0,
+					X: minX,
+					Y: minY,
 				},
 			},
 			r: rgba,

@@ -219,13 +219,6 @@ func eventLoop(s screen.Screen) {
 	go func() {
 		for {
 			e := w.NextEvent()
-			// format := "got %#v\n"
-			// if _, ok := e.(fmt.Stringer); ok {
-			// 	format = "got %v\n"
-			// }
-			// if l_debug {
-			// 	fmt.Printf(format, e)
-			// }
 			switch e := e.(type) {
 
 			// We only currently respond to death lifecycle events.
@@ -290,13 +283,9 @@ func eventLoop(s screen.Screen) {
 				pmouse.Propagate(eventName+"On", mevent)
 
 			// I don't really know what a paint event is to be honest.
-			case paint.Event:
-
 			// We hypothetically don't allow the user to manually resize
 			// their window, so we don't do anything special for such events.
-			case size.Event:
-				fmt.Println("Window resized")
-
+			case size.Event, paint.Event:
 			case error:
 				dlog.Error(e)
 			}
