@@ -43,6 +43,13 @@ func drawLineBetween(x1, y1, x2, y2 int, c color.Color) *image.RGBA {
 		rgba := image.NewRGBA(rect)
 		rgba.Set(0, 0, c)
 		return rgba
+	} else if xDelta == 0 {
+		rect := image.Rect(0, 0, 1, int(math.Floor(yDelta)))
+		rgba := image.NewRGBA(rect)
+		for i := 0; i < int(math.Floor(yDelta)); i++ {
+			rgba.Set(0, i, c)
+		}
+		return rgba
 	}
 
 	xSlope := -1

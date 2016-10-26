@@ -18,6 +18,11 @@ func NewCompositeSlice(sl []Modifiable) *CompositeSlice {
 	return cs
 }
 
+func (cs *CompositeSlice) AppendOffset(r Modifiable, p Point) {
+	cs.rs = append(cs.rs, r)
+	cs.offsets = append(cs.offsets, p)
+}
+
 func (cs *CompositeSlice) Append(r Modifiable) {
 	cs.rs = append(cs.rs, r)
 	cs.offsets = append(cs.offsets, Point{})

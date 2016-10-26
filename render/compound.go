@@ -38,6 +38,9 @@ func (c *Compound) Set(k string) {
 	}
 	c.curRenderable = k
 }
+func (c *Compound) GetSub(s string) Modifiable {
+	return c.subRenderables[s]
+}
 func (c *Compound) Get() string {
 	return c.curRenderable
 }

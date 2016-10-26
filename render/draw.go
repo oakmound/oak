@@ -20,6 +20,8 @@ var (
 	toPushStatic      []Renderable
 	preDrawBind       event.Binding
 	resetHeap         bool
+	EmptyRenderable   = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
+	//EmptyRenderable   = new(CompositeSlice)
 )
 
 type RenderableHeap []Renderable
