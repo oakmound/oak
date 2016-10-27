@@ -48,7 +48,9 @@ type BaseGenerator struct {
 	// Rotational acceleration, to change angle over time
 	Rotation, RotationRand float64
 	// Gravity X and Gravity Y represent particle acceleration per frame.
-	GravityX, GravityY float64
+	GravityX, GravityY       float64
+	SpeedDecayX, SpeedDecayY float64
+	EndFunc                  func(Particle)
 }
 
 // A Source is used to store and control a set of particles.
@@ -117,12 +119,8 @@ func rotateParticles(id int, nothing interface{}) int {
 			// Move towards doom
 			bp.life--
 
-			// Be dragged down by the weight of the soul
-			bp.velX += pg.GravityX
-			bp.velY += pg.GravityY
-
 			// Apply rotational acceleration
-			if pg.Rotation != 0 && pg.RotationRand != 0 {
+			if pg.Rotation != 0 || pg.RotationRand != 0 {
 				magnitude := math.Abs(bp.velX) + math.Abs(bp.velY)
 				angle := math.Atan2(bp.velX, bp.velY)
 				angle += pg.Rotation + floatFromSpread(pg.RotationRand)
@@ -133,10 +131,31 @@ func rotateParticles(id int, nothing interface{}) int {
 				bp.velY = bp.velY * magnitude
 			}
 
+			if pg.SpeedDecayX != 0 {
+				bp.velX *= pg.SpeedDecayX
+				if math.Abs(bp.velX) < 0.2 {
+					bp.velX = 0.0
+				}
+			}
+			if pg.SpeedDecayY != 0 {
+				bp.velY *= pg.SpeedDecayY
+				if math.Abs(bp.velY) < 0.2 {
+					bp.velY = 0.0
+				}
+			}
+
+			// Be dragged down by the weight of the soul
+			bp.velX += pg.GravityX
+			bp.velY += pg.GravityY
+
 			bp.x += bp.velX
 			bp.y += bp.velY
 
 			newParticles = append(newParticles, p)
+		} else {
+			if pg.EndFunc != nil {
+				pg.EndFunc(p)
+			}
 		}
 	}
 
@@ -186,12 +205,8 @@ func clearParticles(id int, nothing interface{}) int {
 				// Move towards doom
 				bp.life--
 
-				// Be dragged down by the weight of the soul
-				bp.velX += pg.GravityX
-				bp.velY += pg.GravityY
-
 				// Apply rotational acceleration
-				if pg.Rotation != 0 && pg.RotationRand != 0 {
+				if pg.Rotation != 0 || pg.RotationRand != 0 {
 					magnitude := math.Abs(bp.velX) + math.Abs(bp.velY)
 					angle := math.Atan2(bp.velX, bp.velY)
 					angle += pg.Rotation + floatFromSpread(pg.RotationRand)
@@ -202,10 +217,31 @@ func clearParticles(id int, nothing interface{}) int {
 					bp.velY = bp.velY * magnitude
 				}
 
+				if pg.SpeedDecayX != 0 {
+					bp.velX *= pg.SpeedDecayX
+					if math.Abs(bp.velX) < 0.2 {
+						bp.velX = 0.0
+					}
+				}
+				if pg.SpeedDecayY != 0 {
+					bp.velY *= pg.SpeedDecayY
+					if math.Abs(bp.velY) < 0.2 {
+						bp.velY = 0.0
+					}
+				}
+
+				// Be dragged down by the weight of the soul
+				bp.velX += pg.GravityX
+				bp.velY += pg.GravityY
+
 				bp.x += bp.velX
 				bp.y += bp.velY
 
 				newParticles = append(newParticles, p)
+			} else {
+				if pg.EndFunc != nil {
+					pg.EndFunc(p)
+				}
 			}
 		}
 		ps.particles = newParticles
@@ -272,4 +308,13 @@ func (ps *Source) Pause() {
 func (ps *Source) UnPause() {
 	binding, _ := ps.cID.Bind(rotateParticles, "EnterFrame")
 	ps.rotateBinding = binding
+}
+
+// Placeholder
+func (ps *Source) String() string {
+	return "ParticleSource"
+}
+
+func (ps *Source) AlwaysDirty() bool {
+	return true
 }

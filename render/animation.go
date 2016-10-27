@@ -19,8 +19,7 @@ func (sh *Sheet) SubSprite(x, y int) *Sprite {
 }
 
 type Animation struct {
-	Point
-	Layered
+	LayeredPoint
 	sheetPos   int
 	frameTime  int64
 	frames     [][]int
@@ -43,9 +42,11 @@ func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error)
 	}
 
 	animation := Animation{
-		Point: Point{
-			X: 0.0,
-			Y: 0.0,
+		LayeredPoint: LayeredPoint{
+			Point: Point{
+				X: 0.0,
+				Y: 0.0,
+			},
 		},
 		sheetPos:   0,
 		frameTime:  int64(frameTime),

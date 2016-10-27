@@ -24,12 +24,17 @@ const (
 	VERBOSE
 )
 
+type logger func(bool, ...interface{})
+
 var (
 	byt         = bytes.NewBuffer(make([]byte, 0))
 	debugLevel  = ERROR
 	debugFilter = ""
 	writer_p    *bufio.Writer
+	logFunc     logger = dLog
 )
+
+func NOPlog(override bool, in ...interface{}) {}
 
 // The primary function of the package,
 // dLog prints out and writes to file a string
@@ -40,7 +45,7 @@ func dLog(override bool, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)
 	if ok {
-		f = truncateFileName(f)
+		f = TruncateFileName(f)
 		if !checkFilter(f, in) && !override {
 			return
 		}
@@ -67,7 +72,7 @@ func dLog(override bool, in ...interface{}) {
 	}
 }
 
-func truncateFileName(f string) string {
+func TruncateFileName(f string) string {
 	index := strings.LastIndex(f, "/")
 	lIndex := strings.LastIndex(f, ".")
 	return f[index+1 : lIndex]
@@ -104,25 +109,25 @@ func CreateLogFile() {
 
 func Error(in ...interface{}) {
 	if debugLevel > NONE {
-		dLog(true, in)
+		logFunc(true, in)
 	}
 }
 
 func Warn(in ...interface{}) {
 	if debugLevel > ERROR {
-		dLog(true, in)
+		logFunc(true, in)
 	}
 }
 
 func Info(in ...interface{}) {
 	if debugLevel > WARN {
-		dLog(false, in)
+		logFunc(false, in)
 	}
 }
 
 func Verb(in ...interface{}) {
 	if debugLevel > INFO {
-		dLog(false, in)
+		logFunc(false, in)
 	}
 }
 

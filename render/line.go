@@ -21,9 +21,11 @@ func NewLine(x1, y1, x2, y2 float64, c color.Color) *Line {
 
 	return &Line{
 		Sprite{
-			Point: Point{
-				math.Min(x1, x2),
-				math.Min(y1, y2),
+			LayeredPoint: LayeredPoint{
+				Point: Point{
+					X: minX,
+					Y: minY,
+				},
 			},
 			r: rgba,
 		},
@@ -40,6 +42,13 @@ func drawLineBetween(x1, y1, x2, y2 int, c color.Color) *image.RGBA {
 		rect := image.Rect(0, 0, 1, 1)
 		rgba := image.NewRGBA(rect)
 		rgba.Set(0, 0, c)
+		return rgba
+	} else if xDelta == 0 {
+		rect := image.Rect(0, 0, 1, int(math.Floor(yDelta)))
+		rgba := image.NewRGBA(rect)
+		for i := 0; i < int(math.Floor(yDelta)); i++ {
+			rgba.Set(0, i, c)
+		}
 		return rgba
 	}
 

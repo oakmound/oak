@@ -51,6 +51,8 @@ var (
 	imageDir             string
 	audioDir             string
 	debugResetInProgress = false
+	globalFirstScene     string
+	startupLoadComplete  bool
 )
 
 // Init initializes the plastic engine.
@@ -92,22 +94,26 @@ func Init(firstScene string) {
 
 	// Seed the rng
 	curSeed := time.Now().UTC().UnixNano()
-	curSeed = 1471104995917281000
+	//curSeed = 1471104995917281000
 	rand.Seed(curSeed)
 	dlog.Info("The seed is:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
 
 	// Load in assets
-	err = render.BatchLoad(imageDir)
-	if err != nil {
-		dlog.Error(err)
-		return
-	}
-	// err = audio.BatchLoad(audioDir)
-	// if err != nil {
-	// 	dlog.Error(err)
-	// 	return
-	// }
+	go func() {
+		err = render.BatchLoad(imageDir)
+		if err != nil {
+			dlog.Error(err)
+			return
+		}
+
+		err = audio.BatchLoad(audioDir)
+		if err != nil {
+			dlog.Error(err)
+		}
+
+		startupLoadComplete = true
+	}()
 
 	// Spawn off event loop goroutines
 	go driver.Main(eventLoop)
@@ -122,7 +128,8 @@ func Init(firstScene string) {
 
 	// Loop through scenes
 	runEventLoop = true
-	scene := firstScene
+	globalFirstScene = firstScene
+	scene := "loading"
 	var data interface{} = nil
 	dlog.Info("First Scene Start")
 	for {
@@ -212,13 +219,6 @@ func eventLoop(s screen.Screen) {
 	go func() {
 		for {
 			e := w.NextEvent()
-			// format := "got %#v\n"
-			// if _, ok := e.(fmt.Stringer); ok {
-			// 	format = "got %v\n"
-			// }
-			// if l_debug {
-			// 	fmt.Printf(format, e)
-			// }
 			switch e := e.(type) {
 
 			// We only currently respond to death lifecycle events.
@@ -283,13 +283,9 @@ func eventLoop(s screen.Screen) {
 				pmouse.Propagate(eventName+"On", mevent)
 
 			// I don't really know what a paint event is to be honest.
-			case paint.Event:
-
 			// We hypothetically don't allow the user to manually resize
 			// their window, so we don't do anything special for such events.
-			case size.Event:
-				fmt.Println("Window resized")
-
+			case size.Event, paint.Event:
 			case error:
 				dlog.Error(e)
 			}

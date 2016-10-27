@@ -9,17 +9,18 @@ import (
 )
 
 type IntText struct {
-	Point
-	Layered
+	LayeredPoint
 	text *int
 	d_p  *font.Drawer
 }
 
 func NewIntText(str *int, x, y float64) *IntText {
 	return &IntText{
-		Point: Point{
-			x,
-			y,
+		LayeredPoint: LayeredPoint{
+			Point: Point{
+				X: 0.0,
+				Y: 0.0,
+			},
 		},
 		text: str,
 		d_p:  d,
@@ -28,9 +29,11 @@ func NewIntText(str *int, x, y float64) *IntText {
 
 func NewStaticIntText(str *int, x, y float64) *IntText {
 	return &IntText{
-		Point: Point{
-			x,
-			y,
+		LayeredPoint: LayeredPoint{
+			Point: Point{
+				X: 0.0,
+				Y: 0.0,
+			},
 		},
 		text: str,
 		d_p:  static_d,

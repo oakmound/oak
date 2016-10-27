@@ -3,8 +3,10 @@ package collision
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	//"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
-	"github.com/dhconnelly/rtreego"
+	"github.com/Sythe2o0/rtreego"
 	//"image/color"
+	"log"
+	"strconv"
 )
 
 // Spaces are a rectangle
@@ -76,8 +78,14 @@ func (s *Space) Update(x, y, w, h float64) {
 	rt.Insert(s)
 }
 
+func (s *Space) String() string {
+	return strconv.FormatFloat(s.GetX(), 'f', 2, 32) + "," +
+		strconv.FormatFloat(s.GetY(), 'f', 2, 32) + "," +
+		strconv.FormatFloat(s.GetW(), 'f', 2, 32) + "," +
+		strconv.FormatFloat(s.GetH(), 'f', 2, 32)
+}
+
 func NewUnassignedSpace(x, y, w, h float64) *Space {
-	//render.DrawColor(color.RGBA{128, 0, 128, 100}, x, y, w, h, 10)
 	rect := NewRect(x, y, w, h)
 	return &Space{Location: rect}
 }
@@ -106,4 +114,15 @@ func NewFullSpace(x, y, w, h float64, l int, cID event.CID) *Space {
 		l,
 		cID,
 	}
+}
+
+// NewRect is a wrapper around rtreego.NewRect,
+// casting the given x,y to an rtreego.Point.
+// Used to not expose rtreego.Point to the user.
+func NewRect(x, y, w, h float64) *rtreego.Rect {
+	rect, err := rtreego.NewRect(rtreego.Point{x, y}, [3]float64{w, h, 1})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &rect
 }

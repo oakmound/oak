@@ -5,7 +5,7 @@ package mouse
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
-	"github.com/dhconnelly/rtreego"
+	"github.com/Sythe2o0/rtreego"
 )
 
 var (
@@ -18,7 +18,7 @@ type MouseEvent struct {
 }
 
 func Init() {
-	mt = rtreego.NewTree(2, 20, 40)
+	mt = rtreego.NewTree(20, 40)
 }
 
 func Clear() {

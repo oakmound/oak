@@ -5,28 +5,6 @@ import (
 	"testing"
 )
 
-type HeapNode struct {
-	r    Renderable
-	next *HeapNode
-}
-
-func (hn *HeapNode) Push(r Renderable) {
-	if hn.r.GetLayer() >= r.GetLayer() {
-		if hn.next == nil || hn.next.r.GetLayer() < r.GetLayer() {
-			nhn := new(HeapNode)
-			nhn.next = hn.next
-			nhn.r = r
-			hn.next = nhn
-		} else {
-			hn.next.Push(r)
-		}
-	} else {
-		nhn := new(HeapNode)
-		nhn.next = hn
-		nhn.r = r
-	}
-}
-
 func BenchmarkHeapAddOne(b *testing.B) {
 	rh := new(RenderableHeap)
 	for n := 0; n < b.N; n++ {
@@ -34,11 +12,10 @@ func BenchmarkHeapAddOne(b *testing.B) {
 	}
 }
 
-func BenchmarkNodeAddOne(b *testing.B) {
-	hn := new(HeapNode)
-	hn.r = new(Sprite)
+func BenchmarkLambdaAddOne(b *testing.B) {
+	lh := new(LambdaHeap)
 	for n := 0; n < b.N; n++ {
-		hn.Push(new(Sprite))
+		lh.Push(new(Sprite))
 	}
 }
 
@@ -51,12 +28,11 @@ func BenchmarkHeapAdd100(b *testing.B) {
 	}
 }
 
-func BenchmarkNodeAdd100(b *testing.B) {
-	hn := new(HeapNode)
-	hn.r = new(Sprite)
+func BenchmarkLambdaAdd100(b *testing.B) {
+	lh := new(LambdaHeap)
 	for n := 0; n < b.N; n++ {
 		for i := 0; i < 100; i++ {
-			hn.Push(new(Sprite))
+			lh.Push(new(Sprite))
 		}
 	}
 }
@@ -76,15 +52,17 @@ func BenchmarkHeapPullAll(b *testing.B) {
 	}
 }
 
-func BenchmarkNodePullAll(b *testing.B) {
-	hn := new(HeapNode)
-	hn.r = new(Sprite)
+func BenchmarkLambdaPullAll(b *testing.B) {
+	lh := new(LambdaHeap)
 	for i := 100; i > 0; i-- {
-		hn.Push(new(Sprite))
+		lh.Push(new(Sprite))
 	}
 	for n := 0; n < b.N; n++ {
-		for hn != nil {
-			hn = hn.next
+		for len(lh.bh) > 0 {
+			lh.Pop()
+		}
+		for i := 100; i > 0; i-- {
+			lh.Push(new(Sprite))
 		}
 	}
 }

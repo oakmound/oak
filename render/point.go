@@ -24,3 +24,7 @@ func (p *Point) SetPos(x, y float64) {
 	p.Y = y
 	SetDirty(p.X, p.Y)
 }
+
+func (p *Point) AlwaysDirty() bool {
+	return false
+}

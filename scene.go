@@ -6,7 +6,20 @@ import (
 )
 
 var (
-	sceneMap    map[string]*Scene = make(map[string]*Scene)
+	sceneMap = map[string]*Scene{
+		"loading": {
+			false,
+			func(prevScene string, data interface{}) {
+				return
+			},
+			func() bool {
+				return startupLoadComplete
+			},
+			func() (string, interface{}) {
+				return globalFirstScene, nil
+			},
+		},
+	}
 	activeScene *Scene
 )
 

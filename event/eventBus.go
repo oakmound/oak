@@ -6,6 +6,7 @@ package event
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"strconv"
 	"sync"
 )
 
@@ -92,6 +93,10 @@ type Binding struct {
 }
 
 type CID int
+
+func (cid CID) String() string {
+	return strconv.Itoa(int(cid))
+}
 
 func GetEventBus() *EventBus {
 	return &thisBus
@@ -358,6 +363,7 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) {
 		}
 	}
 
+	//mutex.Lock()
 	for id, bs := range eb.bindingMap[eventName] {
 		// Bottom to top, low priority
 		for i := 0; i < bs.lowIndex; i++ {
@@ -372,6 +378,7 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) {
 			}
 		}
 	}
+	//mutex.Unlock()
 }
 
 func Trigger(eventName string, data interface{}) {

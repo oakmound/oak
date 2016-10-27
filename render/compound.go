@@ -14,8 +14,7 @@ import (
 // The Compound type removes the need to repeatedly draw and undraw elements
 // of a character, which has a tendency to leave nothing drawn for a draw frame.
 type Compound struct {
-	Point
-	Layered
+	LayeredPoint
 	subRenderables map[string]Modifiable
 	offsets        map[string]Point
 	curRenderable  string
@@ -39,8 +38,23 @@ func (c *Compound) Set(k string) {
 	}
 	c.curRenderable = k
 }
+func (c *Compound) GetSub(s string) Modifiable {
+	return c.subRenderables[s]
+}
 func (c *Compound) Get() string {
 	return c.curRenderable
+}
+
+func (c *Compound) IsStatic() bool {
+	switch c.subRenderables[c.curRenderable].(type) {
+	case *Animation, *Sequence:
+		return false
+	case *Reverting:
+		return c.subRenderables[c.curRenderable].(*Reverting).IsStatic()
+	case *Compound:
+		return c.subRenderables[c.curRenderable].(*Compound).IsStatic()
+	}
+	return true
 }
 
 func (c *Compound) SetOffsets(k string, offsets Point) {
@@ -118,8 +132,10 @@ func (c *Compound) Fade(alpha int) Modifiable {
 }
 
 func (c *Compound) Draw(buff draw.Image) {
-	img := c.GetRGBA()
 	switch t := c.subRenderables[c.curRenderable].(type) {
+	case *CompositeSlice:
+		t.Draw(buff)
+		return
 	case *Reverting:
 		t.updateAnimation()
 	case *Animation:
@@ -127,6 +143,7 @@ func (c *Compound) Draw(buff draw.Image) {
 	case *Sequence:
 		t.update()
 	}
+	img := c.GetRGBA()
 	drawX := int(c.X)
 	drawY := int(c.Y)
 	if offsets, ok := c.offsets[c.curRenderable]; ok {
@@ -134,6 +151,16 @@ func (c *Compound) Draw(buff draw.Image) {
 		drawY += int(offsets.Y)
 	}
 	ShinyDraw(buff, img, drawX, drawY)
+}
+
+func (c *Compound) SetPos(x, y float64) {
+	for _, v := range c.subRenderables {
+		switch t := v.(type) {
+		case *CompositeSlice:
+			t.SetPos(x, y)
+		}
+	}
+	c.LayeredPoint.SetPos(x, y)
 }
 
 func (c *Compound) Pause() {

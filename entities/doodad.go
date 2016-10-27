@@ -25,6 +25,12 @@ func (d *Doodad) GetRenderable() render.Renderable {
 	return d.R
 }
 
+func (d *Doodad) SetRenderable(r render.Renderable) {
+	d.R.UnDraw()
+	d.R = r
+	render.Draw(d.R, d.R.GetLayer())
+}
+
 func (d *Doodad) Destroy() {
 	d.R.UnDraw()
 	d.CID.UnbindAll()
@@ -35,4 +41,15 @@ func (d *Doodad) Destroy() {
 func (d *Doodad) SetPos(x, y float64) {
 	d.SetLogicPos(x, y)
 	d.R.SetPos(x, y)
+}
+
+func (d *Doodad) String() string {
+	s := "Doodad: \nP{ "
+	s += d.Point.String()
+	s += " }\nR:{ "
+	s += d.R.String()
+	s += " }\nID:{ "
+	s += d.CID.String()
+	s += " }"
+	return s
 }

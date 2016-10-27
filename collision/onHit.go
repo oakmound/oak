@@ -13,10 +13,9 @@ func CallOnHits(s *Space, m map[int]OnHit, doneCh chan bool) {
 				fn(int(s.CID), int(s2.CID))
 				progCh <- true
 				return
-			} else {
-				progCh <- false
 			}
-
+			progCh <- false
+			return
 		}(s, s2, m, progCh)
 	}
 	// This waits to send our signal that we've
@@ -24,7 +23,8 @@ func CallOnHits(s *Space, m map[int]OnHit, doneCh chan bool) {
 	// each collision entity
 	hitFlag := false
 	for range hits {
-		hitFlag = hitFlag || <-progCh
+		v := <-progCh
+		hitFlag = hitFlag || v
 	}
 	doneCh <- hitFlag
 }

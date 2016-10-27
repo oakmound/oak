@@ -3,6 +3,7 @@ package entities
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	"strconv"
 )
 
 type Solid struct {
@@ -71,4 +72,17 @@ func (s *Solid) Destroy() {
 	collision.Remove(s.Space)
 	s.CID.UnbindAll()
 	event.DestroyEntity(int(s.CID))
+}
+
+func (s *Solid) String() string {
+	st := "Solid:\n{"
+	st += s.Doodad.String()
+	st += "},\n"
+	w := strconv.FormatFloat(s.W, 'f', 2, 32)
+	h := strconv.FormatFloat(s.H, 'f', 2, 32)
+	st += "W: " + w + ", H: " + h
+	st += ",\nS:{"
+	st += s.Space.String()
+	st += "}"
+	return st
 }
