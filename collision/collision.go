@@ -60,7 +60,7 @@ func HitLabel(sp *Space, labels ...int) bool {
 	results := rt.SearchIntersect(sp.Bounds())
 	for _, v := range results {
 		for _, label := range labels {
-			if v.(*Space).Label == label {
+			if v.(*Space) != sp && v.(*Space).Label == label {
 				return true
 			}
 		}
