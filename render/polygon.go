@@ -105,7 +105,9 @@ func (pg *Polygon) GetOutline(c color.Color) *CompositeSlice {
 	j := len(pg.points) - 1
 	for i, p2 := range pg.points {
 		p1 := pg.points[j]
-		sl.Append(NewLine(p1.X, p1.Y, p2.X, p2.Y, c))
+		minX := math.Min(p1.X, p2.X)
+		minY := math.Min(p1.Y, p2.Y)
+		sl.AppendOffset(NewLine(p1.X, p1.Y, p2.X, p2.Y, c), Point{minX, minY})
 		j = i
 	}
 	return sl
