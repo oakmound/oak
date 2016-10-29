@@ -18,8 +18,8 @@ func NewIntText(str *int, x, y float64) *IntText {
 	return &IntText{
 		LayeredPoint: LayeredPoint{
 			Point: Point{
-				X: 0.0,
-				Y: 0.0,
+				X: x,
+				Y: y,
 			},
 		},
 		text: str,
@@ -31,8 +31,8 @@ func NewStaticIntText(str *int, x, y float64) *IntText {
 	return &IntText{
 		LayeredPoint: LayeredPoint{
 			Point: Point{
-				X: 0.0,
-				Y: 0.0,
+				X: x,
+				Y: y,
 			},
 		},
 		text: str,
