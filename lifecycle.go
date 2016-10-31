@@ -53,6 +53,8 @@ var (
 	debugResetInProgress = false
 	globalFirstScene     string
 	startupLoadComplete  bool
+	imageBlack           = image.Black
+	zeroPoint            = image.Point{0, 0}
 )
 
 // Init initializes the plastic engine.
@@ -317,8 +319,8 @@ func eventLoop(s screen.Screen) {
 	go func() {
 		<-drawChannel
 		lastTime := time.Now()
-		text := render.NewText("", float64(10+ViewX), float64(20+ViewY))
-		render.Draw(text, 60000)
+		text := render.NewStaticText("Look at me!", 10, 20)
+		render.StaticDraw(text, 60000)
 		for {
 			dlog.Verb("Draw Loop")
 		drawSelect:
@@ -329,7 +331,7 @@ func eventLoop(s screen.Screen) {
 				for {
 					select {
 					case <-drawChannel:
-						render.Draw(text, 60000)
+						render.StaticDraw(text, 60000)
 						break drawSelect
 					case viewPoint := <-viewportChannel:
 						dlog.Verb("Got something from viewport channel (waiting on draw)")
@@ -341,9 +343,16 @@ func eventLoop(s screen.Screen) {
 				dlog.Verb("Got something from viewport channel")
 				updateScreen(viewPoint[0], viewPoint[1])
 			default:
-				// dlog.Verb("Default")
+
 				eb = event.GetEventBus()
-				//draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
+				// for x := 0; x < render.DirtyZonesX; x++ {
+				// 	for y := 0; y < render.DirtyZonesY; y++ {
+				// 		if render.IsDirty(x*render.DirtyWidth, y*render.DirtyHeight) {
+				// 			draw.Draw(b.RGBA(), render.DirtyBounds, imageBlack, image.Point{64 * x, 64 * y}, screen.Src)
+				// 		}
+				// 	}
+				// }
+				draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
 
 				eb.Trigger("PreDraw", nil)
 				render.DrawHeap(b, ViewX, ViewY, ScreenWidth, ScreenHeight)
@@ -356,7 +365,6 @@ func eventLoop(s screen.Screen) {
 
 				timeSince := 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
 				text.SetText(strconv.Itoa(int(timeSince)))
-				text.SetPos(float64(10+ViewX), float64(20+ViewY))
 				lastTime = time.Now()
 			}
 		}

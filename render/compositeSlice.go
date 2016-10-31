@@ -62,9 +62,9 @@ func (cs *CompositeSlice) Draw(buff draw.Image) {
 		img := c.GetRGBA()
 		drawX := int(c.GetX()) + int(cs.offsets[i].X)
 		drawY := int(c.GetY()) + int(cs.offsets[i].Y)
-		if c.AlwaysDirty() || IsDirty(drawX, drawY) {
-			ShinyDraw(buff, img, drawX, drawY)
-		}
+		//if c.AlwaysDirty() || IsDirty(drawX, drawY) {
+		ShinyDraw(buff, img, drawX, drawY)
+		//}
 	}
 }
 func (cs *CompositeSlice) GetRGBA() *image.RGBA {

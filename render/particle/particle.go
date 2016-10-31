@@ -236,6 +236,7 @@ func clearParticles(id int, nothing interface{}) int {
 
 				bp.x += bp.velX
 				bp.y += bp.velY
+				render.SetDirty(bp.x, bp.y)
 
 				newParticles = append(newParticles, p)
 			} else {
