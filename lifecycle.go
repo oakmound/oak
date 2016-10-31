@@ -58,6 +58,7 @@ var (
 	startupLoadComplete  bool
 	imageBlack           = image.Black
 	zeroPoint            = image.Point{0, 0}
+	sscreen              screen.Screen
 )
 
 // Init initializes the plastic engine.
@@ -203,6 +204,8 @@ func eventLoop(s screen.Screen) {
 		dlog.Error(err)
 	}
 	defer w.Release()
+
+	sscreen = s
 
 	// This initialization happens here on account of font's initialization
 	// requiring a buffer to draw to. Can probably change in the future.
@@ -421,4 +424,9 @@ func eventLoop(s screen.Screen) {
 
 func GetScreen() draw.Image {
 	return b.RGBA()
+}
+
+func SetWorldSize(x, y int) {
+	b, _ = sscreen.NewBuffer(image.Point{x, y})
+	b2, _ = sscreen.NewBuffer(image.Point{x, y})
 }
