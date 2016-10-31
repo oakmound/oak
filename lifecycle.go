@@ -34,6 +34,8 @@ var (
 	quitCh               = make(chan bool)
 	drawChannel          = make(chan bool)
 	debugResetCh         = make(chan bool)
+	b1Cleaned            = make(chan bool)
+	b2Cleaned            = make(chan bool)
 	viewportChannel      = make(chan [2]int)
 	drawInit             = false
 	runEventLoop         = false
@@ -43,6 +45,7 @@ var (
 	release              = key.DirRelease
 	black                = color.RGBA{0x00, 0x00, 0x00, 0xff}
 	b                    screen.Buffer
+	b2                   screen.Buffer
 	winBuffer            screen.Buffer
 	eb                   *event.EventBus
 	esc                  = false
@@ -192,6 +195,7 @@ func eventLoop(s screen.Screen) {
 	//
 	// Todo: add world size to config
 	b, _ = s.NewBuffer(image.Point{4000, 4000})
+	b2, _ = s.NewBuffer(image.Point{4000, 4000})
 	winBuffer, _ = s.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
 	w, err := s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight})
 	if err != nil {
@@ -307,7 +311,9 @@ func eventLoop(s screen.Screen) {
 
 	// This sends a signal to initiate the first scene
 	initCh <- true
-
+	go func() {
+		b1Cleaned <- true
+	}()
 	// The draw loop
 	// Unless told to stop, the draw channel will repeatedly
 	// 1. draw black to a temporary buffer
@@ -352,7 +358,12 @@ func eventLoop(s screen.Screen) {
 				// 		}
 				// 	}
 				// }
-				draw.Draw(b.RGBA(), b.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
+				go func() {
+					draw.Draw(b2.RGBA(), b2.Bounds(), imageBlack, zeroPoint, screen.Src)
+					b2Cleaned <- true
+				}()
+
+				<-b1Cleaned
 
 				eb.Trigger("PreDraw", nil)
 				render.DrawHeap(b, ViewX, ViewY, ScreenWidth, ScreenHeight)
@@ -364,6 +375,26 @@ func eventLoop(s screen.Screen) {
 				w.Publish()
 
 				timeSince := 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
+				text.SetText(strconv.Itoa(int(timeSince)))
+				lastTime = time.Now()
+
+				go func() {
+					draw.Draw(b.RGBA(), b.Bounds(), imageBlack, zeroPoint, screen.Src)
+					b1Cleaned <- true
+				}()
+
+				<-b2Cleaned
+
+				eb.Trigger("PreDraw", nil)
+				render.DrawHeap(b2, ViewX, ViewY, ScreenWidth, ScreenHeight)
+				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b2.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
+				render.DrawStaticHeap(winBuffer)
+				eb.Trigger("PostDraw", b2)
+
+				w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
+				w.Publish()
+
+				timeSince = 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
 				text.SetText(strconv.Itoa(int(timeSince)))
 				lastTime = time.Now()
 			}
