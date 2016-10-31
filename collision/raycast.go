@@ -2,10 +2,7 @@ package collision
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
-	//"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
-	//"image/color"
 	"math"
-	//"time"
 )
 
 // RayCast returns the set of points where a line
