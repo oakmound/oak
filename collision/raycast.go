@@ -2,10 +2,7 @@ package collision
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
-	//"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
-	//"image/color"
 	"math"
-	//"time"
 )
 
 // RayCast returns the set of points where a line
@@ -99,6 +96,29 @@ func RayCastSingleLabels(x, y, degrees, length float64, labels ...int) Collision
 					return CollisionPoint{nx, x, y}
 				}
 			}
+		}
+		x += c
+		y += s
+
+	}
+	return CollisionPoint{}
+}
+
+func RayCastSingleIgnoreLabels(x, y, degrees, length float64, labels ...int) CollisionPoint {
+	s := math.Sin(degrees * math.Pi / 180)
+	c := math.Cos(degrees * math.Pi / 180)
+	for i := 0.0; i < length; i++ {
+		loc := NewRect(x, y, .1, .1)
+		next := rt.SearchIntersect(loc)
+	output:
+		for k := 0; k < len(next); k++ {
+			nx := (next[k].(*Space))
+			for _, label := range labels {
+				if nx.Label == label {
+					continue output
+				}
+			}
+			return CollisionPoint{nx, x, y}
 		}
 		x += c
 		y += s
