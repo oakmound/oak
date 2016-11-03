@@ -127,8 +127,10 @@ func GetWav(fileName string) (Audio, error) {
 
 func PlayWav(fileName string) error {
 	a, err := GetWav(fileName)
-	if err != nil {
+	if err == nil {
 		a.Play()
+	} else {
+		dlog.Error(err)
 	}
 	return err
 }

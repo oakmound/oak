@@ -23,9 +23,7 @@ func SetEars(x, y *float64, panWidth float64, silentRadius float64) {
 }
 
 func CalculatePan(x2 float64) int32 {
-	x := *earX
-	diff := x2 - x
-	v := diff * (winaudio.RIGHT_PAN / earPanWidth)
+	v := (x2 - *earX) * (winaudio.RIGHT_PAN / earPanWidth)
 	if v < winaudio.LEFT_PAN {
 		return winaudio.LEFT_PAN
 	} else if v > winaudio.RIGHT_PAN {
@@ -35,12 +33,8 @@ func CalculatePan(x2 float64) int32 {
 }
 
 func CalculateVolume(x2, y2 float64) int32 {
-	x := *earX
-	y := *earY
-	distance := pointDistance(x, y, x2, y2)
 	// This and pan both assume a linear scale
-	v := distance * (winaudio.MIN_VOLUME / earSilenceRadius)
-	return int32(v)
+	return int32(pointDistance(*earX, *earY, x2, y2) * (winaudio.MIN_VOLUME / earSilenceRadius))
 }
 
 func pointDistance(x1, y1, x2, y2 float64) float64 {
