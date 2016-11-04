@@ -50,8 +50,8 @@ func (r *Reactive) SetSpace(sp *collision.ReactiveSpace) {
 	collision.Add(r.RSpace.Space())
 }
 
-func (r *Reactive) GetSpace() *collision.ReactiveSpace {
-	return r.RSpace
+func (r *Reactive) GetSpace() *collision.Space {
+	return r.RSpace.Space()
 }
 
 // Overwrites

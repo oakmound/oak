@@ -1,6 +1,6 @@
 package collision
 
-type OnHit func(id1, id2 int)
+type OnHit func(s, s2 *Space)
 
 // CallOnHits will send a signal to the passed in channel
 // when it has completed all collision functions in the hitmap.
@@ -10,7 +10,7 @@ func CallOnHits(s *Space, m map[int]OnHit, doneCh chan bool) {
 	for _, s2 := range hits {
 		go func(s, s2 *Space, m map[int]OnHit, progCh chan bool) {
 			if fn, ok := m[s2.Label]; ok {
-				fn(int(s.CID), int(s2.CID))
+				fn(s, s2)
 				progCh <- true
 				return
 			}
@@ -27,4 +27,10 @@ func CallOnHits(s *Space, m map[int]OnHit, doneCh chan bool) {
 		hitFlag = hitFlag || v
 	}
 	doneCh <- hitFlag
+}
+
+func OnIDs(fn func(int, int)) func(s, s2 *Space) {
+	return func(s, s2 *Space) {
+		fn(int(s.CID), int(s2.CID))
+	}
 }
