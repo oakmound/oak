@@ -19,6 +19,10 @@ const (
 	F_Fade
 )
 
+var (
+	Transparent = color.RGBA{0, 0, 0, 0}
+)
+
 // Modifiables are Renderables that have functions to change their
 // underlying image.
 // This may be replaced with the gift library down the line
@@ -205,7 +209,7 @@ func ApplyMask(rgba *image.RGBA, img image.RGBA) *image.RGBA {
 // Rotate returns a rotated rgba.
 func Rotate(rgba *image.RGBA, degrees int) *image.RGBA {
 	filter := gift.New(
-		gift.Rotate(float32(degrees), color.Black, gift.CubicInterpolation))
+		gift.Rotate(float32(degrees), Transparent, gift.CubicInterpolation))
 	dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
 	filter.Draw(dst, rgba)
 	return dst
