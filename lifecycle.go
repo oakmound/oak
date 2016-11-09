@@ -367,9 +367,12 @@ func eventLoop(s screen.Screen) {
 				go func() {
 					draw.Draw(b2.RGBA(), b2.Bounds(), imageBlack, zeroPoint, screen.Src)
 					b2Cleaned <- true
+					fmt.Println("Buffer two clean")
 				}()
 
+				fmt.Println("Waiting on buffer one clean")
 				<-b1Cleaned
+				fmt.Println("Drawing buffer one")
 
 				eb.Trigger("PreDraw", nil)
 				render.DrawHeap(b, ViewX, ViewY, ScreenWidth, ScreenHeight)
@@ -386,10 +389,13 @@ func eventLoop(s screen.Screen) {
 
 				go func() {
 					draw.Draw(b.RGBA(), b.Bounds(), imageBlack, zeroPoint, screen.Src)
+					fmt.Println("Buffer one clean")
 					b1Cleaned <- true
 				}()
 
+				fmt.Println("Waiting on buffer two cleaning")
 				<-b2Cleaned
+				fmt.Println("Drawing Buffer two")
 
 				eb.Trigger("PreDraw", nil)
 				render.DrawHeap(b2, ViewX, ViewY, ScreenWidth, ScreenHeight)
