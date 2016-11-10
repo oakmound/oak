@@ -21,7 +21,7 @@ var (
 	preDrawBind       event.Binding
 	resetHeap         bool
 	EmptyRenderable   = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
-	//EmptyRenderable   = new(CompositeSlice)
+	//EmptyRenderable   = new(Composite)
 )
 
 type RenderableHeap []Renderable

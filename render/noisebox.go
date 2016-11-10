@@ -4,7 +4,6 @@ import (
 	simplex "github.com/ojrac/opensimplex-go"
 	"image"
 	"image/color"
-	// "image/draw"
 	"time"
 )
 
@@ -35,4 +34,12 @@ func NewNoiseBox(w, h int) *NoiseBox {
 			r: rgba,
 		},
 	}
+}
+
+func NewNoiseSequence(w, h, frames int, fps float64) *Sequence {
+	mods := make([]Modifiable, frames)
+	for i := 0; i < frames; i++ {
+		mods[i] = NewNoiseBox(w, h)
+	}
+	return NewSequence(mods, fps)
 }
