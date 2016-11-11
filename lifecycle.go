@@ -275,6 +275,7 @@ func eventLoop(s screen.Screen) {
 				} else {
 					eventName = "MouseDrag"
 				}
+				pmouse.LastMouseEvent = mevent
 				eb.Trigger(eventName, mevent)
 				pmouse.Propagate(eventName+"On", mevent)
 

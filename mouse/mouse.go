@@ -10,6 +10,9 @@ import (
 
 var (
 	mt *rtreego.Rtree
+	// We track the last triggered mouse event
+	// for continuous click hold responsiveness
+	LastMouseEvent MouseEvent
 )
 
 type MouseEvent struct {

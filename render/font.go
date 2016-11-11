@@ -78,6 +78,10 @@ type Font struct {
 	font.Drawer
 }
 
+func (f *Font) Refresh() {
+	f = f.Generate()
+}
+
 func (f *Font) Copy() *Font {
 	return f.Generate()
 }
