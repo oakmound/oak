@@ -1,7 +1,6 @@
 package render
 
 import (
-	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 	"image"
 	"image/draw"
@@ -11,10 +10,10 @@ import (
 type IntText struct {
 	LayeredPoint
 	text *int
-	d_p  *font.Drawer
+	d    *Font
 }
 
-func NewIntText(str *int, x, y float64) *IntText {
+func (f *Font) NewIntText(str *int, x, y float64) *IntText {
 	return &IntText{
 		LayeredPoint: LayeredPoint{
 			Point: Point{
@@ -23,39 +22,28 @@ func NewIntText(str *int, x, y float64) *IntText {
 			},
 		},
 		text: str,
-		d_p:  d,
+		d:    f,
 	}
 }
 
-func NewStaticIntText(str *int, x, y float64) *IntText {
-	return &IntText{
-		LayeredPoint: LayeredPoint{
-			Point: Point{
-				X: x,
-				Y: y,
-			},
-		},
-		text: str,
-		d_p:  static_d,
-	}
-}
-
-func (t_p *IntText) GetRGBA() *image.RGBA {
+func (t *IntText) GetRGBA() *image.RGBA {
 	return nil
 }
 
-func (t_p *IntText) Draw(buff draw.Image) {
-	t_p.d_p.Dot = fixed.P(int(t_p.X), int(t_p.Y))
-	t_p.d_p.DrawString(strconv.Itoa(*t_p.text))
+func (t *IntText) Draw(buff draw.Image) {
+	// We need to benchmark if this buff replacement is slow
+	t.d.Drawer.Dst = buff
+	t.d.Drawer.Dot = fixed.P(int(t.X), int(t.Y))
+	t.d.DrawString(strconv.Itoa(*t.text))
 }
 
 // Center will shift the text so that the existing leftmost point
 // where the text sits becomes the center of the new text.
-func (t_p *IntText) Center() {
-	textWidth := t_p.d_p.MeasureString(strconv.Itoa(*t_p.text)).Round()
-	t_p.ShiftX(float64(-textWidth / 2))
+func (t *IntText) Center() {
+	textWidth := t.d.MeasureString(strconv.Itoa(*t.text)).Round()
+	t.ShiftX(float64(-textWidth / 2))
 }
 
-func (t_p *IntText) SetText(str *int) {
-	t_p.text = str
+func (t *IntText) SetText(str *int) {
+	t.text = str
 }

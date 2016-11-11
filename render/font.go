@@ -2,7 +2,6 @@ package render
 
 import (
 	"github.com/golang/freetype/truetype"
-	"golang.org/x/exp/shiny/screen"
 	"golang.org/x/image/font"
 	"image"
 	"io/ioutil"
@@ -15,91 +14,92 @@ import (
 var (
 	fontdir string
 
-	d        *font.Drawer
-	static_d *font.Drawer
-	f        *truetype.Font
-
 	defaultHinting  font.Hinting
 	defaultSize     float64
 	defaultDPI      float64
 	defaultColor    image.Image
 	defaultFontFile string
 
-	faceHinting font.Hinting
-	faceSize    float64
-	faceDPI     float64
-	faceColor   image.Image
+	DefFontGenerator = FontGenerator{}
+
 	loadedFonts = make(map[string]*truetype.Font)
 )
+
+type FontGenerator struct {
+	File    string
+	Color   string
+	Size    float64
+	Hinting string
+	DPI     float64
+}
+
+func DefFont() *Font {
+	return DefFontGenerator.Generate()
+}
+
+func (fg *FontGenerator) Generate() *Font {
+
+	// Replace zero values with defaults
+	if fg.File == "" {
+		fg.File = defaultFontFile
+	}
+	if fg.Size == 0 {
+		fg.Size = defaultSize
+	}
+	if fg.DPI == 0 {
+		fg.DPI = defaultDPI
+	}
+
+	return &Font{
+		FontGenerator: *fg,
+		Drawer: font.Drawer{
+			// Color and hinting zero values are replaced
+			// by their respective parse functions in the
+			// zero case.
+			Src: parseFontColor(fg.Color),
+			Face: truetype.NewFace(LoadFont(fg.File), &truetype.Options{
+				Size:    fg.Size,
+				DPI:     fg.DPI,
+				Hinting: parseFontHinting(fg.Hinting),
+			}),
+		},
+	}
+
+}
+
+func (fg *FontGenerator) Copy() *FontGenerator {
+	newFg := new(FontGenerator)
+	*newFg = *fg
+	return newFg
+}
+
+type Font struct {
+	FontGenerator
+	font.Drawer
+}
+
+func (f *Font) Copy() *Font {
+	return f.Generate()
+}
+
+func (f *Font) Reset() {
+	// Generate will return all defaults with no args
+	f.FontGenerator = FontGenerator{}
+	f = f.Generate()
+}
 
 func SetFontDefaults(wd, assetPath, fontPath, hinting, color, file string, size, dpi float64) {
 	fontdir = filepath.Join(filepath.Dir(wd),
 		assetPath,
 		fontPath)
-	parseFontHinting(hinting)
-	defaultHinting = faceHinting
-	faceSize = size
-	defaultSize = faceSize
-	faceDPI = dpi
-	defaultDPI = faceDPI
-	faceColor = parseFontColor(color)
-	defaultColor = faceColor
+	defaultHinting = parseFontHinting(hinting)
+	defaultSize = size
+	defaultDPI = dpi
+	defaultColor = parseFontColor(color)
 	defaultFontFile = file
 }
 
-func InitFont(b screen.Buffer, static_b screen.Buffer) {
-	LoadFont(defaultFontFile)
-	f = loadedFonts[defaultFontFile]
-	d = &font.Drawer{
-		Dst: b.RGBA(),
-		Src: faceColor,
-		Face: truetype.NewFace(f, &truetype.Options{
-			Size:    faceSize,
-			DPI:     faceDPI,
-			Hinting: faceHinting,
-		}),
-	}
-	static_d = &font.Drawer{
-		Dst: static_b.RGBA(),
-		Src: faceColor,
-		Face: truetype.NewFace(f, &truetype.Options{
-			Size:    faceSize,
-			DPI:     faceDPI,
-			Hinting: faceHinting,
-		}),
-	}
-}
-
-func setFace() {
-	d.Face = truetype.NewFace(f, &truetype.Options{
-		Size:    faceSize,
-		DPI:     faceDPI,
-		Hinting: faceHinting,
-	})
-	static_d.Face = truetype.NewFace(f, &truetype.Options{
-		Size:    faceSize,
-		DPI:     faceDPI,
-		Hinting: faceHinting,
-	})
-}
-
-func SetFontColor(im image.Image) {
-	d.Src = im
-}
-func SetFontSize(fontSize float64) {
-	faceSize = fontSize
-	setFace()
-}
-func SetFontDPI(dpi float64) {
-	faceDPI = dpi
-	setFace()
-}
-func SetFontHinting(hintType string) {
-	parseFontHinting(hintType)
-	setFace()
-}
-
-func parseFontHinting(hintType string) {
+func parseFontHinting(hintType string) (faceHinting font.Hinting) {
 	hintType = strings.ToLower(hintType)
 	switch hintType {
 	case "none":
@@ -112,6 +112,7 @@ func parseFontHinting(hintType string) {
 		dlog.Error("Unable to parse font hinting, ", hintType)
 		faceHinting = font.HintingNone
 	}
+	return faceHinting
 }
 
 func parseFontColor(s string) image.Image {
@@ -122,29 +123,23 @@ func parseFontColor(s string) image.Image {
 	case "black":
 		return image.Black
 	default:
-		return image.Black
+		return defaultColor
 	}
 }
 
-func ResetFontFormat() {
-	faceHinting = defaultHinting
-	faceSize = defaultSize
-	faceDPI = defaultDPI
-	setFace()
-	d.Src = defaultColor
-	static_d.Src = defaultColor
-}
-
-func LoadFont(fontFile string) {
-	fontBytes, err := ioutil.ReadFile(filepath.Join(fontdir, fontFile))
-	if err != nil {
-		dlog.Error(err.Error())
-		return
+func LoadFont(fontFile string) *truetype.Font {
+	if _, ok := loadedFonts[fontFile]; !ok {
+		fontBytes, err := ioutil.ReadFile(filepath.Join(fontdir, fontFile))
+		if err != nil {
+			dlog.Error(err.Error())
+			return nil
+		}
+		font, err := truetype.Parse(fontBytes)
+		if err != nil {
+			dlog.Error(err.Error())
+			return nil
+		}
+		loadedFonts[fontFile] = font
 	}
-	font, err := truetype.Parse(fontBytes)
-	if err != nil {
-		dlog.Error(err.Error())
-		return
-	}
-	loadedFonts[fontFile] = font
+	return loadedFonts[fontFile]
 }

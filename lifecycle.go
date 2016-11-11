@@ -197,10 +197,6 @@ func eventLoop(s screen.Screen) {
 	}
 	defer w.Release()
 
-	// This initialization happens here on account of font's initialization
-	// requiring a buffer to draw to. Can probably change in the future.
-	render.InitFont(b, winBuffer)
-
 	eb = event.GetEventBus()
 
 	// Todo: add frame rate to config
@@ -317,8 +313,8 @@ func eventLoop(s screen.Screen) {
 	go func() {
 		<-drawChannel
 		lastTime := time.Now()
-		text := render.NewText("", float64(10+ViewX), float64(20+ViewY))
-		render.Draw(text, 60000)
+		text := render.DefFont().NewText("", 10, 20)
+		render.StaticDraw(text, 60000)
 		for {
 			dlog.Verb("Draw Loop")
 		drawSelect:
@@ -329,7 +325,7 @@ func eventLoop(s screen.Screen) {
 				for {
 					select {
 					case <-drawChannel:
-						render.Draw(text, 60000)
+						render.StaticDraw(text, 60000)
 						break drawSelect
 					case viewPoint := <-viewportChannel:
 						dlog.Verb("Got something from viewport channel (waiting on draw)")
@@ -356,7 +352,6 @@ func eventLoop(s screen.Screen) {
 
 				timeSince := 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
 				text.SetText(strconv.Itoa(int(timeSince)))
-				text.SetPos(float64(10+ViewX), float64(20+ViewY))
 				lastTime = time.Now()
 			}
 		}
