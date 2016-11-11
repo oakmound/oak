@@ -12,9 +12,13 @@ type NoiseBox struct {
 }
 
 func NewNoiseBox(w, h int) *NoiseBox {
+	return NewSeededNoiseBox(w, h, time.Now().Unix())
+}
+
+func NewSeededNoiseBox(w, h int, seed int64) *NoiseBox {
 	rect := image.Rect(0, 0, w, h)
 	rgba := image.NewRGBA(rect)
-	noise := simplex.NewWithSeed(time.Now().Unix())
+	noise := simplex.NewWithSeed(seed)
 
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
@@ -39,7 +43,7 @@ func NewNoiseBox(w, h int) *NoiseBox {
 func NewNoiseSequence(w, h, frames int, fps float64) *Sequence {
 	mods := make([]Modifiable, frames)
 	for i := 0; i < frames; i++ {
-		mods[i] = NewNoiseBox(w, h)
+		mods[i] = NewSeededNoiseBox(w, h, time.Now().Unix()*int64(i))
 	}
 	return NewSequence(mods, fps)
 }
