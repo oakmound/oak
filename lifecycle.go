@@ -34,8 +34,6 @@ var (
 	quitCh               = make(chan bool)
 	drawChannel          = make(chan bool)
 	debugResetCh         = make(chan bool)
-	b1Cleaned            = make(chan bool)
-	b2Cleaned            = make(chan bool)
 	viewportChannel      = make(chan [2]int)
 	drawInit             = false
 	runEventLoop         = false
@@ -45,7 +43,6 @@ var (
 	release              = key.DirRelease
 	black                = color.RGBA{0x00, 0x00, 0x00, 0xff}
 	b                    screen.Buffer
-	b2                   screen.Buffer
 	winBuffer            screen.Buffer
 	eb                   *event.EventBus
 	esc                  = false
@@ -196,7 +193,6 @@ func eventLoop(s screen.Screen) {
 	//
 	// Todo: add world size to config
 	b, _ = s.NewBuffer(image.Point{4000, 4000})
-	b2, _ = s.NewBuffer(image.Point{4000, 4000})
 
 	winBuffer, _ = s.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
 	w, err := s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight})
@@ -312,9 +308,7 @@ func eventLoop(s screen.Screen) {
 
 	// This sends a signal to initiate the first scene
 	initCh <- true
-	go func() {
-		b1Cleaned <- true
-	}()
+
 	// The draw loop
 	// Unless told to stop, the draw channel will repeatedly
 	// 1. draw black to a temporary buffer
@@ -434,5 +428,4 @@ func GetScreen() draw.Image {
 
 func SetWorldSize(x, y int) {
 	b, _ = sscreen.NewBuffer(image.Point{x, y})
-	b2, _ = sscreen.NewBuffer(image.Point{x, y})
 }
