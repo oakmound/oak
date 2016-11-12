@@ -180,3 +180,117 @@ func (cs *Composite) String() string {
 	}
 	return s
 }
+
+type CompositeR struct {
+	rs      []Renderable
+	offsets []Point
+	unDraw  bool
+}
+
+func NewCompositeR(sl []Renderable) *CompositeR {
+	cs := new(CompositeR)
+	cs.rs = sl
+	cs.offsets = make([]Point, len(sl))
+	return cs
+}
+
+func (cs *CompositeR) AppendOffset(r Renderable, p Point) {
+	cs.rs = append(cs.rs, r)
+	cs.offsets = append(cs.offsets, p)
+}
+
+func (cs *CompositeR) Append(r Renderable) {
+	cs.rs = append(cs.rs, r)
+	cs.offsets = append(cs.offsets, Point{})
+}
+
+func (cs *CompositeR) Add(i int, r Renderable) {
+	cs.rs[i] = r
+}
+
+func (cs *CompositeR) AddOffset(i int, p Point) {
+	cs.offsets[i] = p
+}
+
+func (cs *CompositeR) SetOffsets(ps []Point) {
+	for i, p := range ps {
+		cs.offsets[i] = p
+	}
+}
+
+func (cs *CompositeR) Get(i int) Renderable {
+	return cs.rs[i]
+}
+
+func (cs *CompositeR) Draw(buff draw.Image) {
+	for i, c := range cs.rs {
+		switch t := c.(type) {
+		case *CompositeR:
+			t.Draw(buff)
+			continue
+		case *Text:
+			t.Draw(buff)
+			continue
+		}
+		img := c.GetRGBA()
+		drawX := int(c.GetX()) + int(cs.offsets[i].X)
+		drawY := int(c.GetY()) + int(cs.offsets[i].Y)
+		ShinyDraw(buff, img, drawX, drawY)
+	}
+}
+func (cs *CompositeR) GetRGBA() *image.RGBA {
+	return nil
+}
+func (cs *CompositeR) ShiftX(x float64) {
+	for _, v := range cs.rs {
+		v.ShiftX(x)
+	}
+}
+func (cs *CompositeR) ShiftY(y float64) {
+	for _, v := range cs.rs {
+		v.ShiftY(y)
+	}
+}
+func (cs *CompositeR) AlwaysDirty() bool {
+	return true
+}
+func (cs *CompositeR) GetX() float64 {
+	return 0.0
+}
+func (cs *CompositeR) GetY() float64 {
+	return 0.0
+}
+
+// This should be changed so that compositeSlice (and map)
+// has a persistent concept of what it's smallest
+// x and y are.
+func (cs *CompositeR) SetPos(x, y float64) {
+	for _, v := range cs.rs {
+		v.SetPos(x, y)
+	}
+}
+func (cs *CompositeR) GetLayer() int {
+	if cs.unDraw {
+		return -1
+	}
+	return 0
+}
+func (cs *CompositeR) SetLayer(l int) {
+	for _, v := range cs.rs {
+		v.SetLayer(l)
+	}
+}
+func (cs *CompositeR) UnDraw() {
+	for _, v := range cs.rs {
+		v.UnDraw()
+	}
+	cs.unDraw = true
+}
+
+func (cs *CompositeR) String() string {
+	s := "CompositeR{"
+	for _, v := range cs.rs {
+		s += v.String() + "\n"
+	}
+	return s
+}
