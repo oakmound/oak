@@ -207,10 +207,6 @@ func eventLoop(s screen.Screen) {
 
 	sscreen = s
 
-	// This initialization happens here on account of font's initialization
-	// requiring a buffer to draw to. Can probably change in the future.
-	render.InitFont(b, winBuffer)
-
 	eb = event.GetEventBus()
 
 	// Todo: add frame rate to config
@@ -289,6 +285,7 @@ func eventLoop(s screen.Screen) {
 				} else {
 					eventName = "MouseDrag"
 				}
+				pmouse.LastMouseEvent = mevent
 				eb.Trigger(eventName, mevent)
 				pmouse.Propagate(eventName+"On", mevent)
 
@@ -330,7 +327,8 @@ func eventLoop(s screen.Screen) {
 		<-drawChannel
 		//cb := render.CompositeFilter(render.NewColorBox(4096, 4096, color.RGBA{0, 0, 0, 125}).Sprite)
 		lastTime := time.Now()
-		text := render.NewStaticText("Look at me!", 10, 20)
+
+		text := render.DefFont().NewText("", 10, 20)
 		render.StaticDraw(text, 60000)
 		for {
 			dlog.Verb("Draw Loop")
@@ -364,15 +362,17 @@ func eventLoop(s screen.Screen) {
 				// 		}
 				// 	}
 				// }
-				go func() {
-					draw.Draw(b2.RGBA(), b2.Bounds(), imageBlack, zeroPoint, screen.Src)
-					b2Cleaned <- true
-					fmt.Println("Buffer two clean")
-				}()
+				// go func() {
+				// 	draw.Draw(b2.RGBA(), b2.Bounds(), imageBlack, zeroPoint, screen.Src)
+				// 	b2Cleaned <- true
+				// 	fmt.Println("Buffer two clean")
+				// }()
 
-				fmt.Println("Waiting on buffer one clean")
-				<-b1Cleaned
-				fmt.Println("Drawing buffer one")
+				draw.Draw(b.RGBA(), b.Bounds(), imageBlack, zeroPoint, screen.Src)
+
+				//fmt.Println("Waiting on buffer one clean")
+				//<-b1Cleaned
+				//fmt.Println("Drawing buffer one")
 
 				eb.Trigger("PreDraw", nil)
 				render.DrawHeap(b, ViewX, ViewY, ScreenWidth, ScreenHeight)
@@ -385,29 +385,29 @@ func eventLoop(s screen.Screen) {
 
 				timeSince := 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
 				text.SetText(strconv.Itoa(int(timeSince)))
-				lastTime = time.Now()
 
-				go func() {
-					draw.Draw(b.RGBA(), b.Bounds(), imageBlack, zeroPoint, screen.Src)
-					fmt.Println("Buffer one clean")
-					b1Cleaned <- true
-				}()
+				// go func() {
+				// 	draw.Draw(b.RGBA(), b.Bounds(), imageBlack, zeroPoint, screen.Src)
+				// 	fmt.Println("Buffer one clean")
+				// 	b1Cleaned <- true
+				// }()
 
-				fmt.Println("Waiting on buffer two cleaning")
-				<-b2Cleaned
-				fmt.Println("Drawing Buffer two")
+				// fmt.Println("Waiting on buffer two cleaning")
+				// <-b2Cleaned
+				// fmt.Println("Drawing Buffer two")
 
-				eb.Trigger("PreDraw", nil)
-				render.DrawHeap(b2, ViewX, ViewY, ScreenWidth, ScreenHeight)
-				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b2.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
-				render.DrawStaticHeap(winBuffer)
-				eb.Trigger("PostDraw", b2)
+				// eb.Trigger("PreDraw", nil)
+				// render.DrawHeap(b2, ViewX, ViewY, ScreenWidth, ScreenHeight)
+				// draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b2.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
+				// render.DrawStaticHeap(winBuffer)
+				// eb.Trigger("PostDraw", b2)
 
-				w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
-				w.Publish()
+				// w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
+				// w.Publish()
 
 				timeSince = 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
 				text.SetText(strconv.Itoa(int(timeSince)))
+
 				lastTime = time.Now()
 			}
 		}

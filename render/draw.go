@@ -21,7 +21,7 @@ var (
 	preDrawBind       event.Binding
 	resetHeap         bool
 	EmptyRenderable   = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
-	//EmptyRenderable   = new(CompositeSlice)
+	//EmptyRenderable   = new(Composite)
 )
 
 type RenderableHeap []Renderable
@@ -153,6 +153,10 @@ func drawRenderableHeap(b screen.Buffer, rheap *LambdaHeap, vx, vy, screenW, scr
 					max := rgba.Bounds().Max
 					x += max.X
 					y += max.Y
+					// Artificial width and height added due to bug in polygon checking alg
+				} else {
+					x += 6
+					y += 6
 				}
 				if x > vx && y > vy &&
 					x2 < vx+screenW && y2 < vy+screenH {

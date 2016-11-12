@@ -316,7 +316,3 @@ func (ps *Source) UnPause() {
 func (ps *Source) String() string {
 	return "ParticleSource"
 }
-
-func (ps *Source) AlwaysDirty() bool {
-	return true
-}

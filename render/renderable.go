@@ -42,5 +42,4 @@ type Renderable interface {
 
 	// Utilities
 	String() string
-	AlwaysDirty() bool
 }

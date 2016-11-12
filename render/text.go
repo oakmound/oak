@@ -1,72 +1,51 @@
 package render
 
 import (
-	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 	"image"
 	"image/draw"
 )
 
 type Text struct {
-	Point
-	Layered
+	LayeredPoint
 	text string
-	d_p  *font.Drawer
+	d    *Font
 }
 
-func NewStaticText(str string, x, y float64) *Text {
+func (f *Font) NewText(str string, x, y float64) *Text {
 	return &Text{
-		Point: Point{
-			x,
-			y,
+		LayeredPoint: LayeredPoint{
+			Point: Point{
+				X: x,
+				Y: y,
+			},
 		},
 		text: str,
-		d_p:  static_d,
+		d:    f,
 	}
 }
 
-func NewText(str string, x, y float64) *Text {
-	return &Text{
-		Point: Point{
-			x,
-			y,
-		},
-		text: str,
-		d_p:  d,
-	}
-}
-
-func (t_p *Text) GetRGBA() *image.RGBA {
+func (t *Text) GetRGBA() *image.RGBA {
 	return nil
 }
 
-func (t_p *Text) Draw(buff draw.Image) {
-	t_p.d_p.Dot = fixed.P(int(t_p.X), int(t_p.Y))
-	t_p.d_p.DrawString(t_p.text)
+func (t *Text) Draw(buff draw.Image) {
+	t.d.Drawer.Dst = buff
+	t.d.Drawer.Dot = fixed.P(int(t.X), int(t.Y))
+	t.d.DrawString(t.text)
 }
 
 // Center will shift the text so that the existing leftmost point
 // where the text sits becomes the center of the new text.
-func (t_p *Text) Center() {
-	textWidth := t_p.d_p.MeasureString(t_p.text).Round()
-	t_p.ShiftX(float64(-textWidth / 2))
+func (t *Text) Center() {
+	textWidth := t.d.MeasureString(t.text).Round()
+	t.ShiftX(float64(-textWidth / 2))
 }
 
-func (t_p *Text) SetText(str string) {
-	t_p.text = str
-	SetDirty(t_p.X, t_p.Y)
+func (t *Text) SetText(str string) {
+	t.text = str
 }
 
 func (t *Text) String() string {
 	return "Text[" + t.text + "]"
-}
-
-func StaticDrawText(str string, x, y int) {
-	static_d.Dot = fixed.P(x, y)
-	static_d.DrawString(str)
-}
-
-func DrawText(str string, x, y int) {
-	d.Dot = fixed.P(x, y)
-	d.DrawString(str)
 }

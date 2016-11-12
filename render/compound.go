@@ -133,7 +133,7 @@ func (c *Compound) Fade(alpha int) Modifiable {
 
 func (c *Compound) Draw(buff draw.Image) {
 	switch t := c.subRenderables[c.curRenderable].(type) {
-	case *CompositeSlice:
+	case *Composite:
 		t.Draw(buff)
 		return
 	case *Reverting:
@@ -156,7 +156,7 @@ func (c *Compound) Draw(buff draw.Image) {
 func (c *Compound) SetPos(x, y float64) {
 	for _, v := range c.subRenderables {
 		switch t := v.(type) {
-		case *CompositeSlice:
+		case *Composite:
 			t.SetPos(x, y)
 		}
 	}
