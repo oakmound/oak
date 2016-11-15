@@ -49,3 +49,21 @@ func (t *Text) SetText(str string) {
 func (t *Text) String() string {
 	return "Text[" + t.text + "]"
 }
+
+// This wrapping isn't pixel specific, but character specific
+// so it can be obviously improved.
+func (t *Text) Wrap(charLimit int, v float64) []*Text {
+	out := make([]*Text, (len(t.text)/charLimit)+1)
+	start := 0
+	vertical := 0.0
+	for i := range out {
+		if start+charLimit <= len(t.text) {
+			out[i] = t.d.NewText(t.text[start:start+charLimit], t.X, t.Y+vertical)
+		} else {
+			out[i] = t.d.NewText(t.text[start:len(t.text)], t.X, t.Y+vertical)
+		}
+		start += charLimit
+		vertical += v
+	}
+	return out
+}
