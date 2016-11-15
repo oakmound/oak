@@ -51,11 +51,9 @@ func UpdateSpace(x, y, w, h float64, s *collision.Space) {
 func Propagate(eventName string, me MouseEvent) {
 	mouseLoc := collision.NewUnassignedSpace(float64(me.X), float64(me.Y), 0.01, 0.01)
 	hits := mt.SearchIntersect(mouseLoc.Bounds())
+
 	for _, v := range hits {
 		sp := v.(*collision.Space)
-
-		// Todo:
-		// Talk about what event should be triggered here
 		sp.CID.Trigger(eventName, nil)
 	}
 }
