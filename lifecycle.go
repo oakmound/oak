@@ -56,6 +56,8 @@ var (
 	imageBlack           = image.Black
 	zeroPoint            = image.Point{0, 0}
 	sscreen              screen.Screen
+	//
+	scene string
 )
 
 // Init initializes the plastic engine.
@@ -132,7 +134,7 @@ func Init(firstScene string) {
 	// Loop through scenes
 	runEventLoop = true
 	globalFirstScene = firstScene
-	scene := "loading"
+	scene = "loading"
 	var data interface{} = nil
 	dlog.Info("First Scene Start")
 	for {
@@ -179,10 +181,13 @@ func Init(firstScene string) {
 			go func() {
 				debugResetCh <- true
 				debugResetInProgress = false
-
 			}()
 		}
 	}
+}
+
+func CurrentScene() string {
+	return scene
 }
 
 func eventLoop(s screen.Screen) {

@@ -26,7 +26,9 @@ func (d *Doodad) GetRenderable() render.Renderable {
 }
 
 func (d *Doodad) SetRenderable(r render.Renderable) {
-	d.R.UnDraw()
+	if d.R != nil {
+		d.R.UnDraw()
+	}
 	d.R = r
 	render.Draw(d.R, d.R.GetLayer())
 }

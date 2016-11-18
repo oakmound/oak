@@ -257,10 +257,14 @@ func clearParticles(id int, nothing interface{}) int {
 
 func clearAtExit(id int, nothing interface{}) int {
 	if event.HasEntity(id) {
-		ps := event.GetEntity(id).(*Source)
-		ps.clearBinding.Unbind()
-		ps.rotateBinding.Unbind()
-		ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
+		t := event.GetEntity(id)
+		switch t.(type) {
+		case *Source:
+			ps := t.(*Source)
+			ps.clearBinding.Unbind()
+			ps.rotateBinding.Unbind()
+			ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
+		}
 	}
 	return 0
 }
