@@ -18,6 +18,10 @@ type CollisionPoint struct {
 	X, Y float64
 }
 
+func (cp CollisionPoint) IsNil() bool {
+	return cp.Zone == nil
+}
+
 func Init() {
 	rt = rtreego.NewTree(20, 40)
 }

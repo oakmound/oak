@@ -127,6 +127,34 @@ func RayCastSingleIgnoreLabels(x, y, degrees, length float64, labels ...int) Col
 	return CollisionPoint{}
 }
 
+func RayCastSingleIgnore(x, y, degrees, length float64, invalidIDS []event.CID, labels ...int) CollisionPoint {
+	s := math.Sin(degrees * math.Pi / 180)
+	c := math.Cos(degrees * math.Pi / 180)
+	for i := 0.0; i < length; i++ {
+		loc := NewRect(x, y, .1, .1)
+		next := rt.SearchIntersect(loc)
+	output:
+		for k := 0; k < len(next); k++ {
+			nx := (next[k].(*Space))
+			for _, label := range labels {
+				if nx.Label == label {
+					continue output
+				}
+			}
+			for e := 0; e < len(invalidIDS); e++ {
+				if nx.CID == invalidIDS[e] {
+					continue output
+				}
+			}
+			return CollisionPoint{nx, x, y}
+		}
+		x += c
+		y += s
+
+	}
+	return CollisionPoint{}
+}
+
 // ConeCast advances COUNTER-CLOCKWISE
 func ConeCast(x, y, angle, angleWidth, length float64) (points []CollisionPoint) {
 	da := angleWidth / 10
