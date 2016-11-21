@@ -44,7 +44,7 @@ func DebugConsole(resetCh, skipScene chan bool) {
 				case "unlock":
 					if viewportLocked {
 						speed := parseTokenAsInt(tokenString, 2, 5)
-						viewportBinding, _ = event.GlobalBind(moveViewportBinding(speed), "EnterFrame")
+						viewportBinding = <-event.GlobalBindBack(moveViewportBinding(speed), "EnterFrame")
 						viewportLocked = false
 					} else {
 						fmt.Println("Viewport is already unbound")
@@ -99,7 +99,7 @@ func DebugConsole(resetCh, skipScene chan bool) {
 				if len(tokenString) > 1 {
 					switch tokenString[1] {
 					case "details":
-						mouseDebug, _ = event.GlobalBind(mouseDetails, "MouseRelease")
+						mouseDebug = <-event.GlobalBindBack(mouseDetails, "MouseRelease")
 
 					default:
 						fmt.Println("Bad Mouse Input")

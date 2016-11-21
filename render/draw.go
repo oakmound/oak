@@ -56,7 +56,6 @@ func InitDrawHeap() {
 	rh = &LambdaHeap{}
 	srh = &RenderableHeap{}
 	heap.Init(srh)
-	preDrawBind, _ = event.GlobalBind(PreDraw, "PreDraw")
 }
 
 // Drawing does not actually immediately draw a renderable,
@@ -77,7 +76,7 @@ func StaticDraw(r Renderable, l int) Renderable {
 
 // PreDraw parses through renderables to be pushed
 // and adds them to the drawheap.
-func PreDraw(no int, nothing interface{}) int {
+func PreDraw() {
 	if resetHeap == true {
 		InitDrawHeap()
 		resetHeap = false
@@ -96,7 +95,6 @@ func PreDraw(no int, nothing interface{}) int {
 	}
 	toPushStatic = []Renderable{}
 	toPushRenderables = []Renderable{}
-	return 0
 }
 
 // LoadSpriteAndDraw is shorthand for LoadSprite

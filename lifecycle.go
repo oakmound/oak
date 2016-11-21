@@ -171,7 +171,7 @@ func Init(firstScene string) {
 		render.ResetDrawHeap()
 		collision.Clear()
 		pmouse.Clear()
-		render.PreDraw(0, nil)
+		render.PreDraw()
 
 		scene, data = sceneMap[scene].end()
 
@@ -373,11 +373,10 @@ func eventLoop(s screen.Screen) {
 				//<-b1Cleaned
 				//fmt.Println("Drawing buffer one")
 
-				eb.Trigger("PreDraw", nil)
+				render.PreDraw()
 				render.DrawHeap(b, ViewX, ViewY, ScreenWidth, ScreenHeight)
 				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
 				render.DrawStaticHeap(winBuffer)
-				eb.Trigger("PostDraw", b)
 
 				w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
 				w.Publish()
@@ -417,6 +416,11 @@ func eventLoop(s screen.Screen) {
 	// It then runs any functions bound to when a frame begins.
 	// It then allows a scene to perform it's loop operation.
 	// It then runs any functions bound to when a frame ends.
+	go func() {
+		for runEventLoop {
+			event.ResolvePending()
+		}
+	}()
 	for {
 		for runEventLoop {
 			<-frameCh

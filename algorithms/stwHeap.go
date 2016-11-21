@@ -10,6 +10,7 @@ type STWHeap struct {
 	weightsBelow []float64
 }
 
+// Select Total Weight Heap
 func NewSTWHeap(f []float64) *STWHeap {
 	stwh := new(STWHeap)
 	f = append([]float64{0}, f...)

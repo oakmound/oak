@@ -5,6 +5,7 @@ package particle
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
+	"fmt"
 	"image"
 	"image/draw"
 	"math"
@@ -79,8 +80,7 @@ type BaseParticle struct {
 
 func (ps *Source) Init() event.CID {
 	cID := event.NextID(ps)
-	binding, _ := cID.Bind(rotateParticles, "EnterFrame")
-	ps.rotateBinding = binding
+	ps.rotateBinding = <-cID.BindBack(rotateParticles, "EnterFrame")
 	ps.cID = cID
 	if ps.Generator.GetBaseGenerator().Duration != -1 {
 		go func(ps_p *Source, duration int) {
@@ -242,15 +242,15 @@ func clearParticles(id int, nothing interface{}) int {
 				newParticles = append(newParticles, p)
 			} else {
 				if pg.EndFunc != nil {
-					pg.EndFunc(p)
+					go pg.EndFunc(p)
 				}
 			}
 		}
 		ps.particles = newParticles
 	} else {
 		ps.UnDraw()
-		ps.rotateBinding.Unbind()
 		event.DestroyEntity(id)
+		return event.UNBIND_EVENT
 	}
 	return 0
 }
@@ -261,9 +261,9 @@ func clearAtExit(id int, nothing interface{}) int {
 		switch t.(type) {
 		case *Source:
 			ps := t.(*Source)
-			ps.clearBinding.Unbind()
 			ps.rotateBinding.Unbind()
-			ps.rotateBinding, _ = ps.cID.Bind(clearParticles, "EnterFrame")
+			ps.cID.Bind(clearParticles, "EnterFrame")
+			return event.UNBIND_EVENT
 		}
 	}
 	return 0
@@ -272,7 +272,7 @@ func clearAtExit(id int, nothing interface{}) int {
 // Stop manually stops a Source, if its duration is infinite
 // or if it should be stopped before expriring naturally.
 func (ps *Source) Stop() {
-	ps.clearBinding, _ = ps.cID.Bind(clearAtExit, "ExitFrame")
+	ps.cID.Bind(clearAtExit, "ExitFrame")
 }
 
 // A particle source has no concept of an individual
@@ -312,8 +312,7 @@ func (ps *Source) Pause() {
 
 // Unpausing a Source rebinds it's rotate function.
 func (ps *Source) UnPause() {
-	binding, _ := ps.cID.Bind(rotateParticles, "EnterFrame")
-	ps.rotateBinding = binding
+	ps.rotateBinding = <-ps.cID.BindBack(rotateParticles, "EnterFrame")
 }
 
 // Placeholder

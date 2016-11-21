@@ -6,13 +6,16 @@ package event
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+
+	"fmt"
 	"strconv"
 	"sync"
 )
 
 var (
 	thisBus = EventBus{make(map[string]map[int]*BindableStore)}
-	mutex   = sync.Mutex{}
+	mutex   = sync.RWMutex{}
+	rLocks  = 0
 )
 
 const (
@@ -24,7 +27,7 @@ const (
 	UNBIND_EVENT
 	// We can't unbind a single bindable efficiently,
 	// so UNBIND_EVENT is recommended.
-	// UNBIND_SINGLE
+	UNBIND_SINGLE
 )
 
 // This is a way of saying "Any function
@@ -104,59 +107,101 @@ func GetEventBus() *EventBus {
 
 func ResetEventBus() {
 	thisBus = EventBus{make(map[string]map[int]*BindableStore)}
+	mutex.Lock()
+	bindablesToBind = []Bindable{}
+	optionsToBind = []BindingOption{}
+	channelsToBind = [](chan Binding){}
+
+	optionsToUnbind = []BindingOption{}
+	bindingsToUnbind = []Binding{}
+	mutex.Unlock()
 }
 
-// Called by entities.
-// Entities pass in a bindable function,
-// and a set of options which
-// are parsed out.
-// Returns a binding that can used
-// to unbind this binding later.
-func (eb *EventBus) BindPriority(fn Bindable, opt BindingOption) (Binding, error) {
+var (
+	bindablesToBind = []Bindable{}
+	optionsToBind   = []BindingOption{}
+	channelsToBind  = [](chan Binding){}
 
-	list := eb.getBindableList(opt)
-	i := list.storeBindable(fn)
+	optionsToUnbind  = []BindingOption{}
+	bindingsToUnbind = []Binding{}
 
-	dlog.Info("Stored at", i)
+	pendingMutex = sync.Mutex{}
+)
 
-	return Binding{opt, i}, nil
-}
+func ResolvePending() {
 
-func GlobalBind(fn Bindable, name string) (Binding, error) {
-	eb := GetEventBus()
-	return eb.Bind(fn, name, 0)
-}
+	if len(bindablesToBind) > 0 {
+		fmt.Println("Locking eventbus")
+		mutex.Lock()
+		fmt.Println("eventbus locked")
+		// Bindings
+		for i := 0; i < len(bindablesToBind); i++ {
+			fn := bindablesToBind[i]
+			opt := optionsToBind[i]
+			ch := channelsToBind[i]
 
-func (eb *EventBus) Bind(fn Bindable, name string, callerID int) (Binding, error) {
+			list := thisBus.getBindableList(opt)
+			j := list.storeBindable(fn)
 
-	bOpt := BindingOption{}
-	bOpt.Event = Event{
-		Name:     name,
-		CallerID: callerID,
+			if ch != nil {
+				ch <- Binding{opt, j}
+			}
+		}
+		mutex.Unlock()
+		fmt.Println("Unlocking eventbus")
+		bindablesToBind = []Bindable{}
+		optionsToBind = []BindingOption{}
+		channelsToBind = [](chan Binding){}
 	}
 
-	dlog.Verb("Binding ", callerID, " with name ", name)
+	if len(bindingsToUnbind) > 0 {
+		// Unbinds
+		fmt.Println("Locking eventbus for unbinding bindings")
+		mutex.Lock()
+		fmt.Println("eventbus locked")
+		for _, b := range bindingsToUnbind {
+			thisBus.getBindableList(b.BindingOption).removeBindable(b)
+		}
+		mutex.Unlock()
+		fmt.Println("Unlocking eventbus")
+		bindingsToUnbind = []Binding{}
+	}
 
-	return eb.BindPriority(fn, bOpt)
-}
+	if len(optionsToUnbind) > 0 {
+		fmt.Println("Locking eventbus for unbinding options")
+		mutex.Lock()
+		fmt.Println("eventbus locked")
+		for _, opt := range optionsToUnbind {
 
-func (cid CID) Bind(fn Bindable, name string) (Binding, error) {
-	return thisBus.Bind(fn, name, int(cid))
-}
+			var namekeys []string
 
-// Called by entities,
-// for unbinding specific bindings.
-func (eb *EventBus) Unbind(b Binding) error {
+			// If we were given a name,
+			// we'll just iterate with that name.
+			if opt.Name != "" {
+				namekeys = append(namekeys, opt.Name)
 
-	list := eb.getBindableList(b.BindingOption)
-	list.removeBindable(b)
+				// Otherwise, iterate through all events.
+			} else {
+				for k := range thisBus.bindingMap {
+					namekeys = append(namekeys, k)
+				}
+			}
 
-	return nil
-}
-
-func (b Binding) Unbind() error {
-	eb := GetEventBus()
-	return eb.Unbind(b)
+			if opt.CallerID != 0 {
+				for _, k := range namekeys {
+					delete(thisBus.bindingMap[k], opt.CallerID)
+				}
+			} else {
+				for _, k := range namekeys {
+					delete(thisBus.bindingMap, k)
+				}
+			}
+			dlog.Verb(thisBus.bindingMap)
+		}
+		mutex.Unlock()
+		fmt.Println("eventbus locked")
+		optionsToUnbind = []BindingOption{}
+	}
 }
 
 // Store a bindable into a BindableList.
@@ -185,9 +230,9 @@ func (bl *BindableList) removeBindable(b Binding) {
 	if len(bl.sl) < i+1 {
 		return
 	}
-	mutex.Lock()
+
 	bl.sl[i] = nil
-	mutex.Unlock()
+
 	if i < bl.nextEmpty {
 		bl.nextEmpty = i
 	}
@@ -195,7 +240,6 @@ func (bl *BindableList) removeBindable(b Binding) {
 
 func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 
-	mutex.Lock()
 	if m, ok := eb.bindingMap[opt.Name]; !ok || m == nil {
 		eb.bindingMap[opt.Name] = make(map[int]*BindableStore)
 	}
@@ -206,13 +250,10 @@ func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 	}
 
 	store := eb.bindingMap[opt.Name][opt.CallerID]
-	mutex.Unlock()
-
-	var list *BindableList
 
 	// Default priority
 	if opt.Priority == 0 {
-		list = store.defaultPriority
+		return store.defaultPriority
 
 		// High priority
 	} else if opt.Priority > 0 {
@@ -224,7 +265,7 @@ func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 			store.highIndex = opt.Priority
 		}
 
-		list = store.highPriority[opt.Priority-1]
+		return store.highPriority[opt.Priority-1]
 
 		// Low priority
 	} else {
@@ -236,172 +277,6 @@ func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 			store.lowIndex = (-1 * opt.Priority)
 		}
 
-		list = store.lowPriority[(opt.Priority*-1)-1]
-	}
-
-	return list
-}
-
-// Unbind all events for
-// the given CID
-func (cid *CID) UnbindAll() {
-	eb := GetEventBus()
-	bo := BindingOption{
-		Event{
-			"",
-			int(*cid),
-		},
-		0,
-	}
-	eb.UnbindAll(bo)
-}
-
-// Called by entities or by game logic.
-// Unbinds all events in this bus which
-// match the given binding options.
-func (eb *EventBus) UnbindAll(opt BindingOption) {
-
-	var namekeys []string
-
-	// If we were given a name,
-	// we'll just iterate with that name.
-	if opt.Name != "" {
-		namekeys = append(namekeys, opt.Name)
-
-		// Otherwise, iterate through all events.
-	} else {
-		for k := range eb.bindingMap {
-			namekeys = append(namekeys, k)
-		}
-	}
-
-	if opt.CallerID != 0 {
-		mutex.Lock()
-		for _, k := range namekeys {
-			delete(eb.bindingMap[k], opt.CallerID)
-		}
-		mutex.Unlock()
-	} else {
-		mutex.Lock()
-		for _, k := range namekeys {
-			delete(eb.bindingMap, k)
-		}
-		mutex.Unlock()
-	}
-	dlog.Verb(eb.bindingMap)
-}
-
-// Trigger an event, but only
-// for one ID. Use case example:
-// on onHit event
-func (id CID) Trigger(eventName string, data interface{}) {
-	eb := GetEventBus()
-
-	if idMap, ok := eb.bindingMap[eventName]; ok {
-		if bs, ok := idMap[int(id)]; ok {
-			for i := bs.highIndex - 1; i >= 0; i-- {
-				for _, bnd := range (*bs.highPriority[i]).sl {
-					if bnd != nil {
-						response := bnd(int(id), data)
-						switch response {
-						case UNBIND_EVENT:
-							thisBus.bindingMap[eventName][int(id)].highPriority[i] = (new(BindableList))
-						}
-					}
-				}
-			}
-			triggerDefault((bs.defaultPriority).sl, int(id), eventName, data)
-
-			for i := 0; i < bs.lowIndex; i++ {
-				for _, bnd := range (*bs.lowPriority[i]).sl {
-					if bnd != nil {
-						response := bnd(int(id), data)
-						switch response {
-						case UNBIND_EVENT:
-							thisBus.bindingMap[eventName][int(id)].lowPriority[i] = (new(BindableList))
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-// Called externally by game logic
-// and internally by plastic itself
-// at specific integral points
-func (eb_p *EventBus) Trigger(eventName string, data interface{}) {
-
-	eb := (*eb_p)
-
-	//dlog.Verb("Triggering, ", eventName)
-
-	// Loop through all bindableStores for this eventName
-	for id, bs := range eb.bindingMap[eventName] {
-		// Loop through all bindables
-		if bs == nil {
-			continue
-		}
-
-		// Top to bottom, high priority
-		for i := bs.highIndex - 1; i >= 0; i-- {
-			for _, bnd := range (*bs.highPriority[i]).sl {
-				if bnd != nil {
-					response := bnd(id, data)
-					switch response {
-					case UNBIND_EVENT:
-						thisBus.bindingMap[eventName][id].highPriority[i] = (new(BindableList))
-					}
-				}
-			}
-		}
-	}
-
-	for id, bs := range eb.bindingMap[eventName] {
-		if bs != nil && bs.defaultPriority != nil {
-			triggerDefault((bs.defaultPriority).sl, id, eventName, data)
-		}
-	}
-
-	//mutex.Lock()
-	for id, bs := range eb.bindingMap[eventName] {
-		// Bottom to top, low priority
-		for i := 0; i < bs.lowIndex; i++ {
-			for _, bnd := range (*bs.lowPriority[i]).sl {
-				if bnd != nil {
-					response := bnd(id, data)
-					switch response {
-					case UNBIND_EVENT:
-						thisBus.bindingMap[eventName][id].lowPriority[i] = (new(BindableList))
-					}
-				}
-			}
-		}
-	}
-	//mutex.Unlock()
-}
-
-func Trigger(eventName string, data interface{}) {
-	thisBus.Trigger(eventName, data)
-}
-
-func triggerDefault(sl []Bindable, id int, eventName string, data interface{}) {
-	progCh := make(chan bool)
-	for _, bnd := range sl {
-		go func(bnd Bindable, id int, eventName string, data interface{}, progCh chan bool) {
-			if bnd != nil {
-				if id == 0 || GetEntity(id) != nil {
-					response := bnd(id, data)
-					switch response {
-					case UNBIND_EVENT:
-						thisBus.bindingMap[eventName][id].defaultPriority = (new(BindableList))
-					}
-				}
-			}
-			progCh <- true
-		}(bnd, id, eventName, data, progCh)
-	}
-	for range sl {
-		<-progCh
+		return store.lowPriority[(opt.Priority*-1)-1]
 	}
 }
