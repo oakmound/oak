@@ -139,34 +139,6 @@ var (
 
 func ResolvePending() {
 
-	if len(bindablesToBind) > 0 {
-
-		mutex.Lock()
-		pendingMutex.Lock()
-		fmt.Println("eventbus locked A")
-		// Bindings
-		for i := 0; i < len(bindablesToBind); i++ {
-			fmt.Println(len(bindablesToBind), len(optionsToBind), len(channelsToBind))
-			fn := bindablesToBind[i]
-			opt := optionsToBind[i]
-			ch := channelsToBind[i]
-
-			list := thisBus.getBindableList(opt)
-			j := list.storeBindable(fn)
-
-			if ch != nil {
-				ch <- Binding{opt, j}
-			}
-		}
-		mutex.Unlock()
-		fmt.Println("eventbus unlocked A")
-
-		bindablesToBind = []Bindable{}
-		optionsToBind = []BindingOption{}
-		channelsToBind = [](chan Binding){}
-		pendingMutex.Unlock()
-	}
-
 	// Unbinds
 	if len(bindingsToUnbind) > 0 {
 		mutex.Lock()
@@ -234,6 +206,34 @@ func ResolvePending() {
 		fmt.Println("eventbus unlocked D")
 
 		ubOptionsToUnbind = []UnbindOption{}
+		pendingMutex.Unlock()
+	}
+
+	if len(bindablesToBind) > 0 {
+
+		mutex.Lock()
+		pendingMutex.Lock()
+		fmt.Println("eventbus locked A")
+		// Bindings
+		for i := 0; i < len(bindablesToBind); i++ {
+			fmt.Println(len(bindablesToBind), len(optionsToBind), len(channelsToBind))
+			fn := bindablesToBind[i]
+			opt := optionsToBind[i]
+			ch := channelsToBind[i]
+
+			list := thisBus.getBindableList(opt)
+			j := list.storeBindable(fn)
+
+			if ch != nil {
+				ch <- Binding{opt, j}
+			}
+		}
+		mutex.Unlock()
+		fmt.Println("eventbus unlocked A")
+
+		bindablesToBind = []Bindable{}
+		optionsToBind = []BindingOption{}
+		channelsToBind = [](chan Binding){}
 		pendingMutex.Unlock()
 	}
 }
