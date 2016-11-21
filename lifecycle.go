@@ -424,8 +424,8 @@ func eventLoop(s screen.Screen) {
 	for {
 		for runEventLoop {
 			<-frameCh
-			eb.Trigger("EnterFrame", nil)
-			eb.Trigger("ExitFrame", nil)
+			<-eb.Trigger("EnterFrame", nil)
+			<-eb.Trigger("ExitFrame", nil)
 			sceneCh <- true
 		}
 	}

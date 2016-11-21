@@ -140,8 +140,10 @@ var (
 func ResolvePending() {
 
 	if len(bindablesToBind) > 0 {
+
 		mutex.Lock()
 		pendingMutex.Lock()
+		fmt.Println("eventbus locked A")
 		// Bindings
 		for i := 0; i < len(bindablesToBind); i++ {
 			fmt.Println(len(bindablesToBind), len(optionsToBind), len(channelsToBind))
@@ -157,6 +159,7 @@ func ResolvePending() {
 			}
 		}
 		mutex.Unlock()
+		fmt.Println("eventbus unlocked A")
 
 		bindablesToBind = []Bindable{}
 		optionsToBind = []BindingOption{}
@@ -168,17 +171,21 @@ func ResolvePending() {
 	if len(bindingsToUnbind) > 0 {
 		mutex.Lock()
 		pendingMutex.Lock()
+		fmt.Println("eventbus locked B")
 		for _, b := range bindingsToUnbind {
 			thisBus.getBindableList(b.BindingOption).removeBinding(b)
 		}
 		mutex.Unlock()
-		pendingMutex.Unlock()
+
+		fmt.Println("eventbus unlocked B")
 		bindingsToUnbind = []Binding{}
+		pendingMutex.Unlock()
 	}
 
 	if len(optionsToUnbind) > 0 {
 		mutex.Lock()
 		pendingMutex.Lock()
+		fmt.Println("eventbus locked C")
 		for _, opt := range optionsToUnbind {
 
 			var namekeys []string
@@ -207,23 +214,27 @@ func ResolvePending() {
 			dlog.Verb(thisBus.bindingMap)
 		}
 		mutex.Unlock()
-		pendingMutex.Unlock()
-		fmt.Println("eventbus locked")
+
+		fmt.Println("eventbus unlocked C")
 		optionsToUnbind = []BindingOption{}
+		pendingMutex.Unlock()
 	}
 
 	// ubOptions need to be fully populated,
 	// unlike optionsToUnbind
 	if len(ubOptionsToUnbind) > 0 {
+		fmt.Println("eventbus locked D")
 		mutex.Lock()
 		pendingMutex.Lock()
 		for _, opt := range ubOptionsToUnbind {
 			thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
 		}
 		mutex.Unlock()
-		pendingMutex.Unlock()
+
+		fmt.Println("eventbus unlocked D")
 
 		ubOptionsToUnbind = []UnbindOption{}
+		pendingMutex.Unlock()
 	}
 }
 

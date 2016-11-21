@@ -7,7 +7,7 @@ import (
 // Called by entities,
 // for unbinding specific bindings.
 func (eb *EventBus) Unbind(b Binding) {
-	fmt.Println("COME ON!")
+	fmt.Println("Locking Pending Mutex")
 	pendingMutex.Lock()
 	bindingsToUnbind = append(bindingsToUnbind, b)
 	fmt.Println("Added a binding to unbind")
