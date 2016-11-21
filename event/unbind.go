@@ -1,10 +1,16 @@
 package event
 
+import (
+	"fmt"
+)
+
 // Called by entities,
 // for unbinding specific bindings.
 func (eb *EventBus) Unbind(b Binding) {
+	fmt.Println("COME ON!")
 	pendingMutex.Lock()
 	bindingsToUnbind = append(bindingsToUnbind, b)
+	fmt.Println("Added a binding to unbind")
 	pendingMutex.Unlock()
 }
 
@@ -15,7 +21,6 @@ func (b Binding) Unbind() {
 // Unbind all events for
 // the given CID
 func (cid *CID) UnbindAll() {
-	eb := GetEventBus()
 	bo := BindingOption{
 		Event{
 			"",
@@ -23,14 +28,20 @@ func (cid *CID) UnbindAll() {
 		},
 		0,
 	}
-	eb.UnbindAll(bo)
+	UnbindAll(bo)
 }
 
 // Called by entities or by game logic.
 // Unbinds all events in this bus which
 // match the given binding options.
-func (eb *EventBus) UnbindAll(opt BindingOption) {
+func UnbindAll(opt BindingOption) {
 	pendingMutex.Lock()
 	optionsToUnbind = append(optionsToUnbind, opt)
+	pendingMutex.Unlock()
+}
+
+func UnbindBindable(opt UnbindOption) {
+	pendingMutex.Lock()
+	ubOptionsToUnbind = append(ubOptionsToUnbind, opt)
 	pendingMutex.Unlock()
 }

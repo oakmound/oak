@@ -8,6 +8,7 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 
 	"fmt"
+	"reflect"
 	"strconv"
 	"sync"
 )
@@ -87,6 +88,11 @@ type BindingOption struct {
 	Priority int
 }
 
+type UnbindOption struct {
+	BindingOption
+	fn Bindable
+}
+
 // Stores data necessary
 // to trace back to a bindable function
 // and remove it from an eventBus
@@ -113,7 +119,9 @@ func ResetEventBus() {
 	channelsToBind = [](chan Binding){}
 
 	optionsToUnbind = []BindingOption{}
+	ubOptionsToUnbind = []UnbindOption{}
 	bindingsToUnbind = []Binding{}
+
 	mutex.Unlock()
 }
 
@@ -122,8 +130,9 @@ var (
 	optionsToBind   = []BindingOption{}
 	channelsToBind  = [](chan Binding){}
 
-	optionsToUnbind  = []BindingOption{}
-	bindingsToUnbind = []Binding{}
+	optionsToUnbind   = []BindingOption{}
+	ubOptionsToUnbind = []UnbindOption{}
+	bindingsToUnbind  = []Binding{}
 
 	pendingMutex = sync.Mutex{}
 )
@@ -131,11 +140,11 @@ var (
 func ResolvePending() {
 
 	if len(bindablesToBind) > 0 {
-		fmt.Println("Locking eventbus")
 		mutex.Lock()
-		fmt.Println("eventbus locked")
+		pendingMutex.Lock()
 		// Bindings
 		for i := 0; i < len(bindablesToBind); i++ {
+			fmt.Println(len(bindablesToBind), len(optionsToBind), len(channelsToBind))
 			fn := bindablesToBind[i]
 			opt := optionsToBind[i]
 			ch := channelsToBind[i]
@@ -148,29 +157,28 @@ func ResolvePending() {
 			}
 		}
 		mutex.Unlock()
-		fmt.Println("Unlocking eventbus")
+
 		bindablesToBind = []Bindable{}
 		optionsToBind = []BindingOption{}
 		channelsToBind = [](chan Binding){}
+		pendingMutex.Unlock()
 	}
 
+	// Unbinds
 	if len(bindingsToUnbind) > 0 {
-		// Unbinds
-		fmt.Println("Locking eventbus for unbinding bindings")
 		mutex.Lock()
-		fmt.Println("eventbus locked")
+		pendingMutex.Lock()
 		for _, b := range bindingsToUnbind {
-			thisBus.getBindableList(b.BindingOption).removeBindable(b)
+			thisBus.getBindableList(b.BindingOption).removeBinding(b)
 		}
 		mutex.Unlock()
-		fmt.Println("Unlocking eventbus")
+		pendingMutex.Unlock()
 		bindingsToUnbind = []Binding{}
 	}
 
 	if len(optionsToUnbind) > 0 {
-		fmt.Println("Locking eventbus for unbinding options")
 		mutex.Lock()
-		fmt.Println("eventbus locked")
+		pendingMutex.Lock()
 		for _, opt := range optionsToUnbind {
 
 			var namekeys []string
@@ -199,8 +207,23 @@ func ResolvePending() {
 			dlog.Verb(thisBus.bindingMap)
 		}
 		mutex.Unlock()
+		pendingMutex.Unlock()
 		fmt.Println("eventbus locked")
 		optionsToUnbind = []BindingOption{}
+	}
+
+	// ubOptions need to be fully populated,
+	// unlike optionsToUnbind
+	if len(ubOptionsToUnbind) > 0 {
+		mutex.Lock()
+		pendingMutex.Lock()
+		for _, opt := range ubOptionsToUnbind {
+			thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
+		}
+		mutex.Unlock()
+		pendingMutex.Unlock()
+
+		ubOptionsToUnbind = []UnbindOption{}
 	}
 }
 
@@ -224,9 +247,34 @@ func (bl_p *BindableList) storeBindable(fn Bindable) int {
 	return i
 }
 
+// This scans linearly for the bindable
+// This will cause an issue with closures!
+// You can't unbind closures that don't have the
+// same variable reference because this compares
+// pointers!
+//
+// At all costs, this should be avoided, and
+// returning "UNBIND_SINGLE" from the function
+// itself is much safer!
+func (bl *BindableList) removeBindable(fn Bindable) {
+	i := 0
+	v := reflect.ValueOf(fn)
+	for {
+		v2 := reflect.ValueOf(bl.sl[i])
+		if v2 == v {
+			bl.removeIndex(i)
+			return
+		}
+		i++
+	}
+}
+
 // Remove a bindable from a BindableList
-func (bl *BindableList) removeBindable(b Binding) {
-	i := b.index //store for messing with nextempty
+func (bl *BindableList) removeBinding(b Binding) {
+	bl.removeIndex(b.index)
+}
+
+func (bl *BindableList) removeIndex(i int) {
 	if len(bl.sl) < i+1 {
 		return
 	}

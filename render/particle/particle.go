@@ -5,7 +5,7 @@ package particle
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
-	"fmt"
+
 	"image"
 	"image/draw"
 	"math"
