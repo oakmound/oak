@@ -67,6 +67,7 @@ func (cs *Composite) Draw(buff draw.Image) {
 		drawX := int(c.GetX()) + int(cs.offsets[i].X)
 		drawY := int(c.GetY()) + int(cs.offsets[i].Y)
 		//if c.AlwaysDirty() || IsDirty(drawX, drawY) {
+		//fmt.Println("Drawing Composite", img, drawX, drawY)
 		ShinyDraw(buff, img, drawX, drawY)
 		//}
 	}
@@ -180,6 +181,7 @@ func (cs *Composite) String() string {
 	for _, v := range cs.rs {
 		s += v.String() + "\n"
 	}
+	s += "}"
 	return s
 }
 
@@ -294,5 +296,6 @@ func (cs *CompositeR) String() string {
 	for _, v := range cs.rs {
 		s += v.String() + "\n"
 	}
+	s += "}"
 	return s
 }
