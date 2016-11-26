@@ -62,6 +62,12 @@ func (cs *Composite) Draw(buff draw.Image) {
 		c.DrawOffset(buff, cs.X, cs.Y)
 	}
 }
+func (cs *Composite) UnDraw() {
+	cs.layer = -1
+	for _, c := range cs.rs {
+		c.UnDraw()
+	}
+}
 func (cs *Composite) GetRGBA() *image.RGBA {
 	return nil
 }
@@ -188,6 +194,12 @@ func (cs *CompositeR) DrawOffset(buff draw.Image, xOff, yOff float64) {
 func (cs *CompositeR) Draw(buff draw.Image) {
 	for _, c := range cs.rs {
 		c.DrawOffset(buff, cs.X, cs.Y)
+	}
+}
+func (cs *CompositeR) UnDraw() {
+	cs.layer = -1
+	for _, c := range cs.rs {
+		c.UnDraw()
 	}
 }
 func (cs *CompositeR) GetRGBA() *image.RGBA {
