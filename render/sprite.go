@@ -31,6 +31,10 @@ func (s *Sprite) SetRGBA(r *image.RGBA) {
 	s.r = r
 }
 
+func (s *Sprite) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	ShinyDraw(buff, s.r, int(s.X+xOff), int(s.Y+yOff))
+}
+
 func (s *Sprite) Draw(buff draw.Image) {
 	ShinyDraw(buff, s.r, int(s.X), int(s.Y))
 }

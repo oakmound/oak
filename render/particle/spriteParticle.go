@@ -48,9 +48,12 @@ type SpriteParticle struct {
 }
 
 func (sp *SpriteParticle) Draw(generator Generator, buff draw.Image) {
+	sp.DrawOffset(generator, buff, 0, 0)
+}
+func (sp *SpriteParticle) DrawOffset(generator Generator, buff draw.Image, xOff, yOff float64) {
 	sp.rotation += sp.rotation
 	rgba := generator.(*SpriteGenerator).Base.Copy().Rotate(int(sp.rotation)).GetRGBA()
-	render.ShinyDraw(buff, rgba, int(sp.x), int(sp.y))
+	render.ShinyDraw(buff, rgba, int(sp.x+xOff), int(sp.y+yOff))
 }
 
 func (sp *SpriteParticle) GetBaseParticle() *BaseParticle {

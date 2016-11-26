@@ -50,26 +50,18 @@ func (cs *Composite) Get(i int) Modifiable {
 	return cs.rs[i]
 }
 
+func (cs *Composite) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	for i, c := range cs.rs {
+		drawX := c.GetX() + cs.offsets[i].X
+		drawY := c.GetY() + cs.offsets[i].Y
+		c.DrawOffset(buff, drawX+xOff, drawY+yOff)
+	}
+}
 func (cs *Composite) Draw(buff draw.Image) {
 	for i, c := range cs.rs {
-		switch t := c.(type) {
-		case *Composite:
-			t.Draw(buff)
-			continue
-		case *Reverting:
-			t.updateAnimation()
-		case *Animation:
-			t.updateAnimation()
-		case *Sequence:
-			t.update()
-		}
-		img := c.GetRGBA()
-		drawX := int(c.GetX()) + int(cs.offsets[i].X)
-		drawY := int(c.GetY()) + int(cs.offsets[i].Y)
-		//if c.AlwaysDirty() || IsDirty(drawX, drawY) {
-		//fmt.Println("Drawing Composite", img, drawX, drawY)
-		ShinyDraw(buff, img, drawX, drawY)
-		//}
+		drawX := c.GetX() + cs.offsets[i].X
+		drawY := c.GetY() + cs.offsets[i].Y
+		c.DrawOffset(buff, drawX, drawY)
 	}
 }
 func (cs *Composite) GetRGBA() *image.RGBA {
@@ -226,20 +218,18 @@ func (cs *CompositeR) Get(i int) Renderable {
 	return cs.rs[i]
 }
 
+func (cs *CompositeR) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	for i, c := range cs.rs {
+		drawX := c.GetX() + cs.offsets[i].X
+		drawY := c.GetY() + cs.offsets[i].Y
+		c.DrawOffset(buff, drawX+xOff, drawY+yOff)
+	}
+}
 func (cs *CompositeR) Draw(buff draw.Image) {
 	for i, c := range cs.rs {
-		switch t := c.(type) {
-		case *CompositeR:
-			t.Draw(buff)
-			continue
-		case *Text:
-			t.Draw(buff)
-			continue
-		}
-		img := c.GetRGBA()
-		drawX := int(c.GetX()) + int(cs.offsets[i].X)
-		drawY := int(c.GetY()) + int(cs.offsets[i].Y)
-		ShinyDraw(buff, img, drawX, drawY)
+		drawX := c.GetX() + cs.offsets[i].X
+		drawY := c.GetY() + cs.offsets[i].Y
+		c.DrawOffset(buff, drawX, drawY)
 	}
 }
 func (cs *CompositeR) GetRGBA() *image.RGBA {

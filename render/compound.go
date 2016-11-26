@@ -131,35 +131,39 @@ func (c *Compound) Fade(alpha int) Modifiable {
 	return c
 }
 
+func (c *Compound) DrawOffset(buff draw.Image, xOff float64, yOff float64) {
+	curS := c.curRenderable
+	curR := c.subRenderables[curS]
+	drawX := c.X
+	drawY := c.Y
+	// Since the converstion to using DrawOffset, we
+	// shouldn't need to keep track of these offsets...
+	// we can just set the underlying renderables at their
+	// offset positions, and they'll be used at the lower level.
+	if offsets, ok := c.offsets[curS]; ok {
+		drawX += offsets.X
+		drawY += offsets.Y
+	}
+	curR.DrawOffset(buff, drawX+xOff, drawY+yOff)
+}
+
 func (c *Compound) Draw(buff draw.Image) {
-	switch t := c.subRenderables[c.curRenderable].(type) {
-	case *Composite:
-		t.Draw(buff)
-		return
-	case *Reverting:
-		t.updateAnimation()
-	case *Animation:
-		t.updateAnimation()
-	case *Sequence:
-		t.update()
-	}
-	img := c.GetRGBA()
-	drawX := int(c.X)
-	drawY := int(c.Y)
-	if offsets, ok := c.offsets[c.curRenderable]; ok {
-		drawX += int(offsets.X)
-		drawY += int(offsets.Y)
-	}
-	ShinyDraw(buff, img, drawX, drawY)
+	c.DrawOffset(buff, 0, 0)
+}
+
+func (c *Compound) ShiftPos(x, y float64) {
+	c.SetPos(c.X+x, c.Y+y)
+}
+
+func (c *Compound) ShiftY(y float64) {
+	c.SetPos(c.X, c.Y+y)
+}
+
+func (c *Compound) ShiftX(x float64) {
+	c.SetPos(c.X+x, c.Y)
 }
 
 func (c *Compound) SetPos(x, y float64) {
-	for _, v := range c.subRenderables {
-		switch t := v.(type) {
-		case *Composite:
-			t.SetPos(x, y)
-		}
-	}
 	c.LayeredPoint.SetPos(x, y)
 }
 

@@ -66,6 +66,7 @@ type Source struct {
 type Particle interface {
 	GetBaseParticle() *BaseParticle
 	Draw(Generator, draw.Image)
+	DrawOffset(Generator, draw.Image, float64, float64)
 	GetPos() (float64, float64)
 	GetSize() (float64, float64)
 }
@@ -93,6 +94,12 @@ func (ps *Source) Init() event.CID {
 		}(ps, ps.Generator.GetBaseGenerator().Duration)
 	}
 	return event.NextID(ps)
+}
+
+func (ps *Source) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	for _, p := range ps.particles {
+		p.DrawOffset(ps.Generator, buff, xOff, yOff)
+	}
 }
 
 func (ps *Source) Draw(buff draw.Image) {

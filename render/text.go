@@ -29,6 +29,12 @@ func (t *Text) GetRGBA() *image.RGBA {
 	return nil
 }
 
+func (t *Text) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	t.d.Drawer.Dst = buff
+	t.d.Drawer.Dot = fixed.P(int(t.X+xOff), int(t.Y+yOff))
+	t.d.DrawString(t.text)
+}
+
 func (t *Text) Draw(buff draw.Image) {
 	t.d.Drawer.Dst = buff
 	t.d.Drawer.Dot = fixed.P(int(t.X), int(t.Y))

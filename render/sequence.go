@@ -62,10 +62,14 @@ func (sq *Sequence) update() {
 	}
 }
 
+func (sq *Sequence) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	sq.update()
+	sq.rs[sq.sheetPos].DrawOffset(buff, xOff, yOff)
+}
+
 func (sq *Sequence) Draw(buff draw.Image) {
 	sq.update()
-	img := sq.GetRGBA()
-	ShinyDraw(buff, img, int(sq.X), int(sq.Y))
+	sq.rs[sq.sheetPos].Draw(buff)
 }
 
 func (sq *Sequence) GetRGBA() *image.RGBA {

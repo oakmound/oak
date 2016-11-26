@@ -93,10 +93,16 @@ func (a *Animation) updateAnimation() {
 	}
 }
 
-func (a_p *Animation) Draw(buff draw.Image) {
-	a_p.updateAnimation()
-	img := a_p.GetRGBA()
-	ShinyDraw(buff, img, int(a_p.X), int(a_p.Y))
+func (a *Animation) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	a.updateAnimation()
+	img := a.GetRGBA()
+	ShinyDraw(buff, img, int(a.X+xOff), int(a.Y+yOff))
+}
+
+func (a *Animation) Draw(buff draw.Image) {
+	a.updateAnimation()
+	img := a.GetRGBA()
+	ShinyDraw(buff, img, int(a.X), int(a.Y))
 }
 
 func (a_p *Animation) GetRGBA() *image.RGBA {

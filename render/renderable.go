@@ -28,6 +28,7 @@ type Renderable interface {
 	// (i.e Animation) would have unintended
 	// consequences.
 	Draw(buff draw.Image)
+	DrawOffset(buff draw.Image, xOff, yOff float64)
 	GetRGBA() *image.RGBA
 	// Basic Implementing struct: Point
 	ShiftX(x float64)
