@@ -15,14 +15,11 @@ import (
 )
 
 var (
-	mouseDebug event.Binding
+	viewportLocked = true
 )
 
 func DebugConsole(resetCh, skipScene chan bool) {
 	scanner := bufio.NewScanner(os.Stdin)
-
-	var viewportBinding event.Binding
-	viewportLocked := true
 
 	for {
 		select {
@@ -44,8 +41,8 @@ func DebugConsole(resetCh, skipScene chan bool) {
 				case "unlock":
 					if viewportLocked {
 						speed := parseTokenAsInt(tokenString, 2, 5)
-						viewportBinding = <-event.GlobalBindBack(moveViewportBinding(speed), "EnterFrame")
 						viewportLocked = false
+						event.GlobalBind(moveViewportBinding(speed), "EnterFrame")
 					} else {
 						fmt.Println("Viewport is already unbound")
 					}
@@ -53,7 +50,6 @@ func DebugConsole(resetCh, skipScene chan bool) {
 					if viewportLocked {
 						fmt.Println("Viewport is already locked")
 					} else {
-						viewportBinding.Unbind()
 						viewportLocked = true
 					}
 				default:
@@ -99,8 +95,7 @@ func DebugConsole(resetCh, skipScene chan bool) {
 				if len(tokenString) > 1 {
 					switch tokenString[1] {
 					case "details":
-						mouseDebug = <-event.GlobalBindBack(mouseDetails, "MouseRelease")
-
+						event.GlobalBind(mouseDetails, "MouseRelease")
 					default:
 						fmt.Println("Bad Mouse Input")
 					}

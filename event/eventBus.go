@@ -7,7 +7,6 @@ package event
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 
-	"fmt"
 	"reflect"
 	"strconv"
 	"sync"
@@ -116,7 +115,6 @@ func ResetEventBus() {
 	mutex.Lock()
 	bindablesToBind = []Bindable{}
 	optionsToBind = []BindingOption{}
-	channelsToBind = [](chan Binding){}
 
 	optionsToUnbind = []BindingOption{}
 	ubOptionsToUnbind = []UnbindOption{}
@@ -128,7 +126,6 @@ func ResetEventBus() {
 var (
 	bindablesToBind = []Bindable{}
 	optionsToBind   = []BindingOption{}
-	channelsToBind  = [](chan Binding){}
 
 	optionsToUnbind   = []BindingOption{}
 	ubOptionsToUnbind = []UnbindOption{}
@@ -143,13 +140,11 @@ func ResolvePending() {
 	if len(bindingsToUnbind) > 0 {
 		mutex.Lock()
 		pendingMutex.Lock()
-		fmt.Println("eventbus locked B")
 		for _, b := range bindingsToUnbind {
 			thisBus.getBindableList(b.BindingOption).removeBinding(b)
 		}
 		mutex.Unlock()
 
-		fmt.Println("eventbus unlocked B")
 		bindingsToUnbind = []Binding{}
 		pendingMutex.Unlock()
 	}
@@ -157,7 +152,6 @@ func ResolvePending() {
 	if len(optionsToUnbind) > 0 {
 		mutex.Lock()
 		pendingMutex.Lock()
-		fmt.Println("eventbus locked C")
 		for _, opt := range optionsToUnbind {
 
 			var namekeys []string
@@ -187,7 +181,6 @@ func ResolvePending() {
 		}
 		mutex.Unlock()
 
-		fmt.Println("eventbus unlocked C")
 		optionsToUnbind = []BindingOption{}
 		pendingMutex.Unlock()
 	}
@@ -195,15 +188,12 @@ func ResolvePending() {
 	// ubOptions need to be fully populated,
 	// unlike optionsToUnbind
 	if len(ubOptionsToUnbind) > 0 {
-		fmt.Println("eventbus locked D")
 		mutex.Lock()
 		pendingMutex.Lock()
 		for _, opt := range ubOptionsToUnbind {
 			thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
 		}
 		mutex.Unlock()
-
-		fmt.Println("eventbus unlocked D")
 
 		ubOptionsToUnbind = []UnbindOption{}
 		pendingMutex.Unlock()
@@ -213,27 +203,17 @@ func ResolvePending() {
 
 		mutex.Lock()
 		pendingMutex.Lock()
-		fmt.Println("eventbus locked A")
 		// Bindings
 		for i := 0; i < len(bindablesToBind); i++ {
-			fmt.Println(len(bindablesToBind), len(optionsToBind), len(channelsToBind))
 			fn := bindablesToBind[i]
 			opt := optionsToBind[i]
-			ch := channelsToBind[i]
 
 			list := thisBus.getBindableList(opt)
-			j := list.storeBindable(fn)
-
-			if ch != nil {
-				ch <- Binding{opt, j}
-			}
+			list.storeBindable(fn)
 		}
 		mutex.Unlock()
-		fmt.Println("eventbus unlocked A")
-
 		bindablesToBind = []Bindable{}
 		optionsToBind = []BindingOption{}
-		channelsToBind = [](chan Binding){}
 		pendingMutex.Unlock()
 	}
 }

@@ -2,7 +2,6 @@ package particle
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -71,9 +70,7 @@ func (cg *ColorGenerator) Generate(layer int) *Source {
 	}
 
 	// Bind things to that source:
-	fmt.Println("~~~~Particle source init~~~~~")
 	ps.Init()
-	fmt.Println("~~~~~Particle source init end~~~~")
 	render.Draw(&ps, layer)
 
 	return &ps

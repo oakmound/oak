@@ -2,6 +2,7 @@ package plastic
 
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 )
 
 var (
@@ -78,6 +79,9 @@ func moveViewportBinding(speed int) func(int, interface{}) int {
 		}
 		ViewX += dX * speed
 		ViewY += dY * speed
+		if viewportLocked {
+			return event.UNBIND_SINGLE
+		}
 		return 0
 	}
 }

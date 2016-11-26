@@ -62,6 +62,7 @@ type Source struct {
 	rotateBinding event.Binding
 	clearBinding  event.Binding
 	cID           event.CID
+	paused        bool
 }
 
 type Particle interface {
@@ -80,7 +81,7 @@ type BaseParticle struct {
 
 func (ps *Source) Init() event.CID {
 	cID := event.NextID(ps)
-	ps.rotateBinding = <-cID.BindBack(rotateParticles, "EnterFrame")
+	cID.Bind(rotateParticles, "EnterFrame")
 	ps.cID = cID
 	if ps.Generator.GetBaseGenerator().Duration != -1 {
 		go func(ps_p *Source, duration int) {
@@ -105,6 +106,9 @@ func (ps *Source) Draw(buff draw.Image) {
 // as a Source is active.
 func rotateParticles(id int, nothing interface{}) int {
 	ps := event.GetEntity(id).(*Source)
+	if ps.paused {
+		return 0
+	}
 	pg := ps.Generator.GetBaseGenerator()
 
 	newParticles := make([]Particle, 0)
@@ -192,6 +196,9 @@ func rotateParticles(id int, nothing interface{}) int {
 // to continue moving old particles for as long as they exist.
 func clearParticles(id int, nothing interface{}) int {
 	ps := event.GetEntity(id).(*Source)
+	if ps.paused {
+		return 0
+	}
 	pg := ps.Generator.GetBaseGenerator()
 
 	if len(ps.particles) > 0 {
@@ -261,8 +268,7 @@ func clearAtExit(id int, nothing interface{}) int {
 		switch t.(type) {
 		case *Source:
 			ps := t.(*Source)
-			ps.rotateBinding.Unbind()
-			ps.cID.Bind(clearParticles, "EnterFrame")
+			ps.cID.Bind(clearParticles, "ExitFrame")
 			return event.UNBIND_EVENT
 		}
 	}
@@ -272,7 +278,7 @@ func clearAtExit(id int, nothing interface{}) int {
 // Stop manually stops a Source, if its duration is infinite
 // or if it should be stopped before expriring naturally.
 func (ps *Source) Stop() {
-	ps.cID.Bind(clearAtExit, "ExitFrame")
+	ps.cID.Bind(clearAtExit, "EnterFrame")
 }
 
 // A particle source has no concept of an individual
@@ -307,12 +313,12 @@ func (ps *Source) SetPos(x, y float64) {
 // ages and generates particles. Existing particles will
 // stay in place.
 func (ps *Source) Pause() {
-	ps.rotateBinding.Unbind()
+	ps.paused = true
 }
 
 // Unpausing a Source rebinds it's rotate function.
 func (ps *Source) UnPause() {
-	ps.rotateBinding = <-ps.cID.BindBack(rotateParticles, "EnterFrame")
+	ps.paused = false
 }
 
 // Placeholder

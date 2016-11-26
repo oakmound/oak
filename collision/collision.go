@@ -4,10 +4,12 @@ package collision
 
 import (
 	"github.com/Sythe2o0/rtreego"
+	"sync"
 )
 
 var (
-	rt *rtreego.Rtree
+	rt      *rtreego.Rtree
+	addLock = sync.Mutex{}
 )
 
 // A CollisionPoint is a specific point where
@@ -31,7 +33,9 @@ func Clear() {
 }
 
 func Add(sp *Space) {
+	addLock.Lock()
 	rt.Insert(sp)
+	addLock.Unlock()
 }
 
 func Remove(sp *Space) {
