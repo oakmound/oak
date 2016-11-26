@@ -4,9 +4,12 @@ import (
 	// This file is being slowly converted to use gift over manual math and loops,
 	// because our math / loops will be more likely to have (and have already had)
 	// missable bugs.
+	//"github.com/anthonynsimon/bild/blend"
 	"github.com/disintegration/gift"
+
 	"image"
 	"image/color"
+	//"image/draw"
 	"math"
 )
 
@@ -96,7 +99,20 @@ func Fade(rgba *image.RGBA, alpha int) *image.RGBA {
 // Apply color mixes a color into the rgba values of an image
 // and returns that new rgba.
 func ApplyColor(rgba *image.RGBA, c color.Color) *image.RGBA {
+
+	// u := image.NewUniform(c)
+	// bounds := rgba.Bounds()
+	// img := image.NewRGBA(bounds)
+	// draw.Draw(img, bounds, u, bounds.Min, draw.Src)
+
+	// return blend.Normal(rgba, img)
 	r1, g1, b1, a1 := c.RGBA()
+	// filter := gift.New(
+	// 	gift.ColorBalance(float32(r1*(255/100)), float32(g1*(255/100)), float32(b1*(255/100))))
+	// dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
+	// filter.Draw(dst, rgba)
+	// return dst
+
 	bounds := rgba.Bounds()
 	w := bounds.Max.X
 	h := bounds.Max.Y
