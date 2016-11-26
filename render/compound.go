@@ -16,7 +16,6 @@ import (
 type Compound struct {
 	LayeredPoint
 	subRenderables map[string]Modifiable
-	offsets        map[string]Point
 	curRenderable  string
 }
 
@@ -24,7 +23,6 @@ func NewCompound(start string, m map[string]Modifiable) *Compound {
 	return &Compound{
 		subRenderables: m,
 		curRenderable:  start,
-		offsets:        make(map[string]Point),
 	}
 }
 
@@ -58,7 +56,9 @@ func (c *Compound) IsStatic() bool {
 }
 
 func (c *Compound) SetOffsets(k string, offsets Point) {
-	c.offsets[k] = offsets
+	if r, ok := c.subRenderables[k]; ok {
+		r.SetPos(offsets.X, offsets.Y)
+	}
 }
 
 func (c *Compound) Copy() Modifiable {
@@ -132,23 +132,11 @@ func (c *Compound) Fade(alpha int) Modifiable {
 }
 
 func (c *Compound) DrawOffset(buff draw.Image, xOff float64, yOff float64) {
-	curS := c.curRenderable
-	curR := c.subRenderables[curS]
-	drawX := c.X
-	drawY := c.Y
-	// Since the converstion to using DrawOffset, we
-	// shouldn't need to keep track of these offsets...
-	// we can just set the underlying renderables at their
-	// offset positions, and they'll be used at the lower level.
-	if offsets, ok := c.offsets[curS]; ok {
-		drawX += offsets.X
-		drawY += offsets.Y
-	}
-	curR.DrawOffset(buff, drawX+xOff, drawY+yOff)
+	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X+xOff, c.Y+yOff)
 }
 
 func (c *Compound) Draw(buff draw.Image) {
-	c.DrawOffset(buff, 0, 0)
+	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X, c.Y)
 }
 
 func (c *Compound) ShiftPos(x, y float64) {
