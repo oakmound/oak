@@ -4,7 +4,6 @@ import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
 	"container/heap"
-	//"fmt"
 	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"

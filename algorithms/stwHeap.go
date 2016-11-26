@@ -25,7 +25,7 @@ func NewSTWHeap(f []float64) *STWHeap {
 
 func (stwh *STWHeap) Pop() int {
 	if stwh.weightsBelow[1] <= 0.0 {
-		dlog.Error("Pop on stwHeap with no remaining elements")
+		dlog.Warn("Pop on stwHeap with no remaining elements")
 		return -1
 	}
 	w := stwh.weightsBelow[1] * rand.Float64()

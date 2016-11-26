@@ -56,16 +56,24 @@ func (sq *Sequence) update() {
 	if sq.playing && time.Since(sq.lastChange).Nanoseconds() > sq.frameTime {
 		sq.lastChange = time.Now()
 		sq.sheetPos = (sq.sheetPos + 1) % len(sq.rs)
-		if sq.sheetPos == 0 && sq.cID != 0 {
+		if sq.sheetPos == (len(sq.rs)-1) && sq.cID != 0 {
 			sq.cID.Trigger("AnimationEnd", nil)
 		}
 	}
 }
 
+func (sq *Sequence) Get(i int) Modifiable {
+	return sq.rs[i]
+}
+
+func (sq *Sequence) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	sq.update()
+	sq.rs[sq.sheetPos].DrawOffset(buff, sq.X+xOff, sq.Y+yOff)
+}
+
 func (sq *Sequence) Draw(buff draw.Image) {
 	sq.update()
-	img := sq.GetRGBA()
-	ShinyDraw(buff, img, int(sq.X), int(sq.Y))
+	sq.rs[sq.sheetPos].DrawOffset(buff, sq.X, sq.Y)
 }
 
 func (sq *Sequence) GetRGBA() *image.RGBA {

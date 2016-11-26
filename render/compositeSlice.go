@@ -11,25 +11,23 @@ import (
 // and respect the positions and layers of their
 // parts.
 type Composite struct {
-	rs      []Modifiable
-	offsets []Point
+	LayeredPoint
+	rs []Modifiable
 }
 
 func NewComposite(sl []Modifiable) *Composite {
 	cs := new(Composite)
 	cs.rs = sl
-	cs.offsets = make([]Point, len(sl))
 	return cs
 }
 
 func (cs *Composite) AppendOffset(r Modifiable, p Point) {
+	r.SetPos(p.X, p.Y)
 	cs.rs = append(cs.rs, r)
-	cs.offsets = append(cs.offsets, p)
 }
 
 func (cs *Composite) Append(r Modifiable) {
 	cs.rs = append(cs.rs, r)
-	cs.offsets = append(cs.offsets, Point{})
 }
 
 func (cs *Composite) Add(i int, r Modifiable) {
@@ -37,12 +35,16 @@ func (cs *Composite) Add(i int, r Modifiable) {
 }
 
 func (cs *Composite) AddOffset(i int, p Point) {
-	cs.offsets[i] = p
+	if i < len(cs.rs) {
+		cs.rs[i].SetPos(p.X, p.Y)
+	}
 }
 
 func (cs *Composite) SetOffsets(ps []Point) {
 	for i, p := range ps {
-		cs.offsets[i] = p
+		if i < len(cs.rs) {
+			cs.rs[i].SetPos(p.X, p.Y)
+		}
 	}
 }
 
@@ -50,70 +52,21 @@ func (cs *Composite) Get(i int) Modifiable {
 	return cs.rs[i]
 }
 
+func (cs *Composite) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	for _, c := range cs.rs {
+		c.DrawOffset(buff, cs.X+xOff, cs.Y+yOff)
+	}
+}
 func (cs *Composite) Draw(buff draw.Image) {
-	for i, c := range cs.rs {
-		switch t := c.(type) {
-		case *Composite:
-			t.Draw(buff)
-			continue
-		case *Reverting:
-			t.updateAnimation()
-		case *Animation:
-			t.updateAnimation()
-		case *Sequence:
-			t.update()
-		}
-		img := c.GetRGBA()
-		drawX := int(c.GetX()) + int(cs.offsets[i].X)
-		drawY := int(c.GetY()) + int(cs.offsets[i].Y)
-		//if c.AlwaysDirty() || IsDirty(drawX, drawY) {
-		ShinyDraw(buff, img, drawX, drawY)
-		//}
+	for _, c := range cs.rs {
+		c.DrawOffset(buff, cs.X, cs.Y)
 	}
 }
 func (cs *Composite) GetRGBA() *image.RGBA {
 	return nil
 }
-func (cs *Composite) ShiftX(x float64) {
-	for _, v := range cs.rs {
-		v.ShiftX(x)
-	}
-}
-func (cs *Composite) ShiftY(y float64) {
-	for _, v := range cs.rs {
-		v.ShiftY(y)
-	}
-}
 func (cs *Composite) AlwaysDirty() bool {
 	return true
-}
-func (cs *Composite) GetX() float64 {
-	return 0.0
-}
-func (cs *Composite) GetY() float64 {
-	return 0.0
-}
-
-// This should be changed so that compositeSlice (and map)
-// has a persistent concept of what it's smallest
-// x and y are.
-func (cs *Composite) SetPos(x, y float64) {
-	for _, v := range cs.rs {
-		v.SetPos(x, y)
-	}
-}
-func (cs *Composite) GetLayer() int {
-	return 0
-}
-func (cs *Composite) SetLayer(l int) {
-	for _, v := range cs.rs {
-		v.SetLayer(l)
-	}
-}
-func (cs *Composite) UnDraw() {
-	for _, v := range cs.rs {
-		v.UnDraw()
-	}
 }
 
 func (cs *Composite) FlipX() Modifiable {
@@ -136,11 +89,12 @@ func (cs *Composite) ApplyColor(c color.Color) Modifiable {
 }
 func (cs *Composite) Copy() Modifiable {
 	cs2 := new(Composite)
+	cs2.layer = cs.layer
+	cs2.X = cs.X
+	cs2.Y = cs.Y
 	cs2.rs = make([]Modifiable, len(cs.rs))
-	cs2.offsets = make([]Point, len(cs.rs))
 	for i, v := range cs.rs {
 		cs2.rs[i] = v.Copy()
-		cs2.offsets[i] = cs.offsets[i]
 	}
 	return cs2
 }
@@ -180,43 +134,45 @@ func (cs *Composite) String() string {
 	for _, v := range cs.rs {
 		s += v.String() + "\n"
 	}
+	s += "}"
 	return s
 }
 
 type CompositeR struct {
-	rs      []Renderable
-	offsets []Point
-	unDraw  bool
+	LayeredPoint
+	rs []Renderable
 }
 
 func NewCompositeR(sl []Renderable) *CompositeR {
 	cs := new(CompositeR)
 	cs.rs = sl
-	cs.offsets = make([]Point, len(sl))
 	return cs
 }
 
-func (cs *CompositeR) AppendOffset(r Renderable, p Point) {
+func (cs *CompositeR) AppendOffset(r Modifiable, p Point) {
+	r.SetPos(p.X, p.Y)
 	cs.rs = append(cs.rs, r)
-	cs.offsets = append(cs.offsets, p)
 }
 
-func (cs *CompositeR) Append(r Renderable) {
+func (cs *CompositeR) Append(r Modifiable) {
 	cs.rs = append(cs.rs, r)
-	cs.offsets = append(cs.offsets, Point{})
 }
 
-func (cs *CompositeR) Add(i int, r Renderable) {
+func (cs *CompositeR) Add(i int, r Modifiable) {
 	cs.rs[i] = r
 }
 
 func (cs *CompositeR) AddOffset(i int, p Point) {
-	cs.offsets[i] = p
+	if i < len(cs.rs) {
+		cs.rs[i].SetPos(p.X, p.Y)
+	}
 }
 
 func (cs *CompositeR) SetOffsets(ps []Point) {
 	for i, p := range ps {
-		cs.offsets[i] = p
+		if i < len(cs.rs) {
+			cs.rs[i].SetPos(p.X, p.Y)
+		}
 	}
 }
 
@@ -224,69 +180,22 @@ func (cs *CompositeR) Get(i int) Renderable {
 	return cs.rs[i]
 }
 
+func (cs *CompositeR) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	for _, c := range cs.rs {
+		c.DrawOffset(buff, cs.X+xOff, cs.Y+yOff)
+	}
+}
 func (cs *CompositeR) Draw(buff draw.Image) {
-	for i, c := range cs.rs {
-		switch t := c.(type) {
-		case *CompositeR:
-			t.Draw(buff)
-			continue
-		case *Text:
-			t.Draw(buff)
-			continue
-		}
-		img := c.GetRGBA()
-		drawX := int(c.GetX()) + int(cs.offsets[i].X)
-		drawY := int(c.GetY()) + int(cs.offsets[i].Y)
-		ShinyDraw(buff, img, drawX, drawY)
+	for _, c := range cs.rs {
+		c.DrawOffset(buff, cs.X, cs.Y)
 	}
 }
 func (cs *CompositeR) GetRGBA() *image.RGBA {
 	return nil
 }
-func (cs *CompositeR) ShiftX(x float64) {
-	for _, v := range cs.rs {
-		v.ShiftX(x)
-	}
-}
-func (cs *CompositeR) ShiftY(y float64) {
-	for _, v := range cs.rs {
-		v.ShiftY(y)
-	}
-}
+
 func (cs *CompositeR) AlwaysDirty() bool {
 	return true
-}
-func (cs *CompositeR) GetX() float64 {
-	return 0.0
-}
-func (cs *CompositeR) GetY() float64 {
-	return 0.0
-}
-
-// This should be changed so that compositeSlice (and map)
-// has a persistent concept of what it's smallest
-// x and y are.
-func (cs *CompositeR) SetPos(x, y float64) {
-	for _, v := range cs.rs {
-		v.SetPos(x, y)
-	}
-}
-func (cs *CompositeR) GetLayer() int {
-	if cs.unDraw {
-		return -1
-	}
-	return 0
-}
-func (cs *CompositeR) SetLayer(l int) {
-	for _, v := range cs.rs {
-		v.SetLayer(l)
-	}
-}
-func (cs *CompositeR) UnDraw() {
-	for _, v := range cs.rs {
-		v.UnDraw()
-	}
-	cs.unDraw = true
 }
 
 func (cs *CompositeR) String() string {
@@ -294,5 +203,6 @@ func (cs *CompositeR) String() string {
 	for _, v := range cs.rs {
 		s += v.String() + "\n"
 	}
+	s += "}"
 	return s
 }

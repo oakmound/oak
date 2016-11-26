@@ -93,6 +93,9 @@ func (rv *Reverting) Revert(mod int) {
 	}
 }
 
+func (rv *Reverting) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	rv.current.DrawOffset(buff, xOff, yOff)
+}
 func (rv *Reverting) Draw(buff draw.Image) {
 	rv.current.Draw(buff)
 }

@@ -74,6 +74,10 @@ type GradientParticle struct {
 }
 
 func (gp *GradientParticle) Draw(generator Generator, buff draw.Image) {
+	gp.DrawOffset(generator, buff, 0, 0)
+}
+
+func (gp *GradientParticle) DrawOffset(generator Generator, buff draw.Image, xOff, yOff float64) {
 
 	gen := generator.(*GradientGenerator)
 
@@ -116,7 +120,7 @@ func (gp *GradientParticle) Draw(generator Generator, buff draw.Image) {
 
 	halfSize := float64(gp.size / 2)
 
-	render.ShinyDraw(buff, img, int(gp.x-halfSize), int(gp.y-halfSize))
+	render.ShinyDraw(buff, img, int((xOff+gp.x)-halfSize), int((yOff+gp.y)-halfSize))
 }
 
 func (gp *GradientParticle) GetBaseParticle() *BaseParticle {

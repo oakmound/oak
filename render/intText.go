@@ -30,6 +30,12 @@ func (t *IntText) GetRGBA() *image.RGBA {
 	return nil
 }
 
+func (t *IntText) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	t.d.Drawer.Dst = buff
+	t.d.Drawer.Dot = fixed.P(int(t.X+xOff), int(t.Y+yOff))
+	t.d.DrawString(strconv.Itoa(*t.text))
+}
+
 func (t *IntText) Draw(buff draw.Image) {
 	// We need to benchmark if this buff replacement is slow
 	t.d.Drawer.Dst = buff

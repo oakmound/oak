@@ -16,7 +16,6 @@ import (
 type Compound struct {
 	LayeredPoint
 	subRenderables map[string]Modifiable
-	offsets        map[string]Point
 	curRenderable  string
 }
 
@@ -24,7 +23,6 @@ func NewCompound(start string, m map[string]Modifiable) *Compound {
 	return &Compound{
 		subRenderables: m,
 		curRenderable:  start,
-		offsets:        make(map[string]Point),
 	}
 }
 
@@ -58,7 +56,9 @@ func (c *Compound) IsStatic() bool {
 }
 
 func (c *Compound) SetOffsets(k string, offsets Point) {
-	c.offsets[k] = offsets
+	if r, ok := c.subRenderables[k]; ok {
+		r.SetPos(offsets.X, offsets.Y)
+	}
 }
 
 func (c *Compound) Copy() Modifiable {
@@ -131,35 +131,27 @@ func (c *Compound) Fade(alpha int) Modifiable {
 	return c
 }
 
+func (c *Compound) DrawOffset(buff draw.Image, xOff float64, yOff float64) {
+	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X+xOff, c.Y+yOff)
+}
+
 func (c *Compound) Draw(buff draw.Image) {
-	switch t := c.subRenderables[c.curRenderable].(type) {
-	case *Composite:
-		t.Draw(buff)
-		return
-	case *Reverting:
-		t.updateAnimation()
-	case *Animation:
-		t.updateAnimation()
-	case *Sequence:
-		t.update()
-	}
-	img := c.GetRGBA()
-	drawX := int(c.X)
-	drawY := int(c.Y)
-	if offsets, ok := c.offsets[c.curRenderable]; ok {
-		drawX += int(offsets.X)
-		drawY += int(offsets.Y)
-	}
-	ShinyDraw(buff, img, drawX, drawY)
+	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X, c.Y)
+}
+
+func (c *Compound) ShiftPos(x, y float64) {
+	c.SetPos(c.X+x, c.Y+y)
+}
+
+func (c *Compound) ShiftY(y float64) {
+	c.SetPos(c.X, c.Y+y)
+}
+
+func (c *Compound) ShiftX(x float64) {
+	c.SetPos(c.X+x, c.Y)
 }
 
 func (c *Compound) SetPos(x, y float64) {
-	for _, v := range c.subRenderables {
-		switch t := v.(type) {
-		case *Composite:
-			t.SetPos(x, y)
-		}
-	}
 	c.LayeredPoint.SetPos(x, y)
 }
 

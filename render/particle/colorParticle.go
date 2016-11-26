@@ -89,7 +89,9 @@ type ColorParticle struct {
 }
 
 func (cp *ColorParticle) Draw(generator Generator, buff draw.Image) {
-
+	cp.DrawOffset(generator, buff, 0, 0)
+}
+func (cp *ColorParticle) DrawOffset(generator Generator, buff draw.Image, xOff, yOff float64) {
 	gen := generator.(*ColorGenerator)
 
 	r, g, b, a := cp.startColor.RGBA()
@@ -114,7 +116,7 @@ func (cp *ColorParticle) Draw(generator Generator, buff draw.Image) {
 
 	halfSize := float64(cp.size / 2)
 
-	render.ShinyDraw(buff, img, int(cp.x-halfSize), int(cp.y-halfSize))
+	render.ShinyDraw(buff, img, int((xOff+cp.x)-halfSize), int((yOff+cp.y)-halfSize))
 }
 
 func (cp *ColorParticle) GetBaseParticle() *BaseParticle {
