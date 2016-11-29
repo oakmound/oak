@@ -7,6 +7,7 @@ package event
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
 
+	// "fmt"
 	"reflect"
 	"strconv"
 	"sync"
@@ -120,6 +121,10 @@ func ResetEventBus() {
 	ubOptionsToUnbind = []UnbindOption{}
 	bindingsToUnbind = []Binding{}
 
+	orderedUnbinds = []BindingOption{}
+	orderedBindOptions = []BindingOption{}
+	orderedBindables = []Bindable{}
+
 	mutex.Unlock()
 }
 
@@ -131,27 +136,87 @@ var (
 	ubOptionsToUnbind = []UnbindOption{}
 	bindingsToUnbind  = []Binding{}
 
+	orderedUnbinds = []BindingOption{}
+	orderedBindOptions = []BindingOption{}
+	orderedBindables = []Bindable{}
+
 	pendingMutex = sync.Mutex{}
 )
 
 func ResolvePending() {
 
-	// Unbinds
-	if len(bindingsToUnbind) > 0 {
+	if len(orderedUnbinds) > 0 {
+		// fmt.Println("eventbus trying to lock E")
 		mutex.Lock()
 		pendingMutex.Lock()
+		// fmt.Println("eventbus locked E")
+		for _, opt := range orderedUnbinds {
+			var namekeys []string
+			// If we were given a name,
+			// we'll just iterate with that name.
+			if opt.Name != "" {
+				namekeys = append(namekeys, opt.Name)
+
+				// Otherwise, iterate through all events.
+			} else {
+				for k := range thisBus.bindingMap {
+					namekeys = append(namekeys, k)
+				}
+			}
+
+			if opt.CallerID != 0 {
+				for _, k := range namekeys {
+					delete(thisBus.bindingMap[k], opt.CallerID)
+				}
+			} else {
+				for _, k := range namekeys {
+					delete(thisBus.bindingMap, k)
+				}
+			}
+			dlog.Verb(thisBus.bindingMap)
+		}
+
+		// Bindings
+		for i := 0; i < len(orderedBindables); i++ {
+			// fmt.Println(len(orderedBindables), len(orderedBindOptions))
+			fn := orderedBindables[i]
+			opt := orderedBindOptions[i]
+			list := thisBus.getBindableList(opt)
+			list.storeBindable(fn)
+		}
+
+		mutex.Unlock()
+
+		// fmt.Println("eventbus unlocked E")
+		orderedUnbinds = []BindingOption{}
+		orderedBindables = []Bindable{}
+		orderedBindOptions = []BindingOption{}
+		pendingMutex.Unlock()
+	}
+
+
+
+	// Unbinds
+	if len(bindingsToUnbind) > 0 {
+		// fmt.Println("eventbus trying to lock B")
+		mutex.Lock()
+		pendingMutex.Lock()
+		// fmt.Println("eventbus locked B")
 		for _, b := range bindingsToUnbind {
 			thisBus.getBindableList(b.BindingOption).removeBinding(b)
 		}
 		mutex.Unlock()
 
+		// fmt.Println("eventbus unlocked B")
 		bindingsToUnbind = []Binding{}
 		pendingMutex.Unlock()
 	}
 
 	if len(optionsToUnbind) > 0 {
+		// fmt.Println("eventbus trying to lock C")
 		mutex.Lock()
 		pendingMutex.Lock()
+		// fmt.Println("eventbus locked C")
 		for _, opt := range optionsToUnbind {
 
 			var namekeys []string
@@ -181,6 +246,7 @@ func ResolvePending() {
 		}
 		mutex.Unlock()
 
+		// fmt.Println("eventbus unlocked C")
 		optionsToUnbind = []BindingOption{}
 		pendingMutex.Unlock()
 	}
@@ -188,30 +254,38 @@ func ResolvePending() {
 	// ubOptions need to be fully populated,
 	// unlike optionsToUnbind
 	if len(ubOptionsToUnbind) > 0 {
+		// fmt.Println("eventbus trying to lock D")
 		mutex.Lock()
 		pendingMutex.Lock()
+		// fmt.Println("eventbus locked D")
+		
 		for _, opt := range ubOptionsToUnbind {
 			thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
 		}
 		mutex.Unlock()
+
+		// fmt.Println("eventbus unlocked D")
 
 		ubOptionsToUnbind = []UnbindOption{}
 		pendingMutex.Unlock()
 	}
 
 	if len(bindablesToBind) > 0 {
-
+		// fmt.Println("eventbus trying to lock A")
 		mutex.Lock()
 		pendingMutex.Lock()
+		// fmt.Println("eventbus locked A")
 		// Bindings
 		for i := 0; i < len(bindablesToBind); i++ {
+			// fmt.Println(len(bindablesToBind), len(optionsToBind))
 			fn := bindablesToBind[i]
 			opt := optionsToBind[i]
-
 			list := thisBus.getBindableList(opt)
 			list.storeBindable(fn)
 		}
 		mutex.Unlock()
+		// fmt.Println("eventbus unlocked A")
+
 		bindablesToBind = []Bindable{}
 		optionsToBind = []BindingOption{}
 		pendingMutex.Unlock()
@@ -319,3 +393,5 @@ func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 		return store.lowPriority[(opt.Priority*-1)-1]
 	}
 }
+
+
