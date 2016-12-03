@@ -38,7 +38,7 @@ func NOPlog(override bool, in ...interface{}) {}
 
 // The primary function of the package,
 // dLog prints out and writes to file a string
-// containing the logged data seperated by spaces,
+// containing the logged data separated by spaces,
 // prepended with file and line information.
 // It only includes logs which pass the current filters.
 func dLog(override bool, in ...interface{}) {
