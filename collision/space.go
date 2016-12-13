@@ -71,7 +71,7 @@ func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
 	if s.GetX() > other.GetX() {
 		x2 := other.GetX() + other.GetW()
 		if s.GetX() < x2 {
-			xOver = x2 - s.GetX()
+			xOver = s.GetX() - x2
 		}
 	} else {
 		x2 := s.GetX() + s.GetW()
@@ -82,7 +82,7 @@ func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
 	if s.GetY() > other.GetY() {
 		y2 := other.GetY() + other.GetH()
 		if s.GetY() < y2 {
-			yOver = y2 - s.GetY()
+			yOver = s.GetY() - y2
 		}
 	} else {
 		y2 := s.GetY() + s.GetW()

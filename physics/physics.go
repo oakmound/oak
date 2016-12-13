@@ -8,6 +8,14 @@ type Vector struct {
 	X, Y float64
 }
 
+func NewVector(x, y float64) *Vector {
+	return &Vector{x, y}
+}
+
+func (v *Vector) Copy() *Vector {
+	return NewVector(v.X, v.Y)
+}
+
 func (v *Vector) Magnitude() float64 {
 	return math.Sqrt((v.X * v.X) + (v.Y * v.Y))
 }
