@@ -29,7 +29,7 @@ func (vm *VectorMoving) ApplyFriction(outsideFriction float64) {
 		frictionScaler = 0
 	}
 	vm.Delta.Scale(frictionScaler)
-	if vm.Delta.Magnitude() < .000001 {
+	if vm.Delta.Magnitude() < .01 {
 		vm.Delta.Zero()
 	}
 }
