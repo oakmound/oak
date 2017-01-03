@@ -3,8 +3,24 @@ package entities
 import (
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
 	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/physics"
 	"strconv"
 )
+
+type InteractVector struct {
+	Reactive
+	vMoving
+}
+
+func (iv *InteractVector) Init() event.CID {
+	cID := event.NextID(iv)
+	iv.CID = cID
+	return cID
+}
+
+func (iv *InteractVector) ShiftVector(v *physics.Vector) {
+	iv.Reactive.ShiftPos(v.X, v.Y)
+}
 
 type Interactive struct {
 	Reactive
@@ -62,7 +78,11 @@ func (r *Reactive) Init() event.CID {
 	return cID
 }
 
-func (r *Reactive) SetPos(x float64, y float64) {
+func (r *Reactive) ShiftPos(x, y float64) {
+	r.SetPos(r.X+x, r.Y+y)
+}
+
+func (r *Reactive) SetPos(x, y float64) {
 	r.SetLogicPos(x, y)
 	r.R.SetPos(x, y)
 
