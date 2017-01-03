@@ -21,6 +21,7 @@ func (v *Vector) Magnitude() float64 {
 }
 
 func (v *Vector) Normalize() *Vector {
+	v = v.round()
 	mgn := v.Magnitude()
 	if mgn == 0 {
 		return v
@@ -41,7 +42,7 @@ func (v *Vector) Add(vs ...*Vector) *Vector {
 		v.X += v2.X
 		v.Y += v2.Y
 	}
-	return v
+	return v.round()
 }
 
 func (v *Vector) Scale(fs ...float64) *Vector {
@@ -51,11 +52,22 @@ func (v *Vector) Scale(fs ...float64) *Vector {
 	}
 	v.X *= f2
 	v.Y *= f2
-	return v
+	return v.round()
 }
 
 func (v *Vector) Dot(v2 *Vector) float64 {
 	x := v.X * v2.X
 	y := v.Y * v2.Y
 	return x + y
+}
+
+func (v *Vector) round() *Vector {
+	CUTOFF := 0.001
+	if math.Abs(v.X) < CUTOFF {
+		v.X = 0
+	}
+	if math.Abs(v.Y) < CUTOFF {
+		v.Y = 0
+	}
+	return v
 }
