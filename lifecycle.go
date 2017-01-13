@@ -2,12 +2,6 @@
 package plastic
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/audio"
-	"bitbucket.org/oakmoundstudio/oak/collision"
-	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/event"
-	pmouse "bitbucket.org/oakmoundstudio/oak/mouse"
-	"bitbucket.org/oakmoundstudio/oak/render"
 	"fmt"
 	"image"
 	"image/color"
@@ -17,6 +11,13 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"bitbucket.org/oakmoundstudio/oak/audio"
+	"bitbucket.org/oakmoundstudio/oak/collision"
+	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"bitbucket.org/oakmoundstudio/oak/event"
+	pmouse "bitbucket.org/oakmoundstudio/oak/mouse"
+	"bitbucket.org/oakmoundstudio/oak/render"
 
 	"golang.org/x/exp/shiny/driver"
 	"golang.org/x/exp/shiny/screen"
@@ -79,10 +80,10 @@ func Init(firstScene string) {
 	ScreenWidth = conf.Screen.Width
 	ScreenHeight = conf.Screen.Height
 
-	imageDir = filepath.Join(filepath.Dir(wd),
+	imageDir = filepath.Join(wd,
 		conf.Assets.AssetPath,
 		conf.Assets.ImagePath)
-	audioDir = filepath.Join(filepath.Dir(wd),
+	audioDir = filepath.Join(wd,
 		conf.Assets.AssetPath,
 		conf.Assets.AudioPath)
 

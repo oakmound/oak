@@ -1,12 +1,13 @@
 package render
 
 import (
-	"github.com/golang/freetype/truetype"
-	"golang.org/x/image/font"
 	"image"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+
+	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/font"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
@@ -93,7 +94,8 @@ func (f *Font) Reset() {
 }
 
 func SetFontDefaults(wd, assetPath, fontPath, hinting, color, file string, size, dpi float64) {
-	fontdir = filepath.Join(filepath.Dir(wd),
+	fontdir = filepath.Join(
+		wd,
 		assetPath,
 		fontPath)
 	defaultHinting = parseFontHinting(hinting)

@@ -1,15 +1,16 @@
 package plastic
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
 const (
-	plasticPath = "src/bitbucket.org/oakmoundstudio/plasticpiston/plastic"
+	plasticPath = "src/bitbucket.org/oakmoundstudio/oak"
 )
 
 var (

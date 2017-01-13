@@ -1,7 +1,6 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"encoding/json"
 	"errors"
 	"image"
@@ -14,6 +13,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
 var (
@@ -22,11 +23,11 @@ var (
 )
 
 var (
-	// Form ...main/core.go/../assets/images,
+	// Form ...main/core.go/assets/images,
 	// the image directory.
 	wd, _ = os.Getwd()
 	dir   = filepath.Join(
-		filepath.Dir(wd),
+		wd,
 		"assets",
 		"images")
 	loadedImages = make(map[string]*image.RGBA)
