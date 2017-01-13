@@ -4,22 +4,15 @@ package oak
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"image/draw"
-	"math/rand"
-	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
-	"bitbucket.org/oakmoundstudio/oak/audio"
-	"bitbucket.org/oakmoundstudio/oak/collision"
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/event"
 	pmouse "bitbucket.org/oakmoundstudio/oak/mouse"
 	"bitbucket.org/oakmoundstudio/oak/render"
 
-	"golang.org/x/exp/shiny/driver"
 	"golang.org/x/exp/shiny/screen"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
@@ -28,177 +21,14 @@ import (
 	"golang.org/x/mobile/event/size"
 )
 
-var (
-	initCh               = make(chan bool)
-	sceneCh              = make(chan bool)
-	skipSceneCh          = make(chan bool)
-	quitCh               = make(chan bool)
-	drawChannel          = make(chan bool)
-	debugResetCh         = make(chan bool)
-	viewportChannel      = make(chan [2]int)
-	drawInit             = false
-	runEventLoop         = false
-	ScreenWidth          int
-	ScreenHeight         int
-	press                = key.DirPress
-	release              = key.DirRelease
-	black                = color.RGBA{0x00, 0x00, 0x00, 0xff}
-	b                    screen.Buffer
-	winBuffer            screen.Buffer
-	eb                   *event.EventBus
-	esc                  = false
-	l_debug              = false
-	wd, _                = os.Getwd()
-	imageDir             string
-	audioDir             string
-	debugResetInProgress = false
-	globalFirstScene     string
-	startupLoadComplete  bool
-	imageBlack           = image.Black
-	zeroPoint            = image.Point{0, 0}
-	sscreen              screen.Screen
-	//
-	scene string
-)
-
-// Init initializes the oak engine.
-// It spawns off an event loop of several goroutines
-// and loops through scenes after initalization.
-func Init(firstScene string) {
-	dlog.CreateLogFile()
-
-	err := loadDefaultConf()
-
-	// Set variables from conf file
-	dlog.SetStringDebugLevel(conf.Debug.Level)
-	dlog.SetDebugFilter(conf.Debug.Filter)
-
-	if err != nil {
-		dlog.Verb(err)
-	}
-
-	ScreenWidth = conf.Screen.Width
-	ScreenHeight = conf.Screen.Height
-
-	imageDir = filepath.Join(wd,
-		conf.Assets.AssetPath,
-		conf.Assets.ImagePath)
-	audioDir = filepath.Join(wd,
-		conf.Assets.AssetPath,
-		conf.Assets.AudioPath)
-
-	render.SetFontDefaults(wd, conf.Assets.AssetPath, conf.Assets.FontPath,
-		conf.Font.Hinting, conf.Font.Color, conf.Font.File, conf.Font.Size,
-		conf.Font.DPI)
-	// END of loading variables from configuration
-
-	// Init various engine pieces
-	collision.Init()
-	pmouse.Init()
-	render.InitDrawHeap()
-	audio.InitWinAudio()
-
-	// Seed the rng
-	curSeed := time.Now().UTC().UnixNano()
-	//curSeed = 1471104995917281000
-	rand.Seed(curSeed)
-	dlog.Info("The seed is:", curSeed)
-	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
-
-	// Load in assets
-	go func() {
-		err = render.BatchLoad(imageDir)
-		if err != nil {
-			dlog.Error(err)
-			return
-		}
-
-		err = audio.BatchLoad(audioDir)
-		if err != nil {
-			dlog.Error(err)
-		}
-
-		startupLoadComplete = true
-	}()
-
-	// Spawn off event loop goroutines
-	go driver.Main(eventLoop)
-
-	go DebugConsole(debugResetCh, skipSceneCh)
-
-	prevScene := ""
-	sceneMap[firstScene].active = true
-
-	<-initCh
-	close(initCh)
-
-	// Loop through scenes
-	runEventLoop = true
-	globalFirstScene = firstScene
-	scene = "loading"
-	var data interface{} = nil
-	dlog.Info("First Scene Start")
-	for {
-		ViewX = 0
-		ViewY = 0
-		useViewBounds = false
-		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
-		sceneMap[scene].start(prevScene, data)
-		// Send a signal to resume (or begin) drawing
-		drawChannel <- true
-
-		cont := true
-		for cont {
-			select {
-			// The quit channel represents a signal
-			// for the engine to stop.
-			case <-quitCh:
-				return
-			case <-sceneCh:
-				cont = sceneMap[scene].loop()
-			case <-skipSceneCh:
-				cont = false
-			}
-		}
-		dlog.Info("~~~~~~~~Scene End~~~~~~~~~~")
-		prevScene = scene
-
-		// Send a signal to stop drawing
-		drawChannel <- true
-
-		// Reset transient portions of the engine
-		event.ResetEntities()
-		event.ResetEventBus()
-		render.ResetDrawHeap()
-		collision.Clear()
-		pmouse.Clear()
-		render.PreDraw()
-
-		scene, data = sceneMap[scene].end()
-
-		eb = event.GetEventBus()
-		if !debugResetInProgress {
-			debugResetInProgress = true
-			go func() {
-				debugResetCh <- true
-				debugResetInProgress = false
-			}()
-		}
-	}
-}
-
-func CurrentScene() string {
-	return scene
-}
-
-func eventLoop(s screen.Screen) {
+func lifecycleLoop(s screen.Screen) {
 
 	// The event loop requires information about
 	// the size of the world and screen that is
 	// being dealt with, and so initializes it here.
 	//
 	// Todo: add world size to config
-	b, _ = s.NewBuffer(image.Point{4000, 4000})
+	worldBuffer, _ = s.NewBuffer(image.Point{4000, 4000})
 
 	winBuffer, _ = s.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
 	w, err := s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight})
@@ -245,12 +75,12 @@ func eventLoop(s screen.Screen) {
 			// the former events, but not for the latter.
 			case key.Event:
 				k := GetKeyBind(e.Code.String()[4:])
-				if e.Direction == press {
+				if e.Direction == key.DirPress {
 					fmt.Println("--------------------", e.Code.String()[4:], k)
 					setDown(k)
 					eb.Trigger("KeyDown", k)
 					eb.Trigger("KeyDown"+k, nil)
-				} else if e.Direction == release {
+				} else if e.Direction == key.DirRelease {
 					setUp(k)
 					eb.Trigger("KeyUp", k)
 					eb.Trigger("KeyUp"+k, nil)
@@ -355,28 +185,11 @@ func eventLoop(s screen.Screen) {
 
 				eb = event.GetEventBus()
 
-				// for x := 0; x < render.DirtyZonesX; x++ {
-				// 	for y := 0; y < render.DirtyZonesY; y++ {
-				// 		if render.IsDirty(x*render.DirtyWidth, y*render.DirtyHeight) {
-				// 			draw.Draw(b.RGBA(), render.DirtyBounds, imageBlack, image.Point{64 * x, 64 * y}, screen.Src)
-				// 		}
-				// 	}
-				// }
-				// go func() {
-				// 	draw.Draw(b2.RGBA(), b2.Bounds(), imageBlack, zeroPoint, screen.Src)
-				// 	b2Cleaned <- true
-				// 	fmt.Println("Buffer two clean")
-				// }()
-
-				draw.Draw(b.RGBA(), b.Bounds(), imageBlack, zeroPoint, screen.Src)
-
-				//fmt.Println("Waiting on buffer one clean")
-				//<-b1Cleaned
-				//fmt.Println("Drawing buffer one")
+				draw.Draw(worldBuffer.RGBA(), worldBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
 
 				render.PreDraw()
-				render.DrawHeap(b, ViewX, ViewY, ScreenWidth, ScreenHeight)
-				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
+				render.DrawHeap(worldBuffer, ViewX, ViewY, ScreenWidth, ScreenHeight)
+				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
 				render.DrawStaticHeap(winBuffer)
 
 				w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
@@ -384,25 +197,6 @@ func eventLoop(s screen.Screen) {
 
 				timeSince := 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
 				text.SetText(strconv.Itoa(int(timeSince)))
-
-				// go func() {
-				// 	draw.Draw(b.RGBA(), b.Bounds(), imageBlack, zeroPoint, screen.Src)
-				// 	fmt.Println("Buffer one clean")
-				// 	b1Cleaned <- true
-				// }()
-
-				// fmt.Println("Waiting on buffer two cleaning")
-				// <-b2Cleaned
-				// fmt.Println("Drawing Buffer two")
-
-				// eb.Trigger("PreDraw", nil)
-				// render.DrawHeap(b2, ViewX, ViewY, ScreenWidth, ScreenHeight)
-				// draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), b2.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
-				// render.DrawStaticHeap(winBuffer)
-				// eb.Trigger("PostDraw", b2)
-
-				// w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
-				// w.Publish()
 
 				timeSince = 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
 				text.SetText(strconv.Itoa(int(timeSince)))
@@ -415,8 +209,8 @@ func eventLoop(s screen.Screen) {
 	// The logical loop.
 	// In order, it waits on receiving a signal to begin a logical frame.
 	// It then runs any functions bound to when a frame begins.
-	// It then allows a scene to perform it's loop operation.
 	// It then runs any functions bound to when a frame ends.
+	// It then allows a scene to perform it's loop operation.
 	go func() {
 		for runEventLoop {
 			event.ResolvePending()
@@ -432,10 +226,18 @@ func eventLoop(s screen.Screen) {
 	}
 }
 
+func CurrentScene() string {
+	return scene
+}
+
 func GetScreen() draw.Image {
-	return b.RGBA()
+	return winBuffer.RGBA()
+}
+
+func GetWorld() draw.Image {
+	return worldBuffer.RGBA()
 }
 
 func SetWorldSize(x, y int) {
-	b, _ = sscreen.NewBuffer(image.Point{x, y})
+	worldBuffer, _ = sscreen.NewBuffer(image.Point{x, y})
 }
