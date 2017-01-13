@@ -1,4 +1,4 @@
-package plastic
+package oak
 
 import (
 	"encoding/json"
@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	plasticPath = "src/bitbucket.org/oakmoundstudio/oak"
+	oakPath = "src/bitbucket.org/oakmoundstudio/oak"
 )
 
 var (
-	tmpConf plasticConfig
+	tmpConf oakConfig
 	err     error
-	conf    = plasticConfig{
+	conf    = oakConfig{
 		Assets{"assets/", "audio/", "images/", "font/"},
 		Debug{"", "ERROR"},
 		Screen{480, 640},
@@ -24,7 +24,7 @@ var (
 	}
 )
 
-type plasticConfig struct {
+type oakConfig struct {
 	Assets Assets `json:"assets"`
 	Debug  Debug  `json:"debug"`
 	Screen Screen `json:"screen"`
@@ -57,7 +57,7 @@ func LoadConf(fileName string) error {
 	wd, _ := os.Getwd()
 	dlog.Verb(conf)
 
-	tmpConf, err = loadPlasticConfig(filepath.Join(wd, fileName))
+	tmpConf, err = loadOakConfig(filepath.Join(wd, fileName))
 	if err != nil {
 		return err
 	}
@@ -114,16 +114,16 @@ func loadDefaultConf() error {
 	return err
 }
 
-func loadPlasticConfig(fileName string) (plasticConfig, error) {
+func loadOakConfig(fileName string) (oakConfig, error) {
 
 	dlog.Error("Loading config:", fileName)
 
 	confFile, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		dlog.Error(err)
-		return plasticConfig{}, err
+		return oakConfig{}, err
 	}
-	var config plasticConfig
+	var config oakConfig
 	json.Unmarshal(confFile, &config)
 	dlog.Error(config)
 

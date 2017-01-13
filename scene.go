@@ -1,4 +1,4 @@
-package plastic
+package oak
 
 import (
 	"errors"
@@ -39,7 +39,7 @@ func GetScene(s string) *Scene {
 }
 
 func AddScene(name string, start SceneStart, loop SceneLoop, end SceneEnd) error {
-	fmt.Println("[plastic]-------- Adding", name)
+	fmt.Println("[oak]-------- Adding", name)
 	if _, ok := sceneMap[name]; !ok {
 		sceneMap[name] = &(Scene{
 			false,

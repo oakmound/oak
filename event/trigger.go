@@ -47,7 +47,7 @@ func Trigger(eventName string, data interface{}) chan bool {
 }
 
 // Called externally by game logic
-// and internally by plastic itself
+// and internally by oak itself
 // at specific integral points
 func (eb_p *EventBus) Trigger(eventName string, data interface{}) chan bool {
 

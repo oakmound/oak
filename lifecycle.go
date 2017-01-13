@@ -1,5 +1,5 @@
-// Package plastic is a game engine...
-package plastic
+// Package oak is a game engine...
+package oak
 
 import (
 	"fmt"
@@ -61,7 +61,7 @@ var (
 	scene string
 )
 
-// Init initializes the plastic engine.
+// Init initializes the oak engine.
 // It spawns off an event loop of several goroutines
 // and loops through scenes after initalization.
 func Init(firstScene string) {
@@ -302,7 +302,7 @@ func eventLoop(s screen.Screen) {
 			// This is a hardcoded quit function bound to the escape key.
 			if IsDown("Escape") {
 				if esc {
-					dlog.Warn("Quiting plastic from holding ESCAPE")
+					dlog.Warn("Quiting oak from holding ESCAPE")
 					w.Send(lifecycle.Event{0, 0, nil})
 				}
 				esc = true
