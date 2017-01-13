@@ -1,7 +1,7 @@
 package collision
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	"bitbucket.org/oakmoundstudio/oak/event"
 	higgs "github.com/Sythe2o0/rtreego"
 	//"github.com/dhconnelly/rtreego"
 	"math/rand"

@@ -1,8 +1,8 @@
 package particle
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
-	// "bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"bitbucket.org/oakmoundstudio/oak/collision"
+	// "bitbucket.org/oakmoundstudio/oak/dlog"
 	"image/draw"
 )
 

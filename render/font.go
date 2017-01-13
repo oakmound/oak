@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
 var (

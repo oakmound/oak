@@ -1,8 +1,8 @@
 package entities
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	"bitbucket.org/oakmoundstudio/oak/collision"
+	"bitbucket.org/oakmoundstudio/oak/event"
 	"strconv"
 )
 

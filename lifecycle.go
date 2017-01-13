@@ -2,12 +2,12 @@
 package plastic
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/audio"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
-	pmouse "bitbucket.org/oakmoundstudio/plasticpiston/plastic/mouse"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
+	"bitbucket.org/oakmoundstudio/oak/audio"
+	"bitbucket.org/oakmoundstudio/oak/collision"
+	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"bitbucket.org/oakmoundstudio/oak/event"
+	pmouse "bitbucket.org/oakmoundstudio/oak/mouse"
+	"bitbucket.org/oakmoundstudio/oak/render"
 	"fmt"
 	"image"
 	"image/color"

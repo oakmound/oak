@@ -1,8 +1,8 @@
 package collision
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
-	//"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
+	"bitbucket.org/oakmoundstudio/oak/event"
+	//"bitbucket.org/oakmoundstudio/oak/render"
 	"github.com/Sythe2o0/rtreego"
 	//"image/color"
 	"log"

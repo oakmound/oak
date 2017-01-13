@@ -5,7 +5,7 @@
 package event
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 
 	// "fmt"
 	"reflect"

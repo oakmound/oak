@@ -2,7 +2,7 @@ package audio
 
 import (
 	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"errors"
 	"io/ioutil"
 	"math/rand"

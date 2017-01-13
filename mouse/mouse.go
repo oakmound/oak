@@ -4,7 +4,7 @@
 package mouse
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/collision"
+	"bitbucket.org/oakmoundstudio/oak/collision"
 	"github.com/Sythe2o0/rtreego"
 )
 

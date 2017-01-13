@@ -1,7 +1,7 @@
 package particle
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/render"
+	"bitbucket.org/oakmoundstudio/oak/render"
 	"image/draw"
 	"math"
 )

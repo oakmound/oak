@@ -1,7 +1,7 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	"bitbucket.org/oakmoundstudio/oak/event"
 	"errors"
 	"image"
 	"image/color"

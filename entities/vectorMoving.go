@@ -1,8 +1,8 @@
 package entities
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/physics"
+	"bitbucket.org/oakmoundstudio/oak/event"
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 type VectorMoving struct {

@@ -1,7 +1,7 @@
 package plastic
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"encoding/json"
 	"io/ioutil"
 	"os"

@@ -1,8 +1,8 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/dlog"
-	"bitbucket.org/oakmoundstudio/plasticpiston/plastic/event"
+	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"bitbucket.org/oakmoundstudio/oak/event"
 	"container/heap"
 	"golang.org/x/exp/shiny/screen"
 	"image"
