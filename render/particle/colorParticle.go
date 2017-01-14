@@ -1,11 +1,12 @@
 package particle
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/render"
 	"image"
 	"image/color"
 	"image/draw"
 	"math"
+
+	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
 type ShapeFunction func(x, y, size int) bool

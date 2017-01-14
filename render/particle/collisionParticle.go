@@ -11,8 +11,9 @@ var (
 )
 
 type CollisionGenerator struct {
-	Gen    Generator
-	HitMap map[int]collision.OnHit
+	Gen     Generator
+	Fragile bool
+	HitMap  map[int]collision.OnHit
 }
 
 func (cg *CollisionGenerator) Generate(layer int) *Source {
@@ -51,22 +52,24 @@ type CollisionParticle struct {
 
 func (cp *CollisionParticle) DrawOffset(generator Generator, buff draw.Image, xOff, yOff float64) {
 	gen := generator.(*CollisionGenerator)
+
 	x, y := cp.p.GetPos()
 	cp.s.Space().Location = collision.NewRect(x, y, cp.s.Space().GetW(), cp.s.Space().GetH())
 	cp.p.DrawOffset(gen.Gen, buff, xOff, yOff)
 	hitFlag := <-cp.s.CallOnHits()
-	if hitFlag {
+	if gen.Fragile && hitFlag {
 		cp.p.GetBaseParticle().life = 0
 	}
 }
 
 func (cp *CollisionParticle) Draw(generator Generator, buff draw.Image) {
 	gen := generator.(*CollisionGenerator)
+
 	x, y := cp.p.GetPos()
 	cp.s.Space().Location = collision.NewRect(x, y, cp.s.Space().GetW(), cp.s.Space().GetH())
 	cp.p.Draw(gen.Gen, buff)
 	hitFlag := <-cp.s.CallOnHits()
-	if hitFlag {
+	if gen.Fragile && hitFlag {
 		cp.p.GetBaseParticle().life = 0
 	}
 }
