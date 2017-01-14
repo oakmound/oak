@@ -68,7 +68,6 @@ func (cg *ColorGenerator) Generate(layer int) *Source {
 	// Make a source
 	ps := Source{
 		Generator: cg,
-		particles: make([]Particle, 0),
 	}
 
 	// Bind things to that source:

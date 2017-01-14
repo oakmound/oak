@@ -4,6 +4,7 @@ import (
 	"image"
 
 	"bitbucket.org/oakmoundstudio/oak/collision"
+	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/physics"
 	// "bitbucket.org/oakmoundstudio/oak/dlog"
 	"image/draw"
@@ -36,7 +37,7 @@ func (cg *CollisionGenerator) GenerateParticle(bp BaseParticle) Particle {
 	pos := p.GetPos()
 	return &CollisionParticle{
 		p,
-		collision.NewReactiveSpace(collision.NewUnassignedSpace(pos.X, pos.Y, w, h), cg.HitMap),
+		collision.NewReactiveSpace(collision.NewFullSpace(pos.X, pos.Y, w, h, 0, event.CID(bp.pID)), cg.HitMap),
 	}
 }
 

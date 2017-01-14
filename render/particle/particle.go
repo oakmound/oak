@@ -25,6 +25,7 @@ type BaseParticle struct {
 	Vel       *physics.Vector
 	life      float64
 	totalLife float64
+	pID       int
 }
 
 // A particle has no concept of an individual

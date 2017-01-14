@@ -1,6 +1,7 @@
 package particle
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -9,28 +10,34 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
+const (
+	RECYCLED = -1000
+)
+
 // A Source is used to store and control a set of particles.
 type Source struct {
 	render.Layered
 	Generator     Generator
-	particles     []Particle
+	particles     [BLOCK_SIZE]Particle
+	nextPID       int
+	recycled      []int
 	rotateBinding event.Binding
 	clearBinding  event.Binding
 	cID           event.CID
 	paused        bool
+	pIDBlock      int
 }
 
 func (ps *Source) Init() event.CID {
 	cID := event.NextID(ps)
 	cID.Bind(rotateParticles, "EnterFrame")
 	ps.cID = cID
+	ps.pIDBlock = Allocate(ps.cID)
 	if ps.Generator.GetBaseGenerator().Duration != -1 {
 		go func(ps_p *Source, duration int) {
 			select {
 			case <-time.After(time.Duration(duration) * time.Millisecond):
-				if ps_p.GetLayer() != -1 {
-					ps_p.Stop()
-				}
+				ps_p.Stop()
 			}
 		}(ps, ps.Generator.GetBaseGenerator().Duration)
 	}
@@ -40,10 +47,9 @@ func (ps *Source) Init() event.CID {
 func (ps *Source) CycleParticles() {
 
 	pg := ps.Generator.GetBaseGenerator()
-	newParticles := make([]Particle, 0)
 
-	for _, p := range ps.particles {
-
+	for i := 0; i < ps.nextPID; i++ {
+		p := ps.particles[i]
 		bp := p.GetBaseParticle()
 
 		// Ignore dead particles
@@ -75,15 +81,16 @@ func (ps *Source) CycleParticles() {
 
 			bp.Pos.Add(bp.Vel)
 			bp.SetLayer(ps.Layer(bp.Pos))
-			newParticles = append(newParticles, p)
-		} else {
+		} else if bp.life != RECYCLED {
+			p.UnDraw()
 			if pg.EndFunc != nil {
 				pg.EndFunc(p)
 			}
-			p.UnDraw()
+			// This relies on life going down by 1 per frame
+			bp.life = RECYCLED
+			ps.recycled = append(ps.recycled, bp.pID%BLOCK_SIZE)
 		}
 	}
-	ps.particles = newParticles
 }
 
 func (ps *Source) Layer(v *physics.Vector) int {
@@ -96,6 +103,35 @@ func (ps *Source) AddParticles() {
 	// Regularly create particles (up until max particles)
 	newParticleRand := roundFloat(floatFromSpread(pg.NewPerFrameRand))
 	newParticleCount := int(pg.NewPerFrame) + newParticleRand
+	ri := 0
+	fmt.Println("Trying to make ", newParticleCount, " particles with ", len(ps.recycled), " recycled")
+	for ri < len(ps.recycled) && ri < newParticleCount {
+		j := ps.recycled[ri]
+		bp := ps.particles[j].GetBaseParticle()
+		angle := (pg.Angle + floatFromSpread(pg.AngleRand)) * math.Pi / 180.0
+		speed := pg.Speed + floatFromSpread(pg.SpeedRand)
+		startLife := pg.LifeSpan + floatFromSpread(pg.LifeSpanRand)
+
+		bp.Pos = physics.NewVector(
+			pg.X+floatFromSpread(pg.SpreadX),
+			pg.Y+floatFromSpread(pg.SpreadY))
+		bp.Vel = physics.NewVector(
+			speed*math.Cos(angle)*-1,
+			speed*math.Sin(angle)*-1)
+		bp.life = startLife
+		bp.totalLife = startLife
+		ps.particles[ps.recycled[ri]] = ps.Generator.GenerateParticle(*bp)
+
+		render.Draw(ps.particles[ps.recycled[ri]], ps.Layer(bp.Pos))
+
+		ri++
+	}
+	newParticleCount -= len(ps.recycled)
+	ps.recycled = ps.recycled[ri:]
+
+	if ps.nextPID >= BLOCK_SIZE {
+		return
+	}
 	for i := 0; i < newParticleCount; i++ {
 
 		angle := (pg.Angle + floatFromSpread(pg.AngleRand)) * math.Pi / 180.0
@@ -112,11 +148,13 @@ func (ps *Source) AddParticles() {
 				speed*math.Sin(angle)*-1),
 			life:      startLife,
 			totalLife: startLife,
+			pID:       ps.nextPID + ps.pIDBlock*BLOCK_SIZE,
 		}
 
 		p := ps.Generator.GenerateParticle(bp)
 		render.Draw(p, ps.Layer(bp.Pos))
-		ps.particles = append(ps.particles, p)
+		ps.particles[ps.nextPID] = p
+		ps.nextPID++
 	}
 }
 
@@ -139,8 +177,8 @@ func clearParticles(id int, nothing interface{}) int {
 		if len(ps.particles) > 0 {
 			ps.CycleParticles()
 		} else {
-			ps.UnDraw()
 			event.DestroyEntity(id)
+			Deallocate(ps.pIDBlock)
 			return event.UNBIND_EVENT
 		}
 	}

@@ -23,7 +23,6 @@ func (sg *SpriteGenerator) Generate(layer int) *Source {
 	// Make a source
 	ps := Source{
 		Generator: sg,
-		particles: make([]Particle, 0),
 	}
 
 	// Bind things to that source:

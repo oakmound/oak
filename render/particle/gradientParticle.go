@@ -51,7 +51,6 @@ func (gg *GradientGenerator) Generate(layer int) *Source {
 	// Make a source
 	ps := Source{
 		Generator: gg,
-		particles: make([]Particle, 0),
 	}
 
 	// Bind things to that source:
