@@ -6,6 +6,7 @@ import (
 	"image/draw"
 	"math"
 
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
@@ -55,7 +56,6 @@ func (gg *GradientGenerator) Generate(layer int) *Source {
 
 	// Bind things to that source:
 	ps.Init()
-	render.Draw(&ps, layer)
 
 	return &ps
 }
@@ -74,11 +74,15 @@ type GradientParticle struct {
 	size        int
 }
 
-func (gp *GradientParticle) Draw(generator Generator, buff draw.Image) {
-	gp.DrawOffset(generator, buff, 0, 0)
+func (gp *GradientParticle) Draw(buff draw.Image) {
+	gp.DrawOffset(buff, 0, 0)
 }
 
-func (gp *GradientParticle) DrawOffset(generator Generator, buff draw.Image, xOff, yOff float64) {
+func (gp *GradientParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	gp.DrawOffsetGen(gp.GetBaseParticle().Src.Generator, buff, xOff, yOff)
+}
+
+func (gp *GradientParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOff, yOff float64) {
 
 	gen := generator.(*GradientGenerator)
 
@@ -121,16 +125,16 @@ func (gp *GradientParticle) DrawOffset(generator Generator, buff draw.Image, xOf
 
 	halfSize := float64(gp.size / 2)
 
-	render.ShinyDraw(buff, img, int((xOff+gp.x)-halfSize), int((yOff+gp.y)-halfSize))
+	render.ShinyDraw(buff, img, int((xOff+gp.Pos.X)-halfSize), int((yOff+gp.Pos.Y)-halfSize))
 }
 
 func (gp *GradientParticle) GetBaseParticle() *BaseParticle {
 	return &gp.BaseParticle
 }
 
-func (gp *GradientParticle) GetPos() (float64, float64) {
+func (gp *GradientParticle) GetPos() *physics.Vector {
 	fSize := float64(gp.size)
-	return gp.x - fSize/2, gp.y - fSize/2
+	return physics.NewVector(gp.Pos.X-fSize/2, gp.Pos.Y-fSize/2)
 }
 func (gp *GradientParticle) GetSize() (float64, float64) {
 	fSize := float64(gp.size)

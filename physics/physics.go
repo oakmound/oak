@@ -8,6 +8,10 @@ type Vector struct {
 	X, Y float64
 }
 
+var (
+	CUTOFF = 0.001
+)
+
 func NewVector(x, y float64) *Vector {
 	return &Vector{x, y}
 }
@@ -55,6 +59,23 @@ func (v *Vector) Scale(fs ...float64) *Vector {
 	return v.round()
 }
 
+func (v *Vector) Rotate(fs ...float64) *Vector {
+	angle := 0.0
+	for _, f := range fs {
+		angle += f
+	}
+	mgn := v.Magnitude()
+	angle = math.Atan2(v.X, v.Y) + angle
+	v.X = math.Cos(angle) * mgn
+	v.Y = math.Sin(angle) * mgn
+	return v.round()
+}
+
+// Defaults to Degrees
+func (v *Vector) Angle() float64 {
+	return math.Atan2(v.X, v.Y) * 180 / (math.Pi / 2)
+}
+
 func (v *Vector) Dot(v2 *Vector) float64 {
 	x := v.X * v2.X
 	y := v.Y * v2.Y
@@ -62,7 +83,6 @@ func (v *Vector) Dot(v2 *Vector) float64 {
 }
 
 func (v *Vector) round() *Vector {
-	CUTOFF := 0.001
 	if math.Abs(v.X) < CUTOFF {
 		v.X = 0
 	}

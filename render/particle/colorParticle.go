@@ -6,6 +6,7 @@ import (
 	"image/draw"
 	"math"
 
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
@@ -72,7 +73,6 @@ func (cg *ColorGenerator) Generate(layer int) *Source {
 
 	// Bind things to that source:
 	ps.Init()
-	render.Draw(&ps, layer)
 
 	return &ps
 }
@@ -89,10 +89,15 @@ type ColorParticle struct {
 	size       int
 }
 
-func (cp *ColorParticle) Draw(generator Generator, buff draw.Image) {
-	cp.DrawOffset(generator, buff, 0, 0)
+func (cp *ColorParticle) Draw(buff draw.Image) {
+	cp.DrawOffset(buff, 0, 0)
 }
-func (cp *ColorParticle) DrawOffset(generator Generator, buff draw.Image, xOff, yOff float64) {
+
+func (cp *ColorParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	cp.DrawOffsetGen(cp.GetBaseParticle().Src.Generator, buff, xOff, yOff)
+}
+
+func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOff, yOff float64) {
 	gen := generator.(*ColorGenerator)
 
 	r, g, b, a := cp.startColor.RGBA()
@@ -117,16 +122,16 @@ func (cp *ColorParticle) DrawOffset(generator Generator, buff draw.Image, xOff, 
 
 	halfSize := float64(cp.size / 2)
 
-	render.ShinyDraw(buff, img, int((xOff+cp.x)-halfSize), int((yOff+cp.y)-halfSize))
+	render.ShinyDraw(buff, img, int((xOff+cp.Pos.X)-halfSize), int((yOff+cp.Pos.Y)-halfSize))
 }
 
 func (cp *ColorParticle) GetBaseParticle() *BaseParticle {
 	return &cp.BaseParticle
 }
 
-func (cp *ColorParticle) GetPos() (float64, float64) {
+func (cp *ColorParticle) GetPos() *physics.Vector {
 	fSize := float64(cp.size)
-	return cp.x - fSize/2, cp.y - fSize/2
+	return physics.NewVector(cp.Pos.X-fSize/2, cp.Pos.Y-fSize/2)
 }
 func (cp *ColorParticle) GetSize() (float64, float64) {
 	fSize := float64(cp.size)

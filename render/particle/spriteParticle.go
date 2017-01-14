@@ -1,9 +1,11 @@
 package particle
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/render"
 	"image/draw"
 	"math"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
+	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
 type SpriteGenerator struct {
@@ -26,7 +28,6 @@ func (sg *SpriteGenerator) Generate(layer int) *Source {
 
 	// Bind things to that source:
 	ps.Init()
-	render.Draw(&ps, layer)
 
 	return &ps
 }
@@ -47,13 +48,20 @@ type SpriteParticle struct {
 	rotation float64
 }
 
-func (sp *SpriteParticle) Draw(generator Generator, buff draw.Image) {
-	sp.DrawOffset(generator, buff, 0, 0)
+func (sp *SpriteParticle) Draw(buff draw.Image) {
+	sp.DrawOffset(buff, 0, 0)
 }
-func (sp *SpriteParticle) DrawOffset(generator Generator, buff draw.Image, xOff, yOff float64) {
+
+func (sp *SpriteParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
+	sp.DrawOffsetGen(sp.GetBaseParticle().Src.Generator, buff, xOff, yOff)
+}
+
+func (sp *SpriteParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOff, yOff float64) {
+
 	sp.rotation += sp.rotation
-	rgba := generator.(*SpriteGenerator).Base.Copy().Rotate(int(sp.rotation)).GetRGBA()
-	render.ShinyDraw(buff, rgba, int(sp.x+xOff), int(sp.y+yOff))
+	gen := generator.(*SpriteGenerator)
+	rgba := gen.Base.Copy().Rotate(int(sp.rotation)).GetRGBA()
+	render.ShinyDraw(buff, rgba, int(sp.Pos.X+xOff), int(sp.Pos.Y+yOff))
 }
 
 func (sp *SpriteParticle) GetBaseParticle() *BaseParticle {
@@ -67,8 +75,8 @@ func (sg *SpriteGenerator) GetParticleSize() (float64, float64, bool) {
 	return float64(bounds.X), float64(bounds.Y), false
 }
 
-func (sp *SpriteParticle) GetPos() (float64, float64) {
-	return sp.x, sp.y
+func (sp *SpriteParticle) GetPos() *physics.Vector {
+	return sp.Pos
 }
 
 func (sp *SpriteParticle) GetSize() (float64, float64) {
