@@ -74,7 +74,7 @@ func (v *Vector) Rotate(fs ...float64) *Vector {
 
 // Defaults to Degrees
 func (v *Vector) Angle() float64 {
-	return math.Atan2(v.X, v.Y) * 180 / (math.Pi / 2)
+	return math.Atan2(v.Y, v.X) * 180 / (math.Pi / 2)
 }
 
 func (v *Vector) Dot(v2 *Vector) float64 {
