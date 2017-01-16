@@ -65,7 +65,7 @@ func (v *Vector) Rotate(fs ...float64) *Vector {
 		angle += f
 	}
 	mgn := v.Magnitude()
-	angle = math.Atan2(v.X, v.Y) + (angle * (math.Pi / 2) / 180)
+	angle = math.Atan2(v.Y, v.X) + (angle * (math.Pi / 2) / 180)
 	v.X = math.Cos(angle) * mgn
 	v.Y = math.Sin(angle) * mgn
 

@@ -1,7 +1,6 @@
 package particle
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -93,18 +92,17 @@ func (ps *Source) CycleParticles() {
 	}
 }
 
+// Shorthand
 func (ps *Source) Layer(v *physics.Vector) int {
 	return ps.Generator.GetBaseGenerator().LayerFunc(v)
 }
 
 func (ps *Source) AddParticles() {
-
 	pg := ps.Generator.GetBaseGenerator()
 	// Regularly create particles (up until max particles)
 	newParticleRand := roundFloat(floatFromSpread(pg.NewPerFrameRand))
 	newParticleCount := int(pg.NewPerFrame) + newParticleRand
 	ri := 0
-	fmt.Println("Trying to make ", newParticleCount, " particles with ", len(ps.recycled), " recycled")
 	for ri < len(ps.recycled) && ri < newParticleCount {
 		j := ps.recycled[ri]
 		bp := ps.particles[j].GetBaseParticle()
