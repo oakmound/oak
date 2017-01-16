@@ -23,7 +23,7 @@ type BaseParticle struct {
 	Src       *Source
 	Pos       *physics.Vector
 	Vel       *physics.Vector
-	life      float64
+	Life      float64
 	totalLife float64
 	pID       int
 }

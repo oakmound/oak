@@ -83,7 +83,7 @@ func (cp *CollisionParticle) DrawOffsetGen(generator Generator, buff draw.Image,
 	cp.P.DrawOffsetGen(gen.Gen, buff, xOff, yOff)
 	hitFlag := <-cp.s.CallOnHits()
 	if gen.Fragile && hitFlag {
-		cp.P.GetBaseParticle().life = 0
+		cp.P.GetBaseParticle().Life = 0
 	}
 }
 

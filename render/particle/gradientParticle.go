@@ -87,7 +87,7 @@ func (gp *GradientParticle) DrawOffsetGen(generator Generator, buff draw.Image, 
 
 	r, g, b, a := gp.startColor.RGBA()
 	r2, g2, b2, a2 := gp.endColor.RGBA()
-	progress := gp.life / gp.totalLife
+	progress := gp.Life / gp.totalLife
 	c1 := color.RGBA64{
 		uint16OnScale(r, r2, progress),
 		uint16OnScale(g, g2, progress),

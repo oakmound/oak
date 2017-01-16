@@ -52,10 +52,10 @@ func (ps *Source) CycleParticles() {
 		bp := p.GetBaseParticle()
 
 		// Ignore dead particles
-		if bp.life > 0 {
+		if bp.Life > 0 {
 
 			// Move towards doom
-			bp.life--
+			bp.Life--
 
 			// Apply rotational acceleration
 			if pg.Rotation != 0 || pg.RotationRand != 0 {
@@ -80,13 +80,13 @@ func (ps *Source) CycleParticles() {
 
 			bp.Pos.Add(bp.Vel)
 			bp.SetLayer(ps.Layer(bp.Pos))
-		} else if bp.life != RECYCLED {
+		} else if bp.Life != RECYCLED {
 			p.UnDraw()
 			if pg.EndFunc != nil {
 				pg.EndFunc(p)
 			}
-			// This relies on life going down by 1 per frame
-			bp.life = RECYCLED
+			// This relies on Life going down by 1 per frame
+			bp.Life = RECYCLED
 			ps.recycled = append(ps.recycled, bp.pID%BLOCK_SIZE)
 		}
 	}
@@ -116,7 +116,7 @@ func (ps *Source) AddParticles() {
 		bp.Vel = physics.NewVector(
 			speed*math.Cos(angle)*-1,
 			speed*math.Sin(angle)*-1)
-		bp.life = startLife
+		bp.Life = startLife
 		bp.totalLife = startLife
 		ps.particles[ps.recycled[ri]] = ps.Generator.GenerateParticle(*bp)
 
@@ -144,7 +144,7 @@ func (ps *Source) AddParticles() {
 			Vel: physics.NewVector(
 				speed*math.Cos(angle)*-1,
 				speed*math.Sin(angle)*-1),
-			life:      startLife,
+			Life:      startLife,
 			totalLife: startLife,
 			pID:       ps.nextPID + ps.pIDBlock*BLOCK_SIZE,
 		}
