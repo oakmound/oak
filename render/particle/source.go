@@ -1,6 +1,7 @@
 package particle
 
 import (
+	"goevo/alg"
 	"math"
 	"time"
 
@@ -27,17 +28,22 @@ type Source struct {
 	pIDBlock      int
 }
 
+func NewSource(g Generator) *Source {
+	ps := new(Source)
+	ps.Generator = g
+	ps.Init()
+	return ps
+}
+
 func (ps *Source) Init() event.CID {
 	cID := event.NextID(ps)
 	cID.Bind(rotateParticles, "EnterFrame")
 	ps.cID = cID
 	ps.pIDBlock = Allocate(ps.cID)
-	if ps.Generator.GetBaseGenerator().Duration != -1 {
-		go func(ps_p *Source, duration int) {
-			select {
-			case <-time.After(time.Duration(duration) * time.Millisecond):
-				ps_p.Stop()
-			}
+	if ps.Generator.GetBaseGenerator().Duration != Inf {
+		go func(ps_p *Source, duration alg.IntRange) {
+			<-time.After(time.Duration(duration.Poll()) * time.Millisecond)
+			ps_p.Stop()
 		}(ps, ps.Generator.GetBaseGenerator().Duration)
 	}
 	return event.NextID(ps)
@@ -53,31 +59,31 @@ func (ps *Source) CycleParticles() {
 
 		// Ignore dead particles
 		if bp.Life > 0 {
-
-			// Move towards doom
 			bp.Life--
 
 			// Apply rotational acceleration
-			if pg.Rotation != 0 || pg.RotationRand != 0 {
-				bp.Vel.Rotate(pg.Rotation, floatFromSpread(pg.RotationRand))
+			if pg.Rotation != nil {
+				bp.Vel.Rotate(pg.Rotation.Poll())
 			}
 
-			if pg.SpeedDecayX != 0 {
-				bp.Vel.X *= pg.SpeedDecayX
-				if math.Abs(bp.Vel.X) < 0.2 {
-					bp.Vel.X = 0
+			if pg.SpeedDecay != nil {
+				if pg.SpeedDecay.X != 0 {
+					bp.Vel.X *= pg.SpeedDecay.X
+					if math.Abs(bp.Vel.X) < 0.2 {
+						bp.Vel.X = 0
+					}
+				}
+				if pg.SpeedDecay.Y != 0 {
+					bp.Vel.Y *= pg.SpeedDecay.Y
+					if math.Abs(bp.Vel.Y) < 0.2 {
+						bp.Vel.Y = 0
+					}
 				}
 			}
-			if pg.SpeedDecayY != 0 {
-				bp.Vel.Y *= pg.SpeedDecayY
-				if math.Abs(bp.Vel.Y) < 0.2 {
-					bp.Vel.Y = 0
-				}
+
+			if pg.Gravity != nil {
+				bp.Vel.Add(pg.Gravity)
 			}
-
-			bp.Vel.X += pg.GravityX
-			bp.Vel.Y += pg.GravityY
-
 			bp.Pos.Add(bp.Vel)
 			bp.SetLayer(ps.Layer(bp.Pos))
 		} else if bp.Life != RECYCLED {
@@ -100,19 +106,18 @@ func (ps *Source) Layer(v *physics.Vector) int {
 func (ps *Source) AddParticles() {
 	pg := ps.Generator.GetBaseGenerator()
 	// Regularly create particles (up until max particles)
-	newParticleRand := roundFloat(floatFromSpread(pg.NewPerFrameRand))
-	newParticleCount := int(pg.NewPerFrame) + newParticleRand
+	newParticleCount := int(pg.NewPerFrame.Poll())
 	ri := 0
 	for ri < len(ps.recycled) && ri < newParticleCount {
 		j := ps.recycled[ri]
 		bp := ps.particles[j].GetBaseParticle()
-		angle := (pg.Angle + floatFromSpread(pg.AngleRand)) * math.Pi / 180.0
-		speed := pg.Speed + floatFromSpread(pg.SpeedRand)
-		startLife := pg.LifeSpan + floatFromSpread(pg.LifeSpanRand)
+		angle := pg.Angle.Poll() * math.Pi / 180.0
+		speed := pg.Speed.Poll()
+		startLife := pg.LifeSpan.Poll()
 
 		bp.Pos = physics.NewVector(
-			pg.X+floatFromSpread(pg.SpreadX),
-			pg.Y+floatFromSpread(pg.SpreadY))
+			pg.X+floatFromSpread(pg.Spread.X),
+			pg.Y+floatFromSpread(pg.Spread.Y))
 		bp.Vel = physics.NewVector(
 			speed*math.Cos(angle)*-1,
 			speed*math.Sin(angle)*-1)
@@ -132,15 +137,15 @@ func (ps *Source) AddParticles() {
 	}
 	for i := 0; i < newParticleCount; i++ {
 
-		angle := (pg.Angle + floatFromSpread(pg.AngleRand)) * math.Pi / 180.0
-		speed := pg.Speed + floatFromSpread(pg.SpeedRand)
-		startLife := pg.LifeSpan + floatFromSpread(pg.LifeSpanRand)
+		angle := pg.Angle.Poll() * math.Pi / 180.0
+		speed := pg.Speed.Poll()
+		startLife := pg.LifeSpan.Poll()
 
 		bp := BaseParticle{
 			Src: ps,
 			Pos: physics.NewVector(
-				pg.X+floatFromSpread(pg.SpreadX),
-				pg.Y+floatFromSpread(pg.SpreadY)),
+				pg.X+floatFromSpread(pg.Spread.X),
+				pg.Y+floatFromSpread(pg.Spread.Y)),
 			Vel: physics.NewVector(
 				speed*math.Cos(angle)*-1,
 				speed*math.Sin(angle)*-1),

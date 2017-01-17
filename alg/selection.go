@@ -1,4 +1,4 @@
-package algorithms
+package alg
 
 import (
 	// "bitbucket.org/oakmoundstudio/oak/dlog"

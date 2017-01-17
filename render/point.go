@@ -22,6 +22,6 @@ func (p *Point) SetPos(x, y float64) {
 	p.Y = y
 }
 
-func (p *Point) AlwaysDirty() bool {
-	return false
+func (p *Point) GetPos() (float64, float64) {
+	return p.X, p.Y
 }

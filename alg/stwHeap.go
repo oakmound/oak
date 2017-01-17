@@ -1,8 +1,9 @@
-package algorithms
+package alg
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"math/rand"
+
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
 type STWHeap struct {

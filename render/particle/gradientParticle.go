@@ -4,63 +4,10 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"math"
 
 	"bitbucket.org/oakmoundstudio/oak/physics"
 	"bitbucket.org/oakmoundstudio/oak/render"
 )
-
-type GradientGenerator struct {
-	BaseGenerator
-	StartColor, StartColorRand   color.Color
-	StartColor2, StartColor2Rand color.Color
-	EndColor, EndColorRand       color.Color
-	EndColor2, EndColor2Rand     color.Color
-	// The size, in pixel radius, of spawned particles
-	Size, SizeRand int
-	//
-	// Some sort of particle type, for rendering triangles or squares or circles...
-	Shape            ShapeFunction
-	ProgressFunction func(x, y, w, h int) float64
-}
-
-func (gg *GradientGenerator) GenerateParticle(bp BaseParticle) Particle {
-	return &GradientParticle{
-		BaseParticle: bp,
-		startColor:   randColor(gg.StartColor, gg.StartColorRand),
-		endColor:     randColor(gg.EndColor, gg.EndColorRand),
-		startColor2:  randColor(gg.StartColor2, gg.StartColor2Rand),
-		endColor2:    randColor(gg.EndColor2, gg.EndColor2Rand),
-		size:         gg.Size + intFromSpread(gg.SizeRand),
-	}
-}
-
-func (gg *GradientGenerator) GetBaseGenerator() *BaseGenerator {
-	return &gg.BaseGenerator
-}
-
-// Generate takes a generator and converts it into a source,
-// drawing particles and binding functions for particle generation
-// and rotation.
-func (gg *GradientGenerator) Generate(layer int) *Source {
-
-	// Convert rotation from degrees to radians
-	gg.Rotation = gg.Rotation / 180 * math.Pi
-	gg.RotationRand = gg.RotationRand / 180 * math.Pi
-
-	// Make a source
-	ps := Source{
-		Generator: gg,
-	}
-
-	// Bind things to that source:
-	ps.Init()
-
-	return &ps
-}
-func (gp *GradientGenerator) GetParticleSize() (float64, float64, bool) {
-	return 0, 0, true
-}
 
 // A particle is a colored pixel at a given position, moving in a certain direction.
 // After a while, it will dissipate.

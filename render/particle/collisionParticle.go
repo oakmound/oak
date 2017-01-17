@@ -3,67 +3,11 @@ package particle
 import (
 	"image"
 
-	"bitbucket.org/oakmoundstudio/oak/collision"
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/physics"
-	// "bitbucket.org/oakmoundstudio/oak/dlog"
 	"image/draw"
+
+	"bitbucket.org/oakmoundstudio/oak/collision"
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
-
-var (
-	generated, destroyed int
-)
-
-type CollisionGenerator struct {
-	Gen     Generator
-	Fragile bool
-	HitMap  map[int]collision.OnHit
-}
-
-func (cg *CollisionGenerator) Generate(layer int) *Source {
-	ps := cg.Gen.Generate(layer)
-	ps.Generator = cg
-	return ps
-}
-
-func (cg *CollisionGenerator) GenerateParticle(bp BaseParticle) Particle {
-	generated++
-	p := cg.Gen.GenerateParticle(bp)
-
-	w, h, dynamic := cg.Gen.GetParticleSize()
-	if dynamic {
-		w, h = p.GetSize()
-	}
-	pos := p.GetPos()
-	return &CollisionParticle{
-		p,
-		collision.NewReactiveSpace(collision.NewFullSpace(pos.X, pos.Y, w, h, 0, event.CID(bp.pID)), cg.HitMap),
-	}
-}
-
-func (cg *CollisionGenerator) GetBaseGenerator() *BaseGenerator {
-	return cg.Gen.GetBaseGenerator()
-}
-
-func (cg *CollisionGenerator) GetParticleSize() (float64, float64, bool) {
-	return 0, 0, true
-}
-
-func (cg *CollisionGenerator) ShiftX(x float64) {
-	cg.Gen.ShiftX(x)
-}
-
-func (cg *CollisionGenerator) ShiftY(y float64) {
-	cg.Gen.ShiftY(y)
-}
-
-func (cg *CollisionGenerator) SetPos(x, y float64) {
-	cg.Gen.SetPos(x, y)
-}
-
-func (cg *CollisionGenerator) GetPos() (float64, float64) {
-	return cg.Gen.GetPos()
-}
 
 type CollisionParticle struct {
 	P Particle
