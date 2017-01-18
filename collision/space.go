@@ -1,10 +1,18 @@
 package collision
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"github.com/Sythe2o0/rtreego"
 	"log"
 	"strconv"
+
+	"bitbucket.org/oakmoundstudio/oak/event"
+	"github.com/Sythe2o0/rtreego"
+)
+
+// ID Types constant
+const (
+	NONE = iota
+	CID
+	PID
 )
 
 // Spaces are a rectangle
@@ -18,6 +26,9 @@ type Space struct {
 	// A CID can be used to get the exact
 	// entity which this rectangle belongs to.
 	CID event.CID
+	// Type represents which ID space the above ID
+	// corresponds to.
+	Type int
 }
 
 // Bounds satisfies the rtreego.Spatial interface.
@@ -111,7 +122,10 @@ func (s *Space) String() string {
 
 func NewUnassignedSpace(x, y, w, h float64) *Space {
 	rect := NewRect(x, y, w, h)
-	return &Space{Location: rect}
+	return &Space{
+		Location: rect,
+		Type:     NONE,
+	}
 }
 
 func NewSpace(x, y, w, h float64, cID event.CID) *Space {
@@ -120,6 +134,7 @@ func NewSpace(x, y, w, h float64, cID event.CID) *Space {
 		rect,
 		-1,
 		cID,
+		CID,
 	}
 }
 
@@ -128,6 +143,7 @@ func NewLabeledSpace(x, y, w, h float64, l int) *Space {
 	return &Space{
 		Location: rect,
 		Label:    l,
+		Type:     NONE,
 	}
 }
 
@@ -137,6 +153,7 @@ func NewFullSpace(x, y, w, h float64, l int, cID event.CID) *Space {
 		rect,
 		l,
 		cID,
+		CID,
 	}
 }
 

@@ -1,9 +1,10 @@
 package entities
 
 import (
+	"strconv"
+
 	"bitbucket.org/oakmoundstudio/oak/collision"
 	"bitbucket.org/oakmoundstudio/oak/event"
-	"strconv"
 )
 
 type Solid struct {
@@ -60,7 +61,9 @@ func (s *Solid) Init() event.CID {
 
 func (s *Solid) SetPos(x float64, y float64) {
 	s.SetLogicPos(x, y)
-	s.R.SetPos(x, y)
+	if s.R != nil {
+		s.R.SetPos(x, y)
+	}
 
 	if s.Space != nil {
 		collision.UpdateSpace(s.X, s.Y, s.W, s.H, s.Space)

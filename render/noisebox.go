@@ -1,10 +1,15 @@
+// OpenSimplex-Go refuses to compile for Windows,386
+
+// +build !386
+
 package render
 
 import (
-	simplex "github.com/ojrac/opensimplex-go"
 	"image"
 	"image/color"
 	"time"
+
+	simplex "github.com/ojrac/opensimplex-go"
 )
 
 type NoiseBox struct {
