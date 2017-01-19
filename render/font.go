@@ -2,6 +2,7 @@ package render
 
 import (
 	"image"
+	"image/color"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -128,6 +129,8 @@ func parseFontColor(s string) image.Image {
 		return image.White
 	case "black":
 		return image.Black
+	case "green":
+		return image.NewUniform(color.RGBA{0, 255, 0, 255})
 	default:
 		return defaultColor
 	}
