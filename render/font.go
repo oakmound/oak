@@ -29,7 +29,7 @@ var (
 
 type FontGenerator struct {
 	File    string
-	Color   string
+	Color   image.Image
 	Size    float64
 	Hinting string
 	DPI     float64
@@ -51,6 +51,9 @@ func (fg *FontGenerator) Generate() *Font {
 	if fg.DPI == 0 {
 		fg.DPI = defaultDPI
 	}
+	if fg.Color == nil {
+		fg.Color = defaultColor
+	}
 
 	return &Font{
 		FontGenerator: *fg,
@@ -58,7 +61,7 @@ func (fg *FontGenerator) Generate() *Font {
 			// Color and hinting zero values are replaced
 			// by their respective parse functions in the
 			// zero case.
-			Src: parseFontColor(fg.Color),
+			Src: fg.Color,
 			Face: truetype.NewFace(LoadFont(fg.File), &truetype.Options{
 				Size:    fg.Size,
 				DPI:     fg.DPI,
@@ -102,7 +105,7 @@ func SetFontDefaults(wd, assetPath, fontPath, hinting, color, file string, size,
 	defaultHinting = parseFontHinting(hinting)
 	defaultSize = size
 	defaultDPI = dpi
-	defaultColor = parseFontColor(color)
+	defaultColor = FontColor(color)
 	defaultFontFile = file
 }
 
@@ -122,7 +125,7 @@ func parseFontHinting(hintType string) (faceHinting font.Hinting) {
 	return faceHinting
 }
 
-func parseFontColor(s string) image.Image {
+func FontColor(s string) image.Image {
 	s = strings.ToLower(s)
 	switch s {
 	case "white":
