@@ -46,7 +46,7 @@ func (ps *Source) Init() event.CID {
 			ps_p.Stop()
 		}(ps, ps.Generator.GetBaseGenerator().Duration)
 	}
-	return event.NextID(ps)
+	return cID
 }
 
 func (ps *Source) CycleParticles() {
@@ -109,6 +109,7 @@ func (ps *Source) AddParticles() {
 	newParticleCount := int(pg.NewPerFrame.Poll())
 	ri := 0
 	for ri < len(ps.recycled) && ri < newParticleCount {
+
 		j := ps.recycled[ri]
 		bp := ps.particles[j].GetBaseParticle()
 		angle := pg.Angle.Poll() * math.Pi / 180.0
@@ -123,25 +124,25 @@ func (ps *Source) AddParticles() {
 			speed*math.Sin(angle)*-1)
 		bp.Life = startLife
 		bp.totalLife = startLife
-		ps.particles[ps.recycled[ri]] = ps.Generator.GenerateParticle(*bp)
+		ps.particles[ps.recycled[ri]] = ps.Generator.GenerateParticle(bp)
 
 		render.Draw(ps.particles[ps.recycled[ri]], ps.Layer(bp.Pos))
-
 		ri++
 	}
 	newParticleCount -= len(ps.recycled)
-	ps.recycled = ps.recycled[ri:]
+	if ri > 0 {
+		ps.recycled = ps.recycled[ri-1:]
+	}
 
 	if ps.nextPID >= BLOCK_SIZE {
 		return
 	}
 	for i := 0; i < newParticleCount; i++ {
-
 		angle := pg.Angle.Poll() * math.Pi / 180.0
 		speed := pg.Speed.Poll()
 		startLife := pg.LifeSpan.Poll()
 
-		bp := BaseParticle{
+		bp := &BaseParticle{
 			Src: ps,
 			Pos: physics.NewVector(
 				pg.X+floatFromSpread(pg.Spread.X),
@@ -155,10 +156,14 @@ func (ps *Source) AddParticles() {
 		}
 
 		p := ps.Generator.GenerateParticle(bp)
-		render.Draw(p, ps.Layer(bp.Pos))
 		ps.particles[ps.nextPID] = p
 		ps.nextPID++
+		if ps.nextPID >= BLOCK_SIZE {
+			return
+		}
+		render.Draw(p, ps.Layer(bp.Pos))
 	}
+
 }
 
 // rotateParticles updates particles over time as long

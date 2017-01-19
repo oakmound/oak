@@ -33,7 +33,7 @@ func (cg *CollisionGenerator) Generate(layer int) *Source {
 	return ps
 }
 
-func (cg *CollisionGenerator) GenerateParticle(bp BaseParticle) Particle {
+func (cg *CollisionGenerator) GenerateParticle(bp *BaseParticle) Particle {
 	p := cg.Gen.GenerateParticle(bp)
 
 	w, h, dynamic := cg.Gen.GetParticleSize()

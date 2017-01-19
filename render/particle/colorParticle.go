@@ -11,7 +11,7 @@ import (
 
 // Color Particles are particles with a defined color gradient and size
 type ColorParticle struct {
-	BaseParticle
+	*BaseParticle
 	startColor color.Color
 	endColor   color.Color
 	size       int
@@ -54,7 +54,7 @@ func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOf
 }
 
 func (cp *ColorParticle) GetBaseParticle() *BaseParticle {
-	return &cp.BaseParticle
+	return cp.BaseParticle
 }
 
 func (cp *ColorParticle) GetPos() *physics.Vector {

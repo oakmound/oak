@@ -8,7 +8,7 @@ import (
 )
 
 type SpriteParticle struct {
-	BaseParticle
+	*BaseParticle
 	rotation float64
 }
 
@@ -29,7 +29,7 @@ func (sp *SpriteParticle) DrawOffsetGen(generator Generator, buff draw.Image, xO
 }
 
 func (sp *SpriteParticle) GetBaseParticle() *BaseParticle {
-	return &sp.BaseParticle
+	return sp.BaseParticle
 }
 
 func (sg *SpriteGenerator) GetParticleSize() (float64, float64, bool) {

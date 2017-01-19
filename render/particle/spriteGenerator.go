@@ -37,7 +37,7 @@ func (sg *SpriteGenerator) Generate(layer int) *Source {
 	return NewSource(sg)
 }
 
-func (sg *SpriteGenerator) GenerateParticle(bp BaseParticle) Particle {
+func (sg *SpriteGenerator) GenerateParticle(bp *BaseParticle) Particle {
 	return &SpriteParticle{
 		BaseParticle: bp,
 		rotation:     sg.SpriteRotation.Poll(),

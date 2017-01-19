@@ -45,7 +45,7 @@ func (gg *GradientGenerator) Generate(layer int) *Source {
 	return NewSource(gg)
 }
 
-func (gg *GradientGenerator) GenerateParticle(bp BaseParticle) Particle {
+func (gg *GradientGenerator) GenerateParticle(bp *BaseParticle) Particle {
 	return &GradientParticle{
 		BaseParticle: bp,
 		startColor:   randColor(gg.StartColor, gg.StartColorRand),

@@ -12,7 +12,7 @@ import (
 // A particle is a colored pixel at a given position, moving in a certain direction.
 // After a while, it will dissipate.
 type GradientParticle struct {
-	BaseParticle
+	*BaseParticle
 	startColor  color.Color
 	endColor    color.Color
 	startColor2 color.Color
@@ -75,7 +75,7 @@ func (gp *GradientParticle) DrawOffsetGen(generator Generator, buff draw.Image, 
 }
 
 func (gp *GradientParticle) GetBaseParticle() *BaseParticle {
-	return &gp.BaseParticle
+	return gp.BaseParticle
 }
 
 func (gp *GradientParticle) GetPos() *physics.Vector {

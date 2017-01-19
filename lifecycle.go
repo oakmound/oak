@@ -182,15 +182,12 @@ func lifecycleLoop(s screen.Screen) {
 				dlog.Verb("Got something from viewport channel")
 				updateScreen(viewPoint[0], viewPoint[1])
 			default:
-
-				eb = event.GetEventBus()
-
 				draw.Draw(worldBuffer.RGBA(), worldBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
 
 				render.PreDraw()
-				render.DrawHeap(worldBuffer, ViewX, ViewY, ScreenWidth, ScreenHeight)
+				render.DrawHeap(worldBuffer.RGBA(), ViewX, ViewY, ScreenWidth, ScreenHeight)
 				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
-				render.DrawStaticHeap(winBuffer)
+				render.DrawStaticHeap(winBuffer.RGBA())
 
 				w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
 				w.Publish()

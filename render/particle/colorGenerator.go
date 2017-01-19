@@ -1,9 +1,10 @@
 package particle
 
 import (
-	"goevo/alg"
 	"image/color"
 	"math"
+
+	"bitbucket.org/oakmoundstudio/oak/alg"
 )
 
 type ColorGenerator struct {
@@ -46,7 +47,7 @@ func (cg *ColorGenerator) Generate(layer int) *Source {
 	return NewSource(cg)
 }
 
-func (cg *ColorGenerator) GenerateParticle(bp BaseParticle) Particle {
+func (cg *ColorGenerator) GenerateParticle(bp *BaseParticle) Particle {
 	return &ColorParticle{
 		BaseParticle: bp,
 		startColor:   randColor(cg.StartColor, cg.StartColorRand),

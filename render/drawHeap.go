@@ -1,12 +1,46 @@
 package render
 
+import "container/heap"
+
+type RenderableHeap []Renderable
+
+// Satisfying the Heap interface
+func (h RenderableHeap) Len() int           { return len(h) }
+func (h RenderableHeap) Less(i, j int) bool { return h[i].GetLayer() < h[j].GetLayer() }
+func (h RenderableHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *RenderableHeap) Push(x interface{}) {
+	if x == nil {
+		return
+	}
+	*h = append(*h, x.(Renderable))
+}
+
+func (h_p *RenderableHeap) Pop() interface{} {
+	h := *h_p
+	n := len(h)
+	x := h[n-1]
+	*h_p = h[0 : n-1]
+	return x
+}
+
+// ResetDrawHeap sets a flag to clear the drawheap
+// at the next predraw phase
+func ResetDrawHeap() {
+	resetHeap = true
+}
+
+func InitDrawHeap() {
+	rh = &RenderableHeap{}
+	srh = &RenderableHeap{}
+	heap.Init(rh)
+	heap.Init(srh)
+}
+
+// We manually define a LamdaHeap as it improves performance over using
+// the stdlib's Heap interface.
 type LambdaHeap struct {
 	bh []Renderable
-	// The idea is for this order list
-	// to hold onto the indices of all
-	// elements in bh, in order, for fast
-	// iteration.
-	order []int
 }
 
 func (lh *LambdaHeap) Push(r Renderable) {
@@ -30,8 +64,9 @@ func (lh *LambdaHeap) Pop() Renderable {
 
 func (lh *LambdaHeap) up(j int) {
 	h := lh.bh
+	var i int
 	for {
-		i := (j - 1) / 2 // parent
+		i = (j - 1) / 2 // parent
 		if i == j || !(h[j].GetLayer() < h[i].GetLayer()) {
 			break
 		}

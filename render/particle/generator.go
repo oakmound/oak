@@ -13,7 +13,7 @@ var (
 
 type Generator interface {
 	GetBaseGenerator() *BaseGenerator
-	GenerateParticle(BaseParticle) Particle
+	GenerateParticle(*BaseParticle) Particle
 	Generate(int) *Source
 	GetParticleSize() (float64, float64, bool)
 	ShiftX(float64)

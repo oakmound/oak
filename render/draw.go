@@ -1,19 +1,18 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/event"
 	"container/heap"
-	"golang.org/x/exp/shiny/screen"
 	"image"
 	"image/color"
-	"image/draw"
-	//"runtime"
+
 	"time"
+
+	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"bitbucket.org/oakmoundstudio/oak/event"
 )
 
 var (
-	rh                *LambdaHeap
+	rh                *RenderableHeap
 	srh               *RenderableHeap
 	toPushRenderables []Renderable
 	toPushStatic      []Renderable
@@ -22,40 +21,6 @@ var (
 	EmptyRenderable   = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
 	//EmptyRenderable   = new(Composite)
 )
-
-type RenderableHeap []Renderable
-
-// Satisfying the Heap interface
-func (h RenderableHeap) Len() int           { return len(h) }
-func (h RenderableHeap) Less(i, j int) bool { return h[i].GetLayer() < h[j].GetLayer() }
-func (h RenderableHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-
-func (h *RenderableHeap) Push(x interface{}) {
-	if x == nil {
-		return
-	}
-	*h = append(*h, x.(Renderable))
-}
-
-func (h_p *RenderableHeap) Pop() interface{} {
-	h := *h_p
-	n := len(h)
-	x := h[n-1]
-	*h_p = h[0 : n-1]
-	return x
-}
-
-// ResetDrawHeap sets a flag to clear the drawheap
-// at the next predraw phase
-func ResetDrawHeap() {
-	resetHeap = true
-}
-
-func InitDrawHeap() {
-	rh = &LambdaHeap{}
-	srh = &RenderableHeap{}
-	heap.Init(srh)
-}
 
 // Drawing does not actually immediately draw a renderable,
 // instead the renderable is added to a list of elements to
@@ -76,17 +41,25 @@ func StaticDraw(r Renderable, l int) Renderable {
 // PreDraw parses through renderables to be pushed
 // and adds them to the drawheap.
 func PreDraw() {
+	i := 0
+	defer func() {
+		if x := recover(); x != nil {
+			dlog.Error("Invalid Memory Address in toPushRenderables")
+			// This does not work-- all addresses following the bad address
+			// at i are also bad
+			//toPushRenderables = toPushRenderables[i+1:]
+			toPushRenderables = []Renderable{}
+		}
+	}()
 	if resetHeap == true {
 		InitDrawHeap()
 		resetHeap = false
 	} else {
 		for _, r := range toPushRenderables {
-			if r == nil {
-				dlog.Warn("A nil was added to the draw heap")
-				continue
+			if r != nil {
+				heap.Push(rh, r)
 			}
-			rh.Push(r)
-			//heap.Push(rh, r)
+			i++
 		}
 		for _, r := range toPushStatic {
 			heap.Push(srh, r)
@@ -116,18 +89,18 @@ func DrawColor(c color.Color, x1, y1, x2, y2 float64, l int) {
 // and draws them as it removes them. It
 // filters out elements who have the layer
 // -1, reserved for elements to be undrawn.
-func DrawHeap(b screen.Buffer, vx, vy, screenW, screenH int) {
-	drawRenderableHeap(b, rh, vx, vy, screenW, screenH)
+func DrawHeap(target *image.RGBA, vx, vy, screenW, screenH int) {
+	drawRenderableHeap(target, rh, vx, vy, screenW, screenH)
 }
 
-func DrawStaticHeap(b screen.Buffer) {
+func DrawStaticHeap(target *image.RGBA) {
 	newRh := &RenderableHeap{}
 	for srh.Len() > 0 {
 		rp := heap.Pop(srh)
 		if rp != nil {
 			r := rp.(Renderable)
 			if r.GetLayer() != -1 {
-				r.Draw(b.RGBA())
+				r.Draw(target)
 				heap.Push(newRh, r)
 			}
 		}
@@ -135,11 +108,12 @@ func DrawStaticHeap(b screen.Buffer) {
 	*srh = *newRh
 }
 
-func drawRenderableHeap(b screen.Buffer, rheap *LambdaHeap, vx, vy, screenW, screenH int) {
-	newRh := &LambdaHeap{}
-	for len(rheap.bh) > 0 {
-		r := rheap.Pop()
-		if r != nil {
+func drawRenderableHeap(target *image.RGBA, rheap *RenderableHeap, vx, vy, screenW, screenH int) {
+	newRh := &RenderableHeap{}
+	for rheap.Len() > 0 {
+		intf := heap.Pop(rheap)
+		if intf != nil {
+			r := intf.(Renderable)
 			if r.GetLayer() != -1 {
 				x := int(r.GetX())
 				y := int(r.GetY())
@@ -159,33 +133,14 @@ func drawRenderableHeap(b screen.Buffer, rheap *LambdaHeap, vx, vy, screenW, scr
 					x2 < vx+screenW && y2 < vy+screenH {
 
 					if InDrawPolygon(x, y, x2, y2) {
-						//if r.AlwaysDirty() || IsDirty(x2, y2) {
-						r.Draw(b.RGBA())
+						r.Draw(target)
 					}
-					//}
 				}
-				newRh.Push(r)
+				heap.Push(newRh, r)
 			}
 		}
 	}
 	*rheap = *newRh
-	dirtyZones = [DirtyZonesX][DirtyZonesY]bool{}
-}
-
-// ShinyDraw performs a draw operation at -x, -y, because
-// shiny/screen represents quadrant 4 as negative in both axes.
-// draw.Over will merge two pixels at a given position based on their
-// alpha channel.
-func ShinyDraw(buff draw.Image, img image.Image, x, y int) {
-	draw.Draw(buff, buff.Bounds(),
-		img, image.Point{-x, -y}, draw.Over)
-}
-
-// draw.Src will overwrite pixels beneath the given image regardless of
-// the new image's alpha.
-func ShinyOverwrite(buff screen.Buffer, img image.Image, x, y int) {
-	draw.Draw(buff.RGBA(), buff.Bounds(),
-		img, image.Point{-x, -y}, draw.Src)
 }
 
 // UndrawAfter will trigger a renderable's undraw function
