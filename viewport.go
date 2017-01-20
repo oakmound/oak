@@ -1,13 +1,14 @@
 package oak
 
 import (
+	"image"
+
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/event"
 )
 
 var (
-	ViewX         = 0
-	ViewY         = 0
+	ViewPos       = image.Point{}
 	useViewBounds = false
 	viewBounds    Rect
 )
@@ -19,34 +20,32 @@ type Rect struct {
 func SetScreen(x, y int) {
 	dlog.Verb("Requesting ViewPoint ", x, y)
 	viewportChannel <- [2]int{x, y}
-	// updateScreen(x, y)
 }
 
 func updateScreen(x, y int) {
 	if useViewBounds {
 		if viewBounds.minX < x && viewBounds.maxX > x+ScreenWidth {
 			dlog.Verb("Set ViewX to ", x)
-			ViewX = x
+			ViewPos.X = x
 		} else if viewBounds.minX > x {
-			ViewX = viewBounds.minX
+			ViewPos.X = viewBounds.minX
 		} else if viewBounds.maxX < x+ScreenWidth {
-			ViewX = viewBounds.maxX - ScreenWidth
+			ViewPos.X = viewBounds.maxX - ScreenWidth
 		}
 		if viewBounds.minY < y && viewBounds.maxY > y+ScreenHeight {
 			dlog.Verb("Set ViewY to ", y)
-			ViewY = y
+			ViewPos.Y = y
 		} else if viewBounds.minY > y {
-			ViewY = viewBounds.minY
+			ViewPos.Y = viewBounds.minY
 		} else if viewBounds.maxY < y+ScreenHeight {
-			ViewY = viewBounds.maxY - ScreenHeight
+			ViewPos.Y = viewBounds.maxY - ScreenHeight
 		}
 	} else {
 		dlog.Verb("Set ViewXY to ", x, " ", y)
-		ViewX = x
-		ViewY = y
+		ViewPos = image.Point{x, y}
 	}
-	eb.Trigger("ViewportUpdate", []float64{float64(ViewX), float64(ViewY)})
-	dlog.Verb("ViewX, Y: ", ViewX, " ", ViewY)
+	eb.Trigger("ViewportUpdate", []float64{float64(ViewPos.X), float64(ViewPos.Y)})
+	dlog.Verb("ViewX, Y: ", ViewPos.X, " ", ViewPos.Y)
 }
 
 func SetViewportBounds(x1, y1, x2, y2 int) {
@@ -77,8 +76,8 @@ func moveViewportBinding(speed int) func(int, interface{}) int {
 		if IsDown("RightArrow") {
 			dX++
 		}
-		ViewX += dX * speed
-		ViewY += dY * speed
+		ViewPos.X += dX * speed
+		ViewPos.Y += dY * speed
 		if viewportLocked {
 			return event.UNBIND_SINGLE
 		}

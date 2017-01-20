@@ -3,7 +3,6 @@ package oak
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -16,7 +15,6 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/mouse"
 	"bitbucket.org/oakmoundstudio/oak/render"
 	"golang.org/x/exp/shiny/driver"
-	"golang.org/x/exp/shiny/screen"
 )
 
 var (
@@ -37,13 +35,7 @@ var (
 	ScreenWidth  int
 	ScreenHeight int
 
-	black      = color.RGBA{0x00, 0x00, 0x00, 0xff}
-	imageBlack = image.Black
-
-	worldBuffer screen.Buffer
-	winBuffer   screen.Buffer
-	eb          *event.EventBus
-	sscreen     screen.Screen
+	eb *event.EventBus
 
 	wd, _    = os.Getwd()
 	imageDir string
@@ -133,8 +125,7 @@ func Init(firstScene string) {
 	var data interface{}
 	dlog.Info("First Scene Start")
 	for {
-		ViewX = 0
-		ViewY = 0
+		ViewPos = image.Point{0, 0}
 		useViewBounds = false
 		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
 		sceneMap[scene].start(prevScene, data)

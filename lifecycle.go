@@ -4,6 +4,7 @@ package oak
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
 	"strconv"
 	"time"
@@ -19,6 +20,15 @@ import (
 	"golang.org/x/mobile/event/mouse"
 	"golang.org/x/mobile/event/paint"
 	"golang.org/x/mobile/event/size"
+)
+
+var (
+	black      = color.RGBA{0x00, 0x00, 0x00, 0xff}
+	imageBlack = image.Black
+
+	worldBuffer screen.Buffer
+	winBuffer   screen.Buffer
+	sscreen     screen.Screen
 )
 
 func lifecycleLoop(s screen.Screen) {
@@ -182,20 +192,17 @@ func lifecycleLoop(s screen.Screen) {
 				dlog.Verb("Got something from viewport channel")
 				updateScreen(viewPoint[0], viewPoint[1])
 			default:
-				draw.Draw(worldBuffer.RGBA(), worldBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
+				draw.Draw(worldBuffer.RGBA(), winBuffer.Bounds(), imageBlack, ViewPos, screen.Src)
 
 				render.PreDraw()
-				render.DrawHeap(worldBuffer.RGBA(), ViewX, ViewY, ScreenWidth, ScreenHeight)
-				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), image.Point{ViewX, ViewY}, screen.Src)
+				render.DrawHeap(worldBuffer.RGBA(), ViewPos, ScreenWidth, ScreenHeight)
+				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), ViewPos, screen.Src)
 				render.DrawStaticHeap(winBuffer.RGBA())
 
-				w.Upload(image.Point{0, 0}, winBuffer, winBuffer.Bounds())
+				w.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
 				w.Publish()
 
 				timeSince := 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
-				text.SetText(strconv.Itoa(int(timeSince)))
-
-				timeSince = 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
 				text.SetText(strconv.Itoa(int(timeSince)))
 
 				lastTime = time.Now()

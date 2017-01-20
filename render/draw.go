@@ -4,6 +4,7 @@ import (
 	"container/heap"
 	"image"
 	"image/color"
+	"image/draw"
 
 	"time"
 
@@ -89,8 +90,8 @@ func DrawColor(c color.Color, x1, y1, x2, y2 float64, l int) {
 // and draws them as it removes them. It
 // filters out elements who have the layer
 // -1, reserved for elements to be undrawn.
-func DrawHeap(target *image.RGBA, vx, vy, screenW, screenH int) {
-	drawRenderableHeap(target, rh, vx, vy, screenW, screenH)
+func DrawHeap(target *image.RGBA, viewPos image.Point, screenW, screenH int) {
+	drawRenderableHeap(target, rh, viewPos, screenW, screenH)
 }
 
 func DrawStaticHeap(target *image.RGBA) {
@@ -108,7 +109,7 @@ func DrawStaticHeap(target *image.RGBA) {
 	*srh = *newRh
 }
 
-func drawRenderableHeap(target *image.RGBA, rheap *RenderableHeap, vx, vy, screenW, screenH int) {
+func drawRenderableHeap(target *image.RGBA, rheap *RenderableHeap, viewPos image.Point, screenW, screenH int) {
 	newRh := &RenderableHeap{}
 	for rheap.Len() > 0 {
 		intf := heap.Pop(rheap)
@@ -129,8 +130,8 @@ func drawRenderableHeap(target *image.RGBA, rheap *RenderableHeap, vx, vy, scree
 					x += 6
 					y += 6
 				}
-				if x > vx && y > vy &&
-					x2 < vx+screenW && y2 < vy+screenH {
+				if x > viewPos.X && y > viewPos.Y &&
+					x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
 
 					if InDrawPolygon(x, y, x2, y2) {
 						r.Draw(target)
@@ -158,4 +159,20 @@ func UndrawAfter(r Renderable, t time.Duration) {
 func DrawForTime(r Renderable, l int, t time.Duration) {
 	Draw(r, l)
 	UndrawAfter(r, t)
+}
+
+// ShinyDraw performs a draw operation at -x, -y, because
+// shiny/screen represents quadrant 4 as negative in both axes.
+// draw.Over will merge two pixels at a given position based on their
+// alpha channel.
+func ShinyDraw(buff draw.Image, img image.Image, x, y int) {
+	draw.Draw(buff, buff.Bounds(),
+		img, image.Point{-x, -y}, draw.Over)
+}
+
+// draw.Src will overwrite pixels beneath the given image regardless of
+// the new image's alpha.
+func ShinyOverwrite(buff draw.Image, img image.Image, x, y int) {
+	draw.Draw(buff, buff.Bounds(),
+		img, image.Point{-x, -y}, draw.Src)
 }
