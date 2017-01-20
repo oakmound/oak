@@ -2,246 +2,115 @@
 package oak
 
 import (
-	"fmt"
 	"image"
 	"image/color"
-	"image/draw"
-	"strconv"
 	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/event"
-	pmouse "bitbucket.org/oakmoundstudio/oak/mouse"
-	"bitbucket.org/oakmoundstudio/oak/render"
 
 	"golang.org/x/exp/shiny/screen"
-	"golang.org/x/mobile/event/key"
-	"golang.org/x/mobile/event/lifecycle"
-	"golang.org/x/mobile/event/mouse"
-	"golang.org/x/mobile/event/paint"
-	"golang.org/x/mobile/event/size"
 )
 
 var (
 	black      = color.RGBA{0x00, 0x00, 0x00, 0xff}
 	imageBlack = image.Black
 
-	worldBuffer screen.Buffer
-	winBuffer   screen.Buffer
-	sscreen     screen.Screen
+	worldBuffer   screen.Buffer
+	winBuffer     screen.Buffer
+	screenControl screen.Screen
+
+	esc      bool
+	drawInit bool
 )
 
 func lifecycleLoop(s screen.Screen) {
+	screenControl = s
 
-	// The event loop requires information about
-	// the size of the world and screen that is
-	// being dealt with, and so initializes it here.
-	//
-	// Todo: add world size to config
-	worldBuffer, _ = s.NewBuffer(image.Point{4000, 4000})
-
-	winBuffer, _ = s.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
-	w, err := s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight})
+	// The world buffer represents the total space that is conceptualized by the engine
+	// and able to be drawn to. Space outside of this area will appear as smeared
+	// white (on windows).
+	worldBuffer, err = screenControl.NewBuffer(image.Point{WorldWidth, WorldHeight})
 	if err != nil {
 		dlog.Error(err)
+		return
 	}
-	defer w.Release()
+	defer worldBuffer.Release()
 
-	sscreen = s
+	// The window buffer represents the subsection of the world which is available to
+	// be shown in a window.
+	winBuffer, err = screenControl.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
+	if err != nil {
+		dlog.Error(err)
+		return
+	}
+	defer winBuffer.Release()
+
+	// The window controller handles incoming hardware or platform events and
+	// publishes image data to the screen.
+	windowControl, err := WindowController(screenControl, ScreenWidth, ScreenHeight)
+	if err != nil {
+		dlog.Error(err)
+		return
+	}
+	defer windowControl.Release()
 
 	eb = event.GetEventBus()
 
-	// Todo: add frame rate to config
-	frameRate := 60
 	frameCh := make(chan bool)
 
-	// This goroutine maintains a logical framerate
-	go func(frameCh chan bool, frameRate int64) {
-		c := time.Tick(time.Second / time.Duration(frameRate))
-		for range c {
-			frameCh <- true
-		}
-	}(frameCh, int64(frameRate))
+	go FrameLoop(frameCh, int64(FrameRate))
+	go InputLoop(windowControl)
 
-	// Native go event handler
-	go func() {
-		for {
-			e := w.NextEvent()
-			switch e := e.(type) {
-
-			// We only currently respond to death lifecycle events.
-			case lifecycle.Event:
-				if e.To == lifecycle.StageDead {
-					quitCh <- true
-					return
-				}
-
-			// Send key events
-			//
-			// Key events have two varieties:
-			// The "KeyDown" and "KeyUp" events, which trigger for all keys
-			// and specific "KeyDown$key", etc events which trigger only for $key.
-			// The specific key that is pressed is passed as the data interface for
-			// the former events, but not for the latter.
-			case key.Event:
-				k := GetKeyBind(e.Code.String()[4:])
-				if e.Direction == key.DirPress {
-					fmt.Println("--------------------", e.Code.String()[4:], k)
-					setDown(k)
-					eb.Trigger("KeyDown", k)
-					eb.Trigger("KeyDown"+k, nil)
-				} else if e.Direction == key.DirRelease {
-					setUp(k)
-					eb.Trigger("KeyUp", k)
-					eb.Trigger("KeyUp"+k, nil)
-				}
-
-			// Send mouse events
-			//
-			// Mouse events are parsed based on their button
-			// and direction into an event name and then triggered:
-			// 'MousePress', 'MouseRelease', 'MouseScrollDown', 'MouseScrollUp', and 'MouseDrag'
-			//
-			// The basic event name is meant for entities which
-			// want to respond to the mouse event happening -anywhere-.
-			//
-			// For events which have mouse collision enabled, they'll recieve
-			// $eventName+"On" when the event occurs within their collision area.
-			//
-			// Mouse events all recieve an x, y, and button string.
-			case mouse.Event:
-				button := pmouse.GetMouseButton(int32(e.Button))
-				dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", button)
-				mevent := pmouse.MouseEvent{e.X, e.Y, button}
-				var eventName string
-				if e.Direction == mouse.DirPress {
-					setDown(button)
-					eventName = "MousePress"
-				} else if e.Direction == mouse.DirRelease {
-					setUp(button)
-					eventName = "MouseRelease"
-				} else if e.Button == -2 {
-					eventName = "MouseScrollDown"
-				} else if e.Button == -1 {
-					eventName = "MouseScrollUp"
-				} else {
-					eventName = "MouseDrag"
-				}
-				pmouse.LastMouseEvent = mevent
-				eb.Trigger(eventName, mevent)
-				pmouse.Propagate(eventName+"On", mevent)
-
-			// I don't really know what a paint event is to be honest.
-			// We hypothetically don't allow the user to manually resize
-			// their window, so we don't do anything special for such events.
-			case size.Event, paint.Event:
-			case error:
-				dlog.Error(e)
-			}
-
-			// This is a hardcoded quit function bound to the escape key.
-			if IsDown("Escape") {
-				if esc {
-					dlog.Warn("Quiting oak from holding ESCAPE")
-					w.Send(lifecycle.Event{0, 0, nil})
-				}
-				esc = true
-			} else {
-				esc = false
-			}
-		}
-	}()
-
-	// This sends a signal to initiate the first scene
+	// Initiate the first scene
 	initCh <- true
 
-	// The draw loop
-	// Unless told to stop, the draw channel will repeatedly
-	// 1. draw black to a temporary buffer
-	// 2. run any functions bound to precede drawing.
-	// 3. draw all elements onto the temporary buffer.
-	// 4. run any functions bound to follow drawing.
-	// 5. draw the buffer's data at the viewport's position to the screen.
-	// 6. publish the screen to display in window.
-	go func() {
-		<-drawChannel
-		//cb := render.CompositeFilter(render.NewColorBox(4096, 4096, color.RGBA{0, 0, 0, 125}).Sprite)
-		lastTime := time.Now()
+	go DrawLoop(windowControl)
+	go BindingLoop()
+	LogicLoop(frameCh)
+}
 
-		text := render.DefFont().NewText("", 10, 20)
-		render.StaticDraw(text, 60000)
-		for {
-			dlog.Verb("Draw Loop")
-		drawSelect:
-			select {
+func BindingLoop() {
+	// Handle bind and unbind signals for events
+	// (should be made to not use a busy loop eventually)
+	for runEventLoop {
+		event.ResolvePending()
+	}
+}
 
-			case <-drawChannel:
-				dlog.Verb("Got something from draw channel")
-				for {
-					select {
-					case <-drawChannel:
-						render.StaticDraw(text, 60000)
-						break drawSelect
-					case viewPoint := <-viewportChannel:
-						dlog.Verb("Got something from viewport channel (waiting on draw)")
-						updateScreen(viewPoint[0], viewPoint[1])
-					}
+// Maintain a frame rate for logical operations
+func FrameLoop(frameCh chan bool, frameRate int64) {
+	c := time.Tick(time.Second / time.Duration(frameRate))
+	for range c {
+		frameCh <- true
+	}
+}
 
-				}
-			case viewPoint := <-viewportChannel:
-				dlog.Verb("Got something from viewport channel")
-				updateScreen(viewPoint[0], viewPoint[1])
-			default:
-				draw.Draw(worldBuffer.RGBA(), winBuffer.Bounds(), imageBlack, ViewPos, screen.Src)
-
-				render.PreDraw()
-				render.DrawHeap(worldBuffer.RGBA(), ViewPos, ScreenWidth, ScreenHeight)
-				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), ViewPos, screen.Src)
-				render.DrawStaticHeap(winBuffer.RGBA())
-
-				w.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
-				w.Publish()
-
-				timeSince := 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
-				text.SetText(strconv.Itoa(int(timeSince)))
-
-				lastTime = time.Now()
-			}
-		}
-	}()
-
+func LogicLoop(frameCh chan bool) {
 	// The logical loop.
 	// In order, it waits on receiving a signal to begin a logical frame.
 	// It then runs any functions bound to when a frame begins.
 	// It then runs any functions bound to when a frame ends.
 	// It then allows a scene to perform it's loop operation.
-	go func() {
-		for runEventLoop {
-			event.ResolvePending()
-		}
-	}()
 	for {
 		for runEventLoop {
 			<-frameCh
 			<-eb.Trigger("EnterFrame", nil)
+			// ExitFrame shouldn't need to exist given event priorities
 			<-eb.Trigger("ExitFrame", nil)
 			sceneCh <- true
 		}
 	}
 }
 
-func CurrentScene() string {
-	return scene
-}
-
-func GetScreen() draw.Image {
+func GetScreen() *image.RGBA {
 	return winBuffer.RGBA()
 }
 
-func GetWorld() draw.Image {
+func GetWorld() *image.RGBA {
 	return worldBuffer.RGBA()
 }
 
 func SetWorldSize(x, y int) {
-	worldBuffer, _ = sscreen.NewBuffer(image.Point{x, y})
+	worldBuffer, _ = screenControl.NewBuffer(image.Point{x, y})
 }

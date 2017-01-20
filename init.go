@@ -1,12 +1,9 @@
 package oak
 
 import (
-	"fmt"
 	"image"
-	"math/rand"
 	"os"
 	"path/filepath"
-	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/audio"
 	"bitbucket.org/oakmoundstudio/oak/collision"
@@ -18,22 +15,46 @@ import (
 )
 
 var (
-	initCh          = make(chan bool)
-	sceneCh         = make(chan bool)
-	skipSceneCh     = make(chan bool)
-	quitCh          = make(chan bool)
-	drawChannel     = make(chan bool)
-	debugResetCh    = make(chan bool)
+	// The init channel communicates between
+	// initializing goroutines for when significant
+	// steps in initialization have been reached
+	initCh = make(chan bool)
+
+	// The Scene channel recieves a signal
+	// when a scene's .loop() function should
+	// be called.
+	sceneCh = make(chan bool)
+
+	// The skip scene channel recieves a debug
+	// signal to forcibly go to the next
+	// scene.
+	skipSceneCh = make(chan bool)
+
+	// The quit channel recieves a signal when
+	// the program should stop.
+	quitCh = make(chan bool)
+
+	// The draw channel recieves a signal when
+	// drawing should cease (or resume)
+	drawChannel = make(chan bool)
+
+	// The debug reset channel represents
+	// when the debug console should forget the
+	// commands that have been sent to it.
+	debugResetCh = make(chan bool)
+
+	// The viewport channel controls when new
+	// viewport positions should be drawn
 	viewportChannel = make(chan [2]int)
 
-	drawInit             bool
 	runEventLoop         bool
 	debugResetInProgress bool
-	esc                  bool
-	startupLoadComplete  bool
 
 	ScreenWidth  int
 	ScreenHeight int
+	WorldWidth   int
+	WorldHeight  int
+	FrameRate    int
 
 	eb *event.EventBus
 
@@ -41,8 +62,10 @@ var (
 	imageDir string
 	audioDir string
 
+	// GlobalFirstScene is returned by the first
+	// loading scene
 	globalFirstScene string
-	scene            string
+	CurrentScene     string
 
 	zeroPoint = image.Point{0, 0}
 )
@@ -59,12 +82,17 @@ func Init(firstScene string) {
 	dlog.SetStringDebugLevel(conf.Debug.Level)
 	dlog.SetDebugFilter(conf.Debug.Filter)
 
+	// This check is delayed till after the above lines
+	// As otherwise the dlog call would crash/be unseen
 	if err != nil {
 		dlog.Verb(err)
 	}
 
 	ScreenWidth = conf.Screen.Width
 	ScreenHeight = conf.Screen.Height
+	WorldWidth = conf.World.Width
+	WorldHeight = conf.World.Height
+	FrameRate = conf.FrameRate
 
 	imageDir = filepath.Join(wd,
 		conf.Assets.AssetPath,
@@ -78,57 +106,37 @@ func Init(firstScene string) {
 		conf.Font.DPI)
 	// END of loading variables from configuration
 
-	// Init various engine pieces
 	collision.Init()
 	mouse.Init()
 	render.InitDrawHeap()
 	audio.InitWinAudio()
 
-	// Seed the rng
-	curSeed := time.Now().UTC().UnixNano()
-	//curSeed = 1471104995917281000
-	rand.Seed(curSeed)
-	dlog.Info("The seed is:", curSeed)
-	fmt.Println("\n~~~~~~~~~~~~~~~\nTHE SEED IS:", curSeed, "\n~~~~~~~~~~~~~~~\n")
+	SeedRNG(DEFAULT_SEED)
 
-	// Load in assets
-	go func() {
-		err = render.BatchLoad(imageDir)
-		if err != nil {
-			dlog.Error(err)
-			return
-		}
-
-		err = audio.BatchLoad(audioDir)
-		if err != nil {
-			dlog.Error(err)
-		}
-
-		startupLoadComplete = true
-	}()
-
-	// Spawn off event loop goroutines
+	go LoadAssets()
 	go driver.Main(lifecycleLoop)
-
 	go DebugConsole(debugResetCh, skipSceneCh)
 
 	prevScene := ""
 	sceneMap[firstScene].active = true
 
 	<-initCh
+
+	// This is the only time oak closes a channel
+	// This should probably change
 	close(initCh)
 
 	// Loop through scenes
 	runEventLoop = true
 	globalFirstScene = firstScene
-	scene = "loading"
+	CurrentScene = "loading"
 	var data interface{}
 	dlog.Info("First Scene Start")
 	for {
 		ViewPos = image.Point{0, 0}
 		useViewBounds = false
 		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
-		sceneMap[scene].start(prevScene, data)
+		sceneMap[CurrentScene].start(prevScene, data)
 		// Send a signal to resume (or begin) drawing
 		drawChannel <- true
 
@@ -140,13 +148,13 @@ func Init(firstScene string) {
 			case <-quitCh:
 				return
 			case <-sceneCh:
-				cont = sceneMap[scene].loop()
+				cont = sceneMap[CurrentScene].loop()
 			case <-skipSceneCh:
 				cont = false
 			}
 		}
 		dlog.Info("~~~~~~~~Scene End~~~~~~~~~~")
-		prevScene = scene
+		prevScene = CurrentScene
 
 		// Send a signal to stop drawing
 		drawChannel <- true
@@ -159,7 +167,9 @@ func Init(firstScene string) {
 		mouse.Clear()
 		render.PreDraw()
 
-		scene, data = sceneMap[scene].end()
+		// Todo: Add in customizable loading scene between regular scenes
+
+		CurrentScene, data = sceneMap[CurrentScene].end()
 
 		eb = event.GetEventBus()
 		if !debugResetInProgress {

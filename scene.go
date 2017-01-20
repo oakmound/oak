@@ -3,6 +3,8 @@ package oak
 import (
 	"errors"
 	"fmt"
+
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
 var (
@@ -13,7 +15,13 @@ var (
 				return
 			},
 			func() bool {
-				return startupLoadComplete
+				select {
+				case <-startupLoadComplete:
+					dlog.Info("Load Complete")
+					return false
+				default:
+					return true
+				}
 			},
 			func() (string, interface{}) {
 				return globalFirstScene, nil

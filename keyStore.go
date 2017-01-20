@@ -7,7 +7,7 @@ import (
 var (
 	keyBinds = make(map[string]string)
 	keyState = make(map[string]bool)
-	keyLock  = sync.Mutex{}
+	keyLock  = sync.RWMutex{}
 )
 
 // SetUp, SetDown, and IsDown all
@@ -27,9 +27,9 @@ func setDown(key string) {
 }
 
 func IsDown(key string) bool {
-	keyLock.Lock()
+	keyLock.RLock()
 	k := keyState[key]
-	keyLock.Unlock()
+	keyLock.RUnlock()
 	return k
 }
 
