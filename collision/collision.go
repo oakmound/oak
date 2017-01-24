@@ -3,8 +3,9 @@
 package collision
 
 import (
-	"github.com/Sythe2o0/rtreego"
 	"sync"
+
+	"github.com/Sythe2o0/rtreego"
 )
 
 var (
@@ -32,9 +33,13 @@ func Clear() {
 	Init()
 }
 
-func Add(sp *Space) {
+func Add(sps ...*Space) {
 	addLock.Lock()
-	rt.Insert(sp)
+	for _, sp := range sps {
+		if sp != nil {
+			rt.Insert(sp)
+		}
+	}
 	addLock.Unlock()
 }
 

@@ -113,6 +113,47 @@ func (s *Space) Update(x, y, w, h float64) {
 	rt.Insert(s)
 }
 
+func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
+	x1 := s.GetX()
+	y1 := s.GetY()
+	w1 := s.GetW()
+	h1 := s.GetH()
+
+	// Left, Top, Right, Bottom
+	// X, Y, W, H
+	rects := [4][4]float64{}
+
+	rects[0][0] = x1
+	rects[0][1] = y1
+	rects[0][2] = x2
+	rects[0][3] = h1
+
+	rects[1][0] = x1
+	rects[1][1] = y1
+	rects[1][2] = w1
+	rects[1][3] = y2
+
+	rects[2][0] = x1 + x2 + w2
+	rects[2][1] = y1
+	rects[2][2] = w1 - (x2 + w2)
+	rects[2][3] = h1
+
+	rects[3][0] = x1
+	rects[3][1] = y1 + y2 + h2
+	rects[3][2] = w1
+	rects[3][3] = h1 - (y2 + h2)
+
+	spaces := make([]*Space, 0)
+
+	for _, r := range rects {
+		if r[2] > 0 && r[3] > 0 {
+			spaces = append(spaces, NewFullSpace(r[0], r[1], r[2], r[3], s.Label, s.CID))
+		}
+	}
+
+	return spaces
+}
+
 func (s *Space) String() string {
 	return strconv.FormatFloat(s.GetX(), 'f', 2, 32) + "," +
 		strconv.FormatFloat(s.GetY(), 'f', 2, 32) + "," +
