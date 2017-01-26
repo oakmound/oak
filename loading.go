@@ -8,6 +8,7 @@ import (
 
 var (
 	startupLoadComplete = make(chan bool)
+	loadingR            render.Renderable
 )
 
 func LoadAssets() {
@@ -26,4 +27,8 @@ func LoadAssets() {
 	dlog.Info("Done Loading Audio")
 
 	startupLoadComplete <- true
+}
+
+func SetLoadingR(r render.Renderable) {
+	loadingR = r
 }
