@@ -1,13 +1,13 @@
 package particle
 
 import (
-	"goevo/alg"
 	"math"
 	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/physics"
 	"bitbucket.org/oakmoundstudio/oak/render"
+	"bitbucket.org/oakmoundstudio/oak/alg"
 )
 
 const (
