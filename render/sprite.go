@@ -11,12 +11,17 @@ type Sprite struct {
 	r *image.RGBA
 }
 
+func NewEmptySprite(x, y float64, w, h int) * Sprite{
+	r := image.NewRGBA(image.Rect(0, 0,w, h))
+	return NewSprite(x, y, r)
+}
+
 func NewSprite(x, y float64, r *image.RGBA) *Sprite {
 	return &Sprite{
 		LayeredPoint: LayeredPoint{
 			Point: Point{
-				X: 0.0,
-				Y: 0.0,
+				X: x,
+				Y: y,
 			},
 		},
 		r: r,
