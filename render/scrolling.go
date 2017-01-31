@@ -1,8 +1,10 @@
 package render
 
 import (
+	"errors"
 	"fmt"
 	"image/draw"
+	"strconv"
 	"time"
 )
 
@@ -23,7 +25,7 @@ type Scrolling struct {
 	Rs                       []Renderable
 	nextScrollX, nextScrollY time.Time
 	scrollRateX, scrollRateY time.Duration
-	View, Reappear           Point
+	View, reappear           Point
 	dirX, dirY               float64
 
 	paused bool
@@ -33,9 +35,9 @@ func NewScrolling(rs []Renderable, milliPerPixelX, milliPerPixelY, width, height
 	s := new(Scrolling)
 	s.Rs = rs
 	s.View = Point{float64(width), float64(height)}
-	s.Reappear = Point{s.View.X, s.View.Y}
 
 	s.SetScrollRate(milliPerPixelX, milliPerPixelY)
+	s.reappear = Point{-1 * s.dirX * s.View.X, -1 * s.dirY * s.View.Y}
 
 	s.nextScrollX = time.Now().Add(s.scrollRateX)
 	s.nextScrollY = time.Now().Add(s.scrollRateY)
@@ -69,8 +71,8 @@ func (s *Scrolling) update() {
 		newS.SetLayer(s.Sprite.GetLayer())
 		for _, m := range s.Rs {
 			m.ShiftX(-1 * s.dirX * float64(pixelsMovedX))
-			if m.GetX() <= -1*s.Reappear.X {
-				m.ShiftX(s.Reappear.X) //Hope that delta is not higher than reappear...
+			if (s.dirX == 1 && m.GetX() <= s.reappear.X) || (s.dirX == -1 && m.GetX() >= s.reappear.X) {
+				m.ShiftX(-1 * s.reappear.X) //Hope that delta is not higher than reappear...
 			}
 
 		}
@@ -85,8 +87,8 @@ func (s *Scrolling) update() {
 		newS.SetLayer(s.Sprite.GetLayer())
 		for _, m := range s.Rs {
 			m.ShiftY(-1 * s.dirY * float64(pixelsMovedY))
-			if m.GetY() <= -1*s.Reappear.Y {
-				m.ShiftY(s.Reappear.Y) //Hope that delta is not higher than reappear...
+			if (s.dirY == 1 && m.GetY() <= s.reappear.Y) || (s.dirY == -1 && m.GetY() >= s.reappear.Y) {
+				m.ShiftY(-1 * s.reappear.Y) //Hope that delta is not higher than reappear...
 			}
 		}
 		*s.Sprite = *newS
@@ -103,6 +105,17 @@ func (s *Scrolling) Unpause() {
 	s.paused = false
 	s.nextScrollX = time.Now().Add(s.scrollRateX)
 	s.nextScrollY = time.Now().Add(s.scrollRateY)
+}
+
+func (s *Scrolling) SetReappearPos(x, y float64) error {
+	s.reappear = Point{x, y}
+	if x*s.dirX > 0 {
+		return errors.New("Scrolling will not loop with direction.X: " + strconv.Itoa(int(s.dirX)) + " and reappear.X: " + strconv.Itoa(int(x)))
+	}
+	if y*s.dirY > 0 {
+		return errors.New("Scrolling will not loop with direction.Y: " + strconv.Itoa(int(s.dirY)) + " and reappear.X: " + strconv.Itoa(int(y)))
+	}
+	return nil
 }
 
 func (s *Scrolling) SetScrollRate(milliPerPixelX, milliPerPixelY int) {
@@ -139,8 +152,14 @@ func (s *Scrolling) AddRenderable(rs ...Renderable) {
 func (s *Scrolling) drawRenderables() {
 	for _, r := range s.Rs {
 		r.DrawOffset(s.GetRGBA(), -2*r.GetX(), -2*r.GetY())
-		r.DrawOffset(s.GetRGBA(), -2*r.GetX(), -2*r.GetY()-s.Reappear.Y)
-		r.DrawOffset(s.GetRGBA(), -2*r.GetX()-s.Reappear.X, -2*r.GetY())
-		r.DrawOffset(s.GetRGBA(), -2*r.GetX()-s.Reappear.X, -2*r.GetY()-s.Reappear.Y)
+		if s.scrollRateY != 0 {
+			r.DrawOffset(s.GetRGBA(), -2*r.GetX(), -2*r.GetY()+s.reappear.Y)
+		}
+		if s.scrollRateX != 0 {
+			r.DrawOffset(s.GetRGBA(), -2*r.GetX()+s.reappear.X, -2*r.GetY())
+		}
+		if s.scrollRateX != 0 && s.scrollRateY != 0 {
+			r.DrawOffset(s.GetRGBA(), -2*r.GetX()+s.reappear.X, -2*r.GetY()+s.reappear.Y)
+		}
 	}
 }
