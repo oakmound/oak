@@ -12,15 +12,15 @@ import (
 //Sprite to draw to
 //List of things to scroll
 
-//Needs have a start/stop on the scrolling : Pause
+//Needs have a start/stop on the ScrollBox : Pause
 //needs bool to track
 
-//scrollrate = some unit of scrolling px per ms  takes that and transforms to duration
+//scrollrate = some unit of ScrollBox px per ms  takes that and transforms to duration
 //nextscroll = time
 
 //This will only scroll x for now
 
-type Scrolling struct {
+type ScrollBox struct {
 	*Sprite
 	Rs                       []Renderable
 	nextScrollX, nextScrollY time.Time
@@ -31,8 +31,8 @@ type Scrolling struct {
 	paused bool
 }
 
-func NewScrolling(rs []Renderable, milliPerPixelX, milliPerPixelY, width, height int) *Scrolling {
-	s := new(Scrolling)
+func NewScrollBox(rs []Renderable, milliPerPixelX, milliPerPixelY, width, height int) *ScrollBox {
+	s := new(ScrollBox)
 	s.Rs = rs
 	s.View = Point{float64(width), float64(height)}
 
@@ -42,22 +42,22 @@ func NewScrolling(rs []Renderable, milliPerPixelX, milliPerPixelY, width, height
 	s.nextScrollX = time.Now().Add(s.scrollRateX)
 	s.nextScrollY = time.Now().Add(s.scrollRateY)
 	s.Sprite = NewEmptySprite(0, 0, width, height)
-	fmt.Println("Made a scrolling ")
+	fmt.Println("Made a ScrollBox ")
 
 	s.drawRenderables()
 	return s
 }
 
-func (s *Scrolling) DrawOffset(buff draw.Image, xOff, yOff float64) {
+func (s *ScrollBox) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	s.update()
 	s.Sprite.DrawOffset(buff, xOff, yOff)
 
 }
-func (s *Scrolling) Draw(buff draw.Image) {
+func (s *ScrollBox) Draw(buff draw.Image) {
 	s.DrawOffset(buff, 0, 0)
 }
 
-func (s *Scrolling) update() {
+func (s *ScrollBox) update() {
 	updatedFlag := false
 	if s.paused {
 		return
@@ -98,27 +98,27 @@ func (s *Scrolling) update() {
 		s.drawRenderables()
 	}
 }
-func (s *Scrolling) Pause() {
+func (s *ScrollBox) Pause() {
 	s.paused = true
 }
-func (s *Scrolling) Unpause() {
+func (s *ScrollBox) Unpause() {
 	s.paused = false
 	s.nextScrollX = time.Now().Add(s.scrollRateX)
 	s.nextScrollY = time.Now().Add(s.scrollRateY)
 }
 
-func (s *Scrolling) SetReappearPos(x, y float64) error {
+func (s *ScrollBox) SetReappearPos(x, y float64) error {
 	s.reappear = Point{x, y}
 	if x*s.dirX > 0 {
-		return errors.New("Scrolling will not loop with direction.X: " + strconv.Itoa(int(s.dirX)) + " and reappear.X: " + strconv.Itoa(int(x)))
+		return errors.New("ScrollBox will not loop with direction.X: " + strconv.Itoa(int(s.dirX)) + " and reappear.X: " + strconv.Itoa(int(x)))
 	}
 	if y*s.dirY > 0 {
-		return errors.New("Scrolling will not loop with direction.Y: " + strconv.Itoa(int(s.dirY)) + " and reappear.X: " + strconv.Itoa(int(y)))
+		return errors.New("ScrollBox will not loop with direction.Y: " + strconv.Itoa(int(s.dirY)) + " and reappear.X: " + strconv.Itoa(int(y)))
 	}
 	return nil
 }
 
-func (s *Scrolling) SetScrollRate(milliPerPixelX, milliPerPixelY int) {
+func (s *ScrollBox) SetScrollRate(milliPerPixelX, milliPerPixelY int) {
 	s.dirX = 1
 	s.dirY = 1
 	if milliPerPixelX < 0 {
@@ -138,7 +138,7 @@ func (s *Scrolling) SetScrollRate(milliPerPixelX, milliPerPixelY int) {
 	s.scrollRateY = time.Duration(milliPerPixelY) * time.Millisecond
 }
 
-func (s *Scrolling) AddRenderable(rs ...Renderable) {
+func (s *ScrollBox) AddRenderable(rs ...Renderable) {
 	for _, r := range rs {
 		switch r.(type) {
 		case *Text, *IntText:
@@ -149,7 +149,7 @@ func (s *Scrolling) AddRenderable(rs ...Renderable) {
 	s.drawRenderables()
 }
 
-func (s *Scrolling) drawRenderables() {
+func (s *ScrollBox) drawRenderables() {
 	for _, r := range s.Rs {
 		r.DrawOffset(s.GetRGBA(), -2*r.GetX(), -2*r.GetY())
 		if s.scrollRateY != 0 {
