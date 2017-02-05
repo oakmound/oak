@@ -68,6 +68,16 @@ func (s *Space) Below(other *Space) float64 {
 	return s.GetY() - other.GetY()
 }
 
+func (s *Space) Contains(other *Space) bool {
+	//You contain another space if it is fully inside your space
+	//If you are the same size and location as the space you are checking then you both contain eachother
+	if s.GetX() > other.GetX() || s.GetX()+s.GetW() < other.GetX()+other.GetW() ||
+		s.GetY() > other.GetY() || s.GetY()+s.GetH() < other.GetY()+other.GetH() {
+		return false
+	}
+	return true
+}
+
 func (s *Space) LeftOf(other *Space) float64 {
 	return other.GetX() - s.GetX()
 }
