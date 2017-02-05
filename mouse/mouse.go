@@ -5,7 +5,9 @@ package mouse
 
 import (
 	"bitbucket.org/oakmoundstudio/oak/collision"
+	"fmt"
 	"github.com/Sythe2o0/rtreego"
+	"sync"
 )
 
 var (
@@ -13,6 +15,7 @@ var (
 	// We track the last triggered mouse event
 	// for continuous click hold responsiveness
 	LastMouseEvent MouseEvent
+	addLock        = sync.Mutex{}
 )
 
 type MouseEvent struct {
@@ -21,15 +24,23 @@ type MouseEvent struct {
 }
 
 func Init() {
+	fmt.Println("Mouse init started")
+	addLock.Lock()
 	mt = rtreego.NewTree(20, 40)
+	addLock.Unlock()
+	fmt.Println("Mouse init done")
 }
 
 func Clear() {
+	fmt.Println("Mouse clear started ")
 	Init()
+	fmt.Println("Mouse clear done")
 }
 
 func Add(sp *collision.Space) {
+	addLock.Lock()
 	mt.Insert(sp)
+	addLock.Unlock()
 }
 
 func Remove(sp *collision.Space) {
@@ -46,12 +57,24 @@ func UpdateSpace(x, y, w, h float64, s *collision.Space) {
 	mt.Insert(s)
 }
 
+func Hits(sp *collision.Space) []*collision.Space {
+	results := mt.SearchIntersect(sp.Bounds())
+	out := make([]*collision.Space, len(results))
+	for index, v := range results {
+		out[index] = v.(*collision.Space)
+	}
+	return out
+}
+
 // Trigger direct mouse events on entities
 // which are clicked
 func Propagate(eventName string, me MouseEvent) {
 	mouseLoc := collision.NewUnassignedSpace(float64(me.X), float64(me.Y), 0.01, 0.01)
 	hits := mt.SearchIntersect(mouseLoc.Bounds())
+	if eventName == "MousePressOn" {
+		fmt.Println(len(hits), " Number of mouse collision spaces found")
 
+	}
 	for _, v := range hits {
 		sp := v.(*collision.Space)
 		sp.CID.Trigger(eventName, nil)

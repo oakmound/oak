@@ -125,6 +125,9 @@ func mouseDetails(nothing int, mevent interface{}) int {
 	loc := collision.NewUnassignedSpace(float64(x), float64(y), 16, 16)
 	results := collision.Hits(loc)
 	fmt.Println("Mouse at:", x, y, "rel:", me.X, me.Y)
+	if len(results) == 0 {
+		results = mouse.Hits(loc)
+	}
 	if len(results) > 0 {
 		i := int(results[0].CID)
 		if i > 0 && event.HasEntity(i) {
@@ -134,5 +137,6 @@ func mouseDetails(nothing int, mevent interface{}) int {
 			fmt.Println("No entity ", i)
 		}
 	}
+
 	return 0
 }
