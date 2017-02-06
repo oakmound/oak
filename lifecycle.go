@@ -3,7 +3,6 @@ package oak
 
 import (
 	"image"
-	"image/color"
 	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
@@ -13,9 +12,6 @@ import (
 )
 
 var (
-	black      = color.RGBA{0x00, 0x00, 0x00, 0xff}
-	imageBlack = image.Black
-
 	worldBuffer   screen.Buffer
 	winBuffer     screen.Buffer
 	screenControl screen.Screen

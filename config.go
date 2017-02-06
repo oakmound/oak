@@ -9,10 +9,6 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
-const (
-	oakPath = "src/bitbucket.org/oakmoundstudio/oak"
-)
-
 var (
 	tmpConf oakConfig
 	err     error

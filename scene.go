@@ -28,7 +28,6 @@ var (
 			},
 		},
 	}
-	activeScene *Scene
 )
 
 type Scene struct {

@@ -1,6 +1,7 @@
 package oak
 
 import (
+	"image"
 	"image/draw"
 	"strconv"
 	"time"
@@ -8,6 +9,10 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/render"
 	"golang.org/x/exp/shiny/screen"
+)
+
+var (
+	imageBlack = image.Black
 )
 
 // DrawLoop
