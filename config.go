@@ -150,3 +150,20 @@ func loadOakConfig(fileName string) (oakConfig, error) {
 
 	return config, nil
 }
+
+
+func (oc * oakConfig) String() string{
+	st := "Config:\n{"
+	st += oc.Debug.String()
+	st += "\n}"
+	return st
+}
+
+
+func (d * Debug) String() string{
+	st := "Debug:\n{"
+	st += "Level: " + d.Level
+	st += "\nFilter:" +  d.Filter
+	st += "\n}"
+	return st
+}
