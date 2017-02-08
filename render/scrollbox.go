@@ -64,7 +64,7 @@ func (s *ScrollBox) update() {
 	}
 	if s.dirX != 0 && time.Now().After(s.nextScrollX) {
 		pixelsMovedX := int64(time.Now().Sub(s.nextScrollX))/int64(s.scrollRateX) + 1
-		fmt.Println("Scrolled by ", pixelsMovedX)
+		//fmt.Println("Scrolled by ", pixelsMovedX)
 		s.nextScrollX = time.Now().Add(s.scrollRateX)
 
 		newS := NewEmptySprite(s.Sprite.X, s.Sprite.Y, int(s.View.X), int(s.View.Y))
