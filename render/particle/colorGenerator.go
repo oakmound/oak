@@ -67,19 +67,6 @@ func (cp *ColorGenerator) GetParticleSize() (float64, float64, bool) {
 // Coloration
 //
 
-type Colorable interface {
-	SetStartColor(color.Color, color.Color)
-	SetEndColor(color.Color, color.Color)
-}
-
-func Color(sc, scr, ec, ecr color.Color) func(Generator) {
-	return func(g Generator) {
-		c := g.(Colorable)
-		c.SetStartColor(sc, scr)
-		c.SetEndColor(ec, ecr)
-	}
-}
-
 func (cg *ColorGenerator) SetStartColor(sc, scr color.Color) {
 	cg.StartColor = sc
 	cg.StartColorRand = scr

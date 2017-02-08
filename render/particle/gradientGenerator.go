@@ -67,19 +67,6 @@ func (gp *GradientGenerator) GetParticleSize() (float64, float64, bool) {
 // Gradient Coloration
 //
 
-type Colorable2 interface {
-	SetStartColor2(color.Color, color.Color)
-	SetEndColor2(color.Color, color.Color)
-}
-
-func Color2(sc, scr, ec, ecr color.Color) func(Generator) {
-	return func(g Generator) {
-		c := g.(Colorable2)
-		c.SetStartColor2(sc, scr)
-		c.SetEndColor2(ec, ecr)
-	}
-}
-
 func (gp *GradientGenerator) SetStartColor2(sc, scr color.Color) {
 	gp.StartColor2 = sc
 	gp.StartColor2Rand = scr
