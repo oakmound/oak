@@ -107,6 +107,10 @@ func (cid CID) String() string {
 	return strconv.Itoa(int(cid))
 }
 
+func (cid CID) E() interface{} {
+	return GetEntity(int(cid))
+}
+
 func GetEventBus() *EventBus {
 	return &thisBus
 }
@@ -136,9 +140,9 @@ var (
 	ubOptionsToUnbind = []UnbindOption{}
 	bindingsToUnbind  = []Binding{}
 
-	orderedUnbinds = []BindingOption{}
+	orderedUnbinds     = []BindingOption{}
 	orderedBindOptions = []BindingOption{}
-	orderedBindables = []Bindable{}
+	orderedBindables   = []Bindable{}
 
 	pendingMutex = sync.Mutex{}
 )
@@ -193,8 +197,6 @@ func ResolvePending() {
 		orderedBindOptions = []BindingOption{}
 		pendingMutex.Unlock()
 	}
-
-
 
 	// Unbinds
 	if len(bindingsToUnbind) > 0 {
@@ -258,7 +260,7 @@ func ResolvePending() {
 		mutex.Lock()
 		pendingMutex.Lock()
 		// fmt.Println("eventbus locked D")
-		
+
 		for _, opt := range ubOptionsToUnbind {
 			thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
 		}
@@ -393,5 +395,3 @@ func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 		return store.lowPriority[(opt.Priority*-1)-1]
 	}
 }
-
-

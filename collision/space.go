@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"bitbucket.org/oakmoundstudio/oak/event"
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"github.com/Sythe2o0/rtreego"
 )
 
@@ -121,6 +122,11 @@ func (s *Space) Update(x, y, w, h float64) {
 	rt.Delete(s)
 	s.Location = loc
 	rt.Insert(s)
+}
+
+func (s *Space) OverlapVector(other *Space) *physics.Vector {
+	xover, yover := s.Overlap(other)
+	return physics.NewVector(-xover, -yover)
 }
 
 func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
