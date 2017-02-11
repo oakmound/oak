@@ -124,6 +124,12 @@ func (s *Space) Update(x, y, w, h float64) {
 	rt.Insert(s)
 }
 
+func (s *Space) UpdateLabel(classtype int) {
+	rt.Delete(s)
+	s.Label = classtype
+	rt.Insert(s)
+}
+
 func (s *Space) OverlapVector(other *Space) *physics.Vector {
 	xover, yover := s.Overlap(other)
 	return physics.NewVector(-xover, -yover)

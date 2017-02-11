@@ -13,6 +13,7 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/mouse"
 	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/davecgh/go-spew/spew"
 )
 
 var (
@@ -21,7 +22,8 @@ var (
 
 func DebugConsole(resetCh, skipScene chan bool) {
 	scanner := bufio.NewScanner(os.Stdin)
-
+	spew.Config.DisableMethods = true
+	spew.Config.MaxDepth=2
 	for {
 		select {
 		case <-resetCh: //reset all vars in debug console that save state
@@ -132,7 +134,9 @@ func mouseDetails(nothing int, mevent interface{}) int {
 		i := int(results[0].CID)
 		if i > 0 && event.HasEntity(i) {
 			e := event.GetEntity(i)
-			fmt.Printf("%+v \n", e)
+			spew.Dump(e)
+
+			//fmt.Printf("%+v \n", e)
 			//fmt.Println(reflect.TypeOf(e), e)
 		} else {
 			fmt.Println("No entity ", i)
