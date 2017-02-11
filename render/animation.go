@@ -76,6 +76,7 @@ func (a_p *Animation) Copy() Modifiable {
 	}
 	*sheetPointer = newSheet
 	newA.sheet = sheetPointer
+	//newA.LayeredPoint = a_p.LayeredPoint
 	return newA
 }
 

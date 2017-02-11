@@ -132,7 +132,8 @@ func mouseDetails(nothing int, mevent interface{}) int {
 		i := int(results[0].CID)
 		if i > 0 && event.HasEntity(i) {
 			e := event.GetEntity(i)
-			fmt.Println(reflect.TypeOf(e), e)
+			fmt.Printf("%+v \n", e)
+			//fmt.Println(reflect.TypeOf(e), e)
 		} else {
 			fmt.Println("No entity ", i)
 		}

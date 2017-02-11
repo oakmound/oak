@@ -45,8 +45,11 @@ func (rv *Reverting) IsStatic() bool {
 }
 
 func (rv *Reverting) Revert(mod int) {
+	x := rv.current.GetX()
+	y := rv.current.GetY()
 	rv.mods[mod] = emptyMods[mod]
 	rv.current = rv.root.Copy()
+	rv.SetPos(x, y)
 	for mod, in := range rv.mods {
 		switch mod {
 		case F_FlipX:

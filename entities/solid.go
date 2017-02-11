@@ -1,10 +1,11 @@
 package entities
 
 import (
-	"strconv"
+
 
 	"bitbucket.org/oakmoundstudio/oak/collision"
 	"bitbucket.org/oakmoundstudio/oak/event"
+	"strconv"
 )
 
 type Solid struct {
@@ -76,6 +77,7 @@ func (s *Solid) Destroy() {
 	s.CID.UnbindAll()
 	event.DestroyEntity(int(s.CID))
 }
+
 
 func (s *Solid) String() string {
 	st := "Solid:\n{"

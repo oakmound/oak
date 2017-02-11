@@ -45,6 +45,7 @@ func (d *Doodad) SetPos(x, y float64) {
 	d.R.SetPos(x, y)
 }
 
+
 func (d *Doodad) String() string {
 	s := "Doodad: \nP{ "
 	s += d.Point.String()
@@ -55,3 +56,4 @@ func (d *Doodad) String() string {
 	s += " }"
 	return s
 }
+

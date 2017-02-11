@@ -25,6 +25,7 @@ type LayeredPoint struct {
 	Layered
 }
 
+
 func (ldp *LayeredPoint) String() string {
 	x := strconv.FormatFloat(ldp.X, 'f', 2, 32)
 	y := strconv.FormatFloat(ldp.Y, 'f', 2, 32)
