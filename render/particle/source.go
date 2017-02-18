@@ -86,6 +86,8 @@ func (ps *Source) CycleParticles() {
 			}
 			bp.Pos.Add(bp.Vel)
 			bp.SetLayer(ps.Layer(bp.Pos))
+			p.Cycle(ps.Generator)
+
 		} else if bp.Life != RECYCLED {
 			p.UnDraw()
 			if pg.EndFunc != nil {
@@ -95,6 +97,7 @@ func (ps *Source) CycleParticles() {
 			bp.Life = RECYCLED
 			ps.recycled = append(ps.recycled, bp.pID%BLOCK_SIZE)
 		}
+
 	}
 }
 

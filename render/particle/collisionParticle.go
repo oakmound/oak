@@ -22,9 +22,14 @@ func (cp *CollisionParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
 }
 func (cp *CollisionParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOff, yOff float64) {
 	gen := generator.(*CollisionGenerator)
-	pos := cp.P.GetPos()
-	cp.s.Space().Location = collision.NewRect(pos.X, pos.Y, cp.s.Space().GetW(), cp.s.Space().GetH())
 	cp.P.DrawOffsetGen(gen.Gen, buff, xOff, yOff)
+}
+
+func (cp *CollisionParticle) Cycle(generator Generator){
+	gen := generator.(*CollisionGenerator)
+	pos := cp.P.GetPos()
+	cp.s.Space().Location 	= collision.NewRect(pos.X, pos.Y, cp.s.Space().GetW(), cp.s.Space().GetH())
+	
 	hitFlag := <-cp.s.CallOnHits()
 	if gen.Fragile && hitFlag {
 		cp.P.GetBaseParticle().Life = 0

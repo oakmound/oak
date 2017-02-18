@@ -16,6 +16,7 @@ type Particle interface {
 	GetPos() *physics.Vector
 	GetSize() (float64, float64)
 	DrawOffsetGen(gen Generator, buff draw.Image, xOff, yOff float64)
+	Cycle(gen Generator)
 }
 
 type BaseParticle struct {
@@ -54,6 +55,9 @@ func (bp *BaseParticle) SetPos(x, y float64) {
 	bp.Pos.X = x
 	bp.Pos.Y = y
 }
+
+func (bp *BaseParticle) Cycle(gen Generator){}
+
 func (bp *BaseParticle) String() string {
 	return "BaseParticle"
 }
