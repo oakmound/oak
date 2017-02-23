@@ -43,6 +43,20 @@ func (c *Compound) Get() string {
 	return c.curRenderable
 }
 
+func (c *Compound) IsInterruptable() bool {
+	switch t := c.subRenderables[c.curRenderable].(type) {
+	case *Animation:
+		return t.Interruptable
+	case *Sequence:
+		return t.Interruptable
+	case *Reverting:
+		return t.IsInterruptable()
+	case *Compound:
+		return t.IsInterruptable()
+	}
+	return true
+}
+
 func (c *Compound) IsStatic() bool {
 	switch c.subRenderables[c.curRenderable].(type) {
 	case *Animation, *Sequence:

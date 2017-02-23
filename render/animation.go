@@ -1,13 +1,14 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/event"
 	"errors"
 	"image"
 	"image/color"
 	"image/draw"
 	"math"
 	"time"
+
+	"bitbucket.org/oakmoundstudio/oak/event"
 )
 
 type Sheet [][]*image.RGBA
@@ -20,13 +21,14 @@ func (sh *Sheet) SubSprite(x, y int) *Sprite {
 
 type Animation struct {
 	LayeredPoint
-	sheetPos   int
-	frameTime  int64
-	frames     [][]int
-	sheet      *Sheet
-	lastChange time.Time
-	playing    bool
-	cID        event.CID
+	sheetPos      int
+	frameTime     int64
+	frames        [][]int
+	sheet         *Sheet
+	lastChange    time.Time
+	playing       bool
+	Interruptable bool
+	cID           event.CID
 }
 
 func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error) {
@@ -48,12 +50,13 @@ func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error)
 				Y: 0.0,
 			},
 		},
-		sheetPos:   0,
-		frameTime:  int64(frameTime),
-		frames:     splitFrames,
-		sheet:      sheet_p,
-		lastChange: time.Now(),
-		playing:    true,
+		sheetPos:      0,
+		frameTime:     int64(frameTime),
+		frames:        splitFrames,
+		sheet:         sheet_p,
+		lastChange:    time.Now(),
+		playing:       true,
+		Interruptable: true,
 	}
 
 	return &animation, nil
@@ -88,6 +91,10 @@ func (a *Animation) updateAnimation() {
 	if a.playing && time.Since(a.lastChange).Nanoseconds() > a.frameTime {
 		a.lastChange = time.Now()
 		a.sheetPos = (a.sheetPos + 1) % len(a.frames)
+		// Eventually, if an animation is cut off before
+		// it finishes by another animation starting,
+		// AnimationCancelled (or maybe AnimationShortCircuit)
+		// should trigger instead of AnimationEnd
 		if a.sheetPos == 0 && a.cID != 0 {
 			a.cID.Trigger("AnimationEnd", nil)
 		}

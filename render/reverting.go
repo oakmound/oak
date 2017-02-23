@@ -32,6 +32,20 @@ func NewReverting(m Modifiable) *Reverting {
 	return rv
 }
 
+func (rv *Reverting) IsInterruptable() bool {
+	switch t := rv.root.(type) {
+	case *Animation:
+		return t.Interruptable
+	case *Sequence:
+		return t.Interruptable
+	case *Reverting:
+		return t.IsInterruptable()
+	case *Compound:
+		return t.IsInterruptable()
+	}
+	return true
+}
+
 func (rv *Reverting) IsStatic() bool {
 	switch rv.root.(type) {
 	case *Animation, *Sequence:

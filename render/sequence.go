@@ -1,22 +1,24 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/event"
 	"image"
 	"image/color"
 	"image/draw"
 	"math"
 	"time"
+
+	"bitbucket.org/oakmoundstudio/oak/event"
 )
 
 type Sequence struct {
 	LayeredPoint
-	rs         []Modifiable
-	lastChange time.Time
-	playing    bool
-	sheetPos   int
-	frameTime  int64
-	cID        event.CID
+	rs            []Modifiable
+	lastChange    time.Time
+	playing       bool
+	sheetPos      int
+	frameTime     int64
+	Interruptable bool
+	cID           event.CID
 }
 
 func NewSequence(mods []Modifiable, fps float64) *Sequence {

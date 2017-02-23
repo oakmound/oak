@@ -4,10 +4,11 @@
 package mouse
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/collision"
 	"fmt"
-	"github.com/Sythe2o0/rtreego"
 	"sync"
+
+	"bitbucket.org/oakmoundstudio/oak/collision"
+	"github.com/Sythe2o0/rtreego"
 )
 
 var (
@@ -73,7 +74,6 @@ func Propagate(eventName string, me MouseEvent) {
 	hits := mt.SearchIntersect(mouseLoc.Bounds())
 	if eventName == "MousePressOn" {
 		fmt.Println(len(hits), " Number of mouse collision spaces found")
-
 	}
 	for _, v := range hits {
 		sp := v.(*collision.Space)

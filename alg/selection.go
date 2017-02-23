@@ -1,7 +1,6 @@
 package alg
 
 import (
-	// "bitbucket.org/oakmoundstudio/oak/dlog"
 	"errors"
 	"math/rand"
 )

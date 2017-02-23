@@ -42,6 +42,13 @@ func (id CID) Trigger(eventName string, data interface{}) chan bool {
 	return ch
 }
 
+func (id CID) TriggerAfter(d time.Duration, eventName string, data interface{}) {
+	go func() {
+		time.Sleep(d)
+		id.Trigger(eventName, data)
+	}()
+}
+
 func Trigger(eventName string, data interface{}) chan bool {
 	return thisBus.Trigger(eventName, data)
 }
