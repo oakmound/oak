@@ -4,10 +4,10 @@ import (
 	"math"
 	"time"
 
+	"bitbucket.org/oakmoundstudio/oak/alg"
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/physics"
 	"bitbucket.org/oakmoundstudio/oak/render"
-	"bitbucket.org/oakmoundstudio/oak/alg"
 )
 
 const (
@@ -134,7 +134,7 @@ func (ps *Source) AddParticles() {
 	}
 	newParticleCount -= len(ps.recycled)
 	if ri > 0 {
-		ps.recycled = ps.recycled[ri-1:]
+		ps.recycled = ps.recycled[ri:]
 	}
 
 	if ps.nextPID >= BLOCK_SIZE {
