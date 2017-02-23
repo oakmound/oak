@@ -29,11 +29,12 @@ func NewSequence(mods []Modifiable, fps float64) *Sequence {
 				Y: 0.0,
 			},
 		},
-		sheetPos:   0,
-		frameTime:  int64(math.Pow(10, 9) / fps),
-		rs:         mods,
-		lastChange: time.Now(),
-		playing:    true,
+		sheetPos:      0,
+		frameTime:     int64(math.Pow(10, 9) / fps),
+		rs:            mods,
+		lastChange:    time.Now(),
+		playing:       true,
+		Interruptable: true,
 	}
 }
 
