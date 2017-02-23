@@ -107,3 +107,20 @@ func CumWeightedChooseOne(remainingWeights []float64) int {
 		}
 	}
 }
+
+/*
+* Inefficient implementation but allows the utility to have allocations based on a map
+*@returns the key chosen from the map passed in.
+ */
+func CumWeightedFromMap(weightMap map[int]float64) int {
+	keys := make([]int, len(weightMap))
+	values := make([]float64, len(weightMap))
+	idx := 0
+	for key, value := range weightMap {
+		keys[idx] = key
+		values[idx] = value
+		idx++
+	}
+
+	return keys[CumWeightedChooseOne(values)]
+}
