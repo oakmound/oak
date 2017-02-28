@@ -89,6 +89,14 @@ func (s *Sprite) Fade(alpha int) Modifiable {
 	s.r = Fade(s.r, alpha)
 	return s
 }
+func  OverlaySprites(sps []Sprite ) *Sprite{
+	tmpSprite := sps[len(sps)-1].Copy().(*Sprite)
+	for i:= len(sps)-1; i>0; i-- {
+		tmpSprite.r = FillMask(tmpSprite.r, *sps[i-1].r)
+	}
+	return tmpSprite
+}
+
 
 func ParseSubSprite(s string, x, y, w, h, pad int) *Sprite {
 	sh, _ := LoadSheet(dir, s, w, h, pad)
