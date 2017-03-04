@@ -37,6 +37,8 @@ func DrawLoop(windowControl screen.Window) {
 
 		case <-drawChannel:
 			dlog.Verb("Got something from draw channel")
+			<-drawChannel
+			dlog.Verb("Starting loading")
 			for {
 				draw.Draw(worldBuffer.RGBA(), winBuffer.Bounds(), imageBlack, ViewPos, screen.Src)
 				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), ViewPos, screen.Src)
@@ -58,7 +60,6 @@ func DrawLoop(windowControl screen.Window) {
 					updateScreen(viewPoint[0], viewPoint[1])
 				default:
 				}
-
 			}
 		case viewPoint := <-viewportChannel:
 			dlog.Verb("Got something from viewport channel")

@@ -18,12 +18,17 @@ import (
 
 var (
 	viewportLocked = true
+	cheats         = make(map[string]func())
 )
+
+func AddCheat(s string, fn func()) {
+	cheats[s] = fn
+}
 
 func DebugConsole(resetCh, skipScene chan bool) {
 	scanner := bufio.NewScanner(os.Stdin)
 	spew.Config.DisableMethods = true
-	spew.Config.MaxDepth=2
+	spew.Config.MaxDepth = 2
 	for {
 		select {
 		case <-resetCh: //reset all vars in debug console that save state
@@ -39,6 +44,12 @@ func DebugConsole(resetCh, skipScene chan bool) {
 			//Parse the Input
 			tokenString := strings.Fields(scanner.Text())
 			switch tokenString[0] {
+			case "cheat":
+				// Requires that cheats are all one word! <-- don't forget
+				fmt.Println(cheats, tokenString[1])
+				if fn, ok := cheats[tokenString[1]]; ok {
+					fn()
+				}
 			case "viewport":
 				switch tokenString[1] {
 				case "unlock":

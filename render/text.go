@@ -1,9 +1,10 @@
 package render
 
 import (
-	"golang.org/x/image/math/fixed"
 	"image"
 	"image/draw"
+
+	"golang.org/x/image/math/fixed"
 )
 
 type Text struct {

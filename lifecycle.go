@@ -15,6 +15,7 @@ var (
 	worldBuffer   screen.Buffer
 	winBuffer     screen.Buffer
 	screenControl screen.Screen
+	windowControl screen.Window
 
 	esc      bool
 	drawInit bool
@@ -44,7 +45,7 @@ func lifecycleLoop(s screen.Screen) {
 
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
-	windowControl, err := WindowController(screenControl, ScreenWidth, ScreenHeight)
+	windowControl, err = WindowController(screenControl, ScreenWidth, ScreenHeight)
 	if err != nil {
 		dlog.Error(err)
 		return

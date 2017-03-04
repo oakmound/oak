@@ -21,6 +21,9 @@ var (
 	// steps in initialization have been reached
 	initCh = make(chan bool)
 
+	//
+	transitionCh = make(chan bool)
+
 	// The Scene channel recieves a signal
 	// when a scene's .loop() function should
 	// be called.
@@ -131,13 +134,22 @@ func Init(firstScene string) {
 	runEventLoop = true
 	globalFirstScene = firstScene
 	CurrentScene = "loading"
-	var data interface{}
+	result := new(SceneResult)
 	dlog.Info("First Scene Start")
+	drawChannel <- true
+	drawChannel <- true
 	for {
 		ViewPos = image.Point{0, 0}
 		useViewBounds = false
 		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
-		sceneMap[CurrentScene].start(prevScene, data)
+		go func() {
+			sceneMap[CurrentScene].start(prevScene, result.NextSceneInput)
+			transitionCh <- true
+		}()
+		sceneTransition(result)
+		// Post transition, begin loading animation
+		drawChannel <- true
+		<-transitionCh
 		// Send a signal to resume (or begin) drawing
 		drawChannel <- true
 
@@ -170,7 +182,12 @@ func Init(firstScene string) {
 
 		// Todo: Add in customizable loading scene between regular scenes
 
-		CurrentScene, data = sceneMap[CurrentScene].end()
+		CurrentScene, result = sceneMap[CurrentScene].end()
+		// For convenience, we allow the user to return nil
+		// but it gets translated to an empty result
+		if result == nil {
+			result = new(SceneResult)
+		}
 
 		eb = event.GetEventBus()
 		if !debugResetInProgress {

@@ -45,6 +45,14 @@ type Modifiable interface {
 	Fade(alpha int) Modifiable
 }
 
+func Brighten(rgba *image.RGBA, brightenBy float32) *image.RGBA {
+	filter := gift.New(
+		gift.Brightness(brightenBy))
+	dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
+	filter.Draw(dst, rgba)
+	return dst
+}
+
 // FlipX returns a new rgba which is flipped
 // over the horizontal axis.
 func FlipX(rgba *image.RGBA) *image.RGBA {
