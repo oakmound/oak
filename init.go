@@ -140,6 +140,7 @@ func Init(firstScene string) {
 	drawChannel <- true
 	for {
 		ViewPos = image.Point{0, 0}
+		updateScreen(0, 0)
 		useViewBounds = false
 		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
 		go func() {
