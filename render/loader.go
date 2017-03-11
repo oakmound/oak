@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
@@ -34,38 +35,39 @@ var (
 	loadedSheets = make(map[string]*Sheet)
 	// move to some batch load settings
 	defaultPad = 0
+	loadLock   = sync.Mutex{}
 )
 
 func loadPNG(directory, fileName string) *image.RGBA {
 
-	if _, ok := loadedImages[fileName]; ok {
-		return loadedImages[fileName]
-	}
-
-	imgFile, err := os.Open(filepath.Join(directory, fileName))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer imgFile.Close()
-
-	img, err := png.Decode(imgFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	bounds := img.Bounds()
-	rgba := image.NewRGBA(bounds)
-	for x := 0; x < bounds.Max.X; x++ {
-		for y := 0; y < bounds.Max.Y; y++ {
-			rgba.Set(x, y, color.RGBAModel.Convert(img.At(x, y)))
+	loadLock.Lock()
+	if _, ok := loadedImages[fileName]; !ok {
+		imgFile, err := os.Open(filepath.Join(directory, fileName))
+		if err != nil {
+			log.Fatal(err)
 		}
+		defer imgFile.Close()
+
+		img, err := png.Decode(imgFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		bounds := img.Bounds()
+		rgba := image.NewRGBA(bounds)
+		for x := 0; x < bounds.Max.X; x++ {
+			for y := 0; y < bounds.Max.Y; y++ {
+				rgba.Set(x, y, color.RGBAModel.Convert(img.At(x, y)))
+			}
+		}
+
+		loadedImages[fileName] = rgba
+
+		dlog.Verb("Loaded filename: ", fileName)
 	}
-
-	loadedImages[fileName] = rgba
-
-	dlog.Verb("Loaded filename: ", fileName)
-
-	return loadedImages[fileName]
+	r := loadedImages[fileName]
+	loadLock.Unlock()
+	return r
 }
 
 func LoadSprite(fileName string) *Sprite {

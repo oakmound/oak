@@ -11,6 +11,7 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/mouse"
 	"bitbucket.org/oakmoundstudio/oak/render"
+	"bitbucket.org/oakmoundstudio/oak/timing"
 	"golang.org/x/exp/shiny/driver"
 )
 
@@ -173,6 +174,15 @@ func Init(firstScene string) {
 		// Send a signal to stop drawing
 		drawChannel <- true
 
+		// Reset any ongoing delays
+	delayLabel:
+		for {
+			select {
+			case timing.ClearDelayCh <- true:
+			default:
+				break delayLabel
+			}
+		}
 		// Reset transient portions of the engine
 		event.ResetEntities()
 		event.ResetEventBus()

@@ -10,6 +10,7 @@ import (
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/event"
+	"bitbucket.org/oakmoundstudio/oak/timing"
 )
 
 var (
@@ -148,10 +149,9 @@ func drawRenderableHeap(target *image.RGBA, rheap *RenderableHeap, viewPos image
 // after a given time has passed
 func UndrawAfter(r Renderable, t time.Duration) {
 	go func(r Renderable, t time.Duration) {
-		select {
-		case <-time.After(t):
+		timing.DoAfter(t, func() {
 			r.UnDraw()
-		}
+		})
 	}(r, t)
 }
 

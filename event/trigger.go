@@ -3,6 +3,8 @@ package event
 import (
 	"fmt"
 	"time"
+
+	"bitbucket.org/oakmoundstudio/oak/timing"
 )
 
 // Trigger an event, but only
@@ -34,8 +36,7 @@ func (id CID) Trigger(eventName string, data interface{}) chan bool {
 		mutex.RUnlock()
 		select {
 		case ch <- true:
-		case <-time.After(2 * time.Millisecond):
-			return
+		default:
 		}
 	}(ch)
 
@@ -44,8 +45,9 @@ func (id CID) Trigger(eventName string, data interface{}) chan bool {
 
 func (id CID) TriggerAfter(d time.Duration, eventName string, data interface{}) {
 	go func() {
-		time.Sleep(d)
-		id.Trigger(eventName, data)
+		timing.DoAfter(d, func() {
+			id.Trigger(eventName, data)
+		})
 	}()
 }
 
@@ -91,8 +93,7 @@ func (eb_p *EventBus) Trigger(eventName string, data interface{}) chan bool {
 		mutex.RUnlock()
 		select {
 		case ch <- true:
-		case <-time.After(2 * time.Millisecond):
-			return
+		default:
 		}
 	}(ch, eb_p)
 

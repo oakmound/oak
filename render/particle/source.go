@@ -8,6 +8,7 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/physics"
 	"bitbucket.org/oakmoundstudio/oak/render"
+	"bitbucket.org/oakmoundstudio/oak/timing"
 )
 
 const (
@@ -42,8 +43,9 @@ func (ps *Source) Init() event.CID {
 	ps.pIDBlock = Allocate(ps.cID)
 	if ps.Generator.GetBaseGenerator().Duration != Inf {
 		go func(ps_p *Source, duration alg.IntRange) {
-			<-time.After(time.Duration(duration.Poll()) * time.Millisecond)
-			ps_p.Stop()
+			timing.DoAfter(time.Duration(duration.Poll())*time.Millisecond, func() {
+				ps_p.Stop()
+			})
 		}(ps, ps.Generator.GetBaseGenerator().Duration)
 	}
 	return cID
