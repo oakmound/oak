@@ -10,11 +10,9 @@ import (
 // Trigger an event, but only
 // for one ID. Use case example:
 // on onHit event
-func (id CID) Trigger(eventName string, data interface{}) chan bool {
+func (id CID) Trigger(eventName string, data interface{}) {
 
-	ch := make(chan bool)
-	go func(ch chan bool) {
-
+	go func(eventName string, data interface{}) {
 		eb := GetEventBus()
 		mutex.RLock()
 		if idMap, ok := eb.bindingMap[eventName]; ok {
@@ -34,13 +32,7 @@ func (id CID) Trigger(eventName string, data interface{}) chan bool {
 			}
 		}
 		mutex.RUnlock()
-		select {
-		case ch <- true:
-		default:
-		}
-	}(ch)
-
-	return ch
+	}(eventName, data)
 }
 
 func (id CID) TriggerAfter(d time.Duration, eventName string, data interface{}) {
@@ -51,53 +43,63 @@ func (id CID) TriggerAfter(d time.Duration, eventName string, data interface{}) 
 	}()
 }
 
-func Trigger(eventName string, data interface{}) chan bool {
-	return thisBus.Trigger(eventName, data)
+func Trigger(eventName string, data interface{}) {
+	thisBus.Trigger(eventName, data)
+}
+
+func TriggerBack(eventName string, data interface{}) chan bool {
+	return thisBus.TriggerBack(eventName, data)
 }
 
 // Called externally by game logic
 // and internally by oak itself
 // at specific integral points
-func (eb_p *EventBus) Trigger(eventName string, data interface{}) chan bool {
+func (eb_p *EventBus) TriggerBack(eventName string, data interface{}) chan bool {
 
 	ch := make(chan bool)
-	go func(ch chan bool, eb_p *EventBus) {
-		eb := (*eb_p)
-
-		mutex.RLock()
-		// Loop through all bindableStores for this eventName
-		for id, bs := range eb.bindingMap[eventName] {
-			// Top to bottom, high priority
-			for i := bs.highIndex - 1; i >= 0; i-- {
-				for j, bnd := range (*bs.highPriority[i]).sl {
-					handleBindable(bnd, id, data, j, eventName)
-				}
-			}
-		}
-
-		for id, bs := range eb.bindingMap[eventName] {
-			if bs != nil && bs.defaultPriority != nil {
-				triggerDefault((bs.defaultPriority).sl, id, eventName, data)
-			}
-		}
-
-		//mutex.Lock()
-		for id, bs := range eb.bindingMap[eventName] {
-			// Bottom to top, low priority
-			for i := 0; i < bs.lowIndex; i++ {
-				for j, bnd := range (*bs.lowPriority[i]).sl {
-					handleBindable(bnd, id, data, j, eventName)
-				}
-			}
-		}
-		mutex.RUnlock()
-		select {
-		case ch <- true:
-		default:
-		}
-	}(ch, eb_p)
+	go func(ch chan bool, eb_p *EventBus, eventName string, data interface{}) {
+		eb_trigger(eb_p, eventName, data)
+		ch <- true
+	}(ch, eb_p, eventName, data)
 
 	return ch
+}
+
+func (eb_p *EventBus) Trigger(eventName string, data interface{}) {
+	go func(eb_p *EventBus, eventName string, data interface{}) {
+		eb_trigger(eb_p, eventName, data)
+	}(eb_p, eventName, data)
+}
+
+func eb_trigger(eb_p *EventBus, eventName string, data interface{}) {
+	eb := (*eb_p)
+
+	mutex.RLock()
+	// Loop through all bindableStores for this eventName
+	for id, bs := range eb.bindingMap[eventName] {
+		// Top to bottom, high priority
+		for i := bs.highIndex - 1; i >= 0; i-- {
+			for j, bnd := range (*bs.highPriority[i]).sl {
+				handleBindable(bnd, id, data, j, eventName)
+			}
+		}
+	}
+
+	for id, bs := range eb.bindingMap[eventName] {
+		if bs != nil && bs.defaultPriority != nil {
+			triggerDefault((bs.defaultPriority).sl, id, eventName, data)
+		}
+	}
+
+	for id, bs := range eb.bindingMap[eventName] {
+		// Bottom to top, low priority
+		for i := 0; i < bs.lowIndex; i++ {
+			for j, bnd := range (*bs.lowPriority[i]).sl {
+				handleBindable(bnd, id, data, j, eventName)
+			}
+		}
+	}
+	mutex.RUnlock()
 }
 
 func triggerDefault(sl []Bindable, id int, eventName string, data interface{}) {

@@ -97,9 +97,7 @@ func LogicLoop(frameCh chan bool) {
 	for {
 		for runEventLoop {
 			<-frameCh
-			<-eb.Trigger("EnterFrame", nil)
-			// ExitFrame shouldn't need to exist given event priorities
-			<-eb.Trigger("ExitFrame", nil)
+			<-eb.TriggerBack("EnterFrame", nil)
 			sceneCh <- true
 		}
 	}

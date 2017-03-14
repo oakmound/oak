@@ -198,23 +198,10 @@ func clearParticles(id int, nothing interface{}) int {
 	return 0
 }
 
-func clearAtExit(id int, nothing interface{}) int {
-	if event.HasEntity(id) {
-		t := event.GetEntity(id)
-		switch t.(type) {
-		case *Source:
-			ps := t.(*Source)
-			ps.cID.Bind(clearParticles, "ExitFrame")
-			return event.UNBIND_EVENT
-		}
-	}
-	return 0
-}
-
 // Stop manually stops a Source, if its duration is infinite
 // or if it should be stopped before expriring naturally.
 func (ps *Source) Stop() {
-	ps.cID.Bind(clearAtExit, "EnterFrame")
+	ps.cID.UnbindAllAndRebind([]event.Bindable{clearParticles}, []string{"EnterFrame"})
 }
 
 // Pausing a Source just stops the repetition
