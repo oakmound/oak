@@ -24,8 +24,6 @@ type MouseEvent struct {
 	Button string
 }
 
-
-
 func Init() {
 	fmt.Println("Mouse init started")
 	addLock.Lock()

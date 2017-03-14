@@ -80,6 +80,7 @@ func InputLoop(windowControl screen.Window) {
 				eventName = "MouseDrag"
 			}
 			pmouse.LastMouseEvent = mevent
+
 			eb.Trigger(eventName, mevent)
 			pmouse.Propagate(eventName+"On", mevent)
 
