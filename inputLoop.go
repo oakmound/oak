@@ -5,6 +5,7 @@ import (
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	pmouse "bitbucket.org/oakmoundstudio/oak/mouse"
+	"golang.org/x/exp/shiny/gesture"
 	"golang.org/x/exp/shiny/screen"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
@@ -14,8 +15,10 @@ import (
 )
 
 func InputLoop(windowControl screen.Window) {
+	eFilter := gesture.EventFilter{EventDeque: windowControl}
 	for {
-		e := windowControl.NextEvent()
+		e := eFilter.Filter(eFilter.EventDeque.NextEvent()) //Filters an event to see if it fits a defined gesture
+
 		switch e := e.(type) {
 
 		// We only currently respond to death lifecycle events.
@@ -79,6 +82,11 @@ func InputLoop(windowControl screen.Window) {
 			pmouse.LastMouseEvent = mevent
 			eb.Trigger(eventName, mevent)
 			pmouse.Propagate(eventName+"On", mevent)
+
+		case gesture.Event:
+			eventName := "Gesture" + e.Type.String()
+			dlog.Verb(eventName)
+			eb.Trigger(eventName, pmouse.FromShinyGesture(e))
 
 		// I don't really know what a paint event is to be honest.
 		// We hypothetically don't allow the user to manually resize
