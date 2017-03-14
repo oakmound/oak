@@ -19,6 +19,7 @@ var (
 		Font{"none", 12.0, 72.0, "luxisr.ttf", "white"},
 		World{4000, 4000},
 		60,
+		false,
 		"English",
 	}
 )
@@ -30,6 +31,7 @@ type oakConfig struct {
 	Font      Font   `json:"font"`
 	World     World  `json:"world"`
 	FrameRate int    `json:"frameRate"`
+	ShowFPS   bool   `json:showFPS`
 	Language  string `json:"language"`
 }
 
@@ -126,6 +128,10 @@ func loadDefaultConf() error {
 		conf.FrameRate = tmpConf.FrameRate
 	}
 
+	if tmpConf.ShowFPS != false {
+		conf.ShowFPS = tmpConf.ShowFPS
+	}
+
 	if tmpConf.Language != "English" {
 		conf.Language = tmpConf.Language
 	}
@@ -151,19 +157,17 @@ func loadOakConfig(fileName string) (oakConfig, error) {
 	return config, nil
 }
 
-
-func (oc * oakConfig) String() string{
+func (oc *oakConfig) String() string {
 	st := "Config:\n{"
 	st += oc.Debug.String()
 	st += "\n}"
 	return st
 }
 
-
-func (d * Debug) String() string{
+func (d *Debug) String() string {
 	st := "Debug:\n{"
 	st += "Level: " + d.Level
-	st += "\nFilter:" +  d.Filter
+	st += "\nFilter:" + d.Filter
 	st += "\n}"
 	return st
 }
