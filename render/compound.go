@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
 	"image/color"
 	"image/draw"
@@ -69,7 +70,7 @@ func (c *Compound) IsStatic() bool {
 	return true
 }
 
-func (c *Compound) SetOffsets(k string, offsets Point) {
+func (c *Compound) SetOffsets(k string, offsets physics.Vector) {
 	if r, ok := c.subRenderables[k]; ok {
 		r.SetPos(offsets.X, offsets.Y)
 	}

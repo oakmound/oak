@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
 	"image/color"
 	"image/draw"
@@ -17,7 +18,7 @@ func NewColorBox(w, h int, c color.Color) *ColorBox {
 	return &ColorBox{
 		Sprite{
 			LayeredPoint: LayeredPoint{
-				Point: Point{
+				Vector: physics.Vector{
 					X: 0.0,
 					Y: 0.0,
 				},

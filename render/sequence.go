@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/event"
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 type Sequence struct {
@@ -24,7 +25,7 @@ type Sequence struct {
 func NewSequence(mods []Modifiable, fps float64) *Sequence {
 	return &Sequence{
 		LayeredPoint: LayeredPoint{
-			Point: Point{
+			Vector: physics.Vector{
 				X: 0.0,
 				Y: 0.0,
 			},

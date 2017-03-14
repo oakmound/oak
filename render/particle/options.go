@@ -71,7 +71,7 @@ func End(ef func(Particle)) func(Generator) {
 	}
 }
 
-func Layer(l func(*physics.Vector) int) func(Generator) {
+func Layer(l func(physics.Vector) int) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().LayerFunc = l
 	}

@@ -9,6 +9,7 @@ import (
 	"image/color"
 	"time"
 
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	simplex "github.com/ojrac/opensimplex-go"
 )
 
@@ -35,7 +36,7 @@ func NewSeededNoiseBox(w, h int, seed int64) *NoiseBox {
 	return &NoiseBox{
 		Sprite{
 			LayeredPoint: LayeredPoint{
-				Point: Point{
+				Vector: physics.Vector{
 					X: 0.0,
 					Y: 0.0,
 				},

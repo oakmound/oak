@@ -13,7 +13,7 @@ import (
 type Particle interface {
 	render.Renderable
 	GetBaseParticle() *BaseParticle
-	GetPos() *physics.Vector
+	GetPos() physics.Vector
 	GetSize() (float64, float64)
 	DrawOffsetGen(gen Generator, buff draw.Image, xOff, yOff float64)
 	Cycle(gen Generator)
@@ -22,8 +22,8 @@ type Particle interface {
 type BaseParticle struct {
 	render.Layered
 	Src       *Source
-	Pos       *physics.Vector
-	Vel       *physics.Vector
+	Pos       physics.Vector
+	Vel       physics.Vector
 	Life      float64
 	totalLife float64
 	pID       int
@@ -56,7 +56,7 @@ func (bp *BaseParticle) SetPos(x, y float64) {
 	bp.Pos.Y = y
 }
 
-func (bp *BaseParticle) Cycle(gen Generator){}
+func (bp *BaseParticle) Cycle(gen Generator) {}
 
 func (bp *BaseParticle) String() string {
 	return "BaseParticle"

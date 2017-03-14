@@ -18,7 +18,7 @@ func (iv *InteractVector) Init() event.CID {
 	return cID
 }
 
-func (iv *InteractVector) ShiftVector(v *physics.Vector) {
+func (iv *InteractVector) ShiftVector(v physics.Vector) {
 	iv.Reactive.ShiftPos(v.X, v.Y)
 }
 

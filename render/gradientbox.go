@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
 	"image/color"
 	"math"
@@ -53,7 +54,7 @@ func NewGradientBox(w, h int, startColor, endColor color.Color, pFunction progre
 	return &GradientBox{
 		Sprite{
 			LayeredPoint: LayeredPoint{
-				Point: Point{
+				Vector: physics.Vector{
 					X: 0.0,
 					Y: 0.0,
 				},

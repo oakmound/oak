@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
 	"image/color"
 	"image/draw"
@@ -19,7 +20,7 @@ func NewEmptySprite(x, y float64, w, h int) *Sprite {
 func NewSprite(x, y float64, r *image.RGBA) *Sprite {
 	return &Sprite{
 		LayeredPoint: LayeredPoint{
-			Point: Point{
+			Vector: physics.Vector{
 				X: x,
 				Y: y,
 			},

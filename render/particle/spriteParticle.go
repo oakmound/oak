@@ -39,7 +39,7 @@ func (sg *SpriteGenerator) GetParticleSize() (float64, float64, bool) {
 	return float64(bounds.X), float64(bounds.Y), false
 }
 
-func (sp *SpriteParticle) GetPos() *physics.Vector {
+func (sp *SpriteParticle) GetPos() physics.Vector {
 	return sp.Pos
 }
 

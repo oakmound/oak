@@ -11,8 +11,8 @@ type GestureEvent struct {
 	LongPress   bool
 	DoublePress bool
 
-	InitialPos *physics.Vector
-	CurrentPos *physics.Vector
+	InitialPos physics.Vector
+	CurrentPos physics.Vector
 
 	Time time.Time
 }

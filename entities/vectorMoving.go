@@ -16,7 +16,7 @@ func (vm *VectorMoving) Init() event.CID {
 	return cID
 }
 
-func (vm *VectorMoving) ShiftVector(v *physics.Vector) {
+func (vm *VectorMoving) ShiftVector(v physics.Vector) {
 	vm.Solid.ShiftPos(v.X, v.Y)
 }
 
@@ -28,14 +28,14 @@ func (vm *VectorMoving) ApplyFriction(outsideFriction float64) {
 	} else if frictionScaler < 0 {
 		frictionScaler = 0
 	}
-	vm.Delta.Scale(frictionScaler)
+	vm.Delta = vm.Delta.Scale(frictionScaler)
 	if vm.Delta.Magnitude() < .01 {
-		vm.Delta.Zero()
+		vm.Delta = vm.Delta.Zero()
 	}
 }
 
 type vMoving struct {
-	Delta    *physics.Vector
-	Speed    *physics.Vector
+	Delta    physics.Vector
+	Speed    physics.Vector
 	Friction float64
 }

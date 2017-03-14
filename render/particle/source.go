@@ -65,10 +65,10 @@ func (ps *Source) CycleParticles() {
 
 			// Apply rotational acceleration
 			if pg.Rotation != nil {
-				bp.Vel.Rotate(pg.Rotation.Poll())
+				bp.Vel = bp.Vel.Rotate(pg.Rotation.Poll())
 			}
 
-			if pg.SpeedDecay != nil {
+			if pg.SpeedDecay.Magnitude() != 0 {
 				if pg.SpeedDecay.X != 0 {
 					bp.Vel.X *= pg.SpeedDecay.X
 					if math.Abs(bp.Vel.X) < 0.2 {
@@ -83,10 +83,10 @@ func (ps *Source) CycleParticles() {
 				}
 			}
 
-			if pg.Gravity != nil {
-				bp.Vel.Add(pg.Gravity)
+			if pg.Gravity.Magnitude() != 0 {
+				bp.Vel = bp.Vel.Add(pg.Gravity)
 			}
-			bp.Pos.Add(bp.Vel)
+			bp.Pos = bp.Pos.Add(bp.Vel)
 			bp.SetLayer(ps.Layer(bp.Pos))
 			p.Cycle(ps.Generator)
 
@@ -104,7 +104,7 @@ func (ps *Source) CycleParticles() {
 }
 
 // Shorthand
-func (ps *Source) Layer(v *physics.Vector) int {
+func (ps *Source) Layer(v physics.Vector) int {
 	return ps.Generator.GetBaseGenerator().LayerFunc(v)
 }
 

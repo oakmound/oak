@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
 	"image/color"
 	"image/draw"
@@ -21,8 +22,8 @@ func NewComposite(sl []Modifiable) *Composite {
 	return cs
 }
 
-func (cs *Composite) AppendOffset(r Modifiable, p Point) {
-	r.SetPos(p.X, p.Y)
+func (cs *Composite) AppendOffset(r Modifiable, v physics.Vector) {
+	r.SetPos(v.X, v.Y)
 	cs.rs = append(cs.rs, r)
 }
 
@@ -34,16 +35,16 @@ func (cs *Composite) Add(i int, r Modifiable) {
 	cs.rs[i] = r
 }
 
-func (cs *Composite) AddOffset(i int, p Point) {
+func (cs *Composite) AddOffset(i int, v physics.Vector) {
 	if i < len(cs.rs) {
-		cs.rs[i].SetPos(p.X, p.Y)
+		cs.rs[i].SetPos(v.X, v.Y)
 	}
 }
 
-func (cs *Composite) SetOffsets(ps []Point) {
-	for i, p := range ps {
+func (cs *Composite) SetOffsets(vs []physics.Vector) {
+	for i, v := range vs {
 		if i < len(cs.rs) {
-			cs.rs[i].SetPos(p.X, p.Y)
+			cs.rs[i].SetPos(v.X, v.Y)
 		}
 	}
 }
@@ -155,8 +156,8 @@ func NewCompositeR(sl []Renderable) *CompositeR {
 	return cs
 }
 
-func (cs *CompositeR) AppendOffset(r Modifiable, p Point) {
-	r.SetPos(p.X, p.Y)
+func (cs *CompositeR) AppendOffset(r Modifiable, v physics.Vector) {
+	r.SetPos(v.X, v.Y)
 	cs.rs = append(cs.rs, r)
 }
 
@@ -168,9 +169,9 @@ func (cs *CompositeR) Add(i int, r Modifiable) {
 	cs.rs[i] = r
 }
 
-func (cs *CompositeR) AddOffset(i int, p Point) {
+func (cs *CompositeR) AddOffset(i int, v physics.Vector) {
 	if i < len(cs.rs) {
-		cs.rs[i].SetPos(p.X, p.Y)
+		cs.rs[i].SetPos(v.X, v.Y)
 	}
 }
 

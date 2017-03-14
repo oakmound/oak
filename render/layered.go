@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"strconv"
 )
 
@@ -21,10 +22,21 @@ func (ld *Layered) UnDraw() {
 }
 
 type LayeredPoint struct {
-	Point
+	physics.Vector
 	Layered
 }
 
+func (ldp *LayeredPoint) ShiftX(x float64) {
+	ldp.X += x
+}
+func (ldp *LayeredPoint) ShiftY(y float64) {
+	ldp.Y += y
+}
+
+func (ldp *LayeredPoint) SetPos(x, y float64) {
+	ldp.X = x
+	ldp.Y = y
+}
 
 func (ldp *LayeredPoint) String() string {
 	x := strconv.FormatFloat(ldp.X, 'f', 2, 32)

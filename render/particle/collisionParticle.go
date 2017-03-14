@@ -40,7 +40,7 @@ func (cp *CollisionParticle) GetBaseParticle() *BaseParticle {
 	return cp.P.GetBaseParticle()
 }
 
-func (cp *CollisionParticle) GetPos() *physics.Vector {
+func (cp *CollisionParticle) GetPos() physics.Vector {
 	return cp.P.GetPos()
 }
 func (cp *CollisionParticle) GetSize() (float64, float64) {

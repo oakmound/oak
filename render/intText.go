@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"golang.org/x/image/math/fixed"
 	"image"
 	"image/draw"
@@ -16,7 +17,7 @@ type IntText struct {
 func (f *Font) NewIntText(str *int, x, y float64) *IntText {
 	return &IntText{
 		LayeredPoint: LayeredPoint{
-			Point: Point{
+			Vector: physics.Vector{
 				X: x,
 				Y: y,
 			},

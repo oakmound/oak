@@ -3,7 +3,6 @@ package particle
 import (
 	"bitbucket.org/oakmoundstudio/oak/alg"
 	"bitbucket.org/oakmoundstudio/oak/physics"
-	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
 var (
@@ -26,7 +25,7 @@ type Generator interface {
 // particles
 // Modeled after Parcycle
 type BaseGenerator struct {
-	render.Point
+	physics.Vector
 	// This float is currently forced to an integer
 	// at new particle rotation. This should be changed
 	// to something along the lines of 'new per 30 frames',
@@ -40,7 +39,7 @@ type BaseGenerator struct {
 	// 90 - between quadrant 2 and 1
 	Angle  alg.FloatRange
 	Speed  alg.FloatRange
-	Spread *physics.Vector
+	Spread physics.Vector
 	// Duration in milliseconds for the particle source.
 	// After this many milliseconds have passed, it will
 	// stop sending out new particles. Old particles will
@@ -51,15 +50,15 @@ type BaseGenerator struct {
 	// Rotational acceleration, to change angle over time
 	Rotation alg.FloatRange
 	// Gravity X and Gravity Y represent particle acceleration per frame.
-	Gravity    *physics.Vector
-	SpeedDecay *physics.Vector
+	Gravity    physics.Vector
+	SpeedDecay physics.Vector
 	EndFunc    func(Particle)
-	LayerFunc  func(*physics.Vector) int
+	LayerFunc  func(physics.Vector) int
 }
 
 func (bg *BaseGenerator) SetDefaults() {
 	*bg = BaseGenerator{
-		Point:       render.Point{X: 0, Y: 0},
+		Vector:      physics.Vector{X: 0, Y: 0},
 		NewPerFrame: alg.Constantf(1),
 		LifeSpan:    alg.Constantf(60),
 		Angle:       alg.Constantf(0),
@@ -67,9 +66,20 @@ func (bg *BaseGenerator) SetDefaults() {
 		Spread:      physics.NewVector(0, 0),
 		Duration:    Inf,
 		Rotation:    nil,
-		Gravity:     nil,
-		SpeedDecay:  nil,
+		Gravity:     physics.Vector{0, 0},
+		SpeedDecay:  physics.Vector{0, 0},
 		EndFunc:     nil,
-		LayerFunc:   func(*physics.Vector) int { return 1 },
+		LayerFunc:   func(physics.Vector) int { return 1 },
 	}
+}
+
+func (bg *BaseGenerator) ShiftX(x float64) {
+	bg.Vector = bg.Vector.ShiftX(x)
+}
+func (bg *BaseGenerator) ShiftY(y float64) {
+	bg.Vector = bg.Vector.ShiftY(y)
+}
+func (bg *BaseGenerator) SetPos(x, y float64) {
+	bg.Vector.X = x
+	bg.Vector.Y = y
 }

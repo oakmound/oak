@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/event"
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 type Sheet [][]*image.RGBA
@@ -45,7 +46,7 @@ func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error)
 
 	animation := Animation{
 		LayeredPoint: LayeredPoint{
-			Point: Point{
+			Vector: physics.Vector{
 				X: 0.0,
 				Y: 0.0,
 			},

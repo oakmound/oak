@@ -130,7 +130,7 @@ func (s *Space) UpdateLabel(classtype int) {
 	rt.Insert(s)
 }
 
-func (s *Space) OverlapVector(other *Space) *physics.Vector {
+func (s *Space) OverlapVector(other *Space) physics.Vector {
 	xover, yover := s.Overlap(other)
 	return physics.NewVector(-xover, -yover)
 }

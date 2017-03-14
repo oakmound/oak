@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"errors"
 	"image"
 	"image/color"
@@ -14,10 +15,10 @@ type Rect struct {
 type Polygon struct {
 	Sprite
 	Rect
-	points []Point
+	points []physics.Vector
 }
 
-func ScreenPolygon(points []Point, w, h int) (*Polygon, error) {
+func ScreenPolygon(points []physics.Vector, w, h int) (*Polygon, error) {
 	if len(points) < 3 {
 		return nil, errors.New("Please give at least three points to NewPolygon calls")
 	}
@@ -30,7 +31,7 @@ func ScreenPolygon(points []Point, w, h int) (*Polygon, error) {
 	return &Polygon{
 		Sprite: Sprite{
 			LayeredPoint: LayeredPoint{
-				Point: Point{
+				Vector: physics.Vector{
 					X: 0.0,
 					Y: 0.0,
 				},
@@ -47,7 +48,7 @@ func ScreenPolygon(points []Point, w, h int) (*Polygon, error) {
 	}, nil
 }
 
-func NewPolygon(points []Point) (*Polygon, error) {
+func NewPolygon(points []physics.Vector) (*Polygon, error) {
 
 	if len(points) < 3 {
 		return nil, errors.New("Please give at least three points to NewPolygon calls")
@@ -63,7 +64,7 @@ func NewPolygon(points []Point) (*Polygon, error) {
 	return &Polygon{
 		Sprite: Sprite{
 			LayeredPoint: LayeredPoint{
-				Point: Point{
+				Vector: physics.Vector{
 					X: 0.0,
 					Y: 0.0,
 				},
@@ -80,7 +81,7 @@ func NewPolygon(points []Point) (*Polygon, error) {
 	}, nil
 }
 
-func (pg *Polygon) UpdatePoints(points []Point) {
+func (pg *Polygon) UpdatePoints(points []physics.Vector) {
 	pg.points = points
 	pg.minX, pg.minY, pg.maxX, pg.maxY, _, _ = BoundingRect(points)
 }
@@ -107,7 +108,7 @@ func (pg *Polygon) GetOutline(c color.Color) *Composite {
 		p1 := pg.points[j]
 		minX := math.Min(p1.X, p2.X)
 		minY := math.Min(p1.Y, p2.Y)
-		sl.AppendOffset(NewLine(p1.X, p1.Y, p2.X, p2.Y, c), Point{minX, minY})
+		sl.AppendOffset(NewLine(p1.X, p1.Y, p2.X, p2.Y, c), physics.Vector{minX, minY})
 		j = i
 	}
 	return sl
@@ -127,7 +128,7 @@ func (pg *Polygon) FillInverse(c color.Color) {
 	pg.r = rgba
 }
 
-func BoundingRect(points []Point) (minX, minY, maxX, maxY float64, w, h int) {
+func BoundingRect(points []physics.Vector) (minX, minY, maxX, maxY float64, w, h int) {
 	minX = math.MaxFloat64
 	minY = math.MaxFloat64
 	maxX = minX * -1
@@ -209,7 +210,7 @@ func (pg *Polygon) ConvexContains(x, y float64) bool {
 		tp1 := pg.points[i]
 		tp2 := pg.points[(i+1)%len(pg.points)]
 		tp3 := vSub(tp2, tp1)
-		tp4 := vSub(Point{x, y}, tp1)
+		tp4 := vSub(physics.Vector{x, y}, tp1)
 		cur := getSide(tp3, tp4)
 		if cur == 0 {
 			return false
@@ -222,7 +223,7 @@ func (pg *Polygon) ConvexContains(x, y float64) bool {
 	return true
 }
 
-func getSide(a, b Point) int {
+func getSide(a, b physics.Vector) int {
 	x := a.X*b.Y - a.Y*b.X
 	if x == 0 {
 		return 0
@@ -233,10 +234,10 @@ func getSide(a, b Point) int {
 	}
 }
 
-func vSub(a, b Point) Point {
-	return Point{a.X - b.X, a.Y - b.Y}
+func vSub(a, b physics.Vector) physics.Vector {
+	return physics.Vector{a.X - b.X, a.Y - b.Y}
 }
 
-func isLeft(p1, p2 Point, x, y float64) float64 {
+func isLeft(p1, p2 physics.Vector, x, y float64) float64 {
 	return (p1.X-x)*(p2.Y-y) - (p2.X-x)*(p1.Y-y)
 }

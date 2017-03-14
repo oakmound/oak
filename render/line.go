@@ -1,6 +1,7 @@
 package render
 
 import (
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
 	"image/color"
 	"math"
@@ -22,7 +23,7 @@ func NewLine(x1, y1, x2, y2 float64, c color.Color) *Line {
 	return &Line{
 		Sprite{
 			LayeredPoint: LayeredPoint{
-				Point: Point{
+				Vector: physics.Vector{
 					X: minX,
 					Y: minY,
 				},

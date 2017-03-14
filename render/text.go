@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/draw"
 
+	"bitbucket.org/oakmoundstudio/oak/physics"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -16,7 +17,7 @@ type Text struct {
 func (f *Font) NewText(str string, x, y float64) *Text {
 	return &Text{
 		LayeredPoint: LayeredPoint{
-			Point: Point{
+			Vector: physics.Vector{
 				X: x,
 				Y: y,
 			},
