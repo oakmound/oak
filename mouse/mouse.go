@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"bitbucket.org/oakmoundstudio/oak/collision"
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"github.com/Sythe2o0/rtreego"
 )
 
@@ -25,17 +26,17 @@ type MouseEvent struct {
 }
 
 func Init() {
-	fmt.Println("Mouse init started")
+	dlog.Verb("Mouse init started")
 	addLock.Lock()
 	mt = rtreego.NewTree(20, 40)
 	addLock.Unlock()
-	fmt.Println("Mouse init done")
+	dlog.Verb("Mouse init done")
 }
 
 func Clear() {
-	fmt.Println("Mouse clear started ")
+	dlog.Verb("Mouse clear started ")
 	Init()
-	fmt.Println("Mouse clear done")
+	dlog.Verb("Mouse clear done")
 }
 
 func Add(sp *collision.Space) {

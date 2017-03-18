@@ -1,12 +1,12 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"errors"
-	"fmt"
 	"image/draw"
 	"strconv"
 	"time"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 //Rate of scrool
@@ -43,7 +43,6 @@ func NewScrollBox(rs []Renderable, milliPerPixelX, milliPerPixelY, width, height
 	s.nextScrollX = time.Now().Add(s.scrollRateX)
 	s.nextScrollY = time.Now().Add(s.scrollRateY)
 	s.Sprite = NewEmptySprite(0, 0, width, height)
-	fmt.Println("Made a ScrollBox ")
 
 	s.drawRenderables()
 	return s
