@@ -146,3 +146,12 @@ func (sq *Sequence) Pause() {
 func (sq *Sequence) Unpause() {
 	sq.playing = true
 }
+
+func TweenSequence(a, b *image.RGBA, frames int, fps float64) *Sequence {
+	images := Tween(a, b, frames)
+	ms := make([]Modifiable, len(images))
+	for i, v := range images {
+		ms[i] = NewSprite(0, 0, v)
+	}
+	return NewSequence(ms, fps)
+}
