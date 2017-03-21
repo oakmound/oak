@@ -8,6 +8,7 @@ import (
 
 	"time"
 
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/timing"
 )
@@ -43,15 +44,15 @@ func StaticDraw(r Renderable, l int) Renderable {
 // and adds them to the drawheap.
 func PreDraw() {
 	i := 0
-	// defer func() {
-	// 	if x := recover(); x != nil {
-	// 		dlog.Error("Invalid Memory Address in toPushRenderables")
-	// 		// This does not work-- all addresses following the bad address
-	// 		// at i are also bad
-	// 		//toPushRenderables = toPushRenderables[i+1:]
-	// 		toPushRenderables = []Renderable{}
-	// 	}
-	// }()
+	defer func() {
+		if x := recover(); x != nil {
+			dlog.Error("Invalid Memory Address in toPushRenderables")
+			// This does not work-- all addresses following the bad address
+			// at i are also bad
+			//toPushRenderables = toPushRenderables[i+1:]
+			toPushRenderables = []Renderable{}
+		}
+	}()
 	if resetHeap == true {
 		InitDrawHeap()
 		resetHeap = false
