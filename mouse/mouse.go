@@ -4,7 +4,6 @@
 package mouse
 
 import (
-	"fmt"
 	"sync"
 
 	"bitbucket.org/oakmoundstudio/oak/collision"
@@ -73,9 +72,6 @@ func Hits(sp *collision.Space) []*collision.Space {
 func Propagate(eventName string, me MouseEvent) {
 	mouseLoc := collision.NewUnassignedSpace(float64(me.X), float64(me.Y), 0.01, 0.01)
 	hits := mt.SearchIntersect(mouseLoc.Bounds())
-	if eventName == "MousePressOn" {
-		fmt.Println(len(hits), " Number of mouse collision spaces found")
-	}
 	for _, v := range hits {
 		sp := v.(*collision.Space)
 		sp.CID.Trigger(eventName, nil)

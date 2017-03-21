@@ -1,7 +1,6 @@
 package oak
 
 import (
-	"fmt"
 	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
@@ -39,7 +38,7 @@ func InputLoop(windowControl screen.Window) {
 		case key.Event:
 			k := GetKeyBind(e.Code.String()[4:])
 			if e.Direction == key.DirPress {
-				fmt.Println("--------------------", e.Code.String()[4:], k)
+				dlog.Verb("--------------------", e.Code.String()[4:], k)
 				setDown(k)
 				eb.Trigger("KeyDown", k)
 				eb.Trigger("KeyDown"+k, nil)

@@ -1,16 +1,10 @@
 package event
 
-import (
-	"fmt"
-)
-
 // Called by entities,
 // for unbinding specific bindings.
 func (eb *EventBus) Unbind(b Binding) {
-	fmt.Println("Locking Pending Mutex")
 	pendingMutex.Lock()
 	bindingsToUnbind = append(bindingsToUnbind, b)
-	fmt.Println("Added a binding to unbind")
 	pendingMutex.Unlock()
 }
 
@@ -31,7 +25,7 @@ func (cid *CID) UnbindAll() {
 	UnbindAll(bo)
 }
 
-func (cid *CID)UnbindAllAndRebind(binds []Bindable,  events []string){
+func (cid *CID) UnbindAllAndRebind(binds []Bindable, events []string) {
 	bo := BindingOption{
 		Event{
 			"",
@@ -42,9 +36,9 @@ func (cid *CID)UnbindAllAndRebind(binds []Bindable,  events []string){
 	UnbindAllAndRebind(bo, binds, int(*cid), events)
 }
 
-func UnbindAllAndRebind(bo BindingOption, binds []Bindable, cid int, events []string){
-	opt  := make([]BindingOption, len(events))
-	for k, v := range events{
+func UnbindAllAndRebind(bo BindingOption, binds []Bindable, cid int, events []string) {
+	opt := make([]BindingOption, len(events))
+	for k, v := range events {
 		opt[k].Event = Event{
 			Name:     v,
 			CallerID: cid,
@@ -53,7 +47,7 @@ func UnbindAllAndRebind(bo BindingOption, binds []Bindable, cid int, events []st
 
 	pendingMutex.Lock()
 	orderedUnbinds = append(orderedUnbinds, bo)
-	orderedBindOptions  = append(orderedBindOptions, opt...)
+	orderedBindOptions = append(orderedBindOptions, opt...)
 	orderedBindables = append(orderedBindables, binds...)
 	pendingMutex.Unlock()
 }
@@ -72,5 +66,3 @@ func UnbindBindable(opt UnbindOption) {
 	ubOptionsToUnbind = append(ubOptionsToUnbind, opt)
 	pendingMutex.Unlock()
 }
-
-

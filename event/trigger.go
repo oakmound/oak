@@ -1,7 +1,6 @@
 package event
 
 import (
-	"fmt"
 	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/timing"
@@ -129,7 +128,6 @@ func handleBindable(bnd Bindable, id int, data interface{}, index int, eventName
 					0,
 				})
 			case UNBIND_SINGLE:
-				fmt.Println("Unbinding??")
 				Binding{
 					BindingOption{
 						Event{

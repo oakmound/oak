@@ -1,7 +1,6 @@
 package render
 
 import (
-	//"fmt"
 	"image"
 )
 
@@ -38,7 +37,6 @@ func SetDirty(fx, fy float64) {
 	x := int(fx)
 	y := int(fy)
 	x, y = dirtyBounds(x, y)
-	//fmt.Println(x, y)
 	for i := x - 1; i < x+1; i++ {
 		for j := y - 1; j < y+1; j++ {
 			dirtyZones[i][j] = true

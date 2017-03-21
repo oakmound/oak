@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
-
-	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
 const (
@@ -21,6 +19,5 @@ func SeedRNG(curSeed int64) {
 
 	fmt.Println("\n~~~~~~~~~~~~~~~")
 	fmt.Println("Oak Seed:", curSeed)
-	dlog.Info("Oak seed:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~")
 }

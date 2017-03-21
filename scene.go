@@ -43,7 +43,6 @@ const (
 func sceneTransition(result *SceneResult) {
 	switch result.TransitionType {
 	case TRANSITION_FADE:
-		fmt.Println("Transition Fade starting")
 		darkBuffer := winBuffer.RGBA()
 		data := result.TransitionPayload.([2]float64)
 		rate := float32(data[1]) * -1
