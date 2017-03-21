@@ -2,12 +2,15 @@ package oak
 
 import (
 	"sync"
+	"time"
 )
 
 var (
-	keyBinds = make(map[string]string)
-	keyState = make(map[string]bool)
-	keyLock  = sync.RWMutex{}
+	keyBinds     = make(map[string]string)
+	keyState     = make(map[string]bool)
+	keyDurations = make(map[string]time.Duration)
+	keyLock      = sync.RWMutex{}
+	durationLock = sync.RWMutex{}
 )
 
 // SetUp, SetDown, and IsDown all
@@ -16,7 +19,10 @@ var (
 // states.
 func setUp(key string) {
 	keyLock.Lock()
-	keyState[key] = false
+	durationLock.Lock()
+	delete(keyState, key)
+	delete(keyDurations, key)
+	durationLock.Unlock()
 	keyLock.Unlock()
 }
 
@@ -26,11 +32,22 @@ func setDown(key string) {
 	keyLock.Unlock()
 }
 
-func IsDown(key string) bool {
+func IsDown(key string) (k bool) {
 	keyLock.RLock()
-	k := keyState[key]
+	k = keyState[key]
 	keyLock.RUnlock()
-	return k
+	return
+}
+func IsHeld(key string) (k bool, d time.Duration) {
+	keyLock.RLock()
+	k = keyState[key]
+	if k {
+		durationLock.RLock()
+		d = keyDurations[key]
+		durationLock.RUnlock()
+	}
+	keyLock.RUnlock()
+	return
 }
 
 func BindKey(key string, binding string) {
@@ -42,4 +59,20 @@ func GetKeyBind(key string) string {
 		return v
 	}
 	return key
+}
+
+func KeyHoldLoop() {
+	now := time.Now()
+	for {
+		next := time.Now()
+		delta := next.Sub(now)
+		now = next
+		keyLock.RLock()
+		for k, _ := range keyState {
+			durationLock.Lock()
+			keyDurations[k] += delta
+			durationLock.Unlock()
+		}
+		keyLock.RUnlock()
+	}
 }

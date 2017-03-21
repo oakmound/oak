@@ -2,6 +2,7 @@ package oak
 
 import (
 	"fmt"
+	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	pmouse "bitbucket.org/oakmoundstudio/oak/mouse"
@@ -98,14 +99,10 @@ func InputLoop(windowControl screen.Window) {
 		}
 
 		// This is a hardcoded quit function bound to the escape key.
-		if IsDown("Escape") {
-			if esc {
-				dlog.Warn("Quiting oak from holding ESCAPE")
-				windowControl.Send(lifecycle.Event{0, 0, nil})
-			}
-			esc = true
-		} else {
-			esc = false
+		esc, dur := IsHeld("Escape")
+		if esc && dur > time.Second*1 {
+			dlog.Warn("Quiting oak from holding ESCAPE")
+			windowControl.Send(lifecycle.Event{0, 0, nil})
 		}
 	}
 }

@@ -17,7 +17,6 @@ var (
 	screenControl screen.Screen
 	windowControl screen.Window
 
-	esc      bool
 	drawInit bool
 )
 
@@ -57,6 +56,7 @@ func lifecycleLoop(s screen.Screen) {
 	frameCh := make(chan bool)
 
 	go FrameLoop(frameCh, int64(FrameRate))
+	go KeyHoldLoop()
 	go InputLoop(windowControl)
 
 	// Initiate the first scene
