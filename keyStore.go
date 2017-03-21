@@ -41,12 +41,12 @@ func IsDown(key string) (k bool) {
 func IsHeld(key string) (k bool, d time.Duration) {
 	keyLock.RLock()
 	k = keyState[key]
+	keyLock.RUnlock()
 	if k {
 		durationLock.RLock()
 		d = keyDurations[key]
 		durationLock.RUnlock()
 	}
-	keyLock.RUnlock()
 	return
 }
 

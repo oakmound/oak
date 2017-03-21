@@ -15,6 +15,8 @@ type STWHeap struct {
 func NewSTWHeap(f []float64) *STWHeap {
 	stwh := new(STWHeap)
 	f = append([]float64{0}, f...)
+	// The order of elements literally does not
+	// matter, so 'heap' is a misnomer.
 	stwh.bh = f
 	stwh.weightsBelow = make([]float64, len(f))
 	copy(stwh.weightsBelow, f)
