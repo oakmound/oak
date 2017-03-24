@@ -23,7 +23,8 @@ func SeedRNG(curSeed int64) {
 	fmt.Println("Oak Seed:", curSeed)
 
 	// We log here because we want the seed recorded in the
-	// logfile for debugging purposes.
+	// logfile for debugging purposes. Maybe a logWrite function
+	// would be better.
 	dlog.Info("Oak seed:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~")
 }

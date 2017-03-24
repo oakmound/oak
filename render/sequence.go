@@ -4,11 +4,11 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"math"
 	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/physics"
+	"bitbucket.org/oakmoundstudio/oak/timing"
 )
 
 type Sequence struct {
@@ -31,7 +31,7 @@ func NewSequence(mods []Modifiable, fps float64) *Sequence {
 			},
 		},
 		sheetPos:      0,
-		frameTime:     int64(math.Pow(10, 9) / fps),
+		frameTime:     timing.FPSToNano(fps),
 		rs:            mods,
 		lastChange:    time.Now(),
 		playing:       true,

@@ -3,11 +3,11 @@ package oak
 import (
 	"image"
 	"image/draw"
-	"strconv"
 	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/render"
+	"bitbucket.org/oakmoundstudio/oak/timing"
 	"golang.org/x/exp/shiny/screen"
 )
 
@@ -75,10 +75,10 @@ func DrawLoopNoFPS(windowControl screen.Window) {
 
 func DrawLoopFPS(windowControl screen.Window) {
 	<-drawChannel
-	//cb := render.CompositeFilter(render.NewColorBox(4096, 4096, color.RGBA{0, 0, 0, 125}).Sprite)
 	lastTime := time.Now()
 
-	text := render.DefFont().NewText("", 10, 20)
+	fps := 0
+	text := render.DefFont().NewIntText(&fps, 10, 20)
 	render.StaticDraw(text, 60000)
 	for {
 		dlog.Verb("Draw Loop")
@@ -125,9 +125,7 @@ func DrawLoopFPS(windowControl screen.Window) {
 			windowControl.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
 			windowControl.Publish()
 
-			timeSince := 1000000000.0 / float64(time.Since(lastTime).Nanoseconds())
-			text.SetText(strconv.Itoa(int(timeSince)))
-
+			fps = int(timing.FPS(lastTime, time.Now()))
 			lastTime = time.Now()
 		}
 	}

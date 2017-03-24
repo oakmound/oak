@@ -5,11 +5,11 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"math"
 	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/physics"
+	"bitbucket.org/oakmoundstudio/oak/timing"
 )
 
 type Sheet [][]*image.RGBA
@@ -38,7 +38,6 @@ func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error)
 		return nil, errors.New("Uneven number of animation coordinates")
 	}
 
-	frameTime := math.Pow(10, 9) / fps
 	splitFrames := make([][]int, len(frames)/2)
 	for i := 0; i < len(frames); i += 2 {
 		splitFrames[i/2] = []int{frames[i], frames[i+1]}
@@ -52,7 +51,7 @@ func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error)
 			},
 		},
 		sheetPos:      0,
-		frameTime:     int64(frameTime),
+		frameTime:     timing.FPSToNano(fps),
 		frames:        splitFrames,
 		sheet:         sheet_p,
 		lastChange:    time.Now(),
