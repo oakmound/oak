@@ -92,7 +92,10 @@ func InputLoop(windowControl screen.Window) {
 		// I don't really know what a paint event is to be honest.
 		// We hypothetically don't allow the user to manually resize
 		// their window, so we don't do anything special for such events.
-		case size.Event, paint.Event:
+		case size.Event:
+			dlog.Verb("Got size event", e)
+		case paint.Event:
+			dlog.Verb("Got paint event", e)
 		case error:
 			dlog.Error(e)
 		}

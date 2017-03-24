@@ -9,7 +9,11 @@ import (
 )
 
 func WindowController(s screen.Screen, ScreenWidth, ScreenHeight int) (screen.Window, error) {
-	return s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight})
+	// Start Windows sucks
+	ScreenWidth += 16
+	ScreenHeight += 39
+	// End Windows Sucks
+	return s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight, conf.Title})
 }
 
 // OK so I've been thinking about platform support

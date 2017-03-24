@@ -21,6 +21,7 @@ var (
 		60,
 		false,
 		"English",
+		"Oak Window",
 	}
 )
 
@@ -33,6 +34,7 @@ type oakConfig struct {
 	FrameRate int    `json:"frameRate"`
 	ShowFPS   bool   `json:showFPS`
 	Language  string `json:"language"`
+	Title     string `json:"title"`
 }
 
 type Assets struct {
@@ -132,8 +134,12 @@ func loadDefaultConf() error {
 		conf.ShowFPS = tmpConf.ShowFPS
 	}
 
-	if tmpConf.Language != "English" {
+	if tmpConf.Language != "" {
 		conf.Language = tmpConf.Language
+	}
+
+	if tmpConf.Title != "" {
+		conf.Title = tmpConf.Title
 	}
 
 	dlog.Error(conf)
