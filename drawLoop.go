@@ -23,7 +23,7 @@ var (
 // 4. run any functions bound to follow drawing.
 // 5. draw the buffer's data at the viewport's position to the screen.
 // 6. publish the screen to display in window.
-func DrawLoopNoFPS(windowControl screen.Window) {
+func DrawLoopNoFPS() {
 	<-drawChannel
 
 	for {
@@ -73,7 +73,7 @@ func DrawLoopNoFPS(windowControl screen.Window) {
 	}
 }
 
-func DrawLoopFPS(windowControl screen.Window) {
+func DrawLoopFPS() {
 	<-drawChannel
 	lastTime := time.Now()
 
@@ -121,6 +121,12 @@ func DrawLoopFPS(windowControl screen.Window) {
 			render.DrawHeap(worldBuffer.RGBA(), ViewPos, ScreenWidth, ScreenHeight)
 			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), ViewPos, screen.Src)
 			render.DrawStaticHeap(winBuffer.RGBA())
+
+			// How we should do non-fullscreen scaling
+			//
+			//tx, _ := screenControl.NewTexture(winBuffer.Bounds().Max)
+			//tx.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
+			//windowControl.Scale(image.Rect(0, 0, 1280, 960), tx, tx.Bounds(), screen.Src, nil)
 
 			windowControl.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
 			windowControl.Publish()

@@ -6,7 +6,6 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	pmouse "bitbucket.org/oakmoundstudio/oak/mouse"
 	"golang.org/x/exp/shiny/gesture"
-	"golang.org/x/exp/shiny/screen"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
 	"golang.org/x/mobile/event/mouse"
@@ -14,7 +13,7 @@ import (
 	"golang.org/x/mobile/event/size"
 )
 
-func InputLoop(windowControl screen.Window) {
+func InputLoop() {
 	eFilter := gesture.EventFilter{EventDeque: windowControl}
 	for {
 		e := eFilter.Filter(eFilter.EventDeque.NextEvent()) //Filters an event to see if it fits a defined gesture

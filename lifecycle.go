@@ -57,15 +57,15 @@ func lifecycleLoop(s screen.Screen) {
 
 	go FrameLoop(frameCh, int64(FrameRate))
 	go KeyHoldLoop()
-	go InputLoop(windowControl)
+	go InputLoop()
 
 	// Initiate the first scene
 	initCh <- true
 
 	if conf.ShowFPS {
-		go DrawLoopFPS(windowControl)
+		go DrawLoopFPS()
 	} else {
-		go DrawLoopNoFPS(windowControl)
+		go DrawLoopNoFPS()
 	}
 
 	go BindingLoop()
