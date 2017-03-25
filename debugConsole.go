@@ -18,10 +18,10 @@ import (
 
 var (
 	viewportLocked = true
-	cheats         = make(map[string]func())
+	cheats         = make(map[string]func([]string))
 )
 
-func AddCheat(s string, fn func()) {
+func AddCheat(s string, fn func([]string)) {
 	cheats[s] = fn
 }
 
@@ -48,7 +48,7 @@ func DebugConsole(resetCh, skipScene chan bool) {
 				// Requires that cheats are all one word! <-- don't forget
 				fmt.Println(cheats, tokenString[1])
 				if fn, ok := cheats[tokenString[1]]; ok {
-					fn()
+					fn(tokenString[1:])
 				}
 			case "viewport":
 				switch tokenString[1] {

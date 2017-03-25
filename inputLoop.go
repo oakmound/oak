@@ -11,10 +11,15 @@ import (
 	"golang.org/x/mobile/event/mouse"
 	"golang.org/x/mobile/event/paint"
 	"golang.org/x/mobile/event/size"
+	"image"
+)
+
+var (
+	eFilter gesture.EventFilter
 )
 
 func InputLoop() {
-	eFilter := gesture.EventFilter{EventDeque: windowControl}
+	eFilter = gesture.EventFilter{EventDeque: windowControl}
 	for {
 		e := eFilter.Filter(eFilter.EventDeque.NextEvent()) //Filters an event to see if it fits a defined gesture
 
@@ -63,7 +68,7 @@ func InputLoop() {
 		case mouse.Event:
 			button := pmouse.GetMouseButton(int32(e.Button))
 			dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", button)
-			mevent := pmouse.MouseEvent{e.X, e.Y, button}
+			mevent := pmouse.MouseEvent{e.X / float32(windowRect.Max.X) * float32(ScreenWidth), e.Y / float32(windowRect.Max.Y) * float32(ScreenHeight), button}
 			var eventName string
 			if e.Direction == mouse.DirPress {
 				setDown(button)
@@ -93,6 +98,7 @@ func InputLoop() {
 		// their window, so we don't do anything special for such events.
 		case size.Event:
 			dlog.Verb("Got size event", e)
+			windowRect = image.Rect(0, 0, e.WidthPx, e.HeightPx)
 		case paint.Event:
 			dlog.Verb("Got paint event", e)
 		case error:

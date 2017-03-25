@@ -12,6 +12,7 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/mouse"
 	"bitbucket.org/oakmoundstudio/oak/render"
 	"bitbucket.org/oakmoundstudio/oak/timing"
+	"fmt"
 	"golang.org/x/exp/shiny/driver"
 )
 
@@ -117,21 +118,24 @@ func Init(firstScene string) {
 	audio.InitWinAudio()
 
 	SeedRNG(DEFAULT_SEED)
-
+	fmt.Println("Got past seeding")
 	go LoadAssets()
 	go driver.Main(lifecycleLoop)
 	go DebugConsole(debugResetCh, skipSceneCh)
+	fmt.Println("Got past gofuncs")
 
 	prevScene := ""
 	sceneMap[firstScene].active = true
 
 	<-initCh
 
+	fmt.Println("Got past initchan")
 	// This is the only time oak closes a channel
 	// This should probably change
 	close(initCh)
 
 	// Loop through scenes
+
 	runEventLoop = true
 	globalFirstScene = firstScene
 	CurrentScene = "loading"
@@ -139,6 +143,7 @@ func Init(firstScene string) {
 	dlog.Info("First Scene Start")
 	drawChannel <- true
 	drawChannel <- true
+
 	for {
 		ViewPos = image.Point{0, 0}
 		updateScreen(0, 0)
@@ -209,4 +214,5 @@ func Init(firstScene string) {
 			}()
 		}
 	}
+
 }

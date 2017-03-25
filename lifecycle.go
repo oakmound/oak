@@ -8,7 +8,10 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/event"
 
+	"fmt"
 	"golang.org/x/exp/shiny/screen"
+	"golang.org/x/mobile/event/size"
+	"golang.org/x/mobile/geom"
 )
 
 var (
@@ -17,9 +20,16 @@ var (
 	screenControl screen.Screen
 	windowControl screen.Window
 
-	drawInit bool
+	windowRect     image.Rectangle
+	drawInit       bool
+	windowUpdateCH = make(chan bool)
+
+	osCh = make(chan func())
 )
 
+//func init() {
+//	runtime.LockOSThread()
+//}
 func lifecycleLoop(s screen.Screen) {
 	screenControl = s
 
@@ -44,11 +54,8 @@ func lifecycleLoop(s screen.Screen) {
 
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
-	windowControl, err = WindowController(screenControl, ScreenWidth, ScreenHeight)
-	if err != nil {
-		dlog.Error(err)
-		return
-	}
+	changeWindow(ScreenWidth, ScreenHeight)
+	fmt.Println("changed")
 	defer windowControl.Release()
 
 	eb = event.GetEventBus()
@@ -70,8 +77,18 @@ func lifecycleLoop(s screen.Screen) {
 
 	go BindingLoop()
 	LogicLoop(frameCh)
+
 }
 
+// do runs f on the osLocked thread.
+func osLockedFunc(f func()) {
+	done := make(chan bool, 1)
+	osCh <- func() {
+		f()
+		done <- true
+	}
+	<-done
+}
 func BindingLoop() {
 	// Handle bind and unbind signals for events
 	// (should be made to not use a busy loop eventually)
@@ -113,4 +130,33 @@ func GetWorld() *image.RGBA {
 
 func SetWorldSize(x, y int) {
 	worldBuffer, _ = screenControl.NewBuffer(image.Point{x, y})
+}
+
+func changeWindow(width, height int) {
+	//windowFlag := windowControl != nil
+	//if windowFlag {
+	//	windowUpdateCH <- true
+	//	windowControl.Publish()
+	//	windowControl.Release()
+	//}
+	// The window controller handles incoming hardware or platform events and
+	// publishes image data to the screen.
+	wC, err := WindowController(screenControl, width, height)
+	if err != nil {
+		dlog.Error(err)
+		panic(err)
+	}
+	windowControl = wC
+	windowRect = image.Rect(0, 0, width, height)
+
+	//if windowFlag {
+	//	eFilter = gesture.EventFilter{EventDeque: windowControl}
+	//	windowUpdateCH <- true
+	//}
+}
+
+func ChangeWindow(width, height int) {
+	//osLockedFunc(func() { changeWindow(width, height) })
+	windowControl.Send(size.Event{width, height, geom.Pt(float32(width)), geom.Pt(float32(height)), 1, 0})
+	windowRect = image.Rect(0, 0, width, height)
 }

@@ -25,12 +25,13 @@ var (
 // 6. publish the screen to display in window.
 func DrawLoopNoFPS() {
 	<-drawChannel
-
+	tx, _ := screenControl.NewTexture(winBuffer.Bounds().Max)
 	for {
 		dlog.Verb("Draw Loop")
 	drawSelect:
 		select {
-
+		case <-windowUpdateCH:
+			<-windowUpdateCH
 		case <-drawChannel:
 			dlog.Verb("Got something from draw channel")
 			<-drawChannel
@@ -67,7 +68,9 @@ func DrawLoopNoFPS() {
 			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), ViewPos, screen.Src)
 			render.DrawStaticHeap(winBuffer.RGBA())
 
-			windowControl.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
+			tx.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
+			windowControl.Scale(windowRect, tx, tx.Bounds(), screen.Src, nil)
+			//windowControl.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
 			windowControl.Publish()
 		}
 	}
@@ -76,7 +79,7 @@ func DrawLoopNoFPS() {
 func DrawLoopFPS() {
 	<-drawChannel
 	lastTime := time.Now()
-
+	tx, _ := screenControl.NewTexture(winBuffer.Bounds().Max)
 	fps := 0
 	text := render.DefFont().NewIntText(&fps, 10, 20)
 	render.StaticDraw(text, 60000)
@@ -84,7 +87,8 @@ func DrawLoopFPS() {
 		dlog.Verb("Draw Loop")
 	drawSelect:
 		select {
-
+		case <-windowUpdateCH:
+			<-windowUpdateCH
 		case <-drawChannel:
 			dlog.Verb("Got something from draw channel")
 			<-drawChannel
@@ -123,12 +127,9 @@ func DrawLoopFPS() {
 			render.DrawStaticHeap(winBuffer.RGBA())
 
 			// How we should do non-fullscreen scaling
-			//
-			//tx, _ := screenControl.NewTexture(winBuffer.Bounds().Max)
-			//tx.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
-			//windowControl.Scale(image.Rect(0, 0, 1280, 960), tx, tx.Bounds(), screen.Src, nil)
-
-			windowControl.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
+			tx.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
+			windowControl.Scale(windowRect, tx, tx.Bounds(), screen.Src, nil)
+			//windowControl.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
 			windowControl.Publish()
 
 			fps = int(timing.FPS(lastTime, time.Now()))
