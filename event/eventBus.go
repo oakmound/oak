@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	thisBus = EventBus{make(map[string]map[int]*BindableStore)}
+	thisBus = &EventBus{make(map[string]map[int]*BindableStore)}
 	mutex   = sync.RWMutex{}
 	rLocks  = 0
 )
@@ -111,12 +111,13 @@ func (cid CID) E() interface{} {
 }
 
 func GetEventBus() *EventBus {
-	return &thisBus
+	return thisBus
 }
 
 func ResetEventBus() {
-	thisBus = EventBus{make(map[string]map[int]*BindableStore)}
 	mutex.Lock()
+	thisBus = &EventBus{make(map[string]map[int]*BindableStore)}
+
 	bindablesToBind = []Bindable{}
 	optionsToBind = []BindingOption{}
 

@@ -8,7 +8,6 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/event"
 
-	"fmt"
 	"golang.org/x/exp/shiny/screen"
 	"golang.org/x/mobile/event/size"
 	"golang.org/x/mobile/geom"
@@ -55,7 +54,6 @@ func lifecycleLoop(s screen.Screen) {
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
 	changeWindow(ScreenWidth, ScreenHeight)
-	fmt.Println("changed")
 	defer windowControl.Release()
 
 	eb = event.GetEventBus()
@@ -92,8 +90,10 @@ func osLockedFunc(f func()) {
 func BindingLoop() {
 	// Handle bind and unbind signals for events
 	// (should be made to not use a busy loop eventually)
-	for runEventLoop {
-		event.ResolvePending()
+	for {
+		for runEventLoop {
+			event.ResolvePending()
+		}
 	}
 }
 
