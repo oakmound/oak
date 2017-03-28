@@ -19,8 +19,8 @@ import (
 )
 
 var (
-	regexpSingleNumber, _ = regexp.Compile("^\\d+$")
-	regexpTwoNumbers, _   = regexp.Compile("^\\d+x\\d+$")
+	regexpSingleNumber, _ = regexp.Compile(`^\d+$`)
+	regexpTwoNumbers, _   = regexp.Compile(`^\d+x\d+$`)
 )
 
 var (
@@ -46,7 +46,12 @@ func loadPNG(directory, fileName string) *image.RGBA {
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer imgFile.Close()
+		defer func() {
+			err = imgFile.Close()
+			if err != nil {
+				dlog.Error(err)
+			}
+		}()
 
 		img, err := png.Decode(imgFile)
 		if err != nil {
@@ -246,7 +251,10 @@ func BatchLoad(baseFolder string) error {
 							// than the folder size's frame size
 						} else if w != frameW || h != frameH {
 							dlog.Verb("Loading as sprite sheet")
-							LoadSheet(baseFolder, filepath.Join(folder.Name(), n), frameW, frameH, defaultPad)
+							_, err = LoadSheet(baseFolder, filepath.Join(folder.Name(), n), frameW, frameH, defaultPad)
+							if err != nil {
+								dlog.Error(err)
+							}
 						}
 					default:
 						dlog.Error("Unsupported file ending for batchLoad: ", n)

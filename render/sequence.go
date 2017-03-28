@@ -15,11 +15,11 @@ type Sequence struct {
 	LayeredPoint
 	rs            []Modifiable
 	lastChange    time.Time
-	playing       bool
 	sheetPos      int
 	frameTime     int64
-	Interruptable bool
 	cID           event.CID
+	playing       bool
+	Interruptable bool
 }
 
 func NewSequence(mods []Modifiable, fps float64) *Sequence {

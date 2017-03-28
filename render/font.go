@@ -84,7 +84,7 @@ type Font struct {
 }
 
 func (f *Font) Refresh() {
-	f = f.Generate()
+	*f = *f.Generate()
 }
 
 func (f *Font) Copy() *Font {
@@ -94,7 +94,7 @@ func (f *Font) Copy() *Font {
 func (f *Font) Reset() {
 	// Generate will return all defaults with no args
 	f.FontGenerator = FontGenerator{}
-	f = f.Generate()
+	*f = *f.Generate()
 }
 
 func SetFontDefaults(wd, assetPath, fontPath, hinting, color, file string, size, dpi float64) {

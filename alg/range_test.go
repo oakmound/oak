@@ -3,15 +3,15 @@ package alg
 import (
 	"testing"
 
-	"bitbucket.org/oakmoundstudio/oak/tests"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIntRanges(t *testing.T) {
 	_, err := NewLinearIntRange(1, 0)
 
-	tests.ExpectError(err, t)
+	assert.NotNil(t, err)
 
-	_, err = NewBaseSpreadIntRange(1, -1)
+	_, err = NewSpreadIntRange(1, -1)
 
-	tests.ExpectError(err, t)
+	assert.NotNil(t, err)
 }

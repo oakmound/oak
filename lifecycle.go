@@ -9,8 +9,6 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/event"
 
 	"golang.org/x/exp/shiny/screen"
-	"golang.org/x/mobile/event/size"
-	"golang.org/x/mobile/geom"
 )
 
 var (
@@ -20,7 +18,6 @@ var (
 	windowControl screen.Window
 
 	windowRect     image.Rectangle
-	drawInit       bool
 	windowUpdateCH = make(chan bool)
 
 	osCh = make(chan func())
@@ -31,6 +28,7 @@ var (
 //}
 func lifecycleLoop(s screen.Screen) {
 	screenControl = s
+	var err error
 
 	// The world buffer represents the total space that is conceptualized by the engine
 	// and able to be drawn to. Space outside of this area will appear as smeared
@@ -157,6 +155,5 @@ func changeWindow(width, height int) {
 
 func ChangeWindow(width, height int) {
 	//osLockedFunc(func() { changeWindow(width, height) })
-	windowControl.Send(size.Event{width, height, geom.Pt(float32(width)), geom.Pt(float32(height)), 1, 0})
 	windowRect = image.Rect(0, 0, width, height)
 }

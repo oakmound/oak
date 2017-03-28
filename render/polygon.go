@@ -1,11 +1,12 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"errors"
 	"image"
 	"image/color"
 	"math"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 type Rect struct {
@@ -108,7 +109,7 @@ func (pg *Polygon) GetOutline(c color.Color) *Composite {
 		p1 := pg.points[j]
 		minX := math.Min(p1.X, p2.X)
 		minY := math.Min(p1.Y, p2.Y)
-		sl.AppendOffset(NewLine(p1.X, p1.Y, p2.X, p2.Y, c), physics.Vector{minX, minY})
+		sl.AppendOffset(NewLine(p1.X, p1.Y, p2.X, p2.Y, c), physics.NewVector(minX, minY))
 		j = i
 	}
 	return sl
@@ -210,7 +211,7 @@ func (pg *Polygon) ConvexContains(x, y float64) bool {
 		tp1 := pg.points[i]
 		tp2 := pg.points[(i+1)%len(pg.points)]
 		tp3 := vSub(tp2, tp1)
-		tp4 := vSub(physics.Vector{x, y}, tp1)
+		tp4 := vSub(physics.NewVector(x, y), tp1)
 		cur := getSide(tp3, tp4)
 		if cur == 0 {
 			return false
@@ -235,7 +236,7 @@ func getSide(a, b physics.Vector) int {
 }
 
 func vSub(a, b physics.Vector) physics.Vector {
-	return physics.Vector{a.X - b.X, a.Y - b.Y}
+	return physics.NewVector(a.X-b.X, a.Y-b.Y)
 }
 
 func isLeft(p1, p2 physics.Vector, x, y float64) float64 {

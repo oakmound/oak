@@ -11,7 +11,6 @@ import (
 
 var (
 	tmpConf oakConfig
-	err     error
 	conf    = oakConfig{
 		Assets{"assets/", "audio/", "images/", "font/"},
 		Debug{"", "ERROR"},
@@ -32,7 +31,7 @@ type oakConfig struct {
 	Font      Font   `json:"font"`
 	World     World  `json:"world"`
 	FrameRate int    `json:"frameRate"`
-	ShowFPS   bool   `json:showFPS`
+	ShowFPS   bool   `json:"showFPS"`
 	Language  string `json:"language"`
 	Title     string `json:"title"`
 }
@@ -63,18 +62,18 @@ type Font struct {
 	Color   string  `json:"color"`
 }
 
-func LoadConf(fileName string) error {
-	wd, _ := os.Getwd()
-	dlog.Verb(conf)
-
-	tmpConf, err = loadOakConfig(filepath.Join(wd, fileName))
+func LoadConf(fileName string) (err error) {
+	wd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-	return err
+	dlog.Verb(conf)
+
+	tmpConf, err = loadOakConfig(filepath.Join(wd, fileName))
+	return
 }
 
-func loadDefaultConf() error {
+func loadDefaultConf() {
 
 	if tmpConf.Assets.AssetPath != "" {
 		conf.Assets.AssetPath = tmpConf.Assets.AssetPath
@@ -130,9 +129,7 @@ func loadDefaultConf() error {
 		conf.FrameRate = tmpConf.FrameRate
 	}
 
-	if tmpConf.ShowFPS != false {
-		conf.ShowFPS = tmpConf.ShowFPS
-	}
+	conf.ShowFPS = tmpConf.ShowFPS
 
 	if tmpConf.Language != "" {
 		conf.Language = tmpConf.Language
@@ -143,8 +140,6 @@ func loadDefaultConf() error {
 	}
 
 	dlog.Error(conf)
-
-	return err
 }
 
 func loadOakConfig(fileName string) (oakConfig, error) {
@@ -157,10 +152,10 @@ func loadOakConfig(fileName string) (oakConfig, error) {
 		return oakConfig{}, err
 	}
 	var config oakConfig
-	json.Unmarshal(confFile, &config)
+	err = json.Unmarshal(confFile, &config)
 	dlog.Error(config)
 
-	return config, nil
+	return config, err
 }
 
 func (oc *oakConfig) String() string {

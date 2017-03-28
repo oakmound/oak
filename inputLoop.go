@@ -3,6 +3,8 @@ package oak
 import (
 	"time"
 
+	"image"
+
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	pmouse "bitbucket.org/oakmoundstudio/oak/mouse"
 	"golang.org/x/exp/shiny/gesture"
@@ -11,7 +13,6 @@ import (
 	"golang.org/x/mobile/event/mouse"
 	"golang.org/x/mobile/event/paint"
 	"golang.org/x/mobile/event/size"
-	"image"
 )
 
 var (
@@ -68,7 +69,11 @@ func InputLoop() {
 		case mouse.Event:
 			button := pmouse.GetMouseButton(int32(e.Button))
 			dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", button)
-			mevent := pmouse.MouseEvent{e.X / float32(windowRect.Max.X) * float32(ScreenWidth), e.Y / float32(windowRect.Max.Y) * float32(ScreenHeight), button}
+			mevent := pmouse.MouseEvent{
+				X:      e.X / float32(windowRect.Max.X) * float32(ScreenWidth),
+				Y:      e.Y / float32(windowRect.Max.Y) * float32(ScreenHeight),
+				Button: button,
+			}
 			var eventName string
 			if e.Direction == mouse.DirPress {
 				setDown(button)
@@ -109,7 +114,11 @@ func InputLoop() {
 		esc, dur := IsHeld("Escape")
 		if esc && dur > time.Second*1 {
 			dlog.Warn("Quiting oak from holding ESCAPE")
-			windowControl.Send(lifecycle.Event{0, 0, nil})
+			windowControl.Send(lifecycle.Event{
+				From:        0,
+				To:          0,
+				DrawContext: nil,
+			})
 		}
 	}
 }

@@ -3,6 +3,8 @@ package audio
 import (
 	"math/rand"
 	"time"
+
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
 // Audio channels serve one purpose: handling audio effects
@@ -29,10 +31,14 @@ func GetActivePosWavChannel(frequency, freqRand int, fileNames ...string) (chan 
 			// above routine.
 			a := <-soundCh
 			sound := sounds[a[0]]
+			var err error
 			if usingEars {
-				PlayPositional(sound, float64(a[1]), float64(a[2]))
+				err = PlayPositional(sound, float64(a[1]), float64(a[2]))
 			} else {
-				sound.Play()
+				err = sound.Play()
+			}
+			if err != nil {
+				dlog.Error(err)
 			}
 		}
 	}()
@@ -55,7 +61,10 @@ func GetActiveWavChannel(frequency, freqRand int, fileNames ...string) (chan int
 			// we play an audio that slipped through the
 			// above routine.
 			a := <-soundCh
-			sounds[a].Play()
+			err := sounds[a].Play()
+			if err != nil {
+				dlog.Error(err)
+			}
 		}
 	}()
 	return soundCh, nil

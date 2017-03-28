@@ -1,5 +1,11 @@
 package interfaces
 
+import (
+	"bitbucket.org/oakmoundstudio/oak/collision"
+	"bitbucket.org/oakmoundstudio/oak/event"
+	"bitbucket.org/oakmoundstudio/oak/render"
+)
+
 type Point interface {
 	GetX() float64
 	GetY() float64

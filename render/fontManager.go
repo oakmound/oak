@@ -6,7 +6,7 @@ type FontManager map[string]*Font
 
 func NewFontManager() *FontManager {
 	fm := &FontManager{}
-	fm.NewFont("def", FontGenerator{})
+	(*fm)["def"] = (&FontGenerator{}).Generate()
 	return fm
 }
 

@@ -35,10 +35,10 @@ type ScrollBox struct {
 func NewScrollBox(rs []Renderable, milliPerPixelX, milliPerPixelY, width, height int) *ScrollBox {
 	s := new(ScrollBox)
 	s.Rs = rs
-	s.View = physics.Vector{float64(width), float64(height)}
+	s.View = physics.NewVector(float64(width), float64(height))
 
 	s.SetScrollRate(milliPerPixelX, milliPerPixelY)
-	s.reappear = physics.Vector{-1 * s.dirX * s.View.X, -1 * s.dirY * s.View.Y}
+	s.reappear = physics.NewVector(-1*s.dirX*s.View.X, -1*s.dirY*s.View.Y)
 
 	s.nextScrollX = time.Now().Add(s.scrollRateX)
 	s.nextScrollY = time.Now().Add(s.scrollRateY)
@@ -63,7 +63,7 @@ func (s *ScrollBox) update() {
 		return
 	}
 	if s.dirX != 0 && time.Now().After(s.nextScrollX) {
-		pixelsMovedX := int64(time.Now().Sub(s.nextScrollX))/int64(s.scrollRateX) + 1
+		pixelsMovedX := int64(time.Since(s.nextScrollX))/int64(s.scrollRateX) + 1
 		s.nextScrollX = time.Now().Add(s.scrollRateX)
 
 		newS := NewEmptySprite(s.Sprite.X, s.Sprite.Y, int(s.View.X), int(s.View.Y))
@@ -79,7 +79,7 @@ func (s *ScrollBox) update() {
 		updatedFlag = true
 	}
 	if s.dirY != 0 && time.Now().After(s.nextScrollY) {
-		pixelsMovedY := int64(time.Now().Sub(s.nextScrollY))/int64(s.scrollRateY) + 1
+		pixelsMovedY := int64(time.Since(s.nextScrollY))/int64(s.scrollRateY) + 1
 		s.nextScrollY = time.Now().Add(s.scrollRateY)
 
 		newS := NewEmptySprite(s.Sprite.X, s.Sprite.Y, int(s.View.X), int(s.View.Y))
@@ -107,7 +107,7 @@ func (s *ScrollBox) Unpause() {
 }
 
 func (s *ScrollBox) SetReappearPos(x, y float64) error {
-	s.reappear = physics.Vector{x, y}
+	s.reappear = physics.NewVector(x, y)
 	if x*s.dirX > 0 {
 		return errors.New("ScrollBox will not loop with direction.X: " + strconv.Itoa(int(s.dirX)) + " and reappear.X: " + strconv.Itoa(int(x)))
 	}

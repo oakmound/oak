@@ -1,10 +1,11 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
 	"image/color"
 	"image/draw"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 // Composite Types, distinct from Compound Types,
@@ -156,16 +157,16 @@ func NewCompositeR(sl []Renderable) *CompositeR {
 	return cs
 }
 
-func (cs *CompositeR) AppendOffset(r Modifiable, v physics.Vector) {
+func (cs *CompositeR) AppendOffset(r Renderable, v physics.Vector) {
 	r.SetPos(v.X, v.Y)
 	cs.rs = append(cs.rs, r)
 }
 
-func (cs *CompositeR) Append(r Modifiable) {
+func (cs *CompositeR) Append(r Renderable) {
 	cs.rs = append(cs.rs, r)
 }
 
-func (cs *CompositeR) Add(i int, r Modifiable) {
+func (cs *CompositeR) Add(i int, r Renderable) {
 	cs.rs[i] = r
 }
 

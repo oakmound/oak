@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/timing"
 )
 
@@ -18,7 +17,6 @@ var (
 	srh               *RenderableHeap
 	toPushRenderables []Renderable
 	toPushStatic      []Renderable
-	preDrawBind       event.Binding
 	resetHeap         bool
 	EmptyRenderable   = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
 	//EmptyRenderable   = new(Composite)
@@ -53,7 +51,7 @@ func PreDraw() {
 			toPushRenderables = []Renderable{}
 		}
 	}()
-	if resetHeap == true {
+	if resetHeap {
 		InitDrawHeap()
 		resetHeap = false
 	} else {
@@ -91,11 +89,11 @@ func DrawColor(c color.Color, x1, y1, x2, y2 float64, l int) {
 // and draws them as it removes them. It
 // filters out elements who have the layer
 // -1, reserved for elements to be undrawn.
-func DrawHeap(target *image.RGBA, viewPos image.Point, screenW, screenH int) {
+func DrawHeap(target draw.Image, viewPos image.Point, screenW, screenH int) {
 	drawRenderableHeap(target, rh, viewPos, screenW, screenH)
 }
 
-func DrawStaticHeap(target *image.RGBA) {
+func DrawStaticHeap(target draw.Image) {
 	newRh := &RenderableHeap{}
 	for srh.Len() > 0 {
 		rp := heap.Pop(srh)
@@ -110,7 +108,7 @@ func DrawStaticHeap(target *image.RGBA) {
 	*srh = *newRh
 }
 
-func drawRenderableHeap(target *image.RGBA, rheap *RenderableHeap, viewPos image.Point, screenW, screenH int) {
+func drawRenderableHeap(target draw.Image, rheap *RenderableHeap, viewPos image.Point, screenW, screenH int) {
 	newRh := &RenderableHeap{}
 	for rheap.Len() > 0 {
 		intf := heap.Pop(rheap)

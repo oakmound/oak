@@ -13,7 +13,7 @@ var (
 
 func LoadAssets() {
 	dlog.Info("Loading Images")
-	err = render.BatchLoad(imageDir)
+	err := render.BatchLoad(imageDir)
 	if err != nil {
 		dlog.Error(err)
 		return

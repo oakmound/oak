@@ -32,17 +32,17 @@ import (
 func Benchmark2DRTree(b *testing.B) {
 	curSeed := time.Now().UTC().UnixNano()
 	rand.Seed(curSeed)
-	rt := higgs.NewTree(20, 40)
+	rt2 := higgs.NewTree(20, 40)
 	var j event.CID = 0
 	for i := 0; i < 500; i++ {
 
 		loc := NewSpace(100*rand.Float64(), 100*rand.Float64(), rand.Float64(), rand.Float64(), j)
-		rt.Insert(loc)
+		rt2.Insert(loc)
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 
 		r, _ := higgs.NewRect(higgs.Point{100 * rand.Float64(), 100 * rand.Float64()}, [3]float64{10, 10, 0})
-		rt.SearchIntersect(&r)
+		rt2.SearchIntersect(&r)
 	}
 }

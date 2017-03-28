@@ -47,6 +47,8 @@ func dLog(override bool, in ...interface{}) {
 			return
 		}
 
+		// Note on errors: these functions all return
+		// errors, but they are always nil.
 		byt.WriteRune('[')
 		byt.WriteString(f)
 		byt.WriteRune(':')
@@ -61,8 +63,16 @@ func dLog(override bool, in ...interface{}) {
 
 		if writer_p != nil {
 			writer := *writer_p
-			writer.WriteString(byt.String())
-			writer.Flush()
+			_, err := writer.WriteString(byt.String())
+			if err != nil {
+				// We can't log errors while we are in the error
+				// logging function.
+				panic(err)
+			}
+			err = writer.Flush()
+			if err != nil {
+				panic(err)
+			}
 		}
 
 		byt.Reset()
@@ -100,7 +110,12 @@ func CreateLogFile() {
 	file := "../logs/dlog"
 	file += time.Now().Format("_Jan_2_15-04-05_2006")
 	file += ".txt"
-	fHandle, _ := os.Create(file)
+	fHandle, err := os.Create(file)
+	if err != nil {
+		// We can't log an error that comes from
+		// our error logging functions
+		panic(err)
+	}
 	writer_p = bufio.NewWriter(fHandle)
 }
 

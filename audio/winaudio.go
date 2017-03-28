@@ -19,7 +19,10 @@ var (
 type Audio winaudio.Audio
 
 func InitWinAudio() {
-	winaudio.InitWinAudio()
+	err := winaudio.InitWinAudio()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func GetSounds(fileNames ...string) ([]Audio, error) {
@@ -44,7 +47,7 @@ func GetWav(fileName string) (Audio, error) {
 func PlayWav(fileName string) error {
 	a, err := GetWav(fileName)
 	if err == nil {
-		a.Play()
+		err = a.Play()
 	} else {
 		dlog.Error(err)
 	}
@@ -65,7 +68,12 @@ func LoadWav(directory, fileName string) (Audio, error) {
 
 func BatchLoad(baseFolder string) error {
 
-	files, _ := ioutil.ReadDir(baseFolder)
+	files, err := ioutil.ReadDir(baseFolder)
+
+	if err != nil {
+		dlog.Error(err)
+		return err
+	}
 
 	for _, file := range files {
 		if !file.IsDir() {
@@ -74,7 +82,11 @@ func BatchLoad(baseFolder string) error {
 			switch strings.ToLower(n[len(n)-4:]) {
 			case ".wav":
 				dlog.Verb("loading file ", n)
-				LoadWav(baseFolder, n)
+				_, err := LoadWav(baseFolder, n)
+				if err != nil {
+					dlog.Error(err)
+					return err
+				}
 			default:
 				dlog.Error("Unsupported file ending for batchLoad: ", n)
 			}

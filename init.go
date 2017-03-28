@@ -11,7 +11,6 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/mouse"
 	"bitbucket.org/oakmoundstudio/oak/render"
-	"bitbucket.org/oakmoundstudio/oak/timing"
 	"golang.org/x/exp/shiny/driver"
 )
 
@@ -81,17 +80,11 @@ var (
 func Init(firstScene string) {
 	dlog.CreateLogFile()
 
-	err := loadDefaultConf()
+	loadDefaultConf()
 
 	// Set variables from conf file
 	dlog.SetStringDebugLevel(conf.Debug.Level)
 	dlog.SetDebugFilter(conf.Debug.Filter)
-
-	// This check is delayed till after the above lines
-	// As otherwise the dlog call would crash/be unseen
-	if err != nil {
-		dlog.Verb(err)
-	}
 
 	ScreenWidth = conf.Screen.Width
 	ScreenHeight = conf.Screen.Height
@@ -122,94 +115,11 @@ func Init(firstScene string) {
 	go driver.Main(lifecycleLoop)
 	go DebugConsole(debugResetCh, skipSceneCh)
 
-	prevScene := ""
-	sceneMap[firstScene].active = true
-
 	<-initCh
 	// This is the only time oak closes a channel
 	// This should probably change
 	close(initCh)
 
 	// Loop through scenes
-
-	runEventLoop = true
-	globalFirstScene = firstScene
-	CurrentScene = "loading"
-	result := new(SceneResult)
-	dlog.Info("First Scene Start")
-	drawChannel <- true
-	drawChannel <- true
-
-	for {
-		ViewPos = image.Point{0, 0}
-		updateScreen(0, 0)
-		useViewBounds = false
-
-		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
-		go func() {
-			sceneMap[CurrentScene].start(prevScene, result.NextSceneInput)
-			transitionCh <- true
-		}()
-		sceneTransition(result)
-		// Post transition, begin loading animation
-		drawChannel <- true
-		<-transitionCh
-		// Send a signal to resume (or begin) drawing
-		drawChannel <- true
-
-		cont := true
-		for cont {
-			select {
-			// The quit channel represents a signal
-			// for the engine to stop.
-			case <-quitCh:
-				return
-			case <-sceneCh:
-				cont = sceneMap[CurrentScene].loop()
-			case <-skipSceneCh:
-				cont = false
-			}
-		}
-		dlog.Info("~~~~~~~~Scene End~~~~~~~~~~")
-		prevScene = CurrentScene
-
-		// Send a signal to stop drawing
-		drawChannel <- true
-
-		// Reset any ongoing delays
-	delayLabel:
-		for {
-			select {
-			case timing.ClearDelayCh <- true:
-			default:
-				break delayLabel
-			}
-		}
-		// Reset transient portions of the engine
-		event.ResetEntities()
-		event.ResetEventBus()
-		render.ResetDrawHeap()
-		collision.Clear()
-		mouse.Clear()
-		render.PreDraw()
-
-		// Todo: Add in customizable loading scene between regular scenes
-
-		CurrentScene, result = sceneMap[CurrentScene].end()
-		// For convenience, we allow the user to return nil
-		// but it gets translated to an empty result
-		if result == nil {
-			result = new(SceneResult)
-		}
-
-		eb = event.GetEventBus()
-		if !debugResetInProgress {
-			debugResetInProgress = true
-			go func() {
-				debugResetCh <- true
-				debugResetInProgress = false
-			}()
-		}
-	}
-
+	SceneLoop(firstScene)
 }

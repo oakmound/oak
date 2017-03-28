@@ -61,7 +61,7 @@ func sceneTransition(result *SceneResult) {
 type Scene struct {
 	active bool
 	start  SceneStart
-	loop   SceneLoop
+	loop   SceneUpdate
 	end    SceneEnd
 }
 
@@ -73,13 +73,13 @@ type SceneResult struct {
 
 type SceneEnd func() (string, *SceneResult)
 type SceneStart func(prevScene string, data interface{})
-type SceneLoop func() bool
+type SceneUpdate func() bool
 
 func GetScene(s string) *Scene {
 	return sceneMap[s]
 }
 
-func AddScene(name string, start SceneStart, loop SceneLoop, end SceneEnd) error {
+func AddScene(name string, start SceneStart, loop SceneUpdate, end SceneEnd) error {
 	fmt.Println("[oak]-------- Adding", name)
 	if _, ok := sceneMap[name]; !ok {
 		sceneMap[name] = &(Scene{

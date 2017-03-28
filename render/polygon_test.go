@@ -1,10 +1,11 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"math/rand"
 	"testing"
 	"time"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 func BenchmarkContains(b *testing.B) {
@@ -13,7 +14,7 @@ func BenchmarkContains(b *testing.B) {
 
 	points := []physics.Vector{}
 	for i := 0; i < 100; i++ {
-		points = append(points, physics.Vector{rand.Float64() * 640, rand.Float64() * 480})
+		points = append(points, physics.NewVector(rand.Float64()*640, rand.Float64()*480))
 	}
 	poly, _ := NewPolygon(points)
 	b.ResetTimer()
@@ -30,7 +31,7 @@ func BenchmarkWrappingContains(b *testing.B) {
 
 	points := []physics.Vector{}
 	for i := 0; i < 100; i++ {
-		points = append(points, physics.Vector{rand.Float64() * 640, rand.Float64() * 480})
+		points = append(points, physics.NewVector(rand.Float64()*640, rand.Float64()*480))
 	}
 	poly, _ := NewPolygon(points)
 	b.ResetTimer()
@@ -47,7 +48,7 @@ func BenchmarkConvexContains(b *testing.B) {
 
 	points := []physics.Vector{}
 	for i := 0; i < 100; i++ {
-		points = append(points, physics.Vector{rand.Float64() * 640, rand.Float64() * 480})
+		points = append(points, physics.NewVector(rand.Float64()*640, rand.Float64()*480))
 	}
 	poly, _ := NewPolygon(points)
 	b.ResetTimer()

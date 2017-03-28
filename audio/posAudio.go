@@ -2,6 +2,7 @@ package audio
 
 import (
 	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
 type PosAudio struct {
@@ -14,30 +15,32 @@ type PosAudioF struct {
 	X, Y *float64
 }
 
-func (pa *PosAudioF) Play() error {
+func (pa *PosAudioF) Play() (err error) {
 	if usingEars {
-		PlayPositional(pa.Audio, *pa.X, *pa.Y)
-	} else {
-		return pa.Audio.Play()
+		return PlayPositional(pa.Audio, *pa.X, *pa.Y)
 	}
-	return nil
+	return pa.Audio.Play()
 }
 
 func (pa *PosAudio) Play() error {
 	if usingEars {
 		return PlayPositional(pa.Audio, float64(*pa.X), float64(*pa.Y))
-	} else {
-		return pa.Audio.Play()
 	}
-	return nil
+	return pa.Audio.Play()
 }
 
-func PlayPositional(sound Audio, x, y float64) error {
+func PlayPositional(sound Audio, x, y float64) (err error) {
 	volume := CalculateVolume(x, y)
 	if volume > winaudio.MIN_VOLUME {
-		sound.SetPan(CalculatePan(x))
-		sound.SetVolume(volume)
-		return sound.Play()
+		err = sound.SetPan(CalculatePan(x))
+		if err != nil {
+			dlog.Error(err)
+		}
+		err = sound.SetVolume(volume)
+		if err != nil {
+			dlog.Error(err)
+		}
+		err = sound.Play()
 	}
-	return nil
+	return err
 }

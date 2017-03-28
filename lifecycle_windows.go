@@ -13,7 +13,11 @@ func WindowController(s screen.Screen, ScreenWidth, ScreenHeight int) (screen.Wi
 	ScreenWidth += 16
 	ScreenHeight += 39
 	// End Windows Sucks
-	return s.NewWindow(&screen.NewWindowOptions{ScreenWidth, ScreenHeight, conf.Title})
+	return s.NewWindow(&screen.NewWindowOptions{
+		Width:  ScreenWidth,
+		Height: ScreenHeight,
+		Title:  conf.Title,
+	})
 }
 
 // OK so I've been thinking about platform support

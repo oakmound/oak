@@ -81,8 +81,7 @@ func Propagate(eventName string, me MouseEvent) {
 // GetMouseButton is a utitilty function which translates
 // integer values of mouse keys from golang's event/mouse library
 // into strings.
-func GetMouseButton(i int32) string {
-	s := ""
+func GetMouseButton(i int32) (s string) {
 	switch i {
 	case 1:
 		s = "LeftMouse"
@@ -97,5 +96,5 @@ func GetMouseButton(i int32) string {
 	default:
 		s = ""
 	}
-	return s
+	return
 }

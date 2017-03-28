@@ -24,6 +24,9 @@ func BenchmarkFillBuffer(b *testing.B) {
 
 		//s.NewWindow(&screen.NewWindowOptions{640, 480})
 		b2, err := s.NewBuffer(image.Point{10000, 10000})
+		if err != nil {
+			return
+		}
 		for n := 0; n < b.N; n++ {
 			draw.Draw(b2.RGBA(), b2.Bounds(), image.Black, image.Point{0, 0}, screen.Src)
 		}

@@ -12,10 +12,6 @@ func floatFromSpread(f float64) float64 {
 	return (f * 2 * rand.Float64()) - f
 }
 
-func intFromSpread(i int) int {
-	return roundFloat(float64(i*2)*rand.Float64()) - i
-}
-
 // roundFloat returns a properly rounded
 // integer of a given float64
 func roundFloat(f float64) int {
@@ -45,22 +41,8 @@ func uint16Spread(n, r uint32) uint16 {
 	return uint16(math.Min(float64(int(n)+roundFloat(floatFromSpread(float64(r)))), 65535.0))
 }
 
-// uint16Spread returns a random uint8 between
-// n-r/2 and n+r/2, not higher than 2^8-1
-func uint8Spread(n, r uint32) uint8 {
-	n = n / 257
-	r = r / 257
-	return uint8(math.Min(float64(int(n)+roundFloat(floatFromSpread(float64(r)))), 255.0))
-}
-
 // uint16OnScale returns a uint16, progress % between n and endN.
 // At 0 progress, endN will be returned. At 1 progress, n will be returned.
 func uint16OnScale(n, endN uint32, progress float64) uint16 {
 	return uint16((float64(n) - float64(n)*(1.0-progress) + float64(endN)*(1.0-progress)))
-}
-
-// uint16OnScale returns a uint8, progress % between n and endN.
-// At 0 progress, endN will be returned. At 1 progress, n will be returned.
-func uint8OnScale(n, endN uint32, progress float64) uint8 {
-	return uint8((float64(n) - float64(n)*(1.0-progress) + float64(endN)*(1.0-progress)) / 257)
 }

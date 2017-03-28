@@ -18,15 +18,13 @@ const (
 // A Source is used to store and control a set of particles.
 type Source struct {
 	render.Layered
-	Generator     Generator
-	particles     [BLOCK_SIZE]Particle
-	nextPID       int
-	recycled      []int
-	rotateBinding event.Binding
-	clearBinding  event.Binding
-	cID           event.CID
-	paused        bool
-	pIDBlock      int
+	Generator Generator
+	particles [BLOCK_SIZE]Particle
+	nextPID   int
+	recycled  []int
+	cID       event.CID
+	pIDBlock  int
+	paused    bool
 }
 
 func NewSource(g Generator) *Source {
@@ -68,24 +66,20 @@ func (ps *Source) CycleParticles() {
 				bp.Vel = bp.Vel.Rotate(pg.Rotation.Poll())
 			}
 
-			if pg.SpeedDecay.Magnitude() != 0 {
-				if pg.SpeedDecay.X != 0 {
-					bp.Vel.X *= pg.SpeedDecay.X
-					if math.Abs(bp.Vel.X) < 0.2 {
-						bp.Vel.X = 0
-					}
+			if pg.SpeedDecay.X != 0 {
+				bp.Vel.X *= pg.SpeedDecay.X
+				if math.Abs(bp.Vel.X) < 0.2 {
+					bp.Vel.X = 0
 				}
-				if pg.SpeedDecay.Y != 0 {
-					bp.Vel.Y *= pg.SpeedDecay.Y
-					if math.Abs(bp.Vel.Y) < 0.2 {
-						bp.Vel.Y = 0
-					}
+			}
+			if pg.SpeedDecay.Y != 0 {
+				bp.Vel.Y *= pg.SpeedDecay.Y
+				if math.Abs(bp.Vel.Y) < 0.2 {
+					bp.Vel.Y = 0
 				}
 			}
 
-			if pg.Gravity.Magnitude() != 0 {
-				bp.Vel = bp.Vel.Add(pg.Gravity)
-			}
+			bp.Vel = bp.Vel.Add(pg.Gravity)
 			bp.Pos = bp.Pos.Add(bp.Vel)
 			bp.SetLayer(ps.Layer(bp.Pos))
 			p.Cycle(ps.Generator)

@@ -46,7 +46,7 @@ type Modifiable interface {
 	Fade(alpha int) Modifiable
 }
 
-func Brighten(rgba *image.RGBA, brightenBy float32) *image.RGBA {
+func Brighten(rgba image.Image, brightenBy float32) *image.RGBA {
 	filter := gift.New(
 		gift.Brightness(brightenBy))
 	dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
@@ -56,7 +56,7 @@ func Brighten(rgba *image.RGBA, brightenBy float32) *image.RGBA {
 
 // FlipX returns a new rgba which is flipped
 // over the horizontal axis.
-func FlipX(rgba *image.RGBA) *image.RGBA {
+func FlipX(rgba image.Image) *image.RGBA {
 	filter := gift.New(
 		gift.FlipHorizontal())
 	dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
@@ -282,7 +282,7 @@ func ApplyMask(rgba *image.RGBA, img image.RGBA) *image.RGBA {
 }
 
 // Rotate returns a rotated rgba.
-func Rotate(rgba *image.RGBA, degrees int) *image.RGBA {
+func Rotate(rgba image.Image, degrees int) *image.RGBA {
 	filter := gift.New(
 		gift.Rotate(float32(degrees), Transparent, gift.CubicInterpolation))
 	dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
@@ -303,14 +303,4 @@ func Scale(rgba *image.RGBA, xRatio float64, yRatio float64) *image.RGBA {
 		}
 	}
 	return newRgba
-}
-
-func round(f float64) int {
-	if f < -0.5 {
-		return int(f - 0.5)
-	}
-	if f > 0.5 {
-		return int(f + 0.5)
-	}
-	return 0
 }

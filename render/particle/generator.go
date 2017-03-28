@@ -58,7 +58,7 @@ type BaseGenerator struct {
 
 func (bg *BaseGenerator) SetDefaults() {
 	*bg = BaseGenerator{
-		Vector:      physics.Vector{X: 0, Y: 0},
+		Vector:      physics.NewVector(0, 0),
 		NewPerFrame: alg.Constantf(1),
 		LifeSpan:    alg.Constantf(60),
 		Angle:       alg.Constantf(0),
@@ -66,8 +66,8 @@ func (bg *BaseGenerator) SetDefaults() {
 		Spread:      physics.NewVector(0, 0),
 		Duration:    Inf,
 		Rotation:    nil,
-		Gravity:     physics.Vector{0, 0},
-		SpeedDecay:  physics.Vector{0, 0},
+		Gravity:     physics.NewVector(0, 0),
+		SpeedDecay:  physics.NewVector(0, 0),
 		EndFunc:     nil,
 		LayerFunc:   func(physics.Vector) int { return 1 },
 	}

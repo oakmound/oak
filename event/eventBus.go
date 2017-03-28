@@ -15,7 +15,6 @@ import (
 var (
 	thisBus = &EventBus{make(map[string]map[int]*BindableStore)}
 	mutex   = sync.RWMutex{}
-	rLocks  = 0
 )
 
 const (
@@ -337,20 +336,21 @@ func (bl *BindableList) removeIndex(i int) {
 
 func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 
-	if m, ok := eb.bindingMap[opt.Name]; !ok || m == nil {
+	if m, _ := eb.bindingMap[opt.Name]; m == nil {
 		eb.bindingMap[opt.Name] = make(map[int]*BindableStore)
 	}
 
-	if m, ok := eb.bindingMap[opt.Name][opt.CallerID]; !ok || m == nil {
+	if m, _ := eb.bindingMap[opt.Name][opt.CallerID]; m == nil {
 		eb.bindingMap[opt.Name][opt.CallerID] = new(BindableStore)
 		eb.bindingMap[opt.Name][opt.CallerID].defaultPriority = (new(BindableList))
 	}
 
 	store := eb.bindingMap[opt.Name][opt.CallerID]
 
+	var prio *BindableList
 	// Default priority
 	if opt.Priority == 0 {
-		return store.defaultPriority
+		prio = store.defaultPriority
 
 		// High priority
 	} else if opt.Priority > 0 {
@@ -362,7 +362,7 @@ func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 			store.highIndex = opt.Priority
 		}
 
-		return store.highPriority[opt.Priority-1]
+		prio = store.highPriority[opt.Priority-1]
 
 		// Low priority
 	} else {
@@ -374,6 +374,7 @@ func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 			store.lowIndex = (-1 * opt.Priority)
 		}
 
-		return store.lowPriority[(opt.Priority*-1)-1]
+		prio = store.lowPriority[(opt.Priority*-1)-1]
 	}
+	return prio
 }

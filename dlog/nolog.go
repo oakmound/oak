@@ -14,6 +14,11 @@ const (
 	VERBOSE
 )
 
+// The nolog file serves to remove all logging functionality.
+// this is in case logging is suspected to cause performance
+// issues, i.e. in a final release, without having to strip
+// code of calls to logging functions.
+
 func SetDebugFilter(filter string) {
 }
 
