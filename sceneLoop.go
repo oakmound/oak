@@ -72,11 +72,18 @@ func SceneLoop(firstScene string) {
 			}
 		}
 		// Reset transient portions of the engine
-		event.ResetEntities()
+		// We start by clearing the event bus to
+		// remove most ongoing code
 		event.ResetEventBus()
-		render.ResetDrawHeap()
+		// We follow by clearing collision areas
+		// because otherwise collision function calls
+		// on non-entities (i.e. particles) can still
+		// be triggered and attempt to access an entity
+		// Todo:
 		collision.Clear()
 		mouse.Clear()
+		event.ResetEntities()
+		render.ResetDrawHeap()
 		render.PreDraw()
 
 		// Todo: Add in customizable loading scene between regular scenes
