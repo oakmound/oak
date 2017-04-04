@@ -63,7 +63,7 @@ func lifecycleLoop(s screen.Screen) {
 	go InputLoop()
 
 	// Initiate the first scene
-	initCh <- true
+	//initCh <- true
 
 	if conf.ShowFPS {
 		go DrawLoopFPS()

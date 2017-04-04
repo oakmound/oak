@@ -103,10 +103,10 @@ func Init(firstScene string) {
 		conf.Font.Hinting, conf.Font.Color, conf.Font.File, conf.Font.Size,
 		conf.Font.DPI)
 	// END of loading variables from configuration
+	render.InitDrawHeap()
 
 	collision.Init()
 	mouse.Init()
-	render.InitDrawHeap()
 	audio.InitWinAudio()
 
 	SeedRNG(DEFAULT_SEED)
@@ -115,10 +115,10 @@ func Init(firstScene string) {
 	go driver.Main(lifecycleLoop)
 	go DebugConsole(debugResetCh, skipSceneCh)
 
-	<-initCh
-	// This is the only time oak closes a channel
-	// This should probably change
-	close(initCh)
+	// <-initCh
+	// // This is the only time oak closes a channel
+	// // This should probably change
+	// close(initCh)
 
 	// Loop through scenes
 	SceneLoop(firstScene)

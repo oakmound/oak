@@ -137,7 +137,7 @@ type Polyhedron struct {
 	Center physics.Vector
 }
 
-func NewCube(x, y, z, w, h, d float64) *Polyhedron {
+func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 	p := new(Polyhedron)
 	p.SetPos(x, y)
 
