@@ -1,10 +1,11 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
 	"image/color"
 	"math"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 type Line struct {
@@ -30,6 +31,40 @@ func NewLine(x1, y1, x2, y2 float64, c color.Color) *Line {
 			},
 			r: rgba,
 		},
+	}
+}
+
+func drawLineOnto(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color) {
+
+	xDelta := math.Abs(float64(x2 - x1))
+	yDelta := math.Abs(float64(y2 - y1))
+
+	xSlope := -1
+	if x2 < x1 {
+		xSlope = 1
+	}
+	ySlope := -1
+	if y2 < y1 {
+		ySlope = 1
+	}
+
+	err := xDelta - yDelta
+	var err2 float64
+	for i := 0; true; i++ {
+
+		rgba.Set(x2, y2, c)
+		if x2 == x1 && y2 == y1 {
+			break
+		}
+		err2 = 2 * err
+		if err2 > -1*yDelta {
+			err -= yDelta
+			x2 += xSlope
+		}
+		if err2 < xDelta {
+			err += xDelta
+			y2 += ySlope
+		}
 	}
 }
 
