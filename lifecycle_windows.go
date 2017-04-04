@@ -9,10 +9,6 @@ import (
 )
 
 func WindowController(s screen.Screen, ScreenWidth, ScreenHeight int) (screen.Window, error) {
-	// Start Windows sucks
-	ScreenWidth += 16
-	ScreenHeight += 39
-	// End Windows Sucks
 	return s.NewWindow(&screen.NewWindowOptions{
 		Width:  ScreenWidth,
 		Height: ScreenHeight,

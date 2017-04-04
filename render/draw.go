@@ -19,7 +19,6 @@ var (
 	toPushStatic      []Renderable
 	resetHeap         bool
 	EmptyRenderable   = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
-	//EmptyRenderable   = new(Composite)
 )
 
 // Drawing does not actually immediately draw a renderable,

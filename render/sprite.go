@@ -1,10 +1,11 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
 	"image/color"
 	"image/draw"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 type Sprite struct {
@@ -56,44 +57,44 @@ func (s *Sprite) IsNil() bool {
 }
 
 func (s *Sprite) ApplyColor(c color.Color) Modifiable {
-	s.r = ApplyColor(s.r, c)
+	s.SetRGBA(ApplyColor(s.GetRGBA(), c))
 	return s
 }
 
 func (s *Sprite) FillMask(img image.RGBA) Modifiable {
-	s.r = FillMask(s.r, img)
+	s.SetRGBA(FillMask(s.GetRGBA(), img))
 	return s
 }
 
 func (s *Sprite) ApplyMask(img image.RGBA) Modifiable {
-	s.r = ApplyMask(s.r, img)
+	s.SetRGBA(ApplyMask(s.GetRGBA(), img))
 	return s
 }
 
 func (s *Sprite) Rotate(degrees int) Modifiable {
-	s.r = Rotate(s.r, degrees)
+	s.SetRGBA(Rotate(s.GetRGBA(), degrees))
 	return s
 }
 func (s *Sprite) Scale(xRatio float64, yRatio float64) Modifiable {
-	s.r = Scale(s.r, xRatio, yRatio)
+	s.SetRGBA(Scale(s.GetRGBA(), xRatio, yRatio))
 	return s
 }
 func (s *Sprite) FlipX() Modifiable {
-	s.r = FlipX(s.r)
+	s.SetRGBA(FlipX(s.GetRGBA()))
 	return s
 }
 func (s *Sprite) FlipY() Modifiable {
-	s.r = FlipY(s.r)
+	s.SetRGBA(FlipY(s.GetRGBA()))
 	return s
 }
 func (s *Sprite) Fade(alpha int) Modifiable {
-	s.r = Fade(s.r, alpha)
+	s.SetRGBA(Fade(s.GetRGBA(), alpha))
 	return s
 }
 func OverlaySprites(sps []Sprite) *Sprite {
 	tmpSprite := sps[len(sps)-1].Copy().(*Sprite)
 	for i := len(sps) - 1; i > 0; i-- {
-		tmpSprite.r = FillMask(tmpSprite.r, *sps[i-1].r)
+		tmpSprite.SetRGBA(FillMask(tmpSprite.GetRGBA(), *sps[i-1].GetRGBA()))
 	}
 	return tmpSprite
 }
