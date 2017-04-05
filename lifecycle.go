@@ -56,9 +56,6 @@ func lifecycleLoop(s screen.Screen) {
 
 	eb = event.GetEventBus()
 
-	frameCh := make(chan bool)
-
-	go FrameLoop(frameCh, int64(FrameRate))
 	go KeyHoldLoop()
 	go InputLoop()
 
@@ -72,7 +69,7 @@ func lifecycleLoop(s screen.Screen) {
 	}
 
 	go BindingLoop()
-	LogicLoop(frameCh)
+	LogicLoop()
 
 }
 
@@ -95,23 +92,15 @@ func BindingLoop() {
 	}
 }
 
-// Maintain a frame rate for logical operations
-func FrameLoop(frameCh chan bool, frameRate int64) {
-	c := time.Tick(time.Second / time.Duration(frameRate))
-	for range c {
-		frameCh <- true
-	}
-}
-
-func LogicLoop(frameCh chan bool) {
+func LogicLoop() {
 	// The logical loop.
 	// In order, it waits on receiving a signal to begin a logical frame.
 	// It then runs any functions bound to when a frame begins.
 	// It then runs any functions bound to when a frame ends.
 	// It then allows a scene to perform it's loop operation.
-	for {
-		for runEventLoop {
-			<-frameCh
+	c := time.Tick(time.Second / time.Duration(int64(FrameRate)))
+	for range c {
+		if runEventLoop {
 			<-eb.TriggerBack("EnterFrame", nil)
 			sceneCh <- true
 		}
