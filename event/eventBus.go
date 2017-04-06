@@ -114,49 +114,54 @@ func GetEventBus() *EventBus {
 }
 
 func ResetEventBus() {
-	mutex.Lock()
+	holdBindingCh <- true
+	// Dear user:
+	// Please do not bind more than ten things in the timespan it takes for these
+	// two lines to resolve
+	// If you do, we'll need to put in a config setting for binding buffer size
 	thisBus = &EventBus{make(map[string]map[int]*BindableStore)}
-
-	bindablesToBind = []Bindable{}
-	optionsToBind = []BindingOption{}
-
-	optionsToUnbind = []BindingOption{}
-	ubOptionsToUnbind = []UnbindOption{}
-	bindingsToUnbind = []Binding{}
-
-	orderedUnbinds = []BindingOption{}
-	orderedBindOptions = []BindingOption{}
-	orderedBindables = []Bindable{}
-
-	mutex.Unlock()
+	holdBindingCh <- true
 }
 
 var (
-	bindablesToBind = []Bindable{}
-	optionsToBind   = []BindingOption{}
-
-	optionsToUnbind   = []BindingOption{}
-	ubOptionsToUnbind = []UnbindOption{}
-	bindingsToUnbind  = []Binding{}
-
-	orderedUnbinds     = []BindingOption{}
-	orderedBindOptions = []BindingOption{}
-	orderedBindables   = []Bindable{}
-
-	pendingMutex = sync.Mutex{}
+	bindCh               = make(chan bindableAndOption, 10)
+	partUnbindCh         = make(chan BindingOption, 10)
+	fullUnbindCh         = make(chan UnbindOption, 10)
+	unbindCh             = make(chan Binding, 10)
+	unbindAllAndRebindCh = make(chan unbindAllAndRebinds, 10)
+	holdBindingCh        = make(chan bool)
 )
 
+//Todo: what are these fucking names
+type unbindAllAndRebinds struct {
+	ub   BindingOption
+	bs   []BindingOption
+	bnds []Bindable
+}
+
+// This is the exact same as unbind option
+type bindableAndOption struct {
+	bnd Bindable
+	opt BindingOption
+}
+
 func ResolvePending() {
+	for {
+		select {
+		// On a hold signal, wait for a paired
+		// signal to resume resolving incoming bind/unbind checks
+		case <-holdBindingCh:
+			<-holdBindingCh
+		case ubaarb := <-unbindAllAndRebindCh:
+			unbind := ubaarb.ub
+			orderedBindables := ubaarb.bnds
+			orderedBindOptions := ubaarb.bs
 
-	if len(orderedUnbinds) > 0 {
-		mutex.Lock()
-		pendingMutex.Lock()
-		for _, opt := range orderedUnbinds {
 			var namekeys []string
 			// If we were given a name,
 			// we'll just iterate with that name.
-			if opt.Name != "" {
-				namekeys = append(namekeys, opt.Name)
+			if unbind.Name != "" {
+				namekeys = append(namekeys, unbind.Name)
 
 				// Otherwise, iterate through all events.
 			} else {
@@ -165,9 +170,9 @@ func ResolvePending() {
 				}
 			}
 
-			if opt.CallerID != 0 {
+			if unbind.CallerID != 0 {
 				for _, k := range namekeys {
-					delete(thisBus.bindingMap[k], opt.CallerID)
+					delete(thisBus.bindingMap[k], unbind.CallerID)
 				}
 			} else {
 				for _, k := range namekeys {
@@ -175,42 +180,25 @@ func ResolvePending() {
 				}
 			}
 			dlog.Verb(thisBus.bindingMap)
-		}
 
-		// Bindings
-		for i := 0; i < len(orderedBindables); i++ {
-			fn := orderedBindables[i]
-			opt := orderedBindOptions[i]
-			list := thisBus.getBindableList(opt)
-			list.storeBindable(fn)
-		}
+			// Bindings
+			for i := 0; i < len(orderedBindables); i++ {
+				fn := orderedBindables[i]
+				opt := orderedBindOptions[i]
+				list := thisBus.getBindableList(opt)
+				list.storeBindable(fn)
+			}
 
-		mutex.Unlock()
-
-		orderedUnbinds = []BindingOption{}
-		orderedBindables = []Bindable{}
-		orderedBindOptions = []BindingOption{}
-		pendingMutex.Unlock()
-	}
-
-	// Unbinds
-	if len(bindingsToUnbind) > 0 {
-		mutex.Lock()
-		pendingMutex.Lock()
-		for _, b := range bindingsToUnbind {
+		// Specific unbinds
+		case b := <-unbindCh:
 			thisBus.getBindableList(b.BindingOption).removeBinding(b)
-		}
-		mutex.Unlock()
 
-		bindingsToUnbind = []Binding{}
-		pendingMutex.Unlock()
-	}
+		// A full set of unbind settings
+		case opt := <-fullUnbindCh:
+			thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
 
-	if len(optionsToUnbind) > 0 {
-		mutex.Lock()
-		pendingMutex.Lock()
-		for _, opt := range optionsToUnbind {
-
+		// A partial set of unbind settings
+		case opt := <-partUnbindCh:
 			var namekeys []string
 
 			// If we were given a name,
@@ -235,43 +223,12 @@ func ResolvePending() {
 				}
 			}
 			dlog.Verb(thisBus.bindingMap)
-		}
-		mutex.Unlock()
 
-		optionsToUnbind = []BindingOption{}
-		pendingMutex.Unlock()
-	}
-
-	// ubOptions need to be fully populated,
-	// unlike optionsToUnbind
-	if len(ubOptionsToUnbind) > 0 {
-		mutex.Lock()
-		pendingMutex.Lock()
-
-		for _, opt := range ubOptionsToUnbind {
-			thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
-		}
-		mutex.Unlock()
-
-		ubOptionsToUnbind = []UnbindOption{}
-		pendingMutex.Unlock()
-	}
-
-	if len(bindablesToBind) > 0 {
-		mutex.Lock()
-		pendingMutex.Lock()
 		// Bindings
-		for i := 0; i < len(bindablesToBind); i++ {
-			fn := bindablesToBind[i]
-			opt := optionsToBind[i]
-			list := thisBus.getBindableList(opt)
-			list.storeBindable(fn)
+		case bindSet := <-bindCh:
+			list := thisBus.getBindableList(bindSet.opt)
+			list.storeBindable(bindSet.bnd)
 		}
-		mutex.Unlock()
-
-		bindablesToBind = []Bindable{}
-		optionsToBind = []BindingOption{}
-		pendingMutex.Unlock()
 	}
 }
 

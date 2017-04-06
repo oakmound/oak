@@ -11,17 +11,11 @@ import (
 // Returns a binding that can used
 // to unbind this binding later.
 func (eb *EventBus) BindPriority(fn Bindable, opt BindingOption, ch chan Binding) {
-
-	pendingMutex.Lock()
-
-	bindablesToBind = append(bindablesToBind, fn)
-	optionsToBind = append(optionsToBind, opt)
-
-	pendingMutex.Unlock()
+	bindCh <- bindableAndOption{fn, opt}
 }
 
 func GlobalBind(fn Bindable, name string) {
-	go thisBus.Bind(fn, name, 0)
+	thisBus.Bind(fn, name, 0)
 }
 
 func (eb *EventBus) Bind(fn Bindable, name string, callerID int) {
@@ -34,9 +28,9 @@ func (eb *EventBus) Bind(fn Bindable, name string, callerID int) {
 
 	dlog.Verb("Binding ", callerID, " with name ", name)
 
-	go eb.BindPriority(fn, bOpt, nil)
+	eb.BindPriority(fn, bOpt, nil)
 }
 
 func (cid CID) Bind(fn Bindable, name string) {
-	go thisBus.Bind(fn, name, int(cid))
+	thisBus.Bind(fn, name, int(cid))
 }

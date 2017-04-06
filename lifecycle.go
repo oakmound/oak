@@ -68,9 +68,7 @@ func lifecycleLoop(s screen.Screen) {
 		go DrawLoopNoFPS()
 	}
 
-	go BindingLoop()
-	LogicLoop()
-
+	event.ResolvePending()
 }
 
 // do runs f on the osLocked thread.
@@ -82,29 +80,26 @@ func osLockedFunc(f func()) {
 	}
 	<-done
 }
-func BindingLoop() {
-	// Handle bind and unbind signals for events
-	// (should be made to not use a busy loop eventually)
-	for {
-		for runEventLoop {
-			event.ResolvePending()
-		}
-	}
-}
 
-func LogicLoop() {
+func LogicLoop() chan bool {
 	// The logical loop.
 	// In order, it waits on receiving a signal to begin a logical frame.
 	// It then runs any functions bound to when a frame begins.
-	// It then runs any functions bound to when a frame ends.
 	// It then allows a scene to perform it's loop operation.
-	c := time.Tick(time.Second / time.Duration(int64(FrameRate)))
-	for range c {
-		if runEventLoop {
-			<-eb.TriggerBack("EnterFrame", nil)
-			sceneCh <- true
+	ch := make(chan bool)
+	go func(doneCh chan bool) {
+		ticker := time.Tick(time.Second / time.Duration(int64(FrameRate)))
+		for {
+			select {
+			case <-ticker:
+				<-eb.TriggerBack("EnterFrame", nil)
+				sceneCh <- true
+			case <-doneCh:
+				return
+			}
 		}
-	}
+	}(ch)
+	return ch
 }
 
 func GetScreen() *image.RGBA {

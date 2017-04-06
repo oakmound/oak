@@ -15,7 +15,6 @@ func SceneLoop(firstScene string) {
 	var prevScene string
 
 	sceneMap[firstScene].active = true
-	runEventLoop = true
 	globalFirstScene = firstScene
 	CurrentScene = "loading"
 
@@ -44,6 +43,7 @@ func SceneLoop(firstScene string) {
 		drawChannel <- true
 
 		cont := true
+		logicTicker := LogicLoop()
 		for cont {
 			select {
 			// The quit channel represents a signal
@@ -57,6 +57,9 @@ func SceneLoop(firstScene string) {
 			}
 		}
 		dlog.Info("~~~~~~~~Scene End~~~~~~~~~~")
+
+		// We don't want enterFrames going off between scenes
+		close(logicTicker)
 		prevScene = CurrentScene
 
 		// Send a signal to stop drawing
