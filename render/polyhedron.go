@@ -6,134 +6,12 @@ import (
 	"math"
 
 	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/200sc/go-compgeo"
 )
-
-/////////////////////
-// Won't be in this package
-////////////////////
-
-// This really shouldn't be
-// X, Y Z but rather [0,1,2]
-// but
-type DCELPoint [3]float64
-
-func (dp DCELPoint) X() float64 {
-	return dp[0]
-}
-
-func (dp DCELPoint) Y() float64 {
-	return dp[1]
-}
-
-func (dp DCELPoint) Z() float64 {
-	return dp[2]
-}
-
-type DCELEdge struct {
-	// Origin is the vertex this edge starts at
-	Origin *DCELPoint
-	// Face is the index within Faces that this
-	// edge wraps around
-	Face *DCELFace
-	// Next and Prev are the edges following and
-	// preceding this edge that also wrap around
-	// Face
-	Next *DCELEdge
-	Prev *DCELEdge
-}
-
-type DCELFace struct {
-	Outer, Inner *DCELEdge
-}
-
-type DCEL struct {
-	Vertices []DCELPoint
-	// outEdges[0] is the (an) edge in HalfEdges whose
-	// orgin is Vertices[0]
-	OutEdges  []*DCELEdge
-	HalfEdges []DCELEdge
-	// The first value in a face is the outside component
-	// of the face, the second value is the inside component
-	Faces []DCELFace
-}
-
-// Twin is the edge that runs along this edge
-// towards Origin, around the opposing face
-//
-// So HalfEdges[e.Twin].Origin is where this
-// edge points to.
-// Mandate: twin edges come in pairs
-// if i is even, then, i+1 is its pair,
-// and otherwise i-i is its pair.
-func (d *DCEL) EdgeTwin(i int) int {
-	if i%2 == 0 {
-		return i + 1
-	}
-	return i - 1
-}
-
-// FullEdge returns the ith edge in the form of its
-// two vertices
-func (d *DCEL) FullEdge(i int) [2]*DCELPoint {
-	e := d.HalfEdges[i]
-	e2 := d.HalfEdges[d.EdgeTwin(i)]
-	return [2]*DCELPoint{
-		e.Origin,
-		e2.Origin}
-}
-
-// Max functions iterate through vertices
-// to find the maximum value along a given axis
-// in the DCEL
-
-func (d *DCEL) MaxX() float64 {
-	return d.Max(0)
-}
-
-func (d *DCEL) MaxY() float64 {
-	return d.Max(1)
-}
-
-func (d *DCEL) MaxZ() float64 {
-	return d.Max(2)
-}
-
-func (d *DCEL) Max(i int) (x float64) {
-	for _, p := range d.Vertices {
-		if p[i] > x {
-			x = p[i]
-		}
-	}
-	return x
-}
-
-func (d *DCEL) MinX() float64 {
-	return d.Min(0)
-}
-
-func (d *DCEL) MinY() float64 {
-	return d.Min(1)
-}
-
-func (d *DCEL) MinZ() float64 {
-	return d.Min(2)
-}
-
-func (d *DCEL) Min(i int) (x float64) {
-	x = math.Inf(1)
-	for _, p := range d.Vertices {
-		if p[i] < x {
-			x = p[i]
-		}
-	}
-	return x
-}
-
-///////////////////////
 
 type Polyhedron struct {
 	Sprite
-	DCEL
+	compgeo.DCEL
 	Center physics.Vector
 }
 
@@ -141,15 +19,15 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 	p := new(Polyhedron)
 	p.SetPos(x, y)
 
-	dc := DCEL{}
+	dc := compgeo.DCEL{}
 	// Is there a smart way to loop through this?
 	// verts
 	x = w
 	y = h
 	z = -d
-	dc.Vertices = make([]DCELPoint, 8)
-	dc.HalfEdges = make([]DCELEdge, 24)
-	dc.OutEdges = make([]*DCELEdge, 8)
+	dc.Vertices = make([]compgeo.DCELPoint, 8)
+	dc.HalfEdges = make([]compgeo.DCELEdge, 24)
+	dc.OutEdges = make([]*compgeo.DCELEdge, 8)
 	for i := 0; i < 8; i++ {
 		// Set coordinates of this vertex
 		if x == 0 {
@@ -168,7 +46,7 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 			z += d
 		}
 
-		dc.Vertices[i] = DCELPoint{x, y, z}
+		dc.Vertices[i] = compgeo.DCELPoint{x, y, z}
 	}
 	corners := []int{0, 3, 5, 6}
 	// These edges, except for the ones
@@ -185,11 +63,11 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 		}
 		m := 0
 		for j := edge; j < edge+6; j += 2 {
-			dc.HalfEdges[j] = DCELEdge{
+			dc.HalfEdges[j] = compgeo.DCELEdge{
 				Origin: &dc.Vertices[i],
 			}
 			dc.OutEdges[i] = &dc.HalfEdges[j]
-			dc.HalfEdges[j+1] = DCELEdge{
+			dc.HalfEdges[j+1] = compgeo.DCELEdge{
 				Origin: &dc.Vertices[addEdgesK[m]],
 			}
 			dc.OutEdges[addEdgesK[m]] = &dc.HalfEdges[j+1]
@@ -197,6 +75,10 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 		}
 		// 6 edges per corner
 		edge += 6
+	}
+	// Set Twins
+	for i := range dc.HalfEdges {
+		dc.HalfEdges[i].Twin = &dc.HalfEdges[compgeo.DCELEdgeTwin(i)]
 	}
 	// We're ignoring prev, next, face for now
 	// because this is way harder than it should be
