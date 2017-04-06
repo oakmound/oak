@@ -62,10 +62,12 @@ func GetKeyBind(key string) string {
 }
 
 func KeyHoldLoop() {
+	var next time.Time
+	var delta time.Duration
 	now := time.Now()
 	for {
-		next := time.Now()
-		delta := next.Sub(now)
+		next = time.Now()
+		delta = next.Sub(now)
 		now = next
 		keyLock.RLock()
 		for k, _ := range keyState {

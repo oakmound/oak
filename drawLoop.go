@@ -76,6 +76,10 @@ func DrawLoopNoFPS() {
 	}
 }
 
+const (
+	FPSSMOOTHING = .25
+)
+
 func DrawLoopFPS() {
 	<-drawChannel
 	lastTime := time.Now()
@@ -132,7 +136,7 @@ func DrawLoopFPS() {
 			//windowControl.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
 			windowControl.Publish()
 
-			fps = int(timing.FPS(lastTime, time.Now()))
+			fps = int((timing.FPS(lastTime, time.Now()) * FPSSMOOTHING) + (float64(fps) * (1 - FPSSMOOTHING)))
 			lastTime = time.Now()
 		}
 	}
