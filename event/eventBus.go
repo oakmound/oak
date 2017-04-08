@@ -169,7 +169,7 @@ func ResolvePending() {
 					namekeys = append(namekeys, k)
 				}
 			}
-
+			mutex.Lock()
 			if unbind.CallerID != 0 {
 				for _, k := range namekeys {
 					delete(thisBus.bindingMap[k], unbind.CallerID)
@@ -188,14 +188,19 @@ func ResolvePending() {
 				list := thisBus.getBindableList(opt)
 				list.storeBindable(fn)
 			}
+			mutex.Unlock()
 
 		// Specific unbinds
 		case b := <-unbindCh:
+			mutex.Lock()
 			thisBus.getBindableList(b.BindingOption).removeBinding(b)
+			mutex.Unlock()
 
 		// A full set of unbind settings
 		case opt := <-fullUnbindCh:
+			mutex.Lock()
 			thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
+			mutex.Unlock()
 
 		// A partial set of unbind settings
 		case opt := <-partUnbindCh:
@@ -213,6 +218,7 @@ func ResolvePending() {
 				}
 			}
 
+			mutex.Lock()
 			if opt.CallerID != 0 {
 				for _, k := range namekeys {
 					delete(thisBus.bindingMap[k], opt.CallerID)
@@ -222,12 +228,15 @@ func ResolvePending() {
 					delete(thisBus.bindingMap, k)
 				}
 			}
+			mutex.Unlock()
 			dlog.Verb(thisBus.bindingMap)
 
 		// Bindings
 		case bindSet := <-bindCh:
+			mutex.Lock()
 			list := thisBus.getBindableList(bindSet.opt)
 			list.storeBindable(bindSet.bnd)
+			mutex.Unlock()
 		}
 	}
 }
