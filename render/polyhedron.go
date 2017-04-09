@@ -6,28 +6,27 @@ import (
 	"math"
 
 	"bitbucket.org/oakmoundstudio/oak/physics"
-	"github.com/200sc/go-compgeo"
+	"github.com/200sc/go-compgeo/dcel"
 )
 
 type Polyhedron struct {
 	Sprite
-	compgeo.DCEL
+	dcel.DCEL
 	Center physics.Vector
 }
 
 func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
-	p := new(Polyhedron)
-	p.SetPos(x, y)
-
-	dc := compgeo.DCEL{}
+	px := x
+	py := y
+	dc := dcel.DCEL{}
 	// Is there a smart way to loop through this?
 	// verts
 	x = w
 	y = h
 	z = -d
-	dc.Vertices = make([]compgeo.DCELPoint, 8)
-	dc.HalfEdges = make([]compgeo.DCELEdge, 24)
-	dc.OutEdges = make([]*compgeo.DCELEdge, 8)
+	dc.Vertices = make([]dcel.Point, 8)
+	dc.HalfEdges = make([]dcel.Edge, 24)
+	dc.OutEdges = make([]*dcel.Edge, 8)
 	for i := 0; i < 8; i++ {
 		// Set coordinates of this vertex
 		if x == 0 {
@@ -46,7 +45,7 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 			z += d
 		}
 
-		dc.Vertices[i] = compgeo.DCELPoint{x, y, z}
+		dc.Vertices[i] = dcel.Point{x, y, z}
 	}
 	corners := []int{0, 3, 5, 6}
 	// These edges, except for the ones
@@ -63,11 +62,11 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 		}
 		m := 0
 		for j := edge; j < edge+6; j += 2 {
-			dc.HalfEdges[j] = compgeo.DCELEdge{
+			dc.HalfEdges[j] = dcel.Edge{
 				Origin: &dc.Vertices[i],
 			}
 			dc.OutEdges[i] = &dc.HalfEdges[j]
-			dc.HalfEdges[j+1] = compgeo.DCELEdge{
+			dc.HalfEdges[j+1] = dcel.Edge{
 				Origin: &dc.Vertices[addEdgesK[m]],
 			}
 			dc.OutEdges[addEdgesK[m]] = &dc.HalfEdges[j+1]
@@ -78,11 +77,17 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 	}
 	// Set Twins
 	for i := range dc.HalfEdges {
-		dc.HalfEdges[i].Twin = &dc.HalfEdges[compgeo.DCELEdgeTwin(i)]
+		dc.HalfEdges[i].Twin = &dc.HalfEdges[dcel.EdgeTwin(i)]
 	}
 	// We're ignoring prev, next, face for now
 	// because this is way harder than it should be
-	p.DCEL = dc
+	return NewPolyhedronFromDCEL(&dc, px, py)
+}
+
+func NewPolyhedronFromDCEL(dc *dcel.DCEL, x, y float64) *Polyhedron {
+	p := new(Polyhedron)
+	p.SetPos(x, y)
+	p.DCEL = *dc
 	p.Update()
 	p.Center = physics.NewVector(p.X+(1+p.MaxX())/2, p.Y+(1+p.MaxY())/2)
 	return p
@@ -91,7 +96,6 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 func (p *Polyhedron) Update() {
 
 	// Reset p's rgba
-	// Todo: define a better buffer than 5
 	maxX := p.MaxX() + 1
 	maxY := p.MaxY() + 1
 	rect := image.Rect(0, 0, int(maxX), int(maxY))
@@ -164,6 +168,16 @@ func (p *Polyhedron) RotY(theta float64) {
 	for i, v := range p.Vertices {
 		p.Vertices[i][0] = v[0]*ct - v[2]*st
 		p.Vertices[i][2] = v[2]*ct + v[0]*st
+	}
+	p.clearNegativePoints()
+	p.Update()
+}
+
+func (p *Polyhedron) Scale(factor float64) {
+	for i, v := range p.Vertices {
+		p.Vertices[i][0] = v[0] * factor
+		p.Vertices[i][1] = v[1] * factor
+		p.Vertices[i][2] = v[2] * factor
 	}
 	p.clearNegativePoints()
 	p.Update()
