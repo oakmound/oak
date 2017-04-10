@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"io/ioutil"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/golang/freetype/truetype"
@@ -41,9 +42,16 @@ func DefFont() *Font {
 
 func (fg *FontGenerator) Generate() *Font {
 
+	dir := fontdir
 	// Replace zero values with defaults
 	if fg.File == "" {
-		fg.File = defaultFontFile
+		if defaultFontFile != "" {
+			fg.File = defaultFontFile
+		} else {
+			_, curFile, _, _ := runtime.Caller(1)
+			dir = filepath.Join(filepath.Dir(curFile), "default_assets", "font")
+			fg.File = "luxisr.ttf"
+		}
 	}
 	if fg.Size == 0 {
 		fg.Size = defaultSize
@@ -62,7 +70,7 @@ func (fg *FontGenerator) Generate() *Font {
 			// by their respective parse functions in the
 			// zero case.
 			Src: fg.Color,
-			Face: truetype.NewFace(LoadFont(fg.File), &truetype.Options{
+			Face: truetype.NewFace(LoadFont(dir, fg.File), &truetype.Options{
 				Size:    fg.Size,
 				DPI:     fg.DPI,
 				Hinting: parseFontHinting(fg.Hinting),
@@ -139,9 +147,9 @@ func FontColor(s string) image.Image {
 	}
 }
 
-func LoadFont(fontFile string) *truetype.Font {
+func LoadFont(dir string, fontFile string) *truetype.Font {
 	if _, ok := loadedFonts[fontFile]; !ok {
-		fontBytes, err := ioutil.ReadFile(filepath.Join(fontdir, fontFile))
+		fontBytes, err := ioutil.ReadFile(filepath.Join(dir, fontFile))
 		if err != nil {
 			dlog.Error(err.Error())
 			return nil

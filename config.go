@@ -15,7 +15,7 @@ var (
 		Assets{"assets/", "audio/", "images/", "font/"},
 		Debug{"", "ERROR"},
 		Screen{480, 640},
-		Font{"none", 12.0, 72.0, "luxisr.ttf", "white"},
+		Font{"none", 12.0, 72.0, "", "white"},
 		World{4000, 4000},
 		60,
 		false,
