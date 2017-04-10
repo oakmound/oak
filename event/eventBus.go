@@ -5,6 +5,8 @@
 package event
 
 import (
+	"fmt"
+
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 
 	"reflect"
@@ -204,6 +206,8 @@ func ResolvePending() {
 
 		// A partial set of unbind settings
 		case opt := <-partUnbindCh:
+			mutex.Lock()
+			fmt.Println("In unbindall mutex")
 			var namekeys []string
 
 			// If we were given a name,
@@ -218,7 +222,6 @@ func ResolvePending() {
 				}
 			}
 
-			mutex.Lock()
 			if opt.CallerID != 0 {
 				for _, k := range namekeys {
 					delete(thisBus.bindingMap[k], opt.CallerID)
