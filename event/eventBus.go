@@ -5,8 +5,6 @@
 package event
 
 import (
-	"fmt"
-
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 
 	"reflect"
@@ -207,7 +205,6 @@ func ResolvePending() {
 		// A partial set of unbind settings
 		case opt := <-partUnbindCh:
 			mutex.Lock()
-			fmt.Println("In unbindall mutex")
 			var namekeys []string
 
 			// If we were given a name,

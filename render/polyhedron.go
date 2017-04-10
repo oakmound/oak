@@ -201,3 +201,13 @@ func (p *Polyhedron) clearNegativePoints() {
 func (p *Polyhedron) String() string {
 	return "Polyhedron"
 }
+
+func (p *Polyhedron) ShiftX(x float64) {
+	p.Center.X += x
+	p.Sprite.ShiftX(x)
+}
+
+func (p *Polyhedron) ShiftY(y float64) {
+	p.Center.Y += y
+	p.Sprite.ShiftY(y)
+}
