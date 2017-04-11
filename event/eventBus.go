@@ -124,11 +124,11 @@ func ResetEventBus() {
 }
 
 var (
-	bindCh               = make(chan bindableAndOption, 10)
-	partUnbindCh         = make(chan BindingOption, 10)
-	fullUnbindCh         = make(chan UnbindOption, 10)
-	unbindCh             = make(chan Binding, 10)
-	unbindAllAndRebindCh = make(chan unbindAllAndRebinds, 10)
+	bindCh               = make(chan bindableAndOption, 1000)
+	partUnbindCh         = make(chan BindingOption, 1000)
+	fullUnbindCh         = make(chan UnbindOption, 1000)
+	unbindCh             = make(chan Binding, 1000)
+	unbindAllAndRebindCh = make(chan unbindAllAndRebinds, 1000)
 	holdBindingCh        = make(chan bool)
 )
 
@@ -153,6 +153,7 @@ func ResolvePending() {
 		case <-holdBindingCh:
 			<-holdBindingCh
 		case ubaarb := <-unbindAllAndRebindCh:
+			mutex.Lock()
 			unbind := ubaarb.ub
 			orderedBindables := ubaarb.bnds
 			orderedBindOptions := ubaarb.bs
@@ -169,7 +170,7 @@ func ResolvePending() {
 					namekeys = append(namekeys, k)
 				}
 			}
-			mutex.Lock()
+
 			if unbind.CallerID != 0 {
 				for _, k := range namekeys {
 					delete(thisBus.bindingMap[k], unbind.CallerID)
