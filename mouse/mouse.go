@@ -24,6 +24,10 @@ type MouseEvent struct {
 	Button string
 }
 
+func (me MouseEvent) ToSpace() *collision.Space {
+	return collision.NewUnassignedSpace(float64(me.X), float64(me.Y), 0.1, 0.1)
+}
+
 func Init() {
 	dlog.Verb("Mouse init started")
 	addLock.Lock()
