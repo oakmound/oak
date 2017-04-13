@@ -3,7 +3,6 @@ package render
 import (
 	"image"
 	"image/color"
-	"log"
 	"math"
 	"sort"
 
@@ -26,8 +25,8 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 	x = w
 	y = h
 	z = -d
-	dc.Vertices = make([]dcel.Point, 8)
-	dc.HalfEdges = make([]dcel.Edge, 24)
+	dc.Vertices = make([]*dcel.Point, 8)
+	dc.HalfEdges = make([]*dcel.Edge, 24)
 	dc.OutEdges = make([]*dcel.Edge, 8)
 	for i := 0; i < 8; i++ {
 		// Set coordinates of this vertex
@@ -47,7 +46,7 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 			z += d
 		}
 
-		dc.Vertices[i] = dcel.Point{x, y, z}
+		dc.Vertices[i] = dcel.NewPoint(x, y, z)
 	}
 	corners := []int{0, 3, 5, 6}
 	// These edges, except for the ones
@@ -64,14 +63,14 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 		}
 		m := 0
 		for j := edge; j < edge+6; j += 2 {
-			dc.HalfEdges[j] = dcel.Edge{
-				Origin: &dc.Vertices[i],
+			dc.HalfEdges[j] = &dcel.Edge{
+				Origin: dc.Vertices[i],
 			}
-			dc.OutEdges[i] = &dc.HalfEdges[j]
-			dc.HalfEdges[j+1] = dcel.Edge{
-				Origin: &dc.Vertices[addEdgesK[m]],
+			dc.OutEdges[i] = dc.HalfEdges[j]
+			dc.HalfEdges[j+1] = &dcel.Edge{
+				Origin: dc.Vertices[addEdgesK[m]],
 			}
-			dc.OutEdges[addEdgesK[m]] = &dc.HalfEdges[j+1]
+			dc.OutEdges[addEdgesK[m]] = dc.HalfEdges[j+1]
 			m++
 		}
 		// 6 edges per corner
@@ -79,7 +78,7 @@ func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
 	}
 	// Set Twins
 	for i := range dc.HalfEdges {
-		dc.HalfEdges[i].Twin = &dc.HalfEdges[dcel.EdgeTwin(i)]
+		dc.HalfEdges[i].Twin = dc.HalfEdges[dcel.EdgeTwin(i)]
 	}
 	// We're ignoring prev, next, face for now
 	// because this is way harder than it should be
@@ -131,7 +130,10 @@ func (p *Polyhedron) Update() {
 	// every other halfEdge.
 	//fmt.Println(p.DCEL)
 	for i := 0; i < len(p.HalfEdges); i += 2 {
-		points := p.FullEdge(i)
+		points, err := p.FullEdge(i)
+		if err != nil {
+			continue
+		}
 		// draw a line from points[0] to points[1]
 		//fmt.Println("Drawing from ", points[0][0], points[0][1], "to",
 		//points[1][0], points[1][1])
@@ -159,8 +161,7 @@ func (p *Polyhedron) Update() {
 		}
 		poly, err := NewPolygon(phys_verts)
 		if err != nil {
-			log.Fatal(err)
-			return
+			continue
 		}
 		fpoly := facePolygon{
 			poly,
@@ -222,9 +223,10 @@ func (p *Polyhedron) RotZ(theta float64) {
 	st := math.Sin(theta)
 	ct := math.Cos(theta)
 
-	for i, v := range p.Vertices {
-		p.Vertices[i][0] = v[0]*ct - v[1]*st
-		p.Vertices[i][1] = v[1]*ct + v[0]*st
+	for _, v := range p.Vertices {
+		v0 := v[0]*ct - v[1]*st
+		v[1] = v[1]*ct + v[0]*st
+		v[0] = v0
 	}
 	p.Update()
 }
@@ -233,9 +235,10 @@ func (p *Polyhedron) RotX(theta float64) {
 	st := math.Sin(theta)
 	ct := math.Cos(theta)
 
-	for i, v := range p.Vertices {
-		p.Vertices[i][1] = v[1]*ct - v[2]*st
-		p.Vertices[i][2] = v[2]*ct + v[1]*st
+	for _, v := range p.Vertices {
+		v1 := v[1]*ct - v[2]*st
+		v[2] = v[2]*ct + v[1]*st
+		v[1] = v1
 	}
 	p.Update()
 }
@@ -244,9 +247,10 @@ func (p *Polyhedron) RotY(theta float64) {
 	st := math.Sin(theta)
 	ct := math.Cos(theta)
 
-	for i, v := range p.Vertices {
-		p.Vertices[i][0] = v[0]*ct - v[2]*st
-		p.Vertices[i][2] = v[2]*ct + v[0]*st
+	for _, v := range p.Vertices {
+		v0 := v[0]*ct - v[2]*st
+		v[2] = v[2]*ct + v[0]*st
+		v[0] = v0
 	}
 	p.Update()
 }
