@@ -3,7 +3,9 @@ package render
 import (
 	"image"
 	"image/color"
+	"log"
 	"math"
+	"sort"
 
 	"bitbucket.org/oakmoundstudio/oak/physics"
 	"github.com/200sc/go-compgeo/dcel"
@@ -115,6 +117,12 @@ func (p *Polyhedron) Update() {
 
 	red := color.RGBA{255, 0, 0, 255}
 	gray := color.RGBA{160, 160, 160, 255}
+	blue := color.RGBA{0, 0, 255, 255}
+
+	// Eventually:
+	// For all Faces, Edges, and Vertices, sort by z value
+	// and draw them high-to-low
+	zOrder := make([]interface{}, len(p.HalfEdges)/2+len(p.Faces)-1+len(p.Vertices))
 
 	// Step 1: draw all edges
 	// Given the edge twin mandate, we can just use
@@ -123,18 +131,89 @@ func (p *Polyhedron) Update() {
 	for i := 0; i < len(p.HalfEdges); i += 2 {
 		points := p.FullEdge(i)
 		// draw a line from points[0] to points[1]
-		// fmt.Println("Drawing from ", points[0][0], points[0][1], "to",
-		// 	points[1][0], points[1][1])
-		drawLineOnto(rgba, int(points[0][0]), int(points[0][1]),
-			int(points[1][0]), int(points[1][1]), gray)
+		//fmt.Println("Drawing from ", points[0][0], points[0][1], "to",
+		//points[1][0], points[1][1])
+		zOrder = append(zOrder, points)
+		// drawLineOnto(rgba, int(points[0][0]), int(points[0][1]),
+		// 	int(points[1][0]), int(points[1][1]), gray)
 	}
 
 	// Step 2: draw all vertices
 	for _, v := range p.Vertices {
-		rgba.Set(int(v[0]), int(v[1]), red)
+		zOrder = append(zOrder, v)
+		//rgba.Set(int(v[0]), int(v[1]), red)
+	}
+
+	for i := 1; i < len(p.Faces); i++ {
+		f := p.Faces[i]
+		verts := f.Vertices()
+		max_z := math.MaxFloat64 * -1
+		phys_verts := make([]physics.Vector, len(verts))
+		for i, v := range verts {
+			phys_verts[i] = physics.NewVector(v[0], v[1])
+			if v[2] > max_z {
+				max_z = v[2]
+			}
+		}
+		poly, err := NewPolygon(phys_verts)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		fpoly := facePolygon{
+			poly,
+			max_z,
+		}
+		zOrder = append(zOrder, fpoly)
+	}
+
+	// This is very hacky
+	sort.Slice(zOrder, func(i, j int) bool {
+		z1 := 0.0
+		z2 := 0.0
+		switch v := zOrder[i].(type) {
+		case facePolygon:
+			z1 = v.z
+		case dcel.Point:
+			z1 = v[2]
+		case [2]*dcel.Point:
+			z1 = math.Max(v[0][2], v[1][2])
+		}
+		switch v := zOrder[j].(type) {
+		case facePolygon:
+			z2 = v.z
+		case dcel.Point:
+			z2 = v[2]
+		case [2]*dcel.Point:
+			z2 = math.Max(v[0][2], v[1][2])
+		}
+		return z1 < z2
+	})
+
+	for _, item := range zOrder {
+		switch v := item.(type) {
+		case facePolygon:
+			for x := v.Rect.minX; x < v.Rect.maxX; x++ {
+				for y := v.Rect.minY; y < v.Rect.maxY; y++ {
+					if v.Contains(x, y) {
+						rgba.Set(int(x), int(y), blue)
+					}
+				}
+			}
+		case dcel.Point:
+			rgba.Set(int(v[0]), int(v[1]), red)
+		case [2]*dcel.Point:
+			drawLineOnto(rgba, int(v[0][0]), int(v[0][1]),
+				int(v[1][0]), int(v[1][1]), gray)
+		}
 	}
 
 	p.SetRGBA(rgba)
+}
+
+type facePolygon struct {
+	*Polygon
+	z float64
 }
 
 func (p *Polyhedron) RotZ(theta float64) {
