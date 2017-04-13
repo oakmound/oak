@@ -97,6 +97,8 @@ func NewPolyhedronFromDCEL(dc *dcel.DCEL, x, y float64) *Polyhedron {
 
 func (p *Polyhedron) Update() {
 
+	p.clearNegativePoints()
+
 	// Reset p's rgba
 	maxX := p.MaxX() + 1
 	maxY := p.MaxY() + 1
@@ -175,17 +177,17 @@ func (p *Polyhedron) Update() {
 		case facePolygon:
 			z1 = v.z
 		case dcel.Point:
-			z1 = v[2]
+			z1 = v[2] + .002
 		case [2]*dcel.Point:
-			z1 = math.Max(v[0][2], v[1][2])
+			z1 = math.Max(v[0][2], v[1][2]) + .001
 		}
 		switch v := zOrder[j].(type) {
 		case facePolygon:
 			z2 = v.z
 		case dcel.Point:
-			z2 = v[2]
+			z2 = v[2] + .002
 		case [2]*dcel.Point:
-			z2 = math.Max(v[0][2], v[1][2])
+			z2 = math.Max(v[0][2], v[1][2]) + .001
 		}
 		return z1 < z2
 	})
@@ -224,7 +226,6 @@ func (p *Polyhedron) RotZ(theta float64) {
 		p.Vertices[i][0] = v[0]*ct - v[1]*st
 		p.Vertices[i][1] = v[1]*ct + v[0]*st
 	}
-	p.clearNegativePoints()
 	p.Update()
 }
 
@@ -236,7 +237,6 @@ func (p *Polyhedron) RotX(theta float64) {
 		p.Vertices[i][1] = v[1]*ct - v[2]*st
 		p.Vertices[i][2] = v[2]*ct + v[1]*st
 	}
-	p.clearNegativePoints()
 	p.Update()
 }
 
@@ -248,7 +248,6 @@ func (p *Polyhedron) RotY(theta float64) {
 		p.Vertices[i][0] = v[0]*ct - v[2]*st
 		p.Vertices[i][2] = v[2]*ct + v[0]*st
 	}
-	p.clearNegativePoints()
 	p.Update()
 }
 
@@ -258,7 +257,6 @@ func (p *Polyhedron) Scale(factor float64) {
 		p.Vertices[i][1] = v[1] * factor
 		p.Vertices[i][2] = v[2] * factor
 	}
-	p.clearNegativePoints()
 	p.Update()
 }
 
