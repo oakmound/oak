@@ -21,6 +21,14 @@ var (
 	cheats         = make(map[string]func([]string))
 )
 
+// AddCommand is an alias for AddCheat for things
+// that are not explicitly games which want to have
+// console commands.
+// We probably only want one of the two of these
+func AddCommand(s string, fn func([]string)) {
+	AddCheat(s, fn)
+}
+
 func AddCheat(s string, fn func([]string)) {
 	cheats[s] = fn
 }
@@ -44,7 +52,7 @@ func DebugConsole(resetCh, skipScene chan bool) {
 			//Parse the Input
 			tokenString := strings.Fields(scanner.Text())
 			switch tokenString[0] {
-			case "cheat":
+			case "cheat", "c":
 				// Requires that cheats are all one word! <-- don't forget
 				fmt.Println(cheats, tokenString[1])
 				if fn, ok := cheats[tokenString[1]]; ok {
