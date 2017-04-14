@@ -88,13 +88,14 @@ func LogicLoop() chan bool {
 	// It then allows a scene to perform it's loop operation.
 	ch := make(chan bool)
 	go func(doneCh chan bool) {
-		ticker := time.Tick(time.Second / time.Duration(int64(FrameRate)))
+		ticker := time.NewTicker(time.Second / time.Duration(int64(FrameRate)))
 		for {
 			select {
-			case <-ticker:
+			case <-ticker.C:
 				<-eb.TriggerBack("EnterFrame", nil)
 				sceneCh <- true
 			case <-doneCh:
+				ticker.Stop()
 				return
 			}
 		}
