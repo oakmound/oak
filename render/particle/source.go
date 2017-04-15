@@ -49,18 +49,17 @@ func (ps *Source) Init() event.CID {
 	return cID
 }
 
-func (ps *Source) CycleParticles() {
-
+func (ps *Source) CycleParticles() bool {
 	pg := ps.Generator.GetBaseGenerator()
-
+	cycled := false
 	for i := 0; i < ps.nextPID; i++ {
 		p := ps.particles[i]
 		bp := p.GetBaseParticle()
 
 		// Ignore dead particles
 		if bp.Life > 0 {
+			cycled = true
 			bp.Life--
-
 			// Apply rotational acceleration
 			if pg.Rotation != nil {
 				bp.Vel = bp.Vel.Rotate(pg.Rotation.Poll())
@@ -95,6 +94,7 @@ func (ps *Source) CycleParticles() {
 		}
 
 	}
+	return cycled
 }
 
 // Shorthand
@@ -169,6 +169,7 @@ func (ps *Source) AddParticles() {
 // as a Source is active.
 func rotateParticles(id int, nothing interface{}) int {
 	ps := event.GetEntity(id).(*Source)
+	//fmt.Print("rotated")
 	if !ps.paused {
 		ps.CycleParticles()
 		ps.AddParticles()
@@ -181,8 +182,7 @@ func rotateParticles(id int, nothing interface{}) int {
 func clearParticles(id int, nothing interface{}) int {
 	ps := event.GetEntity(id).(*Source)
 	if !ps.paused {
-		if len(ps.particles) > 0 {
-			ps.CycleParticles()
+		if ps.CycleParticles() {
 		} else {
 			event.DestroyEntity(id)
 			Deallocate(ps.pIDBlock)

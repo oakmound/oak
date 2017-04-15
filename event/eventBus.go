@@ -163,7 +163,6 @@ func ResolvePending() {
 			// we'll just iterate with that name.
 			if unbind.Name != "" {
 				namekeys = append(namekeys, unbind.Name)
-
 				// Otherwise, iterate through all events.
 			} else {
 				for k := range thisBus.bindingMap {
@@ -180,6 +179,7 @@ func ResolvePending() {
 					delete(thisBus.bindingMap, k)
 				}
 			}
+
 			dlog.Verb(thisBus.bindingMap)
 
 			// Bindings
@@ -189,6 +189,7 @@ func ResolvePending() {
 				list := thisBus.getBindableList(opt)
 				list.storeBindable(fn)
 			}
+
 			mutex.Unlock()
 
 		// Specific unbinds
