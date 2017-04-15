@@ -117,8 +117,6 @@ func (p *Polyhedron) Update() {
 	}
 
 	red := color.RGBA{255, 0, 0, 255}
-	gray := color.RGBA{160, 160, 160, 255}
-	blue := color.RGBA{0, 0, 255, 255}
 
 	// Eventually:
 	// For all Faces, Edges, and Vertices, sort by z value
@@ -137,7 +135,10 @@ func (p *Polyhedron) Update() {
 		// draw a line from points[0] to points[1]
 		//fmt.Println("Drawing from ", points[0][0], points[0][1], "to",
 		//points[1][0], points[1][1])
-		zOrder = append(zOrder, points)
+		if p.HalfEdges[i].Color == nil {
+			p.HalfEdges[i].Color = color.RGBA{255, 0, 255, 255}
+		}
+		zOrder = append(zOrder, coloredEdge{points, p.HalfEdges[i].Color})
 		// drawLineOnto(rgba, int(points[0][0]), int(points[0][1]),
 		// 	int(points[1][0]), int(points[1][1]), gray)
 	}
@@ -150,6 +151,9 @@ func (p *Polyhedron) Update() {
 
 	for i := 1; i < len(p.Faces); i++ {
 		f := p.Faces[i]
+		if f.Color == nil {
+			f.Color = color.RGBA{0, 255, 255, 255}
+		}
 		verts := f.Vertices()
 		max_z := math.MaxFloat64 * -1
 		phys_verts := make([]physics.Vector, len(verts))
@@ -166,6 +170,7 @@ func (p *Polyhedron) Update() {
 		fpoly := facePolygon{
 			poly,
 			max_z,
+			f.Color,
 		}
 		zOrder = append(zOrder, fpoly)
 	}
@@ -179,16 +184,16 @@ func (p *Polyhedron) Update() {
 			z1 = v.z
 		case dcel.Point:
 			z1 = v[2] + .002
-		case [2]*dcel.Point:
-			z1 = math.Max(v[0][2], v[1][2]) + .001
+		case coloredEdge:
+			z1 = math.Max(v.ps[0][2], v.ps[1][2]) + .001
 		}
 		switch v := zOrder[j].(type) {
 		case facePolygon:
 			z2 = v.z
 		case dcel.Point:
 			z2 = v[2] + .002
-		case [2]*dcel.Point:
-			z2 = math.Max(v[0][2], v[1][2]) + .001
+		case coloredEdge:
+			z2 = math.Max(v.ps[0][2], v.ps[1][2]) + .001
 		}
 		return z1 < z2
 	})
@@ -199,24 +204,30 @@ func (p *Polyhedron) Update() {
 			for x := v.Rect.minX; x < v.Rect.maxX; x++ {
 				for y := v.Rect.minY; y < v.Rect.maxY; y++ {
 					if v.Contains(x, y) {
-						rgba.Set(int(x), int(y), blue)
+						rgba.Set(int(x), int(y), v.c)
 					}
 				}
 			}
 		case dcel.Point:
 			rgba.Set(int(v[0]), int(v[1]), red)
-		case [2]*dcel.Point:
-			drawLineOnto(rgba, int(v[0][0]), int(v[0][1]),
-				int(v[1][0]), int(v[1][1]), gray)
+		case coloredEdge:
+			drawLineOnto(rgba, int(v.ps[0][0]), int(v.ps[0][1]),
+				int(v.ps[1][0]), int(v.ps[1][1]), v.c)
 		}
 	}
 
 	p.SetRGBA(rgba)
 }
 
+type coloredEdge struct {
+	ps [2]*dcel.Point
+	c  color.Color
+}
+
 type facePolygon struct {
 	*Polygon
 	z float64
+	c color.Color
 }
 
 func (p *Polyhedron) RotZ(theta float64) {
