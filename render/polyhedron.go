@@ -13,7 +13,9 @@ import (
 type Polyhedron struct {
 	Sprite
 	dcel.DCEL
-	Center physics.Vector
+	FaceColors []color.Color
+	EdgeColors []color.Color
+	Center     physics.Vector
 }
 
 func NewCuboid(x, y, z, w, h, d float64) *Polyhedron {
@@ -126,33 +128,36 @@ func (p *Polyhedron) Update() {
 	// Step 1: draw all edges
 	// Given the edge twin mandate, we can just use
 	// every other halfEdge.
-	//fmt.Println(p.DCEL)
+	if len(p.EdgeColors) < len(p.HalfEdges) {
+		diff := len(p.HalfEdges) - len(p.EdgeColors)
+		p.EdgeColors = append(p.EdgeColors, make([]color.Color, diff)...)
+	}
+
 	for i := 0; i < len(p.HalfEdges); i += 2 {
 		points, err := p.FullEdge(i)
 		if err != nil {
 			continue
 		}
-		// draw a line from points[0] to points[1]
-		//fmt.Println("Drawing from ", points[0][0], points[0][1], "to",
-		//points[1][0], points[1][1])
-		if p.HalfEdges[i].Color == nil {
-			p.HalfEdges[i].Color = color.RGBA{255, 0, 255, 255}
+		if p.EdgeColors[i] == nil {
+			p.EdgeColors[i] = color.RGBA{255, 0, 255, 255}
 		}
-		zOrder = append(zOrder, coloredEdge{points, p.HalfEdges[i].Color})
-		// drawLineOnto(rgba, int(points[0][0]), int(points[0][1]),
-		// 	int(points[1][0]), int(points[1][1]), gray)
+		zOrder = append(zOrder, coloredEdge{points, p.EdgeColors[i]})
 	}
 
 	// Step 2: draw all vertices
 	for _, v := range p.Vertices {
 		zOrder = append(zOrder, v)
-		//rgba.Set(int(v[0]), int(v[1]), red)
+	}
+
+	if len(p.FaceColors) < len(p.Faces) {
+		diff := len(p.Faces) - len(p.FaceColors)
+		p.FaceColors = append(p.FaceColors, make([]color.Color, diff)...)
 	}
 
 	for i := 1; i < len(p.Faces); i++ {
 		f := p.Faces[i]
-		if f.Color == nil {
-			f.Color = color.RGBA{0, 255, 255, 255}
+		if p.FaceColors[i] == nil {
+			p.FaceColors[i] = color.RGBA{0, 255, 255, 255}
 		}
 		verts := f.Vertices()
 		max_z := math.MaxFloat64 * -1
@@ -170,7 +175,7 @@ func (p *Polyhedron) Update() {
 		fpoly := facePolygon{
 			poly,
 			max_z,
-			f.Color,
+			p.FaceColors[i],
 		}
 		zOrder = append(zOrder, fpoly)
 	}

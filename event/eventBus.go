@@ -115,11 +115,8 @@ func GetEventBus() *EventBus {
 
 func ResetEventBus() {
 	holdBindingCh <- true
-	// Dear user:
-	// Please do not bind more than ten things in the timespan it takes for these
-	// two lines to resolve
-	// If you do, we'll need to put in a config setting for binding buffer size
 	thisBus = &EventBus{make(map[string]map[int]*BindableStore)}
+	// Clear unbinds?
 	holdBindingCh <- true
 }
 
