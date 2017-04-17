@@ -1,4 +1,4 @@
-//+build unix
+//+build linux
 
 package audio
 
