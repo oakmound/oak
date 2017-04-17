@@ -1,7 +1,5 @@
 // This can likely build on more than windows but we haven't tested it
 
-// +build windows,linux
-
 package oak
 
 import (
