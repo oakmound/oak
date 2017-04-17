@@ -1,8 +1,11 @@
+//+build windows
+
 package audio
 
 import (
-	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
 	"math"
+
+	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
 )
 
 var (
