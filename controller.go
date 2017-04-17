@@ -1,6 +1,6 @@
 // This can likely build on more than windows but we haven't tested it
 
-// +build windows
+// +build windows,linux
 
 package oak
 
