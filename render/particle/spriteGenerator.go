@@ -34,7 +34,7 @@ func (sg *SpriteGenerator) Generate(layer int) *Source {
 	if sg.Rotation != nil {
 		sg.Rotation = sg.Rotation.Mult(math.Pi / 180)
 	}
-	return NewSource(sg)
+	return NewSource(sg, layer)
 }
 
 func (sg *SpriteGenerator) GenerateParticle(bp *BaseParticle) Particle {

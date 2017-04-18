@@ -103,7 +103,6 @@ func Init(firstScene string) {
 		conf.Font.Hinting, conf.Font.Color, conf.Font.File, conf.Font.Size,
 		conf.Font.DPI)
 	// END of loading variables from configuration
-	render.InitDrawHeap()
 
 	collision.Init()
 	mouse.Init()

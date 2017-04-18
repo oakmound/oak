@@ -18,18 +18,20 @@ const (
 // A Source is used to store and control a set of particles.
 type Source struct {
 	render.Layered
-	Generator Generator
-	particles [BLOCK_SIZE]Particle
-	nextPID   int
-	recycled  []int
-	cID       event.CID
-	pIDBlock  int
-	paused    bool
+	Generator  Generator
+	particles  [BLOCK_SIZE]Particle
+	nextPID    int
+	recycled   []int
+	cID        event.CID
+	pIDBlock   int
+	stackLevel int
+	paused     bool
 }
 
-func NewSource(g Generator) *Source {
+func NewSource(g Generator, stackLevel int) *Source {
 	ps := new(Source)
 	ps.Generator = g
+	ps.stackLevel = stackLevel
 	ps.Init()
 	return ps
 }
@@ -125,7 +127,8 @@ func (ps *Source) AddParticles() {
 		bp.totalLife = startLife
 		ps.particles[ps.recycled[ri]] = ps.Generator.GenerateParticle(bp)
 
-		render.Draw(ps.particles[ps.recycled[ri]], ps.Layer(bp.Pos))
+		ps.particles[ps.recycled[ri]].SetLayer(ps.Layer(bp.Pos))
+		render.Draw(ps.particles[ps.recycled[ri]], ps.stackLevel)
 		ri++
 	}
 	newParticleCount -= len(ps.recycled)
@@ -160,7 +163,8 @@ func (ps *Source) AddParticles() {
 		if ps.nextPID >= BLOCK_SIZE {
 			return
 		}
-		render.Draw(p, ps.Layer(bp.Pos))
+		p.SetLayer(ps.Layer(bp.Pos))
+		render.Draw(p, ps.stackLevel)
 	}
 
 }

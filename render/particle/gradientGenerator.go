@@ -42,7 +42,7 @@ func (gg *GradientGenerator) Generate(layer int) *Source {
 	if gg.Rotation != nil {
 		gg.Rotation = gg.Rotation.Mult(math.Pi / 180)
 	}
-	return NewSource(gg)
+	return NewSource(gg, layer)
 }
 
 func (gg *GradientGenerator) GenerateParticle(bp *BaseParticle) Particle {

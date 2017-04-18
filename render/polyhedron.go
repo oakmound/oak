@@ -156,7 +156,7 @@ func (p *Polyhedron) Update() {
 }
 
 type coloredEdge struct {
-	ps [2]*dcel.Vertex
+	ps dcel.FullEdge
 	c  color.Color
 }
 
