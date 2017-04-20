@@ -69,11 +69,6 @@ func InputLoop() {
 		case mouse.Event:
 			button := pmouse.GetMouseButton(int32(e.Button))
 			dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", button)
-			mevent := pmouse.MouseEvent{
-				X:      e.X / float32(windowRect.Max.X) * float32(ScreenWidth),
-				Y:      e.Y / float32(windowRect.Max.Y) * float32(ScreenHeight),
-				Button: button,
-			}
 			var eventName string
 			if e.Direction == mouse.DirPress {
 				setDown(button)
@@ -88,6 +83,13 @@ func InputLoop() {
 			} else {
 				eventName = "MouseDrag"
 			}
+			mevent := pmouse.MouseEvent{
+				X:      e.X / float32(windowRect.Max.X) * float32(ScreenWidth),
+				Y:      e.Y / float32(windowRect.Max.Y) * float32(ScreenHeight),
+				Button: button,
+				Event: eventName,
+			}
+			
 			pmouse.LastMouseEvent = mevent
 
 			eb.Trigger(eventName, mevent)

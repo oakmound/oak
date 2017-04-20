@@ -22,6 +22,7 @@ var (
 type MouseEvent struct {
 	X, Y   float32
 	Button string
+	Event  string
 }
 
 func (me MouseEvent) ToSpace() *collision.Space {
@@ -78,7 +79,7 @@ func Propagate(eventName string, me MouseEvent) {
 	hits := mt.SearchIntersect(mouseLoc.Bounds())
 	for _, v := range hits {
 		sp := v.(*collision.Space)
-		sp.CID.Trigger(eventName, nil)
+		sp.CID.Trigger(eventName, me)
 	}
 }
 
