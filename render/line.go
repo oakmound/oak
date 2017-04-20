@@ -19,7 +19,7 @@ func NewLine(x1, y1, x2, y2 float64, c color.Color) *Line {
 	// to normalize the new line segment toward the origin
 	minX := math.Min(x1, x2)
 	minY := math.Min(y1, y2)
-	rgba = drawLineBetween(int(x1-minX), int(y1-minY), int(x2-minX), int(y2-minY), c)
+	rgba = drawLineBetween(int(x1-minX), int(y1-minY), int(x2-minX), int(y2-minY), c, 0)
 
 	return &Line{
 		Sprite{
@@ -34,7 +34,29 @@ func NewLine(x1, y1, x2, y2 float64, c color.Color) *Line {
 	}
 }
 
-func drawLineOnto(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color) {
+func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Line {
+
+	var rgba *image.RGBA
+	// We subtract the minimum from each side here
+	// to normalize the new line segment toward the origin
+	minX := math.Min(x1, x2)
+	minY := math.Min(y1, y2)
+	rgba = drawLineBetween(int(x1-minX), int(y1-minY), int(x2-minX), int(y2-minY), c, thickness)
+
+	return &Line{
+		Sprite{
+			LayeredPoint: LayeredPoint{
+				Vector: physics.Vector{
+					X: minX,
+					Y: minY,
+				},
+			},
+			r: rgba,
+		},
+	}
+}
+
+func DrawLineOnto(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color) {
 
 	xDelta := math.Abs(float64(x2 - x1))
 	yDelta := math.Abs(float64(y2 - y1))
@@ -68,7 +90,7 @@ func drawLineOnto(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color) {
 	}
 }
 
-func drawLineBetween(x1, y1, x2, y2 int, c color.Color) *image.RGBA {
+func drawLineBetween(x1, y1, x2, y2 int, c color.Color, th int) *image.RGBA {
 
 	// Bresenham's line-drawing algorithm from wikipedia
 	xDelta := math.Abs(float64(x2 - x1))
@@ -105,6 +127,12 @@ func drawLineBetween(x1, y1, x2, y2 int, c color.Color) *image.RGBA {
 	for i := 0; true; i++ {
 
 		rgba.Set(x2, y2, c)
+		for xm := x2 - th; xm < (x2 + th); xm++ {
+			for ym := y2 - th; ym < (y2 + th); ym++ {
+				//fmt.Println("Setting thick color")
+				rgba.Set(xm, ym, c)
+			}
+		}
 		if x2 == x1 && y2 == y1 {
 			break
 		}

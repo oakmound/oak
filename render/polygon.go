@@ -10,7 +10,7 @@ import (
 )
 
 type Rect struct {
-	minX, maxX, minY, maxY float64
+	MinX, MaxX, MinY, MaxY float64
 }
 
 type Polygon struct {
@@ -24,7 +24,7 @@ func ScreenPolygon(points []physics.Vector, w, h int) (*Polygon, error) {
 		return nil, errors.New("Please give at least three points to NewPolygon calls")
 	}
 
-	minX, minY, maxX, maxY, _, _ := BoundingRect(points)
+	MinX, MinY, MaxX, MaxY, _, _ := BoundingRect(points)
 
 	rect := image.Rect(0, 0, w, h)
 	rgba := image.NewRGBA(rect)
@@ -40,10 +40,10 @@ func ScreenPolygon(points []physics.Vector, w, h int) (*Polygon, error) {
 			r: rgba,
 		},
 		Rect: Rect{
-			minX: minX,
-			minY: minY,
-			maxX: maxX,
-			maxY: maxY,
+			MinX: MinX,
+			MinY: MinY,
+			MaxX: MaxX,
+			MaxY: MaxY,
 		},
 		points: points,
 	}, nil
@@ -57,7 +57,7 @@ func NewPolygon(points []physics.Vector) (*Polygon, error) {
 
 	// Calculate the bounding rectangle of the polygon by
 	// finding the maximum and minimum x and y values of the given points
-	minX, minY, maxX, maxY, w, h := BoundingRect(points)
+	MinX, MinY, MaxX, MaxY, w, h := BoundingRect(points)
 
 	rect := image.Rect(0, 0, w, h)
 	rgba := image.NewRGBA(rect)
@@ -66,17 +66,17 @@ func NewPolygon(points []physics.Vector) (*Polygon, error) {
 		Sprite: Sprite{
 			LayeredPoint: LayeredPoint{
 				Vector: physics.Vector{
-					X: 0.0,
-					Y: 0.0,
+					X: MinX,
+					Y: MinY,
 				},
 			},
 			r: rgba,
 		},
 		Rect: Rect{
-			minX: minX,
-			minY: minY,
-			maxX: maxX,
-			maxY: maxY,
+			MinX: MinX,
+			MinY: MinY,
+			MaxX: MaxX,
+			MaxY: MaxY,
 		},
 		points: points,
 	}, nil
@@ -84,7 +84,7 @@ func NewPolygon(points []physics.Vector) (*Polygon, error) {
 
 func (pg *Polygon) UpdatePoints(points []physics.Vector) {
 	pg.points = points
-	pg.minX, pg.minY, pg.maxX, pg.maxY, _, _ = BoundingRect(points)
+	pg.MinX, pg.MinY, pg.MaxX, pg.MaxY, _, _ = BoundingRect(points)
 }
 
 func (pg *Polygon) Fill(c color.Color) {
@@ -92,9 +92,11 @@ func (pg *Polygon) Fill(c color.Color) {
 	bounds := pg.r.Bounds()
 	rect := image.Rect(0, 0, bounds.Max.X, bounds.Max.Y)
 	rgba := image.NewRGBA(rect)
+	minx := pg.Rect.MinX
+	miny := pg.Rect.MinY
 	for x := 0; x < bounds.Max.X; x++ {
 		for y := 0; y < bounds.Max.Y; y++ {
-			if !pg.Contains(float64(x), float64(y)) {
+			if pg.Contains(float64(x)+minx, float64(y)+miny) {
 				rgba.Set(x, y, c)
 			}
 		}
@@ -107,9 +109,9 @@ func (pg *Polygon) GetOutline(c color.Color) *Composite {
 	j := len(pg.points) - 1
 	for i, p2 := range pg.points {
 		p1 := pg.points[j]
-		minX := math.Min(p1.X, p2.X)
-		minY := math.Min(p1.Y, p2.Y)
-		sl.AppendOffset(NewLine(p1.X, p1.Y, p2.X, p2.Y, c), physics.NewVector(minX, minY))
+		MinX := math.Min(p1.X, p2.X)
+		MinY := math.Min(p1.Y, p2.Y)
+		sl.AppendOffset(NewLine(p1.X, p1.Y, p2.X, p2.Y, c), physics.NewVector(MinX, MinY))
 		j = i
 	}
 	return sl
@@ -129,29 +131,29 @@ func (pg *Polygon) FillInverse(c color.Color) {
 	pg.r = rgba
 }
 
-func BoundingRect(points []physics.Vector) (minX, minY, maxX, maxY float64, w, h int) {
-	minX = math.MaxFloat64
-	minY = math.MaxFloat64
-	maxX = minX * -1
-	maxY = minY * -1
+func BoundingRect(points []physics.Vector) (MinX, MinY, MaxX, MaxY float64, w, h int) {
+	MinX = math.MaxFloat64
+	MinY = math.MaxFloat64
+	MaxX = MinX * -1
+	MaxY = MinY * -1
 	for _, p := range points {
 		x := p.X
 		y := p.Y
-		if x < minX {
-			minX = x
+		if x < MinX {
+			MinX = x
 		}
-		if x > maxX {
-			maxX = x
+		if x > MaxX {
+			MaxX = x
 		}
-		if y < minY {
-			minY = y
+		if y < MinY {
+			MinY = y
 		}
-		if y > maxY {
-			maxY = y
+		if y > MaxY {
+			MaxY = y
 		}
 	}
-	w = int(maxX - minX)
-	h = int(maxY - minY)
+	w = int(MaxX - MinX)
+	h = int(MaxY - MinY)
 	return
 }
 
@@ -159,7 +161,7 @@ func BoundingRect(points []physics.Vector) (minX, minY, maxX, maxY float64, w, h
 // Still need to parallelize
 func (pg *Polygon) Contains(x, y float64) (contains bool) {
 
-	if x < pg.minX || x > pg.maxX || y < pg.minY || y > pg.maxY {
+	if x < pg.MinX || x > pg.MaxX || y < pg.MinY || y > pg.MaxY {
 		return
 	}
 
@@ -179,7 +181,7 @@ func (pg *Polygon) Contains(x, y float64) (contains bool) {
 
 func (pg *Polygon) WrappingContains(x, y float64) bool {
 
-	if x < pg.minX || x > pg.maxX || y < pg.minY || y > pg.maxY {
+	if x < pg.MinX || x > pg.MaxX || y < pg.MinY || y > pg.MaxY {
 		return false
 	}
 
@@ -202,7 +204,7 @@ func (pg *Polygon) WrappingContains(x, y float64) bool {
 
 func (pg *Polygon) ConvexContains(x, y float64) bool {
 
-	if x < pg.minX || x > pg.maxX || y < pg.minY || y > pg.maxY {
+	if x < pg.MinX || x > pg.MaxX || y < pg.MinY || y > pg.MaxY {
 		return false
 	}
 
