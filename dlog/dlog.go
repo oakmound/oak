@@ -114,7 +114,10 @@ func CreateLogFile() {
 	if err != nil {
 		// We can't log an error that comes from
 		// our error logging functions
-		panic(err)
+		//panic(err)
+		// But this is also not an error we want to panic on!
+		fmt.Println("[oak]-------- No logs directory found. No logs will be written to file.")
+		return
 	}
 	writer_p = bufio.NewWriter(fHandle)
 }

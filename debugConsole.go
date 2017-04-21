@@ -51,6 +51,9 @@ func DebugConsole(resetCh, skipScene chan bool) {
 			}
 			//Parse the Input
 			tokenString := strings.Fields(scanner.Text())
+			if len(tokenString) == 0 {
+				continue
+			}
 			switch tokenString[0] {
 			case "cheat", "c":
 				// Requires that cheats are all one word! <-- don't forget
