@@ -42,3 +42,5 @@ func Verb(in ...interface{}) {
 
 func SetStringDebugLevel(debugL string) {
 }
+
+func FileWrite(in ...interface{}) {}
