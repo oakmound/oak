@@ -167,7 +167,7 @@ func (cs *CompositeR) Append(r Renderable) {
 }
 
 func (cs *CompositeR) Add(r Renderable, i int) Renderable {
-	cs.rs[i] = r
+	cs.Append(r)
 	return r
 }
 

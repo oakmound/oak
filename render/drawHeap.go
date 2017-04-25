@@ -59,12 +59,14 @@ func (rh *RenderableHeap) PreDraw() {
 			rh.toPush = []Renderable{}
 		}
 	}()
-	for _, r := range rh.toPush {
+	l := len(rh.toPush)
+	for i := 0; i < l; i++ {
+		r := rh.toPush[i]
 		if r != nil {
 			heap.Push(rh, r)
 		}
 	}
-	rh.toPush = []Renderable{}
+	rh.toPush = rh.toPush[l:]
 	//fmt.Println("Static?", rh.static)
 }
 
@@ -126,5 +128,6 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 			}
 		}
 	}
+	newRh.toPush = rh.toPush
 	*rh = *newRh
 }

@@ -1,6 +1,7 @@
 package particle
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -108,6 +109,7 @@ func (ps *Source) AddParticles() {
 	pg := ps.Generator.GetBaseGenerator()
 	// Regularly create particles (up until max particles)
 	newParticleCount := int(pg.NewPerFrame.Poll())
+	fmt.Println("New particle count:", newParticleCount)
 	ri := 0
 	for ri < len(ps.recycled) && ri < newParticleCount {
 
@@ -138,6 +140,9 @@ func (ps *Source) AddParticles() {
 
 	if ps.nextPID >= BLOCK_SIZE {
 		return
+	}
+	if newParticleCount > 0 {
+		fmt.Println("Making non-recycled particles")
 	}
 	for i := 0; i < newParticleCount; i++ {
 		angle := pg.Angle.Poll() * math.Pi / 180.0

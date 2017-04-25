@@ -24,6 +24,7 @@ var (
 func DrawLoop() {
 	<-drawChannel
 	tx, _ := screenControl.NewTexture(winBuffer.Bounds().Max)
+	//ticker := time.NewTicker(54 * time.Millisecond)
 	for {
 		dlog.Verb("Draw Loop")
 	drawSelect:
@@ -35,6 +36,7 @@ func DrawLoop() {
 			<-drawChannel
 			dlog.Verb("Starting loading")
 			for {
+
 				draw.Draw(worldBuffer.RGBA(), winBuffer.Bounds(), imageBlack, ViewPos, screen.Src)
 				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), ViewPos, screen.Src)
 
