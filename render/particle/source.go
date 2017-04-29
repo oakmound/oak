@@ -1,7 +1,6 @@
 package particle
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -110,7 +109,7 @@ func (ps *Source) AddParticles() {
 	pg := ps.Generator.GetBaseGenerator()
 	// Regularly create particles (up until max particles)
 	newParticleCount := int(pg.NewPerFrame.Poll())
-	fmt.Println("New particle count:", newParticleCount)
+	//fmt.Println("New particle count:", newParticleCount)
 	ri := 0
 	for ri < len(ps.recycled) && ri < newParticleCount {
 
@@ -143,7 +142,7 @@ func (ps *Source) AddParticles() {
 		return
 	}
 	if newParticleCount > 0 {
-		fmt.Println("Making non-recycled particles")
+		//fmt.Println("Making non-recycled particles")
 	}
 	for i := 0; i < newParticleCount; i++ {
 		angle := pg.Angle.Poll() * math.Pi / 180.0
@@ -194,7 +193,7 @@ func clearParticles(id int, nothing interface{}) int {
 	if !ps.paused {
 		if ps.CycleParticles() {
 		} else {
-			fmt.Print("Killed a Source")
+			//fmt.Print("Killed a Source")
 			event.DestroyEntity(id)
 			Deallocate(ps.pIDBlock)
 			return event.UNBIND_EVENT
