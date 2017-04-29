@@ -88,6 +88,7 @@ func (ps *Source) CycleParticles() bool {
 
 		} else if bp.Life != RECYCLED {
 			p.UnDraw()
+			cycled = true
 			if pg.EndFunc != nil {
 				pg.EndFunc(p)
 			}
@@ -193,6 +194,7 @@ func clearParticles(id int, nothing interface{}) int {
 	if !ps.paused {
 		if ps.CycleParticles() {
 		} else {
+			fmt.Print("Killed a Source")
 			event.DestroyEntity(id)
 			Deallocate(ps.pIDBlock)
 			return event.UNBIND_EVENT

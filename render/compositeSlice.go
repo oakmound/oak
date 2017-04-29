@@ -148,7 +148,8 @@ func (cs *Composite) String() string {
 
 type CompositeR struct {
 	LayeredPoint
-	rs []Renderable
+	toPush []Renderable
+	rs     []Renderable
 }
 
 func NewCompositeR(sl []Renderable) *CompositeR {
@@ -167,7 +168,7 @@ func (cs *CompositeR) Append(r Renderable) {
 }
 
 func (cs *CompositeR) Add(r Renderable, i int) Renderable {
-	cs.Append(r)
+	cs.toPush = append(cs.toPush, r)
 	return r
 }
 
@@ -178,7 +179,9 @@ func (cs *CompositeR) AddOffset(i int, v physics.Vector) {
 }
 
 func (cs *CompositeR) PreDraw() {
-	// NOP
+	push := cs.toPush
+	cs.toPush = []Renderable{}
+	cs.rs = append(cs.rs, push...)
 }
 
 // CompositeRs cannot have their internal elements copied,
@@ -209,7 +212,17 @@ func (cs *CompositeR) DrawOffset(buff draw.Image, xOff, yOff float64) {
 }
 
 func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, screenH int) {
-	for _, r := range cs.rs {
+	realLength := len(cs.rs)
+	for i := 0; i < realLength; i++ {
+		r := cs.rs[i]
+		for (r == nil || r.GetLayer() == -1) && realLength > i {
+			cs.rs[i], cs.rs[realLength-1] = cs.rs[realLength-1], cs.rs[i]
+			realLength--
+			r = cs.rs[i]
+		}
+		if realLength == i {
+			break
+		}
 		x := int(r.GetX())
 		y := int(r.GetY())
 		x2 := x
@@ -232,6 +245,8 @@ func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, scree
 			}
 		}
 	}
+	cs.rs = cs.rs[0:realLength]
+
 }
 
 func (cs *CompositeR) Draw(buff draw.Image) {
@@ -239,6 +254,7 @@ func (cs *CompositeR) Draw(buff draw.Image) {
 		c.DrawOffset(buff, cs.X, cs.Y)
 	}
 }
+
 func (cs *CompositeR) UnDraw() {
 	cs.layer = -1
 	for _, c := range cs.rs {
