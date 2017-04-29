@@ -86,7 +86,7 @@ func SceneLoop(firstScene string) {
 		collision.Clear()
 		mouse.Clear()
 		event.ResetEntities()
-		render.ResetDrawHeap()
+		render.ResetDrawStack()
 		render.PreDraw()
 
 		// Todo: Add in customizable loading scene between regular scenes

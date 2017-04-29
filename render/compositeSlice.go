@@ -166,14 +166,28 @@ func (cs *CompositeR) Append(r Renderable) {
 	cs.rs = append(cs.rs, r)
 }
 
-func (cs *CompositeR) Add(i int, r Renderable) {
-	cs.rs[i] = r
+func (cs *CompositeR) Add(r Renderable, i int) Renderable {
+	cs.Append(r)
+	return r
 }
 
 func (cs *CompositeR) AddOffset(i int, v physics.Vector) {
 	if i < len(cs.rs) {
 		cs.rs[i].SetPos(v.X, v.Y)
 	}
+}
+
+func (cs *CompositeR) PreDraw() {
+	// NOP
+}
+
+// CompositeRs cannot have their internal elements copied,
+// as renderables cannot be copied.
+func (cs *CompositeR) Copy() Addable {
+	cs2 := new(CompositeR)
+	cs2.LayeredPoint = cs.LayeredPoint
+	cs2.rs = make([]Renderable, len(cs.rs))
+	return cs2
 }
 
 func (cs *CompositeR) SetOffsets(ps []Point) {
@@ -193,6 +207,33 @@ func (cs *CompositeR) DrawOffset(buff draw.Image, xOff, yOff float64) {
 		c.DrawOffset(buff, cs.X+xOff, cs.Y+yOff)
 	}
 }
+
+func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, screenH int) {
+	for _, r := range cs.rs {
+		x := int(r.GetX())
+		y := int(r.GetY())
+		x2 := x
+		y2 := y
+		rgba := r.GetRGBA()
+		if rgba != nil {
+			max := rgba.Bounds().Max
+			x += max.X
+			y += max.Y
+			// Artificial width and height added due to bug in polygon checking alg
+		} else {
+			x += 6
+			y += 6
+		}
+		if x > viewPos.X && y > viewPos.Y &&
+			x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
+
+			if InDrawPolygon(x, y, x2, y2) {
+				r.Draw(world)
+			}
+		}
+	}
+}
+
 func (cs *CompositeR) Draw(buff draw.Image) {
 	for _, c := range cs.rs {
 		c.DrawOffset(buff, cs.X, cs.Y)

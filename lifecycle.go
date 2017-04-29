@@ -14,6 +14,7 @@ import (
 var (
 	worldBuffer   screen.Buffer
 	winBuffer     screen.Buffer
+	staticBuffer  screen.Buffer
 	screenControl screen.Screen
 	windowControl screen.Window
 
@@ -49,6 +50,13 @@ func lifecycleLoop(s screen.Screen) {
 	}
 	defer winBuffer.Release()
 
+	staticBuffer, err = screenControl.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
+	if err != nil {
+		dlog.Error(err)
+		return
+	}
+	defer staticBuffer.Release()
+
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
 	changeWindow(ScreenWidth, ScreenHeight)
@@ -58,15 +66,7 @@ func lifecycleLoop(s screen.Screen) {
 
 	go KeyHoldLoop()
 	go InputLoop()
-
-	// Initiate the first scene
-	//initCh <- true
-
-	if conf.ShowFPS {
-		go DrawLoopFPS()
-	} else {
-		go DrawLoopNoFPS()
-	}
+	go DrawLoop()
 
 	event.ResolvePending()
 }

@@ -12,8 +12,14 @@ const (
 	DEFAULT_SEED = iota
 )
 
-func SeedRNG(curSeed int64) {
+var (
+	currentSeed int64
+)
 
+func SeedRNG(curSeed int64) {
+	if currentSeed != 0 && curSeed == DEFAULT_SEED {
+		return
+	}
 	if curSeed == DEFAULT_SEED {
 		curSeed = time.Now().UTC().UnixNano()
 	}
@@ -25,6 +31,6 @@ func SeedRNG(curSeed int64) {
 	// We log here because we want the seed recorded in the
 	// logfile for debugging purposes. Maybe a logWrite function
 	// would be better.
-	dlog.Info("Oak seed:", curSeed)
+	dlog.FileWrite("Oak seed:", curSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~")
 }

@@ -151,80 +151,129 @@ func ResolvePending() {
 			<-holdBindingCh
 		case ubaarb := <-unbindAllAndRebindCh:
 			mutex.Lock()
-			unbind := ubaarb.ub
-			orderedBindables := ubaarb.bnds
-			orderedBindOptions := ubaarb.bs
-
-			var namekeys []string
-			// If we were given a name,
-			// we'll just iterate with that name.
-			if unbind.Name != "" {
-				namekeys = append(namekeys, unbind.Name)
-				// Otherwise, iterate through all events.
-			} else {
-				for k := range thisBus.bindingMap {
-					namekeys = append(namekeys, k)
+			ubas := []unbindAllAndRebinds{ubaarb}
+		outer_uba:
+			for {
+				select {
+				case ubaarb := <-unbindAllAndRebindCh:
+					ubas = append(ubas, ubaarb)
+				default:
+					break outer_uba
 				}
 			}
+			for _, ubaarb := range ubas {
+				unbind := ubaarb.ub
+				orderedBindables := ubaarb.bnds
+				orderedBindOptions := ubaarb.bs
 
-			if unbind.CallerID != 0 {
-				for _, k := range namekeys {
-					delete(thisBus.bindingMap[k], unbind.CallerID)
+				var namekeys []string
+				// If we were given a name,
+				// we'll just iterate with that name.
+				if unbind.Name != "" {
+					namekeys = append(namekeys, unbind.Name)
+					// Otherwise, iterate through all events.
+				} else {
+					for k := range thisBus.bindingMap {
+						namekeys = append(namekeys, k)
+					}
 				}
-			} else {
-				for _, k := range namekeys {
-					delete(thisBus.bindingMap, k)
+
+				if unbind.CallerID != 0 {
+					for _, k := range namekeys {
+						delete(thisBus.bindingMap[k], unbind.CallerID)
+					}
+				} else {
+					for _, k := range namekeys {
+						delete(thisBus.bindingMap, k)
+					}
+				}
+
+				dlog.Verb(thisBus.bindingMap)
+
+				// Bindings
+				for i := 0; i < len(orderedBindables); i++ {
+					fn := orderedBindables[i]
+					opt := orderedBindOptions[i]
+					list := thisBus.getBindableList(opt)
+					list.storeBindable(fn)
 				}
 			}
-
-			dlog.Verb(thisBus.bindingMap)
-
-			// Bindings
-			for i := 0; i < len(orderedBindables); i++ {
-				fn := orderedBindables[i]
-				opt := orderedBindOptions[i]
-				list := thisBus.getBindableList(opt)
-				list.storeBindable(fn)
-			}
-
 			mutex.Unlock()
 
 		// Specific unbinds
 		case b := <-unbindCh:
 			mutex.Lock()
-			thisBus.getBindableList(b.BindingOption).removeBinding(b)
+			bs := []Binding{b}
+		outer_ub:
+			for {
+				select {
+				case b := <-unbindCh:
+					bs = append(bs, b)
+				default:
+					break outer_ub
+				}
+			}
+			for _, b := range bs {
+
+				thisBus.getBindableList(b.BindingOption).removeBinding(b)
+
+			}
 			mutex.Unlock()
 
 		// A full set of unbind settings
 		case opt := <-fullUnbindCh:
 			mutex.Lock()
-			thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
+			bs := []UnbindOption{opt}
+		outer_opt:
+			for {
+				select {
+				case opt := <-fullUnbindCh:
+					bs = append(bs, opt)
+				default:
+					break outer_opt
+				}
+			}
+			for _, opt := range bs {
+				thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
+			}
 			mutex.Unlock()
 
 		// A partial set of unbind settings
 		case opt := <-partUnbindCh:
 			mutex.Lock()
-			var namekeys []string
-
-			// If we were given a name,
-			// we'll just iterate with that name.
-			if opt.Name != "" {
-				namekeys = append(namekeys, opt.Name)
-
-				// Otherwise, iterate through all events.
-			} else {
-				for k := range thisBus.bindingMap {
-					namekeys = append(namekeys, k)
+			bs := []BindingOption{opt}
+		outer_bopt:
+			for {
+				select {
+				case opt := <-partUnbindCh:
+					bs = append(bs, opt)
+				default:
+					break outer_bopt
 				}
 			}
+			for _, opt := range bs {
+				var namekeys []string
 
-			if opt.CallerID != 0 {
-				for _, k := range namekeys {
-					delete(thisBus.bindingMap[k], opt.CallerID)
+				// If we were given a name,
+				// we'll just iterate with that name.
+				if opt.Name != "" {
+					namekeys = append(namekeys, opt.Name)
+
+					// Otherwise, iterate through all events.
+				} else {
+					for k := range thisBus.bindingMap {
+						namekeys = append(namekeys, k)
+					}
 				}
-			} else {
-				for _, k := range namekeys {
-					delete(thisBus.bindingMap, k)
+
+				if opt.CallerID != 0 {
+					for _, k := range namekeys {
+						delete(thisBus.bindingMap[k], opt.CallerID)
+					}
+				} else {
+					for _, k := range namekeys {
+						delete(thisBus.bindingMap, k)
+					}
 				}
 			}
 			mutex.Unlock()
@@ -233,8 +282,23 @@ func ResolvePending() {
 		// Bindings
 		case bindSet := <-bindCh:
 			mutex.Lock()
-			list := thisBus.getBindableList(bindSet.opt)
-			list.storeBindable(bindSet.bnd)
+			bs := []bindableAndOption{bindSet}
+		outer_bs:
+			for {
+				select {
+				case bindSet := <-bindCh:
+					bs = append(bs, bindSet)
+					if len(bs) > 10 {
+						break outer_bs
+					}
+				default:
+					break outer_bs
+				}
+			}
+			for _, bindSet := range bs {
+				list := thisBus.getBindableList(bindSet.opt)
+				list.storeBindable(bindSet.bnd)
+			}
 			mutex.Unlock()
 		}
 	}

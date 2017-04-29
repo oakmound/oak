@@ -38,7 +38,7 @@ var (
 // containing the logged data separated by spaces,
 // prepended with file and line information.
 // It only includes logs which pass the current filters.
-func dLog(override bool, in ...interface{}) {
+func dLog(console, override bool, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)
 	if ok {
@@ -59,7 +59,9 @@ func dLog(override bool, in ...interface{}) {
 		}
 		byt.WriteRune('\n')
 
-		fmt.Print(byt.String())
+		if console {
+			fmt.Print(byt.String())
+		}
 
 		if writer_p != nil {
 			writer := *writer_p
@@ -77,6 +79,10 @@ func dLog(override bool, in ...interface{}) {
 
 		byt.Reset()
 	}
+}
+
+func FileWrite(in ...interface{}) {
+	dLog(false, true, in...)
 }
 
 func truncateFileName(f string) string {
@@ -124,25 +130,25 @@ func CreateLogFile() {
 
 func Error(in ...interface{}) {
 	if debugLevel > NONE {
-		dLog(true, in)
+		dLog(true, true, in)
 	}
 }
 
 func Warn(in ...interface{}) {
 	if debugLevel > ERROR {
-		dLog(true, in)
+		dLog(true, true, in)
 	}
 }
 
 func Info(in ...interface{}) {
 	if debugLevel > WARN {
-		dLog(false, in)
+		dLog(true, false, in)
 	}
 }
 
 func Verb(in ...interface{}) {
 	if debugLevel > INFO {
-		dLog(false, in)
+		dLog(true, false, in)
 	}
 }
 

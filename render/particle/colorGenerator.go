@@ -44,7 +44,7 @@ func (cg *ColorGenerator) Generate(layer int) *Source {
 	if cg.Rotation != nil {
 		cg.Rotation = cg.Rotation.Mult(math.Pi / 180)
 	}
-	return NewSource(cg)
+	return NewSource(cg, layer)
 }
 
 func (cg *ColorGenerator) GenerateParticle(bp *BaseParticle) Particle {
