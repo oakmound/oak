@@ -1,11 +1,5 @@
 package event
 
-// Called by entities,
-// for unbinding specific bindings.
-func (eb *EventBus) Unbind(b Binding) {
-	unbindCh <- b
-}
-
 func (b Binding) Unbind() {
 	thisBus.Unbind(b)
 }
@@ -43,20 +37,34 @@ func UnbindAllAndRebind(bo BindingOption, binds []Bindable, cid int, events []st
 		}
 	}
 
-	unbindAllAndRebindCh <- unbindAllAndRebinds{
+	pendingMutex.Lock()
+	unbindAllAndRebinds = append(unbindAllAndRebinds, UnbindAllOption{
 		ub:   bo,
 		bs:   opts,
 		bnds: binds,
-	}
+	})
+	pendingMutex.Unlock()
+}
+
+// Called by entities,
+// for unbinding specific bindings.
+func (eb *EventBus) Unbind(b Binding) {
+	pendingMutex.Lock()
+	unbinds = append(unbinds, b)
+	pendingMutex.Unlock()
 }
 
 // Called by entities or by game logic.
 // Unbinds all events in this bus which
 // match the given binding options.
 func UnbindAll(opt BindingOption) {
-	partUnbindCh <- opt
+	pendingMutex.Lock()
+	partUnbinds = append(partUnbinds, opt)
+	pendingMutex.Unlock()
 }
 
 func UnbindBindable(opt UnbindOption) {
-	fullUnbindCh <- opt
+	pendingMutex.Lock()
+	fullUnbinds = append(fullUnbinds, opt)
+	pendingMutex.Unlock()
 }

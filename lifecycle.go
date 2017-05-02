@@ -14,7 +14,6 @@ import (
 var (
 	worldBuffer   screen.Buffer
 	winBuffer     screen.Buffer
-	staticBuffer  screen.Buffer
 	screenControl screen.Screen
 	windowControl screen.Window
 
@@ -28,6 +27,7 @@ var (
 //	runtime.LockOSThread()
 //}
 func lifecycleLoop(s screen.Screen) {
+
 	screenControl = s
 	var err error
 
@@ -39,7 +39,7 @@ func lifecycleLoop(s screen.Screen) {
 		dlog.Error(err)
 		return
 	}
-	defer worldBuffer.Release()
+	//defer worldBuffer.Release()
 
 	// The window buffer represents the subsection of the world which is available to
 	// be shown in a window.
@@ -48,19 +48,12 @@ func lifecycleLoop(s screen.Screen) {
 		dlog.Error(err)
 		return
 	}
-	defer winBuffer.Release()
-
-	staticBuffer, err = screenControl.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
-	if err != nil {
-		dlog.Error(err)
-		return
-	}
-	defer staticBuffer.Release()
+	//defer winBuffer.Release()
 
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
 	changeWindow(ScreenWidth, ScreenHeight)
-	defer windowControl.Release()
+	//defer windowControl.Release()
 
 	eb = event.GetEventBus()
 

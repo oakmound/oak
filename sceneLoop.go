@@ -74,6 +74,8 @@ func SceneLoop(firstScene string) {
 				break delayLabel
 			}
 		}
+
+		dlog.Verb("Resetting Engine")
 		// Reset transient portions of the engine
 		// We start by clearing the event bus to
 		// remove most ongoing code
@@ -83,11 +85,13 @@ func SceneLoop(firstScene string) {
 		// on non-entities (i.e. particles) can still
 		// be triggered and attempt to access an entity
 		// Todo:
+		dlog.Verb("Event Bus Reset")
 		collision.Clear()
 		mouse.Clear()
 		event.ResetEntities()
 		render.ResetDrawStack()
 		render.PreDraw()
+		dlog.Verb("Engine Reset")
 
 		// Todo: Add in customizable loading scene between regular scenes
 

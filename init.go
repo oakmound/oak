@@ -114,11 +114,6 @@ func Init(firstScene string) {
 	go driver.Main(lifecycleLoop)
 	go DebugConsole(debugResetCh, skipSceneCh)
 
-	// <-initCh
-	// // This is the only time oak closes a channel
-	// // This should probably change
-	// close(initCh)
-
 	// Loop through scenes
 	SceneLoop(firstScene)
 }
