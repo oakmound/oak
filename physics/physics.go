@@ -83,6 +83,11 @@ func (v Vector) Dot(v2 Vector) float64 {
 	return x + y
 }
 
+// Distance is Euclidean
+func (v Vector) Distance(v2 Vector) float64 {
+	return v.Add(v2.Scale(-1)).Magnitude()
+}
+
 func (v Vector) round() Vector {
 	if math.Abs(v.X) < CUTOFF {
 		v.X = 0

@@ -3,43 +3,61 @@
 package audio
 
 import (
-	"math"
+	"fmt"
 
 	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
-var (
-	usingEars        bool
-	earX             *float64
-	earY             *float64
-	earPanWidth      float64
-	earSilenceRadius float64
+type ScaleType int
+
+const (
+	LINEAR ScaleType = iota
 )
 
-// For Pan and volume calculation
-func SetEars(x, y *float64, panWidth float64, silentRadius float64) {
-	earX = x
-	earY = y
-	earPanWidth = panWidth
-	earSilenceRadius = silentRadius
-	usingEars = true
+type Ears struct {
+	X             *float64
+	Y             *float64
+	PanWidth      float64
+	SilenceRadius float64
+	VolumeScale   ScaleType
+	PanScale      ScaleType
 }
 
-func CalculatePan(x2 float64) int32 {
-	v := (x2 - *earX) * (winaudio.RIGHT_PAN / earPanWidth)
+// For Pan and volume calculation
+func (f *Font) SetEars(x, y *float64, panWidth float64, silentRadius float64) {
+	ears := new(Ears)
+	ears.X = x
+	ears.Y = y
+	ears.PanWidth = panWidth
+	ears.SilenceRadius = silentRadius
+	f.Ears = ears
+}
+
+func (e *Ears) CalculatePan(x2 float64) int32 {
+	v := (x2 - *e.X) * (winaudio.RIGHT_PAN / e.PanWidth)
 	if v < winaudio.LEFT_PAN {
 		return winaudio.LEFT_PAN
 	} else if v > winaudio.RIGHT_PAN {
 		return winaudio.RIGHT_PAN
 	}
+	fmt.Println("Pan", *e.X, x2, v)
 	return int32(v)
 }
 
-func CalculateVolume(x2, y2 float64) int32 {
-	// This and pan both assume a linear scale
-	return int32(pointDistance(*earX, *earY, x2, y2) * (winaudio.MIN_VOLUME / earSilenceRadius))
-}
+func (e *Ears) CalculateVolume(v physics.Vector) float64 {
+	v2 := physics.NewVector(*e.X, *e.Y)
+	dist := v2.Distance(v)
 
-func pointDistance(x1, y1, x2, y2 float64) float64 {
-	return math.Sqrt(math.Pow(x1-x2, 2) + math.Pow(y1-y2, 2))
+	fmt.Println("Vector Distance:", dist, v, v2)
+
+	// Ignore scaling variable
+	lin := (e.SilenceRadius - dist) / e.SilenceRadius
+	if lin < 0 {
+		lin = 0
+	}
+
+	fmt.Println("Silence scale", lin, e.SilenceRadius, dist)
+
+	return lin
 }

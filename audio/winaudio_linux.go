@@ -2,8 +2,6 @@
 
 package audio
 
-// We alias the winaudio package's interface here
-// so game files don't need to import winaudio
 type Audio interface{}
 
 func InitWinAudio() {
