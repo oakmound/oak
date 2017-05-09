@@ -6,6 +6,9 @@ import (
 )
 
 func (a *Audio) Play() error {
+	origVolume, _ := a.GetVolume()
+	origFrequency, _ := a.GetFrequency()
+	origPan, _ := a.GetPan()
 	var err error
 	ad := a.AudioData
 	if a.F.Volume != 0 {
@@ -43,7 +46,11 @@ func (a *Audio) Play() error {
 		}
 	}
 
-	return ad.Play()
+	err = ad.Play()
+	ad.SetVolume(origVolume)
+	ad.SetFrequency(origFrequency)
+	ad.SetPan(origPan)
+	return err
 }
 
 func (f *Font) PlayWav(filename string) error {
