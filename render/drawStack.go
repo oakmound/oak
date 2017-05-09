@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	initialDrawStack *DrawStack
-	GlobalDrawStack  = &DrawStack{
+	GlobalDrawStack = &DrawStack{
 		as: []Addable{NewHeap(false)},
 	}
-	zeroPoint = image.Point{0, 0}
+	initialDrawStack = GlobalDrawStack
+	zeroPoint        = image.Point{0, 0}
 )
 
 type DrawStack struct {
@@ -52,7 +52,7 @@ func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
 func Draw(r Renderable, l int) (Renderable, error) {
 	// If there's only one element, l refers to the layer
 	// within that element.
-	if len(GlobalDrawStack.as) == 0 {
+	if len(GlobalDrawStack.as) == 1 {
 		return GlobalDrawStack.as[0].Add(r, l), nil
 
 		// Otherwise, l refers to the index within the DrawStack.

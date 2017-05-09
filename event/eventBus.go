@@ -8,13 +8,15 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 
 	"reflect"
+	"runtime"
 	"strconv"
 	"sync"
 )
 
 var (
-	thisBus = &EventBus{make(map[string]map[int]*BindableStore)}
-	mutex   = sync.RWMutex{}
+	thisBus      = &EventBus{make(map[string]map[int]*BindableStore)}
+	mutex        = sync.RWMutex{}
+	pendingMutex = sync.Mutex{}
 )
 
 const (
@@ -113,24 +115,29 @@ func GetEventBus() *EventBus {
 	return thisBus
 }
 
-func ResetEventBus() {
-	holdBindingCh <- true
-	thisBus = &EventBus{make(map[string]map[int]*BindableStore)}
-	// Clear unbinds?
-	holdBindingCh <- true
-}
-
 var (
-	bindCh               = make(chan bindableAndOption, 1000)
-	partUnbindCh         = make(chan BindingOption, 1000)
-	fullUnbindCh         = make(chan UnbindOption, 1000)
-	unbindCh             = make(chan Binding, 1000)
-	unbindAllAndRebindCh = make(chan unbindAllAndRebinds, 1000)
-	holdBindingCh        = make(chan bool)
+	binds               = []UnbindOption{}
+	partUnbinds         = []BindingOption{}
+	fullUnbinds         = []UnbindOption{}
+	unbinds             = []Binding{}
+	unbindAllAndRebinds = []UnbindAllOption{}
 )
 
+func ResetEventBus() {
+	mutex.Lock()
+	pendingMutex.Lock()
+	thisBus = &EventBus{make(map[string]map[int]*BindableStore)}
+	binds = []UnbindOption{}
+	partUnbinds = []BindingOption{}
+	fullUnbinds = []UnbindOption{}
+	unbinds = []Binding{}
+	unbindAllAndRebinds = []UnbindAllOption{}
+	pendingMutex.Unlock()
+	mutex.Unlock()
+}
+
 //Todo: what are these fucking names
-type unbindAllAndRebinds struct {
+type UnbindAllOption struct {
 	ub   BindingOption
 	bs   []BindingOption
 	bnds []Bindable
@@ -143,25 +150,12 @@ type bindableAndOption struct {
 }
 
 func ResolvePending() {
+	schedCt := 0
 	for {
-		select {
-		// On a hold signal, wait for a paired
-		// signal to resume resolving incoming bind/unbind checks
-		case <-holdBindingCh:
-			<-holdBindingCh
-		case ubaarb := <-unbindAllAndRebindCh:
+		if len(unbindAllAndRebinds) > 0 {
 			mutex.Lock()
-			ubas := []unbindAllAndRebinds{ubaarb}
-		outer_uba:
-			for {
-				select {
-				case ubaarb := <-unbindAllAndRebindCh:
-					ubas = append(ubas, ubaarb)
-				default:
-					break outer_uba
-				}
-			}
-			for _, ubaarb := range ubas {
+			pendingMutex.Lock()
+			for _, ubaarb := range unbindAllAndRebinds {
 				unbind := ubaarb.ub
 				orderedBindables := ubaarb.bnds
 				orderedBindOptions := ubaarb.bs
@@ -198,60 +192,39 @@ func ResolvePending() {
 					list.storeBindable(fn)
 				}
 			}
+			unbindAllAndRebinds = []UnbindAllOption{}
+			pendingMutex.Unlock()
 			mutex.Unlock()
-
+		}
 		// Specific unbinds
-		case b := <-unbindCh:
+		if len(unbinds) > 0 {
 			mutex.Lock()
-			bs := []Binding{b}
-		outer_ub:
-			for {
-				select {
-				case b := <-unbindCh:
-					bs = append(bs, b)
-				default:
-					break outer_ub
-				}
-			}
-			for _, b := range bs {
-
+			pendingMutex.Lock()
+			for _, b := range unbinds {
 				thisBus.getBindableList(b.BindingOption).removeBinding(b)
-
 			}
+			unbinds = []Binding{}
+			pendingMutex.Unlock()
 			mutex.Unlock()
+		}
 
 		// A full set of unbind settings
-		case opt := <-fullUnbindCh:
+		if len(fullUnbinds) > 0 {
 			mutex.Lock()
-			bs := []UnbindOption{opt}
-		outer_opt:
-			for {
-				select {
-				case opt := <-fullUnbindCh:
-					bs = append(bs, opt)
-				default:
-					break outer_opt
-				}
-			}
-			for _, opt := range bs {
+			pendingMutex.Lock()
+			for _, opt := range fullUnbinds {
 				thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
 			}
+			fullUnbinds = []UnbindOption{}
+			pendingMutex.Unlock()
 			mutex.Unlock()
+		}
 
 		// A partial set of unbind settings
-		case opt := <-partUnbindCh:
+		if len(partUnbinds) > 0 {
 			mutex.Lock()
-			bs := []BindingOption{opt}
-		outer_bopt:
-			for {
-				select {
-				case opt := <-partUnbindCh:
-					bs = append(bs, opt)
-				default:
-					break outer_bopt
-				}
-			}
-			for _, opt := range bs {
+			pendingMutex.Lock()
+			for _, opt := range partUnbinds {
 				var namekeys []string
 
 				// If we were given a name,
@@ -276,30 +249,33 @@ func ResolvePending() {
 					}
 				}
 			}
+			partUnbinds = []BindingOption{}
+			pendingMutex.Unlock()
 			mutex.Unlock()
 			dlog.Verb(thisBus.bindingMap)
+		}
 
 		// Bindings
-		case bindSet := <-bindCh:
+		if len(binds) > 0 {
 			mutex.Lock()
-			bs := []bindableAndOption{bindSet}
-		outer_bs:
-			for {
-				select {
-				case bindSet := <-bindCh:
-					bs = append(bs, bindSet)
-					if len(bs) > 10 {
-						break outer_bs
-					}
-				default:
-					break outer_bs
-				}
+			pendingMutex.Lock()
+			for _, bindSet := range binds {
+				list := thisBus.getBindableList(bindSet.BindingOption)
+				list.storeBindable(bindSet.fn)
 			}
-			for _, bindSet := range bs {
-				list := thisBus.getBindableList(bindSet.opt)
-				list.storeBindable(bindSet.bnd)
-			}
+			binds = []UnbindOption{}
+			pendingMutex.Unlock()
 			mutex.Unlock()
+		}
+
+		// This is a tight loop that can cause a pseudo-deadlock
+		// by refusing to release control to the go scheduler.
+		// This code prevents this from happening.
+		// See https://github.com/golang/go/issues/10958
+		schedCt++
+		if schedCt > 1000 {
+			schedCt = 0
+			runtime.Gosched()
 		}
 	}
 }

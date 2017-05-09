@@ -87,9 +87,9 @@ func InputLoop() {
 				X:      e.X / float32(windowRect.Max.X) * float32(ScreenWidth),
 				Y:      e.Y / float32(windowRect.Max.Y) * float32(ScreenHeight),
 				Button: button,
-				Event: eventName,
+				Event:  eventName,
 			}
-			
+
 			pmouse.LastMouseEvent = mevent
 
 			eb.Trigger(eventName, mevent)

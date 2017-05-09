@@ -22,11 +22,17 @@ func LoadSpriteAndDraw(filename string, l int) (Renderable, error) {
 
 // DrawColor is equivalent to LoadSpriteAndDraw,
 // but with colorboxes.
-func DrawColor(c color.Color, x1, y1, x2, y2 float64, l int) {
+func DrawColor(c color.Color, x1, y1, x2, y2 float64, layer, stackLayer int) {
 	cb := NewColorBox(int(x2), int(y2), c)
 	cb.ShiftX(x1)
 	cb.ShiftY(y1)
-	Draw(cb, l)
+	if len(GlobalDrawStack.as) == 1 {
+		Draw(cb, layer)
+	} else {
+
+		cb.SetLayer(layer)
+		Draw(cb, stackLayer)
+	}
 }
 
 // UndrawAfter will trigger a renderable's undraw function

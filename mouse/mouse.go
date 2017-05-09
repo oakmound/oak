@@ -50,7 +50,9 @@ func Add(sp *collision.Space) {
 }
 
 func Remove(sp *collision.Space) {
+	addLock.Lock()
 	mt.Delete(sp)
+	addLock.Unlock()
 }
 
 func UpdateSpace(x, y, w, h float64, s *collision.Space) {
@@ -58,9 +60,11 @@ func UpdateSpace(x, y, w, h float64, s *collision.Space) {
 		return
 	}
 	loc := collision.NewRect(x, y, w, h)
+	addLock.Lock()
 	mt.Delete(s)
 	s.Location = loc
 	mt.Insert(s)
+	addLock.Unlock()
 }
 
 func Hits(sp *collision.Space) []*collision.Space {

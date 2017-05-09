@@ -1,6 +1,7 @@
 package oak
 
 import (
+	"fmt"
 	"image"
 	"image/draw"
 
@@ -23,8 +24,18 @@ var (
 // 6. publish the screen to display in window.
 func DrawLoop() {
 	<-drawChannel
-	tx, _ := screenControl.NewTexture(winBuffer.Bounds().Max)
-	//ticker := time.NewTicker(54 * time.Millisecond)
+
+	tx, err := screenControl.NewTexture(winBuffer.Bounds().Max)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	draw.Draw(worldBuffer.RGBA(), worldBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
+	draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), ViewPos, screen.Src)
+	tx.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
+	windowControl.Scale(windowRect, tx, tx.Bounds(), screen.Src, nil)
+	windowControl.Publish()
+
 	for {
 		dlog.Verb("Draw Loop")
 	drawSelect:
