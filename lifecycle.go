@@ -3,10 +3,10 @@ package oak
 
 import (
 	"image"
-	"time"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/event"
+	"bitbucket.org/oakmoundstudio/oak/timing"
 
 	"golang.org/x/exp/shiny/screen"
 )
@@ -21,6 +21,8 @@ var (
 	windowUpdateCH = make(chan bool)
 
 	osCh = make(chan func())
+
+	LogicTicker *timing.DynamicTicker
 )
 
 //func init() {
@@ -81,14 +83,15 @@ func LogicLoop() chan bool {
 	// It then allows a scene to perform it's loop operation.
 	ch := make(chan bool)
 	go func(doneCh chan bool) {
-		ticker := time.NewTicker(time.Second / time.Duration(int64(FrameRate)))
+		LogicTicker = timing.NewDynamicTicker()
+		LogicTicker.SetTick(timing.FPSToDuration(FrameRate))
 		for {
 			select {
-			case <-ticker.C:
+			case <-LogicTicker.C:
 				<-eb.TriggerBack("EnterFrame", nil)
 				sceneCh <- true
 			case <-doneCh:
-				ticker.Stop()
+				LogicTicker.Stop()
 				return
 			}
 		}
