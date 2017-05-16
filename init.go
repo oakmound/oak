@@ -54,11 +54,12 @@ var (
 	runEventLoop         bool
 	debugResetInProgress bool
 
-	ScreenWidth  int
-	ScreenHeight int
-	WorldWidth   int
-	WorldHeight  int
-	FrameRate    int
+	ScreenWidth   int
+	ScreenHeight  int
+	WorldWidth    int
+	WorldHeight   int
+	FrameRate     int
+	DrawFrameRate int
 
 	eb *event.EventBus
 
@@ -91,6 +92,7 @@ func Init(firstScene string) {
 	WorldWidth = conf.World.Width
 	WorldHeight = conf.World.Height
 	FrameRate = conf.FrameRate
+	DrawFrameRate = conf.DrawFrameRate
 
 	imageDir = filepath.Join(wd,
 		conf.Assets.AssetPath,

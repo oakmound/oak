@@ -7,11 +7,13 @@ import (
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/render"
+	"bitbucket.org/oakmoundstudio/oak/timing"
 	"golang.org/x/exp/shiny/screen"
 )
 
 var (
 	imageBlack = image.Black
+	DrawTicker *timing.DynamicTicker
 )
 
 // DrawLoop
@@ -36,7 +38,11 @@ func DrawLoop() {
 	windowControl.Scale(windowRect, tx, tx.Bounds(), screen.Src, nil)
 	windowControl.Publish()
 
+	//DrawTicker = timing.NewDynamicTicker()
+	//DrawTicker.SetTick(timing.FPSToDuration(DrawFrameRate))
+
 	for {
+		//<-DrawTicker.C
 		dlog.Verb("Draw Loop")
 	drawSelect:
 		select {
@@ -47,7 +53,7 @@ func DrawLoop() {
 			<-drawChannel
 			dlog.Verb("Starting loading")
 			for {
-
+				//<-DrawTicker.C
 				draw.Draw(worldBuffer.RGBA(), winBuffer.Bounds(), imageBlack, ViewPos, screen.Src)
 				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), ViewPos, screen.Src)
 

@@ -18,6 +18,7 @@ var (
 		Font{"none", 12.0, 72.0, "", "white"},
 		World{4000, 4000},
 		60,
+		60,
 		false,
 		"English",
 		"Oak Window",
@@ -25,15 +26,16 @@ var (
 )
 
 type oakConfig struct {
-	Assets    Assets `json:"assets"`
-	Debug     Debug  `json:"debug"`
-	Screen    Screen `json:"screen"`
-	Font      Font   `json:"font"`
-	World     World  `json:"world"`
-	FrameRate int    `json:"frameRate"`
-	ShowFPS   bool   `json:"showFPS"`
-	Language  string `json:"language"`
-	Title     string `json:"title"`
+	Assets        Assets `json:"assets"`
+	Debug         Debug  `json:"debug"`
+	Screen        Screen `json:"screen"`
+	Font          Font   `json:"font"`
+	World         World  `json:"world"`
+	FrameRate     int    `json:"frameRate"`
+	DrawFrameRate int    `json:"drawFrameRate"`
+	ShowFPS       bool   `json:"showFPS"`
+	Language      string `json:"language"`
+	Title         string `json:"title"`
 }
 
 type Assets struct {
@@ -127,6 +129,10 @@ func loadDefaultConf() {
 
 	if tmpConf.FrameRate != 0 {
 		conf.FrameRate = tmpConf.FrameRate
+	}
+
+	if tmpConf.DrawFrameRate != 0 {
+		conf.DrawFrameRate = tmpConf.DrawFrameRate
 	}
 
 	conf.ShowFPS = tmpConf.ShowFPS
