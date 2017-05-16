@@ -47,8 +47,8 @@ func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Line {
 		Sprite{
 			LayeredPoint: LayeredPoint{
 				Vector: physics.Vector{
-					X: minX,
-					Y: minY,
+					X: minX - float64(thickness),
+					Y: minY - float64(thickness),
 				},
 			},
 			r: rgba,
@@ -119,8 +119,13 @@ func drawLineBetween(x1, y1, x2, y2 int, c color.Color, th int) *image.RGBA {
 	if y2 < y1 {
 		ySlope = 1
 	}
-	rect := image.Rect(0, 0, int(xDelta), h)
+	rect := image.Rect(0, 0, int(xDelta)+2*th, h+2*th)
 	rgba := image.NewRGBA(rect)
+
+	x2 += th
+	y2 += th
+	x1 += th
+	y1 += th
 
 	err := xDelta - yDelta
 	var err2 float64
