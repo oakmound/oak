@@ -25,3 +25,7 @@ func (p *Point) SetPos(x, y float64) {
 func (p *Point) GetPos() (float64, float64) {
 	return p.X, p.Y
 }
+
+func (p *Point) GetDims() (int, int) {
+	return 6, 6
+}

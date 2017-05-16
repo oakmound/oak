@@ -86,7 +86,7 @@ func DebugConsole(resetCh, skipScene chan bool) {
 					toFade, ok := render.GetDebugRenderable(tokenString[1])
 					fadeVal := parseTokenAsInt(tokenString, 2, 255)
 					if ok {
-						toFade.(render.Modifiable).Fade(fadeVal)
+						toFade.(render.Modifiable).Modify(render.Fade(fadeVal))
 					} else {
 						fmt.Println("Could not fade input")
 					}

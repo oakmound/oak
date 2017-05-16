@@ -1,10 +1,10 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
-	"image/color"
 	"image/draw"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 // The Compound type is intended for use to easily swap between multiple
@@ -91,57 +91,9 @@ func (c *Compound) GetRGBA() *image.RGBA {
 	return c.subRenderables[c.curRenderable].GetRGBA()
 }
 
-func (c *Compound) ApplyColor(co color.Color) Modifiable {
-	for _, rend := range c.subRenderables {
-		rend.ApplyColor(co)
-	}
-	return c
-}
-
-func (c *Compound) FillMask(img image.RGBA) Modifiable {
-	for _, rend := range c.subRenderables {
-		rend.FillMask(img)
-	}
-	return c
-}
-
-func (c *Compound) ApplyMask(img image.RGBA) Modifiable {
-	for _, rend := range c.subRenderables {
-		rend.ApplyMask(img)
-	}
-	return c
-}
-
-func (c *Compound) Rotate(degrees int) Modifiable {
-	for _, rend := range c.subRenderables {
-		rend.Rotate(degrees)
-	}
-	return c
-}
-
-func (c *Compound) Scale(xRatio float64, yRatio float64) Modifiable {
-	for _, rend := range c.subRenderables {
-		rend.Scale(xRatio, yRatio)
-	}
-	return c
-}
-
-func (c *Compound) FlipX() Modifiable {
-	for _, rend := range c.subRenderables {
-		rend.FlipX()
-	}
-	return c
-}
-
-func (c *Compound) FlipY() Modifiable {
-	for _, rend := range c.subRenderables {
-		rend.FlipY()
-	}
-	return c
-}
-func (c *Compound) Fade(alpha int) Modifiable {
-	for _, rend := range c.subRenderables {
-		rend.Fade(alpha)
+func (c *Compound) Modify(ms ...Modification) Modifiable {
+	for _, r := range c.subRenderables {
+		r.Modify(ms...)
 	}
 	return c
 }
@@ -168,6 +120,10 @@ func (c *Compound) ShiftX(x float64) {
 
 func (c *Compound) SetPos(x, y float64) {
 	c.LayeredPoint.SetPos(x, y)
+}
+
+func (c *Compound) GetDims() (int, int) {
+	return c.subRenderables[c.curRenderable].GetDims()
 }
 
 func (c *Compound) Pause() {
@@ -197,6 +153,15 @@ func (c *Compound) Revert(mod int) {
 		switch t := v.(type) {
 		case *Reverting:
 			t.Revert(mod)
+		}
+	}
+}
+
+func (c *Compound) RevertAll() {
+	for _, v := range c.subRenderables {
+		switch t := v.(type) {
+		case *Reverting:
+			t.RevertAll()
 		}
 	}
 }

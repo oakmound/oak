@@ -1,8 +1,6 @@
 package particle
 
 import (
-	"image"
-
 	"image/draw"
 
 	"bitbucket.org/oakmoundstudio/oak/collision"
@@ -43,8 +41,8 @@ func (cp *CollisionParticle) GetBaseParticle() *BaseParticle {
 func (cp *CollisionParticle) GetPos() physics.Vector {
 	return cp.P.GetPos()
 }
-func (cp *CollisionParticle) GetSize() (float64, float64) {
-	return cp.s.Space().GetW(), cp.s.Space().GetH()
+func (cp *CollisionParticle) GetDims() (int, int) {
+	return int(cp.s.Space().GetW()), int(cp.s.Space().GetH())
 }
 func (cp *CollisionParticle) ShiftX(x float64) {
 	cp.P.ShiftX(x)
@@ -78,8 +76,4 @@ func (cp *CollisionParticle) UnDraw() {
 
 func (cp *CollisionParticle) String() string {
 	return "CollisionParticle"
-}
-
-func (cp *CollisionParticle) GetRGBA() *image.RGBA {
-	return cp.P.GetRGBA()
 }

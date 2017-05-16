@@ -106,16 +106,9 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 					y := int(r.GetY())
 					x2 := x
 					y2 := y
-					rgba := r.GetRGBA()
-					if rgba != nil {
-						max := rgba.Bounds().Max
-						x += max.X
-						y += max.Y
-						// Artificial width and height added due to bug in polygon checking alg
-					} else {
-						x += 6
-						y += 6
-					}
+					w, h := r.GetDims()
+					x += w
+					y += h
 					if x > viewPos.X && y > viewPos.Y &&
 						x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
 

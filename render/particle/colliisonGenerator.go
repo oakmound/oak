@@ -38,7 +38,8 @@ func (cg *CollisionGenerator) GenerateParticle(bp *BaseParticle) Particle {
 
 	w, h, dynamic := cg.Gen.GetParticleSize()
 	if dynamic {
-		w, h = p.GetSize()
+		iw, ih := p.GetDims()
+		w, h = float64(iw), float64(ih)
 	}
 	pos := p.GetPos()
 	return &CollisionParticle{

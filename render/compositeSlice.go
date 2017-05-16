@@ -2,7 +2,6 @@ package render
 
 import (
 	"image"
-	"image/color"
 	"image/draw"
 
 	"bitbucket.org/oakmoundstudio/oak/physics"
@@ -77,21 +76,9 @@ func (cs *Composite) AlwaysDirty() bool {
 	return true
 }
 
-func (cs *Composite) FlipX() Modifiable {
-	for _, v := range cs.rs {
-		v.FlipX()
-	}
-	return cs
-}
-func (cs *Composite) FlipY() Modifiable {
-	for _, v := range cs.rs {
-		v.FlipY()
-	}
-	return cs
-}
-func (cs *Composite) ApplyColor(c color.Color) Modifiable {
-	for _, v := range cs.rs {
-		v.ApplyColor(c)
+func (cs *Composite) Modify(ms ...Modification) Modifiable {
+	for _, r := range cs.rs {
+		r.Modify(ms...)
 	}
 	return cs
 }
@@ -105,36 +92,6 @@ func (cs *Composite) Copy() Modifiable {
 		cs2.rs[i] = v.Copy()
 	}
 	return cs2
-}
-func (cs *Composite) FillMask(img image.RGBA) Modifiable {
-	for _, v := range cs.rs {
-		v.FillMask(img)
-	}
-	return cs
-}
-func (cs *Composite) ApplyMask(img image.RGBA) Modifiable {
-	for _, v := range cs.rs {
-		v.ApplyMask(img)
-	}
-	return cs
-}
-func (cs *Composite) Rotate(degrees int) Modifiable {
-	for _, v := range cs.rs {
-		v.Rotate(degrees)
-	}
-	return cs
-}
-func (cs *Composite) Scale(xRatio float64, yRatio float64) Modifiable {
-	for _, v := range cs.rs {
-		v.Scale(xRatio, yRatio)
-	}
-	return cs
-}
-func (cs *Composite) Fade(alpha int) Modifiable {
-	for _, v := range cs.rs {
-		v.Fade(alpha)
-	}
-	return cs
 }
 
 func (cs *Composite) String() string {
@@ -227,16 +184,9 @@ func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, scree
 		y := int(r.GetY())
 		x2 := x
 		y2 := y
-		rgba := r.GetRGBA()
-		if rgba != nil {
-			max := rgba.Bounds().Max
-			x += max.X
-			y += max.Y
-			// Artificial width and height added due to bug in polygon checking alg
-		} else {
-			x += 6
-			y += 6
-		}
+		w, h := r.GetDims()
+		x += w
+		y += h
 		if x > viewPos.X && y > viewPos.Y &&
 			x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
 
@@ -246,7 +196,6 @@ func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, scree
 		}
 	}
 	cs.rs = cs.rs[0:realLength]
-
 }
 
 func (cs *CompositeR) Draw(buff draw.Image) {

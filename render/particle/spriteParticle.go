@@ -24,7 +24,7 @@ func (sp *SpriteParticle) DrawOffsetGen(generator Generator, buff draw.Image, xO
 
 	sp.rotation += sp.rotation
 	gen := generator.(*SpriteGenerator)
-	rgba := gen.Base.Copy().Rotate(int(sp.rotation)).GetRGBA()
+	rgba := gen.Base.Copy().Modify(render.Rotate(int(sp.rotation))).GetRGBA()
 	render.ShinyDraw(buff, rgba, int(sp.Pos.X+xOff), int(sp.Pos.Y+yOff))
 }
 
@@ -43,6 +43,6 @@ func (sp *SpriteParticle) GetPos() physics.Vector {
 	return sp.Pos
 }
 
-func (sp *SpriteParticle) GetSize() (float64, float64) {
+func (sp *SpriteParticle) GetDims() (int, int) {
 	return 0, 0
 }

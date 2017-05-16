@@ -1,8 +1,9 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"strconv"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 type Layered struct {
@@ -36,6 +37,10 @@ func (ldp *LayeredPoint) ShiftY(y float64) {
 func (ldp *LayeredPoint) SetPos(x, y float64) {
 	ldp.X = x
 	ldp.Y = y
+}
+
+func (ldp *LayeredPoint) GetDims() (int, int) {
+	return 6, 6
 }
 
 func (ldp *LayeredPoint) String() string {

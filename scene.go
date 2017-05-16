@@ -49,7 +49,7 @@ func sceneTransition(result *SceneResult) {
 		length := float32(data[0])
 		for i := float32(0); i < length; i++ {
 			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(),
-				render.Brighten(darkBuffer, rate*i), zeroPoint, screen.Src)
+				render.Brighten(rate*i)(darkBuffer), zeroPoint, screen.Src)
 			windowControl.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
 			windowControl.Publish()
 		}

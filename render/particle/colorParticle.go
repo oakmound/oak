@@ -61,7 +61,6 @@ func (cp *ColorParticle) GetPos() physics.Vector {
 	fSize := float64(cp.size)
 	return physics.NewVector(cp.Pos.X-fSize/2, cp.Pos.Y-fSize/2)
 }
-func (cp *ColorParticle) GetSize() (float64, float64) {
-	fSize := float64(cp.size)
-	return fSize, fSize
+func (cp *ColorParticle) GetDims() (int, int) {
+	return cp.size, cp.size
 }

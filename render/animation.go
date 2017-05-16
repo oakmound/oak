@@ -3,7 +3,6 @@ package render
 import (
 	"errors"
 	"image"
-	"image/color"
 	"image/draw"
 	"time"
 
@@ -79,7 +78,6 @@ func (a_p *Animation) Copy() Modifiable {
 	}
 	*sheetPointer = newSheet
 	newA.sheet = sheetPointer
-	//newA.LayeredPoint = a_p.LayeredPoint
 	return newA
 }
 
@@ -117,80 +115,18 @@ func (a_p *Animation) GetRGBA() *image.RGBA {
 	return (*a_p.sheet)[a_p.frames[a_p.sheetPos][0]][a_p.frames[a_p.sheetPos][1]]
 }
 
-func (a *Animation) ApplyColor(c color.Color) Modifiable {
-	sheet := *a.sheet
-	for x, row := range sheet {
-		for y, rgba := range row {
-			sheet[x][y] = ApplyColor(rgba, c)
-		}
-	}
-	return a
+func (a *Animation) GetDims() (int, int) {
+	r := a.GetRGBA()
+	return r.Bounds().Max.X, r.Bounds().Max.Y
 }
 
-func (a *Animation) FillMask(img image.RGBA) Modifiable {
+func (a *Animation) Modify(ms ...Modification) Modifiable {
 	sheet := *a.sheet
 	for x, row := range sheet {
 		for y, rgba := range row {
-			sheet[x][y] = FillMask(rgba, img)
-		}
-	}
-	return a
-}
-
-func (a *Animation) ApplyMask(img image.RGBA) Modifiable {
-	sheet := *a.sheet
-	for x, row := range sheet {
-		for y, rgba := range row {
-			sheet[x][y] = ApplyMask(rgba, img)
-		}
-	}
-	return a
-}
-
-func (a *Animation) Rotate(degrees int) Modifiable {
-	sheet := *a.sheet
-	for x, row := range sheet {
-		for y, rgba := range row {
-			sheet[x][y] = Rotate(rgba, degrees)
-		}
-	}
-	return a
-}
-
-func (a *Animation) Scale(xRatio float64, yRatio float64) Modifiable {
-	sheet := *a.sheet
-	for x, row := range sheet {
-		for y, rgba := range row {
-			sheet[x][y] = Scale(rgba, xRatio, yRatio)
-		}
-	}
-	return a
-}
-
-func (a *Animation) FlipX() Modifiable {
-	sheet := *a.sheet
-	for x, row := range sheet {
-		for y, rgba := range row {
-			sheet[x][y] = FlipX(rgba)
-		}
-	}
-	return a
-}
-
-func (a *Animation) FlipY() Modifiable {
-	sheet := *a.sheet
-	for x, row := range sheet {
-		for y, rgba := range row {
-			sheet[x][y] = FlipY(rgba)
-		}
-	}
-	return a
-}
-func (a *Animation) Fade(alpha int) Modifiable {
-	sheet := *a.sheet
-	for x, row := range sheet {
-		for y, rgba := range row {
-			sheet[x][y] = Fade(rgba, alpha)
+			for _, m := range ms {
+				sheet[x][y] = m(rgba)
+			}
 		}
 	}
 	return a

@@ -2,7 +2,6 @@ package render
 
 import (
 	"image"
-	"image/color"
 	"image/draw"
 
 	"bitbucket.org/oakmoundstudio/oak/physics"
@@ -33,6 +32,10 @@ func NewSprite(x, y float64, r *image.RGBA) *Sprite {
 func (s *Sprite) GetRGBA() *image.RGBA {
 	return s.r
 }
+func (s *Sprite) GetDims() (int, int) {
+	rgba := s.GetRGBA()
+	return rgba.Bounds().Max.X, rgba.Bounds().Max.Y
+}
 
 func (s *Sprite) SetRGBA(r *image.RGBA) {
 	s.r = r
@@ -56,45 +59,17 @@ func (s *Sprite) IsNil() bool {
 	return s.r == nil
 }
 
-func (s *Sprite) ApplyColor(c color.Color) Modifiable {
-	s.SetRGBA(ApplyColor(s.GetRGBA(), c))
+func (s *Sprite) Modify(ms ...Modification) Modifiable {
+	for _, m := range ms {
+		s.r = m(s.GetRGBA())
+	}
 	return s
 }
 
-func (s *Sprite) FillMask(img image.RGBA) Modifiable {
-	s.SetRGBA(FillMask(s.GetRGBA(), img))
-	return s
-}
-
-func (s *Sprite) ApplyMask(img image.RGBA) Modifiable {
-	s.SetRGBA(ApplyMask(s.GetRGBA(), img))
-	return s
-}
-
-func (s *Sprite) Rotate(degrees int) Modifiable {
-	s.SetRGBA(Rotate(s.GetRGBA(), degrees))
-	return s
-}
-func (s *Sprite) Scale(xRatio float64, yRatio float64) Modifiable {
-	s.SetRGBA(Scale(s.GetRGBA(), xRatio, yRatio))
-	return s
-}
-func (s *Sprite) FlipX() Modifiable {
-	s.SetRGBA(FlipX(s.GetRGBA()))
-	return s
-}
-func (s *Sprite) FlipY() Modifiable {
-	s.SetRGBA(FlipY(s.GetRGBA()))
-	return s
-}
-func (s *Sprite) Fade(alpha int) Modifiable {
-	s.SetRGBA(Fade(s.GetRGBA(), alpha))
-	return s
-}
 func OverlaySprites(sps []Sprite) *Sprite {
 	tmpSprite := sps[len(sps)-1].Copy().(*Sprite)
 	for i := len(sps) - 1; i > 0; i-- {
-		tmpSprite.SetRGBA(FillMask(tmpSprite.GetRGBA(), *sps[i-1].GetRGBA()))
+		tmpSprite.SetRGBA(FillMask(*sps[i-1].GetRGBA())(tmpSprite.GetRGBA()))
 	}
 	return tmpSprite
 }

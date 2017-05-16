@@ -3,7 +3,6 @@
 package particle
 
 import (
-	"image"
 	"image/draw"
 
 	"bitbucket.org/oakmoundstudio/oak/physics"
@@ -14,7 +13,6 @@ type Particle interface {
 	render.Renderable
 	GetBaseParticle() *BaseParticle
 	GetPos() physics.Vector
-	GetSize() (float64, float64)
 	DrawOffsetGen(gen Generator, buff draw.Image, xOff, yOff float64)
 	Cycle(gen Generator)
 }
@@ -27,13 +25,6 @@ type BaseParticle struct {
 	Life      float64
 	totalLife float64
 	pID       int
-}
-
-// A particle has no concept of an individual
-// rgba buffer, and so it returns nothing when its
-// rgba buffer is queried. This may change.
-func (bp *BaseParticle) GetRGBA() *image.RGBA {
-	return nil
 }
 
 func (bp *BaseParticle) ShiftX(x float64) {

@@ -3,10 +3,7 @@
 // those entities to screen.
 package render
 
-import (
-	"image"
-	"image/draw"
-)
+import "image/draw"
 
 // A Renderable is anything which can
 // be drawn at a given draw layer, undrawn,
@@ -29,13 +26,13 @@ type Renderable interface {
 	// consequences.
 	Draw(buff draw.Image)
 	DrawOffset(buff draw.Image, xOff, yOff float64)
-	GetRGBA() *image.RGBA
 	// Basic Implementing struct: Point
 	ShiftX(x float64)
 	GetX() float64
 	ShiftY(y float64)
 	GetY() float64
 	SetPos(x, y float64)
+	GetDims() (int, int)
 	// Basic Implementing struct: Layered
 	GetLayer() int
 	SetLayer(l int)

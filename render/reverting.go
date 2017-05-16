@@ -20,20 +20,18 @@ var (
 )
 
 type Reverting struct {
-	root, current Modifiable
-	mods          [8]interface{}
+	rs []Modifiable
 }
 
 func NewReverting(m Modifiable) *Reverting {
 	rv := new(Reverting)
-	rv.root = m
-	rv.current = m.Copy()
-	rv.mods = emptyMods
+	rv.rs = make([]Modifiable, 1)
+	rv.rs[0] = m
 	return rv
 }
 
 func (rv *Reverting) IsInterruptable() bool {
-	switch t := rv.root.(type) {
+	switch t := rv.rs[0].(type) {
 	case *Animation:
 		return t.Interruptable
 	case *Sequence:
@@ -47,166 +45,97 @@ func (rv *Reverting) IsInterruptable() bool {
 }
 
 func (rv *Reverting) IsStatic() bool {
-	switch rv.root.(type) {
+	switch t := rv.rs[0].(type) {
 	case *Animation, *Sequence:
 		return false
 	case *Reverting:
-		return rv.root.(*Reverting).IsStatic()
+		return t.IsStatic()
 	case *Compound:
-		return rv.root.(*Compound).IsStatic()
+		return t.IsStatic()
 	}
 	return true
 }
 
-func (rv *Reverting) Revert(mod int) {
-	x := rv.current.GetX()
-	y := rv.current.GetY()
-	rv.mods[mod] = emptyMods[mod]
-	rv.current = rv.root.Copy()
-	rv.SetPos(x, y)
-	for mod, in := range rv.mods {
-		switch mod {
-		case F_FlipX:
-			v := (in).(bool)
-			if v {
-				rv.current.FlipX()
-			}
-		case F_FlipY:
-			v := (in).(bool)
-			if v {
-				rv.current.FlipY()
-			}
-		case F_ApplyColor:
-			v := (in).(color.Color)
-			if v != (color.RGBA{0, 0, 0, 0}) {
-				rv.current.ApplyColor(v)
-			}
-		case F_FillMask:
-			v := (in).(image.RGBA)
-			if v.Stride != 0 {
-				rv.current.FillMask(v)
-			}
-		case F_ApplyMask:
-			v := (in).(image.RGBA)
-			if v.Stride != 0 {
-				rv.current.ApplyMask(v)
-			}
-		case F_Rotate:
-			v := (in).(int)
-			if v != 0 {
-				rv.current.Rotate(v)
-			}
-		case F_Scale:
-			v := (in).([2]float64)
-			if v[0] != 0 && v[1] != 0 {
-				rv.current.Scale(v[0], v[1])
-			}
-		case F_Fade:
-			v := (in).(int)
-			if v != 0 {
-				rv.current.Fade(v)
-			}
-		}
+func (rv *Reverting) Revert(n int) {
+	x := rv.current().GetX()
+	y := rv.current().GetY()
+
+	if n >= len(rv.rs) {
+		n = len(rv.rs) - 1
 	}
+
+	rv.rs = rv.rs[:len(rv.rs)-n]
+	rv.SetPos(x, y)
+}
+
+func (rv *Reverting) RevertAll() {
+	rv.Revert(len(rv.rs) - 1)
 }
 
 func (rv *Reverting) DrawOffset(buff draw.Image, xOff, yOff float64) {
-	rv.current.DrawOffset(buff, xOff, yOff)
+	rv.current().DrawOffset(buff, xOff, yOff)
 }
 func (rv *Reverting) Draw(buff draw.Image) {
-	rv.current.Draw(buff)
+	rv.current().Draw(buff)
 }
 func (rv *Reverting) GetRGBA() *image.RGBA {
-	return rv.current.GetRGBA()
+	return rv.current().GetRGBA()
 }
 func (rv *Reverting) ShiftX(x float64) {
-	rv.current.ShiftX(x)
+	rv.current().ShiftX(x)
 }
 func (rv *Reverting) GetX() float64 {
-	return rv.current.GetX()
+	return rv.current().GetX()
 }
 func (rv *Reverting) GetY() float64 {
-	return rv.current.GetY()
+	return rv.current().GetY()
 }
 func (rv *Reverting) ShiftY(y float64) {
-	rv.current.ShiftY(y)
+	rv.current().ShiftY(y)
 }
 func (rv *Reverting) SetPos(x, y float64) {
-	rv.current.SetPos(x, y)
+	rv.current().SetPos(x, y)
+}
+func (rv *Reverting) GetDims() (int, int) {
+	return rv.current().GetDims()
 }
 func (rv *Reverting) GetLayer() int {
-	return rv.current.GetLayer()
+	return rv.current().GetLayer()
 }
 func (rv *Reverting) SetLayer(l int) {
-	rv.current.SetLayer(l)
+	rv.current().SetLayer(l)
 }
 func (rv *Reverting) UnDraw() {
-	rv.current.UnDraw()
+	rv.current().UnDraw()
 }
 
-func (rv *Reverting) FlipX() Modifiable {
-	rv.current.FlipX()
-	rv.mods[F_FlipX] = !(rv.mods[F_FlipX]).(bool)
-	return rv
+func (rv *Reverting) current() Modifiable {
+	return rv.rs[len(rv.rs)-1]
 }
-func (rv *Reverting) FlipY() Modifiable {
-	rv.current.FlipY()
-	rv.mods[F_FlipY] = !(rv.mods[F_FlipY]).(bool)
-	return rv
-}
-func (rv *Reverting) ApplyColor(c color.Color) Modifiable {
-	rv.Revert(F_ApplyColor)
-	rv.current.ApplyColor(c)
-	rv.mods[F_ApplyColor] = c
+
+func (rv *Reverting) Modify(ms ...Modification) Modifiable {
+	next := rv.current().Copy().Modify(ms...)
+	rv.rs = append(rv.rs, next)
 	return rv
 }
 
-func (rv *Reverting) FillMask(img image.RGBA) Modifiable {
-	rv.Revert(F_FillMask)
-	rv.current.FillMask(img)
-	rv.mods[F_FillMask] = img
-	return rv
-}
-func (rv *Reverting) ApplyMask(img image.RGBA) Modifiable {
-	rv.Revert(F_ApplyMask)
-	rv.current.ApplyMask(img)
-	rv.mods[F_ApplyMask] = img
-	return rv
-}
-func (rv *Reverting) Rotate(degrees int) Modifiable {
-	rv.Revert(F_Rotate)
-	rv.current.Rotate(degrees)
-	rv.mods[F_Rotate] = degrees
-	return rv
-}
-func (rv *Reverting) Scale(xRatio float64, yRatio float64) Modifiable {
-	rv.Revert(F_Scale)
-	rv.current.Scale(xRatio, yRatio)
-	rv.mods[F_Scale] = [2]float64{xRatio, yRatio}
-	return rv
-}
-func (rv *Reverting) Fade(alpha int) Modifiable {
-	rv.Revert(F_Fade)
-	rv.current.Fade(alpha)
-	rv.mods[F_Fade] = alpha
-	return rv
-}
 func (rv *Reverting) Copy() Modifiable {
 	newRv := new(Reverting)
-	newRv.root = rv.root.Copy()
-	newRv.current = rv.current.Copy()
-	newRv.mods = rv.mods
+	newRv.rs = make([]Modifiable, len(rv.rs))
+	for i, r := range rv.rs {
+		newRv.rs[i] = r.Copy()
+	}
 	return newRv
 }
 
 func (rv *Reverting) updateAnimation() {
-	switch t := rv.current.(type) {
+	switch t := rv.current().(type) {
 	case *Animation:
 		t.updateAnimation()
 	case *Sequence:
 		t.update()
 	}
-	switch t := rv.root.(type) {
+	switch t := rv.rs[0].(type) {
 	case *Animation:
 		t.updateAnimation()
 	case *Sequence:
@@ -215,18 +144,18 @@ func (rv *Reverting) updateAnimation() {
 }
 
 func (rv *Reverting) Set(k string) {
-	switch t := rv.current.(type) {
+	switch t := rv.current().(type) {
 	case *Compound:
 		t.Set(k)
 	}
-	switch t := rv.root.(type) {
+	switch t := rv.rs[0].(type) {
 	case *Compound:
 		t.Set(k)
 	}
 }
 
 func (rv *Reverting) Pause() {
-	switch t := rv.current.(type) {
+	switch t := rv.current().(type) {
 	case *Animation:
 		t.playing = false
 	case *Compound:
@@ -234,7 +163,7 @@ func (rv *Reverting) Pause() {
 	case *Sequence:
 		t.Pause()
 	}
-	switch t := rv.root.(type) {
+	switch t := rv.rs[0].(type) {
 	case *Animation:
 		t.playing = false
 	case *Compound:
@@ -246,7 +175,7 @@ func (rv *Reverting) Pause() {
 }
 
 func (rv *Reverting) Unpause() {
-	switch t := rv.current.(type) {
+	switch t := rv.current().(type) {
 	case *Animation:
 		t.playing = true
 	case *Compound:
@@ -254,7 +183,7 @@ func (rv *Reverting) Unpause() {
 	case *Sequence:
 		t.Unpause()
 	}
-	switch t := rv.root.(type) {
+	switch t := rv.rs[0].(type) {
 	case *Animation:
 		t.playing = true
 	case *Compound:
@@ -265,9 +194,5 @@ func (rv *Reverting) Unpause() {
 }
 
 func (rv *Reverting) String() string {
-	return rv.current.String()
-}
-
-func (rv *Reverting) AlwaysDirty() bool {
-	return false
+	return rv.current().String()
 }

@@ -82,7 +82,6 @@ func (gp *GradientParticle) GetPos() physics.Vector {
 	fSize := float64(gp.size)
 	return physics.NewVector(gp.Pos.X-fSize/2, gp.Pos.Y-fSize/2)
 }
-func (gp *GradientParticle) GetSize() (float64, float64) {
-	fSize := float64(gp.size)
-	return fSize, fSize
+func (gp *GradientParticle) GetDims() (int, int) {
+	return gp.size, gp.size
 }
