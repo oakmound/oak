@@ -140,7 +140,7 @@ func (s *ScrollBox) SetScrollRate(milliPerPixelX, milliPerPixelY int) {
 func (s *ScrollBox) AddRenderable(rs ...Renderable) {
 	for _, r := range rs {
 		switch r.(type) {
-		case *Text, *IntText:
+		case *Text:
 			r.SetPos(r.GetX()*-1, r.GetY()*-1)
 		}
 		s.Rs = append(s.Rs, r)

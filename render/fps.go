@@ -15,7 +15,7 @@ const (
 type DrawFPS struct {
 	fps      int
 	lastTime time.Time
-	txt      *IntText
+	txt      *Text
 }
 
 func NewDrawFPS() *DrawFPS {

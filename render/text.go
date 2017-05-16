@@ -1,8 +1,8 @@
 package render
 
 import (
-	"image"
 	"image/draw"
+	"strconv"
 
 	"bitbucket.org/oakmoundstudio/oak/physics"
 	"golang.org/x/image/math/fixed"
@@ -10,11 +10,15 @@ import (
 
 type Text struct {
 	LayeredPoint
-	text string
+	text Stringer
 	d    *Font
 }
 
-func (f *Font) NewText(str string, x, y float64) *Text {
+type Stringer interface {
+	String() string
+}
+
+func (f *Font) NewText(str Stringer, x, y float64) *Text {
 	return &Text{
 		LayeredPoint: LayeredPoint{
 			Vector: physics.Vector{
@@ -27,51 +31,69 @@ func (f *Font) NewText(str string, x, y float64) *Text {
 	}
 }
 
-func (t *Text) GetRGBA() *image.RGBA {
-	return nil
-}
-
 func (t *Text) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	t.d.Drawer.Dst = buff
 	t.d.Drawer.Dot = fixed.P(int(t.X+xOff), int(t.Y+yOff))
-	t.d.DrawString(t.text)
+	t.d.DrawString(t.text.String())
 }
 
 func (t *Text) Draw(buff draw.Image) {
 	t.d.Drawer.Dst = buff
 	t.d.Drawer.Dot = fixed.P(int(t.X), int(t.Y))
-	t.d.DrawString(t.text)
+	t.d.DrawString(t.text.String())
 }
 
 // Center will shift the text so that the existing leftmost point
 // where the text sits becomes the center of the new text.
 func (t *Text) Center() {
-	textWidth := t.d.MeasureString(t.text).Round()
+	textWidth := t.d.MeasureString(t.text.String()).Round()
 	t.ShiftX(float64(-textWidth / 2))
 }
 
-func (t *Text) SetText(str string) {
+func (t *Text) SetText(str Stringer) {
 	t.text = str
 }
 
 func (t *Text) String() string {
-	return "Text[" + t.text + "]"
+	return "Text[" + t.text.String() + "]"
 }
 
-// This wrapping isn't pixel specific, but character specific
-// so it can be obviously improved.
 func (t *Text) Wrap(charLimit int, v float64) []*Text {
-	out := make([]*Text, (len(t.text)/charLimit)+1)
+	st := t.text.String()
+	out := make([]*Text, (len(st)/charLimit)+1)
 	start := 0
 	vertical := 0.0
 	for i := range out {
-		if start+charLimit <= len(t.text) {
-			out[i] = t.d.NewText(t.text[start:start+charLimit], t.X, t.Y+vertical)
+		if start+charLimit <= len(st) {
+			out[i] = t.d.NewStrText(st[start:start+charLimit], t.X, t.Y+vertical)
 		} else {
-			out[i] = t.d.NewText(t.text[start:len(t.text)], t.X, t.Y+vertical)
+			out[i] = t.d.NewStrText(st[start:len(st)], t.X, t.Y+vertical)
 		}
 		start += charLimit
 		vertical += v
 	}
 	return out
+}
+
+type stringerIntPointer struct {
+	v *int
+}
+
+func (sip stringerIntPointer) String() string {
+	return strconv.Itoa(*sip.v)
+}
+
+// NewIntText wraps the given int pointer in a stringer interface
+func (f *Font) NewIntText(str *int, x, y float64) *Text {
+	return f.NewText(stringerIntPointer{str}, x, y)
+}
+
+type stringStringer string
+
+func (ss stringStringer) String() string {
+	return string(ss)
+}
+
+func (f *Font) NewStrText(str string, x, y float64) *Text {
+	return f.NewText(stringStringer(str), x, y)
 }
