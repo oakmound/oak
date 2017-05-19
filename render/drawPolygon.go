@@ -15,6 +15,9 @@ func SetDrawPolygon(p clip.Polygon) {
 }
 
 func DrawPolygonDim() (int, int, int, int) {
+	if !usingDrawPolygon {
+		return 0, 0, 0, 0
+	}
 	mbr := drawPolygon.BoundingBox()
 	return int(mbr.Min.X), int(mbr.Min.Y), int(mbr.Max.X), int(mbr.Max.Y)
 }
