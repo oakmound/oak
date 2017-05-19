@@ -6,6 +6,7 @@ import (
 	"image/draw"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/render"
 	"bitbucket.org/oakmoundstudio/oak/timing"
 	"golang.org/x/exp/shiny/screen"
@@ -86,6 +87,7 @@ func DrawLoop() {
 			tx.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
 			windowControl.Scale(windowRect, tx, tx.Bounds(), screen.Src, nil)
 			windowControl.Publish()
+			<-event.TriggerBack("PostDraw", nil)
 		}
 	}
 }

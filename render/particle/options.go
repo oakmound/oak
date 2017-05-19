@@ -13,7 +13,7 @@ func NewPerFrame(npf alg.FloatRange) func(Generator) {
 
 func Pos(x, y float64) func(Generator) {
 	return func(g Generator) {
-		g.GetBaseGenerator().SetPos(x, y)
+		g.SetPos(x, y)
 	}
 }
 
