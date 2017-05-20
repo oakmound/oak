@@ -1,6 +1,10 @@
 package timing
 
-import "time"
+import (
+	"time"
+
+	"bitbucket.org/oakmoundstudio/oak/dlog"
+)
 
 // A DynamicTicker is a ticker which can
 // be sent signals in the form of durations to
@@ -82,6 +86,11 @@ func (dt *DynamicTicker) Step() {
 
 // Stop closes all internal channels and stops dt's internal ticker
 func (dt *DynamicTicker) Stop() {
+	defer func() {
+		if x := recover(); x != nil {
+			dlog.Error("Dynamic Ticker stopped twice")
+		}
+	}()
 	dt.ticker.Stop()
 	select {
 	case <-dt.C:
