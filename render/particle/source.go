@@ -22,10 +22,11 @@ type Source struct {
 	particles  [BLOCK_SIZE]Particle
 	nextPID    int
 	recycled   []int
-	cID        event.CID
+	CID        event.CID
 	pIDBlock   int
 	stackLevel int
 	paused     bool
+	EndFunc    func()
 }
 
 func NewSource(g Generator, stackLevel int) *Source {
@@ -37,10 +38,10 @@ func NewSource(g Generator, stackLevel int) *Source {
 }
 
 func (ps *Source) Init() event.CID {
-	cID := event.NextID(ps)
-	cID.Bind(rotateParticles, "EnterFrame")
-	ps.cID = cID
-	ps.pIDBlock = Allocate(ps.cID)
+	CID := event.NextID(ps)
+	CID.Bind(rotateParticles, "EnterFrame")
+	ps.CID = CID
+	ps.pIDBlock = Allocate(ps.CID)
 	if ps.Generator.GetBaseGenerator().Duration != Inf {
 		go func(ps_p *Source, duration alg.IntRange) {
 			timing.DoAfter(time.Duration(duration.Poll())*time.Millisecond, func() {
@@ -48,7 +49,7 @@ func (ps *Source) Init() event.CID {
 			})
 		}(ps, ps.Generator.GetBaseGenerator().Duration)
 	}
-	return cID
+	return CID
 }
 
 func (ps *Source) CycleParticles() bool {
@@ -194,6 +195,9 @@ func clearParticles(id int, nothing interface{}) int {
 		if ps.CycleParticles() {
 		} else {
 			//fmt.Print("Killed a Source")
+			if ps.EndFunc != nil {
+				ps.EndFunc()
+			}
 			event.DestroyEntity(id)
 			Deallocate(ps.pIDBlock)
 			return event.UNBIND_EVENT
@@ -205,7 +209,7 @@ func clearParticles(id int, nothing interface{}) int {
 // Stop manually stops a Source, if its duration is infinite
 // or if it should be stopped before expriring naturally.
 func (ps *Source) Stop() {
-	ps.cID.UnbindAllAndRebind([]event.Bindable{clearParticles}, []string{"EnterFrame"})
+	ps.CID.UnbindAllAndRebind([]event.Bindable{clearParticles}, []string{"EnterFrame"})
 }
 
 // Pausing a Source just stops the repetition
