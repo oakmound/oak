@@ -43,6 +43,6 @@ func (df *DrawFPS) Copy() Addable {
 
 func (df *DrawFPS) draw(world draw.Image, view image.Point, w, h int) {
 	df.fps = int((timing.FPS(df.lastTime, time.Now()) * FPSSMOOTHING) + (float64(df.fps) * (1 - FPSSMOOTHING)))
-	df.txt.DrawOffset(world, float64(view.X), float64(view.Y))
+	df.txt.Draw(world)
 	df.lastTime = time.Now()
 }

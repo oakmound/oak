@@ -5,6 +5,14 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
+func And(as ...func(Generator)) func(Generator) {
+	return func(g Generator) {
+		for _, a := range as {
+			a(g)
+		}
+	}
+}
+
 func NewPerFrame(npf alg.FloatRange) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().NewPerFrame = npf

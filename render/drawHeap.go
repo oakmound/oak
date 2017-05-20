@@ -81,15 +81,13 @@ func (rh *RenderableHeap) Copy() Addable {
 func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, screenH int) {
 	newRh := &RenderableHeap{}
 	if rh.static {
-		vx := float64(viewPos.X)
-		vy := float64(viewPos.Y)
 		//fmt.Println("There is a static draw heap")
 		for rh.Len() > 0 {
 			rp := heap.Pop(rh)
 			if rp != nil {
 				r := rp.(Renderable)
 				if r.GetLayer() != -1 {
-					r.DrawOffset(world, vx, vy)
+					r.Draw(world)
 					heap.Push(newRh, r)
 				}
 			}
@@ -97,6 +95,8 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 		newRh.static = true
 		//fmt.Println("Heap length", len(rh.rs))
 	} else {
+		vx := float64(-viewPos.X)
+		vy := float64(-viewPos.Y)
 		for rh.Len() > 0 {
 			intf := heap.Pop(rh)
 			if intf != nil {
@@ -111,9 +111,8 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 					y += h
 					if x > viewPos.X && y > viewPos.Y &&
 						x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
-
 						if InDrawPolygon(x, y, x2, y2) {
-							r.Draw(world)
+							r.DrawOffset(world, vx, vy)
 						}
 					}
 					heap.Push(newRh, r)

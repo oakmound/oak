@@ -33,16 +33,6 @@ func lifecycleLoop(s screen.Screen) {
 	screenControl = s
 	var err error
 
-	// The world buffer represents the total space that is conceptualized by the engine
-	// and able to be drawn to. Space outside of this area will appear as smeared
-	// white (on windows).
-	worldBuffer, err = screenControl.NewBuffer(image.Point{WorldWidth, WorldHeight})
-	if err != nil {
-		dlog.Error(err)
-		return
-	}
-	//defer worldBuffer.Release()
-
 	// The window buffer represents the subsection of the world which is available to
 	// be shown in a window.
 	winBuffer, err = screenControl.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
@@ -105,10 +95,6 @@ func GetScreen() *image.RGBA {
 
 func GetWorld() *image.RGBA {
 	return worldBuffer.RGBA()
-}
-
-func SetWorldSize(x, y int) {
-	worldBuffer, _ = screenControl.NewBuffer(image.Point{x, y})
 }
 
 func changeWindow(width, height int) {

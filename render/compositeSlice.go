@@ -191,7 +191,7 @@ func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, scree
 			x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
 
 			if InDrawPolygon(x, y, x2, y2) {
-				r.Draw(world)
+				r.DrawOffset(world, float64(-viewPos.X), float64(-viewPos.Y))
 			}
 		}
 	}

@@ -2,9 +2,10 @@ package render
 
 import (
 	"errors"
-	"fmt"
 	"image"
 	"image/draw"
+
+	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
 var (
@@ -31,8 +32,8 @@ type Addable interface {
 func SetDrawStack(as ...Addable) {
 	GlobalDrawStack = &DrawStack{as: as}
 	initialDrawStack = GlobalDrawStack.Copy()
-	fmt.Println("Global", GlobalDrawStack)
-	fmt.Println("Initial", initialDrawStack)
+	dlog.Info("Global", GlobalDrawStack)
+	dlog.Info("Initial", initialDrawStack)
 }
 
 func ResetDrawStack() {
@@ -58,7 +59,7 @@ func Draw(r Renderable, l int) (Renderable, error) {
 		// Otherwise, l refers to the index within the DrawStack.
 	}
 	if l > len(GlobalDrawStack.as) {
-		fmt.Println("Can't draw that")
+		dlog.Error("Layer", l, "does not exist on global draw stack")
 		return nil, errors.New("Layer does not exist on stack")
 	}
 	return GlobalDrawStack.as[l].Add(r, r.GetLayer()), nil

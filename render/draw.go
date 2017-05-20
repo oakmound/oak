@@ -53,7 +53,7 @@ func DrawForTime(r Renderable, l int, t time.Duration) {
 }
 
 // ReplaceDraw will undraw r1 and draw r2 after the next draw frame
-// Useful for
+// Useful for not working
 func ReplaceDraw(r1, r2 Renderable, stackLayer, layer int) {
 	event.GlobalBind(func(no int, nothing interface{}) int {
 		r1.UnDraw()

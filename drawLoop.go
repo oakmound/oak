@@ -32,11 +32,8 @@ func DrawLoop() {
 		fmt.Println(err)
 	}
 
-	draw.Draw(worldBuffer.RGBA(), worldBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
-	draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), ViewPos, screen.Src)
-	tx.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
-	windowControl.Scale(windowRect, tx, tx.Bounds(), screen.Src, nil)
-	windowControl.Publish()
+	draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
+	drawLoopPublish(tx)
 
 	//DrawTicker = timing.NewDynamicTicker()
 	//DrawTicker.SetTick(timing.FPSToDuration(DrawFrameRate))
@@ -54,15 +51,11 @@ func DrawLoop() {
 			dlog.Verb("Starting loading")
 			for {
 				//<-DrawTicker.C
-				draw.Draw(worldBuffer.RGBA(), winBuffer.Bounds(), imageBlack, ViewPos, screen.Src)
-				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), ViewPos, screen.Src)
-
+				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
 				if loadingR != nil {
 					loadingR.Draw(winBuffer.RGBA())
 				}
-
-				windowControl.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
-				windowControl.Publish()
+				drawLoopPublish(tx)
 
 				select {
 				case <-drawChannel:
@@ -77,16 +70,17 @@ func DrawLoop() {
 			dlog.Verb("Got something from viewport channel")
 			updateScreen(viewPoint[0], viewPoint[1])
 		default:
-			draw.Draw(worldBuffer.RGBA(), worldBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
-
+			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
 			render.PreDraw()
-			render.GlobalDrawStack.Draw(worldBuffer.RGBA(), ViewPos, ScreenWidth, ScreenHeight)
-			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), worldBuffer.RGBA(), ViewPos, screen.Src)
-
-			tx.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
-			windowControl.Scale(windowRect, tx, tx.Bounds(), screen.Src, nil)
-			windowControl.Publish()
+			render.GlobalDrawStack.Draw(winBuffer.RGBA(), ViewPos, ScreenWidth, ScreenHeight)
+			drawLoopPublish(tx)
 			//event.Trigger("PostDraw", nil)
 		}
 	}
+}
+
+func drawLoopPublish(tx screen.Texture) {
+	tx.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
+	windowControl.Scale(windowRect, tx, tx.Bounds(), screen.Src, nil)
+	windowControl.Publish()
 }
