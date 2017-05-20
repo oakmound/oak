@@ -1,8 +1,12 @@
 package collision
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/event"
+	"image/color"
 	"math"
+	"time"
+
+	"bitbucket.org/oakmoundstudio/oak/event"
+	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
 // RayCast returns the set of points where a line
@@ -197,6 +201,23 @@ func ConeCastSingleLabels(x, y, angle, angleWidth, length float64, labels ...int
 	for a := angle; a < angle+angleWidth; a += da {
 		cp := RayCastSingleLabels(x, y, a, length, labels...)
 		if cp.Zone != nil {
+			l := render.NewLine(x, y, cp.X, cp.Y, color.RGBA{0, 0, 255, 255})
+			l.SetLayer(60000)
+			render.DrawForTime(l, 2, time.Millisecond*50)
+			points = append(points, cp)
+		}
+	}
+	return
+}
+
+func ConeCastSingleLabelsCt(x, y, angle, angleWidth, rays, length float64, labels ...int) (points []CollisionPoint) {
+	da := angleWidth / rays
+	for a := angle; a < angle+angleWidth; a += da {
+		cp := RayCastSingleLabels(x, y, a, length, labels...)
+		if cp.Zone != nil {
+			l := render.NewLine(x, y, cp.X, cp.Y, color.RGBA{0, 0, 255, 255})
+			l.SetLayer(60000)
+			render.DrawForTime(l, 2, time.Millisecond*50)
 			points = append(points, cp)
 		}
 	}
