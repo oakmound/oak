@@ -4,7 +4,8 @@ import (
 	"math"
 	"time"
 
-	"bitbucket.org/oakmoundstudio/oak/alg"
+	"github.com/200sc/go-dist/intrange"
+
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/physics"
 	"bitbucket.org/oakmoundstudio/oak/render"
@@ -43,7 +44,7 @@ func (ps *Source) Init() event.CID {
 	ps.CID = CID
 	ps.pIDBlock = Allocate(ps.CID)
 	if ps.Generator.GetBaseGenerator().Duration != Inf {
-		go func(ps_p *Source, duration alg.IntRange) {
+		go func(ps_p *Source, duration intrange.Range) {
 			timing.DoAfter(time.Duration(duration.Poll())*time.Millisecond, func() {
 				ps_p.Stop()
 			})

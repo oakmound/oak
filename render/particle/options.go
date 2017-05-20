@@ -1,8 +1,9 @@
 package particle
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/alg"
 	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/200sc/go-dist/floatrange"
+	"github.com/200sc/go-dist/intrange"
 )
 
 func And(as ...func(Generator)) func(Generator) {
@@ -13,7 +14,7 @@ func And(as ...func(Generator)) func(Generator) {
 	}
 }
 
-func NewPerFrame(npf alg.FloatRange) func(Generator) {
+func NewPerFrame(npf floatrange.Range) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().NewPerFrame = npf
 	}
@@ -25,19 +26,19 @@ func Pos(x, y float64) func(Generator) {
 	}
 }
 
-func LifeSpan(ls alg.FloatRange) func(Generator) {
+func LifeSpan(ls floatrange.Range) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().LifeSpan = ls
 	}
 }
 
-func Angle(a alg.FloatRange) func(Generator) {
+func Angle(a floatrange.Range) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().Angle = a
 	}
 }
 
-func Speed(s alg.FloatRange) func(Generator) {
+func Speed(s floatrange.Range) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().Speed = s
 	}
@@ -49,13 +50,13 @@ func Spread(x, y float64) func(Generator) {
 	}
 }
 
-func Duration(i alg.IntRange) func(Generator) {
+func Duration(i intrange.Range) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().Duration = i
 	}
 }
 
-func Rotation(a alg.FloatRange) func(Generator) {
+func Rotation(a floatrange.Range) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().Rotation = a
 	}

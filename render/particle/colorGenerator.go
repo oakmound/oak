@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"math"
 
-	"bitbucket.org/oakmoundstudio/oak/alg"
+	"github.com/200sc/go-dist/intrange"
 )
 
 type ColorGenerator struct {
@@ -12,7 +12,7 @@ type ColorGenerator struct {
 	StartColor, StartColorRand color.Color
 	EndColor, EndColorRand     color.Color
 	// The size, in pixel radius, of spawned particles
-	Size alg.IntRange
+	Size intrange.Range
 	//
 	// Some sort of particle type, for rendering triangles or squares or circles...
 	Shape ShapeFunction
@@ -35,7 +35,7 @@ func (cg *ColorGenerator) SetDefaults() {
 	cg.StartColorRand = color.RGBA{0, 0, 0, 0}
 	cg.EndColor = color.RGBA{0, 0, 0, 0}
 	cg.EndColorRand = color.RGBA{0, 0, 0, 0}
-	cg.Size = alg.Constant(1)
+	cg.Size = intrange.Constant(1)
 	cg.Shape = Square
 }
 
@@ -82,16 +82,16 @@ func (cg *ColorGenerator) SetEndColor(ec, ecr color.Color) {
 //
 
 type Sizeable interface {
-	SetSize(i alg.IntRange)
+	SetSize(i intrange.Range)
 }
 
-func Size(i alg.IntRange) func(Generator) {
+func Size(i intrange.Range) func(Generator) {
 	return func(g Generator) {
 		g.(Sizeable).SetSize(i)
 	}
 }
 
-func (cg *ColorGenerator) SetSize(i alg.IntRange) {
+func (cg *ColorGenerator) SetSize(i intrange.Range) {
 	cg.Size = i
 }
 

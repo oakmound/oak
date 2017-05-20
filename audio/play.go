@@ -5,12 +5,13 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
+// Play plays a sound from an audio
 func (a *Audio) Play() error {
 	origVolume, _ := a.GetVolume()
 	origFrequency, _ := a.GetFrequency()
 	origPan, _ := a.GetPan()
 	var err error
-	ad := a.AudioData
+	ad := a.Data
 	if a.F.Volume != 0 {
 		err = a.ShiftVolume(a.F.Volume)
 		if err != nil {
@@ -24,9 +25,9 @@ func (a *Audio) Play() error {
 		}
 	}
 	switch a.F.ForceLoop {
-	case FORCE_LOOP:
+	case ForceLoop:
 		ad.SetLooping(true)
-	case FORCE_NO_LOOP:
+	case ForceNoLoop:
 		ad.SetLooping(false)
 	}
 
@@ -53,6 +54,7 @@ func (a *Audio) Play() error {
 	return err
 }
 
+// PlayWav is shorthand for GetWav followed by Play.
 func (f *Font) PlayWav(filename string) error {
 	ad, err := GetWav(filename)
 	if err == nil {
@@ -64,6 +66,7 @@ func (f *Font) PlayWav(filename string) error {
 	return err
 }
 
+// PlayWav with no font calls PlayWav on the default font.
 func PlayWav(filename string) error {
 	return defFont.PlayWav(filename)
 }

@@ -1,13 +1,14 @@
 package particle
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/alg"
 	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/200sc/go-dist/floatrange"
+	"github.com/200sc/go-dist/intrange"
 )
 
 var (
 	// Inf represents Infinite duration
-	Inf = alg.Infinite{}
+	Inf = intrange.NewInfinite()
 )
 
 type Generator interface {
@@ -31,14 +32,14 @@ type BaseGenerator struct {
 	// to something along the lines of 'new per 30 frames',
 	// or allow low fractional values to be meaningful,
 	// so that more fine-tuned particle generation speeds are possible.
-	NewPerFrame alg.FloatRange
+	NewPerFrame floatrange.Range
 	// The number of frames each particle should persist
 	// before being removed.
-	LifeSpan alg.FloatRange
+	LifeSpan floatrange.Range
 	// 0 - between quadrant 1 and 4
 	// 90 - between quadrant 2 and 1
-	Angle  alg.FloatRange
-	Speed  alg.FloatRange
+	Angle  floatrange.Range
+	Speed  floatrange.Range
 	Spread physics.Vector
 	// Duration in milliseconds for the particle source.
 	// After this many milliseconds have passed, it will
@@ -46,9 +47,9 @@ type BaseGenerator struct {
 	// not be removed until their individual lifespans run
 	// out.
 	// A duration of -1 represents never stopping.
-	Duration alg.IntRange
+	Duration intrange.Range
 	// Rotational acceleration, to change angle over time
-	Rotation alg.FloatRange
+	Rotation floatrange.Range
 	// Gravity X and Gravity Y represent particle acceleration per frame.
 	Gravity    physics.Vector
 	SpeedDecay physics.Vector
@@ -59,10 +60,10 @@ type BaseGenerator struct {
 func (bg *BaseGenerator) SetDefaults() {
 	*bg = BaseGenerator{
 		Vector:      physics.NewVector(0, 0),
-		NewPerFrame: alg.Constantf(1),
-		LifeSpan:    alg.Constantf(60),
-		Angle:       alg.Constantf(0),
-		Speed:       alg.Constantf(1),
+		NewPerFrame: floatrange.Constant(1),
+		LifeSpan:    floatrange.Constant(60),
+		Angle:       floatrange.Constant(0),
+		Speed:       floatrange.Constant(1),
 		Spread:      physics.NewVector(0, 0),
 		Duration:    Inf,
 		Rotation:    nil,

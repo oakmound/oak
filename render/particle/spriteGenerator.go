@@ -3,13 +3,14 @@ package particle
 import (
 	"math"
 
-	"bitbucket.org/oakmoundstudio/oak/alg"
+	"github.com/200sc/go-dist/floatrange"
+
 	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
 type SpriteGenerator struct {
 	BaseGenerator
-	SpriteRotation alg.FloatRange
+	SpriteRotation floatrange.Range
 	Base           *render.Sprite
 }
 
@@ -26,7 +27,7 @@ func NewSpriteGenerator(options ...func(Generator)) Generator {
 
 func (sg *SpriteGenerator) SetDefaults() {
 	sg.BaseGenerator.SetDefaults()
-	sg.SpriteRotation = alg.Constantf(0)
+	sg.SpriteRotation = floatrange.Constant(0)
 }
 
 func (sg *SpriteGenerator) Generate(layer int) *Source {
@@ -50,7 +51,7 @@ func (sg *SpriteGenerator) GetBaseGenerator() *BaseGenerator {
 
 type Sprited interface {
 	SetSprite(*render.Sprite)
-	SetSpriteRotation(f alg.FloatRange)
+	SetSpriteRotation(f floatrange.Range)
 }
 
 func Sprite(s *render.Sprite) func(Generator) {
@@ -63,12 +64,12 @@ func (sg *SpriteGenerator) SetSprite(s *render.Sprite) {
 	sg.Base = s
 }
 
-func SpriteRotation(f alg.FloatRange) func(Generator) {
+func SpriteRotation(f floatrange.Range) func(Generator) {
 	return func(g Generator) {
 		g.(Sprited).SetSpriteRotation(f)
 	}
 }
 
-func (sg *SpriteGenerator) SetSpriteRotation(f alg.FloatRange) {
+func (sg *SpriteGenerator) SetSpriteRotation(f floatrange.Range) {
 	sg.SpriteRotation = f
 }

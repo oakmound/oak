@@ -33,7 +33,10 @@ func (s *Sprite) GetRGBA() *image.RGBA {
 	return s.r
 }
 func (s *Sprite) GetDims() (int, int) {
-	rgba := s.GetRGBA()
+	rgba := s.r
+	if rgba == nil {
+		return 6, 6
+	}
 	return rgba.Bounds().Max.X, rgba.Bounds().Max.Y
 }
 
