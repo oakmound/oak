@@ -17,9 +17,12 @@ import (
 	"time"
 )
 
+// LogLevel represents the levels a debug message can have
+type LogLevel int
+
 // Logging levels
 const (
-	NONE = iota
+	NONE LogLevel = iota
 	ERROR
 	WARN
 	INFO
@@ -30,14 +33,16 @@ var (
 	byt         = bytes.NewBuffer(make([]byte, 0))
 	debugLevel  = ERROR
 	debugFilter = ""
-	writer_p    *bufio.Writer
+	writer      *bufio.Writer
 )
 
-// The primary function of the package,
-// dLog prints out and writes to file a string
+// dLog, the primary function of the package,
+// prints out and writes to file a string
 // containing the logged data separated by spaces,
 // prepended with file and line information.
 // It only includes logs which pass the current filters.
+// Todo: use io.Multiwriter to simplify the writing to
+// both logfiles and stdout
 func dLog(console, override bool, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)
@@ -63,8 +68,7 @@ func dLog(console, override bool, in ...interface{}) {
 			fmt.Print(byt.String())
 		}
 
-		if writer_p != nil {
-			writer := *writer_p
+		if writer != nil {
 			_, err := writer.WriteString(byt.String())
 			if err != nil {
 				// We can't log errors while we are in the error
@@ -81,6 +85,8 @@ func dLog(console, override bool, in ...interface{}) {
 	}
 }
 
+// FileWrite runs dLog, but JUST writes to file instead
+// of also to stdout.
 func FileWrite(in ...interface{}) {
 	dLog(false, true, in...)
 }
@@ -99,11 +105,16 @@ func checkFilter(f string, in ...interface{}) bool {
 	return ret || strings.Contains(f, debugFilter)
 }
 
+// SetDebugFilter sets the string which determines
+// what debug messages get printed. Only messages
+// which contain the filer as a pseudo-regex
 func SetDebugFilter(filter string) {
 	debugFilter = filter
 }
 
-func SetDebugLevel(dL int) {
+// SetDebugLevel sets what message levels of debug
+// will be printed.
+func SetDebugLevel(dL LogLevel) {
 	if dL < NONE || dL > VERBOSE {
 		Warn("Unknown debug level: ", dL)
 		debugLevel = NONE
@@ -112,8 +123,10 @@ func SetDebugLevel(dL int) {
 	}
 }
 
+// CreateLogFile creates a file in the 'logs' directory
+// of the starting point of this program to write logs to
 func CreateLogFile() {
-	file := "../logs/dlog"
+	file := "logs/dlog"
 	file += time.Now().Format("_Jan_2_15-04-05_2006")
 	file += ".txt"
 	fHandle, err := os.Create(file)
@@ -125,36 +138,41 @@ func CreateLogFile() {
 		fmt.Println("[oak]-------- No logs directory found. No logs will be written to file.")
 		return
 	}
-	writer_p = bufio.NewWriter(fHandle)
+	writer = bufio.NewWriter(fHandle)
 }
 
+// Error will write a dlog if the debug level is not NONE
 func Error(in ...interface{}) {
 	if debugLevel > NONE {
 		dLog(true, true, in)
 	}
 }
 
+// Warn will write a dLog if the debug level is higher than ERROR
 func Warn(in ...interface{}) {
 	if debugLevel > ERROR {
 		dLog(true, true, in)
 	}
 }
 
+// Info will write a dLog if the debug level is higher than WARN
 func Info(in ...interface{}) {
 	if debugLevel > WARN {
 		dLog(true, false, in)
 	}
 }
 
+// Verb will write a dLog if the debug level is higher than INFO
 func Verb(in ...interface{}) {
 	if debugLevel > INFO {
 		dLog(true, false, in)
 	}
 }
 
+// SetStringDebugLevel parses the input string as one of the debug levels
 func SetStringDebugLevel(debugL string) {
 
-	var dLevel int
+	var dLevel LogLevel
 	switch debugL {
 	case "INFO":
 		dLevel = INFO

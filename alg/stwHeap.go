@@ -6,14 +6,14 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
-type STWHeap struct {
+type stwHeap struct {
 	bh           []float64
 	weightsBelow []float64
 }
 
 // Select Total Weight Heap
-func NewSTWHeap(f []float64) *STWHeap {
-	stwh := new(STWHeap)
+func newSTWHeap(f []float64) *stwHeap {
+	stwh := new(stwHeap)
 	f = append([]float64{0}, f...)
 	// The order of elements literally does not
 	// matter, so 'heap' is a misnomer.
@@ -26,7 +26,7 @@ func NewSTWHeap(f []float64) *STWHeap {
 	return stwh
 }
 
-func (stwh *STWHeap) Pop() int {
+func (stwh *stwHeap) Pop() int {
 	if stwh.weightsBelow[1] <= 0.0 {
 		dlog.Warn("Pop on stwHeap with no remaining elements")
 		return -1

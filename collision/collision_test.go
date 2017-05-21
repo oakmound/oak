@@ -33,7 +33,7 @@ func Benchmark2DRTree(b *testing.B) {
 	curSeed := time.Now().UTC().UnixNano()
 	rand.Seed(curSeed)
 	rt2 := higgs.NewTree(20, 40)
-	var j event.CID = 0
+	var j event.CID
 	for i := 0; i < 500; i++ {
 
 		loc := NewSpace(100*rand.Float64(), 100*rand.Float64(), rand.Float64(), rand.Float64(), j)

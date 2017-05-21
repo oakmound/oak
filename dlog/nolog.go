@@ -19,6 +19,8 @@ const (
 // issues, i.e. in a final release, without having to strip
 // code of calls to logging functions.
 
+// In practice, logging doesn't appear to affect performance terribly.
+
 func SetDebugFilter(filter string) {
 }
 

@@ -165,7 +165,7 @@ func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
 	rects[3][2] = w1
 	rects[3][3] = h1 - (y2 + h2)
 
-	spaces := make([]*Space, 0)
+	var spaces []*Space
 
 	for _, r := range rects {
 		if r[2] > 0 && r[3] > 0 {

@@ -5,11 +5,11 @@ import (
 	"math/rand"
 )
 
-//
-// This algorithm reacts very poorly to zero or negative weights.
-//
+// WeightedChoose will return toChoose indices from weights.
+// the output can have duplicate indices, and zero-weights will
+// cause this algorithm to malfunction.
 func WeightedChoose(weights []float64, toChoose int) ([]int, error) {
-	toChoose_f64 := float64(toChoose)
+	toChoosef := float64(toChoose)
 	lengthWeights := len(weights)
 	out := make([]int, toChoose)
 	remainingWeights := make([]float64, lengthWeights)
@@ -28,11 +28,11 @@ func WeightedChoose(weights []float64, toChoose int) ([]int, error) {
 		}
 		if lengthWeights-i == toChoose {
 			toChoose--
-			toChoose_f64--
+			toChoosef--
 			out[toChoose] = i
-		} else if rand.Float64() < toChoose_f64/v {
+		} else if rand.Float64() < toChoosef/v {
 			toChoose--
-			toChoose_f64--
+			toChoosef--
 			out[toChoose] = i
 		}
 	}
@@ -41,16 +41,19 @@ func WeightedChoose(weights []float64, toChoose int) ([]int, error) {
 
 }
 
-func UniqueChooseX(weights []float64, x int) []int {
-	out := make([]int, x)
-	stwh := NewSTWHeap(weights)
-	for i := 0; i < x; i++ {
+// UniqueChooseX uses a heap structure to poll a set of weights
+// n times. This will never return duplicate weights and due to
+// the heap structure is efficient.
+func UniqueChooseX(weights []float64, n int) []int {
+	out := make([]int, n)
+	stwh := newSTWHeap(weights)
+	for i := 0; i < n; i++ {
 		out[i] = stwh.Pop()
 	}
 	return out
 }
 
-// AKA Roulette search
+// ChooseX AKA Roulette search
 //
 // This algorithm works well, the only issue relative to above
 // is that it can choose the same element multiple times, which
@@ -78,6 +81,8 @@ func ChooseX(weights []float64, x int) []int {
 	return out
 }
 
+// CumWeightedChooseOne returns a single index from the weights given
+// at a rate relative to the magnitude of each weight
 func CumWeightedChooseOne(remainingWeights []float64) int {
 	totalWeight := remainingWeights[0]
 	choice := rand.Float64() * totalWeight
@@ -107,10 +112,9 @@ func CumWeightedChooseOne(remainingWeights []float64) int {
 	}
 }
 
-/*
-* Inefficient implementation but allows the utility to have allocations based on a map
-*@returns the key chosen from the map passed in.
- */
+// CumWeightedFromMap converts the input map into a set where keys are
+// indices and values are weights for CumWeightedChooseOne, then returns
+// the key for CumWeightedChooseOne of the weights.
 func CumWeightedFromMap(weightMap map[int]float64) int {
 	keys := make([]int, len(weightMap))
 	values := make([]float64, len(weightMap))
