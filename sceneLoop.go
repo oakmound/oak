@@ -11,7 +11,7 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/timing"
 )
 
-func SceneLoop(firstScene string) {
+func sceneLoop(firstScene string) {
 	var prevScene string
 
 	sceneMap[firstScene].active = true
@@ -43,7 +43,7 @@ func SceneLoop(firstScene string) {
 		drawChannel <- true
 
 		cont := true
-		logicTicker := LogicLoop()
+		logicTicker := logicLoop()
 		for cont {
 			select {
 			// The quit channel represents a signal

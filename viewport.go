@@ -8,15 +8,17 @@ import (
 )
 
 var (
+	// ViewPos represents the point in the world which the viewport is anchored at.
 	ViewPos       = image.Point{}
 	useViewBounds = false
-	viewBounds    Rect
+	viewBounds    rect
 )
 
-type Rect struct {
+type rect struct {
 	minX, minY, maxX, maxY int
 }
 
+// SetScreen sends a signal to the draw loop to set the viewport to be at x,y
 func SetScreen(x, y int) {
 	dlog.Verb("Requesting ViewPoint ", x, y)
 	viewportChannel <- [2]int{x, y}
@@ -48,6 +50,8 @@ func updateScreen(x, y int) {
 	dlog.Verb("ViewX, Y: ", ViewPos.X, " ", ViewPos.Y)
 }
 
+// SetViewportBounds sets the minimum and maximum position of the viewport, including
+// screen dimensions
 func SetViewportBounds(x1, y1, x2, y2 int) {
 	if x2 < ScreenWidth {
 		x2 = ScreenWidth
@@ -57,7 +61,7 @@ func SetViewportBounds(x1, y1, x2, y2 int) {
 	}
 	dlog.Info("Viewport bounds set to, ", x1, y1, x2, y2)
 	useViewBounds = true
-	viewBounds = Rect{x1, y1, x2, y2}
+	viewBounds = rect{x1, y1, x2, y2}
 }
 
 func moveViewportBinding(speed int) func(int, interface{}) int {

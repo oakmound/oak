@@ -32,12 +32,15 @@ func setDown(key string) {
 	keyLock.Unlock()
 }
 
+// IsDown returns whether a key is held down
 func IsDown(key string) (k bool) {
 	keyLock.RLock()
 	k = keyState[key]
 	keyLock.RUnlock()
 	return
 }
+
+// IsHeld returns whether a key is held down, and for how long
 func IsHeld(key string) (k bool, d time.Duration) {
 	keyLock.RLock()
 	k = keyState[key]
@@ -50,10 +53,14 @@ func IsHeld(key string) (k bool, d time.Duration) {
 	return
 }
 
+// BindKey binds a name to be triggered when this
+// key is triggered
 func BindKey(key string, binding string) {
 	keyBinds[key] = binding
 }
 
+// GetKeyBind returns either whatever name has been bound to
+// a key or the key if nothing has been bound to it.
 func GetKeyBind(key string) string {
 	if v, ok := keyBinds[key]; ok {
 		return v
@@ -61,7 +68,7 @@ func GetKeyBind(key string) string {
 	return key
 }
 
-func KeyHoldLoop() {
+func keyHoldLoop() {
 	var next time.Time
 	var delta time.Duration
 	now := time.Now()
@@ -70,7 +77,7 @@ func KeyHoldLoop() {
 		delta = next.Sub(now)
 		now = next
 		keyLock.RLock()
-		for k, _ := range keyState {
+		for k := range keyState {
 			durationLock.Lock()
 			keyDurations[k] += delta
 			durationLock.Unlock()

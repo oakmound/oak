@@ -8,10 +8,11 @@ import (
 
 var (
 	startupLoadComplete = make(chan bool)
-	loadingR            render.Renderable
+	// LoadingR is a renderable that is displayed during loading screens.
+	LoadingR render.Renderable
 )
 
-func LoadAssets() {
+func loadAssets() {
 	dlog.Info("Loading Images")
 	err := render.BatchLoad(imageDir)
 	if err != nil {
@@ -27,8 +28,4 @@ func LoadAssets() {
 	dlog.Info("Done Loading Audio")
 
 	startupLoadComplete <- true
-}
-
-func SetLoadingR(r render.Renderable) {
-	loadingR = r
 }

@@ -19,7 +19,7 @@ var (
 	eFilter gesture.EventFilter
 )
 
-func InputLoop() {
+func inputLoop() {
 	eFilter = gesture.EventFilter{EventDeque: windowControl}
 	for {
 		e := eFilter.Filter(eFilter.EventDeque.NextEvent()) //Filters an event to see if it fits a defined gesture

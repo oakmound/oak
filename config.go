@@ -16,7 +16,6 @@ var (
 		Debug{"", "ERROR"},
 		Screen{480, 640},
 		Font{"none", 12.0, 72.0, "", "white"},
-		World{4000, 4000},
 		60,
 		60,
 		false,
@@ -30,7 +29,6 @@ type oakConfig struct {
 	Debug         Debug  `json:"debug"`
 	Screen        Screen `json:"screen"`
 	Font          Font   `json:"font"`
-	World         World  `json:"world"`
 	FrameRate     int    `json:"frameRate"`
 	DrawFrameRate int    `json:"drawFrameRate"`
 	ShowFPS       bool   `json:"showFPS"`
@@ -38,24 +36,27 @@ type oakConfig struct {
 	Title         string `json:"title"`
 }
 
+// Assets is a json type storing paths to different asset folders
 type Assets struct {
 	AssetPath string `json:"assetPath"`
 	AudioPath string `json:"audioPath"`
 	ImagePath string `json:"imagePath"`
 	FontPath  string `json:"fontPath"`
 }
+
+// Debug is a json type storing the starting debug filter and level
 type Debug struct {
 	Filter string `json:"filter"`
 	Level  string `json:"level"`
 }
+
+// Screen is a json type storing the starting screen width and height
 type Screen struct {
 	Height int `json:"height"`
 	Width  int `json:"width"`
 }
-type World struct {
-	Height int `json:"height"`
-	Width  int `json:"width"`
-}
+
+// Font is a json type storing the default font settings
 type Font struct {
 	Hinting string  `json:"hinting"`
 	Size    float64 `json:"size"`
@@ -64,6 +65,7 @@ type Font struct {
 	Color   string  `json:"color"`
 }
 
+// LoadConf loads a config file
 func LoadConf(fileName string) (err error) {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -118,13 +120,6 @@ func loadDefaultConf() {
 	}
 	if tmpConf.Font.Color != "" {
 		conf.Font.Color = tmpConf.Font.Color
-	}
-
-	if tmpConf.World.Width != 0 {
-		conf.World.Width = tmpConf.World.Width
-	}
-	if tmpConf.World.Height != 0 {
-		conf.World.Height = tmpConf.World.Height
 	}
 
 	if tmpConf.FrameRate != 0 {

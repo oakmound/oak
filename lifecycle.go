@@ -12,7 +12,6 @@ import (
 )
 
 var (
-	worldBuffer   screen.Buffer
 	winBuffer     screen.Buffer
 	screenControl screen.Screen
 	windowControl screen.Window
@@ -22,6 +21,8 @@ var (
 
 	osCh = make(chan func())
 
+	// LogicTicker is exposed so that games can manually change the speed
+	// at which EnterFrame events are produced
 	LogicTicker *timing.DynamicTicker
 )
 
@@ -49,14 +50,14 @@ func lifecycleLoop(s screen.Screen) {
 
 	eb = event.GetBus()
 
-	go KeyHoldLoop()
-	go InputLoop()
-	go DrawLoop()
+	go keyHoldLoop()
+	go inputLoop()
+	go drawLoop()
 
 	event.ResolvePending()
 }
 
-// do runs f on the osLocked thread.
+// runs f on the osLocked thread.
 func osLockedFunc(f func()) {
 	done := make(chan bool, 1)
 	osCh <- func() {
@@ -66,7 +67,7 @@ func osLockedFunc(f func()) {
 	<-done
 }
 
-func LogicLoop() chan bool {
+func logicLoop() chan bool {
 	// The logical loop.
 	// In order, it waits on receiving a signal to begin a logical frame.
 	// It then runs any functions bound to when a frame begins.
@@ -89,14 +90,6 @@ func LogicLoop() chan bool {
 	return ch
 }
 
-func GetScreen() *image.RGBA {
-	return winBuffer.RGBA()
-}
-
-func GetWorld() *image.RGBA {
-	return worldBuffer.RGBA()
-}
-
 func changeWindow(width, height int) {
 	//windowFlag := windowControl != nil
 	//if windowFlag {
@@ -106,7 +99,7 @@ func changeWindow(width, height int) {
 	//}
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
-	wC, err := WindowController(screenControl, width, height)
+	wC, err := windowController(screenControl, width, height)
 	if err != nil {
 		dlog.Error(err)
 		panic(err)
@@ -120,7 +113,13 @@ func changeWindow(width, height int) {
 	//}
 }
 
+// ChangeWindow sets the width and height of the game window. But it doesn't.
 func ChangeWindow(width, height int) {
 	//osLockedFunc(func() { changeWindow(width, height) })
 	windowRect = image.Rect(0, 0, width, height)
+}
+
+// GetScreen returns the current screen as an rgba buffer
+func GetScreen() *image.RGBA {
+	return winBuffer.RGBA()
 }

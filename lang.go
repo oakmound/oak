@@ -6,15 +6,21 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
+// Language is hypothetically something games might care about in their text
+type Language int
+
 var (
-	Lang int
+	// Lang is the current langugae
+	Lang Language
 )
 
+// Lang enumerator
 const (
-	ENGLISH = iota
+	ENGLISH Language = iota
 	GERMAN
 )
 
+// SetLang parses a string as a language
 func SetLang(s string) {
 	s = strings.ToUpper(s)
 	switch s {

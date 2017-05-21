@@ -18,7 +18,7 @@ import (
 
 var (
 	viewportLocked = true
-	cheats         = make(map[string]func([]string))
+	commands       = make(map[string]func([]string))
 )
 
 // AddCommand is an alias for AddCheat for things
@@ -26,14 +26,10 @@ var (
 // console commands.
 // We probably only want one of the two of these
 func AddCommand(s string, fn func([]string)) {
-	AddCheat(s, fn)
+	commands[s] = fn
 }
 
-func AddCheat(s string, fn func([]string)) {
-	cheats[s] = fn
-}
-
-func DebugConsole(resetCh, skipScene chan bool) {
+func debugConsole(resetCh, skipScene chan bool) {
 	scanner := bufio.NewScanner(os.Stdin)
 	spew.Config.DisableMethods = true
 	spew.Config.MaxDepth = 2
@@ -57,8 +53,8 @@ func DebugConsole(resetCh, skipScene chan bool) {
 			switch tokenString[0] {
 			case "cheat", "c":
 				// Requires that cheats are all one word! <-- don't forget
-				fmt.Println(cheats, tokenString[1])
-				if fn, ok := cheats[tokenString[1]]; ok {
+				fmt.Println(commands, tokenString[1])
+				if fn, ok := commands[tokenString[1]]; ok {
 					fn(tokenString[1:])
 				}
 			case "viewport":

@@ -54,11 +54,18 @@ var (
 	runEventLoop         bool
 	debugResetInProgress bool
 
-	ScreenWidth   int
-	ScreenHeight  int
-	WorldWidth    int
-	WorldHeight   int
-	FrameRate     int
+	// ScreenWidth is the width of the screen
+	ScreenWidth int
+	// ScreenHeight is the height of the screen
+	ScreenHeight int
+
+	// FrameRate is the current logical frame rate.
+	// Changing this won't directly effect frame rate, that
+	// requires changing the LogicTicker, but it will take
+	// effect next scene
+	FrameRate int
+
+	// DrawFrameRate is the unused equivalent to FrameRate
 	DrawFrameRate int
 
 	eb *event.Bus
@@ -70,7 +77,9 @@ var (
 	// GlobalFirstScene is returned by the first
 	// loading scene
 	globalFirstScene string
-	CurrentScene     string
+
+	// CurrentScene is the scene currently running in oak
+	CurrentScene string
 
 	zeroPoint = image.Point{0, 0}
 )
@@ -89,8 +98,6 @@ func Init(firstScene string) {
 
 	ScreenWidth = conf.Screen.Width
 	ScreenHeight = conf.Screen.Height
-	WorldWidth = conf.World.Width
-	WorldHeight = conf.World.Height
 	FrameRate = conf.FrameRate
 	DrawFrameRate = conf.DrawFrameRate
 
@@ -110,12 +117,12 @@ func Init(firstScene string) {
 	mouse.Init()
 	audio.InitWinAudio()
 
-	SeedRNG(DEFAULT_SEED)
+	SeedRNG(DefaultSeed)
 
-	go LoadAssets()
+	go loadAssets()
 	go driver.Main(lifecycleLoop)
-	go DebugConsole(debugResetCh, skipSceneCh)
+	go debugConsole(debugResetCh, skipSceneCh)
 
 	// Loop through scenes
-	SceneLoop(firstScene)
+	sceneLoop(firstScene)
 }

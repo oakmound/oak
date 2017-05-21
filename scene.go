@@ -35,6 +35,7 @@ var (
 )
 
 // Transition types
+// Theses will be refactored to use function pointers sometime
 const (
 	TRANSITION_NONE = iota
 	TRANSITION_FADE
@@ -58,6 +59,8 @@ func sceneTransition(result *SceneResult) {
 	}
 }
 
+// A Scene is a set of functions defining what needs to happen when a scene
+// starts, loops, and ends.
 type Scene struct {
 	active bool
 	start  SceneStart
@@ -65,20 +68,31 @@ type Scene struct {
 	end    SceneEnd
 }
 
+// A SceneResult is a set of options for what should be passed into the next
+// scene and how the next scene should be transitioned to.
 type SceneResult struct {
 	NextSceneInput    interface{}
 	TransitionType    int
 	TransitionPayload interface{}
 }
 
+// SceneEnd is a function returning the next scene and a SceneResult
 type SceneEnd func() (string, *SceneResult)
+
+// SceneStart is a function taking in a previous scene and a payload
+// of data from the previous scene's end
 type SceneStart func(prevScene string, data interface{})
+
+// SceneUpdate is a function that returns whether or not the current scene
+// should continue to loop.
 type SceneUpdate func() bool
 
+// GetScene returns the scene struct with the given name
 func GetScene(s string) *Scene {
 	return sceneMap[s]
 }
 
+// AddScene adds a scene with the given name and functions to the scene map
 func AddScene(name string, start SceneStart, loop SceneUpdate, end SceneEnd) error {
 	fmt.Println("[oak]-------- Adding", name)
 	if _, ok := sceneMap[name]; !ok {

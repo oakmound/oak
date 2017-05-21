@@ -9,18 +9,24 @@ import (
 )
 
 const (
-	DEFAULT_SEED = iota
+	// DefaultSeed is a key int64 sent in to SeedRNG
+	// used to indicate that the seed function should just
+	// do the default operation for seeding, using the current
+	// time.
+	DefaultSeed = iota
 )
 
 var (
 	currentSeed int64
 )
 
+// SeedRNG seeds go's random number generator
+// and logs the seed set to file.
 func SeedRNG(curSeed int64) {
-	if currentSeed != 0 && curSeed == DEFAULT_SEED {
+	if currentSeed != 0 && curSeed == DefaultSeed {
 		return
 	}
-	if curSeed == DEFAULT_SEED {
+	if curSeed == DefaultSeed {
 		curSeed = time.Now().UTC().UnixNano()
 	}
 	rand.Seed(curSeed)

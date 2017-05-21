@@ -13,6 +13,7 @@ import (
 
 var (
 	imageBlack = image.Black
+	// DrawTicker is an unused parallel to LogicTicker to set the draw framerate
 	DrawTicker *timing.DynamicTicker
 )
 
@@ -24,7 +25,7 @@ var (
 // 4. run any functions bound to follow drawing.
 // 5. draw the buffer's data at the viewport's position to the screen.
 // 6. publish the screen to display in window.
-func DrawLoop() {
+func drawLoop() {
 	<-drawChannel
 
 	tx, err := screenControl.NewTexture(winBuffer.Bounds().Max)
@@ -52,8 +53,8 @@ func DrawLoop() {
 			for {
 				//<-DrawTicker.C
 				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
-				if loadingR != nil {
-					loadingR.Draw(winBuffer.RGBA())
+				if LoadingR != nil {
+					LoadingR.Draw(winBuffer.RGBA())
 				}
 				drawLoopPublish(tx)
 
