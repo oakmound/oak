@@ -1,11 +1,16 @@
 package mouse
 
 import (
+	"time"
+
 	"bitbucket.org/oakmoundstudio/oak/physics"
 	"golang.org/x/exp/shiny/gesture"
-	"time"
 )
 
+// A GestureEvent is a conversion of a shiny Gesture to our local type so we
+// don't need to import shiny variables in more places.
+// GestureEvents contain information about mouse events that are not single actions,
+// like drags, holds, and double clicks.
 type GestureEvent struct {
 	Drag        bool
 	LongPress   bool
@@ -17,6 +22,7 @@ type GestureEvent struct {
 	Time time.Time
 }
 
+// FromShinyGesture converts a shiny gesture.Event to a GestureEvent
 func FromShinyGesture(shinyGesture gesture.Event) GestureEvent {
 
 	return GestureEvent{

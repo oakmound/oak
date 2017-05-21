@@ -83,7 +83,7 @@ func InputLoop() {
 			} else {
 				eventName = "MouseDrag"
 			}
-			mevent := pmouse.MouseEvent{
+			mevent := pmouse.Event{
 				X:      e.X / float32(windowRect.Max.X) * float32(ScreenWidth),
 				Y:      e.Y / float32(windowRect.Max.Y) * float32(ScreenHeight),
 				Button: button,
