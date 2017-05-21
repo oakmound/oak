@@ -16,9 +16,9 @@ const (
 	PID
 )
 
-// Spaces are a rectangle
+// A Space is a rectangle
 // with a couple of ways of identifying
-// the underlying object.
+// an underlying object.
 type Space struct {
 	Location *rtreego.Rect
 	// A label can store type information.
@@ -37,38 +37,48 @@ func (s *Space) Bounds() *rtreego.Rect {
 	return s.Location
 }
 
+// GetX returns a space's x position (leftmost)
 func (s *Space) GetX() float64 {
 	return s.Location.PointCoord(0)
 }
 
+// GetY returns a space's y position (upmost)
 func (s *Space) GetY() float64 {
 	return s.Location.PointCoord(1)
 }
 
+// GetW returns a space's width (rightmost x - leftmost x)
 func (s *Space) GetW() float64 {
 	return s.Location.LengthsCoord(0)
 }
 
+// GetH returns a space's height (upper y - lower y)
 func (s *Space) GetH() float64 {
 	return s.Location.LengthsCoord(1)
 }
 
+// GetCenter returns the center point of the space
 func (s *Space) GetCenter() (float64, float64) {
 	return s.GetX() + s.GetW()/2, s.GetY() + s.GetH()/2
 }
 
+// GetPos returns both y and x
 func (s *Space) GetPos() (float64, float64) {
 	return s.Location.PointCoord(1), s.Location.PointCoord(0)
 }
 
+// Above returns how much above this space another space is
 func (s *Space) Above(other *Space) float64 {
 	return other.GetY() - s.GetY()
 }
 
+// Below returns how much below this space another space is,
+// Equivalent to -1 * Above
 func (s *Space) Below(other *Space) float64 {
 	return s.GetY() - other.GetY()
 }
 
+// Contains returns whether this space contains other
 func (s *Space) Contains(other *Space) bool {
 	//You contain another space if it is fully inside your space
 	//If you are the same size and location as the space you are checking then you both contain eachother
@@ -79,14 +89,18 @@ func (s *Space) Contains(other *Space) bool {
 	return true
 }
 
+// LeftOf returns how far to the left other is of this space
 func (s *Space) LeftOf(other *Space) float64 {
 	return other.GetX() - s.GetX()
 }
 
+// RightOf returns how far to the right other is of this space.
+// Equivalent to -1 * LeftOf
 func (s *Space) RightOf(other *Space) float64 {
 	return s.GetX() - other.GetX()
 }
 
+// Overlap returns how much this space overlaps with another space
 func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
 	if s.GetX() > other.GetX() {
 		x2 := other.GetX() + other.GetW()
@@ -113,10 +127,12 @@ func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
 	return
 }
 
+// SetDim sets the dimensions of the space
 func (s *Space) SetDim(w, h float64) {
 	s.Update(s.GetX(), s.GetY(), w, h)
 }
 
+// Update updates this space with the package global rtree
 func (s *Space) Update(x, y, w, h float64) {
 	loc := NewRect(x, y, w, h)
 	rt.Delete(s)
@@ -124,17 +140,23 @@ func (s *Space) Update(x, y, w, h float64) {
 	rt.Insert(s)
 }
 
+// UpdateLabel changes the label behind this space and resets
+// it in the package globa rtree
 func (s *Space) UpdateLabel(classtype int) {
 	rt.Delete(s)
 	s.Label = classtype
 	rt.Insert(s)
 }
 
+// OverlapVector returns Overlap as a vector
 func (s *Space) OverlapVector(other *Space) physics.Vector {
 	xover, yover := s.Overlap(other)
 	return physics.NewVector(-xover, -yover)
 }
 
+// SubtractRect removes a rectangle from this rectangle and
+// returns the rectangles remaining after the portion has been
+// removed
 func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
 	x1 := s.GetX()
 	y1 := s.GetY()
@@ -183,24 +205,17 @@ func (s *Space) String() string {
 		strconv.FormatFloat(s.GetH(), 'f', 2, 32)
 }
 
+// NewUnassignedSpace returns a space that just has a rectangle
 func NewUnassignedSpace(x, y, w, h float64) *Space {
-	rect := NewRect(x, y, w, h)
-	return &Space{
-		Location: rect,
-		Type:     NONE,
-	}
+	return NewLabeledSpace(x, y, w, h, 0)
 }
 
+// NewSpace returns a space with an associated caller id
 func NewSpace(x, y, w, h float64, cID event.CID) *Space {
-	rect := NewRect(x, y, w, h)
-	return &Space{
-		rect,
-		-1,
-		cID,
-		CID,
-	}
+	return NewFullSpace(x, y, w, h, -1, cID)
 }
 
+// NewLabeledSpace returns a space with an associated integer label
 func NewLabeledSpace(x, y, w, h float64, l int) *Space {
 	rect := NewRect(x, y, w, h)
 	return &Space{
@@ -210,6 +225,7 @@ func NewLabeledSpace(x, y, w, h float64, l int) *Space {
 	}
 }
 
+// NewFullSpace returns a space with both a label and a caller id
 func NewFullSpace(x, y, w, h float64, l int, cID event.CID) *Space {
 	rect := NewRect(x, y, w, h)
 	return &Space{

@@ -1,46 +1,47 @@
 package collision
 
+// ReactiveSpace is a space that keeps track of a map of collision events
 type ReactiveSpace struct {
-	S      *Space
+	*Space
 	onHits map[int]OnHit
 }
 
+// NewEmptyReactiveSpace returns a reactive space with no onHit mapping
 func NewEmptyReactiveSpace(s *Space) *ReactiveSpace {
 	return &ReactiveSpace{
-		S:      s,
+		Space:  s,
 		onHits: make(map[int]OnHit),
 	}
 }
 
+// NewReactiveSpace creates a reactive space
 func NewReactiveSpace(s *Space, onHits map[int]OnHit) *ReactiveSpace {
 	return &ReactiveSpace{
-		S:      s,
+		Space:  s,
 		onHits: onHits,
 	}
 }
 
+// CallOnHits calls CallOnHits on the underlying space of a reactive space
+// with the reactive spaces' map of collision events, and returns the channel
+// it will send the done signal from.
 func (rs *ReactiveSpace) CallOnHits() chan bool {
 	doneCh := make(chan bool)
-	go CallOnHits(rs.S, rs.onHits, doneCh)
+	go CallOnHits(rs.Space, rs.onHits, doneCh)
 	return doneCh
 }
 
+// Add adds a mapping to a reactive spaces' onhit map
 func (rs *ReactiveSpace) Add(i int, oh OnHit) {
 	rs.onHits[i] = oh
 }
 
+// Remove removes a mapping from a reactive spaces' onhit map
 func (rs *ReactiveSpace) Remove(i int) {
 	delete(rs.onHits, i)
 }
 
+// Clear resets a reactive space's onhit map
 func (rs *ReactiveSpace) Clear() {
 	rs.onHits = make(map[int]OnHit)
-}
-
-func (rs *ReactiveSpace) Space() *Space {
-	return rs.S
-}
-
-func (rs *ReactiveSpace) SetDim(w, h float64) {
-	rs.S.Update(rs.S.GetX(), rs.S.GetY(), w, h)
 }

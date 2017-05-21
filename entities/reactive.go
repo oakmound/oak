@@ -1,10 +1,11 @@
 package entities
 
 import (
+	"strconv"
+
 	"bitbucket.org/oakmoundstudio/oak/collision"
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/physics"
-	"strconv"
 )
 
 type InteractVector struct {
@@ -61,13 +62,13 @@ func (r *Reactive) SetLogicDim(w, h float64) {
 }
 
 func (r *Reactive) SetSpace(sp *collision.ReactiveSpace) {
-	collision.Remove(r.RSpace.Space())
+	collision.Remove(r.RSpace.Space)
 	r.RSpace = sp
-	collision.Add(r.RSpace.Space())
+	collision.Add(r.RSpace.Space)
 }
 
 func (r *Reactive) GetSpace() *collision.Space {
-	return r.RSpace.Space()
+	return r.RSpace.Space
 }
 
 // Overwrites
@@ -87,13 +88,13 @@ func (r *Reactive) SetPos(x, y float64) {
 	r.R.SetPos(x, y)
 
 	if r.RSpace != nil {
-		collision.UpdateSpace(r.X, r.Y, r.W, r.H, r.RSpace.Space())
+		collision.UpdateSpace(r.X, r.Y, r.W, r.H, r.RSpace.Space)
 	}
 }
 
 func (r *Reactive) Destroy() {
 	r.R.UnDraw()
-	collision.Remove(r.RSpace.Space())
+	collision.Remove(r.RSpace.Space)
 	r.CID.UnbindAll()
 	event.DestroyEntity(int(r.CID))
 }
@@ -106,7 +107,7 @@ func (r *Reactive) String() string {
 	h := strconv.FormatFloat(r.H, 'f', 2, 32)
 	st += "W: " + w + ", H: " + h
 	st += ",\nS:{ "
-	st += r.RSpace.Space().String()
+	st += r.RSpace.String()
 	st += "}"
 	return st
 }

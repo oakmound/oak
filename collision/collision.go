@@ -5,6 +5,8 @@ package collision
 import (
 	"sync"
 
+	"bitbucket.org/oakmoundstudio/oak/physics"
+
 	"github.com/Sythe2o0/rtreego"
 )
 
@@ -13,16 +15,21 @@ var (
 	addLock = sync.Mutex{}
 )
 
-// A CollisionPoint is a specific point where
+// A Point is a specific point where
 // collision occured and a zone to identify
 // what was collided with.
-type CollisionPoint struct {
+type Point struct {
+	physics.Vector
 	Zone *Space
-	X, Y float64
 }
 
-// IsNil returns whether the underlying zone of a collisionPoint is nil
-func (cp CollisionPoint) IsNil() bool {
+// NewPoint creates a new point
+func NewPoint(s *Space, x, y float64) Point {
+	return Point{physics.NewVector(x, y), s}
+}
+
+// IsNil returns whether the underlying zone of a Point is nil
+func (cp Point) IsNil() bool {
 	return cp.Zone == nil
 }
 
