@@ -47,7 +47,7 @@ func lifecycleLoop(s screen.Screen) {
 	changeWindow(ScreenWidth, ScreenHeight)
 	//defer windowControl.Release()
 
-	eb = event.GetEventBus()
+	eb = event.GetBus()
 
 	go KeyHoldLoop()
 	go InputLoop()

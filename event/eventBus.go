@@ -14,32 +14,39 @@ import (
 )
 
 var (
-	thisBus      = &EventBus{make(map[string]map[int]*BindableStore)}
+	thisBus      = &Bus{make(map[string]map[int]*bindableStore)}
 	mutex        = sync.RWMutex{}
 	pendingMutex = sync.Mutex{}
 )
 
 const (
-	NO_RESPONSE = iota
-	ERROR
-	// UNBIND_EVENT unbinds everything for a specific
+	// NoResponse or 0, is returned by events that
+	// don't want the event bus to do anything with
+	// the event after they have been evaluated. This
+	// is the usual behavior.
+	NoResponse = iota
+	// Error should be returned by events that in some way
+	// caused an error to happen, but this does not do anything
+	// in the engine right now.
+	Error
+	// UnbindEvent unbinds everything for a specific
 	// event name from an entity at the bindable's
 	// priority.
-	UNBIND_EVENT
-	// We can't unbind a single bindable efficiently,
-	// so UNBIND_EVENT is recommended.
-	UNBIND_SINGLE
+	UnbindEvent
+	// UnbindSingle just unbinds the one binding that
+	// it is returned from
+	UnbindSingle
 )
 
-// This is a way of saying "Any function
+// Bindable is a way of saying "Any function
 // that takes a generic struct of data
 // and returns an error can be bound".
 type Bindable func(int, interface{}) int
 
-// This just stores other relevant data
+// BindableList just stores other relevant data
 // that a list of bindables needs to
 // operate efficiently
-type BindableList struct {
+type bindableList struct {
 	sl []Bindable
 	// We keep track of where the next nil
 	// element in our list is, so we
@@ -51,16 +58,16 @@ type BindableList struct {
 	nextEmpty int
 }
 
-type BindableStore struct {
+type bindableStore struct {
 	// Priorities can be in a range
 	// from -32 to 32. Below 0,
 	// goes into lowPriority.
 	// Above 0, goes into highPriority.
 	// No priority makes it default to
 	// take place between high and low.
-	lowPriority     [32]*BindableList
-	defaultPriority *BindableList
-	highPriority    [32]*BindableList
+	lowPriority     [32]*bindableList
+	defaultPriority *bindableList
+	highPriority    [32]*bindableList
 
 	// These internally keep track
 	// where we start / stop checking
@@ -69,49 +76,54 @@ type BindableStore struct {
 	highIndex int
 }
 
-type EventBus struct {
-	bindingMap map[string]map[int]*BindableStore
+// A Bus stores bindables to be triggered by events
+type Bus struct {
+	bindingMap map[string]map[int]*bindableStore
 }
 
-// We keep a reference to caller
-// in case an entity wants to
-// unbind events related to itself
-// (or some other entity)
+// An Event is an event name and an associated caller id
 type Event struct {
 	Name     string
 	CallerID int
 }
 
-// Populated by callers of Bind.
+// BindingOption is all the information required
+// to bind something
 type BindingOption struct {
 	Event
 	Priority int
 }
 
+// UnbindOption stores information necessary
+// to unbind a bindable
 type UnbindOption struct {
 	BindingOption
 	fn Bindable
 }
 
-// Stores data necessary
+// Binding stores data necessary
 // to trace back to a bindable function
-// and remove it from an eventBus
+// and remove it from an Bus
 type Binding struct {
 	BindingOption
 	index int
 }
 
+// A CID is a caller ID that entities use to trigger and bind functionality
 type CID int
 
 func (cid CID) String() string {
 	return strconv.Itoa(int(cid))
 }
 
+// E is shorthand for GetEntity(int(cid))
 func (cid CID) E() interface{} {
 	return GetEntity(int(cid))
 }
 
-func GetEventBus() *EventBus {
+// GetBus exposes the package global event bus that probably shouldn't be
+// package global
+func GetBus() *Bus {
 	return thisBus
 }
 
@@ -123,10 +135,11 @@ var (
 	unbindAllAndRebinds = []UnbindAllOption{}
 )
 
-func ResetEventBus() {
+// ResetBus empties out all transient portions of the package global bus
+func ResetBus() {
 	mutex.Lock()
 	pendingMutex.Lock()
-	thisBus = &EventBus{make(map[string]map[int]*BindableStore)}
+	thisBus = &Bus{make(map[string]map[int]*bindableStore)}
 	binds = []UnbindOption{}
 	partUnbinds = []BindingOption{}
 	fullUnbinds = []UnbindOption{}
@@ -136,19 +149,15 @@ func ResetEventBus() {
 	mutex.Unlock()
 }
 
-//Todo: what are these fucking names
+// UnbindAllOption stores information needed to unbind and rebind
 type UnbindAllOption struct {
 	ub   BindingOption
 	bs   []BindingOption
 	bnds []Bindable
 }
 
-// This is the exact same as unbind option
-type bindableAndOption struct {
-	bnd Bindable
-	opt BindingOption
-}
-
+// ResolvePending is a contant loop that tracks slices of bind or unbind calls
+// and resolves them individually such that they don't break the bus
 func ResolvePending() {
 	schedCt := 0
 	for {
@@ -281,20 +290,18 @@ func ResolvePending() {
 }
 
 // Store a bindable into a BindableList.
-func (bl_p *BindableList) storeBindable(fn Bindable) int {
-
-	bl := (*bl_p)
+func (bl *bindableList) storeBindable(fn Bindable) int {
 
 	i := bl.nextEmpty
 	if len(bl.sl) == i {
-		bl_p.sl = append(bl.sl, fn)
+		bl.sl = append(bl.sl, fn)
 	} else {
-		bl_p.sl[i] = fn
+		bl.sl[i] = fn
 	}
 
 	// Find the next empty space
-	for len(bl_p.sl) != bl_p.nextEmpty && bl_p.sl[bl_p.nextEmpty] != nil {
-		bl_p.nextEmpty++
+	for len(bl.sl) != bl.nextEmpty && bl.sl[bl.nextEmpty] != nil {
+		bl.nextEmpty++
 	}
 
 	return i
@@ -309,7 +316,7 @@ func (bl_p *BindableList) storeBindable(fn Bindable) int {
 // At all costs, this should be avoided, and
 // returning "UNBIND_SINGLE" from the function
 // itself is much safer!
-func (bl *BindableList) removeBindable(fn Bindable) {
+func (bl *bindableList) removeBindable(fn Bindable) {
 	i := 0
 	v := reflect.ValueOf(fn)
 	for {
@@ -323,11 +330,11 @@ func (bl *BindableList) removeBindable(fn Bindable) {
 }
 
 // Remove a bindable from a BindableList
-func (bl *BindableList) removeBinding(b Binding) {
+func (bl *bindableList) removeBinding(b Binding) {
 	bl.removeIndex(b.index)
 }
 
-func (bl *BindableList) removeIndex(i int) {
+func (bl *bindableList) removeIndex(i int) {
 	if len(bl.sl) < i+1 {
 		return
 	}
@@ -339,20 +346,20 @@ func (bl *BindableList) removeIndex(i int) {
 	}
 }
 
-func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
+func (eb *Bus) getBindableList(opt BindingOption) *bindableList {
 
 	if m, _ := eb.bindingMap[opt.Name]; m == nil {
-		eb.bindingMap[opt.Name] = make(map[int]*BindableStore)
+		eb.bindingMap[opt.Name] = make(map[int]*bindableStore)
 	}
 
 	if m, _ := eb.bindingMap[opt.Name][opt.CallerID]; m == nil {
-		eb.bindingMap[opt.Name][opt.CallerID] = new(BindableStore)
-		eb.bindingMap[opt.Name][opt.CallerID].defaultPriority = (new(BindableList))
+		eb.bindingMap[opt.Name][opt.CallerID] = new(bindableStore)
+		eb.bindingMap[opt.Name][opt.CallerID].defaultPriority = (new(bindableList))
 	}
 
 	store := eb.bindingMap[opt.Name][opt.CallerID]
 
-	var prio *BindableList
+	var prio *bindableList
 	// Default priority
 	if opt.Priority == 0 {
 		prio = store.defaultPriority
@@ -360,7 +367,7 @@ func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 		// High priority
 	} else if opt.Priority > 0 {
 		if store.highPriority[opt.Priority-1] == nil {
-			store.highPriority[opt.Priority-1] = (new(BindableList))
+			store.highPriority[opt.Priority-1] = (new(bindableList))
 		}
 
 		if store.highIndex < opt.Priority {
@@ -372,7 +379,7 @@ func (eb *EventBus) getBindableList(opt BindingOption) *BindableList {
 		// Low priority
 	} else {
 		if store.lowPriority[(opt.Priority*-1)-1] == nil {
-			store.lowPriority[(opt.Priority*-1)-1] = (new(BindableList))
+			store.lowPriority[(opt.Priority*-1)-1] = (new(bindableList))
 		}
 
 		if (store.lowIndex * -1) > opt.Priority {

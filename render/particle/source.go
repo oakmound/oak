@@ -201,7 +201,7 @@ func clearParticles(id int, nothing interface{}) int {
 			}
 			event.DestroyEntity(id)
 			Deallocate(ps.pIDBlock)
-			return event.UNBIND_EVENT
+			return event.UnbindEvent
 		}
 	}
 	return 0

@@ -1,11 +1,11 @@
 package event
 
+// Unbind on a binding is a rewriting of bus.Unbind(b)
 func (b Binding) Unbind() {
 	thisBus.Unbind(b)
 }
 
-// Unbind all events for
-// the given CID
+// UnbindAll removes all events with the given cid from the event bus
 func (cid *CID) UnbindAll() {
 	bo := BindingOption{
 		Event{
@@ -17,6 +17,15 @@ func (cid *CID) UnbindAll() {
 	UnbindAll(bo)
 }
 
+// UnbindAll removes all events that match the given bindingOption from the
+// event bus
+func UnbindAll(opt BindingOption) {
+	pendingMutex.Lock()
+	partUnbinds = append(partUnbinds, opt)
+	pendingMutex.Unlock()
+}
+
+// UnbindAllAndRebind on a CID is equivalent to bus.UnbindAllAndRebind(..., cid)
 func (cid *CID) UnbindAllAndRebind(binds []Bindable, events []string) {
 	bo := BindingOption{
 		Event{
@@ -28,6 +37,10 @@ func (cid *CID) UnbindAllAndRebind(binds []Bindable, events []string) {
 	UnbindAllAndRebind(bo, binds, int(*cid), events)
 }
 
+// UnbindAllAndRebind is a way to reset the bindings on a CID efficiently,
+// given a new set of equal length binding and event slices. This is equivalent
+// to callign UnbindAll and then looping over Bind calls for the pairs of
+// bindables and event names, but uses less mutex time.
 func UnbindAllAndRebind(bo BindingOption, binds []Bindable, cid int, events []string) {
 	opts := make([]BindingOption, len(events))
 	for k, v := range events {
@@ -46,23 +59,17 @@ func UnbindAllAndRebind(bo BindingOption, binds []Bindable, cid int, events []st
 	pendingMutex.Unlock()
 }
 
-// Called by entities,
-// for unbinding specific bindings.
-func (eb *EventBus) Unbind(b Binding) {
+// Unbind removes the given binding (previously returned by .Bind) from
+// the event bus, but because synchronously expecting something to
+// be returned from .Bind is dangerous, that behavior was removed and it is now
+// just used by the engine internals
+func (eb *Bus) Unbind(b Binding) {
 	pendingMutex.Lock()
 	unbinds = append(unbinds, b)
 	pendingMutex.Unlock()
 }
 
-// Called by entities or by game logic.
-// Unbinds all events in this bus which
-// match the given binding options.
-func UnbindAll(opt BindingOption) {
-	pendingMutex.Lock()
-	partUnbinds = append(partUnbinds, opt)
-	pendingMutex.Unlock()
-}
-
+// UnbindBindable is used by UNBIND_EVENT calls
 func UnbindBindable(opt UnbindOption) {
 	pendingMutex.Lock()
 	fullUnbinds = append(fullUnbinds, opt)

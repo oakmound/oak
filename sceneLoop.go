@@ -79,7 +79,7 @@ func SceneLoop(firstScene string) {
 		// Reset transient portions of the engine
 		// We start by clearing the event bus to
 		// remove most ongoing code
-		event.ResetEventBus()
+		event.ResetBus()
 		// We follow by clearing collision areas
 		// because otherwise collision function calls
 		// on non-entities (i.e. particles) can still
@@ -102,7 +102,7 @@ func SceneLoop(firstScene string) {
 			result = new(SceneResult)
 		}
 
-		eb = event.GetEventBus()
+		eb = event.GetBus()
 		if !debugResetInProgress {
 			debugResetInProgress = true
 			go func() {

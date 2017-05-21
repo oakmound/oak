@@ -61,7 +61,7 @@ var (
 	FrameRate     int
 	DrawFrameRate int
 
-	eb *event.EventBus
+	eb *event.Bus
 
 	wd, _    = os.Getwd()
 	imageDir string

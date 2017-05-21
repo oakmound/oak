@@ -7,17 +7,20 @@ import (
 // BindPriority is called by entities. Entities pass in a bindable function,
 // and a set of options which are parsed out.
 // Returns a binding that can used to unbind this binding later.
-func (eb *EventBus) BindPriority(fn Bindable, opt BindingOption) {
+func (eb *Bus) BindPriority(fn Bindable, opt BindingOption) {
 	pendingMutex.Lock()
 	binds = append(binds, UnbindOption{opt, fn})
 	pendingMutex.Unlock()
 }
 
+// GlobalBind binds to the cid 0, a non entity.
 func GlobalBind(fn Bindable, name string) {
 	thisBus.Bind(fn, name, 0)
 }
 
-func (eb *EventBus) Bind(fn Bindable, name string, callerID int) {
+// Bind adds a function to the event bus tied to the given callerID
+// to be called when the event name is triggered.
+func (eb *Bus) Bind(fn Bindable, name string, callerID int) {
 
 	bOpt := BindingOption{}
 	bOpt.Event = Event{
@@ -30,6 +33,7 @@ func (eb *EventBus) Bind(fn Bindable, name string, callerID int) {
 	eb.BindPriority(fn, bOpt)
 }
 
+// Bind on a CID is shorthand for bus.Bind(fn, name, cid)
 func (cid CID) Bind(fn Bindable, name string) {
 	thisBus.Bind(fn, name, int(cid))
 }

@@ -59,6 +59,6 @@ func ReplaceDraw(r1, r2 Renderable, stackLayer, layer int) {
 		r1.UnDraw()
 		r2.SetLayer(layer)
 		Draw(r2, stackLayer)
-		return event.UNBIND_SINGLE
+		return event.UnbindSingle
 	}, "PostDraw")
 }
