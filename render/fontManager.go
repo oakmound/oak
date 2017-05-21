@@ -1,28 +1,33 @@
 package render
 
-import "errors"
+import "bitbucket.org/oakmoundstudio/oak/oakerr"
 
+// A FontManager is just a map for fonts that contains a default font
 type FontManager map[string]*Font
 
+// NewFontManager returns a FontManager where 'def' is the default font
 func NewFontManager() *FontManager {
 	fm := &FontManager{}
 	(*fm)["def"] = (&FontGenerator{}).Generate()
 	return fm
 }
 
+// NewFont adds to the font manager and potentially returns if the key
+// was already defined in the map
 func (fm *FontManager) NewFont(name string, fg FontGenerator) error {
 	manager := (*fm)
 	var err error
 	if _, ok := manager[name]; ok {
-		err = errors.New("Font already existed, overwriting it now.")
+		err = oakerr.ExistingFontError{}
 	}
 	manager[name] = (&fg).Generate()
 	return err
 
 }
 
-func (fm *FontManager) Get(elementName string) *Font {
+// Get retrieves a font from a manager
+func (fm *FontManager) Get(name string) *Font {
 	manager := (*fm)
-	font, _ := manager[elementName]
+	font, _ := manager[name]
 	return font
 }

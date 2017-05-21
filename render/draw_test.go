@@ -13,7 +13,7 @@ func BenchmarkHeapAddOne(b *testing.B) {
 }
 
 func BenchmarkLambdaAddOne(b *testing.B) {
-	lh := new(LambdaHeap)
+	lh := new(lambdaHeap)
 	for n := 0; n < b.N; n++ {
 		lh.Push(new(Sprite))
 	}
@@ -29,7 +29,7 @@ func BenchmarkHeapAdd100(b *testing.B) {
 }
 
 func BenchmarkLambdaAdd100(b *testing.B) {
-	lh := new(LambdaHeap)
+	lh := new(lambdaHeap)
 	for n := 0; n < b.N; n++ {
 		for i := 0; i < 100; i++ {
 			lh.Push(new(Sprite))
@@ -53,7 +53,7 @@ func BenchmarkHeapPullAll(b *testing.B) {
 }
 
 func BenchmarkLambdaPullAll(b *testing.B) {
-	lh := new(LambdaHeap)
+	lh := new(lambdaHeap)
 	for i := 100; i > 0; i-- {
 		lh.Push(new(Sprite))
 	}

@@ -2,11 +2,11 @@ package render
 
 // We manually define a LamdaHeap as it improves performance over using
 // the stdlib's Heap interface.
-type LambdaHeap struct {
+type lambdaHeap struct {
 	bh []Renderable
 }
 
-func (lh *LambdaHeap) Push(r Renderable) {
+func (lh *lambdaHeap) Push(r Renderable) {
 	if r == nil {
 		return
 	}
@@ -14,7 +14,7 @@ func (lh *LambdaHeap) Push(r Renderable) {
 	lh.up(len(lh.bh) - 1)
 }
 
-func (lh *LambdaHeap) Pop() Renderable {
+func (lh *lambdaHeap) Pop() Renderable {
 	n := len(lh.bh) - 1
 	lh.bh[0], lh.bh[n] = lh.bh[n], lh.bh[0]
 
@@ -25,7 +25,7 @@ func (lh *LambdaHeap) Pop() Renderable {
 	return x
 }
 
-func (lh *LambdaHeap) up(j int) {
+func (lh *lambdaHeap) up(j int) {
 	h := lh.bh
 	var i int
 	for {
@@ -39,7 +39,7 @@ func (lh *LambdaHeap) up(j int) {
 	}
 }
 
-func (lh *LambdaHeap) down(i, n int) {
+func (lh *lambdaHeap) down(i, n int) {
 	h := lh.bh
 	for {
 		j1 := 2*i + 1

@@ -1,16 +1,16 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
 	"image/color"
 	"math"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
-type GradientBox struct {
-	Sprite
-}
+type progressFunction func(x, y, w, h int) float64
 
+// Progress functions
 var (
 	HorizontalProgress = func(x, y, w, h int) float64 {
 		return float64(x) / float64(w)
@@ -32,7 +32,9 @@ var (
 	}
 )
 
-func NewGradientBox(w, h int, startColor, endColor color.Color, pFunction progressFunction) *GradientBox {
+// NewGradientBox returns a gradient box defined on the two input colors
+// and the given progress function
+func NewGradientBox(w, h int, startColor, endColor color.Color, pFunction progressFunction) *Sprite {
 	rect := image.Rect(0, 0, w, h)
 	rgba := image.NewRGBA(rect)
 
@@ -51,33 +53,32 @@ func NewGradientBox(w, h int, startColor, endColor color.Color, pFunction progre
 			rgba.Set(x, y, c)
 		}
 	}
-	return &GradientBox{
-		Sprite{
-			LayeredPoint: LayeredPoint{
-				Vector: physics.Vector{
-					X: 0.0,
-					Y: 0.0,
-				},
+	return &Sprite{
+		LayeredPoint: LayeredPoint{
+			Vector: physics.Vector{
+				X: 0.0,
+				Y: 0.0,
 			},
-			r: rgba,
 		},
+		r: rgba,
 	}
 }
 
-func NewHorizontalGradientBox(w, h int, startColor, endColor color.Color) *GradientBox {
+// NewHorizontalGradientBox passes HorizontalProgress into NewGradientBox
+func NewHorizontalGradientBox(w, h int, startColor, endColor color.Color) *Sprite {
 	return NewGradientBox(w, h, startColor, endColor, HorizontalProgress)
 }
 
-func NewVerticalGradientBox(w, h int, startColor, endColor color.Color) *GradientBox {
+// NewVerticalGradientBox passes VerticalProgress into NewGradientBox
+func NewVerticalGradientBox(w, h int, startColor, endColor color.Color) *Sprite {
 	return NewGradientBox(w, h, startColor, endColor, VerticalProgress)
 }
 
-func NewCircularGradientBox(w, h int, startColor, endColor color.Color) *GradientBox {
+// NewCircularGradientBox passes CircularProgress into NewGradientBox
+func NewCircularGradientBox(w, h int, startColor, endColor color.Color) *Sprite {
 	return NewGradientBox(w, h, startColor, endColor, CircularProgress)
 }
 
 func uint16OnScale(n, endN uint32, progress float64) uint16 {
 	return uint16((float64(endN) - float64(endN)*(1.0-progress) + float64(n)*(1.0-progress)))
 }
-
-type progressFunction func(x, y, w, h int) float64

@@ -13,15 +13,13 @@ import (
 	simplex "github.com/ojrac/opensimplex-go"
 )
 
-type NoiseBox struct {
-	Sprite
-}
-
-func NewNoiseBox(w, h int) *NoiseBox {
+// NewNoiseBox returns a box of noise
+func NewNoiseBox(w, h int) *Sprite {
 	return NewSeededNoiseBox(w, h, time.Now().Unix())
 }
 
-func NewSeededNoiseBox(w, h int, seed int64) *NoiseBox {
+// NewSeededNoiseBox returns a box of noise seeded at a specific value
+func NewSeededNoiseBox(w, h int, seed int64) *Sprite {
 	rect := image.Rect(0, 0, w, h)
 	rgba := image.NewRGBA(rect)
 	noise := simplex.NewWithSeed(seed)
@@ -33,19 +31,18 @@ func NewSeededNoiseBox(w, h int, seed int64) *NoiseBox {
 		}
 	}
 
-	return &NoiseBox{
-		Sprite{
-			LayeredPoint: LayeredPoint{
-				Vector: physics.Vector{
-					X: 0.0,
-					Y: 0.0,
-				},
+	return &Sprite{
+		LayeredPoint: LayeredPoint{
+			Vector: physics.Vector{
+				X: 0.0,
+				Y: 0.0,
 			},
-			r: rgba,
 		},
+		r: rgba,
 	}
 }
 
+// NewNoiseSequence returns a sequence of noise boxes
 func NewNoiseSequence(w, h, frames int, fps float64) *Sequence {
 	mods := make([]Modifiable, frames)
 	for i := 0; i < frames; i++ {

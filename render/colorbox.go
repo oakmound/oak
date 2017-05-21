@@ -1,29 +1,25 @@
 package render
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"image"
 	"image/color"
 	"image/draw"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
-type ColorBox struct {
-	Sprite
-}
-
-func NewColorBox(w, h int, c color.Color) *ColorBox {
+// NewColorBox returns a Sprite full of a given color with the given dimensions
+func NewColorBox(w, h int, c color.Color) *Sprite {
 	rect := image.Rect(0, 0, w, h)
 	rgba := image.NewRGBA(rect)
 	draw.Draw(rgba, rect, image.NewUniform(c), image.Point{0, 0}, draw.Src)
-	return &ColorBox{
-		Sprite{
-			LayeredPoint: LayeredPoint{
-				Vector: physics.Vector{
-					X: 0.0,
-					Y: 0.0,
-				},
+	return &Sprite{
+		LayeredPoint: LayeredPoint{
+			Vector: physics.Vector{
+				X: 0.0,
+				Y: 0.0,
 			},
-			r: rgba,
 		},
+		r: rgba,
 	}
 }

@@ -10,7 +10,9 @@ import (
 )
 
 var (
-	resetDraw       bool
+	resetDraw bool
+	// EmptyRenderable is a simple renderable that can be used
+	// for pseudo-nil renderables that need to be something
 	EmptyRenderable = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
 )
 

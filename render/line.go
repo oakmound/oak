@@ -8,33 +8,13 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
-type Line struct {
-	Sprite
+// NewLine returns a line from x1,y1 to x2,y2 with the given color
+func NewLine(x1, y1, x2, y2 float64, c color.Color) *Sprite {
+	return NewThickLine(x1, y1, x2, y2, c, 0)
 }
 
-func NewLine(x1, y1, x2, y2 float64, c color.Color) *Line {
-
-	var rgba *image.RGBA
-	// We subtract the minimum from each side here
-	// to normalize the new line segment toward the origin
-	minX := math.Min(x1, x2)
-	minY := math.Min(y1, y2)
-	rgba = drawLineBetween(int(x1-minX), int(y1-minY), int(x2-minX), int(y2-minY), c, 0)
-
-	return &Line{
-		Sprite{
-			LayeredPoint: LayeredPoint{
-				Vector: physics.Vector{
-					X: minX,
-					Y: minY,
-				},
-			},
-			r: rgba,
-		},
-	}
-}
-
-func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Line {
+// NewThickLine returns a Line that has some value of thickness
+func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Sprite {
 
 	var rgba *image.RGBA
 	// We subtract the minimum from each side here
@@ -43,19 +23,18 @@ func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Line {
 	minY := math.Min(y1, y2)
 	rgba = drawLineBetween(int(x1-minX), int(y1-minY), int(x2-minX), int(y2-minY), c, thickness)
 
-	return &Line{
-		Sprite{
-			LayeredPoint: LayeredPoint{
-				Vector: physics.Vector{
-					X: minX - float64(thickness),
-					Y: minY - float64(thickness),
-				},
+	return &Sprite{
+		LayeredPoint: LayeredPoint{
+			Vector: physics.Vector{
+				X: minX - float64(thickness),
+				Y: minY - float64(thickness),
 			},
-			r: rgba,
 		},
+		r: rgba,
 	}
 }
 
+// DrawLineOnto draws a line onto an image rgba from one point to another
 func DrawLineOnto(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color) {
 
 	xDelta := math.Abs(float64(x2 - x1))

@@ -15,12 +15,13 @@ import (
 )
 
 var (
-	Transparent = color.RGBA{0, 0, 0, 0}
+	transparent = color.RGBA{0, 0, 0, 0}
 )
 
+// A Modification takes in an image buffer and returns a new image buffer
 type Modification func(image.Image) *image.RGBA
 
-// Modifiables are Renderables that have functions to change their
+// A Modifiable is a Renderable that has functions to change its
 // underlying image.
 // This may be replaced with the gift library down the line
 type Modifiable interface {
@@ -41,6 +42,7 @@ func And(ms ...Modification) Modification {
 	}
 }
 
+// Brighten brightens an image
 func Brighten(brightenBy float32) Modification {
 	return func(rgba image.Image) *image.RGBA {
 		filter := gift.New(
@@ -76,6 +78,7 @@ func FlipY(rgba *image.RGBA) *image.RGBA {
 	return newRgba
 }
 
+// Fade reduces the alpha of an image
 func Fade(alpha int) Modification {
 	return func(rgba image.Image) *image.RGBA {
 		bounds := rgba.Bounds()
@@ -104,7 +107,7 @@ func Fade(alpha int) Modification {
 	}
 }
 
-// Apply color mixes a color into the rgba values of an image
+// ApplyColor mixes a color into the rgba values of an image
 // and returns that new rgba.
 func ApplyColor(c color.Color) Modification {
 	return func(rgba image.Image) *image.RGBA {
@@ -243,7 +246,7 @@ func ApplyMask(img image.RGBA) Modification {
 func Rotate(degrees int) Modification {
 	return func(rgba image.Image) *image.RGBA {
 		filter := gift.New(
-			gift.Rotate(float32(degrees), Transparent, gift.CubicInterpolation))
+			gift.Rotate(float32(degrees), transparent, gift.CubicInterpolation))
 		dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
 		filter.Draw(dst, rgba)
 		return dst

@@ -5,6 +5,8 @@ import (
 	"image/color"
 )
 
+// Tween takes two images and returns a set of images tweening
+// between the two over some number of frames
 func Tween(a image.Image, b image.Image, frames int) []*image.RGBA {
 	bounds := a.Bounds()
 	w := bounds.Max.X
