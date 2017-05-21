@@ -28,6 +28,7 @@ func FPSToNano(fps float64) int64 {
 	return int64(nanoPerSecond / fps)
 }
 
+// FPSToDuration converts a frameRate like 60fps into a duration
 func FPSToDuration(FrameRate int) time.Duration {
 	return time.Second / time.Duration(int64(FrameRate))
 }
