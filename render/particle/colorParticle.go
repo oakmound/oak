@@ -9,22 +9,25 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
-// Color Particles are particles with a defined color gradient and size
+// A ColorParticle is a particle with a defined color and size
 type ColorParticle struct {
-	*BaseParticle
+	*baseParticle
 	startColor color.Color
 	endColor   color.Color
 	size       int
 }
 
+// Draw redirectes to DrawOffset
 func (cp *ColorParticle) Draw(buff draw.Image) {
 	cp.DrawOffset(buff, 0, 0)
 }
 
+// DrawOffset redirectes to DrawOffsetGen
 func (cp *ColorParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	cp.DrawOffsetGen(cp.GetBaseParticle().Src.Generator, buff, xOff, yOff)
 }
 
+// DrawOffsetGen draws a particle with it's generator's variables
 func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOff, yOff float64) {
 	gen := generator.(*ColorGenerator)
 
@@ -53,14 +56,13 @@ func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOf
 	render.ShinyDraw(buff, img, int((xOff+cp.Pos.X)-halfSize), int((yOff+cp.Pos.Y)-halfSize))
 }
 
-func (cp *ColorParticle) GetBaseParticle() *BaseParticle {
-	return cp.BaseParticle
-}
-
+// GetPos returns the middle of a color particle
 func (cp *ColorParticle) GetPos() physics.Vector {
 	fSize := float64(cp.size)
 	return physics.NewVector(cp.Pos.X-fSize/2, cp.Pos.Y-fSize/2)
 }
+
+// GetDims returns the color particle's size, twice
 func (cp *ColorParticle) GetDims() (int, int) {
 	return cp.size, cp.size
 }

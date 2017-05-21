@@ -11,9 +11,10 @@ var (
 	Inf = intrange.NewInfinite()
 )
 
+// A Generator holds settings for generating particles
 type Generator interface {
 	GetBaseGenerator() *BaseGenerator
-	GenerateParticle(*BaseParticle) Particle
+	GenerateParticle(*baseParticle) Particle
 	Generate(int) *Source
 	GetParticleSize() (float64, float64, bool)
 	ShiftX(float64)
@@ -57,7 +58,12 @@ type BaseGenerator struct {
 	LayerFunc  func(physics.Vector) int
 }
 
-func (bg *BaseGenerator) SetDefaults() {
+// GetBaseGenerator returns this
+func (bg *BaseGenerator) GetBaseGenerator() *BaseGenerator {
+	return bg
+}
+
+func (bg *BaseGenerator) setDefaults() {
 	*bg = BaseGenerator{
 		Vector:      physics.NewVector(0, 0),
 		NewPerFrame: floatrange.Constant(1),
@@ -74,12 +80,17 @@ func (bg *BaseGenerator) SetDefaults() {
 	}
 }
 
+// ShiftX moves a base generator by an x value
 func (bg *BaseGenerator) ShiftX(x float64) {
 	bg.Vector = bg.Vector.ShiftX(x)
 }
+
+// ShiftY moves a base generator by a y value
 func (bg *BaseGenerator) ShiftY(y float64) {
 	bg.Vector = bg.Vector.ShiftY(y)
 }
+
+// SetPos sets the position of a base generator
 func (bg *BaseGenerator) SetPos(x, y float64) {
 	bg.Vector.X = x
 	bg.Vector.Y = y

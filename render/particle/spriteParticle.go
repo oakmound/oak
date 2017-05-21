@@ -3,23 +3,26 @@ package particle
 import (
 	"image/draw"
 
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
+// A SpriteParticle is a particle that has an amount of sprite rotation
 type SpriteParticle struct {
-	*BaseParticle
+	*baseParticle
 	rotation float64
 }
 
+// Draw redirectes to DrawOffset
 func (sp *SpriteParticle) Draw(buff draw.Image) {
 	sp.DrawOffset(buff, 0, 0)
 }
 
+// DrawOffset redirects to DrawOffsetGen
 func (sp *SpriteParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	sp.DrawOffsetGen(sp.GetBaseParticle().Src.Generator, buff, xOff, yOff)
 }
 
+// DrawOffsetGen draws a particle with it's generator's variables
 func (sp *SpriteParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOff, yOff float64) {
 
 	sp.rotation += sp.rotation
@@ -28,21 +31,10 @@ func (sp *SpriteParticle) DrawOffsetGen(generator Generator, buff draw.Image, xO
 	render.ShinyDraw(buff, rgba, int(sp.Pos.X+xOff), int(sp.Pos.Y+yOff))
 }
 
-func (sp *SpriteParticle) GetBaseParticle() *BaseParticle {
-	return sp.BaseParticle
-}
-
+// GetParticleSize returns the size of the sprite that the generator generates
 func (sg *SpriteGenerator) GetParticleSize() (float64, float64, bool) {
 
 	bounds := sg.Base.GetRGBA().Rect.Max
 
 	return float64(bounds.X), float64(bounds.Y), false
-}
-
-func (sp *SpriteParticle) GetPos() physics.Vector {
-	return sp.Pos
-}
-
-func (sp *SpriteParticle) GetDims() (int, int) {
-	return 0, 0
 }

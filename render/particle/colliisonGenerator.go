@@ -5,16 +5,19 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/event"
 )
 
+// A CollisionGenerator generates collision particles
 type CollisionGenerator struct {
-	Gen     Generator
+	Generator
 	Fragile bool
 	HitMap  map[int]collision.OnHit
 }
 
+// NewCollisionGenerator creates a new collision generator
 func NewCollisionGenerator(g Generator, options ...func(*CollisionGenerator)) Generator {
 	g2 := new(CollisionGenerator)
+	g2.setDefault()
 
-	g2.Gen = g
+	g2.Generator = g
 
 	for _, opt := range options {
 		opt(g2)
@@ -23,20 +26,22 @@ func NewCollisionGenerator(g Generator, options ...func(*CollisionGenerator)) Ge
 	return g2
 }
 
-func (cg *CollisionGenerator) SetDefault() {
+func (cg *CollisionGenerator) setDefault() {
 	cg.HitMap = make(map[int]collision.OnHit)
 }
 
+// Generate creates a source using this generator
 func (cg *CollisionGenerator) Generate(layer int) *Source {
-	ps := cg.Gen.Generate(layer)
+	ps := cg.Generator.Generate(layer)
 	ps.Generator = cg
 	return ps
 }
 
-func (cg *CollisionGenerator) GenerateParticle(bp *BaseParticle) Particle {
-	p := cg.Gen.GenerateParticle(bp)
+// GenerateParticle creates a particle from a generator
+func (cg *CollisionGenerator) GenerateParticle(bp *baseParticle) Particle {
+	p := cg.Generator.GenerateParticle(bp)
 
-	w, h, dynamic := cg.Gen.GetParticleSize()
+	w, h, dynamic := cg.Generator.GetParticleSize()
 	if dynamic {
 		iw, ih := p.GetDims()
 		w, h = float64(iw), float64(ih)
@@ -48,36 +53,22 @@ func (cg *CollisionGenerator) GenerateParticle(bp *BaseParticle) Particle {
 	}
 }
 
-func (cg *CollisionGenerator) GetBaseGenerator() *BaseGenerator {
-	return cg.Gen.GetBaseGenerator()
-}
-
+// GetParticleSize on a CollisionGenerator tells the caller that the particle size
+// is per-particle specific
 func (cg *CollisionGenerator) GetParticleSize() (float64, float64, bool) {
 	return 0, 0, true
 }
 
-func (cg *CollisionGenerator) ShiftX(x float64) {
-	cg.Gen.ShiftX(x)
-}
-
-func (cg *CollisionGenerator) ShiftY(y float64) {
-	cg.Gen.ShiftY(y)
-}
-
-func (cg *CollisionGenerator) SetPos(x, y float64) {
-	cg.Gen.SetPos(x, y)
-}
-
-func (cg *CollisionGenerator) GetPos() (float64, float64) {
-	return cg.Gen.GetPos()
-}
-
+// Fragile sets whether the particles from this collisionGenerator are destroyed
+// on contact
 func Fragile(f bool) func(*CollisionGenerator) {
 	return func(cg *CollisionGenerator) {
 		cg.Fragile = f
 	}
 }
 
+// HitMap sets functions to be called when particles from this generator collide
+// with other spaces
 func HitMap(hm map[int]collision.OnHit) func(*CollisionGenerator) {
 	return func(cg *CollisionGenerator) {
 		cg.HitMap = hm

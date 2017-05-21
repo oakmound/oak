@@ -1,5 +1,6 @@
 package collision
 
+// An OnHit is a function which takes in two spaces
 type OnHit func(s, s2 *Space)
 
 // CallOnHits will send a signal to the passed in channel
@@ -29,6 +30,7 @@ func CallOnHits(s *Space, m map[int]OnHit, doneCh chan bool) {
 	doneCh <- hitFlag
 }
 
+// OnIDs converts a function on two CIDs to an OnHit
 func OnIDs(fn func(int, int)) func(s, s2 *Space) {
 	return func(s, s2 *Space) {
 		fn(int(s.CID), int(s2.CID))

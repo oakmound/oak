@@ -7,6 +7,8 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
+// A GradientGenerator is a ColorGenerator with a patterned gradient
+// on its particles
 type GradientGenerator struct {
 	ColorGenerator
 	StartColor2, StartColor2Rand color.Color
@@ -14,9 +16,10 @@ type GradientGenerator struct {
 	ProgressFunction             func(x, y, w, h int) float64
 }
 
+// NewGradientGenerator returns a new GradientGenerator
 func NewGradientGenerator(options ...func(Generator)) Generator {
 	g := new(GradientGenerator)
-	g.SetDefaults()
+	g.setDefaults()
 
 	for _, opt := range options {
 		opt(g)
@@ -25,8 +28,8 @@ func NewGradientGenerator(options ...func(Generator)) Generator {
 	return g
 }
 
-func (gg *GradientGenerator) SetDefaults() {
-	gg.ColorGenerator.SetDefaults()
+func (gg *GradientGenerator) setDefaults() {
+	gg.ColorGenerator.setDefaults()
 	gg.StartColor2 = color.RGBA{0, 0, 0, 0}
 	gg.StartColor2Rand = color.RGBA{0, 0, 0, 0}
 	gg.EndColor2 = color.RGBA{0, 0, 0, 0}
@@ -45,48 +48,49 @@ func (gg *GradientGenerator) Generate(layer int) *Source {
 	return NewSource(gg, layer)
 }
 
-func (gg *GradientGenerator) GenerateParticle(bp *BaseParticle) Particle {
+// GenerateParticle creates a particle from a generator
+func (gg *GradientGenerator) GenerateParticle(bp *baseParticle) Particle {
 	return &GradientParticle{
-		BaseParticle: bp,
-		startColor:   randColor(gg.StartColor, gg.StartColorRand),
-		endColor:     randColor(gg.EndColor, gg.EndColorRand),
-		startColor2:  randColor(gg.StartColor2, gg.StartColor2Rand),
-		endColor2:    randColor(gg.EndColor2, gg.EndColor2Rand),
-		size:         gg.Size.Poll(),
+		ColorParticle: ColorParticle{
+			baseParticle: bp,
+			startColor:   randColor(gg.StartColor, gg.StartColorRand),
+			endColor:     randColor(gg.EndColor, gg.EndColorRand),
+			size:         gg.Size.Poll(),
+		},
+		startColor2: randColor(gg.StartColor2, gg.StartColor2Rand),
+		endColor2:   randColor(gg.EndColor2, gg.EndColor2Rand),
 	}
-}
-
-func (gg *GradientGenerator) GetBaseGenerator() *BaseGenerator {
-	return &gg.BaseGenerator
-}
-
-func (gp *GradientGenerator) GetParticleSize() (float64, float64, bool) {
-	return 0, 0, true
 }
 
 // Gradient Coloration
 //
 
-func (gp *GradientGenerator) SetStartColor2(sc, scr color.Color) {
-	gp.StartColor2 = sc
-	gp.StartColor2Rand = scr
+// SetStartColor2 satisfies Colorable2
+func (gg *GradientGenerator) SetStartColor2(sc, scr color.Color) {
+	gg.StartColor2 = sc
+	gg.StartColor2Rand = scr
 }
 
-func (gp *GradientGenerator) SetEndColor2(ec, ecr color.Color) {
-	gp.EndColor2 = ec
-	gp.EndColor2Rand = ecr
+// SetEndColor2 satisfies Colorable2
+func (gg *GradientGenerator) SetEndColor2(ec, ecr color.Color) {
+	gg.EndColor2 = ec
+	gg.EndColor2Rand = ecr
 }
 
+// A Progresses has a SetProgress function where a progress function
+// returns how far between two colors a given coordinate in a space is
 type Progresses interface {
 	SetProgress(func(x, y, w, h int) float64)
 }
 
+// Progress sets a Progresses' Progress Function
 func Progress(pf func(x, y, w, h int) float64) func(Generator) {
 	return func(g Generator) {
 		g.(Progresses).SetProgress(pf)
 	}
 }
 
-func (gp *GradientGenerator) SetProgress(pf func(x, y, w, h int) float64) {
-	gp.ProgressFunction = pf
+// SetProgress satisfies Progresses
+func (gg *GradientGenerator) SetProgress(pf func(x, y, w, h int) float64) {
+	gg.ProgressFunction = pf
 }

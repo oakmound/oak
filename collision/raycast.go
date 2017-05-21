@@ -38,7 +38,7 @@ func RayCast(x, y, degrees, length float64) []CollisionPoint {
 	return results
 }
 
-// RatCastSingle acts as RayCast, but it returns only the first collision
+// RayCastSingle acts as RayCast, but it returns only the first collision
 // that the generated ray intersects, ignoring entities
 // in the given invalidIDs list.
 // Example Use case: shooting a bullet, hitting the first thing that isn't yourself.

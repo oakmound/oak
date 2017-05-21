@@ -21,18 +21,22 @@ type CollisionPoint struct {
 	X, Y float64
 }
 
+// IsNil returns whether the underlying zone of a collisionPoint is nil
 func (cp CollisionPoint) IsNil() bool {
 	return cp.Zone == nil
 }
 
+// Init sets the package global rtree to a new rtree.
 func Init() {
 	rt = rtreego.NewTree(20, 40)
 }
 
+// Clear just calls init.
 func Clear() {
 	Init()
 }
 
+// Add adds a set of spaces to the rtree
 func Add(sps ...*Space) {
 	addLock.Lock()
 	for _, sp := range sps {
@@ -43,11 +47,12 @@ func Add(sps ...*Space) {
 	addLock.Unlock()
 }
 
+// Remove removes a space from the rtree
 func Remove(sp *Space) {
 	rt.Delete(sp)
 }
 
-// Update resets a space's location to a given
+// UpdateSpace resets a space's location to a given
 // rtreego.Rect.
 // This is not an operation on a space because
 // a space can exist in multiple rtrees.
@@ -69,6 +74,8 @@ func Hits(sp *Space) []*Space {
 	return out
 }
 
+// HitLabel acts like hits, but reutrns the first space within hits
+// that matches one of the input labels
 func HitLabel(sp *Space, labels ...int) *Space {
 	results := rt.SearchIntersect(sp.Bounds())
 	for _, v := range results {

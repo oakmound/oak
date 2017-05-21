@@ -7,6 +7,7 @@ import (
 	"github.com/200sc/go-dist/intrange"
 )
 
+// A ColorGenerator generates ColorParticles
 type ColorGenerator struct {
 	BaseGenerator
 	StartColor, StartColorRand color.Color
@@ -18,9 +19,10 @@ type ColorGenerator struct {
 	Shape ShapeFunction
 }
 
+// NewColorGenerator returns a new color generator
 func NewColorGenerator(options ...func(Generator)) Generator {
 	g := new(ColorGenerator)
-	g.SetDefaults()
+	g.setDefaults()
 
 	for _, opt := range options {
 		opt(g)
@@ -29,8 +31,8 @@ func NewColorGenerator(options ...func(Generator)) Generator {
 	return g
 }
 
-func (cg *ColorGenerator) SetDefaults() {
-	cg.BaseGenerator.SetDefaults()
+func (cg *ColorGenerator) setDefaults() {
+	cg.BaseGenerator.setDefaults()
 	cg.StartColor = color.RGBA{0, 0, 0, 0}
 	cg.StartColorRand = color.RGBA{0, 0, 0, 0}
 	cg.EndColor = color.RGBA{0, 0, 0, 0}
@@ -39,6 +41,7 @@ func (cg *ColorGenerator) SetDefaults() {
 	cg.Shape = Square
 }
 
+// Generate creates a source using this generator
 func (cg *ColorGenerator) Generate(layer int) *Source {
 	// Convert rotation from degrees to radians
 	if cg.Rotation != nil {
@@ -47,31 +50,32 @@ func (cg *ColorGenerator) Generate(layer int) *Source {
 	return NewSource(cg, layer)
 }
 
-func (cg *ColorGenerator) GenerateParticle(bp *BaseParticle) Particle {
+// GenerateParticle creates a particle from a generator
+func (cg *ColorGenerator) GenerateParticle(bp *baseParticle) Particle {
 	return &ColorParticle{
-		BaseParticle: bp,
+		baseParticle: bp,
 		startColor:   randColor(cg.StartColor, cg.StartColorRand),
 		endColor:     randColor(cg.EndColor, cg.EndColorRand),
 		size:         cg.Size.Poll(),
 	}
 }
 
-func (cg *ColorGenerator) GetBaseGenerator() *BaseGenerator {
-	return &cg.BaseGenerator
-}
-
-func (cp *ColorGenerator) GetParticleSize() (float64, float64, bool) {
+// GetParticleSize on a color generator returns that the particles
+// are per-particle specificially sized
+func (cg *ColorGenerator) GetParticleSize() (float64, float64, bool) {
 	return 0, 0, true
 }
 
 // Coloration
 //
 
+// SetStartColor lets cg have its color be set
 func (cg *ColorGenerator) SetStartColor(sc, scr color.Color) {
 	cg.StartColor = sc
 	cg.StartColorRand = scr
 }
 
+// SetEndColor lets cg have its end color be set
 func (cg *ColorGenerator) SetEndColor(ec, ecr color.Color) {
 	cg.EndColor = ec
 	cg.EndColorRand = ecr
@@ -81,16 +85,19 @@ func (cg *ColorGenerator) SetEndColor(ec, ecr color.Color) {
 // Sizing
 //
 
+// A Sizeable is a generator that can have some size set to it
 type Sizeable interface {
 	SetSize(i intrange.Range)
 }
 
+// Size is an option to set a Sizeable size
 func Size(i intrange.Range) func(Generator) {
 	return func(g Generator) {
 		g.(Sizeable).SetSize(i)
 	}
 }
 
+// SetSize satisfies Sizeable
 func (cg *ColorGenerator) SetSize(i intrange.Range) {
 	cg.Size = i
 }
@@ -99,8 +106,11 @@ func (cg *ColorGenerator) SetSize(i intrange.Range) {
 // Shaping
 //
 
+// A ShapeFunction takes in a total size of a shape and coordinates within the
+// shape, and reports whether that coordinate pair lies in the shape.
 type ShapeFunction func(x, y, size int) bool
 
+// ShapeFunction block
 var (
 	Square = func(x, y, size int) bool {
 		return true
@@ -133,6 +143,7 @@ func Shape(sf ShapeFunction) func(Generator) {
 	}
 }
 
+// SetShape satisfies Shapeable
 func (cg *ColorGenerator) SetShape(sf ShapeFunction) {
 	cg.Shape = sf
 }

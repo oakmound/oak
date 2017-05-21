@@ -13,6 +13,7 @@ import (
 )
 
 const (
+	// RECYCLED refers to the life value given to particles ready to be reused
 	RECYCLED = -1000
 )
 
@@ -20,7 +21,7 @@ const (
 type Source struct {
 	render.Layered
 	Generator  Generator
-	particles  [BLOCK_SIZE]Particle
+	particles  [blockSize]Particle
 	nextPID    int
 	recycled   []int
 	CID        event.CID
@@ -30,6 +31,7 @@ type Source struct {
 	EndFunc    func()
 }
 
+// NewSource creates a new source
 func NewSource(g Generator, stackLevel int) *Source {
 	ps := new(Source)
 	ps.Generator = g
@@ -38,6 +40,7 @@ func NewSource(g Generator, stackLevel int) *Source {
 	return ps
 }
 
+// Init allows a source to be considered as an entity, and initializes it
 func (ps *Source) Init() event.CID {
 	CID := event.NextID(ps)
 	CID.Bind(rotateParticles, "EnterFrame")
@@ -53,7 +56,7 @@ func (ps *Source) Init() event.CID {
 	return CID
 }
 
-func (ps *Source) CycleParticles() bool {
+func (ps *Source) cycleParticles() bool {
 	pg := ps.Generator.GetBaseGenerator()
 	cycled := false
 	for i := 0; i < ps.nextPID; i++ {
@@ -95,19 +98,19 @@ func (ps *Source) CycleParticles() bool {
 			}
 			// This relies on Life going down by 1 per frame
 			bp.Life = RECYCLED
-			ps.recycled = append(ps.recycled, bp.pID%BLOCK_SIZE)
+			ps.recycled = append(ps.recycled, bp.pID%blockSize)
 		}
 
 	}
 	return cycled
 }
 
-// Shorthand
+// Layer is shorthand for getting the base generator behind a source's layer
 func (ps *Source) Layer(v physics.Vector) int {
 	return ps.Generator.GetBaseGenerator().LayerFunc(v)
 }
 
-func (ps *Source) AddParticles() {
+func (ps *Source) addParticles() {
 	pg := ps.Generator.GetBaseGenerator()
 	// Regularly create particles (up until max particles)
 	newParticleCount := int(pg.NewPerFrame.Poll())
@@ -140,7 +143,7 @@ func (ps *Source) AddParticles() {
 		ps.recycled = ps.recycled[ri:]
 	}
 
-	if ps.nextPID >= BLOCK_SIZE {
+	if ps.nextPID >= blockSize {
 		return
 	}
 	if newParticleCount > 0 {
@@ -151,7 +154,7 @@ func (ps *Source) AddParticles() {
 		speed := pg.Speed.Poll()
 		startLife := pg.LifeSpan.Poll()
 
-		bp := &BaseParticle{
+		bp := &baseParticle{
 			Src: ps,
 			Pos: physics.NewVector(
 				pg.X+floatFromSpread(pg.Spread.X),
@@ -161,13 +164,13 @@ func (ps *Source) AddParticles() {
 				speed*math.Sin(angle)*-1),
 			Life:      startLife,
 			totalLife: startLife,
-			pID:       ps.nextPID + ps.pIDBlock*BLOCK_SIZE,
+			pID:       ps.nextPID + ps.pIDBlock*blockSize,
 		}
 
 		p := ps.Generator.GenerateParticle(bp)
 		ps.particles[ps.nextPID] = p
 		ps.nextPID++
-		if ps.nextPID >= BLOCK_SIZE {
+		if ps.nextPID >= blockSize {
 			return
 		}
 		p.SetLayer(ps.Layer(bp.Pos))
@@ -182,8 +185,8 @@ func rotateParticles(id int, nothing interface{}) int {
 	ps := event.GetEntity(id).(*Source)
 	//fmt.Print("rotated")
 	if !ps.paused {
-		ps.CycleParticles()
-		ps.AddParticles()
+		ps.cycleParticles()
+		ps.addParticles()
 	}
 	return 0
 }
@@ -193,7 +196,7 @@ func rotateParticles(id int, nothing interface{}) int {
 func clearParticles(id int, nothing interface{}) int {
 	ps := event.GetEntity(id).(*Source)
 	if !ps.paused {
-		if ps.CycleParticles() {
+		if ps.cycleParticles() {
 		} else {
 			//fmt.Print("Killed a Source")
 			if ps.EndFunc != nil {
@@ -213,7 +216,7 @@ func (ps *Source) Stop() {
 	ps.CID.UnbindAllAndRebind([]event.Bindable{clearParticles}, []string{"EnterFrame"})
 }
 
-// Pausing a Source just stops the repetition
+// Pause on a Source just stops the repetition
 // of its rotation function, which moves, destroys,
 // ages and generates particles. Existing particles will
 // stay in place.
@@ -221,7 +224,7 @@ func (ps *Source) Pause() {
 	ps.paused = true
 }
 
-// Unpausing a Source rebinds it's rotate function.
+// UnPause on a source a Source rebinds it's rotate function.
 func (ps *Source) UnPause() {
 	ps.paused = false
 }
@@ -231,14 +234,17 @@ func (ps *Source) String() string {
 	return "ParticleSource"
 }
 
+// ShiftX shift's a source's underlying generator
 func (ps *Source) ShiftX(x float64) {
 	ps.Generator.ShiftX(x)
 }
 
+// ShiftY shift's a source's underlying generator (todo: consider if this shoud be composed)
 func (ps *Source) ShiftY(y float64) {
 	ps.Generator.ShiftY(y)
 }
 
+// SetPos sets a source's underlying generator
 func (ps *Source) SetPos(x, y float64) {
 	ps.Generator.SetPos(x, y)
 }

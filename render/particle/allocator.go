@@ -3,7 +3,7 @@ package particle
 import "bitbucket.org/oakmoundstudio/oak/event"
 
 const (
-	BLOCK_SIZE = 2048
+	blockSize = 2048
 )
 
 var (
@@ -22,7 +22,7 @@ func init() {
 			if _, ok := particleBlocks[lastOpen]; !ok {
 				select {
 				case pID := <-requestCh:
-					responseCh <- particleBlocks[pID/BLOCK_SIZE]
+					responseCh <- particleBlocks[pID/blockSize]
 					lastOpen--
 				case i := <-freeCh:
 					lastOpen = freeRecieve(i)
@@ -45,23 +45,27 @@ func freeRecieve(i int) int {
 	return i - 1
 }
 
+// Allocate requests a new block in the particle space for the given cid
 func Allocate(id event.CID) int {
 	nextOpen := <-nextOpenCh
 	allocCh <- id
 	return nextOpen
 }
 
+// Deallocate requests that the given block be removed from the particle space
 func Deallocate(block int) {
 	freeCh <- block
 }
 
+// LookupSource requests the source bound to a id in a block in the particle space
 func LookupSource(id int) *Source {
 	requestCh <- id
 	owner := <-responseCh
 	return event.GetEntity(int(owner)).(*Source)
 }
 
+// Lookup requests a specific particle in the particle space
 func Lookup(id int) Particle {
 	source := LookupSource(id)
-	return source.particles[id%BLOCK_SIZE]
+	return source.particles[id%blockSize]
 }
