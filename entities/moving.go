@@ -1,8 +1,9 @@
 package entities
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/event"
 	"strconv"
+
+	"bitbucket.org/oakmoundstudio/oak/event"
 )
 
 type Moving struct {

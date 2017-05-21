@@ -54,6 +54,20 @@ func (t *Text) SetText(str Stringer) {
 	t.text = str
 }
 
+func (t *Text) SetString(str string) {
+	t.text = stringStringer(str)
+}
+
+func (t *Text) SetInt(i int) {
+	t.text = stringStringer(strconv.Itoa(i))
+}
+
+func (t *Text) SetIntP(i *int) {
+	t.text = stringerIntPointer{i}
+}
+
+// Todo: more SetX methods like float, floatP
+
 func (t *Text) String() string {
 	return "Text[" + t.text.String() + "]"
 }
