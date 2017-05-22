@@ -21,10 +21,7 @@ type Stringer interface {
 func (f *Font) NewText(str Stringer, x, y float64) *Text {
 	return &Text{
 		LayeredPoint: LayeredPoint{
-			Vector: physics.Vector{
-				X: x,
-				Y: y,
-			},
+			Vector: physics.NewVector(x, y),
 		},
 		text: str,
 		d:    f,
@@ -33,13 +30,13 @@ func (f *Font) NewText(str Stringer, x, y float64) *Text {
 
 func (t *Text) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	t.d.Drawer.Dst = buff
-	t.d.Drawer.Dot = fixed.P(int(t.X+xOff), int(t.Y+yOff))
+	t.d.Drawer.Dot = fixed.P(int(t.X()+xOff), int(t.Y()+yOff))
 	t.d.DrawString(t.text.String())
 }
 
 func (t *Text) Draw(buff draw.Image) {
 	t.d.Drawer.Dst = buff
-	t.d.Drawer.Dot = fixed.P(int(t.X), int(t.Y))
+	t.d.Drawer.Dot = fixed.P(int(t.X()), int(t.Y()))
 	t.d.DrawString(t.text.String())
 }
 
@@ -79,9 +76,9 @@ func (t *Text) Wrap(charLimit int, v float64) []*Text {
 	vertical := 0.0
 	for i := range out {
 		if start+charLimit <= len(st) {
-			out[i] = t.d.NewStrText(st[start:start+charLimit], t.X, t.Y+vertical)
+			out[i] = t.d.NewStrText(st[start:start+charLimit], t.X(), t.Y()+vertical)
 		} else {
-			out[i] = t.d.NewStrText(st[start:len(st)], t.X, t.Y+vertical)
+			out[i] = t.d.NewStrText(st[start:len(st)], t.X(), t.Y()+vertical)
 		}
 		start += charLimit
 		vertical += v

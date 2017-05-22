@@ -28,7 +28,7 @@ func (sp *SpriteParticle) DrawOffsetGen(generator Generator, buff draw.Image, xO
 	sp.rotation += sp.rotation
 	gen := generator.(*SpriteGenerator)
 	rgba := gen.Base.Copy().Modify(render.Rotate(int(sp.rotation))).GetRGBA()
-	render.ShinyDraw(buff, rgba, int(sp.Pos.X+xOff), int(sp.Pos.Y+yOff))
+	render.ShinyDraw(buff, rgba, int(sp.Pos.X()+xOff), int(sp.Pos.Y()+yOff))
 }
 
 // GetParticleSize returns the size of the sprite that the generator generates

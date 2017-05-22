@@ -49,7 +49,7 @@ func (cg *CollisionGenerator) GenerateParticle(bp *baseParticle) Particle {
 	pos := p.GetPos()
 	return &CollisionParticle{
 		p,
-		collision.NewReactiveSpace(collision.NewFullSpace(pos.X, pos.Y, w, h, 0, event.CID(bp.pID)), cg.HitMap),
+		collision.NewReactiveSpace(collision.NewFullSpace(pos.X(), pos.Y(), w, h, 0, event.CID(bp.pID)), cg.HitMap),
 	}
 }
 

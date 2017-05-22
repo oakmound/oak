@@ -15,10 +15,7 @@ func NewColorBox(w, h int, c color.Color) *Sprite {
 	draw.Draw(rgba, rect, image.NewUniform(c), image.Point{0, 0}, draw.Src)
 	return &Sprite{
 		LayeredPoint: LayeredPoint{
-			Vector: physics.Vector{
-				X: 0.0,
-				Y: 0.0,
-			},
+			Vector: physics.NewVector(0, 0),
 		},
 		r: rgba,
 	}

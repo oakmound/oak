@@ -17,7 +17,7 @@ func (vm *VectorMoving) Init() event.CID {
 }
 
 func (vm *VectorMoving) ShiftVector(v physics.Vector) {
-	vm.Solid.ShiftPos(v.X, v.Y)
+	vm.Solid.ShiftPos(v.X(), v.Y())
 }
 
 func (vm *VectorMoving) ApplyFriction(outsideFriction float64) {

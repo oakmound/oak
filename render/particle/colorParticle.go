@@ -53,13 +53,13 @@ func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOf
 
 	halfSize := float64(cp.size / 2)
 
-	render.ShinyDraw(buff, img, int((xOff+cp.Pos.X)-halfSize), int((yOff+cp.Pos.Y)-halfSize))
+	render.ShinyDraw(buff, img, int((xOff+cp.Pos.X())-halfSize), int((yOff+cp.Pos.Y())-halfSize))
 }
 
 // GetPos returns the middle of a color particle
 func (cp *ColorParticle) GetPos() physics.Vector {
 	fSize := float64(cp.size)
-	return physics.NewVector(cp.Pos.X-fSize/2, cp.Pos.Y-fSize/2)
+	return physics.NewVector(cp.Pos.X()-fSize/2, cp.Pos.Y()-fSize/2)
 }
 
 // GetDims returns the color particle's size, twice

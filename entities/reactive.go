@@ -20,7 +20,7 @@ func (iv *InteractVector) Init() event.CID {
 }
 
 func (iv *InteractVector) ShiftVector(v physics.Vector) {
-	iv.Reactive.ShiftPos(v.X, v.Y)
+	iv.Reactive.ShiftPos(v.X(), v.Y())
 }
 
 type Interactive struct {
@@ -80,7 +80,7 @@ func (r *Reactive) Init() event.CID {
 }
 
 func (r *Reactive) ShiftPos(x, y float64) {
-	r.SetPos(r.X+x, r.Y+y)
+	r.SetPos(r.X()+x, r.Y()+y)
 }
 
 func (r *Reactive) SetPos(x, y float64) {
@@ -88,7 +88,7 @@ func (r *Reactive) SetPos(x, y float64) {
 	r.R.SetPos(x, y)
 
 	if r.RSpace != nil {
-		collision.UpdateSpace(r.X, r.Y, r.W, r.H, r.RSpace.Space)
+		collision.UpdateSpace(r.X(), r.Y(), r.W, r.H, r.RSpace.Space)
 	}
 }
 

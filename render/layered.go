@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"bitbucket.org/oakmoundstudio/oak/physics"
+	"fmt"
 )
 
 type Layered struct {
@@ -28,15 +29,16 @@ type LayeredPoint struct {
 }
 
 func (ldp *LayeredPoint) ShiftX(x float64) {
-	ldp.X += x
+	fmt.Println(x)
+	fmt.Println(ldp.Vector)
+	ldp.Vector = ldp.Vector.ShiftX(x)
 }
 func (ldp *LayeredPoint) ShiftY(y float64) {
-	ldp.Y += y
+	ldp.Vector = ldp.Vector.ShiftY(y)
 }
 
 func (ldp *LayeredPoint) SetPos(x, y float64) {
-	ldp.X = x
-	ldp.Y = y
+	ldp.Vector = ldp.Vector.SetPos(x, y)
 }
 
 func (ldp *LayeredPoint) GetDims() (int, int) {
@@ -44,8 +46,8 @@ func (ldp *LayeredPoint) GetDims() (int, int) {
 }
 
 func (ldp *LayeredPoint) String() string {
-	x := strconv.FormatFloat(ldp.X, 'f', 2, 32)
-	y := strconv.FormatFloat(ldp.Y, 'f', 2, 32)
+	x := strconv.FormatFloat(ldp.X(), 'f', 2, 32)
+	y := strconv.FormatFloat(ldp.Y(), 'f', 2, 32)
 	l := strconv.Itoa(ldp.layer)
-	return "X: " + x + ", Y: " + y + ", L: " + l
+	return "X(): " + x + ", Y(): " + y + ", L: " + l
 }

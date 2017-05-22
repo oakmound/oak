@@ -24,10 +24,7 @@ type Sequence struct {
 func NewSequence(mods []Modifiable, fps float64) *Sequence {
 	return &Sequence{
 		LayeredPoint: LayeredPoint{
-			Vector: physics.Vector{
-				X: 0.0,
-				Y: 0.0,
-			},
+			Vector: physics.NewVector(0, 0),
 		},
 		sheetPos:      0,
 		frameTime:     timing.FPSToNano(fps),
@@ -71,12 +68,12 @@ func (sq *Sequence) Get(i int) Modifiable {
 
 func (sq *Sequence) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	sq.update()
-	sq.rs[sq.sheetPos].DrawOffset(buff, sq.X+xOff, sq.Y+yOff)
+	sq.rs[sq.sheetPos].DrawOffset(buff, sq.X()+xOff, sq.Y()+yOff)
 }
 
 func (sq *Sequence) Draw(buff draw.Image) {
 	sq.update()
-	sq.rs[sq.sheetPos].DrawOffset(buff, sq.X, sq.Y)
+	sq.rs[sq.sheetPos].DrawOffset(buff, sq.X(), sq.Y())
 }
 
 func (sq *Sequence) GetRGBA() *image.RGBA {

@@ -72,16 +72,16 @@ func (ps *Source) cycleParticles() bool {
 				bp.Vel = bp.Vel.Rotate(pg.Rotation.Poll())
 			}
 
-			if pg.SpeedDecay.X != 0 {
-				bp.Vel.X *= pg.SpeedDecay.X
-				if math.Abs(bp.Vel.X) < 0.2 {
-					bp.Vel.X = 0
+			if pg.SpeedDecay.X() != 0 {
+				bp.Vel = bp.Vel.SetX(bp.Vel.X() * pg.SpeedDecay.X())
+				if math.Abs(bp.Vel.X()) < 0.2 {
+					bp.Vel = bp.Vel.SetX(0)
 				}
 			}
-			if pg.SpeedDecay.Y != 0 {
-				bp.Vel.Y *= pg.SpeedDecay.Y
-				if math.Abs(bp.Vel.Y) < 0.2 {
-					bp.Vel.Y = 0
+			if pg.SpeedDecay.Y() != 0 {
+				bp.Vel = bp.Vel.SetY(bp.Vel.Y() * pg.SpeedDecay.Y())
+				if math.Abs(bp.Vel.Y()) < 0.2 {
+					bp.Vel = bp.Vel.SetY(0)
 				}
 			}
 
@@ -125,8 +125,8 @@ func (ps *Source) addParticles() {
 		startLife := pg.LifeSpan.Poll()
 
 		bp.Pos = physics.NewVector(
-			pg.X+floatFromSpread(pg.Spread.X),
-			pg.Y+floatFromSpread(pg.Spread.Y))
+			pg.X()+floatFromSpread(pg.Spread.X()),
+			pg.Y()+floatFromSpread(pg.Spread.Y()))
 		bp.Vel = physics.NewVector(
 			speed*math.Cos(angle)*-1,
 			speed*math.Sin(angle)*-1)
@@ -157,8 +157,8 @@ func (ps *Source) addParticles() {
 		bp := &baseParticle{
 			Src: ps,
 			Pos: physics.NewVector(
-				pg.X+floatFromSpread(pg.Spread.X),
-				pg.Y+floatFromSpread(pg.Spread.Y)),
+				pg.X()+floatFromSpread(pg.Spread.X()),
+				pg.Y()+floatFromSpread(pg.Spread.Y())),
 			Vel: physics.NewVector(
 				speed*math.Cos(angle)*-1,
 				speed*math.Sin(angle)*-1),

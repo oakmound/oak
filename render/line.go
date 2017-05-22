@@ -25,10 +25,7 @@ func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Sprite 
 
 	return &Sprite{
 		LayeredPoint: LayeredPoint{
-			Vector: physics.Vector{
-				X: minX - float64(thickness),
-				Y: minY - float64(thickness),
-			},
+			Vector: physics.NewVector(minX-float64(thickness), minY-float64(thickness)),
 		},
 		r: rgba,
 	}

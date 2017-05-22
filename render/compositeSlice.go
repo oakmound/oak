@@ -23,7 +23,7 @@ func NewComposite(sl []Modifiable) *Composite {
 }
 
 func (cs *Composite) AppendOffset(r Modifiable, v physics.Vector) {
-	r.SetPos(v.X, v.Y)
+	r.SetPos(v.X(), v.Y())
 	cs.rs = append(cs.rs, r)
 }
 
@@ -37,14 +37,14 @@ func (cs *Composite) Add(i int, r Modifiable) {
 
 func (cs *Composite) AddOffset(i int, v physics.Vector) {
 	if i < len(cs.rs) {
-		cs.rs[i].SetPos(v.X, v.Y)
+		cs.rs[i].SetPos(v.X(), v.Y())
 	}
 }
 
 func (cs *Composite) SetOffsets(vs []physics.Vector) {
 	for i, v := range vs {
 		if i < len(cs.rs) {
-			cs.rs[i].SetPos(v.X, v.Y)
+			cs.rs[i].SetPos(v.X(), v.Y())
 		}
 	}
 }
@@ -55,12 +55,12 @@ func (cs *Composite) Get(i int) Modifiable {
 
 func (cs *Composite) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X+xOff, cs.Y+yOff)
+		c.DrawOffset(buff, cs.X()+xOff, cs.Y()+yOff)
 	}
 }
 func (cs *Composite) Draw(buff draw.Image) {
 	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X, cs.Y)
+		c.DrawOffset(buff, cs.X(), cs.Y())
 	}
 }
 func (cs *Composite) UnDraw() {
@@ -85,8 +85,7 @@ func (cs *Composite) Modify(ms ...Modification) Modifiable {
 func (cs *Composite) Copy() Modifiable {
 	cs2 := new(Composite)
 	cs2.layer = cs.layer
-	cs2.X = cs.X
-	cs2.Y = cs.Y
+	cs2.Vector = cs.Vector
 	cs2.rs = make([]Modifiable, len(cs.rs))
 	for i, v := range cs.rs {
 		cs2.rs[i] = v.Copy()
@@ -116,7 +115,7 @@ func NewCompositeR(sl []Renderable) *CompositeR {
 }
 
 func (cs *CompositeR) AppendOffset(r Renderable, v physics.Vector) {
-	r.SetPos(v.X, v.Y)
+	r.SetPos(v.X(), v.Y())
 	cs.rs = append(cs.rs, r)
 }
 
@@ -131,7 +130,7 @@ func (cs *CompositeR) Add(r Renderable, i int) Renderable {
 
 func (cs *CompositeR) AddOffset(i int, v physics.Vector) {
 	if i < len(cs.rs) {
-		cs.rs[i].SetPos(v.X, v.Y)
+		cs.rs[i].SetPos(v.X(), v.Y())
 	}
 }
 
@@ -164,7 +163,7 @@ func (cs *CompositeR) Get(i int) Renderable {
 
 func (cs *CompositeR) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X+xOff, cs.Y+yOff)
+		c.DrawOffset(buff, cs.X()+xOff, cs.Y()+yOff)
 	}
 }
 
@@ -200,7 +199,7 @@ func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, scree
 
 func (cs *CompositeR) Draw(buff draw.Image) {
 	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X, cs.Y)
+		c.DrawOffset(buff, cs.X(), cs.Y())
 	}
 }
 

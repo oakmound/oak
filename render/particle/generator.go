@@ -51,7 +51,7 @@ type BaseGenerator struct {
 	Duration intrange.Range
 	// Rotational acceleration, to change angle over time
 	Rotation floatrange.Range
-	// Gravity X and Gravity Y represent particle acceleration per frame.
+	// Gravity X() and Gravity Y() represent particle acceleration per frame.
 	Gravity    physics.Vector
 	SpeedDecay physics.Vector
 	EndFunc    func(Particle)
@@ -92,6 +92,5 @@ func (bg *BaseGenerator) ShiftY(y float64) {
 
 // SetPos sets the position of a base generator
 func (bg *BaseGenerator) SetPos(x, y float64) {
-	bg.Vector.X = x
-	bg.Vector.Y = y
+	bg.Vector = bg.Vector.SetPos(x, y)
 }

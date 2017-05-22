@@ -32,10 +32,7 @@ func ScreenPolygon(points []physics.Vector, w, h int) (*Polygon, error) {
 	return &Polygon{
 		Sprite: Sprite{
 			LayeredPoint: LayeredPoint{
-				Vector: physics.Vector{
-					X: 0.0,
-					Y: 0.0,
-				},
+				Vector: physics.NewVector(0, 0),
 			},
 			r: rgba,
 		},
@@ -65,10 +62,7 @@ func NewPolygon(points []physics.Vector) (*Polygon, error) {
 	return &Polygon{
 		Sprite: Sprite{
 			LayeredPoint: LayeredPoint{
-				Vector: physics.Vector{
-					X: MinX,
-					Y: MinY,
-				},
+				Vector: physics.NewVector(MinX, MinY),
 			},
 			r: rgba,
 		},
@@ -109,9 +103,9 @@ func (pg *Polygon) GetOutline(c color.Color) *Composite {
 	j := len(pg.points) - 1
 	for i, p2 := range pg.points {
 		p1 := pg.points[j]
-		MinX := math.Min(p1.X, p2.X)
-		MinY := math.Min(p1.Y, p2.Y)
-		sl.AppendOffset(NewLine(p1.X, p1.Y, p2.X, p2.Y, c), physics.NewVector(MinX, MinY))
+		MinX := math.Min(p1.X(), p2.X())
+		MinY := math.Min(p1.Y(), p2.Y())
+		sl.AppendOffset(NewLine(p1.X(), p1.Y(), p2.X(), p2.Y(), c), physics.NewVector(MinX, MinY))
 		j = i
 	}
 	return sl
@@ -137,8 +131,8 @@ func BoundingRect(points []physics.Vector) (MinX, MinY, MaxX, MaxY float64, w, h
 	MaxX = MinX * -1
 	MaxY = MinY * -1
 	for _, p := range points {
-		x := p.X
-		y := p.Y
+		x := p.X()
+		y := p.Y()
 		if x < MinX {
 			MinX = x
 		}
@@ -169,8 +163,8 @@ func (pg *Polygon) Contains(x, y float64) (contains bool) {
 	for i := 0; i < len(pg.points); i++ {
 		tp1 := pg.points[i]
 		tp2 := pg.points[j]
-		if (tp1.Y > y) != (tp2.Y > y) { // Three comparisons
-			if x < (tp2.X-tp1.X)*(y-tp1.Y)/(tp2.Y-tp1.Y)+tp1.X { // One Comparison, Four add/sub, Two mult/div
+		if (tp1.Y() > y) != (tp2.Y() > y) { // Three comparisons
+			if x < (tp2.X()-tp1.X())*(y-tp1.Y())/(tp2.Y()-tp1.Y())+tp1.X() { // One Comparison, Four add/sub, Two mult/div
 				contains = !contains
 			}
 		}
@@ -191,10 +185,10 @@ func (pg *Polygon) WrappingContains(x, y float64) bool {
 	for i := 0; i < len(pg.points); i++ {
 		tp1 := pg.points[i]
 		tp2 := pg.points[j]
-		if tp1.Y <= y && tp2.Y > y && isLeft(tp1, tp2, x, y) > 0 { // Three comparison, Five add/sub, Two mult/div
+		if tp1.Y() <= y && tp2.Y() > y && isLeft(tp1, tp2, x, y) > 0 { // Three comparison, Five add/sub, Two mult/div
 			wn++
 		}
-		if tp2.Y >= y && isLeft(tp1, tp2, x, y) < 0 { // Two Comparison, Five add/sub, Two mult/div
+		if tp2.Y() >= y && isLeft(tp1, tp2, x, y) < 0 { // Two Comparison, Five add/sub, Two mult/div
 			wn--
 		}
 		j = i
@@ -227,7 +221,7 @@ func (pg *Polygon) ConvexContains(x, y float64) bool {
 }
 
 func getSide(a, b physics.Vector) int {
-	x := a.X*b.Y - a.Y*b.X
+	x := a.X()*b.Y() - a.Y()*b.X()
 	if x == 0 {
 		return 0
 	} else if x < 1 {
@@ -238,9 +232,9 @@ func getSide(a, b physics.Vector) int {
 }
 
 func vSub(a, b physics.Vector) physics.Vector {
-	return physics.NewVector(a.X-b.X, a.Y-b.Y)
+	return physics.NewVector(a.X()-b.X(), a.Y()-b.Y())
 }
 
 func isLeft(p1, p2 physics.Vector, x, y float64) float64 {
-	return (p1.X-x)*(p2.Y-y) - (p2.X-x)*(p1.Y-y)
+	return (p1.X()-x)*(p2.Y()-y) - (p2.X()-x)*(p1.Y()-y)
 }

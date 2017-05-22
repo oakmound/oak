@@ -44,10 +44,7 @@ func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error)
 
 	animation := Animation{
 		LayeredPoint: LayeredPoint{
-			Vector: physics.Vector{
-				X: 0.0,
-				Y: 0.0,
-			},
+			Vector: physics.NewVector(0, 0),
 		},
 		sheetPos:      0,
 		frameTime:     timing.FPSToNano(fps),
@@ -102,13 +99,13 @@ func (a *Animation) updateAnimation() {
 func (a *Animation) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	a.updateAnimation()
 	img := a.GetRGBA()
-	ShinyDraw(buff, img, int(a.X+xOff), int(a.Y+yOff))
+	ShinyDraw(buff, img, int(a.X()+xOff), int(a.Y()+yOff))
 }
 
 func (a *Animation) Draw(buff draw.Image) {
 	a.updateAnimation()
 	img := a.GetRGBA()
-	ShinyDraw(buff, img, int(a.X), int(a.Y))
+	ShinyDraw(buff, img, int(a.X()), int(a.Y()))
 }
 
 func (a_p *Animation) GetRGBA() *image.RGBA {

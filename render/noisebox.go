@@ -33,10 +33,7 @@ func NewSeededNoiseBox(w, h int, seed int64) *Sprite {
 
 	return &Sprite{
 		LayeredPoint: LayeredPoint{
-			Vector: physics.Vector{
-				X: 0.0,
-				Y: 0.0,
-			},
+			Vector: physics.NewVector(0, 0),
 		},
 		r: rgba,
 	}

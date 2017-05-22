@@ -55,10 +55,7 @@ func NewGradientBox(w, h int, startColor, endColor color.Color, pFunction progre
 	}
 	return &Sprite{
 		LayeredPoint: LayeredPoint{
-			Vector: physics.Vector{
-				X: 0.0,
-				Y: 0.0,
-			},
+			Vector: physics.NewVector(0, 0),
 		},
 		r: rgba,
 	}

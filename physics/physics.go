@@ -1,13 +1,14 @@
 package physics
 
 import (
+	"fmt"
 	"math"
 )
 
 // A Vector is a two-dimensional point or vector used throughout oak
 // to maintain functionality between packages.
 type Vector struct {
-	X, Y float64
+	x, y *float64
 }
 
 var (
@@ -18,17 +19,24 @@ var (
 
 // NewVector returns a vector with the given x and y components
 func NewVector(x, y float64) Vector {
-	return Vector{x, y}
+	x2 := x
+
+	y2 := y
+	return Vector{&x2, &y2}
 }
 
 // Copy copies a Vector
 func (v Vector) Copy() Vector {
-	return NewVector(v.X, v.Y)
+	if v.x == nil || v.y == nil {
+		fmt.Println("This vector was bad ", v)
+		return v.Zero()
+	}
+	return NewVector(*v.x, *v.y)
 }
 
 // Magnitude returns the magnitude of the combined components of a Vector
 func (v Vector) Magnitude() float64 {
-	return math.Sqrt((v.X * v.X) + (v.Y * v.Y))
+	return math.Sqrt((*v.x * *v.x) + (*v.y * *v.y))
 }
 
 // Normalize divides both components in a vector by the vector's magnitude
@@ -38,25 +46,24 @@ func (v Vector) Normalize() Vector {
 	if mgn == 0 {
 		return v
 	}
-	v.X /= mgn
-	v.Y /= mgn
+	*v.x /= mgn
+	*v.y /= mgn
 	return v
 }
 
 // Zero is shorthand for NewVector(0,0)
 func (v Vector) Zero() Vector {
-	v.X = 0
-	v.Y = 0
-	return v
+	return NewVector(0, 0)
 }
 
 // Add combines a set of vectors through addition
 func (v Vector) Add(vs ...Vector) Vector {
+	vnew := v.Copy()
 	for _, v2 := range vs {
-		v.X += v2.X
-		v.Y += v2.Y
+		*vnew.x += *v2.x
+		*vnew.y += *v2.y
 	}
-	return v.round()
+	return vnew.round()
 }
 
 // Scale scales a vector by a set of floating points
@@ -66,35 +73,31 @@ func (v Vector) Scale(fs ...float64) Vector {
 	for _, f := range fs {
 		f2 *= f
 	}
-	v.X *= f2
-	v.Y *= f2
-	return v.round()
+	return NewVector(*v.x*f2, *v.y*f2).round()
 }
 
 // Rotate takes in a set of angles and rotates v by their sum
 // the input angles are assumed to be in degrees.
 func (v Vector) Rotate(fs ...float64) Vector {
+
 	angle := 0.0
 	for _, f := range fs {
 		angle += f
 	}
 	mgn := v.Magnitude()
-	angle = math.Atan2(v.Y, v.X) + (angle * (math.Pi) / 180)
-	v.X = math.Cos(angle) * mgn
-	v.Y = math.Sin(angle) * mgn
-
-	return v.round()
+	angle = math.Atan2(*v.y, *v.x) + (angle * (math.Pi) / 180)
+	return NewVector(math.Cos(angle)*mgn, math.Sin(angle)*mgn).round()
 }
 
 // Angle returns this vector as an angle in degrees
 func (v Vector) Angle() float64 {
-	return math.Atan2(v.Y, v.X) * 180 / math.Pi
+	return math.Atan2(*v.y, *v.x) * 180 / math.Pi
 }
 
 // Dot returns the dot product of the vectors
 func (v Vector) Dot(v2 Vector) float64 {
-	x := v.X * v2.X
-	y := v.Y * v2.Y
+	x := *v.x * *v2.x
+	y := *v.y * *v2.y
 	return x + y
 }
 
@@ -105,45 +108,64 @@ func (v Vector) Distance(v2 Vector) float64 {
 }
 
 func (v Vector) round() Vector {
-	if math.Abs(v.X) < CUTOFF {
-		v.X = 0
+	if math.Abs(*v.x) < CUTOFF {
+		*v.x = 0
 	}
-	if math.Abs(v.Y) < CUTOFF {
-		v.Y = 0
+	if math.Abs(*v.y) < CUTOFF {
+		*v.y = 0
 	}
 	return v
 }
 
-// ShiftX is equivalent to v.X += x
+// ShiftX is equivalent to v.X() += x
 func (v Vector) ShiftX(x float64) Vector {
-	v.X += x
-	return v
+	v2 := v.Copy()
+	*v2.x += x
+	return v2
 }
 
-// ShiftY is equivalent to v.Y += y
+// ShiftY is equivalent to v.Y() += y
 func (v Vector) ShiftY(y float64) Vector {
-	v.Y += y
-	return v
+	v2 := v.Copy()
+	*v2.y += y
+	return v2
 }
 
-// GetX returns v.X
+// GetX returns v.X()
+func (v Vector) X() float64 {
+	return *v.x
+}
 func (v Vector) GetX() float64 {
-	return v.X
+	return v.X()
 }
 
-// GetY returns v.Y
+// GetY returns v.Y()
+func (v Vector) Y() float64 {
+	return *v.y
+}
 func (v Vector) GetY() float64 {
-	return v.Y
+	return v.Y()
+}
+func (v Vector) SetX(x float64) Vector {
+	return NewVector(x, *v.y)
+}
+func (v Vector) SetY(y float64) Vector {
+	return NewVector(*v.x, y)
+}
+
+func (v Vector) Xp() *float64 {
+	return v.x
+}
+func (v Vector) Yp() *float64 {
+	return v.y
 }
 
 // SetPos is equivalent to NewVector(x,y)
 func (v Vector) SetPos(x, y float64) Vector {
-	v.X = x
-	v.Y = y
-	return v
+	return NewVector(x, y)
 }
 
-// GetPos returns both v.X and v.Y
+// GetPos returns both v.X() and v.Y()
 func (v Vector) GetPos() (float64, float64) {
-	return v.X, v.Y
+	return *v.x, *v.y
 }

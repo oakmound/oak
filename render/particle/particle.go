@@ -34,23 +34,22 @@ func (bp *baseParticle) GetBaseParticle() *baseParticle {
 }
 
 func (bp *baseParticle) ShiftX(x float64) {
-	bp.Pos.X += x
+	bp.Pos = bp.Pos.ShiftX(x)
 }
 
 func (bp *baseParticle) ShiftY(y float64) {
-	bp.Pos.Y += y
+	bp.Pos = bp.Pos.ShiftY(y)
 }
 
 func (bp *baseParticle) GetX() float64 {
-	return bp.Pos.X
+	return bp.Pos.X()
 }
 
 func (bp *baseParticle) GetY() float64 {
-	return bp.Pos.Y
+	return bp.Pos.Y()
 }
 func (bp *baseParticle) SetPos(x, y float64) {
-	bp.Pos.X = x
-	bp.Pos.Y = y
+	bp.Pos = bp.Pos.SetPos(x, y)
 }
 
 func (bp *baseParticle) GetPos() physics.Vector {

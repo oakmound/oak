@@ -34,7 +34,7 @@ func (cp *CollisionParticle) DrawOffsetGen(generator Generator, buff draw.Image,
 func (cp *CollisionParticle) Cycle(generator Generator) {
 	gen := generator.(*CollisionGenerator)
 	pos := cp.Particle.GetPos()
-	cp.s.Space.Location = collision.NewRect(pos.X, pos.Y, cp.s.GetW(), cp.s.GetH())
+	cp.s.Space.Location = collision.NewRect(pos.X(), pos.Y(), cp.s.GetW(), cp.s.GetH())
 
 	hitFlag := <-cp.s.CallOnHits()
 	if gen.Fragile && hitFlag {

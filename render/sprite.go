@@ -20,10 +20,7 @@ func NewEmptySprite(x, y float64, w, h int) *Sprite {
 func NewSprite(x, y float64, r *image.RGBA) *Sprite {
 	return &Sprite{
 		LayeredPoint: LayeredPoint{
-			Vector: physics.Vector{
-				X: x,
-				Y: y,
-			},
+			Vector: physics.NewVector(x, y),
 		},
 		r: r,
 	}
@@ -45,11 +42,11 @@ func (s *Sprite) SetRGBA(r *image.RGBA) {
 }
 
 func (s *Sprite) DrawOffset(buff draw.Image, xOff, yOff float64) {
-	ShinyDraw(buff, s.r, int(s.X+xOff), int(s.Y+yOff))
+	ShinyDraw(buff, s.r, int(s.X()+xOff), int(s.Y()+yOff))
 }
 
 func (s *Sprite) Draw(buff draw.Image) {
-	ShinyDraw(buff, s.r, int(s.X), int(s.Y))
+	ShinyDraw(buff, s.r, int(s.X()), int(s.Y()))
 }
 
 func (s *Sprite) Copy() Modifiable {

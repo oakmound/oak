@@ -72,7 +72,7 @@ func (c *Compound) IsStatic() bool {
 
 func (c *Compound) SetOffsets(k string, offsets physics.Vector) {
 	if r, ok := c.subRenderables[k]; ok {
-		r.SetPos(offsets.X, offsets.Y)
+		r.SetPos(offsets.X(), offsets.Y())
 	}
 }
 
@@ -99,23 +99,23 @@ func (c *Compound) Modify(ms ...Modification) Modifiable {
 }
 
 func (c *Compound) DrawOffset(buff draw.Image, xOff float64, yOff float64) {
-	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X+xOff, c.Y+yOff)
+	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X()+xOff, c.Y()+yOff)
 }
 
 func (c *Compound) Draw(buff draw.Image) {
-	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X, c.Y)
+	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X(), c.Y())
 }
 
 func (c *Compound) ShiftPos(x, y float64) {
-	c.SetPos(c.X+x, c.Y+y)
+	c.SetPos(c.X()+x, c.Y()+y)
 }
 
 func (c *Compound) ShiftY(y float64) {
-	c.SetPos(c.X, c.Y+y)
+	c.SetPos(c.X(), c.Y()+y)
 }
 
 func (c *Compound) ShiftX(x float64) {
-	c.SetPos(c.X+x, c.Y)
+	c.SetPos(c.X()+x, c.Y())
 }
 
 func (c *Compound) SetPos(x, y float64) {

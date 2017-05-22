@@ -165,7 +165,7 @@ func ConeCastSingle(x, y, angle, angleWidth, rays, length float64, invalidIDS []
 		cp := RayCastSingle(x, y, a, length, invalidIDS)
 		if cp.Zone != nil {
 			points = append(points, cp)
-			sweep := render.NewLine(x, y, cp.X, cp.Y, color.RGBA{255, 255, 255, 255})
+			sweep := render.NewLine(x, y, cp.X(), cp.Y(), color.RGBA{255, 255, 255, 255})
 			render.Draw(sweep, 5000)
 			render.UndrawAfter(sweep, 50*time.Millisecond)
 		}
@@ -179,7 +179,7 @@ func ConeCastSingleLabels(x, y, angle, angleWidth, rays, length float64, labels 
 	for a := angle; a < angle+angleWidth; a += da {
 		cp := RayCastSingleLabels(x, y, a, length, labels...)
 		if cp.Zone != nil {
-			l := render.NewLine(x, y, cp.X, cp.Y, color.RGBA{0, 0, 255, 255})
+			l := render.NewLine(x, y, cp.X(), cp.Y(), color.RGBA{0, 0, 255, 255})
 			l.SetLayer(60000)
 			render.DrawForTime(l, 2, time.Millisecond*50)
 			points = append(points, cp)

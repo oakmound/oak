@@ -41,15 +41,15 @@ func (s *Solid) GetSpace() *collision.Space {
 }
 
 func (s *Solid) ShiftX(x float64) {
-	s.SetPos(s.X+x, s.Y)
+	s.SetPos(s.X()+x, s.Y())
 }
 
 func (s *Solid) ShiftY(y float64) {
-	s.SetPos(s.X, s.Y+y)
+	s.SetPos(s.X(), s.Y()+y)
 }
 
 func (s *Solid) ShiftPos(x, y float64) {
-	s.SetPos(s.X+x, s.Y+y)
+	s.SetPos(s.X()+x, s.Y()+y)
 }
 
 // Overwrites
@@ -67,7 +67,7 @@ func (s *Solid) SetPos(x float64, y float64) {
 	}
 
 	if s.Space != nil {
-		collision.UpdateSpace(s.X, s.Y, s.W, s.H, s.Space)
+		collision.UpdateSpace(s.X(), s.Y(), s.W, s.H, s.Space)
 	}
 }
 
