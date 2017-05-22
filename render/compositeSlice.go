@@ -18,6 +18,7 @@ type Composite struct {
 
 func NewComposite(sl []Modifiable) *Composite {
 	cs := new(Composite)
+	cs.LayeredPoint = NewLayeredPoint(0, 0, 0)
 	cs.rs = sl
 	return cs
 }
@@ -110,6 +111,7 @@ type CompositeR struct {
 
 func NewCompositeR(sl []Renderable) *CompositeR {
 	cs := new(CompositeR)
+	cs.LayeredPoint = NewLayeredPoint(0, 0, 0)
 	cs.rs = sl
 	return cs
 }

@@ -19,10 +19,11 @@ var (
 
 // NewVector returns a vector with the given x and y components
 func NewVector(x, y float64) Vector {
-	x2 := x
-
-	y2 := y
-	return Vector{&x2, &y2}
+	x2 := new(float64)
+	y2 := new(float64)
+	*x2 = x
+	*y2 = y
+	return Vector{x2, y2}
 }
 
 // Copy copies a Vector
@@ -53,17 +54,16 @@ func (v Vector) Normalize() Vector {
 
 // Zero is shorthand for NewVector(0,0)
 func (v Vector) Zero() Vector {
-	return NewVector(0, 0)
+	return v.SetPos(0, 0)
 }
 
 // Add combines a set of vectors through addition
 func (v Vector) Add(vs ...Vector) Vector {
-	vnew := v.Copy()
 	for _, v2 := range vs {
-		*vnew.x += *v2.x
-		*vnew.y += *v2.y
+		*v.x += *v2.x
+		*v.y += *v2.y
 	}
-	return vnew.round()
+	return v.round()
 }
 
 // Scale scales a vector by a set of floating points
@@ -73,7 +73,9 @@ func (v Vector) Scale(fs ...float64) Vector {
 	for _, f := range fs {
 		f2 *= f
 	}
-	return NewVector(*v.x*f2, *v.y*f2).round()
+	*v.x *= f2
+	*v.y *= f2
+	return v.round()
 }
 
 // Rotate takes in a set of angles and rotates v by their sum
@@ -86,7 +88,8 @@ func (v Vector) Rotate(fs ...float64) Vector {
 	}
 	mgn := v.Magnitude()
 	angle = math.Atan2(*v.y, *v.x) + (angle * (math.Pi) / 180)
-	return NewVector(math.Cos(angle)*mgn, math.Sin(angle)*mgn).round()
+
+	return v.SetPos(math.Cos(angle)*mgn, math.Sin(angle)*mgn)
 }
 
 // Angle returns this vector as an angle in degrees
@@ -119,22 +122,21 @@ func (v Vector) round() Vector {
 
 // ShiftX is equivalent to v.X() += x
 func (v Vector) ShiftX(x float64) Vector {
-	v2 := v.Copy()
-	*v2.x += x
-	return v2
+	*v.x += x
+	return v
 }
 
 // ShiftY is equivalent to v.Y() += y
 func (v Vector) ShiftY(y float64) Vector {
-	v2 := v.Copy()
-	*v2.y += y
-	return v2
+	*v.y += y
+	return v
 }
 
 // GetX returns v.X()
 func (v Vector) X() float64 {
 	return *v.x
 }
+
 func (v Vector) GetX() float64 {
 	return v.X()
 }
@@ -143,19 +145,25 @@ func (v Vector) GetX() float64 {
 func (v Vector) Y() float64 {
 	return *v.y
 }
+
 func (v Vector) GetY() float64 {
 	return v.Y()
 }
+
 func (v Vector) SetX(x float64) Vector {
-	return NewVector(x, *v.y)
+	*v.x = x
+	return v.round()
 }
+
 func (v Vector) SetY(y float64) Vector {
-	return NewVector(*v.x, y)
+	*v.y = y
+	return v.round()
 }
 
 func (v Vector) Xp() *float64 {
 	return v.x
 }
+
 func (v Vector) Yp() *float64 {
 	return v.y
 }

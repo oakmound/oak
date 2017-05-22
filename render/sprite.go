@@ -51,7 +51,11 @@ func (s *Sprite) Draw(buff draw.Image) {
 
 func (s *Sprite) Copy() Modifiable {
 	newS := new(Sprite)
-	*newS = *s
+	if s.r != nil {
+		newS.r = new(image.RGBA)
+		*newS.r = *s.r
+	}
+	newS.LayeredPoint = s.LayeredPoint.Copy()
 	return newS
 }
 

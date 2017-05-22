@@ -14,9 +14,7 @@ import (
 type Sheet [][]*image.RGBA
 
 func (sh *Sheet) SubSprite(x, y int) *Sprite {
-	return &Sprite{
-		r: (*sh)[x][y],
-	}
+	return NewSprite(0, 0, (*sh)[x][y])
 }
 
 type Animation struct {

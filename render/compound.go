@@ -22,6 +22,7 @@ type Compound struct {
 
 func NewCompound(start string, m map[string]Modifiable) *Compound {
 	return &Compound{
+		LayeredPoint:   NewLayeredPoint(0, 0, 0),
 		subRenderables: m,
 		curRenderable:  start,
 	}

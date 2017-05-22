@@ -3,8 +3,9 @@ package render
 import (
 	"strconv"
 
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"fmt"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 type Layered struct {
@@ -26,6 +27,20 @@ func (ld *Layered) UnDraw() {
 type LayeredPoint struct {
 	physics.Vector
 	Layered
+}
+
+func NewLayeredPoint(x, y float64, l int) LayeredPoint {
+	return LayeredPoint{
+		Vector:  physics.NewVector(x, y),
+		Layered: Layered{l},
+	}
+}
+
+func (ldp *LayeredPoint) Copy() LayeredPoint {
+	ldp2 := LayeredPoint{}
+	ldp2.Vector = ldp.Vector.Copy()
+	ldp2.Layered = ldp.Layered
+	return ldp2
 }
 
 func (ldp *LayeredPoint) ShiftX(x float64) {
