@@ -85,9 +85,9 @@ func (ps *Source) cycleParticles() bool {
 				}
 			}
 
-			bp.Vel = bp.Vel.Add(pg.Gravity)
-			bp.Pos = bp.Pos.Add(bp.Vel)
-			bp.SetLayer(ps.Layer(bp.Pos))
+			bp.Vel.Add(pg.Gravity)
+			bp.Add(bp.Vel)
+			bp.SetLayer(ps.Layer(bp.GetPos()))
 			p.Cycle(ps.Generator)
 
 		} else if bp.Life != RECYCLED {
@@ -124,9 +124,10 @@ func (ps *Source) addParticles() {
 		speed := pg.Speed.Poll()
 		startLife := pg.LifeSpan.Poll()
 
-		bp.Pos = physics.NewVector(
+		bp.LayeredPoint = render.NewLayeredPoint(
 			pg.X()+floatFromSpread(pg.Spread.X()),
-			pg.Y()+floatFromSpread(pg.Spread.Y()))
+			pg.Y()+floatFromSpread(pg.Spread.Y()),
+			0)
 		bp.Vel = physics.NewVector(
 			speed*math.Cos(angle)*-1,
 			speed*math.Sin(angle)*-1)
@@ -134,7 +135,7 @@ func (ps *Source) addParticles() {
 		bp.totalLife = startLife
 		ps.particles[ps.recycled[ri]] = ps.Generator.GenerateParticle(bp)
 
-		ps.particles[ps.recycled[ri]].SetLayer(ps.Layer(bp.Pos))
+		ps.particles[ps.recycled[ri]].SetLayer(ps.Layer(bp.GetPos()))
 		render.Draw(ps.particles[ps.recycled[ri]], ps.stackLevel)
 		ri++
 	}
@@ -155,10 +156,12 @@ func (ps *Source) addParticles() {
 		startLife := pg.LifeSpan.Poll()
 
 		bp := &baseParticle{
-			Src: ps,
-			Pos: physics.NewVector(
+			LayeredPoint: render.NewLayeredPoint(
 				pg.X()+floatFromSpread(pg.Spread.X()),
-				pg.Y()+floatFromSpread(pg.Spread.Y())),
+				pg.Y()+floatFromSpread(pg.Spread.Y()),
+				0,
+			),
+			Src: ps,
 			Vel: physics.NewVector(
 				speed*math.Cos(angle)*-1,
 				speed*math.Sin(angle)*-1),
@@ -173,7 +176,7 @@ func (ps *Source) addParticles() {
 		if ps.nextPID >= blockSize {
 			return
 		}
-		p.SetLayer(ps.Layer(bp.Pos))
+		p.SetLayer(ps.Layer(bp.GetPos()))
 		render.Draw(p, ps.stackLevel)
 	}
 

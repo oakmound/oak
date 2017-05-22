@@ -63,7 +63,7 @@ func RayCastSingle(x, y, degrees, length float64, invalidIDS []event.CID) Point 
 		y += s
 
 	}
-	return Point{}
+	return NilPoint()
 }
 
 // RayCastSingleLabels acts like RayCastSingle, but only returns elements
@@ -87,7 +87,7 @@ func RayCastSingleLabels(x, y, degrees, length float64, labels ...int) Point {
 		y += s
 
 	}
-	return Point{}
+	return NilPoint()
 }
 
 // RayCastSingleIgnoreLabels is the opposite of Labels, in that it will return
@@ -112,7 +112,7 @@ func RayCastSingleIgnoreLabels(x, y, degrees, length float64, labels ...int) Poi
 		y += s
 
 	}
-	return Point{}
+	return NilPoint()
 }
 
 // RayCastSingleIgnore is just like ignore labels but also ignores certain
@@ -142,7 +142,7 @@ func RayCastSingleIgnore(x, y, degrees, length float64, invalidIDS []event.CID, 
 		y += s
 
 	}
-	return Point{}
+	return NilPoint()
 }
 
 // ConeCast repeatedly calls RayCast in a cone shape

@@ -3,7 +3,6 @@ package render
 import (
 	"image"
 	"image/color"
-	"image/draw"
 )
 
 var (
@@ -20,6 +19,7 @@ var (
 )
 
 type Reverting struct {
+	Modifiable
 	rs []Modifiable
 }
 
@@ -27,6 +27,7 @@ func NewReverting(m Modifiable) *Reverting {
 	rv := new(Reverting)
 	rv.rs = make([]Modifiable, 1)
 	rv.rs[0] = m
+	rv.Modifiable = m
 	return rv
 }
 
@@ -57,8 +58,8 @@ func (rv *Reverting) IsStatic() bool {
 }
 
 func (rv *Reverting) Revert(n int) {
-	x := rv.current().GetX()
-	y := rv.current().GetY()
+	x := rv.GetX()
+	y := rv.GetY()
 
 	if n >= len(rv.rs) {
 		n = len(rv.rs) - 1
@@ -72,50 +73,10 @@ func (rv *Reverting) RevertAll() {
 	rv.Revert(len(rv.rs) - 1)
 }
 
-func (rv *Reverting) DrawOffset(buff draw.Image, xOff, yOff float64) {
-	rv.current().DrawOffset(buff, xOff, yOff)
-}
-func (rv *Reverting) Draw(buff draw.Image) {
-	rv.current().Draw(buff)
-}
-func (rv *Reverting) GetRGBA() *image.RGBA {
-	return rv.current().GetRGBA()
-}
-func (rv *Reverting) ShiftX(x float64) {
-	rv.current().ShiftX(x)
-}
-func (rv *Reverting) GetX() float64 {
-	return rv.current().GetX()
-}
-func (rv *Reverting) GetY() float64 {
-	return rv.current().GetY()
-}
-func (rv *Reverting) ShiftY(y float64) {
-	rv.current().ShiftY(y)
-}
-func (rv *Reverting) SetPos(x, y float64) {
-	rv.current().SetPos(x, y)
-}
-func (rv *Reverting) GetDims() (int, int) {
-	return rv.current().GetDims()
-}
-func (rv *Reverting) GetLayer() int {
-	return rv.current().GetLayer()
-}
-func (rv *Reverting) SetLayer(l int) {
-	rv.current().SetLayer(l)
-}
-func (rv *Reverting) UnDraw() {
-	rv.current().UnDraw()
-}
-
-func (rv *Reverting) current() Modifiable {
-	return rv.rs[len(rv.rs)-1]
-}
-
 func (rv *Reverting) Modify(ms ...Modification) Modifiable {
-	next := rv.current().Copy().Modify(ms...)
+	next := rv.Modifiable.Copy().Modify(ms...)
 	rv.rs = append(rv.rs, next)
+	rv.Modifiable = rv.rs[len(rv.rs)-1]
 	return rv
 }
 
@@ -125,11 +86,12 @@ func (rv *Reverting) Copy() Modifiable {
 	for i, r := range rv.rs {
 		newRv.rs[i] = r.Copy()
 	}
+	newRv.Modifiable = newRv.rs[len(rv.rs)-1]
 	return newRv
 }
 
 func (rv *Reverting) updateAnimation() {
-	switch t := rv.current().(type) {
+	switch t := rv.Modifiable.(type) {
 	case *Animation:
 		t.updateAnimation()
 	case *Sequence:
@@ -144,7 +106,7 @@ func (rv *Reverting) updateAnimation() {
 }
 
 func (rv *Reverting) Set(k string) {
-	switch t := rv.current().(type) {
+	switch t := rv.Modifiable.(type) {
 	case *Compound:
 		t.Set(k)
 	}
@@ -155,7 +117,7 @@ func (rv *Reverting) Set(k string) {
 }
 
 func (rv *Reverting) Pause() {
-	switch t := rv.current().(type) {
+	switch t := rv.Modifiable.(type) {
 	case *Animation:
 		t.playing = false
 	case *Compound:
@@ -175,7 +137,7 @@ func (rv *Reverting) Pause() {
 }
 
 func (rv *Reverting) Unpause() {
-	switch t := rv.current().(type) {
+	switch t := rv.Modifiable.(type) {
 	case *Animation:
 		t.playing = true
 	case *Compound:
@@ -191,8 +153,4 @@ func (rv *Reverting) Unpause() {
 	case *Sequence:
 		t.Unpause()
 	}
-}
-
-func (rv *Reverting) String() string {
-	return rv.current().String()
 }

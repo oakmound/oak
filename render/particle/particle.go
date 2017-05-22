@@ -20,9 +20,8 @@ type Particle interface {
 }
 
 type baseParticle struct {
-	render.Layered
+	render.LayeredPoint
 	Src       *Source
-	Pos       physics.Vector
 	Vel       physics.Vector
 	Life      float64
 	totalLife float64
@@ -33,27 +32,8 @@ func (bp *baseParticle) GetBaseParticle() *baseParticle {
 	return bp
 }
 
-func (bp *baseParticle) ShiftX(x float64) {
-	bp.Pos = bp.Pos.ShiftX(x)
-}
-
-func (bp *baseParticle) ShiftY(y float64) {
-	bp.Pos = bp.Pos.ShiftY(y)
-}
-
-func (bp *baseParticle) GetX() float64 {
-	return bp.Pos.X()
-}
-
-func (bp *baseParticle) GetY() float64 {
-	return bp.Pos.Y()
-}
-func (bp *baseParticle) SetPos(x, y float64) {
-	bp.Pos = bp.Pos.SetPos(x, y)
-}
-
 func (bp *baseParticle) GetPos() physics.Vector {
-	return bp.Pos
+	return bp.Vector
 }
 
 func (bp *baseParticle) GetDims() (int, int) {

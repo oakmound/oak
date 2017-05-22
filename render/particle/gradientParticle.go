@@ -69,5 +69,5 @@ func (gp *GradientParticle) DrawOffsetGen(generator Generator, buff draw.Image, 
 
 	halfSize := float64(gp.size / 2)
 
-	render.ShinyDraw(buff, img, int((xOff+gp.Pos.X())-halfSize), int((yOff+gp.Pos.Y())-halfSize))
+	render.ShinyDraw(buff, img, int((xOff+gp.X())-halfSize), int((yOff+gp.Y())-halfSize))
 }

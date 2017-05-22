@@ -3,7 +3,11 @@
 // those entities to screen.
 package render
 
-import "image/draw"
+import (
+	"image/draw"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
+)
 
 // A Renderable is anything which can
 // be drawn at a given draw layer, undrawn,
@@ -40,4 +44,7 @@ type Renderable interface {
 
 	// Utilities
 	String() string
+
+	// Physics
+	physics.Attachable
 }

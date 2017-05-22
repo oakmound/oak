@@ -23,6 +23,11 @@ type Point struct {
 	Zone *Space
 }
 
+// NilPoint returns a Point representing no collision
+func NilPoint() Point {
+	return Point{physics.NewVector(0, 0), nil}
+}
+
 // NewPoint creates a new point
 func NewPoint(s *Space, x, y float64) Point {
 	return Point{physics.NewVector(x, y), s}
