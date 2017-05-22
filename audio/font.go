@@ -1,3 +1,5 @@
+//+build windows
+
 package audio
 
 // LoopType is an enum for how a font should loop

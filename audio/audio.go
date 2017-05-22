@@ -1,3 +1,5 @@
+//+build windows
+
 package audio
 
 import "bitbucket.org/StephenPatrick/go-winaudio/winaudio"
