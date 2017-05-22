@@ -4,11 +4,19 @@ import (
 	"strconv"
 
 	"bitbucket.org/oakmoundstudio/oak/event"
+	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
 type Moving struct {
 	Solid
 	moving
+}
+
+func NewMoving(x, y, w, h float64, r render.Renderable, cid event.CID) Moving {
+	return Moving{
+		Solid:  NewSolid(x, y, w, h, r, cid),
+		moving: moving{},
+	}
 }
 
 func (m *Moving) Init() event.CID {

@@ -3,11 +3,23 @@ package entities
 import (
 	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/physics"
+	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
 type VectorMoving struct {
 	Solid
 	vMoving
+}
+
+func NewVMoving(x, y, w, h float64, r render.Renderable, cid event.CID, friction float64) VectorMoving {
+	return VectorMoving{
+		Solid: NewSolid(x, y, w, h, r, cid),
+		vMoving: vMoving{
+			Delta:    physics.NewVector(0, 0),
+			Speed:    physics.NewVector(0, 0),
+			Friction: friction,
+		},
+	}
 }
 
 func (vm *VectorMoving) Init() event.CID {

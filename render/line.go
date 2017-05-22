@@ -4,8 +4,6 @@ import (
 	"image"
 	"image/color"
 	"math"
-
-	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 // NewLine returns a line from x1,y1 to x2,y2 with the given color
@@ -23,12 +21,7 @@ func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Sprite 
 	minY := math.Min(y1, y2)
 	rgba = drawLineBetween(int(x1-minX), int(y1-minY), int(x2-minX), int(y2-minY), c, thickness)
 
-	return &Sprite{
-		LayeredPoint: LayeredPoint{
-			Vector: physics.NewVector(minX-float64(thickness), minY-float64(thickness)),
-		},
-		r: rgba,
-	}
+	return NewSprite(minX-float64(thickness), minY-float64(thickness), rgba)
 }
 
 // DrawLineOnto draws a line onto an image rgba from one point to another

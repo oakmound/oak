@@ -3,6 +3,7 @@ package physics
 import (
 	"fmt"
 	"math"
+	"runtime"
 )
 
 // A Vector is a two-dimensional point or vector used throughout oak
@@ -29,7 +30,8 @@ func NewVector(x, y float64) Vector {
 // Copy copies a Vector
 func (v Vector) Copy() Vector {
 	if v.x == nil || v.y == nil {
-		fmt.Println("This vector was bad ", v)
+		_, f, line, _ := runtime.Caller(2)
+		fmt.Println("This vector was bad ", v, f, line)
 		return v.Zero()
 	}
 	return NewVector(*v.x, *v.y)
@@ -170,7 +172,9 @@ func (v Vector) Yp() *float64 {
 
 // SetPos is equivalent to NewVector(x,y)
 func (v Vector) SetPos(x, y float64) Vector {
-	return NewVector(x, y)
+	*v.x = x
+	*v.y = y
+	return v
 }
 
 // GetPos returns both v.X() and v.Y()

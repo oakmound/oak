@@ -76,9 +76,7 @@ func loadPNG(directory, fileName string) *image.RGBA {
 }
 
 func LoadSprite(fileName string) *Sprite {
-	return &Sprite{
-		r: loadPNG(dir, fileName),
-	}
+	return NewSprite(0, 0, loadPNG(dir, fileName))
 }
 
 func GetSheet(fileName string) [][]*Sprite {

@@ -9,7 +9,6 @@ import (
 	"image/color"
 	"time"
 
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	simplex "github.com/ojrac/opensimplex-go"
 )
 
@@ -31,12 +30,7 @@ func NewSeededNoiseBox(w, h int, seed int64) *Sprite {
 		}
 	}
 
-	return &Sprite{
-		LayeredPoint: LayeredPoint{
-			Vector: physics.NewVector(0, 0),
-		},
-		r: rgba,
-	}
+	return NewSprite(0, 0, rgba)
 }
 
 // NewNoiseSequence returns a sequence of noise boxes

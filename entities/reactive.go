@@ -5,46 +5,22 @@ import (
 
 	"bitbucket.org/oakmoundstudio/oak/collision"
 	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/physics"
+	"bitbucket.org/oakmoundstudio/oak/render"
 )
-
-type InteractVector struct {
-	Reactive
-	vMoving
-}
-
-func (iv *InteractVector) Init() event.CID {
-	cID := event.NextID(iv)
-	iv.CID = cID
-	return cID
-}
-
-func (iv *InteractVector) ShiftVector(v physics.Vector) {
-	iv.Reactive.ShiftPos(v.X(), v.Y())
-}
-
-type Interactive struct {
-	Reactive
-	moving
-}
-
-func (i *Interactive) Init() event.CID {
-	cID := event.NextID(i)
-	i.CID = cID
-	return cID
-}
-
-func (i *Interactive) String() string {
-	st := "Interactive: \n{"
-	st += i.Reactive.String()
-	st += "}\n " + i.moving.String()
-	return st
-}
 
 type Reactive struct {
 	Doodad
 	W, H   float64
 	RSpace *collision.ReactiveSpace
+}
+
+func NewReactive(x, y, w, h float64, r render.Renderable, cid event.CID) Reactive {
+	return Reactive{
+		Doodad: NewDoodad(x, y, r, cid),
+		W:      w,
+		H:      h,
+		RSpace: collision.NewReactiveSpace(collision.NewSpace(x, y, w, h, cid), nil),
+	}
 }
 
 func (r *Reactive) SetDim(w, h float64) {

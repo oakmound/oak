@@ -4,8 +4,6 @@ import (
 	"image"
 	"image/color"
 	"math"
-
-	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 type progressFunction func(x, y, w, h int) float64
@@ -53,12 +51,7 @@ func NewGradientBox(w, h int, startColor, endColor color.Color, pFunction progre
 			rgba.Set(x, y, c)
 		}
 	}
-	return &Sprite{
-		LayeredPoint: LayeredPoint{
-			Vector: physics.NewVector(0, 0),
-		},
-		r: rgba,
-	}
+	return NewSprite(0, 0, rgba)
 }
 
 // NewHorizontalGradientBox passes HorizontalProgress into NewGradientBox

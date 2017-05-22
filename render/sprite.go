@@ -3,8 +3,6 @@ package render
 import (
 	"image"
 	"image/draw"
-
-	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 type Sprite struct {
@@ -19,10 +17,8 @@ func NewEmptySprite(x, y float64, w, h int) *Sprite {
 
 func NewSprite(x, y float64, r *image.RGBA) *Sprite {
 	return &Sprite{
-		LayeredPoint: LayeredPoint{
-			Vector: physics.NewVector(x, y),
-		},
-		r: r,
+		LayeredPoint: NewLayeredPoint(0, 0, 0),
+		r:            r,
 	}
 }
 

@@ -14,7 +14,7 @@ type Rect struct {
 }
 
 type Polygon struct {
-	Sprite
+	*Sprite
 	Rect
 	points []physics.Vector
 }
@@ -30,12 +30,7 @@ func ScreenPolygon(points []physics.Vector, w, h int) (*Polygon, error) {
 	rgba := image.NewRGBA(rect)
 
 	return &Polygon{
-		Sprite: Sprite{
-			LayeredPoint: LayeredPoint{
-				Vector: physics.NewVector(0, 0),
-			},
-			r: rgba,
-		},
+		Sprite: NewSprite(0, 0, rgba),
 		Rect: Rect{
 			MinX: MinX,
 			MinY: MinY,
@@ -60,12 +55,7 @@ func NewPolygon(points []physics.Vector) (*Polygon, error) {
 	rgba := image.NewRGBA(rect)
 
 	return &Polygon{
-		Sprite: Sprite{
-			LayeredPoint: LayeredPoint{
-				Vector: physics.NewVector(MinX, MinY),
-			},
-			r: rgba,
-		},
+		Sprite: NewSprite(MinX, MinY, rgba),
 		Rect: Rect{
 			MinX: MinX,
 			MinY: MinY,

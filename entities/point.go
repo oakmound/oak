@@ -1,13 +1,18 @@
 package entities
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"math"
 	"strconv"
+
+	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
 type Point struct {
 	physics.Vector
+}
+
+func NewPoint(x,y float64) Point {
+	return Point{physics.NewVector(x,y)}
 }
 
 func (p *Point) GetX() float64 {
@@ -23,7 +28,7 @@ func (p *Point) GetLogicPos() (float64, float64) {
 	return p.X(), p.Y()
 }
 func (p *Point) SetLogicPos(x, y float64) {
-	p.Vector = p.Vector.SetPos(x, y)
+	p.Vector.SetPos(x, y)
 }
 func (p *Point) DistanceTo(x, y float64) float64 {
 	return p.Distance(physics.NewVector(x, y))

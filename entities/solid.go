@@ -1,17 +1,26 @@
 package entities
 
 import (
-
+	"strconv"
 
 	"bitbucket.org/oakmoundstudio/oak/collision"
 	"bitbucket.org/oakmoundstudio/oak/event"
-	"strconv"
+	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
 type Solid struct {
 	Doodad
 	W, H  float64
 	Space *collision.Space
+}
+
+func NewSolid(x, y, w, h float64, r render.Renderable, cid event.CID) Solid {
+	return Solid{
+		Doodad: NewDoodad(x, y, r, cid),
+		W:      w,
+		H:      h,
+		Space:  collision.NewSpace(x, y, w, h, cid),
+	}
 }
 
 func (s *Solid) SetDim(w, h float64) {
@@ -77,7 +86,6 @@ func (s *Solid) Destroy() {
 	s.CID.UnbindAll()
 	event.DestroyEntity(int(s.CID))
 }
-
 
 func (s *Solid) String() string {
 	st := "Solid:\n{"
