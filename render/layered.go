@@ -8,6 +8,10 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
+const (
+	Undraw = -1000
+)
+
 type Layered struct {
 	layer int
 }
@@ -21,7 +25,7 @@ func (ld *Layered) SetLayer(l int) {
 }
 
 func (ld *Layered) UnDraw() {
-	ld.layer = -1
+	ld.layer = Undraw
 }
 
 type LayeredPoint struct {
@@ -46,14 +50,14 @@ func (ldp *LayeredPoint) Copy() LayeredPoint {
 func (ldp *LayeredPoint) ShiftX(x float64) {
 	fmt.Println(x)
 	fmt.Println(ldp.Vector)
-	ldp.Vector = ldp.Vector.ShiftX(x)
+	ldp.Vector.ShiftX(x)
 }
 func (ldp *LayeredPoint) ShiftY(y float64) {
-	ldp.Vector = ldp.Vector.ShiftY(y)
+	ldp.Vector.ShiftY(y)
 }
 
 func (ldp *LayeredPoint) SetPos(x, y float64) {
-	ldp.Vector = ldp.Vector.SetPos(x, y)
+	ldp.Vector.SetPos(x, y)
 }
 
 func (ldp *LayeredPoint) GetDims() (int, int) {

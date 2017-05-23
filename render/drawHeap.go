@@ -86,7 +86,7 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 			rp := heap.Pop(rh)
 			if rp != nil {
 				r := rp.(Renderable)
-				if r.GetLayer() != -1 {
+				if r.GetLayer() != Undraw {
 					r.Draw(world)
 					heap.Push(newRh, r)
 				}
@@ -101,7 +101,7 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 			intf := heap.Pop(rh)
 			if intf != nil {
 				r := intf.(Renderable)
-				if r.GetLayer() != -1 {
+				if r.GetLayer() != Undraw {
 					x := int(r.GetX())
 					y := int(r.GetY())
 					x2 := x

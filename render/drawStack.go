@@ -51,6 +51,9 @@ func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
 }
 
 func Draw(r Renderable, l int) (Renderable, error) {
+	if r == nil {
+		dlog.Error("Tried to draw nil")
+	}
 	// If there's only one element, l refers to the layer
 	// within that element.
 	if len(GlobalDrawStack.as) == 1 {

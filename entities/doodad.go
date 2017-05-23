@@ -12,6 +12,9 @@ type Doodad struct {
 }
 
 func NewDoodad(x, y float64, r render.Renderable, CID event.CID) Doodad {
+	if r != nil {
+		r.SetPos(x, y)
+	}
 	return Doodad{
 		Point: NewPoint(x, y),
 		R:     r,

@@ -39,6 +39,7 @@ type Renderable interface {
 	GetDims() (int, int)
 	// Basic Implementing struct: Layered
 	GetLayer() int
+
 	SetLayer(l int)
 	UnDraw()
 

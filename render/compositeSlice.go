@@ -65,7 +65,7 @@ func (cs *Composite) Draw(buff draw.Image) {
 	}
 }
 func (cs *Composite) UnDraw() {
-	cs.layer = -1
+	cs.layer = Undraw
 	for _, c := range cs.rs {
 		c.UnDraw()
 	}
@@ -173,7 +173,7 @@ func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, scree
 	realLength := len(cs.rs)
 	for i := 0; i < realLength; i++ {
 		r := cs.rs[i]
-		for (r == nil || r.GetLayer() == -1) && realLength > i {
+		for (r == nil || r.GetLayer() == Undraw) && realLength > i {
 			cs.rs[i], cs.rs[realLength-1] = cs.rs[realLength-1], cs.rs[i]
 			realLength--
 			r = cs.rs[i]

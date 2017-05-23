@@ -89,7 +89,7 @@ func (pg *Polygon) Fill(c color.Color) {
 }
 
 func (pg *Polygon) GetOutline(c color.Color) *Composite {
-	sl := new(Composite)
+	sl := NewComposite([]Modifiable{})
 	j := len(pg.points) - 1
 	for i, p2 := range pg.points {
 		p1 := pg.points[j]

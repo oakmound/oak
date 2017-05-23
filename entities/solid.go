@@ -15,12 +15,13 @@ type Solid struct {
 }
 
 func NewSolid(x, y, w, h float64, r render.Renderable, cid event.CID) Solid {
-	return Solid{
-		Doodad: NewDoodad(x, y, r, cid),
-		W:      w,
-		H:      h,
-		Space:  collision.NewSpace(x, y, w, h, cid),
-	}
+	s := Solid{}
+	cid = cid.Parse(&s)
+	s.Doodad = NewDoodad(x, y, r, cid)
+	s.W = w
+	s.H = h
+	s.Space = collision.NewSpace(x, y, w, h, cid)
+	return s
 }
 
 func (s *Solid) SetDim(w, h float64) {
@@ -81,8 +82,12 @@ func (s *Solid) SetPos(x float64, y float64) {
 }
 
 func (s *Solid) Destroy() {
-	s.R.UnDraw()
-	collision.Remove(s.Space)
+	if s.R != nil {
+		s.R.UnDraw()
+	}
+	if s.Space != nil {
+		collision.Remove(s.Space)
+	}
 	s.CID.UnbindAll()
 	event.DestroyEntity(int(s.CID))
 }

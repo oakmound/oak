@@ -17,7 +17,7 @@ func NewEmptySprite(x, y float64, w, h int) *Sprite {
 
 func NewSprite(x, y float64, r *image.RGBA) *Sprite {
 	return &Sprite{
-		LayeredPoint: NewLayeredPoint(0, 0, 0),
+		LayeredPoint: NewLayeredPoint(x, y, 0),
 		r:            r,
 	}
 }

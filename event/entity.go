@@ -10,6 +10,13 @@ var (
 	idMutex   = sync.Mutex{}
 )
 
+func (cid CID) Parse(e Entity) CID {
+	if cid == 0 {
+		return e.Init()
+	}
+	return cid
+}
+
 // An Entity is an element which can be bound to,
 // in that it has a CID. All Entities need to implement
 // is an Init function which should call NextID(e) and
