@@ -11,7 +11,7 @@ type VectorMoving struct {
 	vMoving
 }
 
-func NewVMoving(x, y, w, h float64, r render.Renderable, cid event.CID, friction float64) VectorMoving {
+func NewVectorMoving(x, y, w, h float64, r render.Renderable, cid event.CID, friction float64) VectorMoving {
 	return VectorMoving{
 		Solid: NewSolid(x, y, w, h, r, cid),
 		vMoving: vMoving{
