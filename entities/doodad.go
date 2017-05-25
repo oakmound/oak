@@ -7,8 +7,8 @@ import (
 
 type Doodad struct {
 	Point
-	R   render.Renderable
-	CID event.CID
+	event.CID
+	R render.Renderable
 }
 
 func NewDoodad(x, y float64, r render.Renderable, CID event.CID) Doodad {
