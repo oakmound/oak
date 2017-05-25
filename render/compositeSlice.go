@@ -206,7 +206,7 @@ func (cs *CompositeR) Draw(buff draw.Image) {
 }
 
 func (cs *CompositeR) UnDraw() {
-	cs.layer = -1
+	cs.layer = Undraw
 	for _, c := range cs.rs {
 		c.UnDraw()
 	}

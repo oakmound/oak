@@ -4,6 +4,7 @@ import (
 	"errors"
 	"image"
 	"image/draw"
+	"runtime"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
@@ -61,8 +62,9 @@ func Draw(r Renderable, l int) (Renderable, error) {
 
 		// Otherwise, l refers to the index within the DrawStack.
 	}
-	if l > len(GlobalDrawStack.as) {
-		dlog.Error("Layer", l, "does not exist on global draw stack")
+	if l < 0 || l >= len(GlobalDrawStack.as) {
+		_, f, line, _ := runtime.Caller(2)
+		dlog.Error("Layer", l, "does not exist on global draw stack", f, line)
 		return nil, errors.New("Layer does not exist on stack")
 	}
 	return GlobalDrawStack.as[l].Add(r, r.GetLayer()), nil
