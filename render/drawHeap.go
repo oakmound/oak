@@ -67,7 +67,6 @@ func (rh *RenderableHeap) PreDraw() {
 		}
 	}
 	rh.toPush = rh.toPush[l:]
-	//fmt.Println("Static?", rh.static)
 }
 
 // Copying a renderableHeap does not include any of its elements,
@@ -81,7 +80,6 @@ func (rh *RenderableHeap) Copy() Addable {
 func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, screenH int) {
 	newRh := &RenderableHeap{}
 	if rh.static {
-		//fmt.Println("There is a static draw heap")
 		for rh.Len() > 0 {
 			rp := heap.Pop(rh)
 			if rp != nil {
@@ -93,7 +91,6 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 			}
 		}
 		newRh.static = true
-		//fmt.Println("Heap length", len(rh.rs))
 	} else {
 		vx := float64(-viewPos.X)
 		vy := float64(-viewPos.Y)

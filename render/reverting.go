@@ -1,23 +1,5 @@
 package render
 
-import (
-	"image"
-	"image/color"
-)
-
-var (
-	emptyMods = [8]interface{}{
-		false,
-		false,
-		color.RGBA{0, 0, 0, 0},
-		image.RGBA{Stride: 0},
-		image.RGBA{Stride: 0},
-		0,
-		[2]float64{0, 0},
-		0,
-	}
-)
-
 type Reverting struct {
 	Modifiable
 	rs []Modifiable

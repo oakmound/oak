@@ -60,7 +60,6 @@ func (a *Audio) ScaleVolume(scale float64) error {
 		return err
 	}
 	// Todo: magic numbers
-	//fmt.Println("Scaling", vol, scale, int32(scale))
 	vol += 10000
 	vol = int32(float64(vol) * scale)
 	vol -= 10000

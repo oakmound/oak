@@ -1,7 +1,6 @@
 package oak
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 
@@ -30,7 +29,7 @@ func drawLoop() {
 
 	tx, err := screenControl.NewTexture(winBuffer.Bounds().Max)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)

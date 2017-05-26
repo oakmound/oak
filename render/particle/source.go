@@ -114,7 +114,6 @@ func (ps *Source) addParticles() {
 	pg := ps.Generator.GetBaseGenerator()
 	// Regularly create particles (up until max particles)
 	newParticleCount := int(pg.NewPerFrame.Poll())
-	//fmt.Println("New particle count:", newParticleCount)
 	ri := 0
 	for ri < len(ps.recycled) && ri < newParticleCount {
 
@@ -146,9 +145,6 @@ func (ps *Source) addParticles() {
 
 	if ps.nextPID >= blockSize {
 		return
-	}
-	if newParticleCount > 0 {
-		//fmt.Println("Making non-recycled particles")
 	}
 	for i := 0; i < newParticleCount; i++ {
 		angle := pg.Angle.Poll() * math.Pi / 180.0
@@ -186,7 +182,6 @@ func (ps *Source) addParticles() {
 // as a Source is active.
 func rotateParticles(id int, nothing interface{}) int {
 	ps := event.GetEntity(id).(*Source)
-	//fmt.Print("rotated")
 	if !ps.paused {
 		ps.cycleParticles()
 		ps.addParticles()
@@ -201,7 +196,6 @@ func clearParticles(id int, nothing interface{}) int {
 	if !ps.paused {
 		if ps.cycleParticles() {
 		} else {
-			//fmt.Print("Killed a Source")
 			if ps.EndFunc != nil {
 				ps.EndFunc()
 			}

@@ -13,8 +13,12 @@ var (
 	resetDraw bool
 	// EmptyRenderable is a simple renderable that can be used
 	// for pseudo-nil renderables that need to be something
-	EmptyRenderable = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
+	emptyRenderable = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
 )
+
+func EmptyRenderable() Modifiable {
+	return emptyRenderable.Copy()
+}
 
 // LoadSpriteAndDraw is shorthand for LoadSprite
 // followed by Draw.

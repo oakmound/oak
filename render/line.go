@@ -103,7 +103,6 @@ func drawLineBetween(x1, y1, x2, y2 int, c color.Color, th int) *image.RGBA {
 		rgba.Set(x2, y2, c)
 		for xm := x2 - th; xm < (x2 + th); xm++ {
 			for ym := y2 - th; ym < (y2 + th); ym++ {
-				//fmt.Println("Setting thick color")
 				rgba.Set(xm, ym, c)
 			}
 		}

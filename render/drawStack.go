@@ -90,7 +90,6 @@ func (ds *DrawStack) PreDraw() {
 		// draw heaps, so this call won't ever drop anything
 		ds.toPush = []Addable{}
 	}
-	//fmt.Println(ds.as)
 	for _, a := range ds.as {
 		a.PreDraw()
 	}
