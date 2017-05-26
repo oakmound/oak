@@ -3,8 +3,6 @@ package render
 import (
 	"strconv"
 
-	"fmt"
-
 	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
@@ -48,9 +46,7 @@ func (ldp *LayeredPoint) Copy() LayeredPoint {
 }
 
 func (ldp *LayeredPoint) ShiftX(x float64) {
-	fmt.Println("ShiftX", x, ldp.X(), ldp.Y())
 	ldp.Vector.ShiftX(x)
-	fmt.Println("ShiftXPost", ldp.X(), ldp.Y())
 }
 func (ldp *LayeredPoint) ShiftY(y float64) {
 	ldp.Vector.ShiftY(y)

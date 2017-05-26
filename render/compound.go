@@ -79,12 +79,13 @@ func (c *Compound) SetOffsets(k string, offsets physics.Vector) {
 
 func (c *Compound) Copy() Modifiable {
 	newC := new(Compound)
-	*newC = *c
+	newC.LayeredPoint = c.LayeredPoint.Copy()
 	newSubRenderables := make(map[string]Modifiable)
 	for k, v := range c.subRenderables {
 		newSubRenderables[k] = v.Copy()
 	}
 	newC.subRenderables = newSubRenderables
+	newC.curRenderable = c.curRenderable
 	return newC
 }
 
