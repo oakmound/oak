@@ -75,6 +75,14 @@ func UpdateSpace(x, y, w, h float64, s *Space) {
 	rt.Insert(s)
 }
 
+// ShiftSpace adds x and y to a space and updates its position
+// in the collision rtree that should not be a package global
+func ShiftSpace(x, y float64, s *Space) {
+	x = x + s.GetX()
+	y = y + s.GetY()
+	UpdateSpace(x, y, s.GetW(), s.GetH(), s)
+}
+
 // Hits returns the set of spaces which are colliding
 // with the passed in space.
 func Hits(sp *Space) []*Space {
