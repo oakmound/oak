@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"fmt"
 	"strconv"
 
 	"bitbucket.org/oakmoundstudio/oak/collision"
@@ -16,6 +17,7 @@ type Solid struct {
 
 func NewSolid(x, y, w, h float64, r render.Renderable, cid event.CID) Solid {
 	s := Solid{}
+	// Todo: use this parse structure on everything else
 	cid = cid.Parse(&s)
 	s.Doodad = NewDoodad(x, y, r, cid)
 	s.W = w
@@ -86,6 +88,7 @@ func (s *Solid) Destroy() {
 		s.R.UnDraw()
 	}
 	if s.Space != nil {
+		fmt.Println("Removing space?", s.Space)
 		collision.Remove(s.Space)
 	}
 	s.CID.UnbindAll()
