@@ -57,6 +57,10 @@ func (ldp *LayeredPoint) SetPos(x, y float64) {
 }
 
 func (ldp *LayeredPoint) GetDims() (int, int) {
+	// We use 6,6 here because our polygon containment library has a bug where it
+	// will misreport artificially small dimensions. This function is expected to
+	// only be used to determine whether something is onscreen to be drawn.
+	// Todo: write own polygon containment library
 	return 6, 6
 }
 
