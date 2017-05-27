@@ -9,7 +9,8 @@ import (
 // A Vector is a two-dimensional point or vector used throughout oak
 // to maintain functionality between packages.
 type Vector struct {
-	x, y *float64
+	x, y       *float64
+	offX, offY float64
 }
 
 var (
@@ -24,7 +25,7 @@ func NewVector(x, y float64) Vector {
 	y2 := new(float64)
 	*x2 = x
 	*y2 = y
-	return Vector{x2, y2}
+	return Vector{x2, y2, 0, 0}
 }
 
 // Copy copies a Vector
@@ -138,7 +139,7 @@ func (v Vector) ShiftY(y float64) Vector {
 
 // GetX returns v.X()
 func (v Vector) X() float64 {
-	return *v.x
+	return *v.x + v.offX
 }
 
 func (v Vector) GetX() float64 {
@@ -147,7 +148,7 @@ func (v Vector) GetX() float64 {
 
 // GetY returns v.Y()
 func (v Vector) Y() float64 {
-	return *v.y
+	return *v.y + v.offY
 }
 
 func (v Vector) GetY() float64 {

@@ -37,9 +37,9 @@ type Renderable interface {
 	GetY() float64
 	SetPos(x, y float64)
 	GetDims() (int, int)
+
 	// Basic Implementing struct: Layered
 	GetLayer() int
-
 	SetLayer(l int)
 	UnDraw()
 
