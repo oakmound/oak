@@ -34,6 +34,11 @@ func (h *RenderableHeap) Less(i, j int) bool { return h.rs[i].GetLayer() < h.rs[
 func (h *RenderableHeap) Swap(i, j int)      { h.rs[i], h.rs[j] = h.rs[j], h.rs[i] }
 
 func (h *RenderableHeap) Push(x interface{}) {
+	defer func() {
+		if x := recover(); x != nil {
+			dlog.Error("Invalid Memory address pushed to Draw Heap")
+		}
+	}()
 	if x == nil {
 		return
 	}
