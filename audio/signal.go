@@ -1,3 +1,5 @@
+//+build windows
+
 package audio
 
 // A ChannelSignal is sent to an AudioChannel to indicate when they should
