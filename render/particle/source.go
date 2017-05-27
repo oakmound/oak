@@ -15,6 +15,8 @@ import (
 const (
 	// RECYCLED refers to the life value given to particles ready to be reused
 	RECYCLED = -1000
+	//IGNORE_END refers to the life value given to particles that want to skip their source's end function.
+	IGNORE_END = RECYCLED / 2
 )
 
 // A Source is used to store and control a set of particles.
@@ -93,7 +95,7 @@ func (ps *Source) cycleParticles() bool {
 		} else if bp.Life != RECYCLED {
 			p.UnDraw()
 			cycled = true
-			if pg.EndFunc != nil {
+			if pg.EndFunc != nil && bp.Life > IGNORE_END {
 				pg.EndFunc(p)
 			}
 			// This relies on Life going down by 1 per frame
