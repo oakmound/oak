@@ -1,7 +1,6 @@
 package entities
 
 import (
-	"fmt"
 	"strconv"
 
 	"bitbucket.org/oakmoundstudio/oak/collision"
@@ -41,9 +40,7 @@ func (s *Solid) SetLogicDim(w, h float64) {
 }
 
 func (s *Solid) SetSpace(sp *collision.Space) {
-	if s.Space != nil {
-		collision.Remove(s.Space)
-	}
+	collision.Remove(s.Space)
 	s.Space = sp
 	collision.Add(s.Space)
 }
@@ -77,20 +74,14 @@ func (s *Solid) SetPos(x float64, y float64) {
 	if s.R != nil {
 		s.R.SetPos(x, y)
 	}
-
-	if s.Space != nil {
-		collision.UpdateSpace(s.X(), s.Y(), s.W, s.H, s.Space)
-	}
+	collision.UpdateSpace(s.X(), s.Y(), s.W, s.H, s.Space)
 }
 
 func (s *Solid) Destroy() {
 	if s.R != nil {
 		s.R.UnDraw()
 	}
-	if s.Space != nil {
-		fmt.Println("Removing space?", s.Space)
-		collision.Remove(s.Space)
-	}
+	collision.Remove(s.Space)
 	s.CID.UnbindAll()
 	event.DestroyEntity(int(s.CID))
 }

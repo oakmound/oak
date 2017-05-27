@@ -212,6 +212,9 @@ func clearParticles(id int, nothing interface{}) int {
 // Stop manually stops a Source, if its duration is infinite
 // or if it should be stopped before expriring naturally.
 func (ps *Source) Stop() {
+	if ps == nil {
+		return
+	}
 	ps.CID.UnbindAllAndRebind([]event.Bindable{clearParticles}, []string{"EnterFrame"})
 }
 

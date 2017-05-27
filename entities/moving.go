@@ -40,9 +40,9 @@ func (m *Moving) ApplyFriction(outsideFriction float64) {
 	} else if frictionScaler < 0 {
 		frictionScaler = 0
 	}
-	m.Delta = m.Delta.Scale(frictionScaler)
+	m.Delta.Scale(frictionScaler)
 	if m.Delta.Magnitude() < .01 {
-		m.Delta = m.Delta.Zero()
+		m.Delta.Zero()
 	}
 }
 

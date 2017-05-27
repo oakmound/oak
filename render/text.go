@@ -40,6 +40,10 @@ func (t *Text) Draw(buff draw.Image) {
 	t.d.DrawString(t.text.String())
 }
 
+func (t *Text) SetFont(f *Font) {
+	t.d = f
+}
+
 // Center will shift the text so that the existing leftmost point
 // where the text sits becomes the center of the new text.
 func (t *Text) Center() {

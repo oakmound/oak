@@ -62,10 +62,7 @@ func (r *Reactive) ShiftPos(x, y float64) {
 func (r *Reactive) SetPos(x, y float64) {
 	r.SetLogicPos(x, y)
 	r.R.SetPos(x, y)
-
-	if r.RSpace != nil {
-		collision.UpdateSpace(r.X(), r.Y(), r.W, r.H, r.RSpace.Space)
-	}
+	collision.UpdateSpace(r.X(), r.Y(), r.W, r.H, r.RSpace.Space)
 }
 
 func (r *Reactive) Destroy() {
