@@ -53,6 +53,9 @@ func Clear() {
 
 // Add adds a collision space to the mouse rtree
 func Add(sp *collision.Space) {
+	if sp == nil {
+		return
+	}
 	addLock.Lock()
 	mt.Insert(sp)
 	addLock.Unlock()
@@ -62,6 +65,9 @@ func Add(sp *collision.Space) {
 // Potentially in the future these rtrees and the collision
 // rtrees should not be package global items
 func Remove(sp *collision.Space) {
+	if sp == nil {
+		return
+	}
 	addLock.Lock()
 	mt.Delete(sp)
 	addLock.Unlock()

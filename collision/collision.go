@@ -60,8 +60,14 @@ func Add(sps ...*Space) {
 }
 
 // Remove removes a space from the rtree
-func Remove(sp *Space) {
-	rt.Delete(sp)
+func Remove(sps ...*Space) {
+	addLock.Lock()
+	for _, sp := range sps {
+		if sp != nil {
+			rt.Delete(sp)
+		}
+	}
+	addLock.Unlock()
 }
 
 // UpdateSpace resets a space's location to a given
@@ -69,6 +75,9 @@ func Remove(sp *Space) {
 // This is not an operation on a space because
 // a space can exist in multiple rtrees.
 func UpdateSpace(x, y, w, h float64, s *Space) {
+	if s == nil {
+		return
+	}
 	loc := NewRect(x, y, w, h)
 	rt.Delete(s)
 	s.Location = loc
