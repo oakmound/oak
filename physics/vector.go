@@ -109,7 +109,9 @@ func (v Vector) Dot(v2 Vector) float64 {
 // Distance on two vectors returns the euclidean distance
 // from v to v2
 func (v Vector) Distance(v2 Vector) float64 {
-	return v.Add(v2.Scale(-1)).Magnitude()
+	v3 := v.Copy()
+	v4 := v2.Copy()
+	return v3.Add(v4.Scale(-1)).Magnitude()
 }
 
 func (v Vector) round() Vector {
