@@ -25,14 +25,20 @@ func init() {
 					responseCh <- particleBlocks[pID/blockSize]
 					lastOpen--
 				case i := <-freeCh:
-					lastOpen = freeRecieve(i)
+					opened := freeRecieve(i)
+					if opened < lastOpen {
+						lastOpen = opened
+					}
 				case nextOpenCh <- lastOpen:
 					particleBlocks[lastOpen] = <-allocCh
 				}
 			}
 			select {
 			case i := <-freeCh:
-				lastOpen = freeRecieve(i)
+				opened := freeRecieve(i)
+				if opened < lastOpen {
+					lastOpen = opened
+				}
 			default:
 			}
 			lastOpen++
