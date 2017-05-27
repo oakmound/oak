@@ -24,8 +24,10 @@ var (
 // and logs the seed set to file.
 func SeedRNG(curSeed int64) {
 	if currentSeed != 0 && curSeed == DefaultSeed {
+		fmt.Println("Oak Seed was already set to :", currentSeed)
 		return
 	}
+	currentSeed = curSeed
 	if curSeed == DefaultSeed {
 		curSeed = time.Now().UTC().UnixNano()
 	}
