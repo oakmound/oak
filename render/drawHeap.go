@@ -28,6 +28,11 @@ func (rh *RenderableHeap) Add(r Renderable, layer int) Renderable {
 	return r
 }
 
+func (rh *RenderableHeap) Replace(r1, r2 Renderable, layer int) {
+	rh.Add(r2, layer)
+	r1.UnDraw()
+}
+
 // Satisfying the Heap interface
 func (h *RenderableHeap) Len() int           { return len(h.rs) }
 func (h *RenderableHeap) Less(i, j int) bool { return h.rs[i].GetLayer() < h.rs[j].GetLayer() }

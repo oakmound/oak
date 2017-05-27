@@ -46,6 +46,11 @@ func (df *DrawFPS) Add(Renderable, int) Renderable {
 	return nil
 }
 
+// Replace does nothing for a drawFPS
+func (df *DrawFPS) Replace(Renderable, Renderable, int) {
+	//NOP
+}
+
 // Copy does effectively nothing for a drawFPS
 func (df *DrawFPS) Copy() Addable {
 	return new(DrawFPS)

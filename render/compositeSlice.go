@@ -105,13 +105,15 @@ func (cs *Composite) String() string {
 
 type CompositeR struct {
 	LayeredPoint
-	toPush []Renderable
-	rs     []Renderable
+	toPush   []Renderable
+	toRemove map[Renderable]bool
+	rs       []Renderable
 }
 
 func NewCompositeR(sl []Renderable) *CompositeR {
 	cs := new(CompositeR)
 	cs.LayeredPoint = NewLayeredPoint(0, 0, 0)
+	cs.toPush = make([]Renderable, 0)
 	cs.rs = sl
 	return cs
 }
@@ -128,6 +130,11 @@ func (cs *CompositeR) Append(r Renderable) {
 func (cs *CompositeR) Add(r Renderable, i int) Renderable {
 	cs.toPush = append(cs.toPush, r)
 	return r
+}
+
+func (cs *CompositeR) Replace(r1, r2 Renderable, i int) {
+	cs.Add(r2, i)
+	r1.UnDraw()
 }
 
 func (cs *CompositeR) AddOffset(i int, v physics.Vector) {

@@ -5,7 +5,6 @@ import (
 
 	"time"
 
-	"bitbucket.org/oakmoundstudio/oak/event"
 	"bitbucket.org/oakmoundstudio/oak/timing"
 )
 
@@ -55,16 +54,5 @@ func UndrawAfter(r Renderable, t time.Duration) {
 // DrawForTime is a wrapper for Draw and UndrawAfter
 func DrawForTime(r Renderable, l int, t time.Duration) {
 	Draw(r, l)
-	UndrawAfter(r, t)
-}
-
-// ReplaceDraw will undraw r1 and draw r2 after the next draw frame
-// Useful for not working
-func ReplaceDraw(r1, r2 Renderable, stackLayer, layer int) {
-	event.GlobalBind(func(no int, nothing interface{}) int {
-		r1.UnDraw()
-		r2.SetLayer(layer)
-		Draw(r2, stackLayer)
-		return event.UnbindSingle
-	}, "PostDraw")
+	UndrawAfter(r, t) 
 }

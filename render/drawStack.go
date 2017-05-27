@@ -4,7 +4,6 @@ import (
 	"errors"
 	"image"
 	"image/draw"
-	"runtime"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
@@ -26,6 +25,7 @@ type DrawStack struct {
 type Addable interface {
 	PreDraw()
 	Add(Renderable, int) Renderable
+	Replace(Renderable, Renderable, int)
 	Copy() Addable
 	draw(draw.Image, image.Point, int, int)
 }
@@ -54,6 +54,7 @@ func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
 func Draw(r Renderable, l int) (Renderable, error) {
 	if r == nil {
 		dlog.Error("Tried to draw nil")
+		return nil, errors.New("Tried to draw nil")
 	}
 	// If there's only one element, l refers to the layer
 	// within that element.
@@ -63,11 +64,25 @@ func Draw(r Renderable, l int) (Renderable, error) {
 		// Otherwise, l refers to the index within the DrawStack.
 	}
 	if l < 0 || l >= len(GlobalDrawStack.as) {
-		_, f, line, _ := runtime.Caller(2)
-		dlog.Error("Layer", l, "does not exist on global draw stack", f, line)
+		dlog.Error("Layer", l, "does not exist on global draw stack")
 		return nil, errors.New("Layer does not exist on stack")
 	}
 	return GlobalDrawStack.as[l].Add(r, r.GetLayer()), nil
+}
+
+// ReplaceDraw will undraw r1 and draw r2 after the next draw frame
+// Useful for not working
+func ReplaceDraw(r1, r2 Renderable, stackLayer, layer int) {
+	if r1 == nil || r2 == nil {
+		dlog.Error("Tried to draw nil")
+		return
+	}
+	if stackLayer < 0 || stackLayer >= len(GlobalDrawStack.as) {
+		dlog.Error("Layer", stackLayer, "does not exist on global draw stack")
+		return
+	}
+	r2.SetLayer(layer)
+	GlobalDrawStack.as[stackLayer].Replace(r1, r2, layer)
 }
 
 func (ds *DrawStack) Push(a Addable) {
