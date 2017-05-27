@@ -149,6 +149,16 @@ func ApplyColor(c color.Color) Modification {
 	}
 }
 
+// ColorBalance takes in 3 numbers between -100 and 500 and applies it to the given image
+func ColorBalance(r, g, b float32) Modification {
+	return func(rgba image.Image) *image.RGBA {
+		filter := gift.New(gift.ColorBalance(r, g, b))
+		dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
+		filter.Draw(dst, rgba)
+		return dst
+	}
+}
+
 // FillMask replaces alpha 0 pixels in an RGBA with corresponding
 // pixels in a second RGBA.
 func FillMask(img image.RGBA) Modification {
