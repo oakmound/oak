@@ -16,6 +16,7 @@ import (
 	"sync"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"bitbucket.org/oakmoundstudio/oak/fileutil"
 )
 
 var (
@@ -42,7 +43,7 @@ func loadPNG(directory, fileName string) *image.RGBA {
 
 	loadLock.Lock()
 	if _, ok := loadedImages[fileName]; !ok {
-		imgFile, err := os.Open(filepath.Join(directory, fileName))
+		imgFile, err := fileutil.Open(filepath.Join(directory, fileName))
 		if err != nil {
 			log.Fatal(err)
 		}
