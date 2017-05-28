@@ -1,8 +1,10 @@
 package oak
 
 import (
+	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
 	"bitbucket.org/oakmoundstudio/oak/audio"
 	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"bitbucket.org/oakmoundstudio/oak/fileutil"
 	"bitbucket.org/oakmoundstudio/oak/render"
 )
 
@@ -28,4 +30,10 @@ func loadAssets() {
 	dlog.Info("Done Loading Audio")
 
 	startupLoadComplete <- true
+}
+
+func SetBinaryPayload(payloadFn func(string) ([]byte, error), dirFn func(string) ([]string, error)) {
+	winaudio.BindataFn = payloadFn
+	fileutil.BindataDir = dirFn
+	fileutil.BindataFn = payloadFn
 }

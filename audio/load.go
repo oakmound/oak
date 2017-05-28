@@ -3,12 +3,12 @@
 package audio
 
 import (
-	"io/ioutil"
 	"path/filepath"
 	"strings"
 
 	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
 	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"bitbucket.org/oakmoundstudio/oak/fileutil"
 	"bitbucket.org/oakmoundstudio/oak/oakerr"
 )
 
@@ -82,7 +82,7 @@ func IsLoaded(filename string) bool {
 // depending on their file ending (currently supporting .wav only)
 func BatchLoad(baseFolder string) error {
 
-	files, err := ioutil.ReadDir(baseFolder)
+	files, err := fileutil.ReadDir(baseFolder)
 
 	if err != nil {
 		dlog.Error(err)

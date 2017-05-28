@@ -73,11 +73,11 @@ func dLog(console, override bool, in ...interface{}) {
 			if err != nil {
 				// We can't log errors while we are in the error
 				// logging function.
-				panic(err)
+				fmt.Println("Logging error", err)
 			}
 			err = writer.Flush()
 			if err != nil {
-				panic(err)
+				fmt.Println("Logging error", err)
 			}
 		}
 

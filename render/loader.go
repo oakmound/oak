@@ -6,7 +6,6 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -103,6 +102,7 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 	if sheet_p, ok := loadedSheets[fileName]; ok {
 		return sheet_p, nil
 	}
+	dlog.Verb("Loading sheet: ", fileName)
 	rgba := loadedImages[fileName]
 	bounds := rgba.Bounds()
 
@@ -175,9 +175,9 @@ func subImage(rgba *image.RGBA, x, y, w, h int) *image.RGBA {
 func BatchLoad(baseFolder string) error {
 
 	// dir2 := filepath.Join(dir, "textures")
-	folders, _ := ioutil.ReadDir(baseFolder)
+	folders, _ := fileutil.ReadDir(baseFolder)
 
-	aliasFile, err := ioutil.ReadFile(filepath.Join(baseFolder, "alias.json"))
+	aliasFile, err := fileutil.ReadFile(filepath.Join(baseFolder, "alias.json"))
 	aliases := make(map[string]string)
 	if err == nil {
 		err = json.Unmarshal(aliasFile, &aliases)
@@ -227,7 +227,7 @@ func BatchLoad(baseFolder string) error {
 				}
 			}
 
-			files, _ := ioutil.ReadDir(filepath.Join(baseFolder, folder.Name()))
+			files, _ := fileutil.ReadDir(filepath.Join(baseFolder, folder.Name()))
 			for _, file := range files {
 				if !file.IsDir() {
 					n := file.Name()
