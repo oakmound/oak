@@ -59,9 +59,27 @@ func SetViewportBounds(x1, y1, x2, y2 int) {
 	if y2 < ScreenHeight {
 		y2 = ScreenHeight
 	}
-	dlog.Info("Viewport bounds set to, ", x1, y1, x2, y2)
 	useViewBounds = true
 	viewBounds = rect{x1, y1, x2, y2}
+
+	dlog.Info("Viewport bounds set to, ", x1, y1, x2, y2)
+
+	newViewX := ViewPos.X
+	newViewY := ViewPos.Y
+	if newViewX < x1 {
+		newViewX = x1
+	} else if newViewX > x2 {
+		newViewX = x2
+	}
+	if newViewY < y1 {
+		newViewY = y1
+	} else if newViewY > y2 {
+		newViewY = y2
+	}
+
+	if newViewX != ViewPos.X || newViewY != ViewPos.Y {
+		viewportChannel <- [2]int{newViewX, newViewY}
+	}
 }
 
 func moveViewportBinding(speed int) func(int, interface{}) int {
