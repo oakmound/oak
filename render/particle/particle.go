@@ -28,6 +28,13 @@ type baseParticle struct {
 	pID       int
 }
 
+func (bp *baseParticle) GetLayer() int {
+	if bp == nil {
+		return render.Undraw
+	}
+	return bp.LayeredPoint.GetLayer()
+}
+
 func (bp *baseParticle) GetBaseParticle() *baseParticle {
 	return bp
 }

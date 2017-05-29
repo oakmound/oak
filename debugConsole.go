@@ -53,9 +53,10 @@ func debugConsole(resetCh, skipScene chan bool) {
 			switch tokenString[0] {
 			case "cheat", "c":
 				// Requires that cheats are all one word! <-- don't forget
-				fmt.Println(commands, tokenString[1])
 				if fn, ok := commands[tokenString[1]]; ok {
 					fn(tokenString[1:])
+				} else {
+					fmt.Println("Unknown command", tokenString[1])
 				}
 			case "viewport":
 				switch tokenString[1] {
