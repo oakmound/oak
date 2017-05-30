@@ -15,6 +15,9 @@ type Layered struct {
 }
 
 func (ld *Layered) GetLayer() int {
+	if ld == nil {
+		return Undraw
+	}
 	return ld.layer
 }
 
