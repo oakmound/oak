@@ -44,6 +44,10 @@ const (
 func sceneTransition(result *SceneResult) {
 	switch result.TransitionType {
 	case TRANSITION_FADE:
+		tx, err := screenControl.NewTexture(winBuffer.Bounds().Max)
+		if err != nil {
+			panic(err)
+		}
 		darkBuffer := winBuffer.RGBA()
 		data := result.TransitionPayload.([2]float64)
 		rate := float32(data[1]) * -1
@@ -51,8 +55,7 @@ func sceneTransition(result *SceneResult) {
 		for i := float32(0); i < length; i++ {
 			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(),
 				render.Brighten(rate*i)(darkBuffer), zeroPoint, screen.Src)
-			windowControl.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
-			windowControl.Publish()
+			drawLoopPublish(tx)
 		}
 	case TRANSITION_NONE:
 	default:
