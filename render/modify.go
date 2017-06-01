@@ -109,7 +109,7 @@ func CutRound(xOff, yOff float64) Modification {
 			p1 := Point{x2, y1}
 			p2 := Point{x1, y1}
 			p3 := Point{x1, y2}
-			//fmt.Println("Corner", p1, p2, p3)
+			//fmt.Println("Corners", p1, p2, p3)
 
 			// Progressing along the curve, whenever a new y value is
 			// intersected at a pixel delete all values
@@ -122,6 +122,10 @@ func CutRound(xOff, yOff float64) Modification {
 				p5 := pointBetween(p2, p3, progress)
 				curveAt := pointBetween(p4, p5, progress)
 				//fmt.Println("Curve, progress:", progress, "pts", p4, p5, curveAt)
+
+				// Could only redo this loop at new y values to save time,
+				// but because this is currently just a pre-processing modification
+				// it should be okay
 				x := alg.RoundF64(curveAt.X)
 				for y := alg.RoundF64(curveAt.Y); y <= bds.Max.Y && y >= bds.Min.Y; y -= c[3] {
 					newRgba.Set(x, y, color.RGBA{0, 0, 0, 0})

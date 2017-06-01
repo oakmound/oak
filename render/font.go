@@ -128,6 +128,9 @@ func parseFontHinting(hintType string) (faceHinting font.Hinting) {
 		faceHinting = font.HintingFull
 	default:
 		dlog.Error("Unable to parse font hinting, ", hintType)
+		fallthrough
+	case "":
+		// Don't warn about undefined hinting
 		faceHinting = font.HintingNone
 	}
 	return faceHinting
