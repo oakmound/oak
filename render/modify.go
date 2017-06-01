@@ -6,6 +6,8 @@ import (
 	// missable bugs.
 	//"github.com/anthonynsimon/bild/blend"
 
+	"bitbucket.org/oakmoundstudio/oak/alg"
+
 	"github.com/disintegration/gift"
 
 	"image"
@@ -76,6 +78,98 @@ func FlipY(rgba *image.RGBA) *image.RGBA {
 		}
 	}
 	return newRgba
+}
+
+func CutRound(xOff, yOff float64) Modification {
+	return func(rgba image.Image) *image.RGBA {
+		bds := rgba.Bounds()
+		newRgba := image.NewRGBA(bds)
+
+		// start off as a copy
+		for x := bds.Min.X; x < bds.Max.X; x++ {
+			for y := bds.Min.Y; y < bds.Max.Y; y++ {
+				newRgba.Set(x, y, rgba.At(x, y))
+			}
+		}
+		// For each corner, define directions
+
+		corners := [][4]int{
+			// X, Y, xDir, yDir
+			{bds.Min.X, bds.Min.Y, 1, 1},
+			{bds.Min.X, bds.Max.Y, 1, -1},
+			{bds.Max.X, bds.Max.Y, -1, -1},
+			{bds.Max.X, bds.Min.Y, -1, 1},
+		}
+		for _, c := range corners {
+			// 3 point Bezier curve
+			x1 := float64(c[0])
+			y1 := float64(c[1])
+			x2 := x1 + (float64(bds.Max.X*c[2]) * xOff)
+			y2 := y1 + (float64(bds.Max.Y*c[3]) * yOff)
+			p1 := Point{x2, y1}
+			p2 := Point{x1, y1}
+			p3 := Point{x1, y2}
+			//fmt.Println("Corner", p1, p2, p3)
+
+			// Progressing along the curve, whenever a new y value is
+			// intersected at a pixel delete all values
+			// from the image above(or below, for negative c[3])
+			// that pixel
+
+			// todo: non-arbitrary progress increment
+			for progress := 0.0; progress < 1.0; progress += 0.01 {
+				p4 := pointBetween(p1, p2, progress)
+				p5 := pointBetween(p2, p3, progress)
+				curveAt := pointBetween(p4, p5, progress)
+				//fmt.Println("Curve, progress:", progress, "pts", p4, p5, curveAt)
+				x := alg.RoundF64(curveAt.X)
+				for y := alg.RoundF64(curveAt.Y); y <= bds.Max.Y && y >= bds.Min.Y; y -= c[3] {
+					newRgba.Set(x, y, color.RGBA{0, 0, 0, 0})
+				}
+			}
+		}
+
+		return newRgba
+	}
+}
+
+// todo: this should not be in this package
+func pointBetween(p1, p2 Point, f float64) Point {
+	return Point{p1.X*(1-f) + p2.X*f, p1.Y*(1-f) + p2.Y*f}
+}
+
+// CutRel acts like Cut, but takes in a multiplier on the
+// existing dimensions of the image.
+func CutRel(relWidth, relHeight float64) Modification {
+	return func(rgba image.Image) *image.RGBA {
+		bds := rgba.Bounds()
+		newWidth := int(float64(bds.Max.X) * relWidth)
+		newHeight := int(float64(bds.Max.Y) * relHeight)
+		newRgba := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
+		for x := 0; x < newWidth; x++ {
+			for y := 0; y < newHeight; y++ {
+				newRgba.Set(x, y, rgba.At(x, y))
+			}
+		}
+		return newRgba
+	}
+}
+
+// Cut reduces (or increases, adding nothing)
+// the dimensions of the input image, setting them to newWidth and
+// newHeight. (Consider: use generic int modifiers here so we
+// don't need CutRel and Cut? i.e a function header like
+// Cut(wMod, hMod func(int) int)? )
+func Cut(newWidth, newHeight int) Modification {
+	return func(rgba image.Image) *image.RGBA {
+		newRgba := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
+		for x := 0; x < newWidth; x++ {
+			for y := 0; y < newHeight; y++ {
+				newRgba.Set(x, y, rgba.At(x, y))
+			}
+		}
+		return newRgba
+	}
 }
 
 // Fade reduces the alpha of an image

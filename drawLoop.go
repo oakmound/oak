@@ -4,6 +4,8 @@ import (
 	"image"
 	"image/draw"
 
+	"runtime/debug"
+
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/render"
 	"bitbucket.org/oakmoundstudio/oak/timing"
@@ -26,6 +28,8 @@ var (
 // 6. publish the screen to display in window.
 func drawLoop() {
 	<-drawChannel
+
+	debug.SetPanicOnFault(true)
 
 	tx, err := screenControl.NewTexture(winBuffer.Bounds().Max)
 	if err != nil {
