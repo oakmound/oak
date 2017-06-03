@@ -1,8 +1,6 @@
 package oak
 
 import (
-	"time"
-
 	"image"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
@@ -11,7 +9,6 @@ import (
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
 	"golang.org/x/mobile/event/mouse"
-	"golang.org/x/mobile/event/paint"
 	"golang.org/x/mobile/event/size"
 )
 
@@ -22,8 +19,8 @@ var (
 func inputLoop() {
 	eFilter = gesture.EventFilter{EventDeque: windowControl}
 	for {
-		e := eFilter.Filter(eFilter.EventDeque.NextEvent()) //Filters an event to see if it fits a defined gesture
-
+		//e := eFilter.Filter(eFilter.EventDeque.NextEvent()) //Filters an event to see if it fits a defined gesture
+		e := eFilter.EventDeque.NextEvent()
 		switch e := e.(type) {
 
 		// We only currently respond to death lifecycle events.
@@ -43,7 +40,7 @@ func inputLoop() {
 		case key.Event:
 			k := GetKeyBind(e.Code.String()[4:])
 			if e.Direction == key.DirPress {
-				dlog.Verb("--------------------", e.Code.String()[4:], k)
+				//dlog.Verb("--------------------", e.Code.String()[4:], k)
 				setDown(k)
 				eb.Trigger("KeyDown", k)
 				eb.Trigger("KeyDown"+k, nil)
@@ -68,7 +65,7 @@ func inputLoop() {
 		// Mouse events all recieve an x, y, and button string.
 		case mouse.Event:
 			button := pmouse.GetMouseButton(int32(e.Button))
-			dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", button)
+			//dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", button)
 			var eventName string
 			if e.Direction == mouse.DirPress {
 				setDown(button)
@@ -104,23 +101,23 @@ func inputLoop() {
 		// We hypothetically don't allow the user to manually resize
 		// their window, so we don't do anything special for such events.
 		case size.Event:
-			dlog.Verb("Got size event", e)
+			//dlog.Verb("Got size event", e)
 			windowRect = image.Rect(0, 0, e.WidthPx, e.HeightPx)
-		case paint.Event:
-			dlog.Verb("Got paint event", e)
 		case error:
 			dlog.Error(e)
 		}
-
-		// This is a hardcoded quit function bound to the escape key.
-		esc, dur := IsHeld("Escape")
-		if esc && dur > time.Second*1 {
-			dlog.Warn("Quiting oak from holding ESCAPE")
-			windowControl.Send(lifecycle.Event{
-				From:        0,
-				To:          0,
-				DrawContext: nil,
-			})
-		}
+		/*
+			//TODO: Reimplement outside of the input loop so that it doesnt slow down the input loop itself
+				// This is a hardcoded quit function bound to the escape key.
+				esc, dur := IsHeld("Escape")
+				if esc && dur > time.Second*1 {
+					dlog.Warn("Quiting oak from holding ESCAPE")
+					windowControl.Send(lifecycle.Event{
+						From:        0,
+						To:          0,
+						DrawContext: nil,
+					})
+				}
+		*/
 	}
 }
