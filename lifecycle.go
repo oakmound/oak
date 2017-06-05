@@ -6,7 +6,6 @@ import (
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/timing"
 
 	"golang.org/x/exp/shiny/screen"
 )
@@ -20,10 +19,6 @@ var (
 	windowUpdateCH = make(chan bool)
 
 	osCh = make(chan func())
-
-	// LogicTicker is exposed so that games can manually change the speed
-	// at which EnterFrame events are produced
-	LogicTicker *timing.DynamicTicker
 
 	lifecycleInit bool
 )
@@ -72,29 +67,6 @@ func osLockedFunc(f func()) {
 		done <- true
 	}
 	<-done
-}
-
-func logicLoop() chan bool {
-	// The logical loop.
-	// In order, it waits on receiving a signal to begin a logical frame.
-	// It then runs any functions bound to when a frame begins.
-	// It then allows a scene to perform it's loop operation.
-	ch := make(chan bool)
-	go func(doneCh chan bool) {
-		LogicTicker = timing.NewDynamicTicker()
-		LogicTicker.SetTick(timing.FPSToDuration(FrameRate))
-		for {
-			select {
-			case <-LogicTicker.C:
-				<-eb.TriggerBack("EnterFrame", nil)
-				sceneCh <- true
-			case <-doneCh:
-				LogicTicker.Stop()
-				return
-			}
-		}
-	}(ch)
-	return ch
 }
 
 func changeWindow(width, height int) {
