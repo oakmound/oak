@@ -70,10 +70,6 @@ var (
 
 	eb *event.Bus
 
-	wd, _    = os.Getwd()
-	imageDir string
-	audioDir string
-
 	// GlobalFirstScene is returned by the first
 	// loading scene
 	globalFirstScene string
@@ -96,17 +92,14 @@ func Init(firstScene string) {
 	dlog.SetStringDebugLevel(conf.Debug.Level)
 	dlog.SetDebugFilter(conf.Debug.Filter)
 
+	dlog.Info("Oak Init Start")
+
 	ScreenWidth = conf.Screen.Width
 	ScreenHeight = conf.Screen.Height
 	FrameRate = conf.FrameRate
 	DrawFrameRate = conf.DrawFrameRate
 
-	imageDir = filepath.Join(wd,
-		conf.Assets.AssetPath,
-		conf.Assets.ImagePath)
-	audioDir = filepath.Join(wd,
-		conf.Assets.AssetPath,
-		conf.Assets.AudioPath)
+	wd, _ := os.Getwd()
 
 	render.SetFontDefaults(wd, conf.Assets.AssetPath, conf.Assets.FontPath,
 		conf.Font.Hinting, conf.Font.Color, conf.Font.File, conf.Font.Size,
@@ -119,7 +112,14 @@ func Init(firstScene string) {
 
 	SeedRNG(DefaultSeed)
 
-	go loadAssets()
+	imageDir := filepath.Join(wd,
+		conf.Assets.AssetPath,
+		conf.Assets.ImagePath)
+	audioDir := filepath.Join(wd,
+		conf.Assets.AssetPath,
+		conf.Assets.AudioPath)
+
+	go loadAssets(imageDir, audioDir)
 	go driver.Main(lifecycleLoop)
 	go debugConsole(debugResetCh, skipSceneCh)
 

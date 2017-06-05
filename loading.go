@@ -14,11 +14,12 @@ var (
 	LoadingR render.Renderable
 )
 
-func loadAssets() {
+func loadAssets(imageDir, audioDir string) {
 	dlog.Info("Loading Images")
 	err := render.BatchLoad(imageDir)
 	if err != nil {
 		dlog.Error(err)
+		startupLoadComplete <- true
 		return
 	}
 	dlog.Info("Done Loading Images")
@@ -26,6 +27,7 @@ func loadAssets() {
 	err = audio.BatchLoad(audioDir)
 	if err != nil {
 		dlog.Error(err)
+		startupLoadComplete <- true
 		return
 	}
 	dlog.Info("Done Loading Audio")

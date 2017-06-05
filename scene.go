@@ -16,6 +16,7 @@ var (
 		"loading": {
 			false,
 			func(prevScene string, data interface{}) {
+				dlog.Info("Loading Scene Init")
 				return
 			},
 			func() bool {
