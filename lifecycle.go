@@ -24,12 +24,19 @@ var (
 	// LogicTicker is exposed so that games can manually change the speed
 	// at which EnterFrame events are produced
 	LogicTicker *timing.DynamicTicker
+
+	lifecycleInit bool
 )
 
 //func init() {
 //	runtime.LockOSThread()
 //}
 func lifecycleLoop(s screen.Screen) {
+	if lifecycleInit {
+		dlog.Error("Started lifecycle twice, aborting second call")
+		return
+	}
+	lifecycleInit = true
 
 	screenControl = s
 	var err error

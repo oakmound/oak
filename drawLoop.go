@@ -42,9 +42,9 @@ func drawLoop() {
 	//DrawTicker = timing.NewDynamicTicker()
 	//DrawTicker.SetTick(timing.FPSToDuration(DrawFrameRate))
 
+	dlog.Verb("Draw Loop Start")
 	for {
 		//<-DrawTicker.C
-		dlog.Verb("Draw Loop")
 	drawSelect:
 		select {
 		case <-windowUpdateCH:

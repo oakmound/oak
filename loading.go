@@ -26,6 +26,7 @@ func loadAssets() {
 	err = audio.BatchLoad(audioDir)
 	if err != nil {
 		dlog.Error(err)
+		return
 	}
 	dlog.Info("Done Loading Audio")
 

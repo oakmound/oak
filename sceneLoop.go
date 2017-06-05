@@ -25,12 +25,14 @@ func sceneLoop(firstScene string) {
 	drawChannel <- true
 	drawChannel <- true
 
+	dlog.Verb("Draw Channel Activated")
+
 	for {
 		ViewPos = image.Point{0, 0}
 		updateScreen(0, 0)
 		useViewBounds = false
 
-		dlog.Info("~~~~~~~~~~~Scene Start~~~~~~~~~")
+		dlog.Info("Scene Start", CurrentScene)
 		go func() {
 			sceneMap[CurrentScene].start(prevScene, result.NextSceneInput)
 			transitionCh <- true
@@ -56,7 +58,7 @@ func sceneLoop(firstScene string) {
 				cont = false
 			}
 		}
-		dlog.Info("~~~~~~~~Scene End~~~~~~~~~~")
+		dlog.Info("Scene End", CurrentScene)
 
 		// We don't want enterFrames going off between scenes
 		close(logicTicker)
