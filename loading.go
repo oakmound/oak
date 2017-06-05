@@ -19,7 +19,7 @@ func loadAssets(imageDir, audioDir string) {
 	err := render.BatchLoad(imageDir)
 	if err != nil {
 		dlog.Error(err)
-		startupLoadComplete <- true
+		endLoad()
 		return
 	}
 	dlog.Info("Done Loading Images")
@@ -27,12 +27,17 @@ func loadAssets(imageDir, audioDir string) {
 	err = audio.BatchLoad(audioDir)
 	if err != nil {
 		dlog.Error(err)
-		startupLoadComplete <- true
+		endLoad()
 		return
 	}
 	dlog.Info("Done Loading Audio")
+	endLoad()
+}
 
+func endLoad() {
+	dlog.Info("Done Loading")
 	startupLoadComplete <- true
+	dlog.Info("Startup load signal sent")
 }
 
 func SetBinaryPayload(payloadFn func(string) ([]byte, error), dirFn func(string) ([]string, error)) {

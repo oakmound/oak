@@ -119,10 +119,12 @@ func Init(firstScene string) {
 		conf.Assets.AssetPath,
 		conf.Assets.AudioPath)
 
+	dlog.Info("Init Scene Loop")
+	go sceneLoop(firstScene)
+	dlog.Info("Init asset load")
 	go loadAssets(imageDir, audioDir)
-	go driver.Main(lifecycleLoop)
+	dlog.Info("Init Console")
 	go debugConsole(debugResetCh, skipSceneCh)
-
-	// Loop through scenes
-	sceneLoop(firstScene)
+	dlog.Info("Init Main Driver")
+	driver.Main(lifecycleLoop)
 }

@@ -3,6 +3,7 @@ package oak
 
 import (
 	"image"
+	"sync"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/event"
@@ -20,6 +21,8 @@ var (
 
 	osCh = make(chan func())
 
+	initControl = sync.Mutex{}
+
 	lifecycleInit bool
 )
 
@@ -27,36 +30,48 @@ var (
 //	runtime.LockOSThread()
 //}
 func lifecycleLoop(s screen.Screen) {
+	initControl.Lock()
 	if lifecycleInit {
 		dlog.Error("Started lifecycle twice, aborting second call")
 		return
 	}
 	lifecycleInit = true
+	initControl.Unlock()
+	dlog.Info("Init Lifecycle")
 
 	screenControl = s
 	var err error
 
 	// The window buffer represents the subsection of the world which is available to
 	// be shown in a window.
+	dlog.Info("Creating window buffer")
 	winBuffer, err = screenControl.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
 	if err != nil {
 		dlog.Error(err)
 		return
 	}
-	//defer winBuffer.Release()
 
 	// The window controller handles incoming hardware or platform events and
-	// publishes image data to the screen.
+	// publishes image data to the screen.\
+	dlog.Info("Creating window controller")
 	changeWindow(ScreenWidth, ScreenHeight)
-	//defer windowControl.Release()
 
+	dlog.Info("Getting event bus")
 	eb = event.GetBus()
 
-	go keyHoldLoop()
-	go inputLoop()
+	dlog.Info("Starting draw loop")
 	go drawLoop()
+	dlog.Info("Starting key hold loop")
+	go keyHoldLoop()
+	dlog.Info("Starting input loop")
+	go inputLoop()
 
-	event.ResolvePending()
+	dlog.Info("Starting event handler")
+	go event.ResolvePending()
+	// The quit channel represents a signal
+	// for the engine to stop.
+	<-quitCh
+	return
 }
 
 // runs f on the osLocked thread.

@@ -40,19 +40,19 @@ func sceneLoop(firstScene string) {
 		}()
 		sceneTransition(result)
 		// Post transition, begin loading animation
+		dlog.Info("Starting load animation")
 		drawChannel <- true
+		dlog.Info("Getting Transition Signal")
 		<-transitionCh
+		dlog.Info("Resume Drawing")
 		// Send a signal to resume (or begin) drawing
 		drawChannel <- true
 
+		dlog.Info("Looping Scene")
 		cont := true
 		logicTicker := logicLoop()
 		for cont {
 			select {
-			// The quit channel represents a signal
-			// for the engine to stop.
-			case <-quitCh:
-				return
 			case <-sceneCh:
 				cont = sceneMap[CurrentScene].loop()
 			case <-skipSceneCh:
