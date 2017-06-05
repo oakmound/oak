@@ -34,6 +34,9 @@ func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOf
 	r, g, b, a := cp.startColor.RGBA()
 	r2, g2, b2, a2 := cp.endColor.RGBA()
 	progress := cp.Life / cp.totalLife
+	if progress < 0 {
+		progress = 0
+	}
 	c := color.RGBA64{
 		uint16OnScale(r, r2, progress),
 		uint16OnScale(g, g2, progress),
