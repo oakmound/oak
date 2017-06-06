@@ -47,6 +47,8 @@ func (h *RenderableHeap) Push(x interface{}) {
 	if x == nil {
 		return
 	}
+	// This can cause a 'name offset base pointer out of range' error
+	// Maybe having incrementing sizes instead of appending could help that?
 	h.rs = append(h.rs, x.(Renderable))
 }
 
