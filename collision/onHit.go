@@ -5,11 +5,11 @@ type OnHit func(s, s2 *Space)
 
 // CallOnHits will send a signal to the passed in channel
 // when it has completed all collision functions in the hitmap.
-func CallOnHits(s *Space, m map[int]OnHit, doneCh chan bool) {
+func CallOnHits(s *Space, m map[Label]OnHit, doneCh chan bool) {
 	progCh := make(chan bool)
 	hits := Hits(s)
 	for _, s2 := range hits {
-		go func(s, s2 *Space, m map[int]OnHit, progCh chan bool) {
+		go func(s, s2 *Space, m map[Label]OnHit, progCh chan bool) {
 			if fn, ok := m[s2.Label]; ok {
 				fn(s, s2)
 				progCh <- true

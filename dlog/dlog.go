@@ -36,6 +36,10 @@ var (
 	writer      *bufio.Writer
 )
 
+func GetLogLevel() LogLevel {
+	return debugLevel
+}
+
 // dLog, the primary function of the package,
 // prints out and writes to file a string
 // containing the logged data separated by spaces,

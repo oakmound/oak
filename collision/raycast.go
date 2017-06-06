@@ -65,7 +65,7 @@ func RayCastSingle(x, y, degrees, length float64, invalidIDS []event.CID) Point 
 
 // RayCastSingleLabels acts like RayCastSingle, but only returns elements
 // that match one of the input labels
-func RayCastSingleLabels(x, y, degrees, length float64, labels ...int) Point {
+func RayCastSingleLabels(x, y, degrees, length float64, labels ...Label) Point {
 
 	s := math.Sin(degrees * math.Pi / 180)
 	c := math.Cos(degrees * math.Pi / 180)
@@ -89,7 +89,7 @@ func RayCastSingleLabels(x, y, degrees, length float64, labels ...int) Point {
 
 // RayCastSingleIgnoreLabels is the opposite of Labels, in that it will return
 // the first collision point that is not contained in the set of ignore labels
-func RayCastSingleIgnoreLabels(x, y, degrees, length float64, labels ...int) Point {
+func RayCastSingleIgnoreLabels(x, y, degrees, length float64, labels ...Label) Point {
 	s := math.Sin(degrees * math.Pi / 180)
 	c := math.Cos(degrees * math.Pi / 180)
 	for i := 0.0; i < length; i++ {
@@ -114,7 +114,7 @@ func RayCastSingleIgnoreLabels(x, y, degrees, length float64, labels ...int) Poi
 
 // RayCastSingleIgnore is just like ignore labels but also ignores certain
 // caller ids
-func RayCastSingleIgnore(x, y, degrees, length float64, invalidIDS []event.CID, labels ...int) Point {
+func RayCastSingleIgnore(x, y, degrees, length float64, invalidIDS []event.CID, labels ...Label) Point {
 	s := math.Sin(degrees * math.Pi / 180)
 	c := math.Cos(degrees * math.Pi / 180)
 	for i := 0.0; i < length; i++ {
@@ -171,7 +171,7 @@ func ConeCastSingle(x, y, angle, angleWidth, rays, length float64, invalidIDS []
 }
 
 // ConeCastSingleLabels repeatedly calls RayCastSingleLabels in a cone shape
-func ConeCastSingleLabels(x, y, angle, angleWidth, rays, length float64, labels ...int) (points []Point) {
+func ConeCastSingleLabels(x, y, angle, angleWidth, rays, length float64, labels ...Label) (points []Point) {
 	da := angleWidth / rays
 	for a := angle; a < angle+angleWidth; a += da {
 		cp := RayCastSingleLabels(x, y, a, length, labels...)

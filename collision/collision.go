@@ -105,7 +105,7 @@ func Hits(sp *Space) []*Space {
 
 // HitLabel acts like hits, but reutrns the first space within hits
 // that matches one of the input labels
-func HitLabel(sp *Space, labels ...int) *Space {
+func HitLabel(sp *Space, labels ...Label) *Space {
 	results := rt.SearchIntersect(sp.Bounds())
 	for _, v := range results {
 		for _, label := range labels {

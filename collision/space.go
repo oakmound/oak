@@ -16,6 +16,15 @@ const (
 	PID
 )
 
+const (
+	// NilLabel is used internally for spaces that are otherwise not
+	// given labels.
+	NilLabel Label = -1
+)
+
+// Label is used to store type information for a given space
+type Label int
+
 // A Space is a rectangle
 // with a couple of ways of identifying
 // an underlying object.
@@ -23,7 +32,7 @@ type Space struct {
 	Location *rtreego.Rect
 	// A label can store type information.
 	// Recommended to use with an enum.
-	Label int
+	Label Label
 	// A CID can be used to get the exact
 	// entity which this rectangle belongs to.
 	CID event.CID
@@ -142,7 +151,7 @@ func (s *Space) Update(x, y, w, h float64) {
 
 // UpdateLabel changes the label behind this space and resets
 // it in the package globa rtree
-func (s *Space) UpdateLabel(classtype int) {
+func (s *Space) UpdateLabel(classtype Label) {
 	rt.Delete(s)
 	s.Label = classtype
 	rt.Insert(s)
@@ -207,16 +216,16 @@ func (s *Space) String() string {
 
 // NewUnassignedSpace returns a space that just has a rectangle
 func NewUnassignedSpace(x, y, w, h float64) *Space {
-	return NewLabeledSpace(x, y, w, h, 0)
+	return NewLabeledSpace(x, y, w, h, NilLabel)
 }
 
 // NewSpace returns a space with an associated caller id
 func NewSpace(x, y, w, h float64, cID event.CID) *Space {
-	return NewFullSpace(x, y, w, h, -1, cID)
+	return NewFullSpace(x, y, w, h, NilLabel, cID)
 }
 
 // NewLabeledSpace returns a space with an associated integer label
-func NewLabeledSpace(x, y, w, h float64, l int) *Space {
+func NewLabeledSpace(x, y, w, h float64, l Label) *Space {
 	rect := NewRect(x, y, w, h)
 	return &Space{
 		Location: rect,
@@ -226,7 +235,7 @@ func NewLabeledSpace(x, y, w, h float64, l int) *Space {
 }
 
 // NewFullSpace returns a space with both a label and a caller id
-func NewFullSpace(x, y, w, h float64, l int, cID event.CID) *Space {
+func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 	rect := NewRect(x, y, w, h)
 	return &Space{
 		rect,

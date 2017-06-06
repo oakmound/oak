@@ -13,7 +13,7 @@ type Phase struct {
 	// If allocating maps becomes an issue
 	// we can have two constant maps that we
 	// switch between on alternating frames
-	Touching map[int]bool
+	Touching map[Label]bool
 }
 
 func (cp *Phase) getCollisionPhase() *Phase {
@@ -44,7 +44,7 @@ func phaseCollisionEnter(id int, nothing interface{}) int {
 
 	// check hits
 	hits := Hits(oc.OnCollisionS)
-	newTouching := map[int]bool{}
+	newTouching := map[Label]bool{}
 
 	// if any are new, trigger on collision
 	for _, h := range hits {

@@ -9,7 +9,7 @@ import (
 type CollisionGenerator struct {
 	Generator
 	Fragile bool
-	HitMap  map[int]collision.OnHit
+	HitMap  map[collision.Label]collision.OnHit
 }
 
 // NewCollisionGenerator creates a new collision generator
@@ -27,7 +27,7 @@ func NewCollisionGenerator(g Generator, options ...func(*CollisionGenerator)) Ge
 }
 
 func (cg *CollisionGenerator) setDefault() {
-	cg.HitMap = make(map[int]collision.OnHit)
+	cg.HitMap = make(map[collision.Label]collision.OnHit)
 }
 
 // Generate creates a source using this generator
@@ -69,7 +69,7 @@ func Fragile(f bool) func(*CollisionGenerator) {
 
 // HitMap sets functions to be called when particles from this generator collide
 // with other spaces
-func HitMap(hm map[int]collision.OnHit) func(*CollisionGenerator) {
+func HitMap(hm map[collision.Label]collision.OnHit) func(*CollisionGenerator) {
 	return func(cg *CollisionGenerator) {
 		cg.HitMap = hm
 	}
