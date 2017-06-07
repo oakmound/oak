@@ -39,12 +39,11 @@ func drawLoop() {
 	draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
 	drawLoopPublish(tx)
 
-	//DrawTicker = timing.NewDynamicTicker()
-	//DrawTicker.SetTick(timing.FPSToDuration(DrawFrameRate))
+	DrawTicker = timing.NewDynamicTicker()
+	DrawTicker.SetTick(timing.FPSToDuration(DrawFrameRate))
 
 	dlog.Verb("Draw Loop Start")
 	for {
-		//<-DrawTicker.C
 	drawSelect:
 		select {
 		case <-windowUpdateCH:
@@ -54,7 +53,7 @@ func drawLoop() {
 			<-drawChannel
 			dlog.Verb("Starting loading")
 			for {
-				//<-DrawTicker.C
+				<-DrawTicker.C
 				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
 				if LoadingR != nil {
 					LoadingR.Draw(winBuffer.RGBA())
@@ -74,11 +73,11 @@ func drawLoop() {
 			dlog.Verb("Got something from viewport channel")
 			updateScreen(viewPoint[0], viewPoint[1])
 		default:
+		case <-DrawTicker.C:
 			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
 			render.PreDraw()
 			render.GlobalDrawStack.Draw(winBuffer.RGBA(), ViewPos, ScreenWidth, ScreenHeight)
 			drawLoopPublish(tx)
-			//event.Trigger("PostDraw", nil)
 		}
 	}
 }

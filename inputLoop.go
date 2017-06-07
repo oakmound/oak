@@ -2,6 +2,7 @@ package oak
 
 import (
 	"image"
+	"runtime"
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	pmouse "bitbucket.org/oakmoundstudio/oak/mouse"
@@ -17,11 +18,11 @@ var (
 )
 
 func inputLoop() {
-	eFilter = gesture.EventFilter{EventDeque: windowControl}
+	//eFilter = gesture.EventFilter{EventDeque: windowControl}
+	schedCt := 0
 	for {
 		//e := eFilter.Filter(eFilter.EventDeque.NextEvent()) //Filters an event to see if it fits a defined gesture
-		e := eFilter.EventDeque.NextEvent()
-		switch e := e.(type) {
+		switch e := windowControl.NextEvent().(type) {
 
 		// We only currently respond to death lifecycle events.
 		case lifecycle.Event:
@@ -29,6 +30,7 @@ func inputLoop() {
 				quitCh <- true
 				return
 			}
+			// ... this is where we would respond to window focus events
 
 		// Send key events
 		//
@@ -92,10 +94,11 @@ func inputLoop() {
 			eb.Trigger(eventName, mevent)
 			pmouse.Propagate(eventName+"On", mevent)
 
-		case gesture.Event:
-			eventName := "Gesture" + e.Type.String()
-			dlog.Verb(eventName)
-			eb.Trigger(eventName, pmouse.FromShinyGesture(e))
+		// Uncomment this if using the filter
+		// case gesture.Event:
+		// 	eventName := "Gesture" + e.Type.String()
+		// 	dlog.Verb(eventName)
+		// 	eb.Trigger(eventName, pmouse.FromShinyGesture(e))
 
 		// I don't really know what a paint event is to be honest.
 		// We hypothetically don't allow the user to manually resize
@@ -105,6 +108,11 @@ func inputLoop() {
 			windowRect = image.Rect(0, 0, e.WidthPx, e.HeightPx)
 		case error:
 			dlog.Error(e)
+		}
+		schedCt++
+		if schedCt > 1000 {
+			schedCt = 0
+			runtime.Gosched()
 		}
 		/*
 			//TODO: Reimplement outside of the input loop so that it doesnt slow down the input loop itself
