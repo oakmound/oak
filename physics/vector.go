@@ -13,7 +13,7 @@ type Vector struct {
 	offX, offY float64
 }
 
-var (
+const (
 	// CUTOFF is used for rounding after floating point operations to
 	// zero out vector values that are sufficiently close to zero
 	CUTOFF = 0.001

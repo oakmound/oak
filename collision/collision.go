@@ -79,9 +79,11 @@ func UpdateSpace(x, y, w, h float64, s *Space) {
 		return
 	}
 	loc := NewRect(x, y, w, h)
+	addLock.Lock()
 	rt.Delete(s)
 	s.Location = loc
 	rt.Insert(s)
+	addLock.Unlock()
 }
 
 // ShiftSpace adds x and y to a space and updates its position

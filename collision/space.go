@@ -144,17 +144,21 @@ func (s *Space) SetDim(w, h float64) {
 // Update updates this space with the package global rtree
 func (s *Space) Update(x, y, w, h float64) {
 	loc := NewRect(x, y, w, h)
+	addLock.Lock()
 	rt.Delete(s)
 	s.Location = loc
 	rt.Insert(s)
+	addLock.Unlock()
 }
 
 // UpdateLabel changes the label behind this space and resets
 // it in the package globa rtree
 func (s *Space) UpdateLabel(classtype Label) {
+	addLock.Lock()
 	rt.Delete(s)
 	s.Label = classtype
 	rt.Insert(s)
+	addLock.Unlock()
 }
 
 // OverlapVector returns Overlap as a vector

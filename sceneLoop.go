@@ -22,8 +22,8 @@ func sceneLoop(firstScene string) {
 
 	dlog.Info("First Scene Start")
 
-	drawChannel <- true
-	drawChannel <- true
+	drawCh <- true
+	drawCh <- true
 
 	dlog.Verb("Draw Channel Activated")
 
@@ -41,12 +41,12 @@ func sceneLoop(firstScene string) {
 		sceneTransition(result)
 		// Post transition, begin loading animation
 		dlog.Info("Starting load animation")
-		drawChannel <- true
+		drawCh <- true
 		dlog.Info("Getting Transition Signal")
 		<-transitionCh
 		dlog.Info("Resume Drawing")
 		// Send a signal to resume (or begin) drawing
-		drawChannel <- true
+		drawCh <- true
 
 		dlog.Info("Looping Scene")
 		cont := true
@@ -66,7 +66,7 @@ func sceneLoop(firstScene string) {
 		prevScene = CurrentScene
 
 		// Send a signal to stop drawing
-		drawChannel <- true
+		drawCh <- true
 
 		// Reset any ongoing delays
 	delayLabel:

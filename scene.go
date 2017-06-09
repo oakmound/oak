@@ -21,7 +21,7 @@ var (
 			},
 			func() bool {
 				select {
-				case <-startupLoadComplete:
+				case <-startupLoadCh:
 					dlog.Info("Load Complete")
 					return false
 				default:

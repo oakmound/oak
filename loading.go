@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	startupLoadComplete = make(chan bool)
+	startupLoadCh = make(chan bool)
 	// LoadingR is a renderable that is displayed during loading screens.
 	LoadingR render.Renderable
 )
@@ -36,7 +36,7 @@ func loadAssets(imageDir, audioDir string) {
 
 func endLoad() {
 	dlog.Info("Done Loading")
-	startupLoadComplete <- true
+	startupLoadCh <- true
 	dlog.Info("Startup load signal sent")
 }
 

@@ -27,7 +27,7 @@ var (
 // 5. draw the buffer's data at the viewport's position to the screen.
 // 6. publish the screen to display in window.
 func drawLoop() {
-	<-drawChannel
+	<-drawCh
 
 	debug.SetPanicOnFault(true)
 
@@ -46,11 +46,11 @@ func drawLoop() {
 	for {
 	drawSelect:
 		select {
-		case <-windowUpdateCH:
-			<-windowUpdateCH
-		case <-drawChannel:
+		case <-windowUpdateCh:
+			<-windowUpdateCh
+		case <-drawCh:
 			dlog.Verb("Got something from draw channel")
-			<-drawChannel
+			<-drawCh
 			dlog.Verb("Starting loading")
 			for {
 				<-DrawTicker.C
@@ -61,18 +61,17 @@ func drawLoop() {
 				drawLoopPublish(tx)
 
 				select {
-				case <-drawChannel:
+				case <-drawCh:
 					break drawSelect
-				case viewPoint := <-viewportChannel:
+				case viewPoint := <-viewportCh:
 					dlog.Verb("Got something from viewport channel (waiting on draw)")
 					updateScreen(viewPoint[0], viewPoint[1])
 				default:
 				}
 			}
-		case viewPoint := <-viewportChannel:
+		case viewPoint := <-viewportCh:
 			dlog.Verb("Got something from viewport channel")
 			updateScreen(viewPoint[0], viewPoint[1])
-		default:
 		case <-DrawTicker.C:
 			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
 			render.PreDraw()

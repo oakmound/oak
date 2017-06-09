@@ -21,7 +21,7 @@ type rect struct {
 // SetScreen sends a signal to the draw loop to set the viewport to be at x,y
 func SetScreen(x, y int) {
 	dlog.Verb("Requesting ViewPoint ", x, y)
-	viewportChannel <- [2]int{x, y}
+	viewportCh <- [2]int{x, y}
 }
 
 func updateScreen(x, y int) {
@@ -78,7 +78,7 @@ func SetViewportBounds(x1, y1, x2, y2 int) {
 	}
 
 	if newViewX != ViewPos.X || newViewY != ViewPos.Y {
-		viewportChannel <- [2]int{newViewX, newViewY}
+		viewportCh <- [2]int{newViewX, newViewY}
 	}
 }
 

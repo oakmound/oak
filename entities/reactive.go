@@ -19,7 +19,7 @@ func NewReactive(x, y, w, h float64, r render.Renderable, cid event.CID) Reactiv
 		Doodad: NewDoodad(x, y, r, cid),
 		W:      w,
 		H:      h,
-		RSpace: collision.NewReactiveSpace(collision.NewSpace(x, y, w, h, cid), nil),
+		RSpace: collision.NewEmptyReactiveSpace(collision.NewSpace(x, y, w, h, cid)),
 	}
 }
 

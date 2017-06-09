@@ -40,7 +40,7 @@ var (
 
 	// The draw channel recieves a signal when
 	// drawing should cease (or resume)
-	drawChannel = make(chan bool)
+	drawCh = make(chan bool)
 
 	// The debug reset channel represents
 	// when the debug console should forget the
@@ -49,9 +49,8 @@ var (
 
 	// The viewport channel controls when new
 	// viewport positions should be drawn
-	viewportChannel = make(chan [2]int)
+	viewportCh = make(chan [2]int)
 
-	runEventLoop         bool
 	debugResetInProgress bool
 
 	// ScreenWidth is the width of the screen

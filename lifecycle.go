@@ -17,7 +17,7 @@ var (
 	windowControl screen.Window
 
 	windowRect     image.Rectangle
-	windowUpdateCH = make(chan bool)
+	windowUpdateCh = make(chan bool)
 
 	osCh = make(chan func())
 
@@ -87,7 +87,7 @@ func osLockedFunc(f func()) {
 func changeWindow(width, height int) {
 	//windowFlag := windowControl != nil
 	//if windowFlag {
-	//	windowUpdateCH <- true
+	//	windowUpdateCh <- true
 	//	windowControl.Publish()
 	//	windowControl.Release()
 	//}
@@ -103,7 +103,7 @@ func changeWindow(width, height int) {
 
 	//if windowFlag {
 	//	eFilter = gesture.EventFilter{EventDeque: windowControl}
-	//	windowUpdateCH <- true
+	//	windowUpdateCh <- true
 	//}
 }
 
