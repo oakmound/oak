@@ -9,17 +9,11 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
-//Rate of scrool
-//Sprite to draw to
-//List of things to scroll
-
 //Needs have a start/stop on the ScrollBox : Pause
 //needs bool to track
 
 //scrollrate = some unit of ScrollBox px per ms  takes that and transforms to duration
 //nextscroll = time
-
-//This will only scroll x for now
 
 type ScrollBox struct {
 	*Sprite
@@ -109,10 +103,10 @@ func (s *ScrollBox) Unpause() {
 func (s *ScrollBox) SetReappearPos(x, y float64) error {
 	s.reappear = physics.NewVector(x, y)
 	if x*s.dirX > 0 {
-		return errors.New("ScrollBox will not loop with direction.X(): " + strconv.Itoa(int(s.dirX)) + " and reappear.X(): " + strconv.Itoa(int(x)))
+		return errors.New("ScrollBox will not loop with direction.X: " + strconv.Itoa(int(s.dirX)) + " and reappear.X: " + strconv.Itoa(int(x)))
 	}
 	if y*s.dirY > 0 {
-		return errors.New("ScrollBox will not loop with direction.Y(): " + strconv.Itoa(int(s.dirY)) + " and reappear.X(): " + strconv.Itoa(int(y)))
+		return errors.New("ScrollBox will not loop with direction.Y: " + strconv.Itoa(int(s.dirY)) + " and reappear.X: " + strconv.Itoa(int(y)))
 	}
 	return nil
 }

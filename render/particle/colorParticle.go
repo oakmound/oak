@@ -48,7 +48,7 @@ func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOf
 
 	for i := 0; i < cp.size; i++ {
 		for j := 0; j < cp.size; j++ {
-			if gen.Shape(i, j, cp.size) {
+			if gen.Shape.In(i, j, cp.size) {
 				img.SetRGBA64(i, j, c)
 			}
 		}

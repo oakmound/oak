@@ -4,6 +4,8 @@ import (
 	"image/color"
 	"math"
 
+	"bitbucket.org/oakmoundstudio/oak/shape"
+
 	"github.com/200sc/go-dist/intrange"
 )
 
@@ -16,7 +18,7 @@ type ColorGenerator struct {
 	Size intrange.Range
 	//
 	// Some sort of particle type, for rendering triangles or squares or circles...
-	Shape ShapeFunction
+	Shape shape.Shape
 }
 
 // NewColorGenerator returns a new color generator
@@ -38,7 +40,7 @@ func (cg *ColorGenerator) setDefaults() {
 	cg.EndColor = color.RGBA{0, 0, 0, 0}
 	cg.EndColorRand = color.RGBA{0, 0, 0, 0}
 	cg.Size = intrange.Constant(1)
-	cg.Shape = Square
+	cg.Shape = shape.Square
 }
 
 // Generate creates a source using this generator
@@ -107,6 +109,6 @@ func (cg *ColorGenerator) SetSize(i intrange.Range) {
 //
 
 // SetShape satisfies Shapeable
-func (cg *ColorGenerator) SetShape(sf ShapeFunction) {
+func (cg *ColorGenerator) SetShape(sf shape.Shape) {
 	cg.Shape = sf
 }

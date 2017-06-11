@@ -54,7 +54,7 @@ func (gp *GradientParticle) DrawOffsetGen(generator Generator, buff draw.Image, 
 
 	for i := 0; i < gp.size; i++ {
 		for j := 0; j < gp.size; j++ {
-			if gen.Shape(i, j, gp.size) {
+			if gen.Shape.In(i, j, gp.size) {
 				progress := gen.ProgressFunction(i, j, gp.size, gp.size)
 				c := color.RGBA64{
 					uint16OnScale(r, r2, progress),
