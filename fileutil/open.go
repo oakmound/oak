@@ -62,6 +62,7 @@ func ReadFile(file string) ([]byte, error) {
 }
 
 func ReadDir(file string) ([]os.FileInfo, error) {
+	var fis []os.FileInfo
 	if BindataDir != nil {
 		rel, err := filepath.Rel(wd, file)
 		if err == nil {
@@ -73,12 +74,16 @@ func ReadDir(file string) ([]os.FileInfo, error) {
 					// a directory
 					fis[i] = dummyfileinfo{s, !strings.ContainsRune(s, '.')}
 				}
-				return fis, nil
+			} else {
+				dlog.Warn(err)
 			}
-			dlog.Warn(err)
 		} else {
 			dlog.Warn(err)
 		}
 	}
-	return ioutil.ReadDir(file)
+	fis2, err := ioutil.ReadDir(file)
+	if err != nil {
+		return fis, err
+	}
+	return append(fis, fis2...), nil
 }
