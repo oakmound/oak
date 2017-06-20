@@ -98,7 +98,7 @@ type BindingOption struct {
 // to unbind a bindable
 type UnbindOption struct {
 	BindingOption
-	fn Bindable
+	Fn Bindable
 }
 
 // Binding stores data necessary
@@ -222,7 +222,7 @@ func ResolvePending() {
 			mutex.Lock()
 			pendingMutex.Lock()
 			for _, opt := range fullUnbinds {
-				thisBus.getBindableList(opt.BindingOption).removeBindable(opt.fn)
+				thisBus.getBindableList(opt.BindingOption).removeBindable(opt.Fn)
 			}
 			fullUnbinds = []UnbindOption{}
 			pendingMutex.Unlock()
@@ -270,7 +270,7 @@ func ResolvePending() {
 			pendingMutex.Lock()
 			for _, bindSet := range binds {
 				list := thisBus.getBindableList(bindSet.BindingOption)
-				list.storeBindable(bindSet.fn)
+				list.storeBindable(bindSet.Fn)
 			}
 			binds = []UnbindOption{}
 			pendingMutex.Unlock()
