@@ -51,3 +51,7 @@ type vMoving struct {
 	Speed    physics.Vector
 	Friction float64
 }
+
+func (v vMoving) GetDelta() physics.Vector {
+	return v.Delta
+}

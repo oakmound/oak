@@ -184,3 +184,8 @@ func (v Vector) SetPos(x, y float64) Vector {
 func (v Vector) GetPos() (float64, float64) {
 	return *v.x, *v.y
 }
+
+func AngleVector(angle float64) Vector {
+	angle *= math.Pi / 180
+	return NewVector(math.Cos(angle), math.Sin(angle))
+}
