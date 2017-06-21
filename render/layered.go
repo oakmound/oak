@@ -41,6 +41,13 @@ func NewLayeredPoint(x, y float64, l int) LayeredPoint {
 	}
 }
 
+func (ldp *LayeredPoint) GetLayer() int {
+	if ldp == nil {
+		return Undraw
+	}
+	return ldp.Layered.GetLayer()
+}
+
 func (ldp *LayeredPoint) Copy() LayeredPoint {
 	ldp2 := LayeredPoint{}
 	ldp2.Vector = ldp.Vector.Copy()
