@@ -10,6 +10,13 @@ type ForceVector struct {
 	Force *float64
 }
 
+func NewForceVector(direction Vector, force float64) ForceVector {
+	return ForceVector{Vector: direction, Force: &force}
+}
+func DefaultForceVector(delta Vector, mass float64) ForceVector {
+	return NewForceVector(delta, delta.Magnitude()*mass)
+}
+
 func (f ForceVector) GetForce() ForceVector {
 	return f
 }
