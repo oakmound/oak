@@ -22,10 +22,11 @@ func NewNoiseBox(w, h int) *Sprite {
 func NewSeededNoiseBox(w, h int, seed int64) *Sprite {
 	rect := image.Rect(0, 0, w, h)
 	rgba := image.NewRGBA(rect)
+	rng := rand.New(rand.NewSource(seed))
 
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
-			v := uint8(rand.Intn(256))
+			v := uint8(rng.Intn(256))
 			rgba.Set(x, y, color.RGBA{v, v, v, 255})
 		}
 	}
