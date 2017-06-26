@@ -19,7 +19,8 @@ var (
 	// The init channel communicates between
 	// initializing goroutines for when significant
 	// steps in initialization have been reached
-	initCh = make(chan bool)
+	// initCh = make(chan bool)
+	// currently unused
 
 	//
 	transitionCh = make(chan bool)

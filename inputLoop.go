@@ -6,16 +6,15 @@ import (
 
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	pmouse "bitbucket.org/oakmoundstudio/oak/mouse"
-	"golang.org/x/exp/shiny/gesture"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
 	"golang.org/x/mobile/event/mouse"
 	"golang.org/x/mobile/event/size"
 )
 
-var (
-	eFilter gesture.EventFilter
-)
+// var (
+// 	eFilter gesture.EventFilter
+// )
 
 func inputLoop() {
 	//eFilter = gesture.EventFilter{EventDeque: windowControl}

@@ -105,9 +105,8 @@ func (cs *Composite) String() string {
 
 type CompositeR struct {
 	LayeredPoint
-	toPush   []Renderable
-	toRemove map[Renderable]bool
-	rs       []Renderable
+	toPush []Renderable
+	rs     []Renderable
 }
 
 func NewCompositeR(sl []Renderable) *CompositeR {

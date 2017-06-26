@@ -38,18 +38,18 @@ func (h *RenderableHeap) Len() int           { return len(h.rs) }
 func (h *RenderableHeap) Less(i, j int) bool { return h.rs[i].GetLayer() < h.rs[j].GetLayer() }
 func (h *RenderableHeap) Swap(i, j int)      { h.rs[i], h.rs[j] = h.rs[j], h.rs[i] }
 
-func (h *RenderableHeap) Push(x interface{}) {
+func (h *RenderableHeap) Push(r interface{}) {
 	defer func() {
 		if x := recover(); x != nil {
 			dlog.Error("Invalid Memory address pushed to Draw Heap")
 		}
 	}()
-	if x == nil {
+	if r == nil {
 		return
 	}
 	// This can cause a 'name offset base pointer out of range' error
 	// Maybe having incrementing sizes instead of appending could help that?
-	h.rs = append(h.rs, x.(Renderable))
+	h.rs = append(h.rs, r.(Renderable))
 }
 
 func (h *RenderableHeap) Pop() interface{} {

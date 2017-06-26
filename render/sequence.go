@@ -95,7 +95,7 @@ func (sq *Sequence) Unpause() {
 	sq.playing = true
 }
 
-func TweenSequence(a, b *image.RGBA, frames int, fps float64) *Sequence {
+func TweenSequence(a, b image.Image, frames int, fps float64) *Sequence {
 	images := Tween(a, b, frames)
 	ms := make([]Modifiable, len(images))
 	for i, v := range images {

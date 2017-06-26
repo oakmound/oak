@@ -13,7 +13,6 @@ var (
 		as: []Addable{NewHeap(false)},
 	}
 	initialDrawStack = GlobalDrawStack
-	zeroPoint        = image.Point{0, 0}
 )
 
 type DrawStack struct {

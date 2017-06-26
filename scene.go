@@ -3,6 +3,7 @@ package oak
 import (
 	"errors"
 	"fmt"
+	"image"
 	"image/draw"
 
 	"golang.org/x/exp/shiny/screen"
@@ -43,23 +44,29 @@ const (
 )
 
 func sceneTransition(result *SceneResult) {
-	switch result.TransitionType {
-	case TRANSITION_FADE:
-		tx, err := screenControl.NewTexture(winBuffer.Bounds().Max)
-		if err != nil {
-			panic(err)
-		}
-		darkBuffer := winBuffer.RGBA()
-		data := result.TransitionPayload.([2]float64)
-		rate := float32(data[1]) * -1
-		length := float32(data[0])
-		for i := float32(0); i < length; i++ {
-			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(),
-				render.Brighten(rate*i)(darkBuffer), zeroPoint, screen.Src)
+	if result.Transition != nil {
+		i := 0
+		tx, _ := screenControl.NewTexture(winBuffer.Bounds().Max)
+		cont := true
+		for cont {
+			cont = result.Transition(winBuffer.RGBA(), i)
 			drawLoopPublish(tx)
+			i++
 		}
-	case TRANSITION_NONE:
-	default:
+	}
+}
+
+type transitionFunction func(*image.RGBA, int) bool
+
+func TransitionFade(rate float32, frames int) func(*image.RGBA, int) bool {
+	rate *= -1
+	return func(buf *image.RGBA, frame int) bool {
+		if frame > frames {
+			return false
+		}
+		i := float32(frame)
+		draw.Draw(buf, buf.Bounds(), render.Brighten(rate*i)(buf), zeroPoint, screen.Src)
+		return true
 	}
 }
 
@@ -75,9 +82,8 @@ type Scene struct {
 // A SceneResult is a set of options for what should be passed into the next
 // scene and how the next scene should be transitioned to.
 type SceneResult struct {
-	NextSceneInput    interface{}
-	TransitionType    int
-	TransitionPayload interface{}
+	NextSceneInput interface{}
+	Transition     transitionFunction
 }
 
 // SceneEnd is a function returning the next scene and a SceneResult

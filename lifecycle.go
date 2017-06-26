@@ -26,9 +26,6 @@ var (
 	lifecycleInit bool
 )
 
-//func init() {
-//	runtime.LockOSThread()
-//}
 func lifecycleLoop(s screen.Screen) {
 	initControl.Lock()
 	if lifecycleInit {
@@ -74,23 +71,7 @@ func lifecycleLoop(s screen.Screen) {
 	return
 }
 
-// runs f on the osLocked thread.
-func osLockedFunc(f func()) {
-	done := make(chan bool, 1)
-	osCh <- func() {
-		f()
-		done <- true
-	}
-	<-done
-}
-
 func changeWindow(width, height int) {
-	//windowFlag := windowControl != nil
-	//if windowFlag {
-	//	windowUpdateCh <- true
-	//	windowControl.Publish()
-	//	windowControl.Release()
-	//}
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
 	wC, err := windowController(screenControl, width, height)
@@ -100,16 +81,10 @@ func changeWindow(width, height int) {
 	}
 	windowControl = wC
 	windowRect = image.Rect(0, 0, width, height)
-
-	//if windowFlag {
-	//	eFilter = gesture.EventFilter{EventDeque: windowControl}
-	//	windowUpdateCh <- true
-	//}
 }
 
 // ChangeWindow sets the width and height of the game window. But it doesn't.
 func ChangeWindow(width, height int) {
-	//osLockedFunc(func() { changeWindow(width, height) })
 	windowRect = image.Rect(0, 0, width, height)
 }
 

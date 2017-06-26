@@ -82,7 +82,7 @@ func (t *Text) Wrap(charLimit int, v float64) []*Text {
 		if start+charLimit <= len(st) {
 			out[i] = t.d.NewStrText(st[start:start+charLimit], t.X(), t.Y()+vertical)
 		} else {
-			out[i] = t.d.NewStrText(st[start:len(st)], t.X(), t.Y()+vertical)
+			out[i] = t.d.NewStrText(st[start:], t.X(), t.Y()+vertical)
 		}
 		start += charLimit
 		vertical += v
