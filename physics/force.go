@@ -72,3 +72,9 @@ func Push(a Pushes, b Pushable) {
 	b.GetDelta().Add(fdirection.Normalize().Scale(totalF))
 	dlog.Warn("Total Force was ", totalF, " fdirection ", fdirection.GetX(), fdirection.GetY())
 }
+
+// NOTE
+// IMPORTANT
+// NEVER CALL A RANDOM FUNCTION TO RESOLVE PHYSICS
+// PHYSICS MUST BE DETERMINISTIC
+// OTHERWISE BAD RATS HAPPENS

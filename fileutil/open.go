@@ -64,15 +64,17 @@ func ReadFile(file string) ([]byte, error) {
 func ReadDir(file string) ([]os.FileInfo, error) {
 	var fis []os.FileInfo
 	if BindataDir != nil {
+		dlog.Verb("Bindata not nil, reading directory", file)
 		rel, err := filepath.Rel(wd, file)
 		if err == nil {
 			strs, err := BindataDir(rel)
 			if err == nil {
-				fis := make([]os.FileInfo, len(strs))
+				fis = make([]os.FileInfo, len(strs))
 				for i, s := range strs {
 					// If the data does not contain a period, we consider it
 					// a directory
 					fis[i] = dummyfileinfo{s, !strings.ContainsRune(s, '.')}
+					dlog.Verb("Creating dummy file into for", s, fis[i])
 				}
 			} else {
 				dlog.Warn(err)
