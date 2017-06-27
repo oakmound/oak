@@ -46,6 +46,9 @@ func (rv *Reverting) Revert(n int) {
 	if n >= len(rv.rs) {
 		n = len(rv.rs) - 1
 	}
+	if n < 0 {
+		return
+	}
 
 	rv.rs = rv.rs[:len(rv.rs)-n]
 	rv.Modifiable = rv.rs[len(rv.rs)-1]

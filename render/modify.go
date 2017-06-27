@@ -367,12 +367,10 @@ func Scale(xRatio, yRatio float64) Modification {
 		bounds := rgba.Bounds()
 		w := int(math.Floor(float64(bounds.Max.X) * xRatio))
 		h := int(math.Floor(float64(bounds.Max.Y) * yRatio))
-		newRgba := image.NewRGBA(image.Rect(0, 0, w, h))
-		for x := 0; x < w; x++ {
-			for y := 0; y < h; y++ {
-				newRgba.Set(x, y, rgba.At(int(math.Floor(float64(x)/xRatio)), int(math.Floor(float64(y)/yRatio))))
-			}
-		}
-		return newRgba
+		filter := gift.New(
+			gift.Resize(w, h, gift.CubicResampling))
+		dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
+		filter.Draw(dst, rgba)
+		return dst
 	}
 }
