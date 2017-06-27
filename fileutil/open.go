@@ -76,6 +76,7 @@ func ReadDir(file string) ([]os.FileInfo, error) {
 					fis[i] = dummyfileinfo{s, !strings.ContainsRune(s, '.')}
 					dlog.Verb("Creating dummy file into for", s, fis[i])
 				}
+				return fis, nil
 			} else {
 				dlog.Warn(err)
 			}
@@ -83,9 +84,5 @@ func ReadDir(file string) ([]os.FileInfo, error) {
 			dlog.Warn(err)
 		}
 	}
-	fis2, err := ioutil.ReadDir(file)
-	if err != nil {
-		return fis, err
-	}
-	return append(fis, fis2...), nil
+	return ioutil.ReadDir(file)
 }
