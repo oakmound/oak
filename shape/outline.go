@@ -11,6 +11,7 @@ const (
 	bottomleft
 	left
 	topleft
+	lastdirection
 )
 
 var (
@@ -26,12 +27,12 @@ var (
 	}
 	pointDeltas = []int{
 		1, 0,
-		0, -1,
-		0, -1,
-		-1, 0,
-		-1, 0,
 		0, 1,
 		0, 1,
+		-1, 0,
+		-1, 0,
+		0, -1,
+		0, -1,
 		1, 0,
 	}
 )
@@ -54,7 +55,7 @@ func ToOutline(shape Shape) func(...int) ([]Point, error) {
 		}
 
 		startY := startX
-		for startY > 0 && shape.In(startX, startY, sizes...) {
+		for startY >= 0 && shape.In(startX, startY, sizes...) {
 			startY--
 		}
 		startY++
@@ -76,8 +77,7 @@ func ToOutline(shape Shape) func(...int) ([]Point, error) {
 
 			x += pointDeltas[direction*2]
 			y += pointDeltas[direction*2+1]
-			direction++
-			direction %= topleft + 1
+			direction = (direction + 1) % lastdirection
 		}
 		if direction == top {
 			return outline, nil
@@ -87,17 +87,17 @@ func ToOutline(shape Shape) func(...int) ([]Point, error) {
 		for x != startX || y != startY {
 			outline = append(outline, Point{x, y})
 			direction -= 2
-			direction %= topleft + 1
+			if direction < 0 {
+				direction += lastdirection
+			}
 			x += xyMods[direction*2]
 			y += xyMods[direction*2+1]
-
 			//From a point on the outline look clockwise around for next direction
 			for !inBounds(x, y, w, h) ||
 				!shape.In(x, y, sizes...) {
 				x += pointDeltas[direction*2]
 				y += pointDeltas[direction*2+1]
-				direction++
-				direction %= topleft + 1
+				direction = (direction + 1) % lastdirection
 			}
 		}
 
@@ -106,5 +106,5 @@ func ToOutline(shape Shape) func(...int) ([]Point, error) {
 }
 
 func inBounds(x, y, w, h int) bool {
-	return x < w && x > 0 && y < h && y > 0
+	return x < w && x >= 0 && y < h && y >= 0
 }

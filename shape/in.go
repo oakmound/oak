@@ -78,7 +78,7 @@ var (
 		if len(sizes) > 1 {
 			h = sizes[1]
 		}
-		if x < w && y < h && x > 0 && y > 0 {
+		if x < w && y < h && x >= 0 && y >= 0 {
 			return true
 		}
 		return false
