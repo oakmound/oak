@@ -15,6 +15,13 @@ func NewRect(x, y, x2, y2 int) Rect {
 	}
 }
 
+func NewRectWH(x, y, w, h int) Rect {
+	return Rect{
+		Min: Point{x, y},
+		Max: Point{x + w, y + h},
+	}
+}
+
 func ShuffleRects(rs []Rect) []Rect {
 	for i := len(rs) - 1; i > 0; i-- {
 		j := rand.Intn(i + 1)
