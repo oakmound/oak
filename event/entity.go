@@ -53,7 +53,7 @@ func GetEntity(i int) interface{} {
 
 // HasEntity returns whether the given caller id is an initialized entity
 func HasEntity(i int) bool {
-	return len(callers) >= i
+	return len(callers) >= i && i != 0
 }
 
 // DestroyEntity sets the index within the caller list to nil. Note that this
