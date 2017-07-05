@@ -59,6 +59,21 @@ func (rv *Reverting) RevertAll() {
 	rv.Revert(len(rv.rs) - 1)
 }
 
+func (rv *Reverting) RevertAndModify(n int, ms ...Modification) Modifiable {
+	x := rv.GetX()
+	y := rv.GetY()
+	if n >= len(rv.rs) {
+		n = len(rv.rs) - 1
+	}
+	if n > 0 {
+		rv.rs = rv.rs[:len(rv.rs)-n]
+	}
+	rv.rs = append(rv.rs, rv.rs[len(rv.rs)-1].Copy().Modify(ms...))
+	rv.Modifiable = rv.rs[len(rv.rs)-1]
+	rv.SetPos(x, y)
+	return rv
+}
+
 func (rv *Reverting) Modify(ms ...Modification) Modifiable {
 	next := rv.Modifiable.Copy().Modify(ms...)
 	rv.rs = append(rv.rs, next)
