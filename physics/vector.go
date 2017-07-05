@@ -28,6 +28,13 @@ func NewVector(x, y float64) Vector {
 	return Vector{x2, y2, 0, 0}
 }
 
+func MaxVector(a, b Vector) Vector {
+	if a.Magnitude() > b.Magnitude() {
+		return a
+	}
+	return b
+}
+
 // Copy copies a Vector
 func (v Vector) Copy() Vector {
 	if v.x == nil || v.y == nil {

@@ -97,10 +97,20 @@ func ShiftSpace(x, y float64, s *Space) {
 // Hits returns the set of spaces which are colliding
 // with the passed in space.
 func Hits(sp *Space) []*Space {
+	// Eventually we'll expose SearchIntersect for use cases where you
+	// want to see if you intersect yourself
 	results := rt.SearchIntersect(sp.Bounds())
 	out := make([]*Space, len(results))
-	for index, v := range results {
-		out[index] = v.(*Space)
+	hitSelf := -1
+	for i, v := range results {
+		if v.(*Space) == sp {
+			hitSelf = i
+		}
+		out[i] = v.(*Space)
+	}
+	if hitSelf != -1 {
+		out[hitSelf], out[len(out)-1] = out[len(out)-1], out[hitSelf]
+		return out[:len(out)-1]
 	}
 	return out
 }

@@ -1,6 +1,7 @@
 package collision
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
@@ -215,7 +216,8 @@ func (s *Space) String() string {
 	return strconv.FormatFloat(s.GetX(), 'f', 2, 32) + "," +
 		strconv.FormatFloat(s.GetY(), 'f', 2, 32) + "," +
 		strconv.FormatFloat(s.GetW(), 'f', 2, 32) + "," +
-		strconv.FormatFloat(s.GetH(), 'f', 2, 32)
+		strconv.FormatFloat(s.GetH(), 'f', 2, 32) + "::" +
+		strconv.Itoa(int(s.CID)) + "::" + fmt.Sprintf("%p", s)
 }
 
 // NewUnassignedSpace returns a space that just has a rectangle

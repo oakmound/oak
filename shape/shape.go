@@ -10,6 +10,7 @@ package shape
 // should be variadic, if width/height should not be combined
 // and/or variadic, for additional dimension support
 type Shape interface {
-	In(x, y, size int) bool
-	Rect(size int) [][]bool
+	In(x, y int, sizes ...int) bool
+	Outline(sizes ...int) ([]Point, error)
+	Rect(sizes ...int) [][]bool
 }

@@ -9,7 +9,7 @@ import (
 
 type AttachSpace struct {
 	follow     physics.Vector
-	aSpace     *Space
+	aSpace     **Space
 	offX, offY float64
 }
 
@@ -21,13 +21,13 @@ type attachSpace interface {
 	getAttachSpace() *AttachSpace
 }
 
+// Attach binds attachSpaceEnter at priority -1
 func Attach(v physics.Vector, s *Space, offsets ...float64) error {
-	switch t := event.GetEntity(int(s.CID)).(type) {
-	case attachSpace:
+	if t, ok := event.GetEntity(int(s.CID)).(attachSpace); ok {
 		as := t.getAttachSpace()
-		as.aSpace = s
+		as.aSpace = &s
 		as.follow = v
-		s.CID.Bind(attachSpaceEnter, "EnterFrame")
+		s.CID.BindPriority(attachSpaceEnter, "EnterFrame", -1)
 		if len(offsets) > 0 {
 			as.offX = offsets[0]
 			if len(offsets) > 1 {
@@ -62,9 +62,9 @@ func Detach(s *Space) error {
 
 func attachSpaceEnter(id int, nothing interface{}) int {
 	as := event.GetEntity(id).(attachSpace).getAttachSpace()
-	if as.follow.X()+as.offX != as.aSpace.GetX() ||
-		as.follow.Y()+as.offY != as.aSpace.GetY() {
-		UpdateSpace(as.follow.X()+as.offX, as.follow.Y()+as.offY, as.aSpace.GetW(), as.aSpace.GetH(), as.aSpace)
+	if as.follow.X()+as.offX != (*as.aSpace).GetX() ||
+		as.follow.Y()+as.offY != (*as.aSpace).GetY() {
+		UpdateSpace(as.follow.X()+as.offX, as.follow.Y()+as.offY, (*as.aSpace).GetW(), (*as.aSpace).GetH(), *as.aSpace)
 	}
 	return 0
 }

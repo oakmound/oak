@@ -3,7 +3,7 @@ package shape
 // A Rect is a function that returns a 2d boolean array
 // of booleans for a given size, where true represents
 // that the bounded shape contains the point [x][y].
-type Rect func(size int) [][]bool
+type Rect func(sizes ...int) [][]bool
 
 // InToRect converts an In function into a Rect function.
 // Know that, if you are planning on looping over this only
@@ -12,12 +12,17 @@ type Rect func(size int) [][]bool
 // on some function multiple times, and just having the booleans
 // to re-access is needed.
 func InToRect(i In) Rect {
-	return func(size int) [][]bool {
-		out := make([][]bool, size)
+	return func(sizes ...int) [][]bool {
+		w := sizes[0]
+		h := sizes[0]
+		if len(sizes) > 1 {
+			h = sizes[1]
+		}
+		out := make([][]bool, w)
 		for x := range out {
-			out[x] = make([]bool, size)
+			out[x] = make([]bool, h)
 			for y := range out[x] {
-				out[x][y] = i(x, y, size)
+				out[x][y] = i(x, y, sizes...)
 			}
 		}
 		return out

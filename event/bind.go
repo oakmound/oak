@@ -37,3 +37,14 @@ func (eb *Bus) Bind(fn Bindable, name string, callerID int) {
 func (cid CID) Bind(fn Bindable, name string) {
 	thisBus.Bind(fn, name, int(cid))
 }
+
+// BindPriority on a CID is shorthand for bus.BindPriority(fn, ...)
+func (cid CID) BindPriority(fn Bindable, name string, priority int) {
+	thisBus.BindPriority(fn, BindingOption{
+		Event{
+			name,
+			int(cid),
+		},
+		priority,
+	})
+}
