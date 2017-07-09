@@ -1,37 +1,24 @@
-//+build windows
-
 package audio
 
 import (
 	"path/filepath"
 	"strings"
 
-	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
+	"github.com/200sc/klangsynthese/audio"
+	"github.com/200sc/klangsynthese/mp3"
+	"github.com/200sc/klangsynthese/wav"
+
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/fileutil"
 	"bitbucket.org/oakmoundstudio/oak/oakerr"
 )
 
-// GetWav returns an audio with this assigned font if
-// the audio file is already loaded. This can cause conflicts
-// if multiple audio files in different directories have
-// the same filename.
-func (f *Font) GetWav(filename string) (*Audio, error) {
-	if IsLoaded(filename) {
-		return &Audio{loadedWavs[filename], f, nil, nil}, nil
-	}
-	return nil, oakerr.NotLoadedError{}
-}
+var (
+	wavController = wav.NewController()
+	mp3Controller = mp3.NewController()
+)
 
-// LoadWav on a font will return the audio data from Loading attached
-// to the input font, or error if the file was not able to be loaded
-func (f *Font) LoadWav(directory, filename string) (*Audio, error) {
-	ad, err := LoadWav(directory, filename)
-	if err != nil {
-		return nil, err
-	}
-	return &Audio{ad, f, nil, nil}, nil
-}
+type Data audio.Audio
 
 // GetSounds returns a set of Data for a set of input filenames
 func GetSounds(fileNames ...string) ([]Data, error) {
@@ -63,9 +50,13 @@ func GetWav(filename string) (Data, error) {
 func LoadWav(directory, filename string) (Data, error) {
 	dlog.Verb("Loading", directory, filename)
 	if !IsLoaded(filename) {
-		buffer, err := winaudio.LoadWav(filepath.Join(directory, filename))
+		f, err := fileutil.Open(filepath.Join(directory, filename))
 		if err != nil {
-			return buffer, err
+			return nil, err
+		}
+		buffer, err := wavController.Load(f)
+		if err != nil {
+			return nil, err
 		}
 		loadedWavs[filename] = buffer
 	}

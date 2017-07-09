@@ -1,9 +1,6 @@
-//+build windows
-
 package audio
 
 import (
-	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/physics"
 )
@@ -33,30 +30,26 @@ type Ears struct {
 	PanScale    ScaleType
 }
 
-// SetEars sets "Ears" on the given font
-// Ears are per Font, so for audio effects to obey ear restrictions they need
-// to be built with a Font with those restrictions
-// (but multiple fonts can have the same ears)
-func (f *Font) SetEars(x, y *float64, panWidth float64, silentRadius float64) {
+// NewEars returns a new set of ears to hear pan/volume modified audio from
+func NewEars(x, y *float64, panWidth float64, silentRadius float64) *Ears {
 	ears := new(Ears)
 	ears.X = x
 	ears.Y = y
 	ears.PanWidth = panWidth
 	ears.SilenceRadius = silentRadius
-	f.Ears = ears
+	return ears
 }
 
 // CalculatePan converts PanWidth and two x positions into a left / right pan
 // value.
-func (e *Ears) CalculatePan(x2 float64) int32 {
-	v := (x2 - *e.X) * (winaudio.RIGHT_PAN / e.PanWidth)
-	if v < winaudio.LEFT_PAN {
-		return winaudio.LEFT_PAN
-	} else if v > winaudio.RIGHT_PAN {
-		return winaudio.RIGHT_PAN
+func (e *Ears) CalculatePan(x2 float64) float64 {
+	v := (x2 - *e.X) / e.PanWidth
+	if v < -1 {
+		return -1
+	} else if v > 1 {
+		return 1
 	}
-	dlog.Verb("Pan", *e.X, x2, v)
-	return int32(v)
+	return v
 }
 
 // CalculateVolume converts two vector positions and SilenceRadius into a

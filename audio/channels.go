@@ -1,19 +1,14 @@
-//+build windows
-
 package audio
 
 import (
 	"time"
 
 	"github.com/200sc/go-dist/intrange"
-
-	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"github.com/200sc/klangsynthese/font"
 )
 
-// GetActiveWavChannel returns a channel on the default font.
-// see font.GetActiveWavChannel
-func GetActiveWavChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
-	return defFont.GetActiveWavChannel(freq, fileNames...)
+func DefActiveWavChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+	return GetActiveWavChannel(DefFont, freq, fileNames...)
 }
 
 // GetActiveWavChannel returns a channel that will block until its frequency
@@ -27,7 +22,7 @@ func GetActiveWavChannel(freq intrange.Range, fileNames ...string) (chan Channel
 // while limiting the number of concurrent ongoing audio effects
 // from any one source. All channels will only play once per a given
 // frequency range.
-func (f *Font) GetActiveWavChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+func GetActiveWavChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
 
 	datas, err := GetSounds(fileNames...)
 	if err != nil {
@@ -36,7 +31,7 @@ func (f *Font) GetActiveWavChannel(freq intrange.Range, fileNames ...string) (ch
 
 	sounds := make([]*Audio, len(datas))
 	for i, d := range datas {
-		sounds[i] = &Audio{d, f, nil, nil}
+		sounds[i] = &Audio{font.NewAudio(f, d), nil, nil}
 	}
 
 	soundCh := make(chan ChannelSignal)
@@ -55,19 +50,14 @@ func (f *Font) GetActiveWavChannel(freq intrange.Range, fileNames ...string) (ch
 				sound.X = &x
 				sound.Y = &y
 			}
-			err := sound.Play()
-			if err != nil {
-				dlog.Error(err)
-			}
+			sound.Play()
 		}
 	}()
 	return soundCh, nil
 }
 
-// GetWavChannel calls GetWavChannel on the default sound font.
-// see font.GetWavChannel
-func GetWavChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
-	return defFont.GetWavChannel(freq, fileNames...)
+func DefWavChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+	return GetWavChannel(DefFont, freq, fileNames...)
 }
 
 // GetWavChannel channels will attempt to steal most sends sent to the output
@@ -81,9 +71,9 @@ func GetWavChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal
 // here will let the EnterFrame code which detects the walking status to
 // send on the walking audio channel constantly without worrying about
 // triggering too many sounds.
-func (f *Font) GetWavChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+func GetWavChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
 
-	soundCh, err := f.GetActiveWavChannel(freq, fileNames...)
+	soundCh, err := GetActiveWavChannel(f, freq, fileNames...)
 	if err != nil {
 		return nil, err
 	}

@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"bitbucket.org/oakmoundstudio/oak/audio"
 	"bitbucket.org/oakmoundstudio/oak/collision"
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/event"
@@ -108,7 +107,6 @@ func Init(firstScene string) {
 
 	collision.Init()
 	mouse.Init()
-	audio.InitWinAudio()
 
 	SeedRNG(DefaultSeed)
 
