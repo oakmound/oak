@@ -18,7 +18,7 @@ var (
 	mp3Controller = mp3.NewController()
 )
 
-type Data audio.Audio
+type Data audio.FullAudio
 
 // GetSounds returns a set of Data for a set of input filenames
 func GetSounds(fileNames ...string) ([]Data, error) {
@@ -58,7 +58,7 @@ func LoadWav(directory, filename string) (Data, error) {
 		if err != nil {
 			return nil, err
 		}
-		loadedWavs[filename] = buffer
+		loadedWavs[filename] = buffer.(audio.FullAudio)
 	}
 	return loadedWavs[filename], nil
 }
