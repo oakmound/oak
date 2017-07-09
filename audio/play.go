@@ -9,7 +9,7 @@ import (
 func PlayWav(f *font.Font, filename string) error {
 	ad, err := GetWav(filename)
 	if err == nil {
-		a := Audio{font.NewAudio(f, ad), nil, nil}
+		a := New(f, ad)
 		a.Play()
 	} else {
 		dlog.Error(err)

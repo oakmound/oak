@@ -1,8 +1,6 @@
 package audio
 
 import (
-	"fmt"
-
 	"github.com/200sc/klangsynthese/audio"
 	"github.com/200sc/klangsynthese/audio/filter/supports"
 	"github.com/200sc/klangsynthese/font"
@@ -12,7 +10,8 @@ import (
 // required to filter it through a sound font.
 type Audio struct {
 	*font.Audio
-	X, Y *float64
+	toStop audio.Audio
+	X, Y   *float64
 }
 
 func New(f *font.Font, d Data, coords ...*float64) *Audio {
@@ -22,13 +21,12 @@ func New(f *font.Font, d Data, coords ...*float64) *Audio {
 		a.X = coords[0]
 		if len(coords) > 1 {
 			a.Y = coords[1]
-		}
+		}d
 	}
 	return a
 }
 
 func (a *Audio) Play() <-chan error {
-	fmt.Println("Playing fontaudio", len(a.Font.Filters))
 	a2, err := a.Copy()
 	if err != nil {
 		ch := make(chan error)
@@ -45,7 +43,22 @@ func (a *Audio) Play() <-chan error {
 		}()
 		return ch
 	}
-	return a2.(*Audio).FullAudio.Play()
+	// Don't ask why we're copying it again
+	// or do
+	a3, err := a2.Copy()
+	if err != nil {
+		ch := make(chan error)
+		go func() {
+			ch <- err
+		}()
+		return ch
+	}
+	a.toStop = a3.(*Audio).FullAudio
+	return a3.(*Audio).FullAudio.Play()
+}
+
+func (a *Audio) Stop() error {
+	return a.toStop.Stop()
 }
 
 func (a *Audio) Copy() (audio.Audio, error) {
@@ -71,7 +84,7 @@ func (a *Audio) Filter(fs ...audio.Filter) (audio.Audio, error) {
 			}
 		}
 	}
-	return ad, consError
+	return a, consError
 }
 
 func (a *Audio) MustFilter(fs ...audio.Filter) audio.Audio {

@@ -31,7 +31,7 @@ func GetActiveWavChannel(f *font.Font, freq intrange.Range, fileNames ...string)
 
 	sounds := make([]*Audio, len(datas))
 	for i, d := range datas {
-		sounds[i] = &Audio{font.NewAudio(f, d), nil, nil}
+		sounds[i] = New(f, d)
 	}
 
 	soundCh := make(chan ChannelSignal)
