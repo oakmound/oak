@@ -1,6 +1,7 @@
 package audio
 
 import (
+	"errors"
 	"path/filepath"
 	"strings"
 
@@ -25,7 +26,7 @@ func GetSounds(fileNames ...string) ([]Data, error) {
 	var err error
 	sounds := make([]Data, len(fileNames))
 	for i, f := range fileNames {
-		sounds[i], err = GetWav(f)
+		sounds[i], err = Get(f)
 		if err != nil {
 			return nil, err
 		}
@@ -33,39 +34,52 @@ func GetSounds(fileNames ...string) ([]Data, error) {
 	return sounds, nil
 }
 
-// GetWav without a font will just return the raw audio data
-func GetWav(filename string) (Data, error) {
+// Get without a font will just return the raw audio data
+func Get(filename string) (Data, error) {
 	if IsLoaded(filename) {
-		return loadedWavs[filename], nil
+		return loaded[filename], nil
 	}
 	return nil, oakerr.NotLoadedError{}
 }
 
-// LoadWav joins the directory and filename, attempts to find
+// Load joins the directory and filename, attempts to find
 // the input file, and stores it as filename in the set of
-// loadedWav files.
+// loaded files.
 // This can cause a conflict when multiple files have the same
 // name but different directories-- the first file loaded wil be the
 // one stored in the loeaded map.
-func LoadWav(directory, filename string) (Data, error) {
+func Load(directory, filename string) (Data, error) {
 	dlog.Verb("Loading", directory, filename)
 	if !IsLoaded(filename) {
 		f, err := fileutil.Open(filepath.Join(directory, filename))
 		if err != nil {
 			return nil, err
 		}
-		buffer, err := wavController.Load(f)
+		var buffer audio.Audio
+		end := strings.ToLower(filename[len(filename)-4:])
+		switch end {
+		case ".wav":
+			buffer, err = wavController.Load(f)
+		case ".mp3":
+			buffer, err = mp3Controller.Load(f)
+		default:
+			return nil, errors.New("Unsupported file ending " + end)
+		}
 		if err != nil {
 			return nil, err
 		}
-		loadedWavs[filename] = buffer.(audio.FullAudio)
+		loaded[filename] = buffer.(audio.FullAudio)
 	}
-	return loadedWavs[filename], nil
+	return loaded[filename], nil
 }
 
-// IsLoaded is shorthand for (if _, ok := loadedWavs[filename]; ok)
+func Unload(filename string) {
+	delete(loaded, filename)
+}
+
+// IsLoaded is shorthand for (if _, ok := loaded[filename]; ok)
 func IsLoaded(filename string) bool {
-	_, ok := loadedWavs[filename]
+	_, ok := loaded[filename]
 	return ok
 }
 
@@ -85,9 +99,9 @@ func BatchLoad(baseFolder string) error {
 			n := file.Name()
 			dlog.Verb(n)
 			switch strings.ToLower(n[len(n)-4:]) {
-			case ".wav":
+			case ".wav", ".mp3":
 				dlog.Verb("loading file ", n)
-				_, err := LoadWav(baseFolder, n)
+				_, err := Load(baseFolder, n)
 				if err != nil {
 					dlog.Error(err)
 					return err

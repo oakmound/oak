@@ -21,7 +21,7 @@ func New(f *font.Font, d Data, coords ...*float64) *Audio {
 		a.X = coords[0]
 		if len(coords) > 1 {
 			a.Y = coords[1]
-		}d
+		}
 	}
 	return a
 }

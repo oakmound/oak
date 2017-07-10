@@ -7,8 +7,8 @@ import (
 	"github.com/200sc/klangsynthese/font"
 )
 
-func DefActiveWavChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
-	return GetActiveWavChannel(DefFont, freq, fileNames...)
+func DefActiveChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+	return GetActiveChannel(DefFont, freq, fileNames...)
 }
 
 // GetActiveWavChannel returns a channel that will block until its frequency
@@ -22,7 +22,7 @@ func DefActiveWavChannel(freq intrange.Range, fileNames ...string) (chan Channel
 // while limiting the number of concurrent ongoing audio effects
 // from any one source. All channels will only play once per a given
 // frequency range.
-func GetActiveWavChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+func GetActiveChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
 
 	datas, err := GetSounds(fileNames...)
 	if err != nil {
@@ -56,8 +56,8 @@ func GetActiveWavChannel(f *font.Font, freq intrange.Range, fileNames ...string)
 	return soundCh, nil
 }
 
-func DefWavChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
-	return GetWavChannel(DefFont, freq, fileNames...)
+func DefChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+	return GetChannel(DefFont, freq, fileNames...)
 }
 
 // GetWavChannel channels will attempt to steal most sends sent to the output
@@ -71,9 +71,9 @@ func DefWavChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal
 // here will let the EnterFrame code which detects the walking status to
 // send on the walking audio channel constantly without worrying about
 // triggering too many sounds.
-func GetWavChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+func GetChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
 
-	soundCh, err := GetActiveWavChannel(f, freq, fileNames...)
+	soundCh, err := GetActiveChannel(f, freq, fileNames...)
 	if err != nil {
 		return nil, err
 	}

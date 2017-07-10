@@ -5,9 +5,9 @@ import (
 	"github.com/200sc/klangsynthese/font"
 )
 
-// PlayWav is shorthand for GetWav followed by Play.
-func PlayWav(f *font.Font, filename string) error {
-	ad, err := GetWav(filename)
+// Play is shorthand for Get followed by Play.
+func Play(f *font.Font, filename string) error {
+	ad, err := Get(filename)
 	if err == nil {
 		a := New(f, ad)
 		a.Play()
@@ -17,6 +17,6 @@ func PlayWav(f *font.Font, filename string) error {
 	return err
 }
 
-func DefPlayWav(filename string) error {
-	return PlayWav(DefFont, filename)
+func DefPlay(filename string) error {
+	return Play(DefFont, filename)
 }
