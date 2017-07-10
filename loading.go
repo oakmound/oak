@@ -1,7 +1,6 @@
 package oak
 
 import (
-	"bitbucket.org/StephenPatrick/go-winaudio/winaudio"
 	"bitbucket.org/oakmoundstudio/oak/audio"
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 	"bitbucket.org/oakmoundstudio/oak/fileutil"
@@ -41,7 +40,6 @@ func endLoad() {
 }
 
 func SetBinaryPayload(payloadFn func(string) ([]byte, error), dirFn func(string) ([]string, error)) {
-	winaudio.BindataFn = payloadFn
 	fileutil.BindataDir = dirFn
 	fileutil.BindataFn = payloadFn
 }
