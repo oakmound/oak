@@ -35,7 +35,7 @@ func (a *Audio) Play() <-chan error {
 		}()
 		return ch
 	}
-	_, err = a2.Filter(a.Font.Filters...)
+	a3, err := a2.Filter(a.Font.Filters...)
 	if err != nil {
 		ch := make(chan error)
 		go func() {
@@ -43,9 +43,7 @@ func (a *Audio) Play() <-chan error {
 		}()
 		return ch
 	}
-	// Don't ask why we're copying it again
-	// or do
-	a3, err := a2.Copy()
+	a4, err := a3.(*Audio).FullAudio.Copy()
 	if err != nil {
 		ch := make(chan error)
 		go func() {
@@ -53,8 +51,8 @@ func (a *Audio) Play() <-chan error {
 		}()
 		return ch
 	}
-	a.toStop = a3.(*Audio).FullAudio
-	return a3.(*Audio).FullAudio.Play()
+	a.toStop = a4
+	return a4.Play()
 }
 
 func (a *Audio) Stop() error {
@@ -84,7 +82,7 @@ func (a *Audio) Filter(fs ...audio.Filter) (audio.Audio, error) {
 			}
 		}
 	}
-	return a, consError
+	return ad, consError
 }
 
 func (a *Audio) MustFilter(fs ...audio.Filter) audio.Audio {

@@ -33,12 +33,14 @@ func (xp Pos) Apply(a audio.Audio) (audio.Audio, error) {
 
 func PosFilter(e *Ears) Pos {
 	return func(sp SupportsPos) {
-		fmt.Println("PosFilter", e, sp)
+		filter.AssertStereo()(sp)
 		x, y := sp.GetX(), sp.GetY()
 		if x != nil {
-			filter.Pan(e.CalculatePan(*x))
+			p := e.CalculatePan(*x)
+			filter.Pan(p)(sp)
 			if y != nil {
-				filter.Volume(e.CalculateVolume(physics.NewVector(*x, *y)))
+				v := e.CalculateVolume(physics.NewVector(*x, *y))
+				filter.Volume(v)(sp)
 			}
 		}
 	}
