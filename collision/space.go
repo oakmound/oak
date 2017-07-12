@@ -17,15 +17,6 @@ const (
 	PID
 )
 
-const (
-	// NilLabel is used internally for spaces that are otherwise not
-	// given labels.
-	NilLabel Label = -1
-)
-
-// Label is used to store type information for a given space
-type Label int
-
 // A Space is a rectangle
 // with a couple of ways of identifying
 // an underlying object.
@@ -140,26 +131,6 @@ func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
 // SetDim sets the dimensions of the space
 func (s *Space) SetDim(w, h float64) {
 	s.Update(s.GetX(), s.GetY(), w, h)
-}
-
-// Update updates this space with the package global rtree
-func (s *Space) Update(x, y, w, h float64) {
-	loc := NewRect(x, y, w, h)
-	addLock.Lock()
-	rt.Delete(s)
-	s.Location = loc
-	rt.Insert(s)
-	addLock.Unlock()
-}
-
-// UpdateLabel changes the label behind this space and resets
-// it in the package globa rtree
-func (s *Space) UpdateLabel(classtype Label) {
-	addLock.Lock()
-	rt.Delete(s)
-	s.Label = classtype
-	rt.Insert(s)
-	addLock.Unlock()
 }
 
 // OverlapVector returns Overlap as a vector
