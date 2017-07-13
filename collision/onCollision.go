@@ -10,6 +10,7 @@ import (
 // should be composed of
 type Phase struct {
 	OnCollisionS *Space
+	tree         *Tree
 	// If allocating maps becomes an issue
 	// we can have two constant maps that we
 	// switch between on alternating frames
@@ -27,11 +28,16 @@ type collisionPhase interface {
 // PhaseCollision binds to the entity behind the space's CID so that it will
 // recieve CollisionStart and CollisionStop events, appropriately when
 // entities begin to collide or stop colliding with the space.
-func PhaseCollision(s *Space) error {
+func PhaseCollision(s *Space, trees ...*Tree) error {
 	switch t := event.GetEntity(int(s.CID)).(type) {
 	case collisionPhase:
 		oc := t.getCollisionPhase()
 		oc.OnCollisionS = s
+		if len(trees) > 0 {
+			oc.tree = trees[0]
+		} else {
+			oc.tree = DefTree
+		}
 		s.CID.Bind(phaseCollisionEnter, "EnterFrame")
 		return nil
 	}
@@ -43,7 +49,7 @@ func phaseCollisionEnter(id int, nothing interface{}) int {
 	oc := e.getCollisionPhase()
 
 	// check hits
-	hits := Hits(oc.OnCollisionS)
+	hits := oc.tree.Hits(oc.OnCollisionS)
 	newTouching := map[Label]bool{}
 
 	// if any are new, trigger on collision
