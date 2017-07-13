@@ -7,8 +7,14 @@ import (
 	"github.com/Sythe2o0/rtreego"
 )
 
-const (
+var (
+	// DefaultMaxChildren is the maximum number of children allowed
+	// on a node in the collision tree when NewTree is called without
+	// a maximum number of children.
 	DefaultMaxChildren = 40
+	// DefaultMinChildren is the minimum number of children allowed
+	// on a node in the collision tree when NewTree is called without
+	// a minimum number of children.
 	DefaultMinChildren = 20
 )
 
@@ -131,6 +137,8 @@ func (t *Tree) HitLabel(sp *Space, labels ...Label) *Space {
 	return nil
 }
 
+// Hit is an experimental new syntax that probably has performance hits
+// relative to Hits/HitLabel, see filters.go
 func (t *Tree) Hit(sp *Space, fs ...Filter) []*Space {
 	iresults := t.SearchIntersect(sp.Bounds())
 	results := make([]*Space, len(iresults))

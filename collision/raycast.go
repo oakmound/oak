@@ -6,12 +6,15 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/event"
 )
 
+// Todo: this is too many functions for raycasting
+// should be one function with options
+
 // RayCast returns the set of points where a line
 // from x,y going at a certain angle, for a certain length, intersects
 // with existing rectangles in the rtree.
 // It converts the ray into a series of points which are themselves
 // used to check collision at a miniscule width and height.
-func RayCast(x, y, degrees, length float64) []Point {
+func (t *Tree) RayCast(x, y, degrees, length float64) []Point {
 	results := []Point{}
 	resultHash := make(map[*Space]bool)
 
@@ -20,7 +23,7 @@ func RayCast(x, y, degrees, length float64) []Point {
 	for i := 0.0; i < length; i++ {
 		loc := NewRect(x, y, .1, .1)
 
-		next := rt.SearchIntersect(loc)
+		next := t.SearchIntersect(loc)
 
 		for k := 0; k < len(next); k++ {
 			nx := (next[k].(*Space))
@@ -39,13 +42,13 @@ func RayCast(x, y, degrees, length float64) []Point {
 // that the generated ray intersects, ignoring entities
 // in the given invalidIDs list.
 // Example Use case: shooting a bullet, hitting the first thing that isn't yourself.
-func RayCastSingle(x, y, degrees, length float64, invalidIDS []event.CID) Point {
+func (t *Tree) RayCastSingle(x, y, degrees, length float64, invalidIDS []event.CID) Point {
 
 	s := math.Sin(degrees * math.Pi / 180)
 	c := math.Cos(degrees * math.Pi / 180)
 	for i := 0.0; i < length; i++ {
 		loc := NewRect(x, y, .1, .1)
-		next := rt.SearchIntersect(loc)
+		next := t.SearchIntersect(loc)
 	output:
 		for k := 0; k < len(next); k++ {
 			nx := (next[k].(*Space))
@@ -65,13 +68,13 @@ func RayCastSingle(x, y, degrees, length float64, invalidIDS []event.CID) Point 
 
 // RayCastSingleLabels acts like RayCastSingle, but only returns elements
 // that match one of the input labels
-func RayCastSingleLabels(x, y, degrees, length float64, labels ...Label) Point {
+func (t *Tree) RayCastSingleLabels(x, y, degrees, length float64, labels ...Label) Point {
 
 	s := math.Sin(degrees * math.Pi / 180)
 	c := math.Cos(degrees * math.Pi / 180)
 	for i := 0.0; i < length; i++ {
 		loc := NewRect(x, y, .1, .1)
-		next := rt.SearchIntersect(loc)
+		next := t.SearchIntersect(loc)
 		for k := 0; k < len(next); k++ {
 			nx := (next[k].(*Space))
 			for _, label := range labels {
@@ -89,12 +92,12 @@ func RayCastSingleLabels(x, y, degrees, length float64, labels ...Label) Point {
 
 // RayCastSingleIgnoreLabels is the opposite of Labels, in that it will return
 // the first collision point that is not contained in the set of ignore labels
-func RayCastSingleIgnoreLabels(x, y, degrees, length float64, labels ...Label) Point {
+func (t *Tree) RayCastSingleIgnoreLabels(x, y, degrees, length float64, labels ...Label) Point {
 	s := math.Sin(degrees * math.Pi / 180)
 	c := math.Cos(degrees * math.Pi / 180)
 	for i := 0.0; i < length; i++ {
 		loc := NewRect(x, y, .1, .1)
-		next := rt.SearchIntersect(loc)
+		next := t.SearchIntersect(loc)
 	output:
 		for k := 0; k < len(next); k++ {
 			nx := (next[k].(*Space))
@@ -114,12 +117,12 @@ func RayCastSingleIgnoreLabels(x, y, degrees, length float64, labels ...Label) P
 
 // RayCastSingleIgnore is just like ignore labels but also ignores certain
 // caller ids
-func RayCastSingleIgnore(x, y, degrees, length float64, invalidIDS []event.CID, labels ...Label) Point {
+func (t *Tree) RayCastSingleIgnore(x, y, degrees, length float64, invalidIDS []event.CID, labels ...Label) Point {
 	s := math.Sin(degrees * math.Pi / 180)
 	c := math.Cos(degrees * math.Pi / 180)
 	for i := 0.0; i < length; i++ {
 		loc := NewRect(x, y, .1, .1)
-		next := rt.SearchIntersect(loc)
+		next := t.SearchIntersect(loc)
 	output:
 		for k := 0; k < len(next); k++ {
 			nx := (next[k].(*Space))
@@ -144,7 +147,7 @@ func RayCastSingleIgnore(x, y, degrees, length float64, invalidIDS []event.CID, 
 
 // ConeCast repeatedly calls RayCast in a cone shape
 // ConeCast advances COUNTER-CLOCKWISE
-func ConeCast(x, y, angle, angleWidth, rays, length float64) (points []Point) {
+func (t *Tree) ConeCast(x, y, angle, angleWidth, rays, length float64) (points []Point) {
 	da := angleWidth / rays
 	for a := angle; a < angle+angleWidth; a += da {
 		cps := RayCast(x, y, a, length)
@@ -156,7 +159,7 @@ func ConeCast(x, y, angle, angleWidth, rays, length float64) (points []Point) {
 }
 
 // ConeCastSingle repeatedly calls RayCastSignle in a cone shape
-func ConeCastSingle(x, y, angle, angleWidth, rays, length float64, invalidIDS []event.CID) (points []Point) {
+func (t *Tree) ConeCastSingle(x, y, angle, angleWidth, rays, length float64, invalidIDS []event.CID) (points []Point) {
 	da := angleWidth / rays
 	for a := angle; a < angle+angleWidth; a += da {
 		cp := RayCastSingle(x, y, a, length, invalidIDS)
@@ -171,7 +174,7 @@ func ConeCastSingle(x, y, angle, angleWidth, rays, length float64, invalidIDS []
 }
 
 // ConeCastSingleLabels repeatedly calls RayCastSingleLabels in a cone shape
-func ConeCastSingleLabels(x, y, angle, angleWidth, rays, length float64, labels ...Label) (points []Point) {
+func (t *Tree) ConeCastSingleLabels(x, y, angle, angleWidth, rays, length float64, labels ...Label) (points []Point) {
 	da := angleWidth / rays
 	for a := angle; a < angle+angleWidth; a += da {
 		cp := RayCastSingleLabels(x, y, a, length, labels...)

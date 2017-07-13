@@ -8,7 +8,7 @@ import "bitbucket.org/oakmoundstudio/oak/collision"
 // Propagate triggers direct mouse events on entities which are clicked
 func Propagate(eventName string, me Event) {
 	mouseLoc := collision.NewUnassignedSpace(float64(me.X), float64(me.Y), 0.01, 0.01)
-	hits := rt.SearchIntersect(mouseLoc.Bounds())
+	hits := DefTree.SearchIntersect(mouseLoc.Bounds())
 	for _, v := range hits {
 		sp := v.(*collision.Space)
 		sp.CID.Trigger(eventName, me)
