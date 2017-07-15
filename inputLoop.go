@@ -12,6 +12,7 @@ import (
 	"golang.org/x/mobile/event/size"
 )
 
+// Todo: bring this back in as an option, it was remove to reduce input lag
 // var (
 // 	eFilter gesture.EventFilter
 // )
@@ -22,7 +23,6 @@ func inputLoop() {
 	for {
 		//e := eFilter.Filter(eFilter.EventDeque.NextEvent()) //Filters an event to see if it fits a defined gesture
 		switch e := windowControl.NextEvent().(type) {
-
 		// We only currently respond to death lifecycle events.
 		case lifecycle.Event:
 			if e.To == lifecycle.StageDead {
@@ -108,6 +108,9 @@ func inputLoop() {
 		case error:
 			dlog.Error(e)
 		}
+		// This loop can be tight enough that the go scheduler never gets
+		// a chance to take control from this thread. This is a hack that
+		// solves that.
 		schedCt++
 		if schedCt > 1000 {
 			schedCt = 0
