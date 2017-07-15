@@ -28,6 +28,7 @@ var (
 	loadedFonts = make(map[string]*truetype.Font)
 )
 
+//A FontGenerator  stores a set of information that can be used to create a font
 type FontGenerator struct {
 	File    string
 	Color   image.Image
@@ -36,10 +37,12 @@ type FontGenerator struct {
 	DPI     float64
 }
 
+//DefFont returns the default font
 func DefFont() *Font {
 	return DefFontGenerator.Generate()
 }
 
+//Generate creates a font from the FontGenerator
 func (fg *FontGenerator) Generate() *Font {
 
 	dir := fontdir
@@ -80,31 +83,37 @@ func (fg *FontGenerator) Generate() *Font {
 
 }
 
+//Copy cretaes a copy of the FontGenerator
 func (fg *FontGenerator) Copy() *FontGenerator {
 	newFg := new(FontGenerator)
 	*newFg = *fg
 	return newFg
 }
 
+//A Font can both be generated and drawn
 type Font struct {
 	FontGenerator
 	font.Drawer
 }
 
+//Refresh regenerates the font per its generator's parameters
 func (f *Font) Refresh() {
 	*f = *f.Generate()
 }
 
+//Copy returns a new font from the given fonts generate function
 func (f *Font) Copy() *Font {
 	return f.Generate()
 }
 
+//Reset sets the font to being a default font
 func (f *Font) Reset() {
 	// Generate will return all defaults with no args
 	f.FontGenerator = FontGenerator{}
 	*f = *f.Generate()
 }
 
+//SetFontDefaults updates the default font parameters with the passed in arguments
 func SetFontDefaults(wd, assetPath, fontPath, hinting, color, file string, size, dpi float64) {
 	fontdir = filepath.Join(
 		wd,
@@ -136,6 +145,8 @@ func parseFontHinting(hintType string) (faceHinting font.Hinting) {
 	return faceHinting
 }
 
+//FontColor converts a small set of strings to colors
+//TODO: Implement a better version or pull in an outside library already doing this as this should be a fairly common utility function
 func FontColor(s string) image.Image {
 	s = strings.ToLower(s)
 	switch s {
@@ -150,6 +161,7 @@ func FontColor(s string) image.Image {
 	}
 }
 
+//LoadFont loads in a font file and stores it with the given name. This is nessecary before using the fonttype for a Font
 func LoadFont(dir string, fontFile string) *truetype.Font {
 	if _, ok := loadedFonts[fontFile]; !ok {
 		fontBytes, err := fileutil.ReadFile(filepath.Join(dir, fontFile))

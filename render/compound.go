@@ -20,6 +20,7 @@ type Compound struct {
 	curRenderable  string
 }
 
+//NewCompound creates a new compound from a map of names to modifiables
 func NewCompound(start string, m map[string]Modifiable) *Compound {
 	return &Compound{
 		LayeredPoint:   NewLayeredPoint(0, 0, 0),
@@ -28,23 +29,30 @@ func NewCompound(start string, m map[string]Modifiable) *Compound {
 	}
 }
 
+//Add makes a new entry in the Compounds map
 func (c *Compound) Add(k string, v Modifiable) {
 	c.subRenderables[k] = v
 }
 
+//Set sets the current renderable to the one specified
 func (c *Compound) Set(k string) {
 	if _, ok := c.subRenderables[k]; !ok {
 		panic("Unknown renderable for string " + k + " on compound")
 	}
 	c.curRenderable = k
 }
+
+//GetSub returns a given subrenderable from the map
 func (c *Compound) GetSub(s string) Modifiable {
 	return c.subRenderables[s]
 }
+
+//Get returns the Compounds current Renderable
 func (c *Compound) Get() string {
 	return c.curRenderable
 }
 
+//IsInterruptable returns whether the current renderable is interruptable
 func (c *Compound) IsInterruptable() bool {
 	switch t := c.subRenderables[c.curRenderable].(type) {
 	case *Animation:
@@ -59,6 +67,7 @@ func (c *Compound) IsInterruptable() bool {
 	return true
 }
 
+//IsStatic returns whether the current renderable is static
 func (c *Compound) IsStatic() bool {
 	switch c.subRenderables[c.curRenderable].(type) {
 	case *Animation, *Sequence:
@@ -71,12 +80,14 @@ func (c *Compound) IsStatic() bool {
 	return true
 }
 
+//SetOffsets sets the logical offset for the specified subrenderable
 func (c *Compound) SetOffsets(k string, offsets physics.Vector) {
 	if r, ok := c.subRenderables[k]; ok {
 		r.SetPos(offsets.X(), offsets.Y())
 	}
 }
 
+//Copy creates a copy of the Compound
 func (c *Compound) Copy() Modifiable {
 	newC := new(Compound)
 	newC.LayeredPoint = c.LayeredPoint.Copy()
@@ -89,10 +100,12 @@ func (c *Compound) Copy() Modifiable {
 	return newC
 }
 
+//GetRGBA returns the current renderables rgba
 func (c *Compound) GetRGBA() *image.RGBA {
 	return c.subRenderables[c.curRenderable].GetRGBA()
 }
 
+//Modify performs a series of modifications on the Compound
 func (c *Compound) Modify(ms ...Modification) Modifiable {
 	for _, r := range c.subRenderables {
 		r.Modify(ms...)
@@ -100,34 +113,42 @@ func (c *Compound) Modify(ms ...Modification) Modifiable {
 	return c
 }
 
+//DrawOffset draws the Compound at an offset from its logical location
 func (c *Compound) DrawOffset(buff draw.Image, xOff float64, yOff float64) {
 	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X()+xOff, c.Y()+yOff)
 }
 
+//Draw draws the Compound at its logical location
 func (c *Compound) Draw(buff draw.Image) {
 	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X(), c.Y())
 }
 
+//ShiftPos shifts the Compounds logical position
 func (c *Compound) ShiftPos(x, y float64) {
 	c.SetPos(c.X()+x, c.Y()+y)
 }
 
+//ShiftY shifts the Compounds logical y position
 func (c *Compound) ShiftY(y float64) {
 	c.SetPos(c.X(), c.Y()+y)
 }
 
+//ShiftX shifts the Compounds logical x position
 func (c *Compound) ShiftX(x float64) {
 	c.SetPos(c.X()+x, c.Y())
 }
 
+//SetPos sets the Compound's logical position
 func (c *Compound) SetPos(x, y float64) {
 	c.LayeredPoint.SetPos(x, y)
 }
 
+//GetDims gets the current Renderables dimensions
 func (c *Compound) GetDims() (int, int) {
 	return c.subRenderables[c.curRenderable].GetDims()
 }
 
+//Pause stops the current Renderable if possible
 func (c *Compound) Pause() {
 	switch t := c.subRenderables[c.curRenderable].(type) {
 	case *Animation:
@@ -139,6 +160,7 @@ func (c *Compound) Pause() {
 	}
 }
 
+//UnPause tries to unpause the current Renderable if possible
 func (c *Compound) Unpause() {
 	switch t := c.subRenderables[c.curRenderable].(type) {
 	case *Animation:
@@ -150,6 +172,7 @@ func (c *Compound) Unpause() {
 	}
 }
 
+//Revert tries to revert the current Renderable if possible
 func (c *Compound) Revert(mod int) {
 	for _, v := range c.subRenderables {
 		switch t := v.(type) {
@@ -159,6 +182,7 @@ func (c *Compound) Revert(mod int) {
 	}
 }
 
+//RevertAll tries to revert the all sub-Renderables if possible
 func (c *Compound) RevertAll() {
 	for _, v := range c.subRenderables {
 		switch t := v.(type) {

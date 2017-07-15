@@ -8,12 +8,15 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
+//The RenderableHeap type is set up to manage a set of renderables to prevent any unsafe operations
+// and allow for distinct updates between draw cycles
 type RenderableHeap struct {
 	rs     []Renderable
 	toPush []Renderable
 	static bool
 }
 
+//NewHeap creates a new renderableHeap
 func NewHeap(static bool) *RenderableHeap {
 	rh := new(RenderableHeap)
 	rh.rs = make([]Renderable, 0)
@@ -22,22 +25,30 @@ func NewHeap(static bool) *RenderableHeap {
 	return rh
 }
 
+//Add stages a new Renderable to add to the heap
 func (rh *RenderableHeap) Add(r Renderable, layer int) Renderable {
 	r.SetLayer(layer)
 	rh.toPush = append(rh.toPush, r)
 	return r
 }
 
+//Replace adds a Renderable and removes an old one
 func (rh *RenderableHeap) Replace(r1, r2 Renderable, layer int) {
 	rh.Add(r2, layer)
 	r1.UnDraw()
 }
 
 // Satisfying the Heap interface
-func (h *RenderableHeap) Len() int           { return len(h.rs) }
-func (h *RenderableHeap) Less(i, j int) bool { return h.rs[i].GetLayer() < h.rs[j].GetLayer() }
-func (h *RenderableHeap) Swap(i, j int)      { h.rs[i], h.rs[j] = h.rs[j], h.rs[i] }
+//Len gets the length of the current heap
+func (h *RenderableHeap) Len() int { return len(h.rs) }
 
+//Less returns whether a renderable at index i is at a lower layer than the one at index j
+func (h *RenderableHeap) Less(i, j int) bool { return h.rs[i].GetLayer() < h.rs[j].GetLayer() }
+
+//Swap moves two locations
+func (h *RenderableHeap) Swap(i, j int) { h.rs[i], h.rs[j] = h.rs[j], h.rs[i] }
+
+//Push adds to the renderable heap
 func (h *RenderableHeap) Push(r interface{}) {
 	defer func() {
 		if x := recover(); x != nil {
@@ -52,6 +63,7 @@ func (h *RenderableHeap) Push(r interface{}) {
 	h.rs = append(h.rs, r.(Renderable))
 }
 
+//Pop pops from the heap
 func (h *RenderableHeap) Pop() interface{} {
 	n := len(h.rs)
 	x := h.rs[n-1]

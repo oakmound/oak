@@ -15,6 +15,7 @@ var (
 	emptyRenderable = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
 )
 
+//EmptyRenderable creates a tiny renderable with no real dimensions
 func EmptyRenderable() Modifiable {
 	return emptyRenderable.Copy()
 }
@@ -54,5 +55,5 @@ func UndrawAfter(r Renderable, t time.Duration) {
 // DrawForTime is a wrapper for Draw and UndrawAfter
 func DrawForTime(r Renderable, l int, t time.Duration) {
 	Draw(r, l)
-	UndrawAfter(r, t) 
+	UndrawAfter(r, t)
 }

@@ -10,13 +10,15 @@ type progressFunction func(x, y, w, h int) float64
 
 // Progress functions
 var (
+	//HorizontalProgress is a function to keep track of fractional progress across an object with progress x on width w
 	HorizontalProgress = func(x, y, w, h int) float64 {
 		return float64(x) / float64(w)
 	}
+	//VerticalProgress is a function to keep track of fractional progress across an object with progress y on height h
 	VerticalProgress = func(x, y, w, h int) float64 {
 		return float64(y) / float64(h)
 	}
-
+	//CircularProgress is a functino to obtain a single progress metric given some distance x, y out from an objects origin with w, h diameters
 	CircularProgress = func(x, y, w, h int) float64 {
 		xRadius := float64(w) / 2
 		yRadius := float64(h) / 2
