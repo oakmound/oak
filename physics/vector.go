@@ -28,6 +28,7 @@ func NewVector(x, y float64) Vector {
 	return Vector{x2, y2, 0, 0}
 }
 
+// MaxVector returns whichever vector has a greater magnitude
 func MaxVector(a, b Vector) Vector {
 	if a.Magnitude() > b.Magnitude() {
 		return a
@@ -144,38 +145,44 @@ func (v Vector) ShiftY(y float64) Vector {
 	return v
 }
 
-// GetX returns v.X()
+// X returns this vector's x component
 func (v Vector) X() float64 {
 	return *v.x + v.offX
 }
 
+// GetX returns this vector's x component todo: consider not having this
 func (v Vector) GetX() float64 {
 	return v.X()
 }
 
-// GetY returns v.Y()
+// Y returns this vector's x component
 func (v Vector) Y() float64 {
 	return *v.y + v.offY
 }
 
+// GetY returns this vector's x component todo: consider not having this
 func (v Vector) GetY() float64 {
 	return v.Y()
 }
 
+// SetX returns a vector with its x component set to x
 func (v Vector) SetX(x float64) Vector {
 	*v.x = x
 	return v.round()
 }
 
+// SetY returns a vector with its y component set to y
 func (v Vector) SetY(y float64) Vector {
 	*v.y = y
 	return v.round()
 }
 
+// Xp returns the real pointer behind this vector's x component
 func (v Vector) Xp() *float64 {
 	return v.x
 }
 
+// Yp returns the real pointer behind  this vector's y component
 func (v Vector) Yp() *float64 {
 	return v.y
 }
@@ -192,6 +199,7 @@ func (v Vector) GetPos() (float64, float64) {
 	return *v.x, *v.y
 }
 
+// AngleVector creates a unit vector by the cosine and sine of the given angle
 func AngleVector(angle float64) Vector {
 	angle *= math.Pi / 180
 	return NewVector(math.Cos(angle), math.Sin(angle))

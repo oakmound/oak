@@ -10,20 +10,28 @@ type ForceVector struct {
 	Force *float64
 }
 
+// NewForceVector returns a force vector
 func NewForceVector(direction Vector, force float64) ForceVector {
 	return ForceVector{Vector: direction, Force: &force}
 }
+
+// DefaultForceVector returns a force vector that converts the mass given
+// into a force float
 func DefaultForceVector(delta Vector, mass float64) ForceVector {
 	return NewForceVector(delta, delta.Magnitude()*mass)
 }
 
+// GetForce is a self-returning call
 func (f ForceVector) GetForce() ForceVector {
 	return f
 }
+
+// GetForce on a non-force vector returns a zero-value for force
 func (v Vector) GetForce() ForceVector {
 	return ForceVector{v, new(float64)}
 }
 
+// A Mass can have forces applied against it
 type Mass struct {
 	mass float64
 }
@@ -53,6 +61,7 @@ type Pushable interface {
 	GetMass() float64
 }
 
+// A Pushes can push Pushable things by having an associated ForceVector
 type Pushes interface {
 	GetForce() ForceVector
 }
