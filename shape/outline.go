@@ -41,6 +41,8 @@ var (
 	}
 )
 
+// ToOutline returns the set of points along the input shape's outline, if
+// one exists.
 func ToOutline(shape Shape) func(...int) ([]intgeom.Point, error) {
 	return func(sizes ...int) ([]intgeom.Point, error) {
 		w := sizes[0]
@@ -68,7 +70,7 @@ func ToOutline(shape Shape) func(...int) ([]intgeom.Point, error) {
 		x := startX
 		y := startY
 
-		outline := []intgeom.Point{{startX, startY}}
+		outline := []intgeom.Point{intgeom.NewPoint(startX, startY)}
 
 		direction := topright
 
@@ -89,7 +91,7 @@ func ToOutline(shape Shape) func(...int) ([]intgeom.Point, error) {
 
 		//Follow the outline point by point
 		for x != startX || y != startY {
-			outline = append(outline, intgeom.Point{x, y})
+			outline = append(outline, intgeom.NewPoint(x, y))
 			direction -= 2
 			if direction < 0 {
 				direction += lastdirection

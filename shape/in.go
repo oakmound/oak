@@ -59,6 +59,7 @@ func (ji JustIn) Rect(sizes ...int) [][]bool {
 	return InToRect(In(ji))(sizes...)
 }
 
+// Outline calls ToOutline on the JustIn
 func (ji JustIn) Outline(sizes ...int) ([]intgeom.Point, error) {
 	return ToOutline(ji)(sizes...)
 }
