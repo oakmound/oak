@@ -13,10 +13,10 @@ import (
 )
 
 const (
-	// RECYCLED refers to the life value given to particles ready to be reused
-	RECYCLED = -1000
-	//IGNORE_END refers to the life value given to particles that want to skip their source's end function.
-	IGNORE_END = RECYCLED / 2
+	// recycled refers to the life value given to particles ready to be reused
+	recycled = -1000
+	//IgnoreEnd refers to the life value given to particles that want to skip their source's end function.
+	IgnoreEnd = recycled / 2
 )
 
 // A Source is used to store and control a set of particles.
@@ -92,14 +92,14 @@ func (ps *Source) cycleParticles() bool {
 			bp.SetLayer(ps.Layer(bp.GetPos()))
 			p.Cycle(ps.Generator)
 
-		} else if bp.Life != RECYCLED {
+		} else if bp.Life != recycled {
 			p.UnDraw()
 			cycled = true
-			if pg.EndFunc != nil && bp.Life > IGNORE_END {
+			if pg.EndFunc != nil && bp.Life > IgnoreEnd {
 				pg.EndFunc(p)
 			}
 			// This relies on Life going down by 1 per frame
-			bp.Life = RECYCLED
+			bp.Life = recycled
 			ps.recycled = append(ps.recycled, bp.pID%blockSize)
 		}
 
