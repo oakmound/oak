@@ -1,15 +1,15 @@
 package event
 
-//EventMapping stores a slice of event names and bindings
-type EventMapping struct {
+// Mapping stores a slice of event names and bindings
+type Mapping struct {
 	eventNames []string
 	binds      []Bindable
 }
 
 // BindingSet maps sets of bindings so that entitys can switch between sets of predefined EventMappings
-type BindingSet map[string]EventMapping
+type BindingSet map[string]Mapping
 
-//Set makes a new EventMapping for BindingSet
+// Set makes a new EventMapping for BindingSet
 func (b BindingSet) Set(setName string, mappingSets ...map[string]Bindable) BindingSet {
 
 	numMappings := 0
@@ -28,10 +28,12 @@ func (b BindingSet) Set(setName string, mappingSets ...map[string]Bindable) Bind
 		}
 	}
 
-	b[setName] = EventMapping{eventNames: events, binds: bindings}
+	b[setName] = Mapping{eventNames: events, binds: bindings}
 	return b
 }
 
-func (c CID) RebindMapping(mapping EventMapping) {
+// RebindMapping resets the entity controlling this cid to only have the bindings
+// in the passed in event mapping
+func (c CID) RebindMapping(mapping Mapping) {
 	c.UnbindAllAndRebind(mapping.binds, mapping.eventNames)
 }

@@ -13,7 +13,8 @@ import (
 
 var (
 	// BindataFn is a function to access binary data outside of os.Open
-	BindataFn  func(string) ([]byte, error)
+	BindataFn func(string) ([]byte, error)
+	// BindataDir is a function to access directory representations alike to ioutil.ReadDir
 	BindataDir func(string) ([]string, error)
 	wd, _      = os.Getwd()
 )
@@ -53,6 +54,7 @@ func Open(file string) (io.ReadCloser, error) {
 	return os.Open(file)
 }
 
+// ReadFile replaces ioutil.ReadFile, trying to use the BinaryFn if it exists.
 func ReadFile(file string) ([]byte, error) {
 	if BindataFn != nil {
 		rel, err := filepath.Rel(wd, file)
@@ -64,6 +66,7 @@ func ReadFile(file string) ([]byte, error) {
 	return ioutil.ReadFile(file)
 }
 
+// ReadDir replaces ioutil.ReadDir, trying to use the BinaryDir if it exists.
 func ReadDir(file string) ([]os.FileInfo, error) {
 	var fis []os.FileInfo
 	var err error
