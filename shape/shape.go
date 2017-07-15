@@ -1,5 +1,7 @@
 package shape
 
+import "bitbucket.org/oakmoundstudio/oak/alg/intgeom"
+
 // A Shape represents a rectangle of width/height size
 // where for each x,y coordinate, either that value lies
 // inside the shape or outside of the shape, represented
@@ -11,6 +13,6 @@ package shape
 // and/or variadic, for additional dimension support
 type Shape interface {
 	In(x, y int, sizes ...int) bool
-	Outline(sizes ...int) ([]Point, error)
+	Outline(sizes ...int) ([]intgeom.Point, error)
 	Rect(sizes ...int) [][]bool
 }

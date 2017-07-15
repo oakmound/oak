@@ -1,14 +1,14 @@
 package audio
 
 import (
-	"fmt"
-
 	"bitbucket.org/oakmoundstudio/oak/physics"
 	"github.com/200sc/klangsynthese/audio"
 	"github.com/200sc/klangsynthese/audio/filter"
 	"github.com/200sc/klangsynthese/audio/filter/supports"
 )
 
+// SupportsPos is a type used by filters to check that the audio they are given
+// has a position.
 type SupportsPos interface {
 	supports.Encoding
 	GetX() *float64
@@ -19,18 +19,22 @@ var (
 	_ audio.Filter = Pos(func(SupportsPos) {})
 )
 
+// Pos functions are filters that require a SupportsPos interface
 type Pos func(SupportsPos)
 
+// Apply is a function allowing Pos to satisfy the audio.Filter interface.
+// Pos applies itself to any audio it is given that supports it.
 func (xp Pos) Apply(a audio.Audio) (audio.Audio, error) {
-	fmt.Println(a)
 	if sxp, ok := a.(SupportsPos); ok {
 		xp(sxp)
 		return a, nil
 	}
-	fmt.Println("Doesn't support SupportsPos")
 	return a, supports.NewUnsupported([]string{"XPan"})
 }
 
+// PosFilter is the only Pos generating function right now. It takes in ears
+// to listen from and changes incoming audio to be quiter and panned based
+// on positional relation to those ears.
 func PosFilter(e *Ears) Pos {
 	return func(sp SupportsPos) {
 		filter.AssertStereo()(sp)

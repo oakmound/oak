@@ -58,7 +58,7 @@ func (eq Eq) Above() In {
 }
 
 var (
-	// Heart
+	// Heart has an shape like the following:
 	// . . t . t . .
 	// . t t t t t .
 	// t t t t t t t

@@ -14,6 +14,8 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/oakerr"
 )
 
+// Data is an alias for an interface supporting the built in filters in our
+// external audio playing library
 type Data audio.FullAudio
 
 // GetSounds returns a set of Data for a set of input filenames
@@ -68,6 +70,8 @@ func Load(directory, filename string) (Data, error) {
 	return loaded[filename], nil
 }
 
+// Unload removes an element from the loaded map. If the element does not
+// exist, it does nothing.
 func Unload(filename string) {
 	delete(loaded, filename)
 }

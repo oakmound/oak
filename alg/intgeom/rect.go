@@ -8,6 +8,7 @@ type Rect struct {
 	Max Point
 }
 
+// NewRect returns an (X,Y):(X2,Y2) rectangle
 func NewRect(x, y, x2, y2 int) Rect {
 	return Rect{
 		Min: Point{x, y},
@@ -15,6 +16,7 @@ func NewRect(x, y, x2, y2 int) Rect {
 	}
 }
 
+// NewRectWH returns an (X,Y):(X+W,Y+H) rectangle
 func NewRectWH(x, y, w, h int) Rect {
 	return Rect{
 		Min: Point{x, y},
@@ -22,6 +24,7 @@ func NewRectWH(x, y, w, h int) Rect {
 	}
 }
 
+// ShuffleRects is a utility function to randomize the order of a rectangle set
 func ShuffleRects(rs []Rect) []Rect {
 	for i := len(rs) - 1; i > 0; i-- {
 		j := rand.Intn(i + 1)

@@ -7,11 +7,12 @@ import (
 	"github.com/200sc/klangsynthese/font"
 )
 
+// DefActiveChannel acts like GetActiveChannel when fed DefFont
 func DefActiveChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
 	return GetActiveChannel(DefFont, freq, fileNames...)
 }
 
-// GetActiveWavChannel returns a channel that will block until its frequency
+// GetActiveChannel returns a channel that will block until its frequency
 // rotates around. This means that continually sending on ChannelSignal will
 // probably cause the game to freeze or substantially slow down. For this reason
 // ActiveWavChannels are meant to be used for cases where the user knows they will
@@ -56,11 +57,12 @@ func GetActiveChannel(f *font.Font, freq intrange.Range, fileNames ...string) (c
 	return soundCh, nil
 }
 
+// DefChannel acts like GetChannel when given DefFont
 func DefChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
 	return GetChannel(DefFont, freq, fileNames...)
 }
 
-// GetWavChannel channels will attempt to steal most sends sent to the output
+// GetChannel channels will attempt to steal most sends sent to the output
 // audio channel. This will allow a game to constantly send on a channel and
 // obtain an output rate of near the sent in frequency instead of locking
 // or requiring buffered channel usage.

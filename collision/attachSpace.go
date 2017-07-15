@@ -7,6 +7,13 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
+// An AttachSpace is a composable struct that provides attachment
+// functionality for entities. An entity with AttachSpace can have its
+// associated space passed into Attach with the vector the space should
+// be attached to.
+// Example usage: Any moving character with a collision space. When
+// moving the character around by the vector passed in to Attach, the space
+// will move with it.
 type AttachSpace struct {
 	follow     physics.Vector
 	aSpace     **Space
@@ -21,7 +28,11 @@ type attachSpace interface {
 	getAttachSpace() *AttachSpace
 }
 
-// Attach binds attachSpaceEnter at priority -1
+// Attach attaches v to the given space with optional x,y offsets. See AttachSpace.
+// Attach binds attachSpaceEnter at priority -1. This means that attachSpaceEnter,
+// which updates the collision space for an AttachSpace composed entity, will be called
+// after all EnterFrame bindings that are bound with .Bind(), but before those that
+// are called with .BindPriority(... -2).
 func Attach(v physics.Vector, s *Space, offsets ...float64) error {
 	if t, ok := event.GetEntity(int(s.CID)).(attachSpace); ok {
 		as := t.getAttachSpace()
@@ -39,6 +50,8 @@ func Attach(v physics.Vector, s *Space, offsets ...float64) error {
 	return errors.New("This space's entity is not composed of AttachSpace")
 }
 
+// Detach removes the attachSpaceEnter binding from an entity composed with
+// AttachSpace
 func Detach(s *Space) error {
 	switch event.GetEntity(int(s.CID)).(type) {
 	case attachSpace:
@@ -62,9 +75,10 @@ func Detach(s *Space) error {
 
 func attachSpaceEnter(id int, nothing interface{}) int {
 	as := event.GetEntity(id).(attachSpace).getAttachSpace()
-	if as.follow.X()+as.offX != (*as.aSpace).GetX() ||
-		as.follow.Y()+as.offY != (*as.aSpace).GetY() {
-		UpdateSpace(as.follow.X()+as.offX, as.follow.Y()+as.offY, (*as.aSpace).GetW(), (*as.aSpace).GetH(), *as.aSpace)
+	x, y := as.follow.X()+as.offX, as.follow.Y()+as.offY
+	if x != (*as.aSpace).GetX() ||
+		y != (*as.aSpace).GetY() {
+		UpdateSpace(x, y, (*as.aSpace).GetW(), (*as.aSpace).GetH(), *as.aSpace)
 	}
 	return 0
 }

@@ -7,6 +7,11 @@ type Point struct {
 	X, Y int
 }
 
+// NewPoint returns an (X,Y) point structure
+func NewPoint(x, y int) Point {
+	return Point{X: x, Y: y}
+}
+
 // Distance is the euclidean distance function
 func (p Point) Distance(p2 Point) float64 {
 	return distance(p.X, p.Y, p2.X, p2.Y)

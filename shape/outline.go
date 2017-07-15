@@ -1,6 +1,10 @@
 package shape
 
-import "errors"
+import (
+	"errors"
+
+	"bitbucket.org/oakmoundstudio/oak/alg/intgeom"
+)
 
 const (
 	top = iota
@@ -37,8 +41,8 @@ var (
 	}
 )
 
-func ToOutline(shape Shape) func(...int) ([]Point, error) {
-	return func(sizes ...int) ([]Point, error) {
+func ToOutline(shape Shape) func(...int) ([]intgeom.Point, error) {
+	return func(sizes ...int) ([]intgeom.Point, error) {
 		w := sizes[0]
 		h := sizes[0]
 		if len(sizes) > 1 {
@@ -50,7 +54,7 @@ func ToOutline(shape Shape) func(...int) ([]Point, error) {
 		for !shape.In(startX, startX, sizes...) {
 			startX++
 			if startX == w || startX == h {
-				return []Point{}, errors.New("Could not find any valid space on the shapes diagonal... Assuming that it is not valid for outlines")
+				return []intgeom.Point{}, errors.New("Could not find any valid space on the shapes diagonal... Assuming that it is not valid for outlines")
 			}
 		}
 
@@ -64,7 +68,7 @@ func ToOutline(shape Shape) func(...int) ([]Point, error) {
 		x := startX
 		y := startY
 
-		outline := []Point{{startX, startY}}
+		outline := []intgeom.Point{{startX, startY}}
 
 		direction := topright
 
@@ -85,7 +89,7 @@ func ToOutline(shape Shape) func(...int) ([]Point, error) {
 
 		//Follow the outline point by point
 		for x != startX || y != startY {
-			outline = append(outline, Point{x, y})
+			outline = append(outline, intgeom.Point{x, y})
 			direction -= 2
 			if direction < 0 {
 				direction += lastdirection
