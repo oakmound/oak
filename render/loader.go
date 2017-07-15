@@ -75,10 +75,14 @@ func loadPNG(directory, fileName string) *image.RGBA {
 	return r
 }
 
+// LoadSprite loads the input fileName into a Sprite
 func LoadSprite(fileName string) *Sprite {
 	return NewSprite(0, 0, loadPNG(dir, fileName))
 }
 
+// GetSheet tries to find the given file in the set of loaded sheets.
+// If it fails, it will panic unhelpfully. Todo: fix this
+// If it succeeds, it will return the sheet (a 2d array of sprites)
 func GetSheet(fileName string) [][]*Sprite {
 	sprites := make([][]*Sprite, 0)
 	dlog.Verb(loadedSheets, fileName, loadedSheets[fileName])
@@ -94,13 +98,15 @@ func GetSheet(fileName string) [][]*Sprite {
 	return sprites
 }
 
+// LoadSheet loads a file in some directory with sheets of (w,h) sized sprites,
+// where there is pad pixels of vertical/horizontal pad between each sprite
 func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 	if _, ok := loadedImages[fileName]; !ok {
 		dlog.Verb("Missing file in loaded images: ", fileName)
 		loadedImages[fileName] = loadPNG(directory, fileName)
 	}
-	if sheet_p, ok := loadedSheets[fileName]; ok {
-		return sheet_p, nil
+	if sheetP, ok := loadedSheets[fileName]; ok {
+		return sheetP, nil
 	}
 	dlog.Verb("Loading sheet: ", fileName)
 	rgba := loadedImages[fileName]
@@ -140,12 +146,12 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 	}
 
 	dlog.Verb("Loaded sheet into map")
-	sheet_p := &sheet
-	loadedSheets[fileName] = sheet_p
+	loadedSheets[fileName] = &sheet
 
 	return loadedSheets[fileName], nil
 }
 
+// LoadSheetAnimation loads a sheet and then calls LoadAnimation on that sheet
 func LoadSheetAnimation(fileName string, w, h, pad int, fps float64, frames []int) (*Animation, error) {
 	sheet, err := LoadSheet(dir, fileName, w, h, pad)
 	if err != nil {
@@ -154,6 +160,8 @@ func LoadSheetAnimation(fileName string, w, h, pad int, fps float64, frames []in
 	return LoadAnimation(sheet, w, h, pad, fps, frames)
 }
 
+// LoadAnimation takes in a sheet with sheet dimensions, a frame rate and a list of frames where
+// frames are in x,y pairs ([0,0,1,0,2,0] for (0,0) (1,0) (2,0), and returns an animation from that
 func LoadAnimation(sheet *Sheet, w, h, pad int, fps float64, frames []int) (*Animation, error) {
 	animation, err := NewAnimation(sheet, fps, frames)
 	if err != nil {
@@ -172,6 +180,14 @@ func subImage(rgba *image.RGBA, x, y, w, h int) *image.RGBA {
 	return out
 }
 
+// BatchLoad loads subdirectories from the given base folder and imports all files,
+// using alias rules to automatically determine the size of sprites and sheets in
+// subfolders.
+// A folder named 16x16 will have its images split into sheets where each sprite is
+// 16x16, for example. Same forr 16x8. 16 is a shorter way of writing 16x16.
+// An alias.json file can be included that can indicate what dimensions named folders
+// represent, so a tiles: "32x32" field in the json would indicate that sprite sheets
+// in the /tiles folder should be read as 32x32
 func BatchLoad(baseFolder string) error {
 
 	// dir2 := filepath.Join(dir, "textures")
@@ -220,10 +236,10 @@ func BatchLoad(baseFolder string) error {
 						frameW = val
 						frameH = val
 					} else {
-						return errors.New("Alias value not parseable as a frame width and height pair.")
+						return errors.New("Alias value not parseable as a frame width and height pair")
 					}
 				} else {
-					return errors.New("Alias name not found in alias file.")
+					return errors.New("Alias name not found in alias file")
 				}
 			}
 

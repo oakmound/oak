@@ -9,16 +9,20 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
+// A Rect is a helper type storing X1,Y1,X2,Y2 in floats
 type Rect struct {
 	MinX, MaxX, MinY, MaxY float64
 }
 
+// A Polygon is a renderable that is represented by a set of in order points
+// on a plane.
 type Polygon struct {
 	*Sprite
 	Rect
 	points []physics.Vector
 }
 
+// ScreenPolygon returns a polygon on the screen, used for draw polygons.
 func ScreenPolygon(points []physics.Vector, w, h int) (*Polygon, error) {
 	if len(points) < 3 {
 		return nil, errors.New("Please give at least three points to NewPolygon calls")
@@ -41,6 +45,8 @@ func ScreenPolygon(points []physics.Vector, w, h int) (*Polygon, error) {
 	}, nil
 }
 
+// NewPolygon takes in a set of points and returns a polygon. If less than three
+// points are provided, this fails.
 func NewPolygon(points []physics.Vector) (*Polygon, error) {
 
 	if len(points) < 3 {
@@ -66,11 +72,13 @@ func NewPolygon(points []physics.Vector) (*Polygon, error) {
 	}, nil
 }
 
+// UpdatePoints resets the points of this polygon to be the passed in points
 func (pg *Polygon) UpdatePoints(points []physics.Vector) {
 	pg.points = points
 	pg.MinX, pg.MinY, pg.MaxX, pg.MaxY, _, _ = BoundingRect(points)
 }
 
+// Fill fills the inside of this polygon with the input color
 func (pg *Polygon) Fill(c color.Color) {
 	// Reset the rgba of the polygon
 	bounds := pg.r.Bounds()
@@ -88,6 +96,7 @@ func (pg *Polygon) Fill(c color.Color) {
 	pg.r = rgba
 }
 
+// GetOutline returns a set of lines of the given color along this polygon's outline
 func (pg *Polygon) GetOutline(c color.Color) *Composite {
 	sl := NewComposite([]Modifiable{})
 	j := len(pg.points) - 1
@@ -101,6 +110,7 @@ func (pg *Polygon) GetOutline(c color.Color) *Composite {
 	return sl
 }
 
+// FillInverse colors this polygon's exterior the given color
 func (pg *Polygon) FillInverse(c color.Color) {
 	bounds := pg.r.Bounds()
 	rect := image.Rect(0, 0, bounds.Max.X, bounds.Max.Y)
@@ -115,6 +125,7 @@ func (pg *Polygon) FillInverse(c color.Color) {
 	pg.r = rgba
 }
 
+// BoundingRect converts a set of points into their minimum bounding rectangle
 func BoundingRect(points []physics.Vector) (MinX, MinY, MaxX, MaxY float64, w, h int) {
 	MinX = math.MaxFloat64
 	MinY = math.MaxFloat64
@@ -141,8 +152,7 @@ func BoundingRect(points []physics.Vector) (MinX, MinY, MaxX, MaxY float64, w, h
 	return
 }
 
-// Returns whether or not the current Polygon contains the passed in Point.
-// Still need to parallelize
+// Contains Returns whether or not the current Polygon contains the passed in Point.
 func (pg *Polygon) Contains(x, y float64) (contains bool) {
 
 	if x < pg.MinX || x > pg.MaxX || y < pg.MinY || y > pg.MaxY {
@@ -163,6 +173,7 @@ func (pg *Polygon) Contains(x, y float64) (contains bool) {
 	return
 }
 
+// WrappingContains returns whether the given point is contained by the input polygon.
 func (pg *Polygon) WrappingContains(x, y float64) bool {
 
 	if x < pg.MinX || x > pg.MaxX || y < pg.MinY || y > pg.MaxY {
@@ -186,6 +197,8 @@ func (pg *Polygon) WrappingContains(x, y float64) bool {
 	return wn == 0
 }
 
+// ConvexContains returns whether the given point is contained by the input polygon.
+// It assumes the polygon is convex.
 func (pg *Polygon) ConvexContains(x, y float64) bool {
 
 	if x < pg.MinX || x > pg.MaxX || y < pg.MinY || y > pg.MaxY {

@@ -1,7 +1,3 @@
-// OpenSimplex-Go refuses to compile for Windows,386
-
-// +build !386
-
 package render
 
 import (

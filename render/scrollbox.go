@@ -9,12 +9,8 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/physics"
 )
 
-//Needs have a start/stop on the ScrollBox : Pause
-//needs bool to track
-
-//scrollrate = some unit of ScrollBox px per ms  takes that and transforms to duration
-//nextscroll = time
-
+// A ScrollBox is a renderable that draws other renderables to itself in a scrolling fashion,
+// for animating ticker tape feeds or rotating background animations.
 type ScrollBox struct {
 	*Sprite
 	Rs                       []Renderable
@@ -26,6 +22,7 @@ type ScrollBox struct {
 	paused bool
 }
 
+// NewScrollBox returns a ScrollBox of the input renderables and the given dimensions.
 func NewScrollBox(rs []Renderable, milliPerPixelX, milliPerPixelY, width, height int) *ScrollBox {
 	s := new(ScrollBox)
 	s.Rs = rs
@@ -42,11 +39,14 @@ func NewScrollBox(rs []Renderable, milliPerPixelX, milliPerPixelY, width, height
 	return s
 }
 
+// DrawOffset draws this scroll box at +xOff, +yOff
 func (s *ScrollBox) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	s.update()
 	s.Sprite.DrawOffset(buff, xOff, yOff)
 
 }
+
+// Draw draws this scroll box to the input buffer
 func (s *ScrollBox) Draw(buff draw.Image) {
 	s.DrawOffset(buff, 0, 0)
 }
@@ -91,15 +91,21 @@ func (s *ScrollBox) update() {
 		s.drawRenderables()
 	}
 }
+
+// Pause stops this scroll box from scrolling
 func (s *ScrollBox) Pause() {
 	s.paused = true
 }
+
+// Unpause resumes this scroll box's scrolling
 func (s *ScrollBox) Unpause() {
 	s.paused = false
 	s.nextScrollX = time.Now().Add(s.scrollRateX)
 	s.nextScrollY = time.Now().Add(s.scrollRateY)
 }
 
+// SetReappearPos sets at what point renderables in this box should loop back on
+// themselves to begin scrolling again
 func (s *ScrollBox) SetReappearPos(x, y float64) error {
 	s.reappear = physics.NewVector(x, y)
 	if x*s.dirX > 0 {
@@ -111,6 +117,7 @@ func (s *ScrollBox) SetReappearPos(x, y float64) error {
 	return nil
 }
 
+// SetScrollRate sets how fast this scroll box should rotate its x and y axes
 func (s *ScrollBox) SetScrollRate(milliPerPixelX, milliPerPixelY int) {
 	s.dirX = 1
 	s.dirY = 1
@@ -131,6 +138,7 @@ func (s *ScrollBox) SetScrollRate(milliPerPixelX, milliPerPixelY int) {
 	s.scrollRateY = time.Duration(milliPerPixelY) * time.Millisecond
 }
 
+// AddRenderable adds the inputs to this scrollbox.
 func (s *ScrollBox) AddRenderable(rs ...Renderable) {
 	for _, r := range rs {
 		switch r.(type) {

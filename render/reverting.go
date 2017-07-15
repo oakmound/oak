@@ -1,10 +1,13 @@
 package render
 
+// The Reverting structure lets modifications be made to a Modifiable and then
+// reverted, up to arbitrary history limits.
 type Reverting struct {
 	Modifiable
 	rs []Modifiable
 }
 
+// NewReverting returns a Reverting type wrapped around the given modifiable
 func NewReverting(m Modifiable) *Reverting {
 	rv := new(Reverting)
 	rv.rs = make([]Modifiable, 1)
@@ -13,6 +16,7 @@ func NewReverting(m Modifiable) *Reverting {
 	return rv
 }
 
+// IsInterruptable returns if the underlying Modifiable for this reverting is interruptable.
 func (rv *Reverting) IsInterruptable() bool {
 	switch t := rv.rs[0].(type) {
 	case *Animation:
@@ -27,6 +31,7 @@ func (rv *Reverting) IsInterruptable() bool {
 	return true
 }
 
+// IsStatic returns if the underlying Modifiable for this reverting is static.
 func (rv *Reverting) IsStatic() bool {
 	switch t := rv.rs[0].(type) {
 	case *Animation, *Sequence:
@@ -39,6 +44,8 @@ func (rv *Reverting) IsStatic() bool {
 	return true
 }
 
+// Revert goes back n steps in this Reverting's history and displays that
+// Modifiable
 func (rv *Reverting) Revert(n int) {
 	x := rv.GetX()
 	y := rv.GetY()
@@ -55,10 +62,14 @@ func (rv *Reverting) Revert(n int) {
 	rv.SetPos(x, y)
 }
 
+// RevertAll resets this reverting to its original Modifiable
 func (rv *Reverting) RevertAll() {
 	rv.Revert(len(rv.rs) - 1)
 }
 
+// RevertAndModify reverts n steps and then modifies this reverting. This
+// is a separate function from Revert followed by Modify to prevent skipped
+// draw frames.
 func (rv *Reverting) RevertAndModify(n int, ms ...Modification) Modifiable {
 	x := rv.GetX()
 	y := rv.GetY()
@@ -74,6 +85,8 @@ func (rv *Reverting) RevertAndModify(n int, ms ...Modification) Modifiable {
 	return rv
 }
 
+// Modify alters this reverting by the given modifications, appending the new
+// modified renderable to it's list of modified versions and displaying it.
 func (rv *Reverting) Modify(ms ...Modification) Modifiable {
 	next := rv.Modifiable.Copy().Modify(ms...)
 	rv.rs = append(rv.rs, next)
@@ -81,6 +94,7 @@ func (rv *Reverting) Modify(ms ...Modification) Modifiable {
 	return rv
 }
 
+// Copy returns a copy of the Reverting
 func (rv *Reverting) Copy() Modifiable {
 	newRv := new(Reverting)
 	newRv.rs = make([]Modifiable, len(rv.rs))
@@ -106,6 +120,7 @@ func (rv *Reverting) updateAnimation() {
 	}
 }
 
+// Set calls Set on underlying types below this Reverting that cat be Set
 func (rv *Reverting) Set(k string) {
 	switch t := rv.Modifiable.(type) {
 	case *Compound:
@@ -117,6 +132,7 @@ func (rv *Reverting) Set(k string) {
 	}
 }
 
+// Pause ceases animating any renderable types that animate underneath this
 func (rv *Reverting) Pause() {
 	switch t := rv.Modifiable.(type) {
 	case *Animation:
@@ -137,6 +153,7 @@ func (rv *Reverting) Pause() {
 
 }
 
+// Unpause resumes animating any renderable types that animate underneath this
 func (rv *Reverting) Unpause() {
 	switch t := rv.Modifiable.(type) {
 	case *Animation:
