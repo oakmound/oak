@@ -30,13 +30,16 @@ func (nopCloser) Close() error {
 // byte data. The intended use is to use the go-bindata library to create an
 // Asset function that matches this signature.
 func Open(file string) (io.ReadCloser, error) {
+	var err error
+	var rel string
+	var data []byte
 	// Check bindata
 	if BindataFn != nil {
 		// It looks like we need to clean this output sometimes--
 		// we get capitalization where we don't want it ocassionally?
-		rel, err := filepath.Rel(wd, file)
+		rel, err = filepath.Rel(wd, file)
 		if err == nil {
-			data, err := BindataFn(rel)
+			data, err = BindataFn(rel)
 			if err == nil {
 				dlog.Verb("Found file in binary,", rel)
 				// convert data to io.Reader
@@ -63,11 +66,14 @@ func ReadFile(file string) ([]byte, error) {
 
 func ReadDir(file string) ([]os.FileInfo, error) {
 	var fis []os.FileInfo
+	var err error
+	var rel string
+	var strs []string
 	if BindataDir != nil {
 		dlog.Verb("Bindata not nil, reading directory", file)
-		rel, err := filepath.Rel(wd, file)
+		rel, err = filepath.Rel(wd, file)
 		if err == nil {
-			strs, err := BindataDir(rel)
+			strs, err = BindataDir(rel)
 			if err == nil {
 				fis = make([]os.FileInfo, len(strs))
 				for i, s := range strs {
@@ -77,9 +83,8 @@ func ReadDir(file string) ([]os.FileInfo, error) {
 					dlog.Verb("Creating dummy file into for", s, fis[i])
 				}
 				return fis, nil
-			} else {
-				dlog.Warn(err)
 			}
+			dlog.Warn(err)
 		} else {
 			dlog.Warn(err)
 		}

@@ -16,7 +16,6 @@ func CallOnHits(s *Space, m map[Label]OnHit, doneCh chan bool) {
 				return
 			}
 			progCh <- false
-			return
 		}(s, s2, m, progCh)
 	}
 	// This waits to send our signal that we've

@@ -96,10 +96,10 @@ func (t *Tree) UpdateSpace(x, y, w, h float64, s *Space) error {
 }
 
 // ShiftSpace adds x and y to a space and updates its position
-func (t *Tree) ShiftSpace(x, y float64, s *Space) {
+func (t *Tree) ShiftSpace(x, y float64, s *Space) error {
 	x = x + s.GetX()
 	y = y + s.GetY()
-	t.UpdateSpace(x, y, s.GetW(), s.GetH(), s)
+	return t.UpdateSpace(x, y, s.GetW(), s.GetH(), s)
 }
 
 // Hits returns the set of spaces which are colliding

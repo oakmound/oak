@@ -18,7 +18,6 @@ var (
 			false,
 			func(prevScene string, data interface{}) {
 				dlog.Info("Loading Scene Init")
-				return
 			},
 			func() bool {
 				select {
@@ -36,13 +35,6 @@ var (
 	}
 )
 
-// Transition types
-// Theses will be refactored to use function pointers sometime
-const (
-	TRANSITION_NONE = iota
-	TRANSITION_FADE
-)
-
 func sceneTransition(result *SceneResult) {
 	if result.Transition != nil {
 		i := 0
@@ -58,6 +50,8 @@ func sceneTransition(result *SceneResult) {
 
 type transitionFunction func(*image.RGBA, int) bool
 
+// TransitionFade is a scene transition that fades to black at a given rate for
+// a total of frames frames
 func TransitionFade(rate float32, frames int) func(*image.RGBA, int) bool {
 	rate *= -1
 	return func(buf *image.RGBA, frame int) bool {

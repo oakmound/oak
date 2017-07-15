@@ -45,14 +45,14 @@ func Detach(s *Space) error {
 		// Todo: this syntax is terrible
 		event.UnbindBindable(
 			event.UnbindOption{
-				event.BindingOption{
-					event.Event{
-						"EnterFrame",
-						int(s.CID),
+				BindingOption: event.BindingOption{
+					Event: event.Event{
+						Name:     "EnterFrame",
+						CallerID: int(s.CID),
 					},
-					0,
+					Priority: 0,
 				},
-				attachSpaceEnter,
+				Fn: attachSpaceEnter,
 			},
 		)
 		return nil

@@ -14,11 +14,6 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/oakerr"
 )
 
-var (
-	wavController = wav.NewController()
-	mp3Controller = mp3.NewController()
-)
-
 type Data audio.FullAudio
 
 // GetSounds returns a set of Data for a set of input filenames
@@ -59,9 +54,9 @@ func Load(directory, filename string) (Data, error) {
 		end := strings.ToLower(filename[len(filename)-4:])
 		switch end {
 		case ".wav":
-			buffer, err = wavController.Load(f)
+			buffer, err = wav.Load(f)
 		case ".mp3":
-			buffer, err = mp3Controller.Load(f)
+			buffer, err = mp3.Load(f)
 		default:
 			return nil, errors.New("Unsupported file ending " + end)
 		}

@@ -348,11 +348,11 @@ func (bl *bindableList) removeIndex(i int) {
 
 func (eb *Bus) getBindableList(opt BindingOption) *bindableList {
 
-	if m, _ := eb.bindingMap[opt.Name]; m == nil {
+	if m := eb.bindingMap[opt.Name]; m == nil {
 		eb.bindingMap[opt.Name] = make(map[int]*bindableStore)
 	}
 
-	if m, _ := eb.bindingMap[opt.Name][opt.CallerID]; m == nil {
+	if m := eb.bindingMap[opt.Name][opt.CallerID]; m == nil {
 		eb.bindingMap[opt.Name][opt.CallerID] = new(bindableStore)
 		eb.bindingMap[opt.Name][opt.CallerID].defaultPriority = (new(bindableList))
 	}

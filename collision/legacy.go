@@ -41,14 +41,14 @@ func Remove(sps ...*Space) {
 // rtreego.Rect.
 // This is not an operation on a space because
 // a space can exist in multiple rtrees.
-func UpdateSpace(x, y, w, h float64, s *Space) {
-	DefTree.UpdateSpace(x, y, w, h, s)
+func UpdateSpace(x, y, w, h float64, s *Space) error {
+	return DefTree.UpdateSpace(x, y, w, h, s)
 }
 
 // ShiftSpace adds x and y to a space and updates its position
 // in the collision rtree that should not be a package global
-func ShiftSpace(x, y float64, s *Space) {
-	DefTree.ShiftSpace(x, y, s)
+func ShiftSpace(x, y float64, s *Space) error {
+	return DefTree.ShiftSpace(x, y, s)
 }
 
 // Hits returns the set of spaces which are colliding
@@ -64,8 +64,8 @@ func HitLabel(sp *Space, labels ...Label) *Space {
 }
 
 // Update updates this space with the legacy rtree
-func (s *Space) Update(x, y, w, h float64) {
-	DefTree.UpdateSpace(x, y, w, h, s)
+func (s *Space) Update(x, y, w, h float64) error {
+	return DefTree.UpdateSpace(x, y, w, h, s)
 }
 
 // UpdateLabel changes the label behind this space and resets

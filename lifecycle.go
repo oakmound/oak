@@ -19,8 +19,6 @@ var (
 	windowRect     image.Rectangle
 	windowUpdateCh = make(chan bool)
 
-	osCh = make(chan func())
-
 	initControl = sync.Mutex{}
 
 	lifecycleInit bool
@@ -68,7 +66,6 @@ func lifecycleLoop(s screen.Screen) {
 	// The quit channel represents a signal
 	// for the engine to stop.
 	<-quitCh
-	return
 }
 
 func changeWindow(width, height int) {

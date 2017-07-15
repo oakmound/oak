@@ -6,6 +6,9 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/dlog"
 )
 
+// BUG: There's some circumstance where DynamicTickers
+// are not properly initialized/closed in the engine
+
 // A DynamicTicker is a ticker which can
 // be sent signals in the form of durations to
 // change how often it ticks.
@@ -23,13 +26,6 @@ func NewDynamicTicker() *DynamicTicker {
 	resetCh := make(chan *time.Ticker)
 	forceTick := make(chan bool)
 	dt := &DynamicTicker{
-		// Please do not leave the application running
-		// for a thousand hours without clicking on
-		// the visualization knub, or else your next
-		// visualization animation might skip a frame!
-		// (We need -some- ticker defined or else
-		// the program will crash in the following
-		// routine on a nil pointer)
 		ticker:    time.NewTicker(1000 * time.Hour),
 		C:         ch,
 		resetCh:   resetCh,

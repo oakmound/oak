@@ -28,6 +28,6 @@ func (fm *FontManager) NewFont(name string, fg FontGenerator) error {
 // Get retrieves a font from a manager
 func (fm *FontManager) Get(name string) *Font {
 	manager := (*fm)
-	font, _ := manager[name]
+	font := manager[name]
 	return font
 }

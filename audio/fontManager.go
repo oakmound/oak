@@ -33,6 +33,6 @@ func (fm *FontManager) NewFont(name string, f *font.Font) error {
 // Get returns whatever is at name in font
 func (fm *FontManager) Get(name string) *font.Font {
 	manager := (*fm)
-	font, _ := manager[name]
+	font := manager[name]
 	return font
 }
