@@ -9,6 +9,7 @@ import (
 )
 
 var (
+	// GlobalDrawStack is the stack that all draw calls are parsed through.
 	GlobalDrawStack = &DrawStack{
 		as: []Addable{NewHeap(false)},
 	}

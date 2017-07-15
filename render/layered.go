@@ -7,6 +7,7 @@ import (
 )
 
 const (
+	// Undraw is a constant used to undraw elements
 	Undraw = -1000
 )
 
@@ -47,7 +48,7 @@ func NewLayeredPoint(x, y float64, l int) LayeredPoint {
 	}
 }
 
-//GetLayer returns the layer of an object if it has one or else returns that the object needs to be undrawn as it does not have a layer
+// GetLayer returns the layer of an object if it has one or else returns that the object needs to be undrawn as it does not have a layer
 func (ldp *LayeredPoint) GetLayer() int {
 	if ldp == nil {
 		return Undraw
@@ -55,7 +56,7 @@ func (ldp *LayeredPoint) GetLayer() int {
 	return ldp.Layered.GetLayer()
 }
 
-//Copy deep copies the LayeredPoint
+// Copy deep copies the LayeredPoint
 func (ldp *LayeredPoint) Copy() LayeredPoint {
 	ldp2 := LayeredPoint{}
 	ldp2.Vector = ldp.Vector.Copy()
@@ -63,7 +64,7 @@ func (ldp *LayeredPoint) Copy() LayeredPoint {
 	return ldp2
 }
 
-//ShiftX moves the LayeredPoint by the given x
+// ShiftX moves the LayeredPoint by the given x
 func (ldp *LayeredPoint) ShiftX(x float64) {
 	ldp.Vector.ShiftX(x)
 }

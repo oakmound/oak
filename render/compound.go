@@ -160,7 +160,7 @@ func (c *Compound) Pause() {
 	}
 }
 
-//UnPause tries to unpause the current Renderable if possible
+// Unpause tries to unpause the current Renderable if possible
 func (c *Compound) Unpause() {
 	switch t := c.subRenderables[c.curRenderable].(type) {
 	case *Animation:

@@ -23,6 +23,7 @@ var (
 	defaultColor    image.Image
 	defaultFontFile string
 
+	// DefFontGenerator is a default font generator of no options
 	DefFontGenerator = FontGenerator{}
 
 	loadedFonts = make(map[string]*truetype.Font)

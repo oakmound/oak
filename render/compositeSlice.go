@@ -175,9 +175,9 @@ func (cs *CompositeR) PreDraw() {
 	cs.rs = append(cs.rs, push...)
 }
 
+// Copy returns a new composite with the same length slice of renderables but no actual renderables...
 // CompositeRs cannot have their internal elements copied,
 // as renderables cannot be copied.
-//Copy returns a new composite with the same length slice of renderables but no actual renderables...
 func (cs *CompositeR) Copy() Addable {
 	cs2 := new(CompositeR)
 	cs2.LayeredPoint = cs.LayeredPoint

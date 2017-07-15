@@ -11,6 +11,7 @@ import (
 	"bitbucket.org/oakmoundstudio/oak/timing"
 )
 
+// Sheet is a 2D array of image rgbas
 type Sheet [][]*image.RGBA
 
 //SubSprite gets a sprite from a sheet at the given location
@@ -32,7 +33,7 @@ type Animation struct {
 }
 
 //NewAnimation creates an Animation
-func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error) {
+func NewAnimation(sheetP *Sheet, fps float64, frames []int) (*Animation, error) {
 
 	if len(frames)%2 != 0 {
 		return nil, errors.New("Uneven number of animation coordinates")
@@ -50,7 +51,7 @@ func NewAnimation(sheet_p *Sheet, fps float64, frames []int) (*Animation, error)
 		sheetPos:      0,
 		frameTime:     timing.FPSToNano(fps),
 		frames:        splitFrames,
-		sheet:         sheet_p,
+		sheet:         sheetP,
 		lastChange:    time.Now(),
 		playing:       true,
 		Interruptable: true,
@@ -120,8 +121,8 @@ func (a *Animation) Draw(buff draw.Image) {
 }
 
 //GetRGBA returns the current frames rgba
-func (a_p *Animation) GetRGBA() *image.RGBA {
-	return (*a_p.sheet)[a_p.frames[a_p.sheetPos][0]][a_p.frames[a_p.sheetPos][1]]
+func (a *Animation) GetRGBA() *image.RGBA {
+	return (*a.sheet)[a.frames[a.sheetPos][0]][a.frames[a.sheetPos][1]]
 }
 
 //GetDims returns the dimensions of the animation in terms of  x, y

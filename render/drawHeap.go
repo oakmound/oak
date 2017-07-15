@@ -40,16 +40,16 @@ func (rh *RenderableHeap) Replace(r1, r2 Renderable, layer int) {
 
 // Satisfying the Heap interface
 //Len gets the length of the current heap
-func (h *RenderableHeap) Len() int { return len(h.rs) }
+func (rh *RenderableHeap) Len() int { return len(rh.rs) }
 
 //Less returns whether a renderable at index i is at a lower layer than the one at index j
-func (h *RenderableHeap) Less(i, j int) bool { return h.rs[i].GetLayer() < h.rs[j].GetLayer() }
+func (rh *RenderableHeap) Less(i, j int) bool { return rh.rs[i].GetLayer() < rh.rs[j].GetLayer() }
 
 //Swap moves two locations
-func (h *RenderableHeap) Swap(i, j int) { h.rs[i], h.rs[j] = h.rs[j], h.rs[i] }
+func (rh *RenderableHeap) Swap(i, j int) { rh.rs[i], rh.rs[j] = rh.rs[j], rh.rs[i] }
 
 //Push adds to the renderable heap
-func (h *RenderableHeap) Push(r interface{}) {
+func (rh *RenderableHeap) Push(r interface{}) {
 	defer func() {
 		if x := recover(); x != nil {
 			dlog.Error("Invalid Memory address pushed to Draw Heap")
@@ -60,14 +60,14 @@ func (h *RenderableHeap) Push(r interface{}) {
 	}
 	// This can cause a 'name offset base pointer out of range' error
 	// Maybe having incrementing sizes instead of appending could help that?
-	h.rs = append(h.rs, r.(Renderable))
+	rh.rs = append(rh.rs, r.(Renderable))
 }
 
 //Pop pops from the heap
-func (h *RenderableHeap) Pop() interface{} {
-	n := len(h.rs)
-	x := h.rs[n-1]
-	h.rs = h.rs[0 : n-1]
+func (rh *RenderableHeap) Pop() interface{} {
+	n := len(rh.rs)
+	x := rh.rs[n-1]
+	rh.rs = rh.rs[0 : n-1]
 	return x
 }
 
@@ -93,7 +93,7 @@ func (rh *RenderableHeap) PreDraw() {
 	rh.toPush = rh.toPush[l:]
 }
 
-// Copying a renderableHeap does not include any of its elements,
+// Copy on a renderableHeap does not include any of its elements,
 // as renderables cannot be copied.
 func (rh *RenderableHeap) Copy() Addable {
 	rh2 := new(RenderableHeap)
