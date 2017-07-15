@@ -17,15 +17,15 @@ var (
 )
 
 const (
-	PADDLE collision.Label = 1
+	paddle collision.Label = 1
 )
 
 func main() {
 	oak.AddScene("pong",
 		func(prevScene string, data interface{}) {
-			NewPaddle(20, 200, 1)
-			NewPaddle(590, 200, 2)
-			NewBall(320, 240)
+			newPaddle(20, 200, 1)
+			newPaddle(590, 200, 2)
+			newBall(320, 240)
 			render.Draw(render.DefFont().NewIntText(&score2, 200, 20), 3)
 			render.Draw(render.DefFont().NewIntText(&score1, 400, 20), 3)
 		}, func() bool { return true },
@@ -33,7 +33,7 @@ func main() {
 	oak.Init("pong")
 }
 
-func NewBall(x, y float64) {
+func newBall(x, y float64) {
 	b := entities.NewMoving(x, y, 10, 10, render.NewColorBox(10, 10, color.RGBA{0, 255, 0, 255}), 0, 0)
 	render.Draw(b.R, 2)
 	b.Bind(func(id int, nothing interface{}) int {
@@ -45,7 +45,7 @@ func NewBall(x, y float64) {
 			}
 		}
 		b.ShiftPos(b.Delta.X(), b.Delta.Y())
-		if collision.HitLabel(b.Space, PADDLE) != nil {
+		if collision.HitLabel(b.Space, paddle) != nil {
 			b.Delta.SetX(-1.1 * b.Delta.X())
 			b.Delta.SetY(b.Delta.Y() + (rand.Float64()-0.5)*8)
 		}
@@ -65,11 +65,11 @@ func NewBall(x, y float64) {
 	}, "EnterFrame")
 }
 
-func NewPaddle(x, y float64, player int) {
+func newPaddle(x, y float64, player int) {
 	p := entities.NewMoving(x, y, 20, 100, render.NewColorBox(20, 100, color.RGBA{255, 0, 0, 255}), 0, 0)
 	p.Speed.SetY(4)
 	render.Draw(p.R, 1)
-	p.Space.UpdateLabel(PADDLE)
+	p.Space.UpdateLabel(paddle)
 	if player == 1 {
 		p.Bind(enterPaddle("UpArrow", "DownArrow"), "EnterFrame")
 	} else {

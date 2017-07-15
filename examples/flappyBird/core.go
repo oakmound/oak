@@ -23,15 +23,15 @@ var (
 )
 
 const (
-	PLAYER collision.Label = iota
-	PILLAR
+	player collision.Label = iota
+	pillar
 )
 
 func main() {
 	oak.AddScene("bounce", func(string, interface{}) {
 		score = 0
 		// 1. Make Player
-		NewFlappy(90, 140)
+		newFlappy(90, 140)
 		// 2. Make Scrolling background
 		// 3. Make scrolling repeating pillars
 		go func() {
@@ -44,7 +44,7 @@ func main() {
 				case <-timing.ClearDelayCh:
 					return
 				case <-time.After(time.Duration(pillarFreq.Poll() * float64(time.Second))):
-					NewPillarPair()
+					newPillarPair()
 				}
 			}
 		}()
@@ -67,26 +67,28 @@ func main() {
 	oak.Init("bounce")
 }
 
+// A Flappy is on a journey to go to the right
 type Flappy struct {
 	entities.Interactive
 }
 
+// Init satisfies the event.Entity interface
 func (f *Flappy) Init() event.CID {
 	f.CID = event.NextID(f)
 	return f.CID
 }
 
-func NewFlappy(x, y float64) *Flappy {
+func newFlappy(x, y float64) *Flappy {
 	f := new(Flappy)
 	f.Init()
 	f.Interactive = entities.NewInteractive(x, y, 32, 32, render.NewColorBox(32, 32, color.RGBA{0, 255, 255, 255}), f.CID, 1)
 
 	// Can use a const block for collision labels, here we
 	// don't because we only need two.
-	f.RSpace.Add(PILLAR, func(s1, s2 *collision.Space) {
+	f.RSpace.Add(pillar, func(s1, s2 *collision.Space) {
 		playerHitPillar = true
 	})
-	f.RSpace.Space.Label = PLAYER
+	f.RSpace.Space.Label = player
 	collision.Add(f.RSpace.Space)
 
 	//f.Vector = f.Vector.Attach(f.R)
@@ -125,28 +127,30 @@ func NewFlappy(x, y float64) *Flappy {
 	return f
 }
 
+// A Pillar blocks flappy from continuing forward
 type Pillar struct {
 	entities.Solid
 	hasScored bool
 }
 
+// Init satisfies the event.Entity interface
 func (p *Pillar) Init() event.CID {
 	p.CID = event.NextID(p)
 	return p.CID
 }
 
-func NewPillar(x, y, h float64, isAbove bool) {
-	pillar := new(Pillar)
-	pillar.Init()
-	pillar.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), pillar.CID)
-	pillar.Space.Label = PILLAR
-	collision.Add(pillar.Space)
-	pillar.Bind(enterPillar, "EnterFrame")
-	pillar.R.SetLayer(1)
-	render.Draw(pillar.R, 0)
+func newPillar(x, y, h float64, isAbove bool) {
+	p := new(Pillar)
+	p.Init()
+	p.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), p.CID)
+	p.Space.Label = pillar
+	collision.Add(p.Space)
+	p.Bind(enterPillar, "EnterFrame")
+	p.R.SetLayer(1)
+	render.Draw(p.R, 0)
 }
 
-func NewPillarPair() {
+func newPillarPair() {
 	pos := gapPosition.Poll()
 	span := gapSpan.Poll()
 	if (pos + span) > 470 {
@@ -156,8 +160,8 @@ func NewPillarPair() {
 		pos = 370
 		span = 100
 	}
-	NewPillar(641, 0, pos, true)
-	NewPillar(641, pos+span, 480-(pos+span), false)
+	newPillar(641, 0, pos, true)
+	newPillar(641, pos+span, 480-(pos+span), false)
 }
 
 func enterPillar(id int, nothing interface{}) int {
