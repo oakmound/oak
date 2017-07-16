@@ -20,10 +20,10 @@ oak.Init("firstScene")
 See the [examples](examples) folder for longer demos.
 
 ## Motiviation
-The initial version of oak was made to support Oakmound Studio's game:
+The initial version of oak was made to support Oakmound Studio's game,
 [Agent Blue](https://github.com/OakmoundStudio/AgentRelease) and was developed in parallel.
 Oak supports Windows with no dependencies and Linux with limited audio dependencies.
- We hope that users will be able to make great pure Go games with oak and potentially improve oak.
+ We hope that users will be able to make great pure Go games with oak and welcome improvements.
  
  Because Oak wants to have as few dependencies as possible, Oak does not use OpenGL or [GLFW](https://github.com/go-gl/glfw).
  We're open to adding support for these in the future for performance gains, but we always want
