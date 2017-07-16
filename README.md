@@ -4,15 +4,17 @@
 ----
 
 ## Installation
-`go get -u github.com/OakmoundStudio/oak`
+`go get -u github.com/OakmoundStudio/oak/...`
+
+On linux, for audio, see klangsynthese for audio installation requirements
 
 ## Usage
 This is an example of the most basic oak program:
 ```
 oak.AddScene("firstScene",
-    func(prevScene string, inData interface{}) {},
-    func()bool{return true},
-    func()(nextScene string, result *oak.SceneResult){return "firstScene", nil})
+    func(prevScene string, inData interface{}) {}, // Initialization function
+    func()bool{return true}, // Loop to continue or stop current scene
+    func()(nextScene string, result *oak.SceneResult){return "firstScene", nil}) // Exit to transition to next scene
 oak.Init("firstScene")
 ```
 See the [examples](examples) folder for longer demos.
@@ -22,61 +24,75 @@ The initial version of oak was made to support Oakmound Studio's game:
 [Agent Blue](http://oakmound.blogspot.com/) and was developed in parallel.
 Oak supports Windows with no dependencies and Linux with limited audio dependencies.
  We hope that users will be able to make great pure Go games with oak and potentially improve oak.
-
-
+ 
+ Because Oak wants to have as few dependencies as possible, Oak does not use OpenGL or GLFW.
+ We're open to adding support for these in the future for performance gains, but we always want
+ an alternative that requires zero or near-zero dependencies. (We are very sad about the linux audio 
+ dependency and are considering writing an audio driver just to get rid of it.)
 
 ## Features
 1. Window Rendering
     - Windows and key events through [shiny](https://github.com/golang/exp/tree/master/shiny)
-1. Asset Management
+    - Logical frame rate distinct from Draw rate
+1. [Asset Management](render)
+    - `render.Renderable` interface
     - Loading
-    - Batch Loading
+    - TileSheet Batch Loading
     - Manipulation
-        - Recoloring
-        - Transforming
-        - Moving
-        - Shading
+        - `render.Modifiable` interface
+        - Built in Shaping, Coloring, Shading, ...
+        - Some built ins via [gift](https://github.com/disintegration/gift)
+        - extensible Modification syntax `func(image.Image) *image.RGBA`
         - Copying
-1. Mouse Handling 
+    - Built in `Renderable` types
+        - `Sprite`
+        - Sheet `Animation`
+        - `Sequence`, `Compound`, `Composite`
+        - History-tracking `Reverting`
+1. [Particle System](render/particle)
+1. [Mouse Handling](mouse)
     - Click Collision
+    - MouseEnter / MouseExit reaction events
     - Drag Handling
-1. Audio Support
+1. [Audio Support](audio)
     - From [klangsynthese](https://github.com/200sc/klangsynthese)
-1. Collision
-    - Collision rTrees from [rtreego](https://github.com/dhconnelly/rtreego)
+1. [Collision](collision)
+    - Collision R-Tree from [rtreego](https://github.com/dhconnelly/rtreego)
     - 2D Raycasting
     - Collision Spaces
         - Attachable to Objects
-        - React to collisions with events
+        - Auto React to collisions through events
+        - OnHit bindings `func(s1,s2 *collision.Space)`
         - Start/Stop collision with targeted objects
-1. Physics System
+1. [Physics System](physics)
     - Vectors
         - Attachable to Objects / Renderables
         - Momentum
         - Friction
         - Force / Pushing
-1. Event Driven System
-    - Entities can bind and trigger events
-1. Timing system
-    - Accurate time tracking
-    - FPS conversion
-    - Manipulable Time Tick Rate (speed up slow down timers tick rate)
-1. Shaping 
-    - Shapes from x->y equations
-    - Convert shapes into containment checks
-    - Convert shapes into outlines
-1. Console Commands
-    - Supports the easy addition of new console commands
-1. Logging (Probably going to not roll our own soon!)
-    - Controlled config
-    - Filterable
+1. [Event Handler, Bus](event)
+    - PubSub system
+    - `event.CID` can `Bind(fn,eventName)` and selectively `Trigger(eventName)` events
+    - `GlobalBind` and `event.Trigger` for entity-independant 
+1. [Timing utilities](timing)
+    - Smoothed draw rate, frame rate tracking
+    - FPS conversion to `time.Duration`
+    - Manipulatable `time.Ticker` to readily change frame rate
+1. [Shaping](shape)
+    - Shapes from `func(x float64) (y float64)` equations
+    - Shapes from `func(x,y, w, (h) int) bool` containment
+    - Convert shapes into: 
+        - Containment checks
+        - Outlines
+        - 2D arrays
+1. [Custom Console Commands](debugConsole.go)
+1. [Logging](dlog)
+    - Controlled by config files
+    - Filterable by string, debug level
 
+## Package-specific Usage
 
-## More Examples
-
-Oak contains a few snippet examples, but a number of examples exist as external packages.
-
-See examples/README.md
+... Pending! See examples or godoc!
 
 ## Contributions
 See CONTRIBUTING.md
