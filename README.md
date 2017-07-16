@@ -21,7 +21,7 @@ See the [examples](examples) folder for longer demos.
 
 ## Motiviation
 The initial version of oak was made to support Oakmound Studio's game:
-[Agent Blue](http://oakmound.blogspot.com/) and was developed in parallel.
+[Agent Blue](https://github.com/OakmoundStudio/AgentRelease) and was developed in parallel.
 Oak supports Windows with no dependencies and Linux with limited audio dependencies.
  We hope that users will be able to make great pure Go games with oak and potentially improve oak.
  
