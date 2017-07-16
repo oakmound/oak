@@ -22,6 +22,8 @@ var (
 	score           int
 )
 
+// This const block is used for determining what type
+// of entity is colliding with what
 const (
 	player collision.Label = iota
 	pillar
@@ -83,8 +85,6 @@ func newFlappy(x, y float64) *Flappy {
 	f.Init()
 	f.Interactive = entities.NewInteractive(x, y, 32, 32, render.NewColorBox(32, 32, color.RGBA{0, 255, 255, 255}), f.CID, 1)
 
-	// Can use a const block for collision labels, here we
-	// don't because we only need two.
 	f.RSpace.Add(pillar, func(s1, s2 *collision.Space) {
 		playerHitPillar = true
 	})
