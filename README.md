@@ -97,5 +97,6 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
 
 ... Pending! See examples or godoc!
 
-## Contributions
-See CONTRIBUTING.md
+## Contributing
+
+Please raise issues for discussion before making any pull requests.
