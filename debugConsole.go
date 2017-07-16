@@ -21,10 +21,8 @@ var (
 	commands       = make(map[string]func([]string))
 )
 
-// AddCommand is an alias for AddCheat for things
-// that are not explicitly games which want to have
-// console commands.
-// We probably only want one of the two of these
+// AddCommand adds a console command to call fn when
+// 'c <s> <args>' is input to the console
 func AddCommand(s string, fn func([]string)) {
 	commands[s] = fn
 }
