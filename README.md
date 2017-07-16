@@ -6,7 +6,7 @@
 ## Installation
 `go get -u github.com/OakmoundStudio/oak/...`
 
-On linux, for audio, see klangsynthese for audio installation requirements
+On linux, for audio, see [klangsynthese](https://github.com/200sc/klangsynthese) for audio installation requirements
 
 ## Usage
 This is an example of the most basic oak program:
@@ -25,7 +25,7 @@ The initial version of oak was made to support Oakmound Studio's game:
 Oak supports Windows with no dependencies and Linux with limited audio dependencies.
  We hope that users will be able to make great pure Go games with oak and potentially improve oak.
  
- Because Oak wants to have as few dependencies as possible, Oak does not use OpenGL or GLFW.
+ Because Oak wants to have as few dependencies as possible, Oak does not use OpenGL or [GLFW](https://github.com/go-gl/glfw).
  We're open to adding support for these in the future for performance gains, but we always want
  an alternative that requires zero or near-zero dependencies. (We are very sad about the linux audio 
  dependency and are considering writing an audio driver just to get rid of it.)
@@ -34,9 +34,8 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
 1. Window Rendering
     - Windows and key events through [shiny](https://github.com/golang/exp/tree/master/shiny)
     - Logical frame rate distinct from Draw rate
-1. [Asset Management](render)
+1. [Image Management](render)
     - `render.Renderable` interface
-    - Loading
     - TileSheet Batch Loading
     - Manipulation
         - `render.Modifiable` interface
@@ -49,6 +48,7 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
         - Sheet `Animation`
         - `Sequence`, `Compound`, `Composite`
         - History-tracking `Reverting`
+    - Primarily 2D
 1. [Particle System](render/particle)
 1. [Mouse Handling](mouse)
     - Click Collision
@@ -56,6 +56,8 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
     - Drag Handling
 1. [Audio Support](audio)
     - From [klangsynthese](https://github.com/200sc/klangsynthese)
+    - Batch Loading
+    - Positional filters to pan and scale audio based on a listening position
 1. [Collision](collision)
     - Collision R-Tree from [rtreego](https://github.com/dhconnelly/rtreego)
     - 2D Raycasting
