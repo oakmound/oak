@@ -24,7 +24,7 @@ type collisionPhase interface {
 }
 
 // PhaseCollision binds to the entity behind the space's CID so that it will
-// recieve MouseCollisionStart and MouseCollisionStop events, appropriately when
+// receive MouseCollisionStart and MouseCollisionStop events, appropriately when
 // the mouse begins to hover or stops hovering over the input space.
 func PhaseCollision(s *collision.Space) error {
 	switch t := event.GetEntity(int(s.CID)).(type) {

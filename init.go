@@ -22,21 +22,21 @@ var (
 	//
 	transitionCh = make(chan bool)
 
-	// The Scene channel recieves a signal
+	// The Scene channel receives a signal
 	// when a scene's .loop() function should
 	// be called.
 	sceneCh = make(chan bool)
 
-	// The skip scene channel recieves a debug
+	// The skip scene channel receives a debug
 	// signal to forcibly go to the next
 	// scene.
 	skipSceneCh = make(chan bool)
 
-	// The quit channel recieves a signal when
+	// The quit channel receives a signal when
 	// the program should stop.
 	quitCh = make(chan bool)
 
-	// The draw channel recieves a signal when
+	// The draw channel receives a signal when
 	// drawing should cease (or resume)
 	drawCh = make(chan bool)
 

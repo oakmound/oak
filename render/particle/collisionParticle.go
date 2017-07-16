@@ -7,7 +7,7 @@ import (
 )
 
 // A CollisionParticle is a wrapper around other particles that also
-// has a collision space and can functionally react with the enviroment
+// has a collision space and can functionally react with the environment
 // on collision
 type CollisionParticle struct {
 	Particle

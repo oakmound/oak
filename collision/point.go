@@ -3,7 +3,7 @@ package collision
 import "bitbucket.org/oakmoundstudio/oak/physics"
 
 // A Point is a specific point where
-// collision occured and a zone to identify
+// collision occurred and a zone to identify
 // what was collided with.
 type Point struct {
 	physics.Vector

@@ -60,7 +60,7 @@ func UniqueChooseX(weights []float64, n int) []int {
 // is not always the desired effect.
 //
 // A version of it could easily be made to only pick each element
-// once, however. It would benefit from the linear psuedo-random
+// once, however. It would benefit from the linear pseudo-random
 // roulette search, where forced increments would happen once an
 // index was chosen.
 func ChooseX(weights []float64, x int) []int {

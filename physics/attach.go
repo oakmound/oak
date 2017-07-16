@@ -47,7 +47,7 @@ func (v Vector) AttachY(a Attachable, offY float64) Vector {
 
 // Detach returns a vector no longer attached to anything. The returned vector
 // needs to be assigned to the caller for the caller to be replaced (vectors
-// do not use pointer recievers)
+// do not use pointer receivers)
 func (v Vector) Detach() Vector {
 	return NewVector(v.X(), v.Y())
 }

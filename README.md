@@ -75,7 +75,7 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
 1. [Event Handler, Bus](event)
     - PubSub system
     - `event.CID` can `Bind(fn,eventName)` and selectively `Trigger(eventName)` events
-    - `GlobalBind` and `event.Trigger` for entity-independant 
+    - `GlobalBind` and `event.Trigger` for entity-independent 
 1. [Timing utilities](timing)
     - Smoothed draw rate, frame rate tracking
     - FPS conversion to `time.Duration`

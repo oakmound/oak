@@ -26,7 +26,7 @@ type collisionPhase interface {
 }
 
 // PhaseCollision binds to the entity behind the space's CID so that it will
-// recieve CollisionStart and CollisionStop events, appropriately when
+// receive CollisionStart and CollisionStop events, appropriately when
 // entities begin to collide or stop colliding with the space.
 func PhaseCollision(s *Space, trees ...*Tree) error {
 	switch t := event.GetEntity(int(s.CID)).(type) {

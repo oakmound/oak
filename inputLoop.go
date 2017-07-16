@@ -60,10 +60,10 @@ func inputLoop() {
 		// The basic event name is meant for entities which
 		// want to respond to the mouse event happening -anywhere-.
 		//
-		// For events which have mouse collision enabled, they'll recieve
+		// For events which have mouse collision enabled, they'll receive
 		// $eventName+"On" when the event occurs within their collision area.
 		//
-		// Mouse events all recieve an x, y, and button string.
+		// Mouse events all receive an x, y, and button string.
 		case mouse.Event:
 			button := pmouse.GetMouseButton(int32(e.Button))
 			//dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", button)

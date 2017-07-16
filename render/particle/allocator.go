@@ -25,7 +25,7 @@ func init() {
 					responseCh <- particleBlocks[pID/blockSize]
 					lastOpen--
 				case i := <-freeCh:
-					opened := freeRecieve(i)
+					opened := freereceive(i)
 					if opened < lastOpen {
 						lastOpen = opened
 					}
@@ -35,7 +35,7 @@ func init() {
 			}
 			select {
 			case i := <-freeCh:
-				opened := freeRecieve(i)
+				opened := freereceive(i)
 				if opened < lastOpen {
 					lastOpen = opened
 				}
@@ -46,7 +46,7 @@ func init() {
 	}()
 }
 
-func freeRecieve(i int) int {
+func freereceive(i int) int {
 	delete(particleBlocks, i)
 	return i - 1
 }

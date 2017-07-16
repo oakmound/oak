@@ -21,7 +21,7 @@ func (p *Point) GetLogicPos() (float64, float64) {
 	return p.X(), p.Y()
 }
 
-// SetLogicPos is an explict declaration for setting just the logical
+// SetLogicPos is an explicit declaration for setting just the logical
 // position of an entity. On a Point there is no distinction as there is nothing
 // but the logical position but this is important for other entity types
 func (p *Point) SetLogicPos(x, y float64) {

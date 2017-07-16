@@ -46,7 +46,7 @@ func (a *Audio) Play() <-chan error {
 		}()
 		return ch
 	}
-	// This part is probably unneccessary. Requires further testing.
+	// This part is probably unnecessary. Requires further testing.
 	a4, err := a3.(*Audio).FullAudio.Copy()
 	if err != nil {
 		ch := make(chan error)

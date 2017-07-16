@@ -162,7 +162,7 @@ func FontColor(s string) image.Image {
 	}
 }
 
-//LoadFont loads in a font file and stores it with the given name. This is nessecary before using the fonttype for a Font
+//LoadFont loads in a font file and stores it with the given name. This is necessary before using the fonttype for a Font
 func LoadFont(dir string, fontFile string) *truetype.Font {
 	if _, ok := loadedFonts[fontFile]; !ok {
 		fontBytes, err := fileutil.ReadFile(filepath.Join(dir, fontFile))
