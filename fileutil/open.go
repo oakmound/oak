@@ -37,7 +37,7 @@ func Open(file string) (io.ReadCloser, error) {
 	// Check bindata
 	if BindataFn != nil {
 		// It looks like we need to clean this output sometimes--
-		// we get capitalization where we don't want it ocassionally?
+		// we get capitalization where we don't want it occasionally?
 		rel, err = filepath.Rel(wd, file)
 		if err == nil {
 			data, err = BindataFn(rel)

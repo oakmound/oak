@@ -79,7 +79,7 @@ var (
 
 // Init initializes the oak engine.
 // It spawns off an event loop of several goroutines
-// and loops through scenes after initalization.
+// and loops through scenes after initialization.
 func Init(firstScene string) {
 	dlog.CreateLogFile()
 
