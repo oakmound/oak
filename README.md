@@ -3,13 +3,21 @@
 
 ----
 
-## Usage
-1. run `go get -u github.com/OakmoundStudio/oak`
-1. Get one or all of the examples
-1. Go to the chosen example's folder
-1. run `go run core.go / demo.go`
+## Installation
+`go get -u github.com/OakmoundStudio/oak`
 
-## Reason
+## Usage
+This is an example of the most basic oak program:
+```
+oak.AddScene("firstScene",
+    func(prevScene string, inData interface{}) {},
+    func()bool{return true},
+    func()(nextScene string, result *oak.SceneResult){return "firstScene", nil})
+oak.Init("firstScene")
+```
+See the [examples](examples) folder for longer demos.
+
+## Motiviation
 The initial version of oak was made to support Oakmound Studio's game:
 [Agent Blue](http://oakmound.blogspot.com/) and was developed in parallel.
 Oak supports Windows with no dependencies and Linux with limited audio dependencies.
