@@ -5,7 +5,7 @@
 ----
 
 ## Installation
-`go get -u github.com/OakmoundStudio/oak/...`
+`go get -u github.com/oakmound/oak/...`
 
 On linux, for audio, see [klangsynthese](https://github.com/200sc/klangsynthese) for audio installation requirements
 
