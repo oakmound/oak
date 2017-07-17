@@ -13,9 +13,12 @@ On linux, for audio, see [klangsynthese](https://github.com/200sc/klangsynthese)
 This is an example of the most basic oak program:
 ```
 oak.AddScene("firstScene",
-    func(prevScene string, inData interface{}) {}, // Initialization function
-    func()bool{return true}, // Loop to continue or stop current scene
-    func()(nextScene string, result *oak.SceneResult){return "firstScene", nil}) // Exit to transition to next scene
+    // Initialization function
+    func(prevScene string, inData interface{}) {}, 
+    // Loop to continue or stop current scene
+    func()bool{return true}, 
+    // Exit to transition to next scene
+    func()(nextScene string, result *oak.SceneResult){return "firstScene", nil}) 
 oak.Init("firstScene")
 ```
 See the [examples](examples) folder for longer demos.
