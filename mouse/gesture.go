@@ -3,7 +3,7 @@ package mouse
 import (
 	"time"
 
-	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/oakmound/oak/physics"
 	"golang.org/x/exp/shiny/gesture"
 )
 

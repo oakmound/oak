@@ -3,7 +3,7 @@ package event
 import (
 	"time"
 
-	"bitbucket.org/oakmoundstudio/oak/timing"
+	"github.com/oakmound/oak/timing"
 )
 
 // Oak uses the following built in events:

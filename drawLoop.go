@@ -6,9 +6,9 @@ import (
 
 	"runtime/debug"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/render"
-	"bitbucket.org/oakmoundstudio/oak/timing"
+	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/timing"
 	"golang.org/x/exp/shiny/screen"
 )
 

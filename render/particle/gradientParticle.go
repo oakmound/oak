@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"image/draw"
 
-	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/oakmound/oak/render"
 )
 
 // A GradientParticle has a gradient from one color to another

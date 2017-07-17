@@ -1,7 +1,7 @@
 package particle
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/oakmound/oak/physics"
 	"github.com/200sc/go-dist/floatrange"
 	"github.com/200sc/go-dist/intrange"
 )

@@ -5,7 +5,7 @@ import (
 
 	"github.com/200sc/go-dist/floatrange"
 
-	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/oakmound/oak/render"
 )
 
 // A SpriteGenerator generate SpriteParticles

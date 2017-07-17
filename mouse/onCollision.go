@@ -3,8 +3,8 @@ package mouse
 import (
 	"errors"
 
-	"bitbucket.org/oakmoundstudio/oak/collision"
-	"bitbucket.org/oakmoundstudio/oak/event"
+	"github.com/oakmound/oak/collision"
+	"github.com/oakmound/oak/event"
 )
 
 // CollisionPhase is a component that can be placed into another struct to

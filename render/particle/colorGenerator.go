@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"math"
 
-	"bitbucket.org/oakmoundstudio/oak/shape"
+	"github.com/oakmound/oak/shape"
 
 	"github.com/200sc/go-dist/intrange"
 )

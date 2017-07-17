@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/draw"
 
-	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/oakmound/oak/physics"
 )
 
 // The Compound type is intended for use to easily swap between multiple

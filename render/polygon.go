@@ -6,7 +6,7 @@ import (
 	"image/color"
 	"math"
 
-	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/oakmound/oak/physics"
 )
 
 // A Rect is a helper type storing X1,Y1,X2,Y2 in floats

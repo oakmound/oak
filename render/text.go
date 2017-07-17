@@ -5,7 +5,7 @@ import (
 	"image/draw"
 	"strconv"
 
-	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/oakmound/oak/physics"
 	"golang.org/x/image/math/fixed"
 )
 

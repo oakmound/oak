@@ -5,8 +5,8 @@ import (
 	"image"
 	"sync"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/event"
+	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/event"
 
 	"golang.org/x/exp/shiny/screen"
 )

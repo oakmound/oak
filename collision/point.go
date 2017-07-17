@@ -1,6 +1,6 @@
 package collision
 
-import "bitbucket.org/oakmoundstudio/oak/physics"
+import "github.com/oakmound/oak/physics"
 
 // A Point is a specific point where
 // collision occurred and a zone to identify

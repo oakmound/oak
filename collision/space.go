@@ -5,9 +5,9 @@ import (
 	"log"
 	"strconv"
 
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/physics"
 	"github.com/Sythe2o0/rtreego"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/physics"
 )
 
 // ID Types constant

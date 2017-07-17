@@ -3,7 +3,7 @@ package collision
 import (
 	"errors"
 
-	"bitbucket.org/oakmoundstudio/oak/event"
+	"github.com/oakmound/oak/event"
 )
 
 // A Phase is a struct that other structs who want to use PhaseCollision

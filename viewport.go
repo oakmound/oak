@@ -3,8 +3,8 @@ package oak
 import (
 	"image"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/event"
+	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/event"
 )
 
 var (

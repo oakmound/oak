@@ -3,7 +3,7 @@ package collision
 import (
 	"math"
 
-	"bitbucket.org/oakmoundstudio/oak/event"
+	"github.com/oakmound/oak/event"
 )
 
 // Todo: this is too many functions for raycasting

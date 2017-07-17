@@ -1,7 +1,7 @@
 package audio
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/oakmound/oak/physics"
 	"github.com/200sc/klangsynthese/audio"
 	"github.com/200sc/klangsynthese/audio/filter"
 	"github.com/200sc/klangsynthese/audio/filter/supports"

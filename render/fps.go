@@ -5,7 +5,7 @@ import (
 	"image/draw"
 	"time"
 
-	"bitbucket.org/oakmoundstudio/oak/timing"
+	"github.com/oakmound/oak/timing"
 )
 
 const (

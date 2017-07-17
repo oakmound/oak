@@ -3,7 +3,7 @@ package render
 import (
 	"strconv"
 
-	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/oakmound/oak/physics"
 )
 
 const (

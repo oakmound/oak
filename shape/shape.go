@@ -1,6 +1,6 @@
 package shape
 
-import "bitbucket.org/oakmoundstudio/oak/alg/intgeom"
+import "github.com/oakmound/oak/alg/intgeom"
 
 // A Shape represents a rectangle of width/height size
 // where for each x,y coordinate, either that value lies

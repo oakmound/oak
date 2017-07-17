@@ -3,7 +3,7 @@ package particle
 import (
 	"image/draw"
 
-	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/oakmound/oak/render"
 )
 
 // A SpriteParticle is a particle that has an amount of sprite rotation

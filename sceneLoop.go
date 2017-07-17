@@ -3,12 +3,12 @@ package oak
 import (
 	"image"
 
-	"bitbucket.org/oakmoundstudio/oak/collision"
-	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/mouse"
-	"bitbucket.org/oakmoundstudio/oak/render"
-	"bitbucket.org/oakmoundstudio/oak/timing"
+	"github.com/oakmound/oak/collision"
+	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/mouse"
+	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/timing"
 )
 
 func sceneLoop(firstScene string) {

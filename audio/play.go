@@ -1,7 +1,7 @@
 package audio
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"github.com/oakmound/oak/dlog"
 	"github.com/200sc/klangsynthese/font"
 )
 

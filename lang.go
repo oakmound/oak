@@ -3,7 +3,7 @@ package oak
 import (
 	"strings"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"github.com/oakmound/oak/dlog"
 )
 
 // Language is hypothetically something games might care about in their text

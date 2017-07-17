@@ -1,6 +1,6 @@
 package physics
 
-import "bitbucket.org/oakmoundstudio/oak/dlog"
+import "github.com/oakmound/oak/dlog"
 
 const frozen = -64
 

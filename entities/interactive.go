@@ -1,9 +1,9 @@
 package entities
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/physics"
-	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/render"
 )
 
 // Interactive parallels Moving, but for Reactive instead of Solid

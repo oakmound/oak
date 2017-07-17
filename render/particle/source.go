@@ -6,10 +6,10 @@ import (
 
 	"github.com/200sc/go-dist/intrange"
 
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/physics"
-	"bitbucket.org/oakmoundstudio/oak/render"
-	"bitbucket.org/oakmoundstudio/oak/timing"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/timing"
 )
 
 const (

@@ -8,8 +8,8 @@ import (
 
 	"golang.org/x/exp/shiny/screen"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/render"
 )
 
 var (

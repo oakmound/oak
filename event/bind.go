@@ -1,7 +1,7 @@
 package event
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"github.com/oakmound/oak/dlog"
 )
 
 // BindPriority is called by entities. Entities pass in a bindable function,

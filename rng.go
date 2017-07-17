@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"github.com/oakmound/oak/dlog"
 )
 
 const (

@@ -1,8 +1,8 @@
 package entities
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/render"
 )
 
 // A Doodad is an entity composed of a position, a renderable, and a CallerID.

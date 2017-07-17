@@ -5,7 +5,7 @@ import (
 	"image"
 	"image/draw"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"github.com/oakmound/oak/dlog"
 )
 
 var (

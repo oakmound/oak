@@ -3,7 +3,7 @@ package shape
 import (
 	"errors"
 
-	"bitbucket.org/oakmoundstudio/oak/alg/intgeom"
+	"github.com/oakmound/oak/alg/intgeom"
 )
 
 const (

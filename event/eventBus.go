@@ -5,7 +5,7 @@
 package event
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"github.com/oakmound/oak/dlog"
 
 	"reflect"
 	"runtime"

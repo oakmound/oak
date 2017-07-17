@@ -5,7 +5,7 @@ import (
 	"image"
 	"image/draw"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"github.com/oakmound/oak/dlog"
 )
 
 //The RenderableHeap type is set up to manage a set of renderables to prevent any unsafe operations

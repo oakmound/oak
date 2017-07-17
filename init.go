@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/render"
 	"golang.org/x/exp/shiny/driver"
 )
 

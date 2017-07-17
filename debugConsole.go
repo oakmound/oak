@@ -6,14 +6,14 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	// "bitbucket.org/oakmoundstudio/oak/dlog"
+	// "github.com/oakmound/oak/dlog"
 	"reflect"
 
-	"bitbucket.org/oakmoundstudio/oak/collision"
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/mouse"
-	"bitbucket.org/oakmoundstudio/oak/render"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/oakmound/oak/collision"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/mouse"
+	"github.com/oakmound/oak/render"
 )
 
 var (

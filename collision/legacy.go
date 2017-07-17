@@ -3,7 +3,7 @@ package collision
 import (
 	"log"
 
-	"bitbucket.org/oakmoundstudio/oak/event"
+	"github.com/oakmound/oak/event"
 )
 
 // There's a default collision tree you can access via collision.func

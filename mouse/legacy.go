@@ -3,7 +3,7 @@ package mouse
 import (
 	"log"
 
-	"bitbucket.org/oakmoundstudio/oak/collision"
+	"github.com/oakmound/oak/collision"
 )
 
 // There's a default collision tree you can access via collision.func

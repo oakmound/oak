@@ -3,7 +3,7 @@ package particle
 import (
 	"image/draw"
 
-	"bitbucket.org/oakmoundstudio/oak/collision"
+	"github.com/oakmound/oak/collision"
 )
 
 // A CollisionParticle is a wrapper around other particles that also

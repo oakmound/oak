@@ -6,7 +6,7 @@ import (
 	// missable bugs.
 	//"github.com/anthonynsimon/bild/blend"
 
-	"bitbucket.org/oakmoundstudio/oak/alg"
+	"github.com/oakmound/oak/alg"
 
 	"github.com/disintegration/gift"
 

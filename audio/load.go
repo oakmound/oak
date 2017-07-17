@@ -9,9 +9,9 @@ import (
 	"github.com/200sc/klangsynthese/mp3"
 	"github.com/200sc/klangsynthese/wav"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/fileutil"
-	"bitbucket.org/oakmoundstudio/oak/oakerr"
+	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/fileutil"
+	"github.com/oakmound/oak/oakerr"
 )
 
 // Data is an alias for an interface supporting the built in filters in our

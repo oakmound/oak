@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"math"
 
-	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/oakmound/oak/render"
 )
 
 // A GradientGenerator is a ColorGenerator with a patterned gradient

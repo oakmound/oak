@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"github.com/oakmound/oak/dlog"
 )
 
 var (

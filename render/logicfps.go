@@ -5,8 +5,8 @@ import (
 	"image/draw"
 	"time"
 
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/timing"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/timing"
 )
 
 // LogicFPS is a draw stack element that will draw the fps onto the screen

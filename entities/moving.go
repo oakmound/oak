@@ -1,9 +1,9 @@
 package entities
 
 import (
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/physics"
-	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/render"
 )
 
 // A Moving is a Solid that also keeps track of a speed and a delta vector

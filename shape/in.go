@@ -3,7 +3,7 @@ package shape
 import (
 	"math"
 
-	"bitbucket.org/oakmoundstudio/oak/alg/intgeom"
+	"github.com/oakmound/oak/alg/intgeom"
 )
 
 // In functions return whether the given coordinate lies

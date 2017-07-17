@@ -5,10 +5,10 @@ import (
 	"math/rand"
 
 	"bitbucket.org/oakmoundstudio/oak"
-	"bitbucket.org/oakmoundstudio/oak/collision"
-	"bitbucket.org/oakmoundstudio/oak/entities"
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/oakmound/oak/collision"
+	"github.com/oakmound/oak/entities"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/render"
 )
 
 var (

@@ -6,7 +6,7 @@ package render
 import (
 	"image/draw"
 
-	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/oakmound/oak/physics"
 )
 
 // A Renderable is anything which can

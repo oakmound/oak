@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/draw"
 
-	"bitbucket.org/oakmoundstudio/oak/physics"
+	"github.com/oakmound/oak/physics"
 )
 
 // Composite Types, distinct from Compound Types,

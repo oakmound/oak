@@ -3,7 +3,7 @@ package timing
 import (
 	"time"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"github.com/oakmound/oak/dlog"
 )
 
 // BUG: There's some circumstance where DynamicTickers

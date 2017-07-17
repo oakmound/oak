@@ -10,8 +10,8 @@ import (
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/fileutil"
+	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/fileutil"
 )
 
 var (

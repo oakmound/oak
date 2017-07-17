@@ -3,7 +3,7 @@ package alg
 import (
 	"math/rand"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
+	"github.com/oakmound/oak/dlog"
 )
 
 type stwHeap struct {

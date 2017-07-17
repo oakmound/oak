@@ -5,9 +5,9 @@ import (
 	"image/draw"
 	"time"
 
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/physics"
-	"bitbucket.org/oakmoundstudio/oak/timing"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/timing"
 )
 
 // A Sequence is a series of modifiables drawn as an animation. It is more

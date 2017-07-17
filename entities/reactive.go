@@ -3,9 +3,9 @@ package entities
 import (
 	"strconv"
 
-	"bitbucket.org/oakmoundstudio/oak/collision"
-	"bitbucket.org/oakmoundstudio/oak/event"
-	"bitbucket.org/oakmoundstudio/oak/render"
+	"github.com/oakmound/oak/collision"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/render"
 )
 
 // Reactive is parallel to Solid, but has a Reactive collision space instead of

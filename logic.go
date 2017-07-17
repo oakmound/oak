@@ -1,6 +1,6 @@
 package oak
 
-import "bitbucket.org/oakmoundstudio/oak/timing"
+import "github.com/oakmound/oak/timing"
 
 var (
 	// LogicTicker is exposed so that games can manually change the speed

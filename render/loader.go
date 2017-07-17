@@ -14,8 +14,8 @@ import (
 	"strings"
 	"sync"
 
-	"bitbucket.org/oakmoundstudio/oak/dlog"
-	"bitbucket.org/oakmoundstudio/oak/fileutil"
+	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/fileutil"
 )
 
 var (

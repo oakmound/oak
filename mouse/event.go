@@ -1,6 +1,6 @@
 package mouse
 
-import "bitbucket.org/oakmoundstudio/oak/collision"
+import "github.com/oakmound/oak/collision"
 
 var (
 	// LastMouseEvent is the last triggered mouse event,
