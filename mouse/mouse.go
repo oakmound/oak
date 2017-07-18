@@ -1,6 +1,3 @@
-// Package mouse handles the propagation of mouse events
-// though clickable regions.
-// It has a lot of functions which are equivalent to those in the collision package.
 package mouse
 
 import "github.com/oakmound/oak/collision"

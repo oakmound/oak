@@ -1,4 +1,3 @@
-// Package oak is a game engine...
 package oak
 
 import (
