@@ -6,7 +6,7 @@ import (
 
 	"github.com/200sc/go-dist/floatrange"
 
-	"bitbucket.org/oakmoundstudio/oak"
+	"github.com/oakmound/oak"
 	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/entities"
 	"github.com/oakmound/oak/event"
