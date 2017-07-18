@@ -1,8 +1,8 @@
 package audio
 
 import (
-	"github.com/oakmound/oak/dlog"
 	"github.com/200sc/klangsynthese/font"
+	"github.com/oakmound/oak/dlog"
 )
 
 // Play is shorthand for Get followed by Play.

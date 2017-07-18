@@ -1,9 +1,9 @@
 package particle
 
 import (
-	"github.com/oakmound/oak/physics"
 	"github.com/200sc/go-dist/floatrange"
 	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/physics"
 )
 
 // And chains together particle options into a single option

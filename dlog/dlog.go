@@ -33,6 +33,7 @@ var (
 	writer      *bufio.Writer
 )
 
+// GetLogLevel returns the current log level, i.e WARN or INFO...
 func GetLogLevel() LogLevel {
 	return debugLevel
 }
