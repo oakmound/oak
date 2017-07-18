@@ -38,7 +38,7 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
 1. Window Rendering
     - Windows and key events through [shiny](https://github.com/golang/exp/tree/master/shiny)
     - Logical frame rate distinct from Draw rate
-1. [Image Management](render)
+1. [Image Management](https://godoc.org/github.com/oakmound/oak/render)
     - `render.Renderable` interface
     - TileSheet Batch Loading
     - Manipulation
@@ -53,16 +53,16 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
         - `Sequence`, `Compound`, `Composite`
         - History-tracking `Reverting`
     - Primarily 2D
-1. [Particle System](render/particle)
-1. [Mouse Handling](mouse)
+1. [Particle System](https://godoc.org/github.com/oakmound/oak/render/particle)
+1. [Mouse Handling](https://godoc.org/github.com/oakmound/oak/mouse)
     - Click Collision
     - MouseEnter / MouseExit reaction events
     - Drag Handling
-1. [Audio Support](audio)
+1. [Audio Support](https://godoc.org/github.com/oakmound/oak/audio)
     - From [klangsynthese](https://github.com/200sc/klangsynthese)
     - Batch Loading
     - Positional filters to pan and scale audio based on a listening position
-1. [Collision](collision)
+1. [Collision](https://godoc.org/github.com/oakmound/oak/collision)
     - Collision R-Tree from [rtreego](https://github.com/dhconnelly/rtreego)
     - 2D Raycasting
     - Collision Spaces
@@ -70,17 +70,17 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
         - Auto React to collisions through events
         - OnHit bindings `func(s1,s2 *collision.Space)`
         - Start/Stop collision with targeted objects
-1. [Physics System](physics)
+1. [Physics System](https://godoc.org/github.com/oakmound/oak/physics)
     - Vectors
         - Attachable to Objects / Renderables
         - Momentum
         - Friction
         - Force / Pushing
-1. [Event Handler, Bus](event)
+1. [Event Handler, Bus](https://godoc.org/github.com/oakmound/oak/event)
     - PubSub system
     - `event.CID` can `Bind(fn,eventName)` and selectively `Trigger(eventName)` events
     - `GlobalBind` and `event.Trigger` for entity-independent 
-1. [Timing utilities](timing)
+1. [Timing utilities](https://godoc.org/github.com/oakmound/oak/timing)
     - Smoothed draw rate, frame rate tracking
     - FPS conversion to `time.Duration`
     - Manipulatable `time.Ticker` to readily change frame rate
@@ -92,7 +92,7 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
         - Outlines
         - 2D arrays
 1. [Custom Console Commands](debugConsole.go)
-1. [Logging](dlog)
+1. [Logging](https://godoc.org/github.com/oakmound/oak/dlog)
     - Controlled by config files
     - Filterable by string, debug level
 
