@@ -22,23 +22,20 @@ var (
 
 // SeedRNG seeds go's random number generator
 // and logs the seed set to file.
-func SeedRNG(curSeed int64) {
-	if currentSeed != 0 && curSeed == DefaultSeed {
+func SeedRNG(inSeed int64) {
+	if currentSeed != 0 && inSeed == DefaultSeed {
 		fmt.Println("Oak Seed was already set to :", currentSeed)
 		return
 	}
-	currentSeed = curSeed
-	if curSeed == DefaultSeed {
-		curSeed = time.Now().UTC().UnixNano()
+	currentSeed = inSeed
+	if inSeed == DefaultSeed {
+		inSeed = time.Now().UTC().UnixNano()
 	}
-	rand.Seed(curSeed)
+	rand.Seed(inSeed)
 
 	fmt.Println("\n~~~~~~~~~~~~~~~")
-	fmt.Println("Oak Seed:", curSeed)
+	fmt.Println("Oak Seed:", inSeed)
 
-	// We log here because we want the seed recorded in the
-	// logfile for debugging purposes. Maybe a logWrite function
-	// would be better.
-	dlog.FileWrite("Oak seed:", curSeed)
+	dlog.FileWrite("Oak seed:", inSeed)
 	fmt.Println("\n~~~~~~~~~~~~~~~")
 }
