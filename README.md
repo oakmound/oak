@@ -84,7 +84,7 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
     - Smoothed draw rate, frame rate tracking
     - FPS conversion to `time.Duration`
     - Manipulatable `time.Ticker` to readily change frame rate
-1. [Shaping](shape)
+1. [Shaping](https://godoc.org/github.com/oakmound/oak/shape)
     - Shapes from `func(x float64) (y float64)` equations
     - Shapes from `func(x,y, w, (h) int) bool` containment
     - Convert shapes into: 
