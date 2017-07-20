@@ -52,10 +52,10 @@ func (s *ScrollBox) Draw(buff draw.Image) {
 }
 
 func (s *ScrollBox) update() {
-	updatedFlag := false
 	if s.paused {
 		return
 	}
+	updatedFlag := false
 	if s.dirX != 0 && time.Now().After(s.nextScrollX) {
 		pixelsMovedX := int64(time.Since(s.nextScrollX))/int64(s.scrollRateX) + 1
 		s.nextScrollX = time.Now().Add(s.scrollRateX)
@@ -92,12 +92,13 @@ func (s *ScrollBox) update() {
 	}
 }
 
-// Pause stops this scroll box from scrolling
+// Pause stops this scroll box from scrolling. Does nothing if already paused.
 func (s *ScrollBox) Pause() {
 	s.paused = true
 }
 
-// Unpause resumes this scroll box's scrolling
+// Unpause resumes this scroll box's scrolling. Will delay the next scroll frame
+// if already unpaused.
 func (s *ScrollBox) Unpause() {
 	s.paused = false
 	s.nextScrollX = time.Now().Add(s.scrollRateX)
