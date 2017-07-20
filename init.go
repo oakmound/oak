@@ -83,7 +83,7 @@ var (
 func Init(firstScene string) {
 	dlog.CreateLogFile()
 
-	loadDefaultConf()
+	initConf()
 
 	// Set variables from conf file
 	dlog.SetStringDebugLevel(conf.Debug.Level)
