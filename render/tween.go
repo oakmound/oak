@@ -7,8 +7,8 @@ import (
 
 // Tween takes two images and returns a set of images tweening
 // between the two over some number of frames
-func Tween(a image.Image, b image.Image, frames int) []*image.RGBA {
-	bounds := a.Bounds()
+func Tween(start image.Image, end image.Image, frames int) []*image.RGBA {
+	bounds := start.Bounds()
 	w := bounds.Max.X
 	h := bounds.Max.Y
 
@@ -19,8 +19,8 @@ func Tween(a image.Image, b image.Image, frames int) []*image.RGBA {
 		tweened[i] = image.NewRGBA(image.Rect(0, 0, w, h))
 		for x := 0; x < w; x++ {
 			for y := 0; y < h; y++ {
-				r1, g1, b1, a1 := a.At(x, y).RGBA()
-				r2, g2, b2, a2 := b.At(x, y).RGBA()
+				r1, g1, b1, a1 := start.At(x, y).RGBA()
+				r2, g2, b2, a2 := end.At(x, y).RGBA()
 
 				r1f := float64(r1) * (1 - progress)
 				g1f := float64(g1) * (1 - progress)
