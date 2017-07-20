@@ -80,6 +80,7 @@ func FlipY(rgba *image.RGBA) *image.RGBA {
 	return newRgba
 }
 
+// todo: this should not be in this package
 type point struct {
 	X, Y float64
 }

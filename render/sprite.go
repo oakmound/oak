@@ -36,11 +36,10 @@ func (s *Sprite) GetRGBA() *image.RGBA {
 // in the library we are using for polygon intersection. Too small objects
 // will always be considered to intersect a draw polygon.
 func (s *Sprite) GetDims() (int, int) {
-	rgba := s.r
-	if rgba == nil {
+	if s.r == nil {
 		return 6, 6
 	}
-	return rgba.Bounds().Max.X, rgba.Bounds().Max.Y
+	return s.r.Bounds().Max.X, s.r.Bounds().Max.Y
 }
 
 // SetRGBA will replace the rgba behind this sprite
