@@ -1,11 +1,13 @@
 package render
 
 import (
+	"image"
 	"image/color"
 	"testing"
 	"time"
 
 	"github.com/oakmound/oak/event"
+	"github.com/stretchr/testify/assert"
 )
 
 type Dummy struct{}
@@ -47,4 +49,56 @@ func TestSequenceTrigger(t *testing.T) {
 	time.Sleep(1 * time.Second)
 	sq.update()
 	<-triggerCh
+}
+
+func TestSequenceFunctions(t *testing.T) {
+	rgba1 := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	rgba2 := image.NewRGBA(image.Rect(0, 0, 5, 5))
+	sq := NewSequence(
+		[]Modifiable{
+			NewSprite(0, 0, rgba1),
+			NewSprite(0, 0, rgba2),
+		}, 5)
+	sq2 := sq.Copy().(*Sequence)
+	assert.Equal(t, sq.Get(0).GetRGBA(), rgba1)
+	assert.Equal(t, sq2.Get(0).GetRGBA(), rgba1)
+	assert.Equal(t, sq.GetRGBA(), rgba1)
+	assert.Equal(t, sq2.GetRGBA(), rgba1)
+	assert.Equal(t, sq.Get(1).GetRGBA(), rgba2)
+	assert.Equal(t, sq2.Get(1).GetRGBA(), rgba2)
+	time.Sleep(1 * time.Second)
+	sq.update()
+	assert.Equal(t, sq.GetRGBA(), rgba2)
+	sq.Pause()
+	time.Sleep(1 * time.Second)
+	sq.update()
+	assert.Equal(t, sq.GetRGBA(), rgba2)
+	sq.Unpause()
+	time.Sleep(1 * time.Second)
+	sq.update()
+	assert.Equal(t, sq.GetRGBA(), rgba1)
+	w, h := sq.GetDims()
+	assert.Equal(t, w, 6)
+	assert.Equal(t, h, 6)
+}
+
+func TestSequenceModify(t *testing.T) {
+	rgba1 := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	rgba2 := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	sq := NewSequence(
+		[]Modifiable{
+			NewSprite(0, 0, rgba1),
+			NewSprite(0, 0, rgba2),
+		}, 5)
+	sq.Modify(CutRel(.5, .5))
+	w, h := sq.Get(0).GetDims()
+	assert.Equal(t, w, 5)
+	assert.Equal(t, h, 5)
+}
+
+func TestTweenSequence(t *testing.T) {
+	start := NewColorBox(10, 10, color.RGBA{0, 0, 0, 0})
+	end := NewColorBox(10, 10, color.RGBA{255, 255, 255, 255})
+	TweenSequence(start.GetRGBA(), end.GetRGBA(), 2, 5)
+	// Tween behavior is tested elsewhere, this is just a "this doesn't crash" test
 }
