@@ -152,7 +152,8 @@ func BoundingRect(points []physics.Vector) (MinX, MinY, MaxX, MaxY float64, w, h
 	return
 }
 
-// Contains Returns whether or not the current Polygon contains the passed in Point.
+// Contains returns whether or not the current Polygon contains the passed in Point.
+// It is the default containment function, versus wrapping and convex.
 func (pg *Polygon) Contains(x, y float64) (contains bool) {
 
 	if x < pg.MinX || x > pg.MaxX || y < pg.MinY || y > pg.MaxY {
@@ -198,7 +199,7 @@ func (pg *Polygon) WrappingContains(x, y float64) bool {
 }
 
 // ConvexContains returns whether the given point is contained by the input polygon.
-// It assumes the polygon is convex.
+// It assumes the polygon is convex. It outperforms the alternatives.
 func (pg *Polygon) ConvexContains(x, y float64) bool {
 
 	if x < pg.MinX || x > pg.MaxX || y < pg.MinY || y > pg.MaxY {

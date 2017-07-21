@@ -18,6 +18,7 @@ var (
 	widths  = intrange.NewLinear(1, 10)
 	heights = intrange.NewLinear(1, 10)
 	colors  = colorrange.NewLinear(color.RGBA{0, 0, 0, 0}, color.RGBA{255, 255, 255, 255})
+	seeds   = intrange.NewLinear(0, 10000)
 )
 
 const (
@@ -50,6 +51,27 @@ func TestColorBoxFuzz(t *testing.T) {
 }
 
 // GradientBoxes should use color ranges internally
+
+func TestNoiseBoxFuzz(t *testing.T) {
+	for i := 0; i < fuzzCt; i++ {
+		w := widths.Poll()
+		h := heights.Poll()
+		seed := int64(seeds.Poll())
+		nb := NewSeededNoiseBox(w, h, seed)
+		nb2 := NewSeededNoiseBox(w, h, seed+1)
+		// This is a little awkward test, we could predict what a given seed
+		// will give us but this just confirms that adjacent seeds won't give
+		// us the same rgba.
+		assert.NotEqual(t, nb.GetRGBA(), nb2.GetRGBA())
+	}
+}
+
+func TestNoiseBox(t *testing.T) {
+	// I'm not sure what exactly we would test about these.
+	NewNoiseBox(10, 10)
+	NewNoiseSequence(10, 10, 10, 10)
+
+}
 
 func TestEmptySpriteFuzz(t *testing.T) {
 	for i := 0; i < fuzzCt; i++ {
