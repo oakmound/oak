@@ -30,6 +30,7 @@ type Renderable interface {
 	// consequences.
 	Draw(buff draw.Image)
 	DrawOffset(buff draw.Image, xOff, yOff float64)
+
 	// Basic Implementing struct: Point
 	ShiftX(x float64)
 	GetX() float64
@@ -47,5 +48,6 @@ type Renderable interface {
 	String() string
 
 	// Physics
+	// Basic Implementing struct: physics.Vector
 	physics.Attachable
 }

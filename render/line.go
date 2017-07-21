@@ -25,6 +25,7 @@ func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Sprite 
 }
 
 // DrawLineOnto draws a line onto an image rgba from one point to another
+// Todo: this and drawLineBetween should be combined to reduce duplicate code
 func DrawLineOnto(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color) {
 
 	xDelta := math.Abs(float64(x2 - x1))
@@ -84,6 +85,7 @@ func drawLineBetween(x1, y1, x2, y2 int, c color.Color, th int) *image.RGBA {
 		xSlope = 1
 	}
 	ySlope := -1
+	// Todo: document why we add one here
 	h := int(yDelta) + 1
 	if y2 < y1 {
 		ySlope = 1
