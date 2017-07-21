@@ -65,6 +65,9 @@ func (ldp *LayeredPoint) Copy() LayeredPoint {
 	return ldp2
 }
 
+// These functions are redefined because vector's internal
+// functions return Vectors, and we don't want to return Vectors.
+
 // ShiftX moves the LayeredPoint by the given x
 func (ldp *LayeredPoint) ShiftX(x float64) {
 	ldp.Vector.ShiftX(x)
