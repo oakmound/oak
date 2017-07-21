@@ -1,23 +1,5 @@
 package render
 
-// CanPause types have pause functions to start and stop animation
-type CanPause interface {
-	Pause()
-	Unpause()
-}
-
-type pauseBool struct {
-	playing bool
-}
-
-func (p *pauseBool) Pause() {
-	p.playing = false
-}
-
-func (p *pauseBool) Unpause() {
-	p.playing = true
-}
-
 // NonStatic types are not always static. If something is not NonStatic,
 // it is equivalent to having IsStatic always return true.
 type NonStatic interface {
