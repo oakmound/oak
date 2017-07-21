@@ -77,9 +77,13 @@ func TestSequenceFunctions(t *testing.T) {
 	time.Sleep(1 * time.Second)
 	sq.update()
 	assert.Equal(t, sq.GetRGBA(), rgba1)
+
+	// Sequences have 6,6 dimensions right now. See LayeredPoint.
 	w, h := sq.GetDims()
 	assert.Equal(t, w, 6)
 	assert.Equal(t, h, 6)
+
+	assert.Equal(t, sq.IsStatic(), false)
 }
 
 func TestSequenceModify(t *testing.T) {

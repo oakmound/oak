@@ -13,13 +13,12 @@ import (
 // for animating ticker tape feeds or rotating background animations.
 type ScrollBox struct {
 	*Sprite
+	pauseBool
 	Rs                       []Renderable
 	nextScrollX, nextScrollY time.Time
 	scrollRateX, scrollRateY time.Duration
 	View, reappear           physics.Vector
 	dirX, dirY               float64
-
-	paused bool
 }
 
 // NewScrollBox returns a ScrollBox of the input renderables and the given dimensions.
@@ -28,6 +27,7 @@ type ScrollBox struct {
 // will move in a negative direction.
 func NewScrollBox(rs []Renderable, milliPerPixelX, milliPerPixelY, width, height int) *ScrollBox {
 	s := new(ScrollBox)
+	s.pauseBool = pauseBool{playing: true}
 	s.Rs = rs
 	s.View = physics.NewVector(float64(width), float64(height))
 
@@ -55,7 +55,7 @@ func (s *ScrollBox) Draw(buff draw.Image) {
 }
 
 func (s *ScrollBox) update() {
-	if s.paused {
+	if !s.playing {
 		return
 	}
 	// ScrollBoxes update in a discontinuous fashion with Animation and Sequence
@@ -99,15 +99,10 @@ func (s *ScrollBox) update() {
 	}
 }
 
-// Pause stops this scroll box from scrolling. Does nothing if already paused.
-func (s *ScrollBox) Pause() {
-	s.paused = true
-}
-
 // Unpause resumes this scroll box's scrolling. Will delay the next scroll frame
 // if already unpaused.
 func (s *ScrollBox) Unpause() {
-	s.paused = false
+	s.pauseBool.Unpause()
 	s.nextScrollX = time.Now().Add(s.scrollRateX)
 	s.nextScrollY = time.Now().Add(s.scrollRateY)
 }

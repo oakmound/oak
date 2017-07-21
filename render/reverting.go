@@ -114,7 +114,7 @@ func (rv *Reverting) IsInterruptable() bool {
 	return true
 }
 
-// IsInterruptable returns if whatever this reverting is currently dispalying is static.
+// IsStatic returns if whatever this reverting is currently displaying is static.
 func (rv *Reverting) IsStatic() bool {
 	if s, ok := rv.rs[0].(NonStatic); ok {
 		return s.IsStatic()

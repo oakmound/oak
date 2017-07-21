@@ -22,6 +22,7 @@ func (sh *Sheet) SubSprite(x, y int) *Sprite {
 //Animation takes a set of frames and provides a framework for animating them
 type Animation struct {
 	LayeredPoint
+	pauseBool
 	sheetPos      int
 	frameTime     int64
 	frames        [][]int
@@ -142,16 +143,6 @@ func (a *Animation) Modify(ms ...Modification) Modifiable {
 		}
 	}
 	return a
-}
-
-//Pause stops the animation from animating
-func (a *Animation) Pause() {
-	a.playing = false
-}
-
-//Unpause restarts the animation from the animating
-func (a *Animation) Unpause() {
-	a.playing = true
 }
 
 // IsStatic returns false for animations
