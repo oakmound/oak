@@ -113,6 +113,11 @@ func (sq *Sequence) Unpause() {
 	sq.playing = true
 }
 
+// IsStatic returns false for sequences
+func (sq *Sequence) IsStatic() bool {
+	return false
+}
+
 // TweenSequence returns a sequence that is the tweening between the input images
 // at the given frame rate over the given frame count.
 func TweenSequence(a, b image.Image, frames int, fps float64) *Sequence {

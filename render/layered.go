@@ -48,7 +48,8 @@ func NewLayeredPoint(x, y float64, l int) LayeredPoint {
 	}
 }
 
-// GetLayer returns the layer of an object if it has one or else returns that the object needs to be undrawn as it does not have a layer
+// GetLayer returns the layer of this point. If this is nil,
+// it will return Undraw
 func (ldp *LayeredPoint) GetLayer() int {
 	if ldp == nil {
 		return Undraw
