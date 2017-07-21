@@ -57,25 +57,26 @@ func debugConsole(resetCh, skipScene chan bool) {
 					fmt.Println("Unknown command", tokenString[1])
 				}
 			case "viewport":
-				switch tokenString[1] {
-				case "unlock":
-					if viewportLocked {
-						speed := parseTokenAsInt(tokenString, 2, 5)
-						viewportLocked = false
-						event.GlobalBind(moveViewportBinding(speed), "EnterFrame")
-					} else {
-						fmt.Println("Viewport is already unbound")
+				if len(tokenString) > 1 {
+					switch tokenString[1] {
+					case "unlock":
+						if viewportLocked {
+							speed := parseTokenAsInt(tokenString, 2, 5)
+							viewportLocked = false
+							event.GlobalBind(moveViewportBinding(speed), "EnterFrame")
+						} else {
+							fmt.Println("Viewport is already unbound")
+						}
+					case "lock":
+						if viewportLocked {
+							fmt.Println("Viewport is already locked")
+						} else {
+							viewportLocked = true
+						}
+					default:
+						fmt.Println("Unrecognized command for viewport")
 					}
-				case "lock":
-					if viewportLocked {
-						fmt.Println("Viewport is already locked")
-					} else {
-						viewportLocked = true
-					}
-				default:
-					fmt.Println("Unrecognized command for viewport")
 				}
-
 			case "fade":
 				if len(tokenString) > 1 {
 					toFade, ok := render.GetDebugRenderable(tokenString[1])
