@@ -100,9 +100,8 @@ func drawLineBetween(x1, y1, x2, y2 int, c color.Color, th int) *image.RGBA {
 	var err2 float64
 	for i := 0; true; i++ {
 
-		rgba.Set(x2, y2, c)
-		for xm := x2 - th; xm < (x2 + th); xm++ {
-			for ym := y2 - th; ym < (y2 + th); ym++ {
+		for xm := x2 - th; xm <= (x2 + th); xm++ {
+			for ym := y2 - th; ym <= (y2 + th); ym++ {
 				rgba.Set(xm, ym, c)
 			}
 		}
