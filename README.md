@@ -23,7 +23,7 @@ oak.Init("firstScene")
 ```
 See the [examples](examples) folder for longer demos.
 
-## Motiviation
+## Motivation
 The initial version of oak was made to support Oakmound Studio's game,
 [Agent Blue](https://github.com/OakmoundStudio/AgentRelease) and was developed in parallel.
 Oak supports Windows with no dependencies and Linux with limited audio dependencies.

@@ -48,34 +48,44 @@ func debugConsole(resetCh, skipScene chan bool) {
 			if len(tokenString) == 0 {
 				continue
 			}
+
+			// These different commands should probably be split off, so that
+			// they aren't on by default always. It's worth considering making
+			// all commands through the AddCommand function and removing the
+			// requirement to precede custom commands with 'c', which would
+			// then require that we return an error for overwriting old command
+			// names with new commands.
 			switch tokenString[0] {
 			case "cheat", "c":
-				// Requires that cheats are all one word! <-- don't forget
-				if fn, ok := commands[tokenString[1]]; ok {
-					fn(tokenString[1:])
-				} else {
-					fmt.Println("Unknown command", tokenString[1])
+				if len(tokenString) > 1 {
+					// Requires that cheats are all one word! <-- don't forget
+					if fn, ok := commands[tokenString[1]]; ok {
+						fn(tokenString[1:])
+					} else {
+						fmt.Println("Unknown command", tokenString[1])
+					}
 				}
 			case "viewport":
-				switch tokenString[1] {
-				case "unlock":
-					if viewportLocked {
-						speed := parseTokenAsInt(tokenString, 2, 5)
-						viewportLocked = false
-						event.GlobalBind(moveViewportBinding(speed), "EnterFrame")
-					} else {
-						fmt.Println("Viewport is already unbound")
+				if len(tokenString) > 1 {
+					switch tokenString[1] {
+					case "unlock":
+						if viewportLocked {
+							speed := parseTokenAsInt(tokenString, 2, 5)
+							viewportLocked = false
+							event.GlobalBind(moveViewportBinding(speed), "EnterFrame")
+						} else {
+							fmt.Println("Viewport is already unbound")
+						}
+					case "lock":
+						if viewportLocked {
+							fmt.Println("Viewport is already locked")
+						} else {
+							viewportLocked = true
+						}
+					default:
+						fmt.Println("Unrecognized command for viewport")
 					}
-				case "lock":
-					if viewportLocked {
-						fmt.Println("Viewport is already locked")
-					} else {
-						viewportLocked = true
-					}
-				default:
-					fmt.Println("Unrecognized command for viewport")
 				}
-
 			case "fade":
 				if len(tokenString) > 1 {
 					toFade, ok := render.GetDebugRenderable(tokenString[1])
