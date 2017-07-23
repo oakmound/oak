@@ -16,36 +16,7 @@ func NewReverting(m Modifiable) *Reverting {
 	return rv
 }
 
-// IsInterruptable returns if the underlying Modifiable for this reverting is interruptable.
-func (rv *Reverting) IsInterruptable() bool {
-	switch t := rv.rs[0].(type) {
-	case *Animation:
-		return t.Interruptable
-	case *Sequence:
-		return t.Interruptable
-	case *Reverting:
-		return t.IsInterruptable()
-	case *Compound:
-		return t.IsInterruptable()
-	}
-	return true
-}
-
-// IsStatic returns if the underlying Modifiable for this reverting is static.
-func (rv *Reverting) IsStatic() bool {
-	switch t := rv.rs[0].(type) {
-	case *Animation, *Sequence:
-		return false
-	case *Reverting:
-		return t.IsStatic()
-	case *Compound:
-		return t.IsStatic()
-	}
-	return true
-}
-
-// Revert goes back n steps in this Reverting's history and displays that
-// Modifiable
+// Revert goes back n steps in this Reverting's history and displays that Modifiable
 func (rv *Reverting) Revert(n int) {
 	x := rv.GetX()
 	y := rv.GetY()
@@ -94,7 +65,7 @@ func (rv *Reverting) Modify(ms ...Modification) Modifiable {
 	return rv
 }
 
-// Copy returns a copy of the Reverting
+// Copy returns a copy of this Reverting
 func (rv *Reverting) Copy() Modifiable {
 	newRv := new(Reverting)
 	newRv.rs = make([]Modifiable, len(rv.rs))
@@ -105,22 +76,55 @@ func (rv *Reverting) Copy() Modifiable {
 	return newRv
 }
 
-func (rv *Reverting) updateAnimation() {
-	switch t := rv.Modifiable.(type) {
-	case *Animation:
-		t.updateAnimation()
-	case *Sequence:
-		t.update()
+// This might not ever be called?
+func (rv *Reverting) update() {
+	if u, ok := rv.Modifiable.(updates); ok {
+		u.update()
 	}
-	switch t := rv.rs[0].(type) {
-	case *Animation:
-		t.updateAnimation()
-	case *Sequence:
-		t.update()
+	if u, ok := rv.rs[0].(updates); ok {
+		u.update()
 	}
 }
 
+// Pause ceases animating any renderable types that animate underneath this
+func (rv *Reverting) Pause() {
+	if cp, ok := rv.Modifiable.(CanPause); ok {
+		cp.Pause()
+	}
+	if cp, ok := rv.rs[0].(CanPause); ok {
+		cp.Pause()
+	}
+}
+
+// Unpause resumes animating any renderable types that animate underneath this
+func (rv *Reverting) Unpause() {
+	if cp, ok := rv.Modifiable.(CanPause); ok {
+		cp.Unpause()
+	}
+	if cp, ok := rv.rs[0].(CanPause); ok {
+		cp.Unpause()
+	}
+}
+
+// IsInterruptable returns if whatever this reverting is currently dispalying is interruptable.
+func (rv *Reverting) IsInterruptable() bool {
+	if i, ok := rv.rs[0].(NonInterruptable); ok {
+		return i.IsInterruptable()
+	}
+	return true
+}
+
+// IsStatic returns if whatever this reverting is currently displaying is static.
+func (rv *Reverting) IsStatic() bool {
+	if s, ok := rv.rs[0].(NonStatic); ok {
+		return s.IsStatic()
+	}
+	return true
+}
+
 // Set calls Set on underlying types below this Reverting that cat be Set
+// Todo: if Set becomes used by more types, this should use an interface like
+// CanPause
 func (rv *Reverting) Set(k string) {
 	switch t := rv.Modifiable.(type) {
 	case *Compound:
@@ -129,46 +133,5 @@ func (rv *Reverting) Set(k string) {
 	switch t := rv.rs[0].(type) {
 	case *Compound:
 		t.Set(k)
-	}
-}
-
-// Pause ceases animating any renderable types that animate underneath this
-func (rv *Reverting) Pause() {
-	switch t := rv.Modifiable.(type) {
-	case *Animation:
-		t.playing = false
-	case *Compound:
-		t.Pause()
-	case *Sequence:
-		t.Pause()
-	}
-	switch t := rv.rs[0].(type) {
-	case *Animation:
-		t.playing = false
-	case *Compound:
-		t.Pause()
-	case *Sequence:
-		t.Pause()
-	}
-
-}
-
-// Unpause resumes animating any renderable types that animate underneath this
-func (rv *Reverting) Unpause() {
-	switch t := rv.Modifiable.(type) {
-	case *Animation:
-		t.playing = true
-	case *Compound:
-		t.Unpause()
-	case *Sequence:
-		t.Unpause()
-	}
-	switch t := rv.rs[0].(type) {
-	case *Animation:
-		t.playing = true
-	case *Compound:
-		t.Unpause()
-	case *Sequence:
-		t.Unpause()
 	}
 }

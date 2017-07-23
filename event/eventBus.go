@@ -113,6 +113,8 @@ func (cid CID) String() string {
 }
 
 // E is shorthand for GetEntity(int(cid))
+// But we apparently forgot we added this shorthand,
+// because this isn't used anywhere.
 func (cid CID) E() interface{} {
 	return GetEntity(int(cid))
 }

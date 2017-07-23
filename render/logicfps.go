@@ -9,7 +9,7 @@ import (
 	"github.com/oakmound/oak/timing"
 )
 
-// LogicFPS is a draw stack element that will draw the fps onto the screen
+// LogicFPS is a draw stack element that will draw the logical fps onto the screen
 type LogicFPS struct {
 	event.CID
 	fps      int

@@ -14,12 +14,12 @@ import (
 // primitive than animation, but less efficient.
 type Sequence struct {
 	LayeredPoint
+	pauseBool
 	rs            []Modifiable
 	lastChange    time.Time
 	sheetPos      int
 	frameTime     int64
 	cID           event.CID
-	playing       bool
 	Interruptable bool
 }
 
@@ -30,11 +30,13 @@ func NewSequence(mods []Modifiable, fps float64) *Sequence {
 		LayeredPoint: LayeredPoint{
 			Vector: physics.NewVector(0, 0),
 		},
+		pauseBool: pauseBool{
+			playing: true,
+		},
 		sheetPos:      0,
 		frameTime:     timing.FPSToNano(fps),
 		rs:            mods,
 		lastChange:    time.Now(),
-		playing:       true,
 		Interruptable: true,
 	}
 }
@@ -103,14 +105,9 @@ func (sq *Sequence) Modify(ms ...Modification) Modifiable {
 	return sq
 }
 
-// Pause stops this sequence's animation
-func (sq *Sequence) Pause() {
-	sq.playing = false
-}
-
-// Unpause resumes this sequence's animation
-func (sq *Sequence) Unpause() {
-	sq.playing = true
+// IsStatic returns false for sequences
+func (sq *Sequence) IsStatic() bool {
+	return false
 }
 
 // TweenSequence returns a sequence that is the tweening between the input images

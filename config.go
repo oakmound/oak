@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	tmpConf oakConfig
-	conf    = oakConfig{
+	tmpConf Config
+	conf    = Config{
 		Assets{"assets/", "audio/", "images/", "font/"},
 		Debug{"", "ERROR"},
 		Screen{480, 640},
@@ -24,7 +24,8 @@ var (
 	}
 )
 
-type oakConfig struct {
+// Config stores initialization settings for oak.
+type Config struct {
 	Assets        Assets `json:"assets"`
 	Debug         Debug  `json:"debug"`
 	Screen        Screen `json:"screen"`
@@ -69,7 +70,7 @@ type Font struct {
 func LoadConf(fileName string) (err error) {
 	wd, err := os.Getwd()
 	if err != nil {
-		return err
+		return
 	}
 	dlog.Verb(conf)
 
@@ -77,7 +78,7 @@ func LoadConf(fileName string) (err error) {
 	return
 }
 
-func loadDefaultConf() {
+func initConf() {
 
 	if tmpConf.Assets.AssetPath != "" {
 		conf.Assets.AssetPath = tmpConf.Assets.AssetPath
@@ -143,33 +144,18 @@ func loadDefaultConf() {
 	dlog.Error(conf)
 }
 
-func loadOakConfig(fileName string) (oakConfig, error) {
+func loadOakConfig(fileName string) (Config, error) {
 
 	dlog.Error("Loading config:", fileName)
 
 	confFile, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		dlog.Error(err)
-		return oakConfig{}, err
+		return Config{}, err
 	}
-	var config oakConfig
+	var config Config
 	err = json.Unmarshal(confFile, &config)
 	dlog.Error(config)
 
 	return config, err
-}
-
-func (oc *oakConfig) String() string {
-	st := "Config:\n{"
-	st += oc.Debug.String()
-	st += "\n}"
-	return st
-}
-
-func (d *Debug) String() string {
-	st := "Debug:\n{"
-	st += "Level: " + d.Level
-	st += "\nFilter:" + d.Filter
-	st += "\n}"
-	return st
 }

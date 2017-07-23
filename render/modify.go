@@ -80,6 +80,7 @@ func FlipY(rgba *image.RGBA) *image.RGBA {
 	return newRgba
 }
 
+// todo: this should not be in this package
 type point struct {
 	X, Y float64
 }
@@ -153,8 +154,8 @@ func pointBetween(p1, p2 point, f float64) point {
 func CutRel(relWidth, relHeight float64) Modification {
 	return func(rgba image.Image) *image.RGBA {
 		bds := rgba.Bounds()
-		newWidth := int(float64(bds.Max.X) * relWidth)
-		newHeight := int(float64(bds.Max.Y) * relHeight)
+		newWidth := alg.RoundF64(float64(bds.Max.X) * relWidth)
+		newHeight := alg.RoundF64(float64(bds.Max.Y) * relHeight)
 		newRgba := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
 		for x := 0; x < newWidth; x++ {
 			for y := 0; y < newHeight; y++ {

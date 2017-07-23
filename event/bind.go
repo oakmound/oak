@@ -1,8 +1,6 @@
 package event
 
-import (
-	"github.com/oakmound/oak/dlog"
-)
+import "github.com/oakmound/oak/dlog"
 
 // BindPriority is called by entities. Entities pass in a bindable function,
 // and a set of options which are parsed out.

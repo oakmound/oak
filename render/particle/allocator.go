@@ -63,7 +63,7 @@ func Deallocate(block int) {
 	freeCh <- block
 }
 
-// LookupSource requests the source bound to a id in a block in the particle space
+// LookupSource requests the source that generated a pid
 func LookupSource(id int) *Source {
 	requestCh <- id
 	owner := <-responseCh
