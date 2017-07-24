@@ -4,10 +4,10 @@ go:
 install:
 - sudo apt-get install alsa-base libasound2-dev
 - go get -t ./...
-- go get golang.org/x/tools/cmd/cover
-- go get github.com/mattn/goveralls
-script:
-- go test -v -covermode=count -coverprofile=coverage.out ./...
-- $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
-env:
-- COVERALLS_TOKEN=secure: vB1Pfn0aAUi3PQiHx56Mcd9v10KISVmW22l3skeVk1AMdmOO7XNXA+QUn6uSTrSq+YZBsmTo+N2MLiLnlAtZP8i7J/XH4Uj8ZGhtAJCxz4oH5OtNj2xqjzPY6G8DJZ12uiFTevuWawcWARkECknc/amU2cNP2piHvnUe9LlcHd1k7JFVGPYvG2YAOZuhiJWLChrdML3Nn82eoLEf90YyQShPOSE1iDd3UFxwkjr/RM5ZvXNbMghZ6SFShCVBtTZmE2eOBs2ClXC8MfDOAwftwmqXW3YFqJ9zsSN+QG3/5yOLieNW7w231ZywD+qgqwwzf4oXzjDhKJfhDAUma5Vdyri6GEDSW9WZfL7k5+GuQ61WRT1mq28mMMaLWPFq60sDjLC9/RhgYI1hiNbT/c6x4bnCSP3wp9SIfMV7EB7CZ4zCUHYJ8yCI6ALO9FVKu177WuFEqjzBGHRnAB/6BIz+AD1m/YVpOeR2p5nx9Y5yMul7Ns3FEjH/A1sXKfJhKAz312d6mpigw4plbK0xz8/etnplbELkAEnQvqw0Dd23aWGPzU8Vp9qXSRUJWvBS/miNiEXsdbld8WsmjEWQHLwyS4WidL3DuDEuU2J638rTRBwV4hTNSZWEyvPNoA1Hqufnk9YRWW5zJNIpiXsZYZ7/qNpqPJcVcW+BFq4zRqnmMOw=
+#- go get golang.org/x/tools/cmd/cover
+#- go get github.com/mattn/goveralls
+#script:
+#- go test -v -covermode=count -coverprofile=coverage.out ./...
+#- $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
+#env:
+#- COVERALLS_TOKEN=secure: vB1Pfn0aAUi3PQiHx56Mcd9v10KISVmW22l3skeVk1AMdmOO7XNXA+QUn6uSTrSq+YZBsmTo+N2MLiLnlAtZP8i7J/XH4Uj8ZGhtAJCxz4oH5OtNj2xqjzPY6G8DJZ12uiFTevuWawcWARkECknc/amU2cNP2piHvnUe9LlcHd1k7JFVGPYvG2YAOZuhiJWLChrdML3Nn82eoLEf90YyQShPOSE1iDd3UFxwkjr/RM5ZvXNbMghZ6SFShCVBtTZmE2eOBs2ClXC8MfDOAwftwmqXW3YFqJ9zsSN+QG3/5yOLieNW7w231ZywD+qgqwwzf4oXzjDhKJfhDAUma5Vdyri6GEDSW9WZfL7k5+GuQ61WRT1mq28mMMaLWPFq60sDjLC9/RhgYI1hiNbT/c6x4bnCSP3wp9SIfMV7EB7CZ4zCUHYJ8yCI6ALO9FVKu177WuFEqjzBGHRnAB/6BIz+AD1m/YVpOeR2p5nx9Y5yMul7Ns3FEjH/A1sXKfJhKAz312d6mpigw4plbK0xz8/etnplbELkAEnQvqw0Dd23aWGPzU8Vp9qXSRUJWvBS/miNiEXsdbld8WsmjEWQHLwyS4WidL3DuDEuU2J638rTRBwV4hTNSZWEyvPNoA1Hqufnk9YRWW5zJNIpiXsZYZ7/qNpqPJcVcW+BFq4zRqnmMOw=
