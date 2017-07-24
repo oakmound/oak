@@ -23,3 +23,17 @@ func TestRoundF64(t *testing.T) {
 		}
 	}
 }
+
+func TestF64Eq(t *testing.T) {
+	inputs := [][]float64{
+		{0.000000001, 0},
+	}
+	outputs := []bool{
+		true,
+	}
+	for i, in := range inputs {
+		if F64eq(in[0], in[1]) != outputs[i] {
+			t.Fail()
+		}
+	}
+}
