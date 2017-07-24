@@ -2,6 +2,7 @@ language: go
 go:
 - 1.x
 install:
+- gp get github.com/oakmound/oak/...
 - go get golang.org/x/tools/cmd/cover
 - go get github.com/mattn/goveralls
 script:
