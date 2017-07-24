@@ -1,6 +1,7 @@
 package render
 
 import (
+	"errors"
 	"image"
 	"image/draw"
 	"sync"
@@ -40,14 +41,14 @@ func (c *Compound) Add(k string, v Modifiable) {
 }
 
 // Set sets the current renderable to the one specified
-func (c *Compound) Set(k string) {
+func (c *Compound) Set(k string) error {
 	c.lock.RLock()
 	if _, ok := c.subRenderables[k]; !ok {
-		// Todo: return an error here, don't panic
-		panic("Unknown renderable for string " + k + " on compound")
+		return errors.New("Unknown renderable for string " + k + " on compound")
 	}
 	c.lock.RUnlock()
 	c.curRenderable = k
+	return nil
 }
 
 // GetSub returns a keyed Modifiable from this compound's map
