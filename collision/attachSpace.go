@@ -55,7 +55,9 @@ func Attach(v physics.Vector, s *Space, offsets ...float64) error {
 func Detach(s *Space) error {
 	switch event.GetEntity(int(s.CID)).(type) {
 	case attachSpace:
-		// Todo: this syntax is terrible
+		// Todo: this syntax is ugly
+		// Note UnbindBindable is not a recommended way to unbind things,
+		// but is okay here because we know we are not unbinding a closure.
 		event.UnbindBindable(
 			event.UnbindOption{
 				BindingOption: event.BindingOption{
