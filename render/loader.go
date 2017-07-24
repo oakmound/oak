@@ -161,7 +161,7 @@ func LoadSheetAnimation(fileName string, w, h, pad int, fps float64, frames []in
 }
 
 // LoadAnimation takes in a sheet with sheet dimensions, a frame rate and a list of frames where
-// frames are in x,y pairs ([0,0,1,0,2,0] for (0,0) (1,0) (2,0), and returns an animation from that
+// frames are in x,y pairs ([0,0,1,0,2,0] for (0,0) (1,0) (2,0)) and returns an animation from that
 func LoadAnimation(sheet *Sheet, w, h, pad int, fps float64, frames []int) (*Animation, error) {
 	animation, err := NewAnimation(sheet, fps, frames)
 	if err != nil {
@@ -183,10 +183,10 @@ func subImage(rgba *image.RGBA, x, y, w, h int) *image.RGBA {
 // BatchLoad loads subdirectories from the given base folder and imports all files,
 // using alias rules to automatically determine the size of sprites and sheets in
 // subfolders.
-// A folder named 16x16 will have its images split into sheets where each sprite is
-// 16x16, for example. Same forr 16x8. 16 is a shorter way of writing 16x16.
+// A folder named 16x8 will have its images split into sheets where each sprite is
+// 16x8, for example. 16 is a shorter way of writing 16x16.
 // An alias.json file can be included that can indicate what dimensions named folders
-// represent, so a tiles: "32x32" field in the json would indicate that sprite sheets
+// represent, so a "tiles": "32" field in the json would indicate that sprite sheets
 // in the /tiles folder should be read as 32x32
 func BatchLoad(baseFolder string) error {
 
