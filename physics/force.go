@@ -1,6 +1,10 @@
 package physics
 
-import "github.com/oakmound/oak/dlog"
+import (
+	"errors"
+
+	"github.com/oakmound/oak/dlog"
+)
 
 const frozen = -64
 
@@ -37,12 +41,12 @@ type Mass struct {
 }
 
 // SetMass of an object
-func (m *Mass) SetMass(weight float64) {
-	if weight > 0 {
-		m.mass = weight
-	} else {
-		dlog.Warn("Tried to set somethings mass 0 or below", weight)
+func (m *Mass) SetMass(inMass float64) error {
+	if inMass > 0 {
+		m.mass = inMass
+		return nil
 	}
+	return errors.New("Tried to set mass 0 or below")
 }
 
 //GetMass returns the mass of an object
@@ -67,19 +71,20 @@ type Pushes interface {
 }
 
 // Push applies the force from the pushing object its target
-func Push(a Pushes, b Pushable) {
-	dlog.Warn("Pushing", b.GetMass())
+func Push(a Pushes, b Pushable) error {
+	dlog.Verb("Pushing", b.GetMass())
 	if b.GetMass() <= 0 {
 		if b.GetMass() != frozen {
-			dlog.Warn("Pushed an object with", b.GetMass(), " mass")
+			return errors.New("Pushed an object with invalid mass")
 		}
-		return
+		return nil
 	}
 	//Copy a's force so that we dont change the original when we scale it later
 	fdirection := a.GetForce().Copy()
 	totalF := *a.GetForce().Force / b.GetMass()
 	b.GetDelta().Add(fdirection.Normalize().Scale(totalF))
-	dlog.Warn("Total Force was ", totalF, " fdirection ", fdirection.GetX(), fdirection.GetY())
+	dlog.Verb("Total Force was ", totalF, " fdirection ", fdirection.GetX(), fdirection.GetY())
+	return nil
 }
 
 // NOTE
