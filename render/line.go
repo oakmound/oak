@@ -24,6 +24,45 @@ func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Sprite 
 	return NewSprite(minX-float64(thickness), minY-float64(thickness), rgba)
 }
 
+// DrawThickLine acts like DrawlineOnto, but takes in thickness of the given line
+func DrawThickLine(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color, thickness int) {
+
+	xDelta := math.Abs(float64(x2 - x1))
+	yDelta := math.Abs(float64(y2 - y1))
+
+	xSlope := -1
+	if x2 < x1 {
+		xSlope = 1
+	}
+	ySlope := -1
+	if y2 < y1 {
+		ySlope = 1
+	}
+
+	err := xDelta - yDelta
+	var err2 float64
+	for i := 0; true; i++ {
+
+		for xm := x2 - thickness; xm <= (x2 + thickness); xm++ {
+			for ym := y2 - thickness; ym <= (y2 + thickness); ym++ {
+				rgba.Set(xm, ym, c)
+			}
+		}
+		if x2 == x1 && y2 == y1 {
+			break
+		}
+		err2 = 2 * err
+		if err2 > -1*yDelta {
+			err -= yDelta
+			x2 += xSlope
+		}
+		if err2 < xDelta {
+			err += xDelta
+			y2 += ySlope
+		}
+	}
+}
+
 // DrawLineOnto draws a line onto an image rgba from one point to another
 // Todo: this and drawLineBetween should be combined to reduce duplicate code
 func DrawLineOnto(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color) {
