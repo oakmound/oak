@@ -70,6 +70,15 @@ func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOf
 	render.ShinyDraw(buff, img, int((xOff+cp.X())-halfSize), int((yOff+cp.Y())-halfSize))
 }
 
+// GetLayer returns baseParticle GetLayer. This is a safety check against auto-generated
+// code which would not contain the nil check here
+func (cp *ColorParticle) GetLayer() int {
+	if cp == nil {
+		return render.Undraw
+	}
+	return cp.baseParticle.GetLayer()
+}
+
 // GetPos returns the middle of a color particle
 func (cp *ColorParticle) GetPos() physics.Vector {
 	fSize := float64(cp.size)

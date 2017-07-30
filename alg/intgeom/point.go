@@ -22,3 +22,10 @@ func distance(x1, y1, x2, y2 int) float64 {
 		math.Pow((float64(x1)-float64(x2)), 2) +
 			math.Pow((float64(y1)-float64(y2)), 2))
 }
+
+// Add sums the location of a second point onto the Point
+func (p Point) Add(p2 Point) Point {
+	p.X += p2.X
+	p.Y += p2.Y
+	return p
+}

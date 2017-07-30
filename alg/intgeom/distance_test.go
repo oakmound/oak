@@ -7,8 +7,12 @@ import (
 )
 
 func TestPtDistance(t *testing.T) {
-	a := Point{0, 0}
-	b := Point{3, 0}
+	a := NewPoint(0, 0)
+	b := NewPoint(3, 0)
 	assert.Equal(t, a.Distance(b), b.Distance(a))
 	assert.Equal(t, a.Distance(b), 3.0)
+
+	c := a.Add(b)
+
+	assert.Equal(t, c.Distance(b), 0.0)
 }

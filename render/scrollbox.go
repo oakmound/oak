@@ -62,7 +62,6 @@ func (s *ScrollBox) update() {
 	// Both of the mentioned types will only ever advance one frame per update,
 	// whereas ScrollBox will move however many pixels it should have moved in
 	// the case of a long lag in draw calls.
-	updatedFlag := false
 	if s.dirX != 0 && time.Now().After(s.nextScrollX) {
 		pixelsMovedX := int64(time.Since(s.nextScrollX))/int64(s.scrollRateX) + 1
 		s.nextScrollX = time.Now().Add(s.scrollRateX)
@@ -71,13 +70,12 @@ func (s *ScrollBox) update() {
 		newS.SetLayer(s.Sprite.GetLayer())
 		for _, m := range s.Rs {
 			m.ShiftX(-1 * s.dirX * float64(pixelsMovedX))
-			if (s.dirX == 1 && m.GetX() <= s.reappear.X()) || (s.dirX == -1 && m.GetX() >= s.reappear.X()) {
+			if s.shouldReappearX(m) {
 				m.ShiftX(-1 * s.reappear.X()) //Hope that delta is not higher than reappear...
 			}
-
 		}
 		*s.Sprite = *newS
-		updatedFlag = true
+		s.drawRenderables()
 	}
 	if s.dirY != 0 && time.Now().After(s.nextScrollY) {
 		pixelsMovedY := int64(time.Since(s.nextScrollY))/int64(s.scrollRateY) + 1
@@ -87,16 +85,21 @@ func (s *ScrollBox) update() {
 		newS.SetLayer(s.Sprite.GetLayer())
 		for _, m := range s.Rs {
 			m.ShiftY(-1 * s.dirY * float64(pixelsMovedY))
-			if (s.dirY == 1 && m.GetY() <= s.reappear.Y()) || (s.dirY == -1 && m.GetY() >= s.reappear.Y()) {
+			if s.shouldReappearY(m) {
 				m.ShiftY(-1 * s.reappear.Y()) //Hope that delta is not higher than reappear...
 			}
 		}
 		*s.Sprite = *newS
-		updatedFlag = true
-	}
-	if updatedFlag {
 		s.drawRenderables()
 	}
+}
+
+func (s *ScrollBox) shouldReappearY(m Renderable) bool {
+	return (s.dirY == 1 && m.GetY() <= s.reappear.Y()) || (s.dirY == -1 && m.GetY() >= s.reappear.Y())
+}
+
+func (s *ScrollBox) shouldReappearX(m Renderable) bool {
+	return (s.dirX == 1 && m.GetX() <= s.reappear.X()) || (s.dirX == -1 && m.GetX() >= s.reappear.X())
 }
 
 // Unpause resumes this scroll box's scrolling. Will delay the next scroll frame

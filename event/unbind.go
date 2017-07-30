@@ -1,8 +1,14 @@
 package event
 
 // Unbind on a binding is a rewriting of bus.Unbind(b)
-func (b Binding) Unbind() {
-	thisBus.Unbind(b)
+func (b binding) unbind() {
+	thisBus.unbind(b)
+}
+
+func (eb *Bus) unbind(b binding) {
+	pendingMutex.Lock()
+	unbinds = append(unbinds, b)
+	pendingMutex.Unlock()
 }
 
 // UnbindAll removes all events with the given cid from the event bus
@@ -59,17 +65,8 @@ func UnbindAllAndRebind(bo BindingOption, binds []Bindable, cid int, events []st
 	pendingMutex.Unlock()
 }
 
-// Unbind removes the given binding (previously returned by .Bind) from
-// the event bus, but because synchronously expecting something to
-// be returned from .Bind is dangerous, that behavior was removed and it is now
-// just used by the engine internals
-func (eb *Bus) Unbind(b Binding) {
-	pendingMutex.Lock()
-	unbinds = append(unbinds, b)
-	pendingMutex.Unlock()
-}
-
-// UnbindBindable is used by UNBIND_EVENT calls
+// UnbindBindable is a manual way to unbind a function Bindable. Use of
+// this with closures will cause unexpected behavior.
 func UnbindBindable(opt UnbindOption) {
 	pendingMutex.Lock()
 	fullUnbinds = append(fullUnbinds, opt)

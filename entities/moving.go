@@ -40,17 +40,17 @@ func (m *Moving) ShiftVector(v physics.Vector) {
 // ApplyFriction modifies a moving's delta by combining
 // environmental friction with the moving's base friction
 // and scaling down the delta by the combined result.
-func (m *Moving) ApplyFriction(outsideFriction float64) {
+func (v *vMoving) ApplyFriction(outsideFriction float64) {
 	//Absolute friction is 1
-	frictionScaler := 1 - (m.Friction * outsideFriction)
+	frictionScaler := 1 - (v.Friction * outsideFriction)
 	if frictionScaler > 1 {
 		frictionScaler = 1
 	} else if frictionScaler < 0 {
 		frictionScaler = 0
 	}
-	m.Delta.Scale(frictionScaler)
-	if m.Delta.Magnitude() < .01 {
-		m.Delta.Zero()
+	v.Delta.Scale(frictionScaler)
+	if v.Delta.Magnitude() < .01 {
+		v.Delta.Zero()
 	}
 }
 

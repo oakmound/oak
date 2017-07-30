@@ -5,6 +5,8 @@ import (
 	"errors"
 	"image"
 	"image/color"
+	"image/gif"
+	"image/jpeg"
 	"image/png"
 	"log"
 	"os"
@@ -38,7 +40,7 @@ var (
 	loadLock   = sync.Mutex{}
 )
 
-func loadPNG(directory, fileName string) *image.RGBA {
+func loadImage(directory, fileName string) *image.RGBA {
 
 	loadLock.Lock()
 	if _, ok := loadedImages[fileName]; !ok {
@@ -53,7 +55,16 @@ func loadPNG(directory, fileName string) *image.RGBA {
 			}
 		}()
 
-		img, err := png.Decode(imgFile)
+		ext := fileName[len(fileName)-4:]
+		var img image.Image
+		switch ext {
+		case ".png":
+			img, err = png.Decode(imgFile)
+		case ".gif":
+			img, err = gif.Decode(imgFile)
+		case "jpeg":
+			img, err = jpeg.Decode(imgFile)
+		}
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -77,7 +88,7 @@ func loadPNG(directory, fileName string) *image.RGBA {
 
 // LoadSprite loads the input fileName into a Sprite
 func LoadSprite(fileName string) *Sprite {
-	return NewSprite(0, 0, loadPNG(dir, fileName))
+	return NewSprite(0, 0, loadImage(dir, fileName))
 }
 
 // GetSheet tries to find the given file in the set of loaded sheets.
@@ -103,7 +114,7 @@ func GetSheet(fileName string) [][]*Sprite {
 func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 	if _, ok := loadedImages[fileName]; !ok {
 		dlog.Verb("Missing file in loaded images: ", fileName)
-		loadedImages[fileName] = loadPNG(directory, fileName)
+		loadedImages[fileName] = loadImage(directory, fileName)
 	}
 	if sheetP, ok := loadedSheets[fileName]; ok {
 		return sheetP, nil
@@ -199,8 +210,6 @@ func BatchLoad(baseFolder string) error {
 		err = json.Unmarshal(aliasFile, &aliases)
 		if err != nil {
 			dlog.Error("Alias file unparseable: ", err)
-		} else {
-			dlog.Verb(aliases)
 		}
 	}
 
@@ -250,7 +259,7 @@ func BatchLoad(baseFolder string) error {
 					switch n[len(n)-4:] {
 					case ".png":
 						dlog.Verb("loading file ", n)
-						buff := loadPNG(baseFolder, filepath.Join(folder.Name(), n))
+						buff := loadImage(baseFolder, filepath.Join(folder.Name(), n))
 						w := buff.Bounds().Max.X
 						h := buff.Bounds().Max.Y
 

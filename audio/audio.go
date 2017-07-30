@@ -1,8 +1,9 @@
 package audio
 
 import (
+	"errors"
+
 	"github.com/200sc/klangsynthese/audio"
-	"github.com/200sc/klangsynthese/audio/filter/supports"
 	"github.com/200sc/klangsynthese/font"
 )
 
@@ -78,19 +79,14 @@ func (a *Audio) MustCopy() audio.Audio {
 // Filter returns the audio with some set of filters applied to it.
 func (a *Audio) Filter(fs ...audio.Filter) (audio.Audio, error) {
 	var ad audio.Audio = a
-	var err error
-	var consError supports.ConsError
+	var err, consErr error
 	for _, f := range fs {
 		ad, err = f.Apply(ad)
 		if err != nil {
-			if consError == nil {
-				consError = err.(supports.ConsError)
-			} else {
-				consError = consError.Cons(err)
-			}
+			consErr = errors.New(err.Error() + ":" + consErr.Error())
 		}
 	}
-	return ad, consError
+	return ad, consErr
 }
 
 // MustFilter acts like Filter but ignores errors.
