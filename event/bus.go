@@ -125,7 +125,7 @@ func GetBus() *Bus {
 	return thisBus
 }
 
-// Tood: move all of this onto the event bus struct
+// Todo: move all of this onto the event bus struct
 var (
 	binds               = []UnbindOption{}
 	partUnbinds         = []BindingOption{}

@@ -64,7 +64,10 @@ func (a *Audio) Stop() error {
 // Copy returns a copy of the audio
 func (a *Audio) Copy() (audio.Audio, error) {
 	a2, err := a.Audio.Copy()
-	return New(a.Audio.Font, a2.(audio.FullAudio), a.X, a.Y), err
+	if err != nil {
+		return nil, err
+	}
+	return New(a.Audio.Font, a2.(audio.FullAudio), a.X, a.Y), nil
 }
 
 // MustCopy acts like Copy, but panics on an error.
