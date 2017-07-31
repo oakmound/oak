@@ -2,16 +2,23 @@ package oak
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"os"
-	"path/filepath"
+	"io"
+
+	"github.com/oakmound/oak/fileutil"
 
 	"github.com/oakmound/oak/dlog"
 )
 
 var (
-	tmpConf Config
-	conf    = Config{
+	// SetupConfig is the config struct read from at initialization time
+	// when oak starts. When oak.Init() is called, the variables behind
+	// SetupConfig are passed to their appropriate places in the engine, and
+	// afterword the variable is unused.
+	SetupConfig Config
+
+	// These are the default settings of a project. Anything within SetupConfig
+	// that is set to its zero value will not overwrite these settings.
+	conf = Config{
 		Assets{"assets/", "audio/", "images/", "font/"},
 		Debug{"", "ERROR"},
 		Screen{480, 640},
@@ -66,96 +73,86 @@ type Font struct {
 	Color   string  `json:"color"`
 }
 
-// LoadConf loads a config file
-func LoadConf(fileName string) (err error) {
-	wd, err := os.Getwd()
+// LoadConf loads a config file, that could exist inside
+// oak's binary data storage (see fileutil)
+func LoadConf(filePath string) error {
+	r, err := fileutil.Open(filePath)
 	if err != nil {
-		return
+		dlog.Warn(err)
+		return err
 	}
-	dlog.Verb(conf)
+	err = LoadConfData(r)
+	dlog.Info(SetupConfig)
+	return err
+}
 
-	tmpConf, err = loadOakConfig(filepath.Join(wd, fileName))
-	return
+// LoadConfData takes in an io.Reader and decodes it to SetupConfig
+func LoadConfData(r io.Reader) error {
+	return json.NewDecoder(r).Decode(&SetupConfig)
 }
 
 func initConf() {
 
-	if tmpConf.Assets.AssetPath != "" {
-		conf.Assets.AssetPath = tmpConf.Assets.AssetPath
+	if SetupConfig.Assets.AssetPath != "" {
+		conf.Assets.AssetPath = SetupConfig.Assets.AssetPath
 	}
-	if tmpConf.Assets.ImagePath != "" {
-		conf.Assets.ImagePath = tmpConf.Assets.ImagePath
+	if SetupConfig.Assets.ImagePath != "" {
+		conf.Assets.ImagePath = SetupConfig.Assets.ImagePath
 	}
-	if tmpConf.Assets.AudioPath != "" {
-		conf.Assets.AudioPath = tmpConf.Assets.AudioPath
+	if SetupConfig.Assets.AudioPath != "" {
+		conf.Assets.AudioPath = SetupConfig.Assets.AudioPath
 	}
-	if tmpConf.Assets.FontPath != "" {
-		conf.Assets.FontPath = tmpConf.Assets.FontPath
-	}
-
-	if tmpConf.Debug.Filter != "" {
-		conf.Debug.Filter = tmpConf.Debug.Filter
-	}
-	if tmpConf.Debug.Level != "" {
-		conf.Debug.Level = tmpConf.Debug.Level
+	if SetupConfig.Assets.FontPath != "" {
+		conf.Assets.FontPath = SetupConfig.Assets.FontPath
 	}
 
-	if tmpConf.Screen.Width != 0 {
-		conf.Screen.Width = tmpConf.Screen.Width
+	if SetupConfig.Debug.Filter != "" {
+		conf.Debug.Filter = SetupConfig.Debug.Filter
 	}
-	if tmpConf.Screen.Height != 0 {
-		conf.Screen.Height = tmpConf.Screen.Height
-	}
-
-	if tmpConf.Font.Hinting != "" {
-		conf.Font.Hinting = tmpConf.Font.Hinting
-	}
-	if tmpConf.Font.Size != 0 {
-		conf.Font.Size = tmpConf.Font.Size
-	}
-	if tmpConf.Font.DPI != 0 {
-		conf.Font.DPI = tmpConf.Font.DPI
-	}
-	if tmpConf.Font.File != "" {
-		conf.Font.File = tmpConf.Font.File
-	}
-	if tmpConf.Font.Color != "" {
-		conf.Font.Color = tmpConf.Font.Color
+	if SetupConfig.Debug.Level != "" {
+		conf.Debug.Level = SetupConfig.Debug.Level
 	}
 
-	if tmpConf.FrameRate != 0 {
-		conf.FrameRate = tmpConf.FrameRate
+	if SetupConfig.Screen.Width != 0 {
+		conf.Screen.Width = SetupConfig.Screen.Width
+	}
+	if SetupConfig.Screen.Height != 0 {
+		conf.Screen.Height = SetupConfig.Screen.Height
 	}
 
-	if tmpConf.DrawFrameRate != 0 {
-		conf.DrawFrameRate = tmpConf.DrawFrameRate
+	if SetupConfig.Font.Hinting != "" {
+		conf.Font.Hinting = SetupConfig.Font.Hinting
+	}
+	if SetupConfig.Font.Size != 0 {
+		conf.Font.Size = SetupConfig.Font.Size
+	}
+	if SetupConfig.Font.DPI != 0 {
+		conf.Font.DPI = SetupConfig.Font.DPI
+	}
+	if SetupConfig.Font.File != "" {
+		conf.Font.File = SetupConfig.Font.File
+	}
+	if SetupConfig.Font.Color != "" {
+		conf.Font.Color = SetupConfig.Font.Color
 	}
 
-	conf.ShowFPS = tmpConf.ShowFPS
-
-	if tmpConf.Language != "" {
-		conf.Language = tmpConf.Language
+	if SetupConfig.FrameRate != 0 {
+		conf.FrameRate = SetupConfig.FrameRate
 	}
 
-	if tmpConf.Title != "" {
-		conf.Title = tmpConf.Title
+	if SetupConfig.DrawFrameRate != 0 {
+		conf.DrawFrameRate = SetupConfig.DrawFrameRate
+	}
+
+	conf.ShowFPS = SetupConfig.ShowFPS
+
+	if SetupConfig.Language != "" {
+		conf.Language = SetupConfig.Language
+	}
+
+	if SetupConfig.Title != "" {
+		conf.Title = SetupConfig.Title
 	}
 
 	dlog.Error(conf)
-}
-
-func loadOakConfig(fileName string) (Config, error) {
-
-	dlog.Error("Loading config:", fileName)
-
-	confFile, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		dlog.Error(err)
-		return Config{}, err
-	}
-	var config Config
-	err = json.Unmarshal(confFile, &config)
-	dlog.Error(config)
-
-	return config, err
 }
