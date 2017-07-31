@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/200sc/klangsynthese/audio/filter"
 	"github.com/200sc/klangsynthese/synth"
 	"github.com/stretchr/testify/assert"
 )
@@ -27,13 +28,17 @@ func TestAudioFuncs(t *testing.T) {
 	a.Play()
 	time.Sleep(a.PlayLength())
 	// Assert audio is playing
-}
-
-func TestPosFilter(t *testing.T) {
-	kla, err := synth.Int16.Sin()
+	a = a.MustCopy().(*Audio)
+	assert.Nil(t, a.GetX())
+	assert.Nil(t, a.GetY())
+	kla, err = a.Filter(filter.Volume(.5))
+	a = kla.(*Audio)
 	assert.Nil(t, err)
-	x, y := new(float64), new(float64)
-	a := New(DefFont, kla.(Data), x, y)
-	err = <-a.Play()
-	assert.Nil(t, err)
+	a.Play()
+	time.Sleep(a.PlayLength())
+	// Assert quieter audio is playing
+	a = a.MustFilter(filter.Volume(.5)).(*Audio)
+	a.Play()
+	time.Sleep(a.PlayLength())
+	// Assert yet quieter audio is playing
 }
