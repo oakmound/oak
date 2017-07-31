@@ -150,7 +150,7 @@ func (s *ScrollBox) SetScrollRate(milliPerPixelX, milliPerPixelY int) {
 func (s *ScrollBox) AddRenderable(rs ...Renderable) {
 	for _, r := range rs {
 		// We don't do this specific position swapping (which is to attempt
-		// to do what we think users actually want) at initalization,
+		// to do what we think users actually want) at initialization,
 		// I suppose because we assume the inputs are at 0,0?
 		switch r.(type) {
 		case *Text:
