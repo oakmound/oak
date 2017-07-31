@@ -1,8 +1,6 @@
 package audio
 
 import (
-	"fmt"
-
 	"github.com/200sc/klangsynthese/audio"
 	"github.com/200sc/klangsynthese/audio/filter"
 	"github.com/200sc/klangsynthese/audio/filter/supports"
@@ -43,7 +41,6 @@ func PosFilter(e *Ears) Pos {
 		x, y := sp.GetX(), sp.GetY()
 		if x != nil {
 			p := e.CalculatePan(*x)
-			fmt.Println(p)
 			filter.Pan(p)(sp)
 			if y != nil {
 				v := e.CalculateVolume(physics.NewVector(*x, *y))

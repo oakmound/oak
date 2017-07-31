@@ -14,22 +14,24 @@ var (
 )
 
 func loadAssets(imageDir, audioDir string) {
-	dlog.Info("Loading Images")
-	err := render.BatchLoad(imageDir)
-	if err != nil {
-		dlog.Error(err)
-		endLoad()
-		return
+	if conf.BatchLoad {
+		dlog.Info("Loading Images")
+		err := render.BatchLoad(imageDir)
+		if err != nil {
+			dlog.Error(err)
+			endLoad()
+			return
+		}
+		dlog.Info("Done Loading Images")
+		dlog.Info("Loading Audio")
+		err = audio.BatchLoad(audioDir)
+		if err != nil {
+			dlog.Error(err)
+			endLoad()
+			return
+		}
+		dlog.Info("Done Loading Audio")
 	}
-	dlog.Info("Done Loading Images")
-	dlog.Info("Loading Audio")
-	err = audio.BatchLoad(audioDir)
-	if err != nil {
-		dlog.Error(err)
-		endLoad()
-		return
-	}
-	dlog.Info("Done Loading Audio")
 	endLoad()
 }
 

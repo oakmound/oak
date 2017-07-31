@@ -28,20 +28,26 @@ var (
 		false,
 		"English",
 		"Oak Window",
+		false,
+		false,
+		false,
 	}
 )
 
 // Config stores initialization settings for oak.
 type Config struct {
-	Assets        Assets `json:"assets"`
-	Debug         Debug  `json:"debug"`
-	Screen        Screen `json:"screen"`
-	Font          Font   `json:"font"`
-	FrameRate     int    `json:"frameRate"`
-	DrawFrameRate int    `json:"drawFrameRate"`
-	ShowFPS       bool   `json:"showFPS"`
-	Language      string `json:"language"`
-	Title         string `json:"title"`
+	Assets         Assets `json:"assets"`
+	Debug          Debug  `json:"debug"`
+	Screen         Screen `json:"screen"`
+	Font           Font   `json:"font"`
+	FrameRate      int    `json:"frameRate"`
+	DrawFrameRate  int    `json:"drawFrameRate"`
+	ShowFPS        bool   `json:"showFPS"`
+	Language       string `json:"language"`
+	Title          string `json:"title"`
+	BatchLoad      bool   `json:"batchLoad"`
+	GestureSupport bool   `json:"gestureSupport"`
+	DisableKeyhold bool   `json:"disableKeyHold"`
 }
 
 // Assets is a json type storing paths to different asset folders
@@ -74,7 +80,7 @@ type Font struct {
 }
 
 // LoadConf loads a config file, that could exist inside
-// oak's binary data storage (see fileutil)
+// oak's binary data storage (see fileutil), to SetupConfig
 func LoadConf(filePath string) error {
 	r, err := fileutil.Open(filePath)
 	if err != nil {
@@ -152,6 +158,16 @@ func initConf() {
 
 	if SetupConfig.Title != "" {
 		conf.Title = SetupConfig.Title
+	}
+
+	if SetupConfig.BatchLoad {
+		conf.BatchLoad = true
+	}
+	if SetupConfig.GestureSupport {
+		conf.GestureSupport = true
+	}
+	if SetupConfig.DisableKeyhold {
+		conf.DisableKeyhold = true
 	}
 
 	dlog.Error(conf)
