@@ -28,6 +28,9 @@ func GetSounds(fileNames ...string) ([]Data, error) {
 			return nil, err
 		}
 	}
+	if len(sounds) == 0 {
+		return sounds, errors.New("Zero input filenames")
+	}
 	return sounds, nil
 }
 

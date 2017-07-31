@@ -5,6 +5,7 @@ import (
 
 	"github.com/200sc/go-dist/intrange"
 	"github.com/200sc/klangsynthese/font"
+	"github.com/oakmound/oak/timing"
 )
 
 // DefActiveChannel acts like GetActiveChannel when fed DefFont
@@ -40,18 +41,26 @@ func GetActiveChannel(f *font.Font, freq intrange.Range, fileNames ...string) (c
 		// Todo: When a scene ends, we need to clear all of these goroutines out
 		for {
 			delay := time.Duration(freq.Poll())
-			<-time.After(delay * time.Millisecond)
+			select {
+			case <-timing.ClearDelayCh:
+				return
+			case <-time.After(delay * time.Millisecond):
+			}
 			// Every once in a while, after some delay,
 			// we play an audio that slipped through the
 			// above routine.
-			signal := <-soundCh
-			sound := sounds[signal.GetIndex()]
-			usePos, x, y := signal.GetPos()
-			if usePos {
-				sound.X = &x
-				sound.Y = &y
+			select {
+			case <-timing.ClearDelayCh:
+				return
+			case signal := <-soundCh:
+				sound := sounds[signal.GetIndex()]
+				usePos, x, y := signal.GetPos()
+				if usePos {
+					sound.X = &x
+					sound.Y = &y
+				}
+				sound.Play()
 			}
-			sound.Play()
 		}
 	}()
 	return soundCh, nil
@@ -83,7 +92,11 @@ func GetChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan Ch
 	// attempt to play audio
 	go func() {
 		for {
-			<-soundCh
+			select {
+			case <-timing.ClearDelayCh:
+				return
+			case <-soundCh:
+			}
 		}
 	}()
 	return soundCh, nil
