@@ -21,7 +21,7 @@ var (
 	conf = Config{
 		Assets{"assets/", "audio/", "images/", "font/"},
 		Debug{"", "ERROR"},
-		Screen{480, 640},
+		Screen{480, 640, 1},
 		Font{"none", 12.0, 72.0, "", "white"},
 		60,
 		60,
@@ -68,6 +68,7 @@ type Debug struct {
 type Screen struct {
 	Height int `json:"height"`
 	Width  int `json:"width"`
+	Scale  int `json:"scale"`
 }
 
 // Font is a json type storing the default font settings
@@ -124,6 +125,9 @@ func initConf() {
 	}
 	if SetupConfig.Screen.Height != 0 {
 		conf.Screen.Height = SetupConfig.Screen.Height
+	}
+	if SetupConfig.Screen.Scale != 0 {
+		conf.Screen.Scale = SetupConfig.Screen.Scale
 	}
 
 	if SetupConfig.Font.Hinting != "" {
