@@ -31,14 +31,14 @@ func (v Vector) Attach(a Attachable, offsets ...float64) Vector {
 	return v3
 }
 
-// AttachX performs an attachement with a required x offset
+// AttachX performs an attachment that only attaches on the X axis.
 func (v Vector) AttachX(a Attachable, offX float64) Vector {
 	v2 := a.Vec()
 	v3 := Vector{v2.x, v.y, offX, 0}
 	return v3
 }
 
-// AttachY performs an attachement with a required y offset
+// AttachY performs an attachment that only attaches on the Y axis.
 func (v Vector) AttachY(a Attachable, offY float64) Vector {
 	v2 := a.Vec()
 	v3 := Vector{v.x, v2.y, 0, offY}

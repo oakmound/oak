@@ -41,7 +41,7 @@ func PhaseCollision(s *Space, trees ...*Tree) error {
 		s.CID.Bind(phaseCollisionEnter, "EnterFrame")
 		return nil
 	}
-	return errors.New("This space's entity does not implement OnCollisionyThing")
+	return errors.New("This space's entity does not implement collisionPhase")
 }
 
 func phaseCollisionEnter(id int, nothing interface{}) int {

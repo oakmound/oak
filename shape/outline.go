@@ -77,10 +77,7 @@ func ToOutline(shape Shape) func(...int) ([]intgeom.Point, error) {
 		x += xyMods[direction*2]
 		y += xyMods[direction*2+1]
 
-		for direction != top &&
-			(!inBounds(x, y, w, h) ||
-				!shape.In(x, y, sizes...)) {
-
+		for direction != top && !inOutline(shape, x, y, w, h) {
 			x += pointDeltas[direction*2]
 			y += pointDeltas[direction*2+1]
 			direction = (direction + 1) % lastdirection
@@ -99,8 +96,7 @@ func ToOutline(shape Shape) func(...int) ([]intgeom.Point, error) {
 			x += xyMods[direction*2]
 			y += xyMods[direction*2+1]
 			//From a point on the outline look clockwise around for next direction
-			for !inBounds(x, y, w, h) ||
-				!shape.In(x, y, sizes...) {
+			for !inOutline(shape, x, y, w, h) {
 				x += pointDeltas[direction*2]
 				y += pointDeltas[direction*2+1]
 				direction = (direction + 1) % lastdirection
@@ -111,6 +107,6 @@ func ToOutline(shape Shape) func(...int) ([]intgeom.Point, error) {
 	}
 }
 
-func inBounds(x, y, w, h int) bool {
-	return x < w && x >= 0 && y < h && y >= 0
+func inOutline(s Shape, x, y, w, h int) bool {
+	return (x < w && x >= 0 && y < h && y >= 0) && s.In(x, y, w, h)
 }

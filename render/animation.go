@@ -22,6 +22,7 @@ func (sh *Sheet) SubSprite(x, y int) *Sprite {
 //Animation takes a set of frames and provides a framework for animating them
 type Animation struct {
 	LayeredPoint
+	pauseBool
 	sheetPos      int
 	frameTime     int64
 	frames        [][]int
@@ -92,7 +93,7 @@ func (a *Animation) SetTriggerID(id event.CID) {
 	a.cID = id
 }
 
-func (a *Animation) updateAnimation() {
+func (a *Animation) update() {
 	if a.playing && time.Since(a.lastChange).Nanoseconds() > a.frameTime {
 		a.lastChange = time.Now()
 		a.sheetPos = (a.sheetPos + 1) % len(a.frames)
@@ -108,14 +109,14 @@ func (a *Animation) updateAnimation() {
 
 //DrawOffset draws the animation with some x,y  offset from its logical location
 func (a *Animation) DrawOffset(buff draw.Image, xOff, yOff float64) {
-	a.updateAnimation()
+	a.update()
 	img := a.GetRGBA()
 	ShinyDraw(buff, img, int(a.X()+xOff), int(a.Y()+yOff))
 }
 
 //Draw draws the animation at its logical location
 func (a *Animation) Draw(buff draw.Image) {
-	a.updateAnimation()
+	a.update()
 	img := a.GetRGBA()
 	ShinyDraw(buff, img, int(a.X()), int(a.Y()))
 }
@@ -144,12 +145,7 @@ func (a *Animation) Modify(ms ...Modification) Modifiable {
 	return a
 }
 
-//Pause stops the animation from animating
-func (a *Animation) Pause() {
-	a.playing = false
-}
-
-//Unpause restarts the animation from the animating
-func (a *Animation) Unpause() {
-	a.playing = true
+// IsStatic returns false for animations
+func (a *Animation) IsStatic() bool {
+	return false
 }

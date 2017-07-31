@@ -31,6 +31,17 @@ func (cp *ColorParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
 func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOff, yOff float64) {
 	gen := generator.(*ColorGenerator)
 
+	// Hmm. this is expensive.
+	// This work should be done by the Source because if the draw rate is faster
+	// than the enter frame rate than this is doing duplicate work
+	// does that mean every particle is the same struct (
+	//	baseParticle + image
+	//)
+	// and different particle types are just different update functions?
+	// -No- because we still need to keep track of variable things on these particles
+	// but it -does- mean that particles should track an image that they all have a function
+	// to create instead of these Draw functions which should just be provided by
+	// baseParticle
 	r, g, b, a := cp.startColor.RGBA()
 	r2, g2, b2, a2 := cp.endColor.RGBA()
 	progress := cp.Life / cp.totalLife
@@ -57,6 +68,15 @@ func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOf
 	halfSize := float64(cp.size / 2)
 
 	render.ShinyDraw(buff, img, int((xOff+cp.X())-halfSize), int((yOff+cp.Y())-halfSize))
+}
+
+// GetLayer returns baseParticle GetLayer. This is a safety check against auto-generated
+// code which would not contain the nil check here
+func (cp *ColorParticle) GetLayer() int {
+	if cp == nil {
+		return render.Undraw
+	}
+	return cp.baseParticle.GetLayer()
 }
 
 // GetPos returns the middle of a color particle

@@ -97,10 +97,10 @@ type UnbindOption struct {
 	Fn Bindable
 }
 
-// Binding stores data necessary
+// binding stores data necessary
 // to trace back to a bindable function
-// and remove it from an Bus
-type Binding struct {
+// and remove it from a Bus.
+type binding struct {
 	BindingOption
 	index int
 }
@@ -113,6 +113,8 @@ func (cid CID) String() string {
 }
 
 // E is shorthand for GetEntity(int(cid))
+// But we apparently forgot we added this shorthand,
+// because this isn't used anywhere.
 func (cid CID) E() interface{} {
 	return GetEntity(int(cid))
 }
@@ -123,11 +125,12 @@ func GetBus() *Bus {
 	return thisBus
 }
 
+// Tood: move all of this onto the event bus struct
 var (
 	binds               = []UnbindOption{}
 	partUnbinds         = []BindingOption{}
 	fullUnbinds         = []UnbindOption{}
-	unbinds             = []Binding{}
+	unbinds             = []binding{}
 	unbindAllAndRebinds = []UnbindAllOption{}
 )
 
@@ -139,7 +142,7 @@ func ResetBus() {
 	binds = []UnbindOption{}
 	partUnbinds = []BindingOption{}
 	fullUnbinds = []UnbindOption{}
-	unbinds = []Binding{}
+	unbinds = []binding{}
 	unbindAllAndRebinds = []UnbindAllOption{}
 	pendingMutex.Unlock()
 	mutex.Unlock()
@@ -154,6 +157,7 @@ type UnbindAllOption struct {
 
 // ResolvePending is a contant loop that tracks slices of bind or unbind calls
 // and resolves them individually such that they don't break the bus
+// Todo: this should be a function on the event bus itself
 func ResolvePending() {
 	schedCt := 0
 	for {
@@ -208,7 +212,7 @@ func ResolvePending() {
 			for _, b := range unbinds {
 				thisBus.getBindableList(b.BindingOption).removeBinding(b)
 			}
-			unbinds = []Binding{}
+			unbinds = []binding{}
 			pendingMutex.Unlock()
 			mutex.Unlock()
 		}
@@ -310,7 +314,7 @@ func (bl *bindableList) storeBindable(fn Bindable) int {
 // pointers!
 //
 // At all costs, this should be avoided, and
-// returning "UNBIND_SINGLE" from the function
+// returning UnbindSingle from the function
 // itself is much safer!
 func (bl *bindableList) removeBindable(fn Bindable) {
 	i := 0
@@ -326,12 +330,12 @@ func (bl *bindableList) removeBindable(fn Bindable) {
 }
 
 // Remove a bindable from a BindableList
-func (bl *bindableList) removeBinding(b Binding) {
+func (bl *bindableList) removeBinding(b binding) {
 	bl.removeIndex(b.index)
 }
 
 func (bl *bindableList) removeIndex(i int) {
-	if len(bl.sl) < i+1 {
+	if len(bl.sl) <= i {
 		return
 	}
 

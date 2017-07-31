@@ -13,18 +13,21 @@ import (
 // for animating ticker tape feeds or rotating background animations.
 type ScrollBox struct {
 	*Sprite
+	pauseBool
 	Rs                       []Renderable
 	nextScrollX, nextScrollY time.Time
 	scrollRateX, scrollRateY time.Duration
 	View, reappear           physics.Vector
 	dirX, dirY               float64
-
-	paused bool
 }
 
 // NewScrollBox returns a ScrollBox of the input renderables and the given dimensions.
+// milliPerPixel represents the number of milliseconds it will take for the scroll box
+// to move a horizontal or vertical pixel respectively. A negative value for milliPerPixel
+// will move in a negative direction.
 func NewScrollBox(rs []Renderable, milliPerPixelX, milliPerPixelY, width, height int) *ScrollBox {
 	s := new(ScrollBox)
+	s.pauseBool = pauseBool{playing: true}
 	s.Rs = rs
 	s.View = physics.NewVector(float64(width), float64(height))
 
@@ -52,10 +55,13 @@ func (s *ScrollBox) Draw(buff draw.Image) {
 }
 
 func (s *ScrollBox) update() {
-	updatedFlag := false
-	if s.paused {
+	if !s.playing {
 		return
 	}
+	// ScrollBoxes update in a discontinuous fashion with Animation and Sequence
+	// Both of the mentioned types will only ever advance one frame per update,
+	// whereas ScrollBox will move however many pixels it should have moved in
+	// the case of a long lag in draw calls.
 	if s.dirX != 0 && time.Now().After(s.nextScrollX) {
 		pixelsMovedX := int64(time.Since(s.nextScrollX))/int64(s.scrollRateX) + 1
 		s.nextScrollX = time.Now().Add(s.scrollRateX)
@@ -64,13 +70,12 @@ func (s *ScrollBox) update() {
 		newS.SetLayer(s.Sprite.GetLayer())
 		for _, m := range s.Rs {
 			m.ShiftX(-1 * s.dirX * float64(pixelsMovedX))
-			if (s.dirX == 1 && m.GetX() <= s.reappear.X()) || (s.dirX == -1 && m.GetX() >= s.reappear.X()) {
+			if s.shouldReappearX(m) {
 				m.ShiftX(-1 * s.reappear.X()) //Hope that delta is not higher than reappear...
 			}
-
 		}
 		*s.Sprite = *newS
-		updatedFlag = true
+		s.drawRenderables()
 	}
 	if s.dirY != 0 && time.Now().After(s.nextScrollY) {
 		pixelsMovedY := int64(time.Since(s.nextScrollY))/int64(s.scrollRateY) + 1
@@ -80,26 +85,27 @@ func (s *ScrollBox) update() {
 		newS.SetLayer(s.Sprite.GetLayer())
 		for _, m := range s.Rs {
 			m.ShiftY(-1 * s.dirY * float64(pixelsMovedY))
-			if (s.dirY == 1 && m.GetY() <= s.reappear.Y()) || (s.dirY == -1 && m.GetY() >= s.reappear.Y()) {
+			if s.shouldReappearY(m) {
 				m.ShiftY(-1 * s.reappear.Y()) //Hope that delta is not higher than reappear...
 			}
 		}
 		*s.Sprite = *newS
-		updatedFlag = true
-	}
-	if updatedFlag {
 		s.drawRenderables()
 	}
 }
 
-// Pause stops this scroll box from scrolling
-func (s *ScrollBox) Pause() {
-	s.paused = true
+func (s *ScrollBox) shouldReappearY(m Renderable) bool {
+	return (s.dirY == 1 && m.GetY() <= s.reappear.Y()) || (s.dirY == -1 && m.GetY() >= s.reappear.Y())
 }
 
-// Unpause resumes this scroll box's scrolling
+func (s *ScrollBox) shouldReappearX(m Renderable) bool {
+	return (s.dirX == 1 && m.GetX() <= s.reappear.X()) || (s.dirX == -1 && m.GetX() >= s.reappear.X())
+}
+
+// Unpause resumes this scroll box's scrolling. Will delay the next scroll frame
+// if already unpaused.
 func (s *ScrollBox) Unpause() {
-	s.paused = false
+	s.pauseBool.Unpause()
 	s.nextScrollX = time.Now().Add(s.scrollRateX)
 	s.nextScrollY = time.Now().Add(s.scrollRateY)
 }
@@ -118,6 +124,8 @@ func (s *ScrollBox) SetReappearPos(x, y float64) error {
 }
 
 // SetScrollRate sets how fast this scroll box should rotate its x and y axes
+// Maybe BUG, Consider: The next time that the box will scroll at is not updated
+// immediately after this is called, only after the box is drawn.
 func (s *ScrollBox) SetScrollRate(milliPerPixelX, milliPerPixelY int) {
 	s.dirX = 1
 	s.dirY = 1
@@ -141,6 +149,9 @@ func (s *ScrollBox) SetScrollRate(milliPerPixelX, milliPerPixelY int) {
 // AddRenderable adds the inputs to this scrollbox.
 func (s *ScrollBox) AddRenderable(rs ...Renderable) {
 	for _, r := range rs {
+		// We don't do this specific position swapping (which is to attempt
+		// to do what we think users actually want) at initalization,
+		// I suppose because we assume the inputs are at 0,0?
 		switch r.(type) {
 		case *Text:
 			r.SetPos(r.GetX()*-1, r.GetY()*-1)
@@ -152,6 +163,8 @@ func (s *ScrollBox) AddRenderable(rs ...Renderable) {
 
 func (s *ScrollBox) drawRenderables() {
 	for _, r := range s.Rs {
+		// This might be the only place where we draw to a buffer that isn't
+		// oak's main buffer.
 		r.DrawOffset(s.GetRGBA(), -2*r.GetX(), -2*r.GetY())
 		if s.scrollRateY != 0 {
 			r.DrawOffset(s.GetRGBA(), -2*r.GetX(), -2*r.GetY()+s.reappear.Y())

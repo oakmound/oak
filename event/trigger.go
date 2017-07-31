@@ -67,6 +67,7 @@ func (id CID) TriggerAfter(d time.Duration, eventName string, data interface{}) 
 }
 
 // Trigger is equivalent to bus.Trigger(...)
+// Todo: move this to legacy.go, see mouse or collision
 func Trigger(eventName string, data interface{}) {
 	thisBus.Trigger(eventName, data)
 }
@@ -166,7 +167,7 @@ func handleBindable(bnd Bindable, id int, data interface{}, index int, eventName
 					0,
 				})
 			case UnbindSingle:
-				Binding{
+				binding{
 					BindingOption{
 						Event{
 							eventName,
@@ -175,7 +176,7 @@ func handleBindable(bnd Bindable, id int, data interface{}, index int, eventName
 						0,
 					},
 					index,
-				}.Unbind()
+				}.unbind()
 			}
 		}
 	}

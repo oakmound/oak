@@ -1,10 +1,6 @@
 package physics
 
-import (
-	"fmt"
-	"math"
-	"runtime"
-)
+import "math"
 
 // A Vector is a two-dimensional point or vector used throughout oak
 // to maintain functionality between packages.
@@ -28,6 +24,13 @@ func NewVector(x, y float64) Vector {
 	return Vector{x2, y2, 0, 0}
 }
 
+// AngleVector creates a unit vector by the cosine and sine of the given
+// angle in degrees
+func AngleVector(angle float64) Vector {
+	angle *= math.Pi / 180
+	return NewVector(math.Cos(angle), math.Sin(angle))
+}
+
 // MaxVector returns whichever vector has a greater magnitude
 func MaxVector(a, b Vector) Vector {
 	if a.Magnitude() > b.Magnitude() {
@@ -39,9 +42,7 @@ func MaxVector(a, b Vector) Vector {
 // Copy copies a Vector
 func (v Vector) Copy() Vector {
 	if v.x == nil || v.y == nil {
-		_, f, line, _ := runtime.Caller(2)
-		fmt.Println("This vector was bad ", v, f, line)
-		return v.Zero()
+		return NewVector(0, 0)
 	}
 	return NewVector(*v.x, *v.y)
 }
@@ -63,7 +64,7 @@ func (v Vector) Normalize() Vector {
 	return v
 }
 
-// Zero is shorthand for NewVector(0,0)
+// Zero is shorthand for NewVector(0,0), but uses the input vector
 func (v Vector) Zero() Vector {
 	return v.SetPos(0, 0)
 }
@@ -197,10 +198,4 @@ func (v Vector) SetPos(x, y float64) Vector {
 // GetPos returns both v.X() and v.Y()
 func (v Vector) GetPos() (float64, float64) {
 	return *v.x, *v.y
-}
-
-// AngleVector creates a unit vector by the cosine and sine of the given angle
-func AngleVector(angle float64) Vector {
-	angle *= math.Pi / 180
-	return NewVector(math.Cos(angle), math.Sin(angle))
 }

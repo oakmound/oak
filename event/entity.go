@@ -1,8 +1,6 @@
 package event
 
-import (
-	"sync"
-)
+import "sync"
 
 var (
 	highestID CID
