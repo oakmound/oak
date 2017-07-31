@@ -111,7 +111,6 @@ func (t *Text) ToSprite() *Sprite {
 	height := alg.RoundF64(t.d.Size)
 	s := NewEmptySprite(t.X(), t.Y()-float64(height), width, height)
 	t.DrawOffset(s.GetRGBA(), -t.X(), (-t.Y())+float64(height))
-	fmt.Println(width, height)
 	return s
 }
 
