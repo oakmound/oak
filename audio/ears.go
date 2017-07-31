@@ -1,6 +1,8 @@
 package audio
 
 import (
+	"fmt"
+
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/physics"
 )
@@ -44,6 +46,7 @@ func NewEars(x, y *float64, panWidth float64, silentRadius float64) *Ears {
 // value.
 func (e *Ears) CalculatePan(x2 float64) float64 {
 	v := (x2 - *e.X) / e.PanWidth
+	fmt.Println(x2, *e.X, e.PanWidth, v)
 	if v < -1 {
 		return -1
 	} else if v > 1 {

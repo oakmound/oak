@@ -39,7 +39,6 @@ func (a *Audio) Play() <-chan error {
 	if err != nil {
 		return errChannel(err)
 	}
-	// This part is probably unnecessary. Requires further testing.
 	a4, err := a3.(*Audio).FullAudio.Copy()
 	if err != nil {
 		return errChannel(err)
@@ -82,7 +81,11 @@ func (a *Audio) Filter(fs ...audio.Filter) (audio.Audio, error) {
 	for _, f := range fs {
 		ad, err = f.Apply(ad)
 		if err != nil {
-			consErr = errors.New(err.Error() + ":" + consErr.Error())
+			if consErr == nil {
+				consErr = err
+			} else {
+				consErr = errors.New(err.Error() + ":" + consErr.Error())
+			}
 		}
 	}
 	return ad, consErr

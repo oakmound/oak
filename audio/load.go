@@ -83,7 +83,7 @@ func IsLoaded(filename string) bool {
 }
 
 // BatchLoad attempts to load all files within a given directory
-// depending on their file ending (currently supporting .wav only)
+// depending on their file ending (currently supporting .wav and .mp3)
 func BatchLoad(baseFolder string) error {
 
 	files, err := fileutil.ReadDir(baseFolder)
