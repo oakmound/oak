@@ -33,31 +33,27 @@ func New(f *font.Font, d Data, coords ...*float64) *Audio {
 func (a *Audio) Play() <-chan error {
 	a2, err := a.Copy()
 	if err != nil {
-		ch := make(chan error)
-		go func() {
-			ch <- err
-		}()
-		return ch
+		return errChannel(err)
 	}
 	a3, err := a2.Filter(a.Font.Filters...)
 	if err != nil {
-		ch := make(chan error)
-		go func() {
-			ch <- err
-		}()
-		return ch
+		return errChannel(err)
 	}
 	// This part is probably unnecessary. Requires further testing.
 	a4, err := a3.(*Audio).FullAudio.Copy()
 	if err != nil {
-		ch := make(chan error)
-		go func() {
-			ch <- err
-		}()
-		return ch
+		return errChannel(err)
 	}
 	a.toStop = a4
 	return a4.Play()
+}
+
+func errChannel(err error) <-chan error {
+	ch := make(chan error)
+	go func() {
+		ch <- err
+	}()
+	return ch
 }
 
 // Stop stops an audio's playback
