@@ -96,8 +96,7 @@ func LoadConfData(r io.Reader) error {
 	return json.NewDecoder(r).Decode(&SetupConfig)
 }
 
-func initConf() {
-
+func initConfAssets() {
 	if SetupConfig.Assets.AssetPath != "" {
 		conf.Assets.AssetPath = SetupConfig.Assets.AssetPath
 	}
@@ -110,13 +109,18 @@ func initConf() {
 	if SetupConfig.Assets.FontPath != "" {
 		conf.Assets.FontPath = SetupConfig.Assets.FontPath
 	}
+}
 
+func initConfDebug() {
 	if SetupConfig.Debug.Filter != "" {
 		conf.Debug.Filter = SetupConfig.Debug.Filter
 	}
 	if SetupConfig.Debug.Level != "" {
 		conf.Debug.Level = SetupConfig.Debug.Level
 	}
+}
+
+func initConfScreen() {
 
 	if SetupConfig.Screen.Width != 0 {
 		conf.Screen.Width = SetupConfig.Screen.Width
@@ -127,7 +131,9 @@ func initConf() {
 	if SetupConfig.Screen.Scale != 0 {
 		conf.Screen.Scale = SetupConfig.Screen.Scale
 	}
+}
 
+func initConfFont() {
 	if SetupConfig.Font.Hinting != "" {
 		conf.Font.Hinting = SetupConfig.Font.Hinting
 	}
@@ -143,6 +149,17 @@ func initConf() {
 	if SetupConfig.Font.Color != "" {
 		conf.Font.Color = SetupConfig.Font.Color
 	}
+}
+
+func initConf() {
+
+	initConfAssets()
+
+	initConfDebug()
+
+	initConfScreen()
+
+	initConfFont()
 
 	if SetupConfig.FrameRate != 0 {
 		conf.FrameRate = SetupConfig.FrameRate
@@ -160,15 +177,11 @@ func initConf() {
 		conf.Title = SetupConfig.Title
 	}
 
-	if SetupConfig.BatchLoad {
-		conf.BatchLoad = true
-	}
-	if SetupConfig.GestureSupport {
-		conf.GestureSupport = true
-	}
-	if SetupConfig.DisableKeyhold {
-		conf.DisableKeyhold = true
-	}
+	conf.BatchLoad = SetupConfig.BatchLoad
+
+	conf.GestureSupport = SetupConfig.GestureSupport
+
+	conf.DisableKeyhold = SetupConfig.DisableKeyhold
 
 	dlog.Error(conf)
 }
