@@ -103,7 +103,9 @@ func (t *Tree) ShiftSpace(x, y float64, s *Space) error {
 }
 
 // Hits returns the set of spaces which are colliding
-// with the passed in space.
+// with the passed in space. All spaces collide with
+// themselves, if they exist in the tree, but self-collision
+// will not be reported by Hits.
 func (t *Tree) Hits(sp *Space) []*Space {
 	// Eventually we'll expose SearchIntersect for use cases where you
 	// want to see if you intersect yourself
@@ -123,8 +125,10 @@ func (t *Tree) Hits(sp *Space) []*Space {
 	return out
 }
 
-// HitLabel acts like hits, but returns the first space within hits
-// that matches one of the input labels
+// HitLabel acts like Hits, but returns the first space within hits
+// that matches one of the input labels. HitLabel can return the same
+// space that is passed into it, if that space has a label in the set of
+// accepted labels.
 func (t *Tree) HitLabel(sp *Space, labels ...Label) *Space {
 	results := t.SearchIntersect(sp.Bounds())
 	for _, v := range results {
