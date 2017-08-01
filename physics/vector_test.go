@@ -84,3 +84,10 @@ func TestVectorFuncs(t *testing.T) {
 	v19 = v19.ShiftY(-1)
 	assert.Equal(t, v19, NewVector(0, 0))
 }
+
+func TestVectorSub(t *testing.T) {
+	v := NewVector(0, 0)
+	v2 := NewVector(10, 9)
+	v.Sub(v2)
+	assert.Equal(t, v, NewVector(-10, -9))
+}

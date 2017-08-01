@@ -78,6 +78,15 @@ func (v Vector) Add(vs ...Vector) Vector {
 	return v.round()
 }
 
+// Sub combines a set of vectors through subtraction
+func (v Vector) Sub(vs ...Vector) Vector {
+	for _, v2 := range vs {
+		*v.x -= *v2.x
+		*v.y -= *v2.y
+	}
+	return v.round()
+}
+
 // Scale scales a vector by a set of floating points
 // Scale(f1,f2,f3) is equivalent to Scale(f1*f2*f3)
 func (v Vector) Scale(fs ...float64) Vector {

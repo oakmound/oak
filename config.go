@@ -25,7 +25,6 @@ var (
 		Font{"none", 12.0, 72.0, "", "white"},
 		60,
 		60,
-		false,
 		"English",
 		"Oak Window",
 		false,
@@ -42,7 +41,6 @@ type Config struct {
 	Font           Font   `json:"font"`
 	FrameRate      int    `json:"frameRate"`
 	DrawFrameRate  int    `json:"drawFrameRate"`
-	ShowFPS        bool   `json:"showFPS"`
 	Language       string `json:"language"`
 	Title          string `json:"title"`
 	BatchLoad      bool   `json:"batchLoad"`
@@ -153,8 +151,6 @@ func initConf() {
 	if SetupConfig.DrawFrameRate != 0 {
 		conf.DrawFrameRate = SetupConfig.DrawFrameRate
 	}
-
-	conf.ShowFPS = SetupConfig.ShowFPS
 
 	if SetupConfig.Language != "" {
 		conf.Language = SetupConfig.Language

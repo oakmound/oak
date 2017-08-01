@@ -1,6 +1,7 @@
 package mouse
 
 import "github.com/oakmound/oak/collision"
+import "github.com/oakmound/oak/physics"
 
 var (
 	// LastMouseEvent is the last triggered mouse event,
@@ -22,4 +23,9 @@ type Event struct {
 // ToSpace converts a mouse event into a collision space
 func (e Event) ToSpace() *collision.Space {
 	return collision.NewUnassignedSpace(float64(e.X), float64(e.Y), 0.1, 0.1)
+}
+
+// ToVector returns a mouse event's position as a physics.Vector
+func (e Event) ToVector() physics.Vector {
+	return physics.NewVector(float64(e.X), float64(e.Y))
 }
