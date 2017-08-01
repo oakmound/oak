@@ -2,10 +2,10 @@ package collision
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/Sythe2o0/rtreego"
+	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
 )
@@ -218,7 +218,9 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 		rect,
 		l,
 		cID,
-		CID,
+		CID, // todo: This is hard to read as distinct from cID
+		// todo: a way to generate non-CID typed spaces that isn't
+		// package specific (see render/particle)
 	}
 }
 
@@ -228,7 +230,7 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 func NewRect(x, y, w, h float64) *rtreego.Rect {
 	rect, err := rtreego.NewRect(rtreego.Point{x, y}, [3]float64{w, h, 1})
 	if err != nil {
-		log.Fatal(err)
+		dlog.Error(err)
 	}
 	return &rect
 }

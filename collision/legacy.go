@@ -22,7 +22,7 @@ func init() {
 	}
 }
 
-// Clear just calls init.
+// Clear resets the default tree's contents
 func Clear() {
 	DefTree.Clear()
 }

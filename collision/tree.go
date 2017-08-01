@@ -62,8 +62,8 @@ func (t *Tree) Add(sps ...*Space) {
 	t.Unlock()
 }
 
-// Remove removes spaces from the rtree
-// returns the number of spaces removed
+// Remove removes spaces from the rtree and
+// returns the number of spaces removed.
 func (t *Tree) Remove(sps ...*Space) int {
 	removed := 0
 	t.Lock()
@@ -97,6 +97,9 @@ func (t *Tree) UpdateSpace(x, y, w, h float64, s *Space) error {
 
 // ShiftSpace adds x and y to a space and updates its position
 func (t *Tree) ShiftSpace(x, y float64, s *Space) error {
+	if s == nil {
+		return errors.New("Input space was nil")
+	}
 	x = x + s.GetX()
 	y = y + s.GetY()
 	return t.UpdateSpace(x, y, s.GetW(), s.GetH(), s)

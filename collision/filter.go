@@ -46,13 +46,13 @@ func Without(tossFn func(*Space) bool) Filter {
 
 // WithoutCIDs will return no spaces with a CID in the input
 func WithoutCIDs(cids ...event.CID) Filter {
-	return With(func(s *Space) bool {
+	return Without(func(s *Space) bool {
 		for _, c := range cids {
 			if s.CID == c {
-				return false
+				return true
 			}
 		}
-		return true
+		return false
 	})
 }
 
