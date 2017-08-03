@@ -113,8 +113,17 @@ func (t *Tree) Hits(sp *Space) []*Space {
 	// Eventually we'll expose SearchIntersect for use cases where you
 	// want to see if you intersect yourself
 	results := t.SearchIntersect(sp.Bounds())
-	out := make([]*Space, len(results))
 	hitSelf := -1
+	i := 0
+	for i < len(results) {
+		// Todo: figure out why we're getting nils
+		if results[i] == nil {
+			results = append(results[:i], results[i+1:]...)
+		} else {
+			i++
+		}
+	}
+	out := make([]*Space, len(results))
 	for i, v := range results {
 		if v.(*Space) == sp {
 			hitSelf = i
