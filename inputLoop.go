@@ -74,8 +74,7 @@ func inputLoop() {
 		//
 		// Mouse events all receive an x, y, and button string.
 		case mouse.Event:
-			button := pmouse.GetMouseButton(int32(e.Button))
-			//dlog.Verb("Mouse direction ", e.Direction.String(), " Button ", button)
+			button := pmouse.GetMouseButton(e.Button)
 			var eventName string
 			if e.Direction == mouse.DirPress {
 				setDown(button)
@@ -90,6 +89,13 @@ func inputLoop() {
 			} else {
 				eventName = "MouseDrag"
 			}
+			// The event triggered for mouse events has the same scaling as the
+			// render and collision space. I.e. if the viewport is at 0, the mouse's
+			// position is exactly the same as the position of a visible entity
+			// on screen. When not at zero, the offset will be exactly the viewport.
+			// Todo: consider incorporating viewport into the event, see the
+			// workaround needed in mouseDetails, and how mouse events might not
+			// propagate to their expected position.
 			mevent := pmouse.Event{
 				X:      e.X / float32(windowRect.Max.X) * float32(ScreenWidth),
 				Y:      e.Y / float32(windowRect.Max.Y) * float32(ScreenHeight),

@@ -1,11 +1,13 @@
 package mouse
 
-import "github.com/oakmound/oak/collision"
+import (
+	"github.com/oakmound/oak/collision"
+	"golang.org/x/mobile/event/mouse"
+)
 
 // Propagate triggers direct mouse events on entities which are clicked
 func Propagate(eventName string, me Event) {
-	mouseLoc := collision.NewUnassignedSpace(float64(me.X), float64(me.Y), 0.01, 0.01)
-	hits := DefTree.SearchIntersect(mouseLoc.Bounds())
+	hits := DefTree.SearchIntersect(me.ToSpace().Bounds())
 	for _, v := range hits {
 		sp := v.(*collision.Space)
 		sp.CID.Trigger(eventName, me)
@@ -15,17 +17,18 @@ func Propagate(eventName string, me Event) {
 // GetMouseButton is a utitilty function which translates
 // integer values of mouse keys from golang's event/mouse library
 // into strings.
-func GetMouseButton(i int32) (s string) {
-	switch i {
-	case 1:
+// Intended for internal use.
+func GetMouseButton(b mouse.Button) (s string) {
+	switch b {
+	case mouse.ButtonLeft:
 		s = "LeftMouse"
-	case 2:
+	case mouse.ButtonMiddle:
 		s = "MiddleMouse"
-	case 3:
+	case mouse.ButtonRight:
 		s = "RightMouse"
-	case -1:
+	case mouse.ButtonWheelUp:
 		s = "ScrollUpMouse"
-	case -2:
+	case mouse.ButtonWheelDown:
 		s = "ScrollDownMouse"
 	default:
 		s = ""

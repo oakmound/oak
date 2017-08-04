@@ -157,7 +157,7 @@ type UnbindAllOption struct {
 
 // ResolvePending is a contant loop that tracks slices of bind or unbind calls
 // and resolves them individually such that they don't break the bus
-// Todo: this should be a function on the event bus itself
+// Todo: this should be a function on the event bus itself, and should have a better name
 func ResolvePending() {
 	schedCt := 0
 	for {
