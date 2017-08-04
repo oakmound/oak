@@ -44,6 +44,7 @@ func TestUnbind(t *testing.T) {
 	assert.Equal(t, triggers, 1)
 	Trigger("T", nil)
 	sleep()
+	sleep()
 	assert.Equal(t, triggers, 1)
 
 	GlobalBind(func(int, interface{}) int {
