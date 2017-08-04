@@ -1,16 +1,15 @@
-package mouse
+package collision
 
 import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/event"
 	"github.com/stretchr/testify/assert"
 )
 
 type cphase struct {
-	CollisionPhase
+	Phase
 }
 
 func (cp *cphase) Init() event.CID {
@@ -27,25 +26,27 @@ func TestCollisionPhase(t *testing.T) {
 	}()
 	cp := cphase{}
 	cid := cp.Init()
-	s := collision.NewSpace(10, 10, 10, 10, cid)
+	s := NewSpace(10, 10, 10, 10, cid)
 	assert.Nil(t, PhaseCollision(s))
 	var active bool
 	cid.Bind(func(int, interface{}) int {
 		active = true
 		return 0
-	}, "MouseCollisionStart")
+	}, "CollisionStart")
 	cid.Bind(func(int, interface{}) int {
 		active = false
 		return 0
-	}, "MouseCollisionStop")
-	time.Sleep(200 * time.Millisecond)
-	LastMouseEvent = Event{10, 10, "", ""}
+	}, "CollisionStop")
+
+	s = NewLabeledSpace(15, 15, 10, 10, 5)
+	Add(s)
 	time.Sleep(10 * time.Millisecond)
 	assert.True(t, active)
-	LastMouseEvent = Event{21, 21, "", ""}
+
+	Remove(s)
 	time.Sleep(10 * time.Millisecond)
 	assert.False(t, active)
 
-	s = collision.NewSpace(10, 10, 10, 10, 5)
+	s = NewSpace(10, 10, 10, 10, 5)
 	assert.NotNil(t, PhaseCollision(s))
 }

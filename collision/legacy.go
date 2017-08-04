@@ -68,6 +68,11 @@ func (s *Space) Update(x, y, w, h float64) error {
 	return DefTree.UpdateSpace(x, y, w, h, s)
 }
 
+// SetDim sets the dimensions of the space in the legacy rtree
+func (s *Space) SetDim(w, h float64) {
+	s.Update(s.GetX(), s.GetY(), w, h)
+}
+
 // UpdateLabel changes the label behind this space and resets
 // it in the legacy rtree
 func (s *Space) UpdateLabel(classtype Label) {
