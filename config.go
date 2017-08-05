@@ -2,39 +2,50 @@ package oak
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"os"
-	"path/filepath"
+	"io"
+
+	"github.com/oakmound/oak/fileutil"
 
 	"github.com/oakmound/oak/dlog"
 )
 
 var (
-	tmpConf Config
-	conf    = Config{
+	// SetupConfig is the config struct read from at initialization time
+	// when oak starts. When oak.Init() is called, the variables behind
+	// SetupConfig are passed to their appropriate places in the engine, and
+	// afterword the variable is unused.
+	SetupConfig Config
+
+	// These are the default settings of a project. Anything within SetupConfig
+	// that is set to its zero value will not overwrite these settings.
+	conf = Config{
 		Assets{"assets/", "audio/", "images/", "font/"},
 		Debug{"", "ERROR"},
-		Screen{480, 640},
+		Screen{480, 640, 1},
 		Font{"none", 12.0, 72.0, "", "white"},
 		60,
 		60,
-		false,
 		"English",
 		"Oak Window",
+		false,
+		false,
+		false,
 	}
 )
 
 // Config stores initialization settings for oak.
 type Config struct {
-	Assets        Assets `json:"assets"`
-	Debug         Debug  `json:"debug"`
-	Screen        Screen `json:"screen"`
-	Font          Font   `json:"font"`
-	FrameRate     int    `json:"frameRate"`
-	DrawFrameRate int    `json:"drawFrameRate"`
-	ShowFPS       bool   `json:"showFPS"`
-	Language      string `json:"language"`
-	Title         string `json:"title"`
+	Assets         Assets `json:"assets"`
+	Debug          Debug  `json:"debug"`
+	Screen         Screen `json:"screen"`
+	Font           Font   `json:"font"`
+	FrameRate      int    `json:"frameRate"`
+	DrawFrameRate  int    `json:"drawFrameRate"`
+	Language       string `json:"language"`
+	Title          string `json:"title"`
+	BatchLoad      bool   `json:"batchLoad"`
+	GestureSupport bool   `json:"gestureSupport"`
+	DisableKeyhold bool   `json:"disableKeyHold"`
 }
 
 // Assets is a json type storing paths to different asset folders
@@ -55,6 +66,7 @@ type Debug struct {
 type Screen struct {
 	Height int `json:"height"`
 	Width  int `json:"width"`
+	Scale  int `json:"scale"`
 }
 
 // Font is a json type storing the default font settings
@@ -66,96 +78,110 @@ type Font struct {
 	Color   string  `json:"color"`
 }
 
-// LoadConf loads a config file
-func LoadConf(fileName string) (err error) {
-	wd, err := os.Getwd()
+// LoadConf loads a config file, that could exist inside
+// oak's binary data storage (see fileutil), to SetupConfig
+func LoadConf(filePath string) error {
+	r, err := fileutil.Open(filePath)
 	if err != nil {
-		return
+		dlog.Warn(err)
+		return err
 	}
-	dlog.Verb(conf)
+	err = LoadConfData(r)
+	dlog.Info(SetupConfig)
+	return err
+}
 
-	tmpConf, err = loadOakConfig(filepath.Join(wd, fileName))
-	return
+// LoadConfData takes in an io.Reader and decodes it to SetupConfig
+func LoadConfData(r io.Reader) error {
+	return json.NewDecoder(r).Decode(&SetupConfig)
+}
+
+func initConfAssets() {
+	if SetupConfig.Assets.AssetPath != "" {
+		conf.Assets.AssetPath = SetupConfig.Assets.AssetPath
+	}
+	if SetupConfig.Assets.ImagePath != "" {
+		conf.Assets.ImagePath = SetupConfig.Assets.ImagePath
+	}
+	if SetupConfig.Assets.AudioPath != "" {
+		conf.Assets.AudioPath = SetupConfig.Assets.AudioPath
+	}
+	if SetupConfig.Assets.FontPath != "" {
+		conf.Assets.FontPath = SetupConfig.Assets.FontPath
+	}
+}
+
+func initConfDebug() {
+	if SetupConfig.Debug.Filter != "" {
+		conf.Debug.Filter = SetupConfig.Debug.Filter
+	}
+	if SetupConfig.Debug.Level != "" {
+		conf.Debug.Level = SetupConfig.Debug.Level
+	}
+}
+
+func initConfScreen() {
+
+	if SetupConfig.Screen.Width != 0 {
+		conf.Screen.Width = SetupConfig.Screen.Width
+	}
+	if SetupConfig.Screen.Height != 0 {
+		conf.Screen.Height = SetupConfig.Screen.Height
+	}
+	if SetupConfig.Screen.Scale != 0 {
+		conf.Screen.Scale = SetupConfig.Screen.Scale
+	}
+}
+
+func initConfFont() {
+	if SetupConfig.Font.Hinting != "" {
+		conf.Font.Hinting = SetupConfig.Font.Hinting
+	}
+	if SetupConfig.Font.Size != 0 {
+		conf.Font.Size = SetupConfig.Font.Size
+	}
+	if SetupConfig.Font.DPI != 0 {
+		conf.Font.DPI = SetupConfig.Font.DPI
+	}
+	if SetupConfig.Font.File != "" {
+		conf.Font.File = SetupConfig.Font.File
+	}
+	if SetupConfig.Font.Color != "" {
+		conf.Font.Color = SetupConfig.Font.Color
+	}
 }
 
 func initConf() {
 
-	if tmpConf.Assets.AssetPath != "" {
-		conf.Assets.AssetPath = tmpConf.Assets.AssetPath
-	}
-	if tmpConf.Assets.ImagePath != "" {
-		conf.Assets.ImagePath = tmpConf.Assets.ImagePath
-	}
-	if tmpConf.Assets.AudioPath != "" {
-		conf.Assets.AudioPath = tmpConf.Assets.AudioPath
-	}
-	if tmpConf.Assets.FontPath != "" {
-		conf.Assets.FontPath = tmpConf.Assets.FontPath
+	initConfAssets()
+
+	initConfDebug()
+
+	initConfScreen()
+
+	initConfFont()
+
+	if SetupConfig.FrameRate != 0 {
+		conf.FrameRate = SetupConfig.FrameRate
 	}
 
-	if tmpConf.Debug.Filter != "" {
-		conf.Debug.Filter = tmpConf.Debug.Filter
-	}
-	if tmpConf.Debug.Level != "" {
-		conf.Debug.Level = tmpConf.Debug.Level
+	if SetupConfig.DrawFrameRate != 0 {
+		conf.DrawFrameRate = SetupConfig.DrawFrameRate
 	}
 
-	if tmpConf.Screen.Width != 0 {
-		conf.Screen.Width = tmpConf.Screen.Width
-	}
-	if tmpConf.Screen.Height != 0 {
-		conf.Screen.Height = tmpConf.Screen.Height
+	if SetupConfig.Language != "" {
+		conf.Language = SetupConfig.Language
 	}
 
-	if tmpConf.Font.Hinting != "" {
-		conf.Font.Hinting = tmpConf.Font.Hinting
-	}
-	if tmpConf.Font.Size != 0 {
-		conf.Font.Size = tmpConf.Font.Size
-	}
-	if tmpConf.Font.DPI != 0 {
-		conf.Font.DPI = tmpConf.Font.DPI
-	}
-	if tmpConf.Font.File != "" {
-		conf.Font.File = tmpConf.Font.File
-	}
-	if tmpConf.Font.Color != "" {
-		conf.Font.Color = tmpConf.Font.Color
+	if SetupConfig.Title != "" {
+		conf.Title = SetupConfig.Title
 	}
 
-	if tmpConf.FrameRate != 0 {
-		conf.FrameRate = tmpConf.FrameRate
-	}
+	conf.BatchLoad = SetupConfig.BatchLoad
 
-	if tmpConf.DrawFrameRate != 0 {
-		conf.DrawFrameRate = tmpConf.DrawFrameRate
-	}
+	conf.GestureSupport = SetupConfig.GestureSupport
 
-	conf.ShowFPS = tmpConf.ShowFPS
-
-	if tmpConf.Language != "" {
-		conf.Language = tmpConf.Language
-	}
-
-	if tmpConf.Title != "" {
-		conf.Title = tmpConf.Title
-	}
+	conf.DisableKeyhold = SetupConfig.DisableKeyhold
 
 	dlog.Error(conf)
-}
-
-func loadOakConfig(fileName string) (Config, error) {
-
-	dlog.Error("Loading config:", fileName)
-
-	confFile, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		dlog.Error(err)
-		return Config{}, err
-	}
-	var config Config
-	err = json.Unmarshal(confFile, &config)
-	dlog.Error(config)
-
-	return config, err
 }

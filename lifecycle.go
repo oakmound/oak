@@ -48,15 +48,17 @@ func lifecycleLoop(s screen.Screen) {
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.\
 	dlog.Info("Creating window controller")
-	changeWindow(ScreenWidth, ScreenHeight)
+	changeWindow(ScreenWidth*conf.Screen.Scale, ScreenHeight*conf.Screen.Scale)
 
 	dlog.Info("Getting event bus")
 	eb = event.GetBus()
 
 	dlog.Info("Starting draw loop")
 	go drawLoop()
-	dlog.Info("Starting key hold loop")
-	go keyHoldLoop()
+	if !conf.DisableKeyhold {
+		dlog.Info("Starting key hold loop")
+		go keyHoldLoop()
+	}
 	dlog.Info("Starting input loop")
 	go inputLoop()
 

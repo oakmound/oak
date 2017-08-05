@@ -5,6 +5,7 @@ type OnHit func(s, s2 *Space)
 
 // CallOnHits will send a signal to the passed in channel
 // when it has completed all collision functions in the hitmap.
+// It acts on DefTree. Todo: Change that
 func CallOnHits(s *Space, m map[Label]OnHit, doneCh chan bool) {
 	progCh := make(chan bool)
 	hits := Hits(s)

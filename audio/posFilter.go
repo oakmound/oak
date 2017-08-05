@@ -29,7 +29,7 @@ func (xp Pos) Apply(a audio.Audio) (audio.Audio, error) {
 		xp(sxp)
 		return a, nil
 	}
-	return a, supports.NewUnsupported([]string{"XPan"})
+	return a, supports.NewUnsupported([]string{"Pos"})
 }
 
 // PosFilter is the only Pos generating function right now. It takes in ears

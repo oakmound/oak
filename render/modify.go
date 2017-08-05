@@ -116,7 +116,6 @@ func CutRound(xOff, yOff float64) Modification {
 			p1 := point{x2, y1}
 			p2 := point{x1, y1}
 			p3 := point{x1, y2}
-			//fmt.Println("Corners", p1, p2, p3)
 
 			// Progressing along the curve, whenever a new y value is
 			// intersected at a pixel delete all values
@@ -128,7 +127,6 @@ func CutRound(xOff, yOff float64) Modification {
 				p4 := pointBetween(p1, p2, progress)
 				p5 := pointBetween(p2, p3, progress)
 				curveAt := pointBetween(p4, p5, progress)
-				//fmt.Println("Curve, progress:", progress, "pts", p4, p5, curveAt)
 
 				// Could only redo this loop at new y values to save time,
 				// but because this is currently just a pre-processing modification

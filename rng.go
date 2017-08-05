@@ -13,7 +13,7 @@ const (
 	// used to indicate that the seed function should just
 	// do the default operation for seeding, using the current
 	// time.
-	DefaultSeed = iota
+	DefaultSeed int64 = iota
 )
 
 var (

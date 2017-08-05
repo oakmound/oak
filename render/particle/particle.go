@@ -28,7 +28,6 @@ type baseParticle struct {
 	pID       int
 }
 
-// Need to look at this! This is like the only crash left in oak hopefully
 func (bp *baseParticle) GetLayer() int {
 	if bp == nil {
 		return render.Undraw

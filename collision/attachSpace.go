@@ -65,7 +65,7 @@ func Detach(s *Space) error {
 						Name:     "EnterFrame",
 						CallerID: int(s.CID),
 					},
-					Priority: 0,
+					Priority: -1,
 				},
 				Fn: attachSpaceEnter,
 			},
@@ -75,6 +75,8 @@ func Detach(s *Space) error {
 	return errors.New("This space's entity is not composed of AttachSpace")
 }
 
+// attachSpaceEnter currently uses the default tree, always. Todo: change this,
+// see what onCollision does
 func attachSpaceEnter(id int, nothing interface{}) int {
 	as := event.GetEntity(id).(attachSpace).getAttachSpace()
 	x, y := as.follow.X()+as.offX, as.follow.Y()+as.offY

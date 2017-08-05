@@ -62,8 +62,8 @@ func (t *Tree) Add(sps ...*Space) {
 	t.Unlock()
 }
 
-// Remove removes spaces from the rtree
-// returns the number of spaces removed
+// Remove removes spaces from the rtree and
+// returns the number of spaces removed.
 func (t *Tree) Remove(sps ...*Space) int {
 	removed := 0
 	t.Lock()
@@ -97,19 +97,33 @@ func (t *Tree) UpdateSpace(x, y, w, h float64, s *Space) error {
 
 // ShiftSpace adds x and y to a space and updates its position
 func (t *Tree) ShiftSpace(x, y float64, s *Space) error {
+	if s == nil {
+		return errors.New("Input space was nil")
+	}
 	x = x + s.GetX()
 	y = y + s.GetY()
 	return t.UpdateSpace(x, y, s.GetW(), s.GetH(), s)
 }
 
 // Hits returns the set of spaces which are colliding
-// with the passed in space.
+// with the passed in space. All spaces collide with
+// themselves, if they exist in the tree, but self-collision
+// will not be reported by Hits.
 func (t *Tree) Hits(sp *Space) []*Space {
 	// Eventually we'll expose SearchIntersect for use cases where you
 	// want to see if you intersect yourself
 	results := t.SearchIntersect(sp.Bounds())
-	out := make([]*Space, len(results))
 	hitSelf := -1
+	i := 0
+	for i < len(results) {
+		// Todo: figure out why we're getting nils
+		if results[i] == nil {
+			results = append(results[:i], results[i+1:]...)
+		} else {
+			i++
+		}
+	}
+	out := make([]*Space, len(results))
 	for i, v := range results {
 		if v.(*Space) == sp {
 			hitSelf = i
@@ -123,8 +137,10 @@ func (t *Tree) Hits(sp *Space) []*Space {
 	return out
 }
 
-// HitLabel acts like hits, but returns the first space within hits
-// that matches one of the input labels
+// HitLabel acts like Hits, but returns the first space within hits
+// that matches one of the input labels. HitLabel can return the same
+// space that is passed into it, if that space has a label in the set of
+// accepted labels.
 func (t *Tree) HitLabel(sp *Space, labels ...Label) *Space {
 	results := t.SearchIntersect(sp.Bounds())
 	for _, v := range results {

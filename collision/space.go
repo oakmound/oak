@@ -2,10 +2,10 @@ package collision
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/Sythe2o0/rtreego"
+	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
 )
@@ -69,6 +69,8 @@ func (s *Space) GetPos() (float64, float64) {
 }
 
 // Above returns how much above this space another space is
+// Important note: (10,10) is Above (10,20), because in oak's
+// display, lower y values are higher than higher y values.
 func (s *Space) Above(other *Space) float64 {
 	return other.GetY() - s.GetY()
 }
@@ -128,20 +130,19 @@ func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
 	return
 }
 
-// SetDim sets the dimensions of the space
-func (s *Space) SetDim(w, h float64) {
-	s.Update(s.GetX(), s.GetY(), w, h)
-}
-
 // OverlapVector returns Overlap as a vector
 func (s *Space) OverlapVector(other *Space) physics.Vector {
 	xover, yover := s.Overlap(other)
+	// Todo: why are we multiplying by -1 here, shouldn't that
+	// also be happening in Overlap at least?
 	return physics.NewVector(-xover, -yover)
 }
 
 // SubtractRect removes a rectangle from this rectangle and
 // returns the rectangles remaining after the portion has been
-// removed
+// removed. The input x,y is relative to the original space:
+// Example: removing 1,1 from 10,10 -> 12,12 is OK, but removing
+// 11,11 from 10,10 -> 12,12 will not act as expected.
 func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
 	x1 := s.GetX()
 	y1 := s.GetY()
@@ -157,6 +158,7 @@ func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
 	rects[0][2] = x2
 	rects[0][3] = h1
 
+	// Todo: these spaces overlap on the corners. We could remove that.
 	rects[1][0] = x1
 	rects[1][1] = y1
 	rects[1][2] = w1
@@ -218,7 +220,9 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 		rect,
 		l,
 		cID,
-		CID,
+		CID, // todo: This is hard to read as distinct from cID
+		// todo: a way to generate non-CID typed spaces that isn't
+		// package specific (see render/particle)
 	}
 }
 
@@ -228,7 +232,7 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 func NewRect(x, y, w, h float64) *rtreego.Rect {
 	rect, err := rtreego.NewRect(rtreego.Point{x, y}, [3]float64{w, h, 1})
 	if err != nil {
-		log.Fatal(err)
+		dlog.Error(err)
 	}
 	return &rect
 }

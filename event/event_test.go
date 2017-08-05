@@ -42,6 +42,7 @@ func TestUnbind(t *testing.T) {
 	sleep()
 	<-TriggerBack("T", nil)
 	assert.Equal(t, triggers, 1)
+	sleep()
 	Trigger("T", nil)
 	sleep()
 	assert.Equal(t, triggers, 1)

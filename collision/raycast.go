@@ -42,6 +42,8 @@ func (t *Tree) RayCast(x, y, degrees, length float64) []Point {
 // that the generated ray intersects, ignoring entities
 // in the given invalidIDs list.
 // Example Use case: shooting a bullet, hitting the first thing that isn't yourself.
+// Todo: this should use variadic args like the label functions, but we should also
+// not be using these anyway, see top todo
 func (t *Tree) RayCastSingle(x, y, degrees, length float64, invalidIDS []event.CID) Point {
 
 	s := math.Sin(degrees * math.Pi / 180)
@@ -158,7 +160,7 @@ func (t *Tree) ConeCast(x, y, angle, angleWidth, rays, length float64) (points [
 	return
 }
 
-// ConeCastSingle repeatedly calls RayCastSignle in a cone shape
+// ConeCastSingle repeatedly calls RayCastSingle in a cone shape
 func (t *Tree) ConeCastSingle(x, y, angle, angleWidth, rays, length float64, invalidIDS []event.CID) (points []Point) {
 	da := angleWidth / rays
 	for a := angle; a < angle+angleWidth; a += da {

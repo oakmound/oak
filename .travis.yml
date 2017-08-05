@@ -6,7 +6,20 @@ install:
 - go get -t ./...
 #- go get golang.org/x/tools/cmd/cover
 #- go get github.com/mattn/goveralls
-#script:
+script:
+# This is a long way to skip testing audio as travis has no audio cards
+ - go test .
+ - go test ./shape
+ - go test ./timing
+ - go test ./physics
+ - go test ./event
+ - go test ./render
+ - go test ./render/particle
+ - go test ./alg
+ - go test ./alg/intgeom
+ - go test ./collision
+ - go test ./fileutil
+ - go test ./mouse
 #- go test -v -covermode=count -coverprofile=coverage.out ./...
 #- $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
 #env:

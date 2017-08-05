@@ -11,6 +11,7 @@ import (
 // don't need to import shiny variables in more places.
 // GestureEvents contain information about mouse events that are not single actions,
 // like drags, holds, and double clicks.
+// Todo: standardize events to also use vectors for their position
 type GestureEvent struct {
 	Drag        bool
 	LongPress   bool

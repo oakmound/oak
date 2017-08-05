@@ -22,7 +22,7 @@ func init() {
 	}
 }
 
-// Clear just calls init.
+// Clear resets the default tree's contents
 func Clear() {
 	DefTree.Clear()
 }
@@ -66,6 +66,11 @@ func HitLabel(sp *Space, labels ...Label) *Space {
 // Update updates this space with the legacy rtree
 func (s *Space) Update(x, y, w, h float64) error {
 	return DefTree.UpdateSpace(x, y, w, h, s)
+}
+
+// SetDim sets the dimensions of the space in the legacy rtree
+func (s *Space) SetDim(w, h float64) {
+	s.Update(s.GetX(), s.GetY(), w, h)
 }
 
 // UpdateLabel changes the label behind this space and resets

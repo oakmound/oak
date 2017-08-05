@@ -125,6 +125,8 @@ func (pg *Polygon) FillInverse(c color.Color) {
 	pg.r = rgba
 }
 
+// Todo: almost all of this junk below should be in alg, under floatgeom or something.
+
 // BoundingRect converts a set of points into their minimum bounding rectangle
 func BoundingRect(points []physics.Vector) (MinX, MinY, MaxX, MaxY float64, w, h int) {
 	MinX = math.MaxFloat64

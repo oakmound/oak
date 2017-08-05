@@ -5,6 +5,7 @@ import (
 	"image/draw"
 	"strconv"
 
+	"github.com/oakmound/oak/alg"
 	"github.com/oakmound/oak/physics"
 	"golang.org/x/image/math/fixed"
 )
@@ -100,6 +101,17 @@ func (t *Text) Wrap(charLimit int, vertInc float64) []*Text {
 		vertical += vertInc
 	}
 	return out
+}
+
+// ToSprite converts this text into a sprite, so that it is no longer
+// modifiable in terms of its text content, but is modifiable in terms
+// of Modifications.
+func (t *Text) ToSprite() *Sprite {
+	width := t.d.MeasureString(t.text.String()).Round()
+	height := alg.RoundF64(t.d.Size)
+	s := NewEmptySprite(t.X(), t.Y()-float64(height), width, height)
+	t.DrawOffset(s.GetRGBA(), -t.X(), (-t.Y())+float64(height))
+	return s
 }
 
 type stringerIntPointer struct {
