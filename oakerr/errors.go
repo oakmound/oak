@@ -9,7 +9,7 @@ func (nle NotLoadedError) Error() string {
 	return "File not loaded"
 }
 
-// ExistingFont is returned when a font is overwritten in a font manager
+// ExistingFontError is returned when a font is overwritten in a font manager
 type ExistingFontError struct{}
 
 func (efe ExistingFontError) Error() string {
