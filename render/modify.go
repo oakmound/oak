@@ -379,3 +379,73 @@ func Scale(xRatio, yRatio float64) Modification {
 		return dst
 	}
 }
+
+// TrimColor will trim inputs so that any rows or columns where each pixel is
+// less than or equal to the input color are removed. This will change the dimensions
+// of the image.
+func TrimColor(trimUnder color.Color) Modification {
+	r, g, b, a := trimUnder.RGBA()
+	return func(rgba image.Image) *image.RGBA {
+		bounds := rgba.Bounds()
+		w := bounds.Max.X
+		h := bounds.Max.Y
+		xOff := 0
+		yOff := 0
+	trimouter1:
+		for x := 0; x < w; x++ {
+			for y := 0; y < h; y++ {
+				c := rgba.At(x, y)
+				r2, g2, b2, a2 := c.RGBA()
+				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
+					continue
+				}
+				break trimouter1
+			}
+			xOff++
+		}
+	trimouter2:
+		for x := w; x >= 0; x-- {
+			for y := 0; y < h; y++ {
+				c := rgba.At(x, y)
+				r2, g2, b2, a2 := c.RGBA()
+				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
+					continue
+				}
+				break trimouter2
+			}
+			w--
+		}
+	trimouter3:
+		for y := h; y >= 0; y-- {
+			for x := 0; x < w; x++ {
+				c := rgba.At(x, y)
+				r2, g2, b2, a2 := c.RGBA()
+				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
+					continue
+				}
+				break trimouter3
+			}
+			h--
+		}
+	trimouter4:
+		for y := 0; y < h; y++ {
+			for x := 0; x < w; x++ {
+				c := rgba.At(x, y)
+				r2, g2, b2, a2 := c.RGBA()
+				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
+					continue
+				}
+				break trimouter4
+			}
+			yOff++
+		}
+		out := image.NewRGBA(image.Rect(0, 0, w-xOff+1, h-yOff+1))
+		for x := xOff; x <= w; x++ {
+			for y := yOff; y <= h; y++ {
+				c := rgba.At(x, y)
+				out.Set(x-xOff, y-yOff, c)
+			}
+		}
+		return out
+	}
+}
