@@ -357,9 +357,15 @@ func ApplyMask(img image.RGBA) Modification {
 
 // Rotate returns a rotated rgba.
 func Rotate(degrees int) Modification {
+	return RotateInterpolated(degrees, gift.CubicInterpolation)
+}
+
+// RotateInterpolated acts as Rotate, but accepts an interpolation argument.
+// standard rotation does this with Cubic Interpolation.
+func RotateInterpolated(degrees int, interpolation gift.Interpolation) Modification {
 	return func(rgba image.Image) *image.RGBA {
 		filter := gift.New(
-			gift.Rotate(float32(degrees), transparent, gift.CubicInterpolation))
+			gift.Rotate(float32(degrees), transparent, interpolation))
 		dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
 		filter.Draw(dst, rgba)
 		return dst
