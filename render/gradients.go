@@ -1,13 +1,11 @@
 package render
 
 import (
-	"github.com/oakmound/oak/dlog"
 	"image/color"
 )
 
 //GradientColorAt returns a new color via a gradient between two colors and the progress between them
 func GradientColorAt(c1, c2 color.Color, progress float64) color.RGBA64 {
-	dlog.Error("Progress", progress)
 	r, g, b, a := c1.RGBA()
 	r2, g2, b2, a2 := c2.RGBA()
 	return color.RGBA64{
