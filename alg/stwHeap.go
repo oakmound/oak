@@ -27,7 +27,7 @@ func newSTWHeap(f []float64) *stwHeap {
 }
 
 func (stwh *stwHeap) Pop() int {
-	if stwh.weightsBelow[1] <= 0.0 {
+	if stwh.weightsBelow[1] <= ε {
 		dlog.Warn("Pop on stwHeap with no remaining elements")
 		return -1
 	}
