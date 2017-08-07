@@ -32,8 +32,14 @@ func TestWeightedChoose(t *testing.T) {
 		diff := math.Abs(outWeights[i] - outWeights[i+1])
 		assert.True(t, (outWeights[i] > outWeights[i+1]) || diff < .1)
 	}
+	// Failure testing
 	_, err := WeightedChoose(weights, 20)
 	assert.NotNil(t, err)
+	// Single element
+	weights = []float64{1.0}
+	chosen, err := WeightedChoose(weights, 1)
+	assert.Nil(t, err)
+	assert.Equal(t, 0, chosen[0])
 }
 
 func TestUniqueChooseX(t *testing.T) {
@@ -91,6 +97,12 @@ func TestChooseX(t *testing.T) {
 	for i := 0; i < len(weights)-1; i++ {
 		diff := math.Abs(outWeights[i] - outWeights[i+1])
 		assert.True(t, (outWeights[i] > outWeights[i+1]) || diff < .1)
+	}
+	// Zero weight testing
+	weights = []float64{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0}
+	for i := 0; i < testCt; i++ {
+		chosen := ChooseX(weights, 1)
+		assert.Equal(t, 8, chosen[0])
 	}
 }
 
