@@ -40,11 +40,11 @@ func TestCollisionPhase(t *testing.T) {
 
 	s = NewLabeledSpace(15, 15, 10, 10, 5)
 	Add(s)
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	assert.True(t, active)
 
 	Remove(s)
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	assert.False(t, active)
 
 	s = NewSpace(10, 10, 10, 10, 5)
