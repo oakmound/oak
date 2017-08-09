@@ -450,3 +450,35 @@ func TrimColor(trimUnder color.Color) Modification {
 		return out
 	}
 }
+
+// ConformToPallete modifies the input image so that it's colors all fall
+// in the input color palette.
+func ConformToPallete(p color.Palette) Modification {
+	return func(rgba image.Image) *image.RGBA {
+		bounds := rgba.Bounds()
+		w := bounds.Max.X
+		h := bounds.Max.Y
+		newRgba := image.NewRGBA(image.Rect(0, 0, w, h))
+		for x := 0; x < w; x++ {
+			for y := 0; y < h; y++ {
+				newRgba.Set(x, y, p.Convert(rgba.At(x, y)))
+			}
+		}
+		return newRgba
+	}
+}
+
+// ConformToPalleteInPlace is not a modification, but acts like ConformToPallete
+// without allocating a new *image.RGBA
+func ConformToPalleteInPlace(p color.Palette) func(rgba *image.RGBA) {
+	return func(rgba *image.RGBA) {
+		bounds := rgba.Bounds()
+		w := bounds.Max.X
+		h := bounds.Max.Y
+		for x := 0; x < w; x++ {
+			for y := 0; y < h; y++ {
+				rgba.Set(x, y, p.Convert(rgba.At(x, y)))
+			}
+		}
+	}
+}
