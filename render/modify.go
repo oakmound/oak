@@ -67,17 +67,12 @@ func FlipX(rgba image.Image) *image.RGBA {
 
 // FlipY returns a new rgba which is flipped
 // over the vertical axis.
-func FlipY(rgba *image.RGBA) *image.RGBA {
-	bounds := rgba.Bounds()
-	w := bounds.Max.X
-	h := bounds.Max.Y
-	newRgba := image.NewRGBA(image.Rect(0, 0, w, h))
-	for x := 0; x < w; x++ {
-		for y := 0; y < h; y++ {
-			newRgba.Set(x, y, rgba.At(x, h-y))
-		}
-	}
-	return newRgba
+func FlipY(rgba image.Image) *image.RGBA {
+	filter := gift.New(
+		gift.FlipVertical())
+	dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
+	filter.Draw(dst, rgba)
+	return dst
 }
 
 // todo: this should not be in this package
