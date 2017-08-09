@@ -14,7 +14,12 @@ import (
 func sceneLoop(firstScene string) {
 	var prevScene string
 
-	sceneMap[firstScene].active = true
+	s, ok := sceneMap[firstScene]
+	if !ok {
+		dlog.Error("Unknown scene", firstScene)
+		panic("Unknown scene")
+	}
+	s.active = true
 	globalFirstScene = firstScene
 	CurrentScene = "loading"
 

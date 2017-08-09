@@ -22,11 +22,20 @@ func testinit() {
 	// Assert that nothing went wrong
 }
 
+func resetOak() {
+	select {
+	case <-quitCh:
+	default:
+	}
+	lifecycleInit = false
+}
+
 func sleep() {
 	time.Sleep(400 * time.Millisecond)
 }
 
 func TestViewport(t *testing.T) {
+	resetOak()
 	testinit()
 	assert.Equal(t, ViewVector(), physics.NewVector(0, 0))
 	assert.Equal(t, ViewPos, image.Point{0, 0})
