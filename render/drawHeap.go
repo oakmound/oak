@@ -82,7 +82,7 @@ func (rh *RenderableHeap) PreDraw() {
 			dlog.Error("Invalid Memory Address in Draw heap")
 			// This does not work-- all addresses following the bad address
 			// at i are also bad
-			//toPushRenderables = toPushRenderables[i+1:]
+			//rh.toPush = rh.toPush[i+1:]
 			rh.toPush = []Renderable{}
 		}
 	}()

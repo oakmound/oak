@@ -482,3 +482,28 @@ func ConformToPalleteInPlace(p color.Palette) func(rgba *image.RGBA) {
 		}
 	}
 }
+
+// Zoom zooms into a position on the input image.
+// The position is determined by the input percentages, and how far the zoom
+// is deep depends on the input zoom level-- 2.0 would quarter the number of
+// unique pixels from the input to the output.
+func Zoom(xPerc, yPerc, zoom float64) func(rgba image.Image) *image.RGBA {
+	return func(rgba image.Image) *image.RGBA {
+		bounds := rgba.Bounds()
+		w := float64(bounds.Max.X)
+		h := float64(bounds.Max.Y)
+		newRgba := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
+		newW := w / zoom
+		newH := h / zoom
+		minX := (w - newW) * xPerc
+		minY := (h - newH) * yPerc
+		for x := 0.0; x < w; x++ {
+			for y := 0.0; y < h; y++ {
+				x2 := int(((x * xPerc) / (zoom * xPerc)) + minX)
+				y2 := int(((y * yPerc) / (zoom * yPerc)) + minY)
+				newRgba.Set(int(x), int(y), rgba.At(x2, y2))
+			}
+		}
+		return newRgba
+	}
+}
