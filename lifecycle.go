@@ -27,6 +27,7 @@ func lifecycleLoop(s screen.Screen) {
 	initControl.Lock()
 	if lifecycleInit {
 		dlog.Error("Started lifecycle twice, aborting second call")
+		initControl.Unlock()
 		return
 	}
 	lifecycleInit = true
