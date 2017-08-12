@@ -13,32 +13,28 @@ func NewLine(x1, y1, x2, y2 float64, c color.Color) *Sprite {
 
 // NewThickLine returns a Line that has some value of thickness
 func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Sprite {
-
-	var rgba *image.RGBA
-	// We subtract the minimum from each side here
-	// to normalize the new line segment toward the origin
-	minX := math.Min(x1, x2)
-	minY := math.Min(y1, y2)
-	rgba = drawLineBetween(int(x1-minX), int(y1-minY), int(x2-minX), int(y2-minY), func(rgba *image.RGBA, totalD float64, progress, x, y int) { rgba.Set(x, y, c) }, thickness)
-
-	return NewSprite(minX-float64(thickness), minY-float64(thickness), rgba)
+	colorer := func(rgba *image.RGBA, totalD float64, progress, x, y int) { rgba.Set(x, y, c) }
+	return newLine(x1, y1, x2, y2, colorer, thickness)
 }
 
 // NewGradientLine returns a Line that has some value of thickness along with a start and end color
 func NewGradientLine(x1, y1, x2, y2 float64, c1, c2 color.Color, thickness int) *Sprite {
-
-	var rgba *image.RGBA
-	// We subtract the minimum from each side here
-	// to normalize the new line segment toward the origin
-	minX := math.Min(x1, x2)
-	minY := math.Min(y1, y2)
 	colorer := func(rgba *image.RGBA, totalD float64, progress, x, y int) {
 		percentProgress := float64(progress) / totalD
 		c := GradientColorAt(c1, c2, percentProgress)
 		rgba.Set(x, y, c)
 	}
-	rgba = drawLineBetween(int(x1-minX), int(y1-minY), int(x2-minX), int(y2-minY), colorer, thickness)
+	return newLine(x1, y1, x2, y2, colorer, thickness)
+}
 
+//newLine converts the float coordinates to int locations and returns the desired Line with a given thickness
+func newLine(x1, y1, x2, y2 float64, colorer pixelColorer, thickness int) *Sprite {
+	var rgba *image.RGBA
+	// We subtract the minimum from each side here
+	// to normalize the new line segment toward the origin
+	minX := math.Min(x1, x2)
+	minY := math.Min(y1, y2)
+	rgba = drawLineBetween(int(x1-minX), int(y1-minY), int(x2-minX), int(y2-minY), colorer, thickness)
 	return NewSprite(minX-float64(thickness), minY-float64(thickness), rgba)
 }
 
@@ -68,7 +64,7 @@ type pixelColorer func(rgba *image.RGBA, totalDistance float64, progress, x, y i
 func drawLine(rgba *image.RGBA, x1, y1, x2, y2 int, thickness int, colorer pixelColorer) {
 	xDelta := math.Abs(float64(x2 - x1))
 	yDelta := math.Abs(float64(y2 - y1))
-	totalDelta := math.Sqrt(xDelta*xDelta + yDelta + yDelta)
+	totalDelta := math.Sqrt(xDelta*xDelta + yDelta*yDelta)
 	xSlope := -1
 	if x2 < x1 {
 		xSlope = 1
@@ -106,7 +102,7 @@ func drawLineBetween(x1, y1, x2, y2 int, colorer pixelColorer, th int) *image.RG
 	// Bresenham's line-drawing algorithm from wikipedia
 	xDelta := math.Abs(float64(x2 - x1))
 	yDelta := math.Abs(float64(y2 - y1))
-	totalDelta := math.Sqrt(xDelta*xDelta + yDelta + yDelta)
+	totalDelta := math.Sqrt(xDelta*xDelta + yDelta*yDelta)
 
 	if xDelta == 0 && yDelta == 0 {
 		rect := image.Rect(0, 0, 1, 1)
