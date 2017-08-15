@@ -1,5 +1,7 @@
 package render
 
+import "github.com/oakmound/oak/event"
+
 // The Reverting structure lets modifications be made to a Modifiable and then
 // reverted, up to arbitrary history limits.
 type Reverting struct {
@@ -83,6 +85,16 @@ func (rv *Reverting) update() {
 	}
 	if u, ok := rv.rs[0].(updates); ok {
 		u.update()
+	}
+}
+
+// SetTriggerID sets the ID AnimationEnd will trigger on for animating subtypes.
+func (rv *Reverting) SetTriggerID(cid event.CID) {
+	if t, ok := rv.Modifiable.(Triggerable); ok {
+		t.SetTriggerID(cid)
+	}
+	if t, ok := rv.rs[0].(Triggerable); ok {
+		t.SetTriggerID(cid)
 	}
 }
 

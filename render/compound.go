@@ -6,6 +6,7 @@ import (
 	"image/draw"
 	"sync"
 
+	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
 )
 
@@ -174,6 +175,17 @@ func (c *Compound) IsStatic() bool {
 		return s.IsStatic()
 	}
 	return true
+}
+
+// SetTriggerID sets the ID AnimationEnd will trigger on for animating subtypes.
+func (c *Compound) SetTriggerID(cid event.CID) {
+	c.lock.RLock()
+	for _, r := range c.subRenderables {
+		if t, ok := r.(Triggerable); ok {
+			t.SetTriggerID(cid)
+		}
+	}
+	c.lock.RUnlock()
 }
 
 // Revert will revert all parts of this compound that can be reverted
