@@ -44,36 +44,63 @@ func And(ms ...Modification) Modification {
 	}
 }
 
-// Brighten brightens an image between -100 and 100. 100 will be solid white,
-// -100 will be solid black.
-func Brighten(brightenBy float32) Modification {
+// GiftFilter converts any set of gift.Filters into a Modification.
+func GiftFilter(fis ...gift.Filter) Modification {
 	return func(rgba image.Image) *image.RGBA {
-		filter := gift.New(
-			gift.Brightness(brightenBy))
+		filter := gift.New(fis...)
 		dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
 		filter.Draw(dst, rgba)
 		return dst
 	}
 }
 
+// Brighten brightens an image between -100 and 100. 100 will be solid white,
+// -100 will be solid black.
+func Brighten(brightenBy float32) Modification {
+	return GiftFilter(gift.Brightness(brightenBy))
+}
+
+// Saturate saturates the input between -100 and 500 percent.
+func Saturate(saturateBy float32) Modification {
+	return GiftFilter(gift.Saturation(saturateBy))
+}
+
 // FlipX returns a new rgba which is flipped
 // over the horizontal axis.
-func FlipX(rgba image.Image) *image.RGBA {
-	filter := gift.New(
-		gift.FlipHorizontal())
-	dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
-	filter.Draw(dst, rgba)
-	return dst
-}
+var FlipX = GiftFilter(gift.FlipHorizontal())
 
 // FlipY returns a new rgba which is flipped
 // over the vertical axis.
-func FlipY(rgba image.Image) *image.RGBA {
-	filter := gift.New(
-		gift.FlipVertical())
-	dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
-	filter.Draw(dst, rgba)
-	return dst
+var FlipY = GiftFilter(gift.FlipVertical())
+
+// ColorBalance takes in 3 numbers between -100 and 500 and applies it to the given image
+func ColorBalance(r, g, b float32) Modification {
+	return GiftFilter(gift.ColorBalance(r, g, b))
+}
+
+// Rotate returns a rotated rgba.
+func Rotate(degrees int) Modification {
+	return RotateInterpolated(degrees, gift.CubicInterpolation)
+}
+
+// RotateInterpolated acts as Rotate, but accepts an interpolation argument.
+// standard rotation does this with Cubic Interpolation.
+func RotateInterpolated(degrees int, interpolation gift.Interpolation) Modification {
+	return GiftFilter(gift.Rotate(float32(degrees), transparent, interpolation))
+}
+
+// Scale returns a scaled rgba.
+func Scale(xRatio, yRatio float64) Modification {
+	return func(rgba image.Image) *image.RGBA {
+		bounds := rgba.Bounds()
+		w := int(math.Floor(float64(bounds.Max.X) * xRatio))
+		h := int(math.Floor(float64(bounds.Max.Y) * yRatio))
+		filter := gift.New(
+			gift.Resize(w, h, gift.CubicResampling))
+		dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
+		filter.Draw(dst, rgba)
+		return dst
+	}
 }
 
 // todo: this should not be in this package
@@ -248,16 +275,6 @@ func ApplyColor(c color.Color) Modification {
 	}
 }
 
-// ColorBalance takes in 3 numbers between -100 and 500 and applies it to the given image
-func ColorBalance(r, g, b float32) Modification {
-	return func(rgba image.Image) *image.RGBA {
-		filter := gift.New(gift.ColorBalance(r, g, b))
-		dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
-		filter.Draw(dst, rgba)
-		return dst
-	}
-}
-
 // FillMask replaces alpha 0 pixels in an RGBA with corresponding
 // pixels in a second RGBA.
 func FillMask(img image.RGBA) Modification {
@@ -348,37 +365,6 @@ func ApplyMask(img image.RGBA) Modification {
 			}
 		}
 		return newRgba
-	}
-}
-
-// Rotate returns a rotated rgba.
-func Rotate(degrees int) Modification {
-	return RotateInterpolated(degrees, gift.CubicInterpolation)
-}
-
-// RotateInterpolated acts as Rotate, but accepts an interpolation argument.
-// standard rotation does this with Cubic Interpolation.
-func RotateInterpolated(degrees int, interpolation gift.Interpolation) Modification {
-	return func(rgba image.Image) *image.RGBA {
-		filter := gift.New(
-			gift.Rotate(float32(degrees), transparent, interpolation))
-		dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
-		filter.Draw(dst, rgba)
-		return dst
-	}
-}
-
-// Scale returns a scaled rgba.
-func Scale(xRatio, yRatio float64) Modification {
-	return func(rgba image.Image) *image.RGBA {
-		bounds := rgba.Bounds()
-		w := int(math.Floor(float64(bounds.Max.X) * xRatio))
-		h := int(math.Floor(float64(bounds.Max.Y) * yRatio))
-		filter := gift.New(
-			gift.Resize(w, h, gift.CubicResampling))
-		dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
-		filter.Draw(dst, rgba)
-		return dst
 	}
 }
 
