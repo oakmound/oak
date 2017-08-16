@@ -44,7 +44,8 @@ func And(ms ...Modification) Modification {
 	}
 }
 
-// Brighten brightens an image
+// Brighten brightens an image between -100 and 100. 100 will be solid white,
+// -100 will be solid black.
 func Brighten(brightenBy float32) Modification {
 	return func(rgba image.Image) *image.RGBA {
 		filter := gift.New(
@@ -465,21 +466,6 @@ func ConformToPallete(p color.Palette) Modification {
 			}
 		}
 		return newRgba
-	}
-}
-
-// ConformToPalleteInPlace is not a modification, but acts like ConformToPallete
-// without allocating a new *image.RGBA
-func ConformToPalleteInPlace(p color.Palette) func(rgba *image.RGBA) {
-	return func(rgba *image.RGBA) {
-		bounds := rgba.Bounds()
-		w := bounds.Max.X
-		h := bounds.Max.Y
-		for x := 0; x < w; x++ {
-			for y := 0; y < h; y++ {
-				rgba.Set(x, y, p.Convert(rgba.At(x, y)))
-			}
-		}
 	}
 }
 
