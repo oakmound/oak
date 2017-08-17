@@ -1,7 +1,6 @@
 package oak
 
 import (
-	"fmt"
 	"runtime"
 
 	"github.com/oakmound/oak/dlog"
@@ -102,7 +101,6 @@ func inputLoop() {
 				Button: button,
 				Event:  eventName,
 			}
-			fmt.Println(e.X, e.Y, mevent.X, mevent.Y, windowRect, ScreenWidth, ScreenHeight)
 
 			pmouse.LastMouseEvent = mevent
 

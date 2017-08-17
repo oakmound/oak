@@ -2,6 +2,7 @@ package oak
 
 import (
 	"image"
+	"image/draw"
 	"sync"
 
 	"github.com/oakmound/oak/alg"
@@ -98,8 +99,19 @@ func SetAspectRatio(xToY float64) {
 	aspectRatio = xToY
 }
 
-// ChangeWindow sets the width and height of the game window. But it doesn't.
+// ChangeWindow sets the width and height of the game window. Although exported,
+// calling it without a size event will probably not act as expected.
 func ChangeWindow(width, height int) {
+	// Draw a black frame to cover up smears
+	// Todo: could restrict the black to -just- the area not covered by the
+	// scaled screen buffer
+	buff, err := screenControl.NewBuffer(image.Point{width, height})
+	if err == nil {
+		draw.Draw(buff.RGBA(), buff.Bounds(), imageBlack, zeroPoint, screen.Src)
+		windowControl.Upload(zeroPoint, buff, buff.Bounds())
+	} else {
+		dlog.Error(err)
+	}
 	var x, y int
 	if UseAspectRatio {
 		inRatio := float64(width) / float64(height)
