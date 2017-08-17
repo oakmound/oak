@@ -40,7 +40,7 @@ func (gp *GradientParticle) DrawOffsetGen(generator Generator, buff draw.Image, 
 			if gen.Shape.In(i, j, gp.size) {
 				progress := gen.ProgressFunction(i, j, gp.size, gp.size)
 				c := render.GradientColorAt(c1, c2, progress)
-				img.SetRGBA64(i, j, c)
+				img.Set(i, j, c)
 			}
 		}
 	}
