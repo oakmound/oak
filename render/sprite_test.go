@@ -57,21 +57,14 @@ func TestGradientBoxFuzz(t *testing.T) {
 		h := heights.Poll()
 		c1 := colors.Poll()
 		c2 := colors.Poll()
-		r, g, b, a := c1.RGBA()
-		r2, g2, b2, a2 := c2.RGBA()
+		cr := colorrange.NewLinear(c1, c2)
 		cb := NewHorizontalGradientBox(w, h, c1, c2)
 		rgba := cb.GetRGBA()
 		for x := 0; x < w; x++ {
 			c3 := rgba.At(x, 0)
 			r3, g3, b3, a3 := c3.RGBA()
 			progress := float64(x) / float64(w)
-			// This sort of color math is frustrating
-			c4 := color.RGBA{
-				uint8(uint16OnScale(r, r2, progress) / 256),
-				uint8(uint16OnScale(g, g2, progress) / 256),
-				uint8(uint16OnScale(b, b2, progress) / 256),
-				uint8(uint16OnScale(a, a2, progress) / 256),
-			}
+			c4 := cr.Percentile(progress)
 			r4, g4, b4, a4 := c4.RGBA()
 			assert.Equal(t, r3, r4)
 			assert.Equal(t, g3, g4)
@@ -84,13 +77,7 @@ func TestGradientBoxFuzz(t *testing.T) {
 			c3 := rgba.At(0, y)
 			r3, g3, b3, a3 := c3.RGBA()
 			progress := float64(y) / float64(h)
-			// This sort of color math is frustrating
-			c4 := color.RGBA{
-				uint8(uint16OnScale(r, r2, progress) / 256),
-				uint8(uint16OnScale(g, g2, progress) / 256),
-				uint8(uint16OnScale(b, b2, progress) / 256),
-				uint8(uint16OnScale(a, a2, progress) / 256),
-			}
+			c4 := cr.Percentile(progress)
 			r4, g4, b4, a4 := c4.RGBA()
 			assert.Equal(t, r3, r4)
 			assert.Equal(t, g3, g4)
@@ -104,13 +91,7 @@ func TestGradientBoxFuzz(t *testing.T) {
 				c3 := rgba.At(x, y)
 				r3, g3, b3, a3 := c3.RGBA()
 				progress := CircularProgress(x, y, w, h)
-				// This sort of color math is frustrating
-				c4 := color.RGBA{
-					uint8(uint16OnScale(r, r2, progress) / 256),
-					uint8(uint16OnScale(g, g2, progress) / 256),
-					uint8(uint16OnScale(b, b2, progress) / 256),
-					uint8(uint16OnScale(a, a2, progress) / 256),
-				}
+				c4 := cr.Percentile(progress)
 				r4, g4, b4, a4 := c4.RGBA()
 				assert.Equal(t, r3, r4)
 				assert.Equal(t, g3, g4)
