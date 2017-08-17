@@ -1,6 +1,7 @@
 package oak
 
 import (
+	"fmt"
 	"runtime"
 
 	"github.com/oakmound/oak/dlog"
@@ -96,11 +97,12 @@ func inputLoop() {
 			// workaround needed in mouseDetails, and how mouse events might not
 			// propagate to their expected position.
 			mevent := pmouse.Event{
-				X:      e.X / float32(windowRect.Max.X) * float32(ScreenWidth),
-				Y:      e.Y / float32(windowRect.Max.Y) * float32(ScreenHeight),
+				X:      (((e.X - float32(windowRect.Min.X)) / float32(windowRect.Max.X-windowRect.Min.X)) * float32(ScreenWidth)),
+				Y:      (((e.Y - float32(windowRect.Min.Y)) / float32(windowRect.Max.Y-windowRect.Min.Y)) * float32(ScreenHeight)),
 				Button: button,
 				Event:  eventName,
 			}
+			fmt.Println(e.X, e.Y, mevent.X, mevent.Y, windowRect, ScreenWidth, ScreenHeight)
 
 			pmouse.LastMouseEvent = mevent
 
