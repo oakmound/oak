@@ -1,7 +1,6 @@
 package oak
 
 import (
-	"image"
 	"runtime"
 
 	"github.com/oakmound/oak/dlog"
@@ -118,7 +117,7 @@ func inputLoop() {
 		// Size events update what we scale the screen to
 		case size.Event:
 			//dlog.Verb("Got size event", e)
-			windowRect = image.Rect(0, 0, e.WidthPx, e.HeightPx)
+			ChangeWindow(e.WidthPx, e.HeightPx)
 		case error:
 			dlog.Error(e)
 		}

@@ -4,6 +4,7 @@ import (
 	"image"
 	"sync"
 
+	"github.com/oakmound/oak/alg"
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/event"
 
@@ -79,12 +80,40 @@ func changeWindow(width, height int) {
 		panic(err)
 	}
 	windowControl = wC
-	windowRect = image.Rect(0, 0, width, height)
+	ChangeWindow(width, height)
+}
+
+var (
+	// UseAspectRatio determines whether new window changes will distort or
+	// maintain the relative width to height ratio of the screen buffer.
+	UseAspectRatio = false
+	aspectRatio    float64
+)
+
+// SetAspectRatio will enforce that the displayed window does not distort the
+// input screen away from the given x:y ratio. The screen will not use these
+// settings until a new size event is recieved from the OS.
+func SetAspectRatio(xToY float64) {
+	UseAspectRatio = true
+	aspectRatio = xToY
 }
 
 // ChangeWindow sets the width and height of the game window. But it doesn't.
 func ChangeWindow(width, height int) {
-	windowRect = image.Rect(0, 0, width, height)
+	var x, y int
+	if UseAspectRatio {
+		inRatio := float64(width) / float64(height)
+		if aspectRatio > inRatio {
+			newHeight := alg.RoundF64(float64(height) * (inRatio / aspectRatio))
+			y = (newHeight - height) / 2
+			height = newHeight - y
+		} else {
+			newWidth := alg.RoundF64(float64(width) * (aspectRatio / inRatio))
+			x = (newWidth - width) / 2
+			width = newWidth - x
+		}
+	}
+	windowRect = image.Rect(-x, -y, width, height)
 }
 
 // GetScreen returns the current screen as an rgba buffer
