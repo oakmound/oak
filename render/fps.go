@@ -52,7 +52,7 @@ func (df *DrawFPS) Replace(Renderable, Renderable, int) {
 }
 
 // Copy does effectively nothing for a drawFPS
-func (df *DrawFPS) Copy() Addable {
+func (df *DrawFPS) Copy() Stackable {
 	return new(DrawFPS)
 }
 

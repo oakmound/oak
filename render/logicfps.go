@@ -56,7 +56,7 @@ func (lf *LogicFPS) Replace(Renderable, Renderable, int) {
 }
 
 // Copy does effectively nothing for a drawFPS
-func (lf *LogicFPS) Copy() Addable {
+func (lf *LogicFPS) Copy() Stackable {
 	return new(LogicFPS)
 }
 

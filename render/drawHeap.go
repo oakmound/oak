@@ -98,7 +98,7 @@ func (rh *RenderableHeap) PreDraw() {
 
 // Copy on a renderableHeap does not include any of its elements,
 // as renderables cannot be copied.
-func (rh *RenderableHeap) Copy() Addable {
+func (rh *RenderableHeap) Copy() Stackable {
 	rh2 := new(RenderableHeap)
 	rh2.static = rh.static
 	return rh2

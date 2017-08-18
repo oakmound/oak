@@ -11,29 +11,29 @@ import (
 var (
 	// GlobalDrawStack is the stack that all draw calls are parsed through.
 	GlobalDrawStack = &DrawStack{
-		as: []Addable{NewHeap(false)},
+		as: []Stackable{NewHeap(false)},
 	}
 	initialDrawStack = GlobalDrawStack
 )
 
 //The DrawStack is a stack with a safe adding mechanism that creates isolation between draw steps via predraw
 type DrawStack struct {
-	as     []Addable
-	toPush []Addable
+	as     []Stackable
+	toPush []Stackable
 	toPop  int
 }
 
-// An Addable manages Renderables
-type Addable interface {
+// An Stackable manages Renderables
+type Stackable interface {
 	PreDraw()
 	Add(Renderable, int) Renderable
 	Replace(Renderable, Renderable, int)
-	Copy() Addable
+	Copy() Stackable
 	draw(draw.Image, image.Point, int, int)
 }
 
 //SetDrawStack takes in a set of Addables which act as the set of Drawstacks available
-func SetDrawStack(as ...Addable) {
+func SetDrawStack(as ...Stackable) {
 	GlobalDrawStack = &DrawStack{as: as}
 	initialDrawStack = GlobalDrawStack.Copy()
 	dlog.Info("Global", GlobalDrawStack)
@@ -92,7 +92,7 @@ func ReplaceDraw(r1, r2 Renderable, stackLayer, layer int) {
 }
 
 //Push appends an addable to the draw stack during the next predraw
-func (ds *DrawStack) Push(a Addable) {
+func (ds *DrawStack) Push(a Stackable) {
 	ds.toPush = append(ds.toPush, a)
 
 }
@@ -112,7 +112,7 @@ func (ds *DrawStack) PreDraw() {
 		ds.as = append(ds.as, ds.toPush...)
 		// Should use two toPush lists, for this and
 		// draw heaps, so this call won't ever drop anything
-		ds.toPush = []Addable{}
+		ds.toPush = []Stackable{}
 	}
 	for _, a := range ds.as {
 		a.PreDraw()
@@ -122,7 +122,7 @@ func (ds *DrawStack) PreDraw() {
 //Copy creates a new deep copy of a Drawstack
 func (ds *DrawStack) Copy() *DrawStack {
 	ds2 := new(DrawStack)
-	ds2.as = make([]Addable, len(ds.as))
+	ds2.as = make([]Stackable, len(ds.as))
 	for i, a := range ds.as {
 		ds2.as[i] = a.Copy()
 	}
