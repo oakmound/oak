@@ -80,10 +80,10 @@ func DrawLineColored(rgba *image.RGBA, x1, y1, x2, y2, thickness int, colorer Co
 	progress := func(x, y, w, h int) float64 {
 		wprg := HorizontalProgress(x, y, w, h)
 		vprg := VerticalProgress(x, y, w, h)
-		if ySlope == 1 {
+		if ySlope == -1 {
 			vprg = 1 - vprg
 		}
-		if xSlope == 1 {
+		if xSlope == -1 {
 			wprg = 1 - wprg
 		}
 		return wprg + vprg/2
