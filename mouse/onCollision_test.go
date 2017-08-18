@@ -39,10 +39,10 @@ func TestCollisionPhase(t *testing.T) {
 		return 0
 	}, "MouseCollisionStop")
 	time.Sleep(200 * time.Millisecond)
-	LastMouseEvent = Event{10, 10, "", ""}
+	LastEvent = Event{10, 10, "", ""}
 	time.Sleep(200 * time.Millisecond)
 	assert.True(t, active)
-	LastMouseEvent = Event{21, 21, "", ""}
+	LastEvent = Event{21, 21, "", ""}
 	time.Sleep(200 * time.Millisecond)
 	assert.False(t, active)
 	s = collision.NewSpace(10, 10, 10, 10, 5)

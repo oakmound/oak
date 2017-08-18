@@ -4,10 +4,10 @@ import "github.com/oakmound/oak/collision"
 import "github.com/oakmound/oak/physics"
 
 var (
-	// LastMouseEvent is the last triggered mouse event,
+	// LastEvent is the last triggered mouse event,
 	// tracked for continuous mouse responsiveness on events
 	// that don't take in a mouse event
-	LastMouseEvent Event
+	LastEvent Event
 )
 
 // An Event is passed in through all Mouse related event bindings to

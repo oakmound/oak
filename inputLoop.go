@@ -102,7 +102,7 @@ func inputLoop() {
 				Event:  eventName,
 			}
 
-			pmouse.LastMouseEvent = mevent
+			pmouse.LastEvent = mevent
 
 			eb.Trigger(eventName, mevent)
 			pmouse.Propagate(eventName+"On", mevent)
