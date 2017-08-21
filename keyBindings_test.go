@@ -16,13 +16,13 @@ func TestLoadKeyBindings(t *testing.T) {
 
 	cases := []testCase{
 		{
-			"MoveUp=W\nMoveDown=S\nAttack=Spacebar\n", true,
+			"MoveUp = \"W\"\nMoveDown = \"S\"\nAttack = \"Spacebar\"\n", true,
 		},
 		{
-			"MoveUpW\nMoveDown=S\nAttack=Spacebar\n", false,
+			"MoveUp\"W\"\nMoveDown = \"S\"\nAttack = \"Spacebar\"\n", false,
 		},
 		{
-			"MoveUp=W\n\nMoveDown=S\nAttack=Spacebar\n", true,
+			"MoveUp = \"W\"\n\nMoveDown = \"S\"\nAttack = \"Spacebar\"\n", true,
 		},
 	}
 

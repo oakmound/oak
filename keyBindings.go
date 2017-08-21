@@ -1,11 +1,10 @@
 package oak
 
 import (
-	"bufio"
-	"errors"
 	"io"
-	"strings"
 	"sync"
+
+	"github.com/BurntSushi/toml"
 )
 
 var (
@@ -17,34 +16,22 @@ var (
 // those meaningufl names and users can easily rebind which keys do what.
 type KeyBindings map[string]string
 
-// Example binding file (.ini syntax)
+// Example binding file (toml syntax)
 //
-// MoveUp = W
-// MoveDown = S
-// MoveLeft = A
-// MoveRight = D
-// Fire = Spacebar
+// MoveUp = "W"
+// MoveDown = "S"
+// MoveLeft = "A"
+// MoveRight = "D"
+// Fire = "Spacebar"
 
 // LoadKeyBindings convers a reader into a map of keys to meaningful names.
-// It expects a simple .ini syntax, of key=value pairs per line. The resulting
-// KeyBindings will have the keys and values reversed, so `MoveUp=W` will
+// It expects a simple .toml syntax, of key = "value" pairs per line. The resulting
+// KeyBindings will have the keys and values reversed, so `MoveUp = "W"` will
 // correspond to kb["W"] = "MoveUp"
 func LoadKeyBindings(r io.Reader) (KeyBindings, error) {
-	scanr := bufio.NewScanner(r)
 	kb := make(KeyBindings)
-	for scanr.Scan() {
-		line := scanr.Text()
-		// Skip empty lines
-		if len(line) == 0 {
-			continue
-		}
-		split := strings.Split(line, "=")
-		if len(split) != 2 {
-			return nil, errors.New("Malformed .ini syntax: " + line)
-		}
-		kb[strings.TrimSpace(split[1])] = strings.TrimSpace(split[0])
-	}
-	return kb, nil
+	_, err := toml.DecodeReader(r, &kb)
+	return kb, err
 }
 
 // BindKeyBindings loads and binds KeyBindings at once. It maintains existing
