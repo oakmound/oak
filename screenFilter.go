@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/exp/shiny/screen"
 
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/render/mod"
 )
 
 var (
@@ -18,12 +18,12 @@ var (
 // SetPalette tells oak to conform the screen to the input color palette before drawing.
 func SetPalette(palette color.Palette) {
 	ColorPalette = palette
-	SetScreenFilter(render.ConformToPalleteInPlace(ColorPalette))
+	SetScreenFilter(mod.ConformToPalleteInPlace(ColorPalette))
 }
 
 // SetScreenFilter will filter the screen by the given modification function prior
 // to publishing the screen's rgba to be displayed.
-func SetScreenFilter(screenFilter render.InPlaceMod) {
+func SetScreenFilter(screenFilter mod.Filter) {
 	drawLoopPublish = func(tx screen.Texture) {
 		screenFilter(winBuffer.RGBA())
 		drawLoopPublishDef(tx)
