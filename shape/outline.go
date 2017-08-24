@@ -50,7 +50,7 @@ func ToOutline(shape Shape) func(...int) ([]intgeom.Point, error) {
 		if len(sizes) > 1 {
 			h = sizes[1]
 		}
-		//TODO: use width and height deltas so that more shapes are valid
+
 		//First decrement on diagonal to find start of outline
 		startX := 0.0
 		startY := 0.0

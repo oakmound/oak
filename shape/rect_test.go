@@ -20,3 +20,7 @@ func TestRect(t *testing.T) {
 		}
 	}
 }
+
+func TestRectangleIn(t *testing.T) {
+	assert.False(t, Rectangle.In(10, 10, 5, 5))
+}
