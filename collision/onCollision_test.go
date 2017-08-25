@@ -38,15 +38,18 @@ func TestCollisionPhase(t *testing.T) {
 		return 0
 	}, "CollisionStop")
 
-	s = NewLabeledSpace(15, 15, 10, 10, 5)
-	Add(s)
+	s2 := NewLabeledSpace(15, 15, 10, 10, 5)
+	Add(s2)
 	time.Sleep(200 * time.Millisecond)
 	assert.True(t, active)
 
-	Remove(s)
+	Remove(s2)
 	time.Sleep(200 * time.Millisecond)
 	assert.False(t, active)
 
-	s = NewSpace(10, 10, 10, 10, 5)
-	assert.NotNil(t, PhaseCollision(s))
+	s3 := NewSpace(10, 10, 10, 10, 5)
+	assert.NotNil(t, PhaseCollision(s3))
+
+	assert.Nil(t, PhaseCollision(s, DefTree))
+
 }
