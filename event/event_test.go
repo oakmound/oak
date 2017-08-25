@@ -196,7 +196,63 @@ func tBinding(int, interface{}) int {
 }
 
 func TestPriority(t *testing.T) {
+	go ResolvePending()
+	e := ent{}
+	cid := e.Init()
+	x := 20
+	cid.BindPriority(func(int, interface{}) int {
+		x /= 2
+		return 0
+	}, "T", 1)
+	cid.BindPriority(func(int, interface{}) int {
+		x += 2
+		return 0
+	}, "T", -1)
+	sleep()
+	cid.Trigger("T", nil)
+	sleep()
+	assert.Equal(t, 12, x)
+	// If the events occured in the opposite order, x would be 11.
 
+	x = 20
+	thisBus.Trigger("T", nil)
+	sleep()
+	assert.Equal(t, 12, x)
+
+}
+
+func TestAfter(t *testing.T) {
+	var x int
+	e := ent{}
+	cid := e.Init()
+	cid.Bind(func(int, interface{}) int {
+		x = 5
+		return 0
+	}, "T")
+	cid.TriggerAfter(time.Second, "T", nil)
+	time.Sleep(2 * time.Second)
+	assert.Equal(t, x, 5)
+}
+
+func TestBindableList(t *testing.T) {
+	bl := new(bindableList)
+	bl.sl = make([]Bindable, 10)
+	bl.removeIndex(11)
+	bl.sl[2] = tBinding
+	bl.removeBindable(tBinding)
+	// Assert nothing panicked
+}
+
+func TestUnbindAllAndRebind(t *testing.T) {
+	go ResolvePending()
+	UnbindAllAndRebind(
+		BindingOption{
+			Event: Event{
+				Name:     "T",
+				CallerID: 0,
+			},
+			Priority: 0,
+		}, []Bindable{}, 0, []string{})
 }
 
 func TestBindingSet(t *testing.T) {

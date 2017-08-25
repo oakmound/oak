@@ -17,8 +17,8 @@ func TestGestureIdentity(t *testing.T) {
 		Drag:        true,
 		LongPress:   false,
 		DoublePress: false,
-		InitialPos:  gesture.Point{2.0, 3.0},
-		CurrentPos:  gesture.Point{4.0, 5.0},
+		InitialPos:  gesture.Point{X:2.0, Y:3.0},
+		CurrentPos:  gesture.Point{X:4.0, Y:5.0},
 		Time:        tm,
 	}
 	mge := FromShinyGesture(ge)
