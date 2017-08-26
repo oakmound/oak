@@ -13,6 +13,7 @@ import (
 	"image"
 	"image/color"
 	//"image/draw"
+	"github.com/oakmound/oak/dlog"
 	"math"
 )
 
@@ -170,21 +171,56 @@ func pointBetween(p1, p2 point, f float64) point {
 	return point{p1.X*(1-f) + p2.X*f, p1.Y*(1-f) + p2.Y*f}
 }
 
-// CutRel acts like Cut, but takes in a multiplier on the
-// existing dimensions of the image.
-func CutRel(relWidth, relHeight float64) Modification {
+//CutFn  can reduce or add blank space to an input image.
+// Each input function decides the starting location or offset of a cut.
+func CutFn(xMod, yMod, wMod, hMod func(int) int) Modification {
 	return func(rgba image.Image) *image.RGBA {
 		bds := rgba.Bounds()
-		newWidth := alg.RoundF64(float64(bds.Max.X) * relWidth)
-		newHeight := alg.RoundF64(float64(bds.Max.Y) * relHeight)
+		startX := xMod(bds.Max.X)
+		startY := yMod(bds.Max.Y)
+		newWidth := wMod(bds.Max.X)
+		newHeight := hMod(bds.Max.Y)
+
 		newRgba := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
 		for x := 0; x < newWidth; x++ {
 			for y := 0; y < newHeight; y++ {
-				newRgba.Set(x, y, rgba.At(x, y))
+				newRgba.Set(x, y, rgba.At(x+startX, y+startY))
 			}
 		}
 		return newRgba
 	}
+}
+
+// CutFromLeft acts like cut but removes from the left hand side rather than the right
+func CutFromLeft(newWidth, newHeight int) Modification {
+	return CutFn(func(w int) int {
+		out := w - newWidth
+		dlog.Error("Startx", out)
+		return out
+	},
+		func(h int) int {
+			out := h - newHeight
+			dlog.Error("Starty", out)
+			return out
+		},
+		func(int) int {
+			dlog.Error("n width", newWidth)
+
+			return newWidth
+		},
+		func(int) int {
+			dlog.Error("n height", newHeight)
+			return newHeight
+		})
+}
+
+// CutRel acts like Cut, but takes in a multiplier on the
+// existing dimensions of the image.
+func CutRel(relWidth, relHeight float64) Modification {
+	return CutFn(func(int) int { return 0 },
+		func(int) int { return 0 },
+		func(w int) int { return alg.RoundF64(float64(w) * relWidth) },
+		func(h int) int { return alg.RoundF64(float64(h) * relHeight) })
 }
 
 // Cut reduces (or increases, adding nothing)
@@ -193,15 +229,10 @@ func CutRel(relWidth, relHeight float64) Modification {
 // don't need CutRel and Cut? i.e a function header like
 // Cut(wMod, hMod func(int) int)? )
 func Cut(newWidth, newHeight int) Modification {
-	return func(rgba image.Image) *image.RGBA {
-		newRgba := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
-		for x := 0; x < newWidth; x++ {
-			for y := 0; y < newHeight; y++ {
-				newRgba.Set(x, y, rgba.At(x, y))
-			}
-		}
-		return newRgba
-	}
+	return CutFn(func(int) int { return 0 },
+		func(int) int { return 0 },
+		func(int) int { return newWidth },
+		func(int) int { return newHeight })
 }
 
 // Fade reduces the alpha of an image
