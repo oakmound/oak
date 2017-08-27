@@ -1,7 +1,6 @@
 package audio
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -16,7 +15,6 @@ func TestChannels(t *testing.T) {
 	ch, err := DefChannel(intrange.NewLinear(1, 100), "test.wav")
 	assert.Nil(t, err)
 	assert.NotNil(t, ch)
-	fmt.Println("Channel", ch)
 	go func() {
 		tm := time.Now().Add(2 * time.Second)
 		// This only matters when running a suite of tests
