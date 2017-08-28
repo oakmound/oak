@@ -72,9 +72,8 @@ func TransitionZoom(xPerc, yPerc float64, frames int, zoomRate float64) func(*im
 		if frame > frames {
 			return false
 		}
-		z := render.Zoom(xPerc, yPerc, 1+zoomRate*float64(frame)/2)
+		z := render.Zoom(xPerc, yPerc, 1+zoomRate*float64(frame))
 		draw.Draw(buf, buf.Bounds(), z(buf), zeroPoint, screen.Src)
-		//time.Sleep(1 * time.Second)
 		return true
 	}
 }
