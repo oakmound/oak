@@ -5,6 +5,7 @@ import (
 
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/physics"
 )
 
 var (
@@ -105,4 +106,9 @@ func moveViewportBinding(speed int) func(int, interface{}) int {
 		}
 		return 0
 	}
+}
+
+// ViewVector returns ViewPos as a Vector
+func ViewVector() physics.Vector {
+	return physics.NewVector(float64(ViewPos.X), float64(ViewPos.Y))
 }

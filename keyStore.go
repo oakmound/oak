@@ -6,7 +6,6 @@ import (
 )
 
 var (
-	keyBinds     = make(map[string]string)
 	keyState     = make(map[string]bool)
 	keyDurations = make(map[string]time.Duration)
 	keyLock      = sync.RWMutex{}
@@ -51,21 +50,6 @@ func IsHeld(key string) (k bool, d time.Duration) {
 		durationLock.RUnlock()
 	}
 	return
-}
-
-// BindKey binds a name to be triggered when this
-// key is triggered
-func BindKey(key string, binding string) {
-	keyBinds[key] = binding
-}
-
-// GetKeyBind returns either whatever name has been bound to
-// a key or the key if nothing has been bound to it.
-func GetKeyBind(key string) string {
-	if v, ok := keyBinds[key]; ok {
-		return v
-	}
-	return key
 }
 
 func keyHoldLoop() {

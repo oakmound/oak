@@ -1,6 +1,7 @@
 package event
 
 import (
+	"sync"
 	"time"
 
 	"github.com/oakmound/oak/timing"
@@ -37,19 +38,16 @@ func (id CID) Trigger(eventName string, data interface{}) {
 	go func(eventName string, data interface{}) {
 		eb := GetBus()
 		mutex.RLock()
+		iid := int(id)
 		if idMap, ok := eb.bindingMap[eventName]; ok {
-			if bs, ok := idMap[int(id)]; ok {
+			if bs, ok := idMap[iid]; ok {
 				for i := bs.highIndex - 1; i >= 0; i-- {
-					for j, bnd := range (*bs.highPriority[i]).sl {
-						handleBindable(bnd, int(id), data, j, eventName)
-					}
+					triggerDefault((*bs.highPriority[i]).sl, iid, eventName, data)
 				}
-				triggerDefault((bs.defaultPriority).sl, int(id), eventName, data)
+				triggerDefault((bs.defaultPriority).sl, iid, eventName, data)
 
 				for i := 0; i < bs.lowIndex; i++ {
-					for j, bnd := range (*bs.lowPriority[i]).sl {
-						handleBindable(bnd, int(id), data, j, eventName)
-					}
+					triggerDefault((*bs.lowPriority[i]).sl, iid, eventName, data)
 				}
 			}
 		}
@@ -117,9 +115,7 @@ func ebtrigger(eb *Bus, eventName string, data interface{}) {
 	for id, bs := range (*eb).bindingMap[eventName] {
 		// Top to bottom, high priority
 		for i := bs.highIndex - 1; i >= 0; i-- {
-			for j, bnd := range (*bs.highPriority[i]).sl {
-				handleBindable(bnd, id, data, j, eventName)
-			}
+			triggerDefault((*bs.highPriority[i]).sl, id, eventName, data)
 		}
 	}
 
@@ -132,25 +128,22 @@ func ebtrigger(eb *Bus, eventName string, data interface{}) {
 	for id, bs := range (*eb).bindingMap[eventName] {
 		// Bottom to top, low priority
 		for i := 0; i < bs.lowIndex; i++ {
-			for j, bnd := range (*bs.lowPriority[i]).sl {
-				handleBindable(bnd, id, data, j, eventName)
-			}
+			triggerDefault((*bs.lowPriority[i]).sl, id, eventName, data)
 		}
 	}
 	mutex.RUnlock()
 }
 
 func triggerDefault(sl []Bindable, id int, eventName string, data interface{}) {
-	progCh := make(chan bool)
+	prog := &sync.WaitGroup{}
+	prog.Add(len(sl))
 	for i, bnd := range sl {
-		go func(bnd Bindable, id int, eventName string, data interface{}, progCh chan bool, index int) {
+		go func(bnd Bindable, id int, eventName string, data interface{}, prog *sync.WaitGroup, index int) {
 			handleBindable(bnd, id, data, index, eventName)
-			progCh <- true
-		}(bnd, id, eventName, data, progCh, i)
+			prog.Done()
+		}(bnd, id, eventName, data, prog, i)
 	}
-	for range sl {
-		<-progCh
-	}
+	prog.Wait()
 }
 
 func handleBindable(bnd Bindable, id int, data interface{}, index int, eventName string) {

@@ -36,7 +36,13 @@ func NewDynamicTicker() *DynamicTicker {
 			select {
 			case v := <-dt.ticker.C:
 				select {
-				case <-dt.forceTick:
+				case r := <-dt.forceTick:
+					if !r {
+						close(dt.forceTick)
+						close(dt.C)
+						close(dt.resetCh)
+						return
+					}
 					continue
 				case dt.C <- v:
 				case ticker := <-dt.resetCh:
@@ -54,7 +60,13 @@ func NewDynamicTicker() *DynamicTicker {
 					return
 				}
 				select {
-				case <-dt.forceTick:
+				case r := <-dt.forceTick:
+					if !r {
+						close(dt.forceTick)
+						close(dt.C)
+						close(dt.resetCh)
+						return
+					}
 					continue
 				case dt.C <- time.Time{}:
 				}
@@ -81,6 +93,7 @@ func (dt *DynamicTicker) Step() {
 }
 
 // Stop closes all internal channels and stops dt's internal ticker
+// Todo: this needs to be investigated-- it can panic!
 func (dt *DynamicTicker) Stop() {
 	defer func() {
 		if x := recover(); x != nil {

@@ -8,15 +8,18 @@ import (
 	"github.com/oakmound/oak/dlog"
 )
 
-//The RenderableHeap type is set up to manage a set of renderables to prevent any unsafe operations
-// and allow for distinct updates between draw cycles
+// A RenderableHeap managed a set of renderables to be drawn in explicit layered
+// order, using an internal heap to manage that order.
 type RenderableHeap struct {
 	rs     []Renderable
 	toPush []Renderable
 	static bool
 }
 
-//NewHeap creates a new renderableHeap
+// NewHeap creates a new renderableHeap. The static boolean represents whether
+// this heap exists relative to the viewport or not-- if true, an element at 40,40
+// will always be at 40,40. If false, when the viewport moves, the element will
+// move opposite the direction of the viewport.
 func NewHeap(static bool) *RenderableHeap {
 	rh := new(RenderableHeap)
 	rh.rs = make([]Renderable, 0)
@@ -79,7 +82,7 @@ func (rh *RenderableHeap) PreDraw() {
 			dlog.Error("Invalid Memory Address in Draw heap")
 			// This does not work-- all addresses following the bad address
 			// at i are also bad
-			//toPushRenderables = toPushRenderables[i+1:]
+			//rh.toPush = rh.toPush[i+1:]
 			rh.toPush = []Renderable{}
 		}
 	}()
@@ -123,13 +126,11 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 			if intf != nil {
 				r := intf.(Renderable)
 				if r.GetLayer() != Undraw {
-					x := int(r.GetX())
-					y := int(r.GetY())
-					x2 := x
-					y2 := y
+					x2 := int(r.GetX())
+					y2 := int(r.GetY())
 					w, h := r.GetDims()
-					x += w
-					y += h
+					x := w + x2
+					y := h + y2
 					if x > viewPos.X && y > viewPos.Y &&
 						x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
 						if InDrawPolygon(x, y, x2, y2) {

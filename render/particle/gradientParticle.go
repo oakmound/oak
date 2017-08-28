@@ -29,26 +29,9 @@ func (gp *GradientParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
 func (gp *GradientParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOff, yOff float64) {
 
 	gen := generator.(*GradientGenerator)
-
-	r, g, b, a := gp.startColor.RGBA()
-	r2, g2, b2, a2 := gp.endColor.RGBA()
 	progress := gp.Life / gp.totalLife
-	c1 := color.RGBA64{
-		uint16OnScale(r, r2, progress),
-		uint16OnScale(g, g2, progress),
-		uint16OnScale(b, b2, progress),
-		uint16OnScale(a, a2, progress),
-	}
-	r, g, b, a = gp.startColor2.RGBA()
-	r2, g2, b2, a2 = gp.endColor2.RGBA()
-	c2 := color.RGBA64{
-		uint16OnScale(r, r2, progress),
-		uint16OnScale(g, g2, progress),
-		uint16OnScale(b, b2, progress),
-		uint16OnScale(a, a2, progress),
-	}
-	r, g, b, a = c1.RGBA()
-	r2, g2, b2, a2 = c2.RGBA()
+	c1 := render.GradientColorAt(gp.startColor, gp.endColor, progress)
+	c2 := render.GradientColorAt(gp.startColor2, gp.endColor2, progress)
 
 	img := image.NewRGBA64(image.Rect(0, 0, gp.size, gp.size))
 
@@ -56,12 +39,7 @@ func (gp *GradientParticle) DrawOffsetGen(generator Generator, buff draw.Image, 
 		for j := 0; j < gp.size; j++ {
 			if gen.Shape.In(i, j, gp.size) {
 				progress := gen.ProgressFunction(i, j, gp.size, gp.size)
-				c := color.RGBA64{
-					uint16OnScale(r, r2, progress),
-					uint16OnScale(g, g2, progress),
-					uint16OnScale(b, b2, progress),
-					uint16OnScale(a, a2, progress),
-				}
+				c := render.GradientColorAt(c1, c2, progress)
 				img.SetRGBA64(i, j, c)
 			}
 		}

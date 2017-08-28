@@ -82,6 +82,7 @@ type Font struct {
 // oak's binary data storage (see fileutil), to SetupConfig
 func LoadConf(filePath string) error {
 	r, err := fileutil.Open(filePath)
+	defer r.Close()
 	if err != nil {
 		dlog.Warn(err)
 		return err

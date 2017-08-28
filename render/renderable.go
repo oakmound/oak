@@ -1,6 +1,3 @@
-// Package render provides several types of renderable entities,
-// methods for loading images from file, and methods for drawing
-// those entities to screen.
 package render
 
 import (

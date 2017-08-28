@@ -3,6 +3,8 @@ package timing
 import (
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDoAfter(t *testing.T) {
@@ -20,4 +22,10 @@ outer:
 		}
 	}
 	time.Sleep(3 * time.Second)
+	var triggered bool
+	go DoAfter(1*time.Second, func() {
+		triggered = true
+	})
+	time.Sleep(2 * time.Second)
+	assert.True(t, triggered)
 }

@@ -55,6 +55,7 @@ func Load(directory, filename string) (Data, error) {
 		if err != nil {
 			return nil, err
 		}
+		defer f.Close()
 		var buffer audio.Audio
 		end := strings.ToLower(filename[len(filename)-4:])
 		switch end {

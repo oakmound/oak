@@ -1,7 +1,6 @@
 package oak
 
 import (
-	"image"
 	"runtime"
 
 	"github.com/oakmound/oak/dlog"
@@ -97,8 +96,8 @@ func inputLoop() {
 			// workaround needed in mouseDetails, and how mouse events might not
 			// propagate to their expected position.
 			mevent := pmouse.Event{
-				X:      e.X / float32(windowRect.Max.X) * float32(ScreenWidth),
-				Y:      e.Y / float32(windowRect.Max.Y) * float32(ScreenHeight),
+				X:      (((e.X - float32(windowRect.Min.X)) / float32(windowRect.Max.X-windowRect.Min.X)) * float32(ScreenWidth)),
+				Y:      (((e.Y - float32(windowRect.Min.Y)) / float32(windowRect.Max.Y-windowRect.Min.Y)) * float32(ScreenHeight)),
 				Button: button,
 				Event:  eventName,
 			}
@@ -118,7 +117,7 @@ func inputLoop() {
 		// Size events update what we scale the screen to
 		case size.Event:
 			//dlog.Verb("Got size event", e)
-			windowRect = image.Rect(0, 0, e.WidthPx, e.HeightPx)
+			ChangeWindow(e.WidthPx, e.HeightPx)
 		case error:
 			dlog.Error(e)
 		}

@@ -95,6 +95,7 @@ func Init(firstScene string) {
 	ScreenHeight = conf.Screen.Height
 	FrameRate = conf.FrameRate
 	DrawFrameRate = conf.DrawFrameRate
+	SetLang(conf.Language)
 
 	wd, _ := os.Getwd()
 

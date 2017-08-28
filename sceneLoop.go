@@ -14,7 +14,12 @@ import (
 func sceneLoop(firstScene string) {
 	var prevScene string
 
-	sceneMap[firstScene].active = true
+	s, ok := sceneMap[firstScene]
+	if !ok {
+		dlog.Error("Unknown scene", firstScene)
+		panic("Unknown scene")
+	}
+	s.active = true
 	globalFirstScene = firstScene
 	CurrentScene = "loading"
 
@@ -35,7 +40,12 @@ func sceneLoop(firstScene string) {
 		dlog.Info("Scene Start", CurrentScene)
 		go func() {
 			dlog.Info("Starting scene in goroutine", CurrentScene)
-			sceneMap[CurrentScene].start(prevScene, result.NextSceneInput)
+			s, ok := sceneMap[CurrentScene]
+			if !ok {
+				dlog.Error("Unknown scene", CurrentScene)
+				panic("Unknown scene")
+			}
+			s.start(prevScene, result.NextSceneInput)
 			transitionCh <- true
 		}()
 		sceneTransition(result)

@@ -8,6 +8,8 @@ import (
 // WeightedChoose will return toChoose indices from weights.
 // the output can have duplicate indices, and zero-weights will
 // cause this algorithm to malfunction.
+// Deprecated: Use ChooseX or UniqueChooseX instead, as they'll
+// perform more reliably and give better distributions.
 func WeightedChoose(weights []float64, toChoose int) ([]int, error) {
 	toChoosef := float64(toChoose)
 	lengthWeights := len(weights)
@@ -41,9 +43,10 @@ func WeightedChoose(weights []float64, toChoose int) ([]int, error) {
 
 }
 
-// UniqueChooseX uses a heap structure to poll a set of weights
-// n times. This will never return duplicate weights and due to
-// the heap structure is efficient.
+// UniqueChooseX returns n indices from the input weights at a count
+// relative to the weight of each index. This will never return duplicate indices.
+// if n > len(weights), it will return -1 after depleting the n elements from
+// weights.
 func UniqueChooseX(weights []float64, n int) []int {
 	out := make([]int, n)
 	stwh := newSTWHeap(weights)
@@ -55,24 +58,20 @@ func UniqueChooseX(weights []float64, n int) []int {
 
 // ChooseX AKA Roulette search
 //
-// This algorithm works well, the only issue relative to above
-// is that it can choose the same element multiple times, which
-// is not always the desired effect.
-//
-// A version of it could easily be made to only pick each element
-// once, however. It would benefit from the linear pseudo-random
-// roulette search, where forced increments would happen once an
-// index was chosen.
-func ChooseX(weights []float64, x int) []int {
+// This returns n indices from the input weights at a count
+// relative to the weight of each index. It can return the same index
+// multiple times.
+func ChooseX(weights []float64, n int) []int {
 	lengthWeights := len(weights)
-	out := make([]int, x)
+	out := make([]int, n)
 	remainingWeights := make([]float64, lengthWeights)
 	remainingWeights[lengthWeights-1] = weights[lengthWeights-1]
 	for i := lengthWeights - 2; i >= 0; i-- {
 		remainingWeights[i] = remainingWeights[i+1] + weights[i]
 	}
-	for i := 0; i < x; i++ {
+	for i := 0; i < n; i++ {
 		j := CumWeightedChooseOne(remainingWeights)
+		// This might be deadcode, I can't get it to happen in tests
 		for weights[j] == 0 {
 			j = CumWeightedChooseOne(remainingWeights)
 		}

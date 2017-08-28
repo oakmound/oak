@@ -17,4 +17,7 @@ func TestFPS(t *testing.T) {
 	// I hate this test variety, because it just mirrors the implementation
 	rate := 60
 	assert.Equal(t, FPSToDuration(rate), time.Second/time.Duration(int64(rate)))
+	// This is a little windows specific
+	tmm := time.Now()
+	assert.Equal(t, 1200.0, FPS(tmm, tmm))
 }

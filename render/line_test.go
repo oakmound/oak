@@ -50,6 +50,21 @@ func TestThickLine(t *testing.T) {
 	}
 }
 
+//TODO: Update to use progress function to test coloring
+func TestGradientLine(t *testing.T) {
+	l := NewGradientLine(0, 0, 10, 10, color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}, 1)
+	rgba := l.GetRGBA()
+	for x := 0; x < 10; x++ {
+		for y := 0; y < 10; y++ {
+			if math.Abs(float64(x)-float64(y)) <= 2 {
+				assert.Equal(t, rgba.At(x, y), color.RGBA{255, 255, 255, 255})
+			} else {
+				assert.Equal(t, rgba.At(x, y), color.RGBA{0, 0, 0, 0})
+			}
+		}
+	}
+}
+
 func TestDrawLineOnto(t *testing.T) {
 	l := NewLine(0, 0, 10, 10, color.RGBA{255, 255, 255, 255})
 	rgba := l.GetRGBA()

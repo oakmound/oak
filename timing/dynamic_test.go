@@ -28,4 +28,10 @@ func TestDynamicTicker(t *testing.T) {
 		t.Fatal("Dynamic Ticker failed to stop")
 	default:
 	}
+
+	dt = NewDynamicTicker()
+	dt.SetTick(1 * time.Second)
+	time.Sleep(2 * time.Second)
+	dt.Step()
+	dt.SetTick(2 * time.Second)
 }
