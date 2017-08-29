@@ -46,7 +46,7 @@ func TestSpaceFuncs(t *testing.T) {
 	assert.Equal(t, xover, 0.0)
 	assert.Equal(t, yover, 0.0)
 	ov := s.OverlapVector(s4)
-	assert.Equal(t, ov, physics.NewVector(-5, -5))
+	assert.Equal(t, ov, physics.NewVector(5, 5))
 	spaces := s.SubtractRect(1, 1, 8, 8)
 	assert.Equal(t, len(spaces), 4)
 }

@@ -70,7 +70,7 @@ func (s *Space) Update(x, y, w, h float64) error {
 
 // SetDim sets the dimensions of the space in the legacy rtree
 func (s *Space) SetDim(w, h float64) {
-	s.Update(s.GetX(), s.GetY(), w, h)
+	s.Update(s.X(), s.Y(), w, h)
 }
 
 // UpdateLabel changes the label behind this space and resets
@@ -94,8 +94,8 @@ func RayCast(x, y, degrees, length float64) []Point {
 // that the generated ray intersects, ignoring entities
 // in the given invalidIDs list.
 // Example Use case: shooting a bullet, hitting the first thing that isn't yourself.
-func RayCastSingle(x, y, degrees, length float64, invalidIDS []event.CID) Point {
-	return DefTree.RayCastSingle(x, y, degrees, length, invalidIDS)
+func RayCastSingle(x, y, degrees, length float64, invalidIDS ...event.CID) Point {
+	return DefTree.RayCastSingle(x, y, degrees, length, invalidIDS...)
 }
 
 // RayCastSingleLabels acts like RayCastSingle, but only returns elements
@@ -123,8 +123,8 @@ func ConeCast(x, y, angle, angleWidth, rays, length float64) (points []Point) {
 }
 
 // ConeCastSingle repeatedly calls RayCastSignle in a cone shape
-func ConeCastSingle(x, y, angle, angleWidth, rays, length float64, invalidIDS []event.CID) (points []Point) {
-	return DefTree.ConeCastSingle(x, y, angle, angleWidth, rays, length, invalidIDS)
+func ConeCastSingle(x, y, angle, angleWidth, rays, length float64, invalidIDS ...event.CID) (points []Point) {
+	return DefTree.ConeCastSingle(x, y, angle, angleWidth, rays, length, invalidIDS...)
 }
 
 // ConeCastSingleLabels repeatedly calls RayCastSingleLabels in a cone shape

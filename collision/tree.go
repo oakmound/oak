@@ -100,8 +100,8 @@ func (t *Tree) ShiftSpace(x, y float64, s *Space) error {
 	if s == nil {
 		return errors.New("Input space was nil")
 	}
-	x = x + s.GetX()
-	y = y + s.GetY()
+	x = x + s.X()
+	y = y + s.Y()
 	return t.UpdateSpace(x, y, s.GetW(), s.GetH(), s)
 }
 

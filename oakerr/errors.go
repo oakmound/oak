@@ -2,19 +2,17 @@ package oakerr
 
 import "strconv"
 
-//Todo 2.0: remove "Error" from the end of these types
+// NotLoaded is returned when something is queried that is not yet loaded.
+type NotLoaded struct{}
 
-// NotLoadedError is returned when something is queried that is not yet loaded.
-type NotLoadedError struct{}
-
-func (nle NotLoadedError) Error() string {
+func (nle NotLoaded) Error() string {
 	return "File not loaded"
 }
 
-// ExistingFontError is returned when a font is overwritten in a font manager
-type ExistingFontError struct{}
+// ExistingFont is returned when a font is overwritten in a font manager
+type ExistingFont struct{}
 
-func (efe ExistingFontError) Error() string {
+func (efe ExistingFont) Error() string {
 	return "Font name already used, overwriting old font"
 }
 

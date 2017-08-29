@@ -10,10 +10,10 @@ import (
 func TestDrawPolygon(t *testing.T) {
 
 	a, b, c, d := DrawPolygonDim()
-	assert.Equal(t, 0, a)
-	assert.Equal(t, 0, b)
-	assert.Equal(t, 0, c)
-	assert.Equal(t, 0, d)
+	assert.Equal(t, 0.0, a)
+	assert.Equal(t, 0.0, b)
+	assert.Equal(t, 0.0, c)
+	assert.Equal(t, 0.0, d)
 
 	x := 10.0
 	y := 10.0
@@ -24,10 +24,10 @@ func TestDrawPolygon(t *testing.T) {
 	SetDrawPolygon(pgn)
 
 	x3, y3, x4, y4 := DrawPolygonDim()
-	assert.Equal(t, int(x), x3)
-	assert.Equal(t, int(y), y3)
-	assert.Equal(t, int(x2), x4)
-	assert.Equal(t, int(y2), y4)
+	assert.Equal(t, x, x3)
+	assert.Equal(t, y, y3)
+	assert.Equal(t, x2, x4)
+	assert.Equal(t, y2, y4)
 
 	type testcase struct {
 		elems         [4]int

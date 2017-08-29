@@ -124,7 +124,6 @@ var (
 
 // XRange is an example In utility which returns values within a given
 // relative range (where 0 = 0 and 1 = size).
-//TODO: update to respect multiple sizes
 func XRange(a, b float64) In {
 	return func(x, y int, sizes ...int) bool {
 		xf := float64(x)

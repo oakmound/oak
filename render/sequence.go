@@ -74,10 +74,12 @@ func (sq *Sequence) update() {
 	}
 }
 
-// Get returns the Modifiable stored at this sequence's ith index. If the
-// sequence does not have an ith index this panics
-// todo: don't panic, return an error
+// Get returns the Modifiable stored at this sequence's ith index. If the sequence
+// does not have an ith index this returns nil
 func (sq *Sequence) Get(i int) Modifiable {
+	if i < 0 || i >= len(sq.rs) {
+		return nil
+	}
 	return sq.rs[i]
 }
 

@@ -83,7 +83,7 @@ func Push(a Pushes, b Pushable) error {
 	fdirection := a.GetForce().Copy()
 	totalF := *a.GetForce().Force / b.GetMass()
 	b.GetDelta().Add(fdirection.Normalize().Scale(totalF))
-	dlog.Verb("Total Force was ", totalF, " fdirection ", fdirection.GetX(), fdirection.GetY())
+	dlog.Verb("Total Force was ", totalF, " fdirection ", fdirection.X(), fdirection.Y())
 	return nil
 }
 

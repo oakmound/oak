@@ -20,8 +20,8 @@ func NewReverting(m Modifiable) *Reverting {
 
 // Revert goes back n steps in this Reverting's history and displays that Modifiable
 func (rv *Reverting) Revert(n int) {
-	x := rv.GetX()
-	y := rv.GetY()
+	x := rv.X()
+	y := rv.Y()
 
 	if n >= len(rv.rs) {
 		n = len(rv.rs) - 1
@@ -44,8 +44,8 @@ func (rv *Reverting) RevertAll() {
 // is a separate function from Revert followed by Modify to prevent skipped
 // draw frames.
 func (rv *Reverting) RevertAndModify(n int, ms ...Modification) Modifiable {
-	x := rv.GetX()
-	y := rv.GetY()
+	x := rv.X()
+	y := rv.Y()
 	if n >= len(rv.rs) {
 		n = len(rv.rs) - 1
 	}

@@ -80,8 +80,8 @@ func Detach(s *Space) error {
 func attachSpaceEnter(id int, nothing interface{}) int {
 	as := event.GetEntity(id).(attachSpace).getAttachSpace()
 	x, y := as.follow.X()+as.offX, as.follow.Y()+as.offY
-	if x != (*as.aSpace).GetX() ||
-		y != (*as.aSpace).GetY() {
+	if x != (*as.aSpace).X() ||
+		y != (*as.aSpace).Y() {
 		UpdateSpace(x, y, (*as.aSpace).GetW(), (*as.aSpace).GetH(), *as.aSpace)
 	}
 	return 0

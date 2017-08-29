@@ -9,9 +9,9 @@ import (
 func TestErrorsAreErrors(t *testing.T) {
 
 	var err error
-	err = NotLoadedError{}
+	err = NotLoaded{}
 	assert.NotEmpty(t, err.Error())
-	err = ExistingFontError{}
+	err = ExistingFont{}
 	assert.NotEmpty(t, err.Error())
 	err = InsufficientInputs{}
 	assert.NotEmpty(t, err.Error())

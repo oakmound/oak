@@ -9,7 +9,7 @@ import (
 )
 
 func TestErrorChannel(t *testing.T) {
-	err := oakerr.ExistingFontError{}
+	err := oakerr.ExistingFont{}
 	err2 := <-errChannel(err)
 	assert.Equal(t, err, err2)
 }

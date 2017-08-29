@@ -97,7 +97,6 @@ func sceneLoop(firstScene string) {
 		// because otherwise collision function calls
 		// on non-entities (i.e. particles) can still
 		// be triggered and attempt to access an entity
-		// Todo:
 		dlog.Verb("Event Bus Reset")
 		collision.Clear()
 		mouse.Clear()

@@ -29,8 +29,8 @@ func TestAudioFuncs(t *testing.T) {
 	time.Sleep(a.PlayLength())
 	// Assert audio is playing
 	a = a.MustCopy().(*Audio)
-	assert.Nil(t, a.GetX())
-	assert.Nil(t, a.GetY())
+	assert.Nil(t, a.Xp())
+	assert.Nil(t, a.Yp())
 	kla, err = a.Filter(filter.Volume(.5))
 	a = kla.(*Audio)
 	assert.Nil(t, err)

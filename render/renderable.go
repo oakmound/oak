@@ -29,10 +29,10 @@ type Renderable interface {
 	DrawOffset(buff draw.Image, xOff, yOff float64)
 
 	// Basic Implementing struct: Point
+	X() float64
+	Y() float64
 	ShiftX(x float64)
-	GetX() float64
 	ShiftY(y float64)
-	GetY() float64
 	SetPos(x, y float64)
 	GetDims() (int, int)
 

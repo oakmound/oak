@@ -38,13 +38,13 @@ func (s *Space) Bounds() *rtreego.Rect {
 	return s.Location
 }
 
-// GetX returns a space's x position (leftmost)
-func (s *Space) GetX() float64 {
+// X returns a space's x position (leftmost)
+func (s *Space) X() float64 {
 	return s.Location.PointCoord(0)
 }
 
-// GetY returns a space's y position (upmost)
-func (s *Space) GetY() float64 {
+// Y returns a space's y position (upmost)
+func (s *Space) Y() float64 {
 	return s.Location.PointCoord(1)
 }
 
@@ -60,7 +60,7 @@ func (s *Space) GetH() float64 {
 
 // GetCenter returns the center point of the space
 func (s *Space) GetCenter() (float64, float64) {
-	return s.GetX() + s.GetW()/2, s.GetY() + s.GetH()/2
+	return s.X() + s.GetW()/2, s.Y() + s.GetH()/2
 }
 
 // GetPos returns both y and x
@@ -72,21 +72,21 @@ func (s *Space) GetPos() (float64, float64) {
 // Important note: (10,10) is Above (10,20), because in oak's
 // display, lower y values are higher than higher y values.
 func (s *Space) Above(other *Space) float64 {
-	return other.GetY() - s.GetY()
+	return other.Y() - s.Y()
 }
 
 // Below returns how much below this space another space is,
 // Equivalent to -1 * Above
 func (s *Space) Below(other *Space) float64 {
-	return s.GetY() - other.GetY()
+	return s.Y() - other.Y()
 }
 
 // Contains returns whether this space contains other
 func (s *Space) Contains(other *Space) bool {
 	//You contain another space if it is fully inside your space
 	//If you are the same size and location as the space you are checking then you both contain eachother
-	if s.GetX() > other.GetX() || s.GetX()+s.GetW() < other.GetX()+other.GetW() ||
-		s.GetY() > other.GetY() || s.GetY()+s.GetH() < other.GetY()+other.GetH() {
+	if s.X() > other.X() || s.X()+s.GetW() < other.X()+other.GetW() ||
+		s.Y() > other.Y() || s.Y()+s.GetH() < other.Y()+other.GetH() {
 		return false
 	}
 	return true
@@ -94,37 +94,37 @@ func (s *Space) Contains(other *Space) bool {
 
 // LeftOf returns how far to the left other is of this space
 func (s *Space) LeftOf(other *Space) float64 {
-	return other.GetX() - s.GetX()
+	return other.X() - s.X()
 }
 
 // RightOf returns how far to the right other is of this space.
 // Equivalent to -1 * LeftOf
 func (s *Space) RightOf(other *Space) float64 {
-	return s.GetX() - other.GetX()
+	return s.X() - other.X()
 }
 
 // Overlap returns how much this space overlaps with another space
 func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
-	if s.GetX() > other.GetX() {
-		x2 := other.GetX() + other.GetW()
-		if s.GetX() < x2 {
-			xOver = s.GetX() - x2
+	if s.X() > other.X() {
+		x2 := other.X() + other.GetW()
+		if s.X() < x2 {
+			xOver = s.X() - x2
 		}
 	} else {
-		x2 := s.GetX() + s.GetW()
-		if other.GetX() < x2 {
-			xOver = x2 - other.GetX()
+		x2 := s.X() + s.GetW()
+		if other.X() < x2 {
+			xOver = x2 - other.X()
 		}
 	}
-	if s.GetY() > other.GetY() {
-		y2 := other.GetY() + other.GetH()
-		if s.GetY() < y2 {
-			yOver = s.GetY() - y2
+	if s.Y() > other.Y() {
+		y2 := other.Y() + other.GetH()
+		if s.Y() < y2 {
+			yOver = s.Y() - y2
 		}
 	} else {
-		y2 := s.GetY() + s.GetW()
-		if other.GetY() < y2 {
-			yOver = y2 - other.GetY()
+		y2 := s.Y() + s.GetW()
+		if other.Y() < y2 {
+			yOver = y2 - other.Y()
 		}
 	}
 	return
@@ -133,9 +133,7 @@ func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
 // OverlapVector returns Overlap as a vector
 func (s *Space) OverlapVector(other *Space) physics.Vector {
 	xover, yover := s.Overlap(other)
-	// Todo: why are we multiplying by -1 here, shouldn't that
-	// also be happening in Overlap at least?
-	return physics.NewVector(-xover, -yover)
+	return physics.NewVector(xover, yover)
 }
 
 // SubtractRect removes a rectangle from this rectangle and
@@ -144,8 +142,8 @@ func (s *Space) OverlapVector(other *Space) physics.Vector {
 // Example: removing 1,1 from 10,10 -> 12,12 is OK, but removing
 // 11,11 from 10,10 -> 12,12 will not act as expected.
 func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
-	x1 := s.GetX()
-	y1 := s.GetY()
+	x1 := s.X()
+	y1 := s.Y()
 	w1 := s.GetW()
 	h1 := s.GetH()
 
@@ -186,8 +184,8 @@ func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
 }
 
 func (s *Space) String() string {
-	return strconv.FormatFloat(s.GetX(), 'f', 2, 32) + "," +
-		strconv.FormatFloat(s.GetY(), 'f', 2, 32) + "," +
+	return strconv.FormatFloat(s.X(), 'f', 2, 32) + "," +
+		strconv.FormatFloat(s.Y(), 'f', 2, 32) + "," +
 		strconv.FormatFloat(s.GetW(), 'f', 2, 32) + "," +
 		strconv.FormatFloat(s.GetH(), 'f', 2, 32) + "::" +
 		strconv.Itoa(int(s.CID)) + "::" + fmt.Sprintf("%p", s)

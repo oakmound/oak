@@ -107,7 +107,6 @@ func (dt *DynamicTicker) Step() {
 }
 
 // Stop closes all internal channels and stops dt's internal ticker
-// Todo: this needs to be investigated-- it can panic!
 func (dt *DynamicTicker) Stop() {
 	defer func() {
 		if x := recover(); x != nil {

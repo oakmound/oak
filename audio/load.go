@@ -39,7 +39,7 @@ func Get(filename string) (Data, error) {
 	if IsLoaded(filename) {
 		return loaded[filename], nil
 	}
-	return nil, oakerr.NotLoadedError{}
+	return nil, oakerr.NotLoaded{}
 }
 
 // Load joins the directory and filename, attempts to find

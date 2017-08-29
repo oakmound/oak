@@ -19,7 +19,6 @@ type Solid struct {
 // belongs to no collision tree
 func NewSolid(x, y, w, h float64, r render.Renderable, cid event.CID) Solid {
 	s := Solid{}
-	// Todo: use this parse structure on everything else
 	cid = cid.Parse(&s)
 	s.Doodad = NewDoodad(x, y, r, cid)
 	s.W = w

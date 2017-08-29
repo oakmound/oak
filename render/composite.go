@@ -217,8 +217,8 @@ func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, scree
 		if realLength == i {
 			break
 		}
-		x := int(r.GetX())
-		y := int(r.GetY())
+		x := int(r.X())
+		y := int(r.Y())
 		x2 := x
 		y2 := y
 		w, h := r.GetDims()

@@ -110,8 +110,8 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 			if intf != nil {
 				r := intf.(Renderable)
 				if r.GetLayer() != Undraw {
-					x2 := int(r.GetX())
-					y2 := int(r.GetY())
+					x2 := int(r.X())
+					y2 := int(r.Y())
 					w, h := r.GetDims()
 					x := w + x2
 					y := h + y2
