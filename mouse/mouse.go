@@ -35,3 +35,21 @@ func GetMouseButton(b mouse.Button) (s string) {
 	}
 	return
 }
+
+// GetEventName returns a string event name given some mobile/mouse information
+func GetEventName(d mouse.Direction, b mouse.Button) string {
+	switch d {
+	case mouse.DirPress:
+		return "MousePress"
+	case mouse.DirRelease:
+		return "MouseRelease"
+	default:
+		switch b {
+		case -2:
+			return "MouseScrollDown"
+		case -1:
+			return "MouseScrollUp"
+		}
+	}
+	return "MouseDrag"
+}
