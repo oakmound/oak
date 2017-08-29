@@ -23,14 +23,13 @@ func (sh *Sheet) SubSprite(x, y int) *Sprite {
 type Animation struct {
 	LayeredPoint
 	pauseBool
-	sheetPos      int
-	frameTime     int64
-	frames        [][]int
-	sheet         *Sheet
-	lastChange    time.Time
-	playing       bool
-	Interruptable bool
-	cID           event.CID
+	InterruptBool
+	sheetPos   int
+	frameTime  int64
+	frames     [][]int
+	sheet      *Sheet
+	lastChange time.Time
+	cID        event.CID
 }
 
 //NewAnimation creates an Animation
@@ -49,13 +48,17 @@ func NewAnimation(sheetP *Sheet, fps float64, frames []int) (*Animation, error) 
 		LayeredPoint: LayeredPoint{
 			Vector: physics.NewVector(0, 0),
 		},
-		sheetPos:      0,
-		frameTime:     timing.FPSToNano(fps),
-		frames:        splitFrames,
-		sheet:         sheetP,
-		lastChange:    time.Now(),
-		playing:       true,
-		Interruptable: true,
+		InterruptBool: InterruptBool{
+			Interruptable: true,
+		},
+		pauseBool: pauseBool{
+			playing: true,
+		},
+		sheetPos:   0,
+		frameTime:  timing.FPSToNano(fps),
+		frames:     splitFrames,
+		sheet:      sheetP,
+		lastChange: time.Now(),
 	}
 
 	return &animation, nil

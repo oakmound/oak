@@ -1,7 +1,6 @@
 package collision
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/oakmound/oak/physics"
@@ -38,7 +37,6 @@ func TestSpaceFuncs(t *testing.T) {
 
 	// Overlap
 	xover, yover := s4.Overlap(s)
-	fmt.Println(xover, yover)
 	assert.Equal(t, xover, -5.0)
 	assert.Equal(t, yover, -5.0)
 	xover, yover = s.Overlap(s4)

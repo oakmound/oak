@@ -29,7 +29,7 @@ var (
 	loadedFonts = make(map[string]*truetype.Font)
 )
 
-//A FontGenerator  stores a set of information that can be used to create a font
+// A FontGenerator stores information that can be used to create a font
 type FontGenerator struct {
 	File    string
 	Color   image.Image
@@ -38,12 +38,13 @@ type FontGenerator struct {
 	DPI     float64
 }
 
-//DefFont returns the default font
+// DefFont returns a font built of the parameters set by SetFontDefaults.
 func DefFont() *Font {
 	return DefFontGenerator.Generate()
 }
 
-//Generate creates a font from the FontGenerator
+// Generate creates a font from the FontGenerator. Any parameters not supplied
+// will be filled in with defaults set through SetFontDefaults.
 func (fg *FontGenerator) Generate() *Font {
 
 	dir := fontdir
@@ -84,37 +85,38 @@ func (fg *FontGenerator) Generate() *Font {
 
 }
 
-//Copy cretaes a copy of the FontGenerator
+// Copy creates a copy of this FontGenerator
 func (fg *FontGenerator) Copy() *FontGenerator {
 	newFg := new(FontGenerator)
 	*newFg = *fg
 	return newFg
 }
 
-//A Font can both be generated and drawn
+// A Font is obtained as the result of FontGenerator.Generate(). It's used to
+// create text type renderables.
 type Font struct {
 	FontGenerator
 	font.Drawer
 }
 
-//Refresh regenerates the font per its generator's parameters
+// Refresh regenerates this font
 func (f *Font) Refresh() {
 	*f = *f.Generate()
 }
 
-//Copy returns a new font from the given fonts generate function
+// Copy returns a copy of this font
 func (f *Font) Copy() *Font {
 	return f.Generate()
 }
 
-//Reset sets the font to being a default font
+// Reset sets the font to being a default font
 func (f *Font) Reset() {
 	// Generate will return all defaults with no args
 	f.FontGenerator = FontGenerator{}
 	*f = *f.Generate()
 }
 
-//SetFontDefaults updates the default font parameters with the passed in arguments
+// SetFontDefaults updates the default font parameters with the passed in arguments
 func SetFontDefaults(wd, assetPath, fontPath, hinting, color, file string, size, dpi float64) {
 	fontdir = filepath.Join(
 		wd,

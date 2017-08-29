@@ -1,11 +1,11 @@
 package render
 
 import (
-	"errors"
 	"image"
 	"image/color"
 	"math"
 
+	"github.com/oakmound/oak/oakerr"
 	"github.com/oakmound/oak/physics"
 )
 
@@ -23,18 +23,19 @@ type Polygon struct {
 }
 
 // ScreenPolygon returns a polygon on the screen, used for draw polygons.
+// It differs only fron NewPolygon in that if the input points lie outside of
+// the width and height given, the display rgba will cut those points off, and
+// the rgba will always begin at 0,0
+// Todo: consider deprecating, combining with NewPolygon
 func ScreenPolygon(points []physics.Vector, w, h int) (*Polygon, error) {
 	if len(points) < 3 {
-		return nil, errors.New("Please give at least three points to NewPolygon calls")
+		return nil, oakerr.InsufficientInputs{AtLeast: 3, InputName: "points"}
 	}
 
 	MinX, MinY, MaxX, MaxY, _, _ := BoundingRect(points)
 
-	rect := image.Rect(0, 0, w, h)
-	rgba := image.NewRGBA(rect)
-
 	return &Polygon{
-		Sprite: NewSprite(0, 0, rgba),
+		Sprite: NewSprite(0, 0, image.NewRGBA(image.Rect(0, 0, w, h))),
 		Rect: Rect{
 			MinX: MinX,
 			MinY: MinY,
@@ -47,21 +48,19 @@ func ScreenPolygon(points []physics.Vector, w, h int) (*Polygon, error) {
 
 // NewPolygon takes in a set of points and returns a polygon. If less than three
 // points are provided, this fails.
+// Todo 2.0: Take in a variadic set instead of a slice
 func NewPolygon(points []physics.Vector) (*Polygon, error) {
 
 	if len(points) < 3 {
-		return nil, errors.New("Please give at least three points to NewPolygon calls")
+		return nil, oakerr.InsufficientInputs{AtLeast: 3, InputName: "points"}
 	}
 
 	// Calculate the bounding rectangle of the polygon by
 	// finding the maximum and minimum x and y values of the given points
 	MinX, MinY, MaxX, MaxY, w, h := BoundingRect(points)
 
-	rect := image.Rect(0, 0, w, h)
-	rgba := image.NewRGBA(rect)
-
 	return &Polygon{
-		Sprite: NewSprite(MinX, MinY, rgba),
+		Sprite: NewSprite(MinX, MinY, image.NewRGBA(image.Rect(0, 0, w, h))),
 		Rect: Rect{
 			MinX: MinX,
 			MinY: MinY,
@@ -73,9 +72,14 @@ func NewPolygon(points []physics.Vector) (*Polygon, error) {
 }
 
 // UpdatePoints resets the points of this polygon to be the passed in points
-func (pg *Polygon) UpdatePoints(points []physics.Vector) {
+// Todo 2.0: Take in a variadic set instead of a slice
+func (pg *Polygon) UpdatePoints(points []physics.Vector) error {
+	if len(points) < 3 {
+		return oakerr.InsufficientInputs{AtLeast: 3, InputName: "points"}
+	}
 	pg.points = points
 	pg.MinX, pg.MinY, pg.MaxX, pg.MaxY, _, _ = BoundingRect(points)
+	return nil
 }
 
 // Fill fills the inside of this polygon with the input color
@@ -128,6 +132,7 @@ func (pg *Polygon) FillInverse(c color.Color) {
 // Todo: almost all of this junk below should be in alg, under floatgeom or something.
 
 // BoundingRect converts a set of points into their minimum bounding rectangle
+// Todo 2.0: Take in a variadic set instead of a slice
 func BoundingRect(points []physics.Vector) (MinX, MinY, MaxX, MaxY float64, w, h int) {
 	MinX = math.MaxFloat64
 	MinY = math.MaxFloat64
@@ -177,6 +182,7 @@ func (pg *Polygon) Contains(x, y float64) (contains bool) {
 }
 
 // WrappingContains returns whether the given point is contained by the input polygon.
+// Deprecated: Use a different containment function.
 func (pg *Polygon) WrappingContains(x, y float64) bool {
 
 	if x < pg.MinX || x > pg.MaxX || y < pg.MinY || y > pg.MaxY {

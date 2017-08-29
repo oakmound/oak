@@ -22,53 +22,57 @@ type DynamicTicker struct {
 // NewDynamicTicker returns a null-initialized
 // dynamic ticker
 func NewDynamicTicker() *DynamicTicker {
-	ch := make(chan time.Time)
-	resetCh := make(chan *time.Ticker)
-	forceTick := make(chan bool)
 	dt := &DynamicTicker{
 		ticker:    time.NewTicker(1000 * time.Hour),
-		C:         ch,
-		resetCh:   resetCh,
-		forceTick: forceTick,
+		C:         make(chan time.Time),
+		resetCh:   make(chan *time.Ticker),
+		forceTick: make(chan bool),
 	}
 	go func(dt *DynamicTicker) {
 		for {
 			select {
 			case v := <-dt.ticker.C:
-				select {
-				case r := <-dt.forceTick:
-					if !r {
-						close(dt.forceTick)
-						close(dt.C)
-						close(dt.resetCh)
-						return
+			tickLoop:
+				for {
+					select {
+					case r := <-dt.forceTick:
+						if !r {
+							dt.close()
+							return
+						}
+						continue
+					case ticker := <-dt.resetCh:
+						dt.ticker.Stop()
+						dt.ticker = ticker
+						break tickLoop
+					case dt.C <- v:
+						break tickLoop
 					}
-					continue
-				case dt.C <- v:
-				case ticker := <-dt.resetCh:
-					dt.ticker.Stop()
-					dt.ticker = ticker
 				}
 			case ticker := <-dt.resetCh:
 				dt.ticker.Stop()
 				dt.ticker = ticker
 			case r := <-dt.forceTick:
 				if !r {
-					close(dt.forceTick)
-					close(dt.C)
-					close(dt.resetCh)
+					dt.close()
 					return
 				}
-				select {
-				case r := <-dt.forceTick:
-					if !r {
-						close(dt.forceTick)
-						close(dt.C)
-						close(dt.resetCh)
-						return
+			forceLoop:
+				for {
+					select {
+					case r := <-dt.forceTick:
+						if !r {
+							dt.close()
+							return
+						}
+						continue
+					case ticker := <-dt.resetCh:
+						dt.ticker.Stop()
+						dt.ticker = ticker
+						break forceLoop
+					case dt.C <- time.Time{}:
+						break forceLoop
 					}
-					continue
-				case dt.C <- time.Time{}:
 				}
 			}
 		}
@@ -80,6 +84,16 @@ func NewDynamicTicker() *DynamicTicker {
 // ticks
 func (dt *DynamicTicker) SetTick(d time.Duration) {
 	dt.resetCh <- time.NewTicker(d)
+}
+
+func (dt *DynamicTicker) close() {
+	select {
+	case <-dt.C:
+	default:
+	}
+	close(dt.C)
+	close(dt.resetCh)
+	close(dt.forceTick)
 }
 
 // Step will force the dynamic ticker to tick, once.
@@ -101,9 +115,6 @@ func (dt *DynamicTicker) Stop() {
 		}
 	}()
 	dt.ticker.Stop()
-	select {
-	case <-dt.C:
-	default:
-	}
 	dt.forceTick <- false
+	<-dt.forceTick
 }

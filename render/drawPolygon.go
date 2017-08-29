@@ -1,23 +1,32 @@
 package render
 
 import (
-	clip "github.com/akavel/polyclip-go"
+	"github.com/akavel/polyclip-go"
 )
 
 var (
 	usingDrawPolygon = false
-	drawPolygon      clip.Polygon
+	drawPolygon      polyclip.Polygon
 )
 
 // SetDrawPolygon sets the draw polygon and flags that draw functions
 // should check for containment in the polygon before running
-func SetDrawPolygon(p clip.Polygon) {
+func SetDrawPolygon(p polyclip.Polygon) {
 	usingDrawPolygon = true
 	drawPolygon = p
 }
 
+// ClearDrawPolygon will stop checking the set draw polygon for whether elements
+// should be drawn to screen. If SetDrawPolygon was not called before this was
+// called, this does nothing.
+// This may in the future be called at the start of new scenes.
+func ClearDrawPolygon() {
+	usingDrawPolygon = false
+}
+
 // DrawPolygonDim returns the dimensions of the draw polygon, or all zeroes
 // if there is none.
+// Todo 2.0: This should return floats, and as a rectangle instead of as four elements.
 func DrawPolygonDim() (int, int, int, int) {
 	if !usingDrawPolygon {
 		return 0, 0, 0, 0
@@ -34,8 +43,8 @@ func InDrawPolygon(xi, yi, x2i, y2i int) bool {
 		y := float64(yi)
 		x2 := float64(x2i)
 		y2 := float64(y2i)
-		p2 := clip.Polygon{{{X: x, Y: y}, {X: x, Y: y2}, {X: x2, Y: y2}, {X: x2, Y: y}}}
-		intsct := drawPolygon.Construct(clip.INTERSECTION, p2)
+		p2 := polyclip.Polygon{{{X: x, Y: y}, {X: x, Y: y2}, {X: x2, Y: y2}, {X: x2, Y: y}}}
+		intsct := drawPolygon.Construct(polyclip.INTERSECTION, p2)
 		return len(intsct) != 0
 	}
 	return true

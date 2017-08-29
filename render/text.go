@@ -88,7 +88,11 @@ func (t *Text) String() string {
 // in y value
 func (t *Text) Wrap(charLimit int, vertInc float64) []*Text {
 	st := t.text.String()
-	out := make([]*Text, (len(st)/charLimit)+1)
+	outlen := len(st) / charLimit
+	if len(st)%charLimit != 0 {
+		outlen++
+	}
+	out := make([]*Text, outlen)
 	start := 0
 	vertical := 0.0
 	for i := range out {

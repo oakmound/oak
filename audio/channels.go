@@ -25,7 +25,10 @@ func DefActiveChannel(freq intrange.Range, fileNames ...string) (chan ChannelSig
 // from any one source. All channels will only play once per a given
 // frequency range.
 func GetActiveChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+	return getActiveChannel(f, freq, timing.ClearDelayCh, fileNames...)
+}
 
+func getActiveChannel(f *font.Font, freq intrange.Range, quitCh chan bool, fileNames ...string) (chan ChannelSignal, error) {
 	datas, err := GetSounds(fileNames...)
 	if err != nil {
 		return nil, err
@@ -42,7 +45,7 @@ func GetActiveChannel(f *font.Font, freq intrange.Range, fileNames ...string) (c
 		for {
 			delay := time.Duration(freq.Poll())
 			select {
-			case <-timing.ClearDelayCh:
+			case <-quitCh:
 				return
 			case <-time.After(delay * time.Millisecond):
 			}
@@ -50,7 +53,7 @@ func GetActiveChannel(f *font.Font, freq intrange.Range, fileNames ...string) (c
 			// we play an audio that slipped through the
 			// above routine.
 			select {
-			case <-timing.ClearDelayCh:
+			case <-quitCh:
 				return
 			case signal := <-soundCh:
 				sound := sounds[signal.GetIndex()]
@@ -68,7 +71,7 @@ func GetActiveChannel(f *font.Font, freq intrange.Range, fileNames ...string) (c
 
 // DefChannel acts like GetChannel when given DefFont
 func DefChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
-	return GetChannel(DefFont, freq, fileNames...)
+	return getChannel(DefFont, freq, timing.ClearDelayCh, fileNames...)
 }
 
 // GetChannel channels will attempt to steal most sends sent to the output
@@ -83,17 +86,21 @@ func DefChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, e
 // send on the walking audio channel constantly without worrying about
 // triggering too many sounds.
 func GetChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+	return getChannel(f, freq, timing.ClearDelayCh, fileNames...)
+}
 
-	soundCh, err := GetActiveChannel(f, freq, fileNames...)
+func getChannel(f *font.Font, freq intrange.Range, quitCh chan bool, fileNames ...string) (chan ChannelSignal, error) {
+	soundCh, err := getActiveChannel(f, freq, quitCh, fileNames...)
 	if err != nil {
 		return nil, err
 	}
+
 	// This routine serves to steal almost every
 	// attempt to play audio
 	go func() {
 		for {
 			select {
-			case <-timing.ClearDelayCh:
+			case <-quitCh:
 				return
 			case <-soundCh:
 			}
