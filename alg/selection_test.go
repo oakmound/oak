@@ -11,36 +11,6 @@ import (
 
 const testCt = 1000000
 
-func TestWeightedChoose(t *testing.T) {
-	rand.Seed(int64(time.Now().UTC().Nanosecond()))
-	weights := []float64{1.0, .9, .8, .7, .6, .5, .4, .3, .2, .1}
-	chosenCts := make([]int, len(weights))
-	for i := 0; i < testCt; i++ {
-		chosen, err := WeightedChoose(weights, 5)
-		assert.Nil(t, err)
-		for _, c := range chosen {
-			chosenCts[c]++
-		}
-	}
-	outWeights := make([]float64, len(weights))
-	for i, v := range chosenCts {
-		outWeights[i] = float64(v) / float64(testCt)
-	}
-	// We could have a more rigorous test
-	for i := 0; i < len(weights)-1; i++ {
-		diff := math.Abs(outWeights[i] - outWeights[i+1])
-		assert.True(t, (outWeights[i] > outWeights[i+1]) || diff < .1)
-	}
-	// Failure testing
-	_, err := WeightedChoose(weights, 20)
-	assert.NotNil(t, err)
-	// Single element
-	weights = []float64{1.0}
-	chosen, err := WeightedChoose(weights, 1)
-	assert.Nil(t, err)
-	assert.Equal(t, 0, chosen[0])
-}
-
 func TestUniqueChooseX(t *testing.T) {
 	rand.Seed(int64(time.Now().UTC().Nanosecond()))
 	// Assert that we choose everything when n = len(weights)
