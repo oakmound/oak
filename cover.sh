@@ -36,6 +36,11 @@ if [ -f profile.out ]; then
     cat profile.out >> coverage.txt
     rm profile.out
 fi
+go test -coverprofile=profile.out -covermode=atomic ./render/mod
+if [ -f profile.out ]; then
+    cat profile.out >> coverage.txt
+    rm profile.out
+fi
 go test -coverprofile=profile.out -covermode=atomic ./render/particle
 if [ -f profile.out ]; then
     cat profile.out >> coverage.txt
