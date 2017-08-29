@@ -93,7 +93,7 @@ var (
 
 // SetAspectRatio will enforce that the displayed window does not distort the
 // input screen away from the given x:y ratio. The screen will not use these
-// settings until a new size event is recieved from the OS.
+// settings until a new size event is received from the OS.
 func SetAspectRatio(xToY float64) {
 	UseAspectRatio = true
 	aspectRatio = xToY
