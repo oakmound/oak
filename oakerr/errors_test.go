@@ -13,5 +13,7 @@ func TestErrorsAreErrors(t *testing.T) {
 	assert.NotEmpty(t, err.Error())
 	err = ExistingFontError{}
 	assert.NotEmpty(t, err.Error())
+	err = InsufficientInputs{}
+	assert.NotEmpty(t, err.Error())
 	// Assert nothing crashed
 }
