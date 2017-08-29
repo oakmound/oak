@@ -181,31 +181,6 @@ func (pg *Polygon) Contains(x, y float64) (contains bool) {
 	return
 }
 
-// WrappingContains returns whether the given point is contained by the input polygon.
-// Deprecated: Use a different containment function.
-func (pg *Polygon) WrappingContains(x, y float64) bool {
-
-	if x < pg.MinX || x > pg.MaxX || y < pg.MinY || y > pg.MaxY {
-		return false
-	}
-
-	wn := 0
-
-	j := len(pg.points) - 1
-	for i := 0; i < len(pg.points); i++ {
-		tp1 := pg.points[i]
-		tp2 := pg.points[j]
-		if tp1.Y() <= y && tp2.Y() > y && isLeft(tp1, tp2, x, y) > 0 { // Three comparison, Five add/sub, Two mult/div
-			wn++
-		}
-		if tp2.Y() >= y && isLeft(tp1, tp2, x, y) < 0 { // Two Comparison, Five add/sub, Two mult/div
-			wn--
-		}
-		j = i
-	}
-	return wn == 0
-}
-
 // ConvexContains returns whether the given point is contained by the input polygon.
 // It assumes the polygon is convex. It outperforms the alternatives.
 func (pg *Polygon) ConvexContains(x, y float64) bool {
