@@ -3,14 +3,10 @@ package render
 import (
 	"image"
 	"image/color"
-	"path/filepath"
 	"testing"
 
 	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/fileutil"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/oakmound/oak/render/internal/testdata/fonts"
 )
 
 const heapLoops = 2000
@@ -79,12 +75,4 @@ func TestDrawHeapFns(t *testing.T) {
 	assert.Empty(t, h.rs)
 
 	h.Replace(EmptyRenderable(), NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}), 10)
-}
-
-// Todo: move this to font_test.go, once we have font_test.go
-func initTestFont() {
-	DefFontGenerator = FontGenerator{File: filepath.Join("default_assets", "font", "luxisr.ttf")}
-	fileutil.BindataDir = fonts.AssetDir
-	fileutil.BindataFn = fonts.Asset
-	SetFontDefaults("", "", "", "", "white", "", 10, 10)
 }
