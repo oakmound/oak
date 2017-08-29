@@ -39,11 +39,11 @@ func TestPropagate(t *testing.T) {
 	}, "MouseDownOn")
 	Add(s)
 	time.Sleep(200 * time.Millisecond)
-	Propagate("MouseUpOn", Event{15, 15, "LeftMouse", "MouseUp"})
+	Propagate("MouseUpOn", NewEvent(15, 15, "LeftMouse", "MouseUp"))
 	time.Sleep(200 * time.Millisecond)
 	assert.False(t, triggered)
 	time.Sleep(200 * time.Millisecond)
-	Propagate("MouseDownOn", Event{15, 15, "LeftMouse", "MouseDown"})
+	Propagate("MouseDownOn", NewEvent(15, 15, "LeftMouse", "MouseDown"))
 	time.Sleep(200 * time.Millisecond)
 	assert.True(t, triggered)
 }

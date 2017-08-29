@@ -24,6 +24,11 @@ func NewVector(x, y float64) Vector {
 	return Vector{x2, y2, 0, 0}
 }
 
+// NewVector32 accepts float32s (and will cast them to float64s), to create a vector
+func NewVector32(x, y float32) Vector {
+	return NewVector(float64(x), float64(y))
+}
+
 // PtrVector takes in pointers as opposed to float values-- these
 // same pointers will be used in the returned vector and by attachments
 // to that vector.

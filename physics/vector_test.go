@@ -20,6 +20,9 @@ func TestVectorFuncs(t *testing.T) {
 	v20 := PtrVector(&x, &y)
 	assert.Equal(t, v20, v)
 
+	v21 := NewVector32(1.0, 1.0)
+	assert.Equal(t, v, v21)
+
 	// Copy behavior
 	v4 := v.Copy()
 	assert.Equal(t, v, v4)

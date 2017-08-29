@@ -1,10 +1,6 @@
 package collision
 
-import (
-	"log"
-
-	"github.com/oakmound/oak/event"
-)
+import "github.com/oakmound/oak/event"
 
 // There's a default collision tree you can access via collision.func
 // as opposed to tree.func. This is considered a legacy set of features,
@@ -15,11 +11,9 @@ var (
 )
 
 func init() {
-	var err error
-	DefTree, err = NewTree()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// So long as DefaultMaxChildren exceeds DefaultMinChildren,
+	// this will not error
+	DefTree, _ = NewTree()
 }
 
 // Clear resets the default tree's contents

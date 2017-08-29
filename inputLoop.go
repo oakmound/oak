@@ -5,6 +5,7 @@ import (
 
 	"github.com/oakmound/oak/dlog"
 	pmouse "github.com/oakmound/oak/mouse"
+	"github.com/oakmound/oak/physics"
 	"golang.org/x/exp/shiny/gesture"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
@@ -96,8 +97,8 @@ func inputLoop() {
 			// workaround needed in mouseDetails, and how mouse events might not
 			// propagate to their expected position.
 			mevent := pmouse.Event{
-				X:      (((e.X - float32(windowRect.Min.X)) / float32(windowRect.Max.X-windowRect.Min.X)) * float32(ScreenWidth)),
-				Y:      (((e.Y - float32(windowRect.Min.Y)) / float32(windowRect.Max.Y-windowRect.Min.Y)) * float32(ScreenHeight)),
+				Vector: physics.NewVector32((((e.X - float32(windowRect.Min.X)) / float32(windowRect.Max.X-windowRect.Min.X)) * float32(ScreenWidth)),
+					(((e.Y - float32(windowRect.Min.Y)) / float32(windowRect.Max.Y-windowRect.Min.Y)) * float32(ScreenHeight))),
 				Button: button,
 				Event:  eventName,
 			}
