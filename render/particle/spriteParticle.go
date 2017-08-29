@@ -4,6 +4,7 @@ import (
 	"image/draw"
 
 	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/render/mod"
 )
 
 // A SpriteParticle is a particle that has an amount of sprite rotation
@@ -27,7 +28,7 @@ func (sp *SpriteParticle) DrawOffsetGen(generator Generator, buff draw.Image, xO
 
 	sp.rotation += sp.rotation
 	gen := generator.(*SpriteGenerator)
-	rgba := gen.Base.Copy().Modify(render.Rotate(int(sp.rotation))).GetRGBA()
+	rgba := gen.Base.Copy().Modify(mod.Rotate(int(sp.rotation))).GetRGBA()
 	render.ShinyDraw(buff, rgba, int(sp.X()+xOff), int(sp.Y()+yOff))
 }
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/200sc/go-dist/colorrange"
 	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/render/mod"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -233,7 +234,7 @@ func TestParseSubSprite(t *testing.T) {
 
 func TestModifySprite(t *testing.T) {
 	s := NewColorBox(10, 10, color.RGBA{255, 0, 0, 255})
-	s2 := s.Modify(Cut(5, 5))
+	s2 := s.Modify(mod.Cut(5, 5))
 	w, h := s2.GetDims()
 	assert.Equal(t, 5, w)
 	assert.Equal(t, 5, h)

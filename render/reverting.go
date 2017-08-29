@@ -1,6 +1,9 @@
 package render
 
-import "github.com/oakmound/oak/event"
+import (
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/render/mod"
+)
 
 // The Reverting structure lets modifications be made to a Modifiable and then
 // reverted, up to arbitrary history limits.
@@ -43,7 +46,7 @@ func (rv *Reverting) RevertAll() {
 // RevertAndModify reverts n steps and then modifies this reverting. This
 // is a separate function from Revert followed by Modify to prevent skipped
 // draw frames.
-func (rv *Reverting) RevertAndModify(n int, ms ...Modification) Modifiable {
+func (rv *Reverting) RevertAndModify(n int, ms ...mod.Mod) Modifiable {
 	x := rv.X()
 	y := rv.Y()
 	if n >= len(rv.rs) {
@@ -60,7 +63,7 @@ func (rv *Reverting) RevertAndModify(n int, ms ...Modification) Modifiable {
 
 // Modify alters this reverting by the given modifications, appending the new
 // modified renderable to it's list of modified versions and displaying it.
-func (rv *Reverting) Modify(ms ...Modification) Modifiable {
+func (rv *Reverting) Modify(ms ...mod.Mod) Modifiable {
 	next := rv.Modifiable.Copy().Modify(ms...)
 	rv.rs = append(rv.rs, next)
 	rv.Modifiable = rv.rs[len(rv.rs)-1]

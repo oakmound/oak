@@ -8,6 +8,7 @@ import (
 
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/render/mod"
 	"github.com/oakmound/oak/timing"
 )
 
@@ -135,8 +136,8 @@ func (a *Animation) GetDims() (int, int) {
 	return r.Bounds().Max.X, r.Bounds().Max.Y
 }
 
-//Modify applies a set of modifications to the Animation
-func (a *Animation) Modify(ms ...Modification) Modifiable {
+//Modify applies a set of mod.Mods to the Animation
+func (a *Animation) Modify(ms ...mod.Mod) Modifiable {
 	sheet := *a.sheet
 	for x, row := range sheet {
 		for y, rgba := range row {

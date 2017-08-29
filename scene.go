@@ -10,7 +10,7 @@ import (
 	"golang.org/x/exp/shiny/screen"
 
 	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/render/mod"
 	"github.com/oakmound/oak/timing"
 )
 
@@ -62,17 +62,19 @@ func TransitionFade(rate float32, frames int) func(*image.RGBA, int) bool {
 			return false
 		}
 		i := float32(frame)
-		draw.Draw(buf, buf.Bounds(), render.Brighten(rate*i)(buf), zeroPoint, screen.Src)
+		draw.Draw(buf, buf.Bounds(), mod.Brighten(rate*i)(buf), zeroPoint, screen.Src)
 		return true
 	}
 }
 
+// TransitionZoom transitions by performing a simplistic zoom each frame towards some
+// percentange-based part of the screen.
 func TransitionZoom(xPerc, yPerc float64, frames int, zoomRate float64) func(*image.RGBA, int) bool {
 	return func(buf *image.RGBA, frame int) bool {
 		if frame > frames {
 			return false
 		}
-		z := render.Zoom(xPerc, yPerc, 1+zoomRate*float64(frame))
+		z := mod.Zoom(xPerc, yPerc, 1+zoomRate*float64(frame))
 		draw.Draw(buf, buf.Bounds(), z(buf), zeroPoint, screen.Src)
 		return true
 	}

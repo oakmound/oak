@@ -8,6 +8,7 @@ import (
 
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/render/mod"
 )
 
 // The Compound type is intended for use to easily swap between multiple
@@ -103,7 +104,7 @@ func (c *Compound) GetRGBA() *image.RGBA {
 }
 
 // Modify performs a series of modifications on the Compound
-func (c *Compound) Modify(ms ...Modification) Modifiable {
+func (c *Compound) Modify(ms ...mod.Mod) Modifiable {
 	c.lock.RLock()
 	for _, r := range c.subRenderables {
 		r.Modify(ms...)

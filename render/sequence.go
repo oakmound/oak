@@ -7,6 +7,7 @@ import (
 
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/render/mod"
 	"github.com/oakmound/oak/timing"
 )
 
@@ -25,7 +26,7 @@ type Sequence struct {
 
 // NewSequence returns a new sequence from the input modifiables, playing at
 // fps rate
-func NewSequence(mods []Modifiable, fps float64) *Sequence {
+func NewSequence(fps float64, mods ...Modifiable) *Sequence {
 	return &Sequence{
 		LayeredPoint: LayeredPoint{
 			Vector: physics.NewVector(0, 0),
@@ -102,7 +103,7 @@ func (sq *Sequence) GetRGBA() *image.RGBA {
 
 // Modify alters each renderable in this sequence by the given
 // modifications
-func (sq *Sequence) Modify(ms ...Modification) Modifiable {
+func (sq *Sequence) Modify(ms ...mod.Mod) Modifiable {
 	for _, r := range sq.rs {
 		r.Modify(ms...)
 	}
@@ -122,5 +123,5 @@ func TweenSequence(a, b image.Image, frames int, fps float64) *Sequence {
 	for i, v := range images {
 		ms[i] = NewSprite(0, 0, v)
 	}
-	return NewSequence(ms, fps)
+	return NewSequence(fps, ms...)
 }

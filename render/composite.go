@@ -5,6 +5,7 @@ import (
 	"image/draw"
 
 	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/render/mod"
 )
 
 // Composite Types, distinct from Compound Types,
@@ -93,8 +94,8 @@ func (cs *Composite) AlwaysDirty() bool {
 	return true
 }
 
-//Modify applies modifications to the composite
-func (cs *Composite) Modify(ms ...Modification) Modifiable {
+//Modify applies mods to the composite
+func (cs *Composite) Modify(ms ...mod.Mod) Modifiable {
 	for _, r := range cs.rs {
 		r.Modify(ms...)
 	}

@@ -14,6 +14,7 @@ import (
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/mouse"
 	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/render/mod"
 )
 
 var (
@@ -91,7 +92,7 @@ func debugConsole(resetCh, skipScene chan bool) {
 					toFade, ok := render.GetDebugRenderable(tokenString[1])
 					fadeVal := parseTokenAsInt(tokenString, 2, 255)
 					if ok {
-						toFade.(render.Modifiable).Modify(render.Fade(fadeVal))
+						toFade.(render.Modifiable).Modify(mod.Fade(fadeVal))
 					} else {
 						fmt.Println("Could not fade input")
 					}
@@ -153,7 +154,7 @@ func mouseDetails(nothing int, mevent interface{}) int {
 	y := int(me.Y()) + ViewPos.Y
 	loc := collision.NewUnassignedSpace(float64(x), float64(y), 16, 16)
 	results := collision.Hits(loc)
-	fmt.Println("Mouse at:", x, y, "rel:", me.X, me.Y)
+	fmt.Println("Mouse at:", x, y, "rel:", me.X(), me.Y())
 	if len(results) == 0 {
 		results = mouse.Hits(loc)
 	}

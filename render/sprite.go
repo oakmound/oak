@@ -3,6 +3,8 @@ package render
 import (
 	"image"
 	"image/draw"
+
+	"github.com/oakmound/oak/render/mod"
 )
 
 // A Sprite is a basic wrapper around image data and a point. The most basic Renderable.
@@ -74,7 +76,7 @@ func (s *Sprite) IsNil() bool {
 }
 
 // Modify takes in modifications (modify.go) and alters this sprite accordingly
-func (s *Sprite) Modify(ms ...Modification) Modifiable {
+func (s *Sprite) Modify(ms ...mod.Mod) Modifiable {
 	for _, m := range ms {
 		s.r = m(s.GetRGBA())
 	}
@@ -85,7 +87,7 @@ func (s *Sprite) Modify(ms ...Modification) Modifiable {
 func OverlaySprites(sps []Sprite) *Sprite {
 	tmpSprite := sps[len(sps)-1].Copy().(*Sprite)
 	for i := len(sps) - 1; i > 0; i-- {
-		tmpSprite.SetRGBA(FillMask(*sps[i-1].GetRGBA())(tmpSprite.GetRGBA()))
+		tmpSprite.SetRGBA(mod.FillMask(*sps[i-1].GetRGBA())(tmpSprite.GetRGBA()))
 	}
 	return tmpSprite
 }

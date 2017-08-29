@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/render/mod"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,13 +18,9 @@ func (d Dummy) Init() event.CID {
 }
 
 func TestSequenceTrigger(t *testing.T) {
-	sq := NewSequence(
-		// This syntax is bad for external calls,
-		// we could swap fps and make this variadic
-		[]Modifiable{
-			NewColorBox(10, 10, color.RGBA{255, 0, 0, 255}),
-			NewColorBox(10, 10, color.RGBA{0, 255, 0, 255}),
-		}, 5)
+	sq := NewSequence(5,
+		NewColorBox(10, 10, color.RGBA{255, 0, 0, 255}),
+		NewColorBox(10, 10, color.RGBA{0, 255, 0, 255}))
 	go event.ResolvePending()
 	cid := Dummy{}.Init()
 	sq.SetTriggerID(cid)
@@ -54,11 +51,9 @@ func TestSequenceTrigger(t *testing.T) {
 func TestSequenceFunctions(t *testing.T) {
 	rgba1 := image.NewRGBA(image.Rect(0, 0, 10, 10))
 	rgba2 := image.NewRGBA(image.Rect(0, 0, 5, 5))
-	sq := NewSequence(
-		[]Modifiable{
-			NewSprite(0, 0, rgba1),
-			NewSprite(0, 0, rgba2),
-		}, 5)
+	sq := NewSequence(5,
+		NewSprite(0, 0, rgba1),
+		NewSprite(0, 0, rgba2))
 	sq2 := sq.Copy().(*Sequence)
 	assert.Equal(t, sq.Get(0).GetRGBA(), rgba1)
 	assert.Equal(t, sq2.Get(0).GetRGBA(), rgba1)
@@ -89,12 +84,10 @@ func TestSequenceFunctions(t *testing.T) {
 func TestSequenceModify(t *testing.T) {
 	rgba1 := image.NewRGBA(image.Rect(0, 0, 10, 10))
 	rgba2 := image.NewRGBA(image.Rect(0, 0, 10, 10))
-	sq := NewSequence(
-		[]Modifiable{
-			NewSprite(0, 0, rgba1),
-			NewSprite(0, 0, rgba2),
-		}, 5)
-	sq.Modify(CutRel(.5, .5))
+	sq := NewSequence(5,
+		NewSprite(0, 0, rgba1),
+		NewSprite(0, 0, rgba2))
+	sq.Modify(mod.CutRel(.5, .5))
 	w, h := sq.Get(0).GetDims()
 	assert.Equal(t, w, 5)
 	assert.Equal(t, h, 5)
