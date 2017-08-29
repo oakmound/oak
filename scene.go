@@ -67,6 +67,8 @@ func TransitionFade(rate float32, frames int) func(*image.RGBA, int) bool {
 	}
 }
 
+// TransitionZoom transitions a scene by zooming in at a relative position of the screen
+// at some defined rate. Reasonable values are < .01 for zoomRate.
 func TransitionZoom(xPerc, yPerc float64, frames int, zoomRate float64) func(*image.RGBA, int) bool {
 	return func(buf *image.RGBA, frame int) bool {
 		if frame > frames {
