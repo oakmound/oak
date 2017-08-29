@@ -13,8 +13,9 @@ import (
 	"image"
 	"image/color"
 	//"image/draw"
-	"github.com/oakmound/oak/dlog"
 	"math"
+
+	"github.com/oakmound/oak/dlog"
 )
 
 var (
@@ -413,48 +414,40 @@ func TrimColor(trimUnder color.Color) Modification {
 	trimouter1:
 		for x := 0; x < w; x++ {
 			for y := 0; y < h; y++ {
-				c := rgba.At(x, y)
-				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
-					continue
+				r2, g2, b2, a2 := rgba.At(x, y).RGBA()
+				if !colorBelow(r, g, b, a, r2, g2, b2, a2) {
+					break trimouter1
 				}
-				break trimouter1
 			}
 			xOff++
 		}
 	trimouter2:
 		for x := w; x >= 0; x-- {
 			for y := 0; y < h; y++ {
-				c := rgba.At(x, y)
-				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
-					continue
+				r2, g2, b2, a2 := rgba.At(x, y).RGBA()
+				if !colorBelow(r, g, b, a, r2, g2, b2, a2) {
+					break trimouter2
 				}
-				break trimouter2
 			}
 			w--
 		}
 	trimouter3:
 		for y := h; y >= 0; y-- {
 			for x := 0; x < w; x++ {
-				c := rgba.At(x, y)
-				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
-					continue
+				r2, g2, b2, a2 := rgba.At(x, y).RGBA()
+				if !colorBelow(r, g, b, a, r2, g2, b2, a2) {
+					break trimouter3
 				}
-				break trimouter3
 			}
 			h--
 		}
 	trimouter4:
 		for y := 0; y < h; y++ {
 			for x := 0; x < w; x++ {
-				c := rgba.At(x, y)
-				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
-					continue
+				r2, g2, b2, a2 := rgba.At(x, y).RGBA()
+				if !colorBelow(r, g, b, a, r2, g2, b2, a2) {
+					break trimouter4
 				}
-				break trimouter4
 			}
 			yOff++
 		}
@@ -467,6 +460,10 @@ func TrimColor(trimUnder color.Color) Modification {
 		}
 		return out
 	}
+}
+
+func colorBelow(r, g, b, a, r2, g2, b2, a2 uint32) bool {
+	return r2 <= r && g2 <= g && b2 <= b && a2 <= a
 }
 
 // ConformToPallete modifies the input image so that it's colors all fall
