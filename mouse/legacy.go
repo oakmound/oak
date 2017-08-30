@@ -1,10 +1,6 @@
 package mouse
 
-import (
-	"log"
-
-	"github.com/oakmound/oak/collision"
-)
+import "github.com/oakmound/oak/collision"
 
 // There is no legacy_test.go because these functions are duplicate of functions
 // in collision/legacy.go
@@ -16,11 +12,7 @@ var (
 )
 
 func init() {
-	var err error
-	DefTree, err = collision.NewTree()
-	if err != nil {
-		log.Fatal(err)
-	}
+	DefTree, _ = collision.NewTree()
 }
 
 // Clear resets the default collision tree

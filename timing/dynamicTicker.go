@@ -87,10 +87,6 @@ func (dt *DynamicTicker) SetTick(d time.Duration) {
 }
 
 func (dt *DynamicTicker) close() {
-	select {
-	case <-dt.C:
-	default:
-	}
 	close(dt.C)
 	close(dt.resetCh)
 	close(dt.forceTick)
