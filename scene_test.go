@@ -3,6 +3,8 @@ package oak
 import (
 	"testing"
 	"time"
+
+	"github.com/oakmound/oak/scene"
 )
 
 func TestBadScene(t *testing.T) {
@@ -21,22 +23,22 @@ func TestSceneTransition(t *testing.T) {
 		"VERBOSE",
 		"",
 	}
-	AddScene("transition",
+	SceneMap.Add("transition",
 		// Initialization function
 		func(prevScene string, inData interface{}) {},
 		// Loop to continue or stop current scene
 		func() bool { return false },
 		// Exit to transition to next scene
-		func() (nextScene string, result *SceneResult) {
-			return "next", &SceneResult{Transition: TransitionFade(.001, 300)}
+		func() (nextScene string, result *scene.Result) {
+			return "next", &scene.Result{Transition: scene.Fade(.001, 300)}
 		})
-	AddScene("next",
+	SceneMap.Add("next",
 		// Initialization function
 		func(prevScene string, inData interface{}) {},
 		// Loop to continue or stop current scene
 		func() bool { return true },
 		// Exit to transition to next scene
-		func() (nextScene string, result *SceneResult) {
+		func() (nextScene string, result *scene.Result) {
 			return "next", nil
 		})
 	go Init("transition")

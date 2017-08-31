@@ -67,13 +67,6 @@ var (
 
 	eb *event.Bus
 
-	// GlobalFirstScene is returned by the first
-	// loading scene
-	globalFirstScene string
-
-	// CurrentScene is the scene currently running in oak
-	CurrentScene string
-
 	zeroPoint = image.Point{0, 0}
 )
 

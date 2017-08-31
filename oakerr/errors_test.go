@@ -11,7 +11,9 @@ func TestErrorsAreErrors(t *testing.T) {
 	var err error
 	err = NotLoaded{}
 	assert.NotEmpty(t, err.Error())
-	err = ExistingFont{}
+	err = ExistingElement{}
+	assert.NotEmpty(t, err.Error())
+	err = ExistingElement{Overwritten: true}
 	assert.NotEmpty(t, err.Error())
 	err = InsufficientInputs{}
 	assert.NotEmpty(t, err.Error())

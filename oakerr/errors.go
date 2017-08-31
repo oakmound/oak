@@ -5,15 +5,26 @@ import "strconv"
 // NotLoaded is returned when something is queried that is not yet loaded.
 type NotLoaded struct{}
 
-func (nle NotLoaded) Error() string {
+func (NotLoaded) Error() string {
 	return "File not loaded"
 }
 
-// ExistingFont is returned when a font is overwritten in a font manager
-type ExistingFont struct{}
+// ExistingElement is an alternative to ExistingFont, where in this case the
+// existing element is -not- overwritten.
+type ExistingElement struct {
+	InputName   string
+	InputType   string
+	Overwritten bool
+}
 
-func (efe ExistingFont) Error() string {
-	return "Font name already used, overwriting old font"
+func (ee ExistingElement) Error() string {
+	s := ee.InputName + " " + ee.InputType + " already defined"
+	if ee.Overwritten {
+		s += ", old " + ee.InputType + " overwritten."
+	} else {
+		s += ", nothing overwritten."
+	}
+	return s
 }
 
 // InsufficientInputs is returned when something requires at least some number

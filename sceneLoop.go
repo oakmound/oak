@@ -2,28 +2,39 @@ package oak
 
 import (
 	"image"
+	"time"
 
 	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/mouse"
 	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/scene"
 	"github.com/oakmound/oak/timing"
 )
+
+var (
+	SceneMap = scene.NewMap()
+)
+
+func sceneTransition(result *scene.Result) {
+	if result.Transition != nil {
+		i := 0
+		tx, _ := screenControl.NewTexture(winBuffer.Bounds().Max)
+		cont := true
+		for cont {
+			cont = result.Transition(winBuffer.RGBA(), i)
+			drawLoopPublish(tx)
+			i++
+			time.Sleep(timing.FPSToDuration(FrameRate))
+		}
+	}
+}
 
 func sceneLoop(firstScene string) {
 	var prevScene string
 
-	s, ok := sceneMap[firstScene]
-	if !ok {
-		dlog.Error("Unknown scene", firstScene)
-		panic("Unknown scene")
-	}
-	s.active = true
-	globalFirstScene = firstScene
-	CurrentScene = "loading"
-
-	result := new(SceneResult)
+	result := new(scene.Result)
 
 	dlog.Info("First Scene Start")
 
@@ -32,23 +43,46 @@ func sceneLoop(firstScene string) {
 
 	dlog.Verb("Draw Channel Activated")
 
+	loadingScene := scene.Scene{
+		Start: func(prevScene string, data interface{}) {
+			dlog.Info("Loading Scene Init")
+		},
+		Loop: func() bool {
+			select {
+			case <-startupLoadCh:
+				dlog.Info("Load Complete")
+				return false
+			default:
+				return true
+			}
+		},
+		End: func() (string, *scene.Result) {
+			return firstScene, nil
+		},
+	}
+
+	// Todo: consider changing the name of this scene to avoid collisions
+	SceneMap.AddScene("loading", loadingScene)
+
 	for {
 		ViewPos = image.Point{0, 0}
 		updateScreen(0, 0)
 		useViewBounds = false
 
-		dlog.Info("Scene Start", CurrentScene)
+		dlog.Info("Scene Start", SceneMap.CurrentScene)
+		scen, ok := SceneMap.GetCurrent()
+		if !ok {
+			dlog.Error("Unknown scene", SceneMap.CurrentScene)
+			panic("Unknown scene")
+		}
 		go func() {
-			dlog.Info("Starting scene in goroutine", CurrentScene)
-			s, ok := sceneMap[CurrentScene]
-			if !ok {
-				dlog.Error("Unknown scene", CurrentScene)
-				panic("Unknown scene")
-			}
-			s.start(prevScene, result.NextSceneInput)
+			dlog.Info("Starting scene in goroutine", SceneMap.CurrentScene)
+			scen.Start(prevScene, result.NextSceneInput)
 			transitionCh <- true
 		}()
+
 		sceneTransition(result)
+
 		// Post transition, begin loading animation
 		dlog.Info("Starting load animation")
 		drawCh <- true
@@ -64,16 +98,16 @@ func sceneLoop(firstScene string) {
 		for cont {
 			select {
 			case <-sceneCh:
-				cont = sceneMap[CurrentScene].loop()
+				cont = scen.Loop()
 			case <-skipSceneCh:
 				cont = false
 			}
 		}
-		dlog.Info("Scene End", CurrentScene)
+		dlog.Info("Scene End", SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
 		close(logicTicker)
-		prevScene = CurrentScene
+		prevScene = SceneMap.CurrentScene
 
 		// Send a signal to stop drawing
 		drawCh <- true
@@ -105,16 +139,16 @@ func sceneLoop(firstScene string) {
 		render.PreDraw()
 		dlog.Verb("Engine Reset")
 
-		// Todo: Add in customizable loading scene between regular scenes
+		// Todo: Add in customizable loading scene between regular scenes,
+		// In addition to the existing customizable loading renderable?
 
-		CurrentScene, result = sceneMap[CurrentScene].end()
+		SceneMap.CurrentScene, result = scen.End()
 		// For convenience, we allow the user to return nil
 		// but it gets translated to an empty result
 		if result == nil {
-			result = new(SceneResult)
+			result = new(scene.Result)
 		}
 
-		eb = event.GetBus()
 		if !debugResetInProgress {
 			debugResetInProgress = true
 			go func() {
