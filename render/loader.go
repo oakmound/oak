@@ -172,19 +172,19 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 	return loadedSheets[fileName], nil
 }
 
-// LoadSheetAnimation loads a sheet and then calls LoadAnimation on that sheet
-func LoadSheetAnimation(fileName string, w, h, pad int, fps float64, frames []int) (*Animation, error) {
+// LoadSheetSequence loads a sheet and then calls LoadSequence on that sheet
+func LoadSheetSequence(fileName string, w, h, pad int, fps float64, frames ...int) (*Sequence, error) {
 	sheet, err := LoadSheet(dir, fileName, w, h, pad)
 	if err != nil {
 		return nil, err
 	}
-	return LoadAnimation(sheet, w, h, pad, fps, frames)
+	return LoadSequence(sheet, w, h, pad, fps, frames...)
 }
 
-// LoadAnimation takes in a sheet with sheet dimensions, a frame rate and a list of frames where
+// LoadSequence takes in a sheet with sheet dimensions, a frame rate and a list of frames where
 // frames are in x,y pairs ([0,0,1,0,2,0] for (0,0) (1,0) (2,0)) and returns an animation from that
-func LoadAnimation(sheet *Sheet, w, h, pad int, fps float64, frames []int) (*Animation, error) {
-	animation, err := NewAnimation(sheet, fps, frames)
+func LoadSequence(sheet *Sheet, w, h, pad int, fps float64, frames ...int) (*Sequence, error) {
+	animation, err := NewSheetSequence(sheet, fps, frames...)
 	if err != nil {
 		return nil, err
 	}
