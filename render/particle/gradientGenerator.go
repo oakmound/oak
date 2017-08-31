@@ -55,7 +55,7 @@ func (gg *GradientGenerator) GenerateParticle(bp *baseParticle) Particle {
 			baseParticle: bp,
 			startColor:   randColor(gg.StartColor, gg.StartColorRand),
 			endColor:     randColor(gg.EndColor, gg.EndColorRand),
-			size:         gg.Size.Poll(),
+			size:         float64(gg.Size.Poll()),
 		},
 		startColor2: randColor(gg.StartColor2, gg.StartColor2Rand),
 		endColor2:   randColor(gg.EndColor2, gg.EndColor2Rand),

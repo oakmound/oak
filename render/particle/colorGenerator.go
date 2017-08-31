@@ -15,7 +15,8 @@ type ColorGenerator struct {
 	StartColor, StartColorRand color.Color
 	EndColor, EndColorRand     color.Color
 	// The size, in pixel radius, of spawned particles
-	Size intrange.Range
+	Size    intrange.Range
+	EndSize intrange.Range
 	//
 	// Some sort of particle type, for rendering triangles or squares or circles...
 	Shape shape.Shape
@@ -40,6 +41,7 @@ func (cg *ColorGenerator) setDefaults() {
 	cg.EndColor = color.RGBA{0, 0, 0, 0}
 	cg.EndColorRand = color.RGBA{0, 0, 0, 0}
 	cg.Size = intrange.Constant(1)
+	cg.EndSize = intrange.Constant(1)
 	cg.Shape = shape.Square
 }
 
@@ -58,7 +60,8 @@ func (cg *ColorGenerator) GenerateParticle(bp *baseParticle) Particle {
 		baseParticle: bp,
 		startColor:   randColor(cg.StartColor, cg.StartColorRand),
 		endColor:     randColor(cg.EndColor, cg.EndColorRand),
-		size:         cg.Size.Poll(),
+		size:         float64(cg.Size.Poll()),
+		endSize:      float64(cg.EndSize.Poll()),
 	}
 }
 
@@ -90,6 +93,7 @@ func (cg *ColorGenerator) SetEndColor(ec, ecr color.Color) {
 // A Sizeable is a generator that can have some size set to it
 type Sizeable interface {
 	SetSize(i intrange.Range)
+	SetEndSize(i intrange.Range)
 }
 
 // Size is an option to set a Sizeable size
@@ -102,6 +106,11 @@ func Size(i intrange.Range) func(Generator) {
 // SetSize satisfies Sizeable
 func (cg *ColorGenerator) SetSize(i intrange.Range) {
 	cg.Size = i
+}
+
+// SetEndSize stasfies Sizeable
+func (cg *ColorGenerator) SetEndSize(i intrange.Range) {
+	cg.EndSize = i
 }
 
 //
