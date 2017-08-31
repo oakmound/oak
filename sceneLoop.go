@@ -12,19 +12,8 @@ import (
 	"github.com/oakmound/oak/timing"
 )
 
-func sceneLoop(firstScene string) {
-	var prevScene string
-
-	result := new(scene.Result)
-
-	dlog.Info("First Scene Start")
-
-	drawCh <- true
-	drawCh <- true
-
-	dlog.Verb("Draw Channel Activated")
-
-	loadingScene := scene.Scene{
+var (
+	loadingScene = scene.Scene{
 		Start: func(prevScene string, data interface{}) {
 			dlog.Info("Loading Scene Init")
 		},
@@ -38,8 +27,25 @@ func sceneLoop(firstScene string) {
 			}
 		},
 		End: func() (string, *scene.Result) {
-			return firstScene, nil
+			return "", nil
 		},
+	}
+)
+
+func sceneLoop(firstScene string) {
+	var prevScene string
+
+	result := new(scene.Result)
+
+	dlog.Info("First Scene Start")
+
+	drawCh <- true
+	drawCh <- true
+
+	dlog.Verb("Draw Channel Activated")
+
+	loadingScene.End = func() (string, *scene.Result) {
+		return firstScene, nil
 	}
 
 	// Todo: consider changing the name of this scene to avoid collisions
