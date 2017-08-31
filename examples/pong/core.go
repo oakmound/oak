@@ -9,6 +9,7 @@ import (
 	"github.com/oakmound/oak/entities"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/scene"
 )
 
 var (
@@ -21,7 +22,7 @@ const (
 )
 
 func main() {
-	oak.AddScene("pong",
+	oak.Add("pong",
 		func(prevScene string, data interface{}) {
 			newPaddle(20, 200, 1)
 			newPaddle(590, 200, 2)
@@ -29,7 +30,7 @@ func main() {
 			render.Draw(render.DefFont().NewIntText(&score2, 200, 20), 3)
 			render.Draw(render.DefFont().NewIntText(&score1, 400, 20), 3)
 		}, func() bool { return true },
-		func() (string, *oak.SceneResult) { return "pong", nil })
+		func() (string, *scene.Result) { return "pong", nil })
 	oak.Init("pong")
 }
 

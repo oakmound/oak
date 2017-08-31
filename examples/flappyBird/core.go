@@ -11,6 +11,7 @@ import (
 	"github.com/oakmound/oak/entities"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/scene"
 	"github.com/oakmound/oak/timing"
 )
 
@@ -30,7 +31,7 @@ const (
 )
 
 func main() {
-	oak.AddScene("bounce", func(string, interface{}) {
+	oak.Add("bounce", func(string, interface{}) {
 		score = 0
 		// 1. Make Player
 		newFlappy(90, 140)
@@ -59,7 +60,7 @@ func main() {
 			return false
 		}
 		return true
-	}, func() (string, *oak.SceneResult) {
+	}, func() (string, *scene.Result) {
 		return "bounce", nil
 	})
 	render.SetDrawStack(

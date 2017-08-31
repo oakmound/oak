@@ -2,7 +2,6 @@ package oak
 
 import (
 	"image"
-	"time"
 
 	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/dlog"
@@ -12,24 +11,6 @@ import (
 	"github.com/oakmound/oak/scene"
 	"github.com/oakmound/oak/timing"
 )
-
-var (
-	SceneMap = scene.NewMap()
-)
-
-func sceneTransition(result *scene.Result) {
-	if result.Transition != nil {
-		i := 0
-		tx, _ := screenControl.NewTexture(winBuffer.Bounds().Max)
-		cont := true
-		for cont {
-			cont = result.Transition(winBuffer.RGBA(), i)
-			drawLoopPublish(tx)
-			i++
-			time.Sleep(timing.FPSToDuration(FrameRate))
-		}
-	}
-}
 
 func sceneLoop(firstScene string) {
 	var prevScene string
@@ -62,7 +43,12 @@ func sceneLoop(firstScene string) {
 	}
 
 	// Todo: consider changing the name of this scene to avoid collisions
-	SceneMap.AddScene("loading", loadingScene)
+	err := SceneMap.AddScene("loading", loadingScene)
+	if err != nil {
+		dlog.Error("Loading scene unable to be added", err)
+		panic("Loading scene unable to be added")
+	}
+	SceneMap.CurrentScene = "loading"
 
 	for {
 		ViewPos = image.Point{0, 0}
@@ -148,6 +134,8 @@ func sceneLoop(firstScene string) {
 		if result == nil {
 			result = new(scene.Result)
 		}
+
+		eb = event.GetBus()
 
 		if !debugResetInProgress {
 			debugResetInProgress = true

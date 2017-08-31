@@ -23,16 +23,18 @@ func TestSceneTransition(t *testing.T) {
 		"VERBOSE",
 		"",
 	}
-	SceneMap.Add("transition",
-		// Initialization function
-		func(prevScene string, inData interface{}) {},
-		// Loop to continue or stop current scene
-		func() bool { return false },
-		// Exit to transition to next scene
-		func() (nextScene string, result *scene.Result) {
-			return "next", &scene.Result{Transition: scene.Fade(.001, 300)}
+	AddScene("transition",
+		scene.Scene{
+			// Initialization function
+			Start: func(prevScene string, inData interface{}) {},
+			// Loop to continue or stop current scene
+			Loop: func() bool { return false },
+			// Exit to transition to next scene
+			End: func() (nextScene string, result *scene.Result) {
+				return "next", &scene.Result{Transition: scene.Fade(.001, 300)}
+			},
 		})
-	SceneMap.Add("next",
+	Add("next",
 		// Initialization function
 		func(prevScene string, inData interface{}) {},
 		// Loop to continue or stop current scene

@@ -1,6 +1,8 @@
 package scene
 
 import (
+	"sync"
+
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/oakerr"
 )
@@ -9,6 +11,9 @@ import (
 type Map struct {
 	CurrentScene string
 	scenes       map[string]Scene
+	// This could be a RWMutex, but it isn't anticipated that
+	// reads will be more common than writes.
+	lock sync.Mutex
 }
 
 // NewMap creates a scene map
@@ -21,7 +26,10 @@ func NewMap() *Map {
 // Get returns the scene associated with the given name, if it exists. If it
 // does not exist, it returns a zero value and false.
 func (m *Map) Get(name string) (Scene, bool) {
+	m.lock.Lock()
 	s, ok := m.scenes[name]
+	m.lock.Unlock()
+
 	return s, ok
 }
 
@@ -43,13 +51,18 @@ func (m *Map) Add(name string, start Start, loop Loop, end End) error {
 // overwrite.
 func (m *Map) AddScene(name string, s Scene) error {
 	dlog.Info("[oak]-------- Adding", name)
-	if _, ok := m.scenes[name]; !ok {
+	var err error
+	m.lock.Lock()
+	if _, ok := m.scenes[name]; ok {
+		err = oakerr.ExistingElement{
+			InputName:   name,
+			InputType:   "scene",
+			Overwritten: false,
+		}
+	} else {
 		m.scenes[name] = s
-		return nil
 	}
-	return oakerr.ExistingElement{
-		InputName:   name,
-		InputType:   "scene",
-		Overwritten: false,
-	}
+	m.lock.Unlock()
+
+	return err
 }
