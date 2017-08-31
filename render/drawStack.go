@@ -58,13 +58,16 @@ func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
 }
 
 // Draw adds the given renderable to the global draw stack.
+//
 // If the draw stack has only one stackable, the item will be added to that
-// stackable with l[0] as its argument. Otherwise, the item will be added
+// stackable with the input layers as its argument. Otherwise, the item will be added
 // to the l[0]th stackable, with remaining layers supplied to the stackable
 // as arguments.
 //
 // If zero layers are provided, it will add to the zeroth stack layer and
-// give nothing to the stackable's layers.
+// give nothing to the stackable's argument.
+//
+//
 func Draw(r Renderable, layers ...int) (Renderable, error) {
 	if r == nil {
 		dlog.Error("Tried to draw nil")
