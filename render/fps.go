@@ -41,7 +41,7 @@ func (df *DrawFPS) PreDraw() {
 }
 
 // Add does nothing for a drawFPS
-func (df *DrawFPS) Add(Renderable, int) Renderable {
+func (df *DrawFPS) Add(Renderable, ...int) Renderable {
 	//NOP
 	return nil
 }

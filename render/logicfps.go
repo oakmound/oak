@@ -45,7 +45,7 @@ func (lf *LogicFPS) PreDraw() {
 }
 
 // Add does nothing for a drawFPS
-func (lf *LogicFPS) Add(Renderable, int) Renderable {
+func (lf *LogicFPS) Add(Renderable, ...int) Renderable {
 	//NOP
 	return nil
 }

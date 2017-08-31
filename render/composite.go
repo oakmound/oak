@@ -151,7 +151,7 @@ func (cs *CompositeR) Append(r Renderable) {
 }
 
 //Add stages a renderable to be added to CompositeR at a give position in the slice
-func (cs *CompositeR) Add(r Renderable, i int) Renderable {
+func (cs *CompositeR) Add(r Renderable, _ ...int) Renderable {
 	cs.toPush = append(cs.toPush, r)
 	return r
 }

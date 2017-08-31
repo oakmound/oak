@@ -30,8 +30,10 @@ func NewHeap(static bool) *RenderableHeap {
 }
 
 //Add stages a new Renderable to add to the heap
-func (rh *RenderableHeap) Add(r Renderable, layer int) Renderable {
-	r.SetLayer(layer)
+func (rh *RenderableHeap) Add(r Renderable, layers ...int) Renderable {
+	if len(layers) > 0 {
+		r.SetLayer(layers[0])
+	}
 	rh.addLock.Lock()
 	rh.toPush = append(rh.toPush, r)
 	rh.addLock.Unlock()
