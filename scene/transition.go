@@ -5,7 +5,7 @@ import (
 	"image/draw"
 
 	"github.com/oakmound/oak/render/mod"
-	"golang.org/x/exp/shiny/screen"
+	"github.com/oakmound/shiny/screen"
 )
 
 var (

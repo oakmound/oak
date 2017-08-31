@@ -1,7 +1,7 @@
 package oak
 
 import (
-	"golang.org/x/exp/shiny/screen"
+	"github.com/oakmound/shiny/screen"
 )
 
 func windowController(s screen.Screen, ScreenWidth, ScreenHeight int) (screen.Window, error) {

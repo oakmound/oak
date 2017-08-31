@@ -6,7 +6,7 @@ import (
 	"github.com/oakmound/oak/dlog"
 	pmouse "github.com/oakmound/oak/mouse"
 	"github.com/oakmound/oak/physics"
-	"golang.org/x/exp/shiny/gesture"
+	"github.com/oakmound/shiny/gesture"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
 	"golang.org/x/mobile/event/mouse"

@@ -8,7 +8,7 @@ import (
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
-	"golang.org/x/exp/shiny/driver"
+	"github.com/oakmound/shiny/driver"
 )
 
 var (

@@ -3,7 +3,7 @@ package oak
 import (
 	"image/color"
 
-	"golang.org/x/exp/shiny/screen"
+	"github.com/oakmound/shiny/screen"
 
 	"github.com/oakmound/oak/render/mod"
 )

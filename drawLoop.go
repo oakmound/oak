@@ -9,7 +9,7 @@ import (
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/render"
 	"github.com/oakmound/oak/timing"
-	"golang.org/x/exp/shiny/screen"
+	"github.com/oakmound/shiny/screen"
 )
 
 var (
