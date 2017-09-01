@@ -118,7 +118,7 @@ func Init(firstScene string) {
 	dlog.Info("Init asset load")
 	go loadAssets(imageDir, audioDir)
 	dlog.Info("Init Console")
-	go debugConsole(debugResetCh, skipSceneCh)
+	go debugConsole(debugResetCh, skipSceneCh, os.Stdin)
 	dlog.Info("Init Main Driver")
 	driver.Main(lifecycleLoop)
 }

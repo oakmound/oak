@@ -3,7 +3,7 @@ package oak
 import (
 	"bufio"
 	"fmt"
-	"os"
+	"io"
 	"reflect"
 	"strconv"
 	"strings"
@@ -28,8 +28,8 @@ func AddCommand(s string, fn func([]string)) {
 	commands[s] = fn
 }
 
-func debugConsole(resetCh, skipScene chan bool) {
-	scanner := bufio.NewScanner(os.Stdin)
+func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
+	scanner := bufio.NewScanner(input)
 	spew.Config.DisableMethods = true
 	spew.Config.MaxDepth = 2
 
@@ -100,11 +100,6 @@ func debugConsole(resetCh, skipScene chan bool) {
 		default:
 		}
 		for scanner.Scan() {
-			select {
-			case <-resetCh: //reset all vars in debug console that save state
-				viewportLocked = true
-			default:
-			}
 			//Parse the Input
 			tokenString := strings.Fields(scanner.Text())
 			if len(tokenString) < 2 {
