@@ -9,8 +9,6 @@ import (
 
 func TestSpaceFuncs(t *testing.T) {
 	Clear()
-	NewRect(0, 0, 0, 0)
-	// Assert an error was logged
 	s := NewUnassignedSpace(10, 10, 10, 10)
 	assert.NotEmpty(t, s.String())
 
@@ -49,4 +47,13 @@ func TestSpaceFuncs(t *testing.T) {
 	assert.Equal(t, ov, physics.NewVector(5, 5))
 	spaces := s.SubtractRect(1, 1, 8, 8)
 	assert.Equal(t, len(spaces), 4)
+}
+
+func TestNewRect(t *testing.T) {
+	s := NewUnassignedSpace(0, 0, 0, 0)
+	assert.Equal(t, 1.0, s.GetW())
+	assert.Equal(t, 1.0, s.GetH())
+	s = NewUnassignedSpace(0, 0, -10, -10)
+	assert.Equal(t, 10.0, s.GetW())
+	assert.Equal(t, 10.0, s.GetH())
 }

@@ -12,8 +12,6 @@ var (
 )
 
 func init() {
-	// So long as DefaultMaxChildren exceeds DefaultMinChildren,
-	// this will not error
 	DefTree, _ = collision.NewTree()
 }
 

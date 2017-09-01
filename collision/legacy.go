@@ -11,8 +11,7 @@ var (
 )
 
 func init() {
-	// So long as DefaultMaxChildren exceeds DefaultMinChildren,
-	// this will not error
+	// This won't error so long as DefMinChildren < DefMaxChildren
 	DefTree, _ = NewTree()
 }
 

@@ -16,5 +16,8 @@ func UpdateDebugMap(rName string, r Renderable) {
 // string, if any.
 func GetDebugRenderable(rName string) (Renderable, bool) {
 	r, ok := debugMap.Load(rName)
+	if r == nil {
+		return nil, false
+	}
 	return r.(Renderable), ok
 }

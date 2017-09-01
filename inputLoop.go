@@ -75,19 +75,11 @@ func inputLoop() {
 		// Mouse events all receive an x, y, and button string.
 		case mouse.Event:
 			button := pmouse.GetMouseButton(e.Button)
-			var eventName string
+			eventName := pmouse.GetEventName(e.Direction, e.Button)
 			if e.Direction == mouse.DirPress {
 				setDown(button)
-				eventName = "MousePress"
 			} else if e.Direction == mouse.DirRelease {
 				setUp(button)
-				eventName = "MouseRelease"
-			} else if e.Button == -2 {
-				eventName = "MouseScrollDown"
-			} else if e.Button == -1 {
-				eventName = "MouseScrollUp"
-			} else {
-				eventName = "MouseDrag"
 			}
 			// The event triggered for mouse events has the same scaling as the
 			// render and collision space. I.e. if the viewport is at 0, the mouse's

@@ -24,7 +24,7 @@ type KeyBindings map[string]string
 // MoveRight = "D"
 // Fire = "Spacebar"
 
-// LoadKeyBindings convers a reader into a map of keys to meaningful names.
+// LoadKeyBindings converts a reader into a map of keys to meaningful names.
 // It expects a simple .toml syntax, of key = "value" pairs per line. The resulting
 // KeyBindings will have the keys and values reversed, so `MoveUp = "W"` will
 // correspond to kb["W"] = "MoveUp"
