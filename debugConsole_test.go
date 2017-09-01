@@ -58,16 +58,16 @@ func TestDebugConsole(t *testing.T) {
 }
 
 func TestMouseDetails(t *testing.T) {
-	mouseDetails(0, mouse.Event{})
+	mouseDetails(0, mouse.NewZeroEvent(0, 0))
 	s := collision.NewUnassignedSpace(-1, -1, 2, 2)
 	collision.Add(s)
-	mouseDetails(0, mouse.Event{})
+	mouseDetails(0, mouse.NewZeroEvent(0, 0))
 	collision.Remove(s)
 
 	// This should spew this nothing entity, but it doesn't.
 	id := event.NextID(ent{})
 	s = collision.NewSpace(-1, -1, 2, 2, id)
-	mouseDetails(0, mouse.Event{})
+	mouseDetails(0, mouse.NewZeroEvent(0, 0))
 	collision.Remove(s)
 
 }

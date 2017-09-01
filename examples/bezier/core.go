@@ -8,6 +8,7 @@ import (
 	"github.com/oakmound/oak"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/scene"
 )
 
 var (
@@ -56,7 +57,7 @@ func main() {
 		progressInc = f
 	})
 
-	oak.AddScene("bezier", func(string, interface{}) {
+	oak.Add("bezier", func(string, interface{}) {
 
 		// Use a color box to indicate where we are on the curve.
 		cb := render.NewColorBox(3, 3, color.RGBA{255, 0, 0, 255})
@@ -79,7 +80,7 @@ func main() {
 		// Stubs
 	}, func() bool {
 		return true
-	}, func() (string, *oak.SceneResult) {
+	}, func() (string, *scene.Result) {
 		return "bezier", nil
 	})
 	oak.Init("bezier")
