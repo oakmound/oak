@@ -3,7 +3,6 @@ package oak
 import (
 	"image"
 	"image/draw"
-	"sync"
 
 	"github.com/oakmound/oak/alg"
 	"github.com/oakmound/oak/dlog"
@@ -20,20 +19,10 @@ var (
 	windowRect     image.Rectangle
 	windowUpdateCh = make(chan bool)
 
-	initControl = sync.Mutex{}
-
 	lifecycleInit bool
 )
 
 func lifecycleLoop(s screen.Screen) {
-	initControl.Lock()
-	if lifecycleInit {
-		dlog.Error("Started lifecycle twice, aborting second call")
-		initControl.Unlock()
-		return
-	}
-	lifecycleInit = true
-	initControl.Unlock()
 	dlog.Info("Init Lifecycle")
 
 	screenControl = s
