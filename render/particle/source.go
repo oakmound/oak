@@ -13,10 +13,8 @@ import (
 )
 
 const (
-	// recycled refers to the life value given to particles ready to be reused
-	recycled = -1000
 	//IgnoreEnd refers to the life value given to particles that want to skip their source's end function.
-	IgnoreEnd = recycled / 2
+	IgnoreEnd = -2000 / 2
 )
 
 // A Source is used to store and control a set of particles.
@@ -25,7 +23,6 @@ type Source struct {
 	Generator  Generator
 	particles  [blockSize]Particle
 	nextPID    int
-	recycled   []int
 	CID        event.CID
 	pIDBlock   int
 	stackLevel int
@@ -64,7 +61,22 @@ func (ps *Source) cycleParticles() bool {
 	for i := 0; i < ps.nextPID; i++ {
 		p := ps.particles[i]
 		bp := p.GetBaseParticle()
+		for bp.Life <= 0 {
+			p.UnDraw()
+			cycled = true
+			if pg.EndFunc != nil && bp.Life > IgnoreEnd {
+				pg.EndFunc(p)
+			}
+			ps.nextPID--
+			if i == ps.nextPID {
+				return cycled
+			}
+			ps.particles[i], ps.particles[ps.nextPID] = ps.particles[ps.nextPID], ps.particles[i]
 
+			p = ps.particles[i]
+			p.setPID(i + ps.pIDBlock*blockSize)
+			bp = p.GetBaseParticle()
+		}
 		// Ignore dead particles
 		if bp.Life > 0 {
 			cycled = true
@@ -91,18 +103,7 @@ func (ps *Source) cycleParticles() bool {
 			bp.Add(bp.Vel)
 			bp.SetLayer(ps.Layer(bp.GetPos()))
 			p.Cycle(ps.Generator)
-
-		} else if bp.Life != recycled {
-			p.UnDraw()
-			cycled = true
-			if pg.EndFunc != nil && bp.Life > IgnoreEnd {
-				pg.EndFunc(p)
-			}
-			// This relies on Life going down by 1 per frame
-			bp.Life = recycled
-			ps.recycled = append(ps.recycled, bp.pID%blockSize)
 		}
-
 	}
 	return cycled
 }
@@ -116,64 +117,54 @@ func (ps *Source) addParticles() {
 	pg := ps.Generator.GetBaseGenerator()
 	// Regularly create particles (up until max particles)
 	newParticleCount := int(pg.NewPerFrame.Poll())
-	ri := 0
-	for ri < len(ps.recycled) && ri < newParticleCount {
 
-		j := ps.recycled[ri]
-		bp := ps.particles[j].GetBaseParticle()
-		angle := pg.Angle.Poll() * math.Pi / 180.0
-		speed := pg.Speed.Poll()
-		startLife := pg.LifeSpan.Poll()
-
-		bp.LayeredPoint = render.NewLayeredPoint(
-			pg.X()+floatFromSpread(pg.Spread.X()),
-			pg.Y()+floatFromSpread(pg.Spread.Y()),
-			0)
-		bp.Vel = physics.NewVector(
-			speed*math.Cos(angle)*-1,
-			speed*math.Sin(angle)*-1)
-		bp.Life = startLife
-		bp.totalLife = startLife
-		ps.particles[ps.recycled[ri]] = ps.Generator.GenerateParticle(bp)
-
-		ps.particles[ps.recycled[ri]].SetLayer(ps.Layer(bp.GetPos()))
-		render.Draw(ps.particles[ps.recycled[ri]], ps.stackLevel)
-		ri++
-	}
-	newParticleCount -= len(ps.recycled)
-	if ri > 0 {
-		ps.recycled = ps.recycled[ri:]
+	if ps.nextPID+newParticleCount >= blockSize {
+		newParticleCount = blockSize - ps.nextPID
 	}
 
-	if ps.nextPID >= blockSize {
-		return
-	}
+	var p Particle
+	var bp *baseParticle
 	for i := 0; i < newParticleCount; i++ {
 		angle := pg.Angle.Poll() * math.Pi / 180.0
 		speed := pg.Speed.Poll()
 		startLife := pg.LifeSpan.Poll()
 
-		bp := &baseParticle{
-			LayeredPoint: render.NewLayeredPoint(
+		// If this particle has not been allocated yet
+		if ps.particles[ps.nextPID] == nil {
+			bp = &baseParticle{
+				LayeredPoint: render.NewLayeredPoint(
+					pg.X()+floatFromSpread(pg.Spread.X()),
+					pg.Y()+floatFromSpread(pg.Spread.Y()),
+					0,
+				),
+				Src: ps,
+				Vel: physics.NewVector(
+					speed*math.Cos(angle)*-1,
+					speed*math.Sin(angle)*-1),
+				Life:      startLife,
+				totalLife: startLife,
+				pID:       ps.nextPID + ps.pIDBlock*blockSize,
+			}
+
+			p = ps.Generator.GenerateParticle(bp)
+
+			// If this is a 'recycled' particle waiting to be redrawn
+		} else {
+			bp = ps.particles[ps.nextPID].GetBaseParticle()
+			bp.LayeredPoint = render.NewLayeredPoint(
 				pg.X()+floatFromSpread(pg.Spread.X()),
 				pg.Y()+floatFromSpread(pg.Spread.Y()),
-				0,
-			),
-			Src: ps,
-			Vel: physics.NewVector(
+				0)
+			bp.Vel = physics.NewVector(
 				speed*math.Cos(angle)*-1,
-				speed*math.Sin(angle)*-1),
-			Life:      startLife,
-			totalLife: startLife,
-			pID:       ps.nextPID + ps.pIDBlock*blockSize,
-		}
+				speed*math.Sin(angle)*-1)
+			bp.Life = startLife
+			bp.totalLife = startLife
+			p = ps.Generator.GenerateParticle(bp)
 
-		p := ps.Generator.GenerateParticle(bp)
+		}
 		ps.particles[ps.nextPID] = p
 		ps.nextPID++
-		if ps.nextPID >= blockSize {
-			return
-		}
 		p.SetLayer(ps.Layer(bp.GetPos()))
 		render.Draw(p, ps.stackLevel)
 	}
