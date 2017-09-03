@@ -122,7 +122,7 @@ func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
 			yOver = s.GetY() - y2
 		}
 	} else {
-		y2 := s.GetY() + s.GetW()
+		y2 := s.GetY() + s.GetH()
 		if other.GetY() < y2 {
 			yOver = y2 - other.GetY()
 		}
