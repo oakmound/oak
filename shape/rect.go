@@ -1,5 +1,9 @@
 package shape
 
+import (
+	"github.com/oakmound/oak/alg/intgeom"
+)
+
 // A Rect is a function that returns a 2d boolean array
 // of booleans for a given size, where true represents
 // that the bounded shape contains the point [x][y].
@@ -29,14 +33,37 @@ func InToRect(i In) Rect {
 	}
 }
 
-// For this type to work we'd need the ability to pick
-// (and apply) a scaling algorithm
-// type SelfRect [][]bool
+// A StrictRect is a shape that ignores input width and height given to it.
+type StrictRect [][]bool
 
-// func (sr SelfRect) In(x, y, size) bool {
+// NewStrictRect returns a StrictRect with the given strict dimensions, all
+// values set fo false.
+func NewStrictRect(w, h int) StrictRect {
+	sh := make(StrictRect, w)
+	for x := range sh {
+		sh[x] = make([]bool, h)
+	}
+	return sh
+}
 
-// }
+// In returns whether the input x and y are within this StrictRect's shape.
+// If the shape is undefined for the input values, it returns false.
+func (sr StrictRect) In(x, y int, sizes ...int) bool {
+	if x > len(sr) {
+		return false
+	}
+	if y > len(sr[x]) {
+		return false
+	}
+	return sr[x][y]
+}
 
-// func (sr SelfRect) Rect(size) [][]bool {
+// Outline returns this StrictRect's outline, ignoring the input dimensions.
+func (sr StrictRect) Outline(sizes ...int) ([]intgeom.Point, error) {
+	return ToOutline(sr)(len(sr), len(sr[0]))
+}
 
-// }
+// Rect returns the StrictRect itself.
+func (sr StrictRect) Rect(sizes ...int) [][]bool {
+	return sr
+}
