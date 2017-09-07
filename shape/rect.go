@@ -49,10 +49,10 @@ func NewStrictRect(w, h int) StrictRect {
 // In returns whether the input x and y are within this StrictRect's shape.
 // If the shape is undefined for the input values, it returns false.
 func (sr StrictRect) In(x, y int, sizes ...int) bool {
-	if x > len(sr) {
+	if x >= len(sr) {
 		return false
 	}
-	if y > len(sr[x]) {
+	if y >= len(sr[x]) {
 		return false
 	}
 	return sr[x][y]
