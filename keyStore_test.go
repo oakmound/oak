@@ -20,7 +20,6 @@ func TestKeyStore(t *testing.T) {
 	assert.True(t, IsDown("Test"))
 	setUp("Test")
 	assert.False(t, IsDown("Test"))
-	go keyHoldLoop()
 	setDown("Test")
 	time.Sleep(2 * time.Second)
 	ok, d := IsHeld("Test")
