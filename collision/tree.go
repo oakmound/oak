@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/Sythe2o0/rtreego"
+	"github.com/200sc/rtreego"
 )
 
 var (
