@@ -1,15 +1,13 @@
 package mouse
 
 import (
-	"github.com/oakmound/oak/collision"
 	"golang.org/x/mobile/event/mouse"
 )
 
 // Propagate triggers direct mouse events on entities which are clicked
 func Propagate(eventName string, me Event) {
 	hits := DefTree.SearchIntersect(me.ToSpace().Bounds())
-	for _, v := range hits {
-		sp := v.(*collision.Space)
+	for _, sp := range hits {
 		sp.CID.Trigger(eventName, me)
 	}
 }
