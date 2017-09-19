@@ -35,63 +35,11 @@ func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 	spew.Config.MaxDepth = 2
 
 	builtinCommands = map[string]func([]string){
-		"viewport": func(tokenString []string) {
-			switch tokenString[0] {
-			case "unlock":
-				if viewportLocked {
-					speed := parseTokenAsInt(tokenString, 1, 5)
-					viewportLocked = false
-					event.GlobalBind(moveViewportBinding(speed), "EnterFrame")
-				} else {
-					fmt.Println("Viewport is already unbound")
-				}
-			case "lock":
-				if viewportLocked {
-					fmt.Println("Viewport is already locked")
-				} else {
-					viewportLocked = true
-				}
-			default:
-				fmt.Println("Unrecognized command for viewport")
-			}
-		},
-		"fade": func(tokenString []string) {
-			toFade, ok := render.GetDebugRenderable(tokenString[0])
-			fadeVal := parseTokenAsInt(tokenString, 1, 255)
-			if ok {
-				toFade.(render.Modifiable).Modify(mod.Fade(fadeVal))
-			} else {
-				fmt.Println("Could not fade input")
-			}
-		},
-		"skip": func(tokenString []string) {
-			switch tokenString[0] {
-			case "scene":
-				skipScene <- true
-			default:
-				fmt.Println("Bad Skip Input")
-			}
-		},
-		"print": func(tokenString []string) {
-			if i, err := strconv.Atoi(tokenString[0]); err == nil {
-				if i > 0 && event.HasEntity(i) {
-					e := event.GetEntity(i)
-					fmt.Println(reflect.TypeOf(e), e)
-				} else {
-					fmt.Println("No entity ", i)
-				}
-			} else {
-				fmt.Println("Unable to parse", tokenString[0])
-			}
-		},
-		"mouse": func(tokenString []string) {
-			switch tokenString[0] {
-			case "details":
-				event.GlobalBind(mouseDetails, "MouseRelease")
-			default:
-				fmt.Println("Bad Mouse Input")
-			}
-		},
+		"viewport": viewportCommands,
+		"fade":     fadeCommands,
+		"skip":     skipCommands(skipScene),
+		"print":    printCommands,
+		"mouse":    mouseCommands,
 	}
 
 	for {
@@ -107,7 +55,7 @@ func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 				continue
 			}
 
-			// These different commands should probably be split off, so that
+			// The builtin commands should probably be split off, so that
 			// they aren't on by default always. It's worth considering making
 			// all commands through the AddCommand function and removing the
 			// requirement to precede custom commands with 'c', which would
@@ -160,4 +108,68 @@ func mouseDetails(nothing int, mevent interface{}) int {
 	}
 
 	return 0
+}
+
+func viewportCommands(tokenString []string) {
+	switch tokenString[0] {
+	case "unlock":
+		if viewportLocked {
+			speed := parseTokenAsInt(tokenString, 1, 5)
+			viewportLocked = false
+			event.GlobalBind(moveViewportBinding(speed), "EnterFrame")
+		} else {
+			fmt.Println("Viewport is already unbound")
+		}
+	case "lock":
+		if viewportLocked {
+			fmt.Println("Viewport is already locked")
+		} else {
+			viewportLocked = true
+		}
+	default:
+		fmt.Println("Unrecognized command for viewport")
+	}
+}
+
+func fadeCommands(tokenString []string) {
+	toFade, ok := render.GetDebugRenderable(tokenString[0])
+	fadeVal := parseTokenAsInt(tokenString, 1, 255)
+	if ok {
+		toFade.(render.Modifiable).Modify(mod.Fade(fadeVal))
+	} else {
+		fmt.Println("Could not fade input")
+	}
+}
+
+func skipCommands(skipScene chan bool) func(tokenString []string) {
+	return func(tokenString []string) {
+		switch tokenString[0] {
+		case "scene":
+			skipScene <- true
+		default:
+			fmt.Println("Bad Skip Input")
+		}
+	}
+}
+
+func printCommands(tokenString []string) {
+	if i, err := strconv.Atoi(tokenString[0]); err == nil {
+		if i > 0 && event.HasEntity(i) {
+			e := event.GetEntity(i)
+			fmt.Println(reflect.TypeOf(e), e)
+		} else {
+			fmt.Println("No entity ", i)
+		}
+	} else {
+		fmt.Println("Unable to parse", tokenString[0])
+	}
+}
+
+func mouseCommands(tokenString []string) {
+	switch tokenString[0] {
+	case "details":
+		event.GlobalBind(mouseDetails, "MouseRelease")
+	default:
+		fmt.Println("Bad Mouse Input")
+	}
 }

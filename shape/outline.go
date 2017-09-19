@@ -41,15 +41,20 @@ var (
 	}
 )
 
+func outlineSizes(sizes ...int) (w, h int) {
+	w = sizes[0]
+	h = sizes[0]
+	if len(sizes) > 1 {
+		h = sizes[1]
+	}
+	return
+}
+
 // ToOutline returns the set of points along the input shape's outline, if
 // one exists.
 func ToOutline(shape Shape) func(...int) ([]intgeom.Point, error) {
 	return func(sizes ...int) ([]intgeom.Point, error) {
-		w := sizes[0]
-		h := sizes[0]
-		if len(sizes) > 1 {
-			h = sizes[1]
-		}
+		w, h := outlineSizes(sizes...)
 
 		//First decrement on diagonal to find start of outline
 		startX := 0.0

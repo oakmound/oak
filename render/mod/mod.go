@@ -216,7 +216,7 @@ func TrimColor(trimUnder color.Color) Mod {
 			for y := 0; y < h; y++ {
 				c := rgba.At(x, y)
 				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
+				if colorLess(r, r2, g, g2, b, b2, a, a2) {
 					continue
 				}
 				break trimouter1
@@ -228,7 +228,7 @@ func TrimColor(trimUnder color.Color) Mod {
 			for y := 0; y < h; y++ {
 				c := rgba.At(x, y)
 				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
+				if colorLess(r, r2, g, g2, b, b2, a, a2) {
 					continue
 				}
 				break trimouter2
@@ -240,7 +240,7 @@ func TrimColor(trimUnder color.Color) Mod {
 			for x := 0; x < w; x++ {
 				c := rgba.At(x, y)
 				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
+				if colorLess(r, r2, g, g2, b, b2, a, a2) {
 					continue
 				}
 				break trimouter3
@@ -252,7 +252,7 @@ func TrimColor(trimUnder color.Color) Mod {
 			for x := 0; x < w; x++ {
 				c := rgba.At(x, y)
 				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
+				if colorLess(r, r2, g, g2, b, b2, a, a2) {
 					continue
 				}
 				break trimouter4
@@ -268,6 +268,10 @@ func TrimColor(trimUnder color.Color) Mod {
 		}
 		return out
 	}
+}
+
+func colorLess(r, r2, g, g2, b, b2, a, a2 uint32) bool {
+	return r2 <= r && g2 <= g && b2 <= b && a2 <= a
 }
 
 // ConformToPallete modifies the input image so that it's colors all fall

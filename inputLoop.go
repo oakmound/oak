@@ -111,8 +111,6 @@ func inputLoop() {
 		case size.Event:
 			//dlog.Verb("Got size event", e)
 			ChangeWindow(e.WidthPx, e.HeightPx)
-		case error:
-			dlog.Error(e)
 		}
 		// This loop can be tight enough that the go scheduler never gets
 		// a chance to take control from this thread. This is a hack that

@@ -44,7 +44,7 @@ func main() {
 		render.Draw(cmp, 0)
 	})
 
-	oak.AddScene("bezier", func(string, interface{}) {
+	oak.Add("bezier", func(string, interface{}) {
 		// Stubs
 	}, func() bool {
 		return true
