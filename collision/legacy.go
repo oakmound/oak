@@ -62,8 +62,8 @@ func (s *Space) Update(x, y, w, h float64) error {
 }
 
 // SetDim sets the dimensions of the space in the legacy rtree
-func (s *Space) SetDim(w, h float64) {
-	s.Update(s.X(), s.Y(), w, h)
+func (s *Space) SetDim(w, h float64) error {
+	return s.Update(s.X(), s.Y(), w, h)
 }
 
 // UpdateLabel changes the label behind this space and resets
