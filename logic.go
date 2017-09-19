@@ -1,43 +1,13 @@
 package oak
 
-import "github.com/oakmound/oak/timing"
+import "github.com/oakmound/oak/event"
 
 var (
-	// LogicTicker is exposed so that games can manually change the speed
-	// at which EnterFrame events are produced
-	LogicTicker *timing.DynamicTicker
-
-	framesElapsed int
+	logicHandler event.Handler = event.DefaultBus
 )
 
-// FramesElapsed returns the number of logical frames
-// that have been processed in the current scene. This
-// value is also passed in to all EnterFrame bindings.
-func FramesElapsed() int {
-	return framesElapsed
-}
-
-func logicLoop() chan bool {
-	// The logical loop.
-	// In order, it waits on receiving a signal to begin a logical frame.
-	// It then runs any functions bound to when a frame begins.
-	// It then allows a scene to perform it's loop operation.
-	ch := make(chan bool)
-	framesElapsed = 0
-	go func(doneCh chan bool) {
-		LogicTicker = timing.NewDynamicTicker()
-		LogicTicker.SetTick(timing.FPSToDuration(FrameRate))
-		for {
-			select {
-			case <-LogicTicker.C:
-				<-eb.TriggerBack("EnterFrame", framesElapsed)
-				framesElapsed++
-				sceneCh <- true
-			case <-doneCh:
-				LogicTicker.Stop()
-				return
-			}
-		}
-	}(ch)
-	return ch
+// SetLogicHandler swaps the logic system of the engine with some other
+// implementation. If this is never called, it will use event.DefaultBus
+func SetLogicHandler(h event.Handler) {
+	logicHandler = h
 }

@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
 	"github.com/oakmound/shiny/driver"
 )
@@ -64,8 +63,6 @@ var (
 
 	// DrawFrameRate is the unused equivalent to FrameRate
 	DrawFrameRate int
-
-	eb *event.Bus
 
 	zeroPoint = image.Point{0, 0}
 )

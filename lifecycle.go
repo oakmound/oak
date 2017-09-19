@@ -6,7 +6,6 @@ import (
 
 	"github.com/oakmound/oak/alg"
 	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/event"
 
 	"github.com/oakmound/shiny/screen"
 )
@@ -42,9 +41,6 @@ func lifecycleLoop(s screen.Screen) {
 	dlog.Info("Creating window controller")
 	changeWindow(ScreenWidth*conf.Screen.Scale, ScreenHeight*conf.Screen.Scale)
 
-	dlog.Info("Getting event bus")
-	eb = event.GetBus()
-
 	dlog.Info("Starting draw loop")
 	go drawLoop()
 	if !conf.DisableKeyhold {
@@ -54,8 +50,6 @@ func lifecycleLoop(s screen.Screen) {
 	dlog.Info("Starting input loop")
 	go inputLoop()
 
-	dlog.Info("Starting event handler")
-	go event.ResolvePending()
 	// The quit channel represents a signal
 	// for the engine to stop.
 	<-quitCh

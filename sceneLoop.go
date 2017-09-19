@@ -86,7 +86,12 @@ func sceneLoop(firstScene string) {
 
 		dlog.Info("Looping Scene")
 		cont := true
-		logicTicker := logicLoop()
+
+		err = logicHandler.UpdateLoop(FrameRate, sceneCh)
+		if err != nil {
+			dlog.Error(err)
+		}
+
 		for cont {
 			select {
 			case <-sceneCh:
@@ -98,7 +103,7 @@ func sceneLoop(firstScene string) {
 		dlog.Info("Scene End", SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
-		close(logicTicker)
+		logicHandler.Stop()
 		prevScene = SceneMap.CurrentScene
 
 		// Send a signal to stop drawing
@@ -118,7 +123,7 @@ func sceneLoop(firstScene string) {
 		// Reset transient portions of the engine
 		// We start by clearing the event bus to
 		// remove most ongoing code
-		event.ResetBus()
+		logicHandler.Reset()
 		// We follow by clearing collision areas
 		// because otherwise collision function calls
 		// on non-entities (i.e. particles) can still
@@ -140,8 +145,6 @@ func sceneLoop(firstScene string) {
 		if result == nil {
 			result = new(scene.Result)
 		}
-
-		eb = event.GetBus()
 
 		if !debugResetInProgress {
 			debugResetInProgress = true

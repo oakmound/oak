@@ -52,12 +52,12 @@ func inputLoop() {
 			if e.Direction == key.DirPress {
 				//dlog.Verb("--------------------", e.Code.String()[4:], k)
 				setDown(k)
-				eb.Trigger("KeyDown", k)
-				eb.Trigger("KeyDown"+k, nil)
+				logicHandler.Trigger("KeyDown", k)
+				logicHandler.Trigger("KeyDown"+k, nil)
 			} else if e.Direction == key.DirRelease {
 				setUp(k)
-				eb.Trigger("KeyUp", k)
-				eb.Trigger("KeyUp"+k, nil)
+				logicHandler.Trigger("KeyUp", k)
+				logicHandler.Trigger("KeyUp"+k, nil)
 			}
 
 		// Send mouse events
@@ -97,13 +97,13 @@ func inputLoop() {
 
 			pmouse.LastEvent = mevent
 
-			eb.Trigger(eventName, mevent)
+			logicHandler.Trigger(eventName, mevent)
 			pmouse.Propagate(eventName+"On", mevent)
 
 		case gesture.Event:
 			eventName := "Gesture" + e.Type.String()
 			dlog.Verb(eventName)
-			eb.Trigger(eventName, pmouse.FromShinyGesture(e))
+			logicHandler.Trigger(eventName, pmouse.FromShinyGesture(e))
 
 		// There's something called a paint event that we don't respond to
 

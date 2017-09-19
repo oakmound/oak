@@ -34,6 +34,6 @@ func (b BindingSet) Set(setName string, mappingSets ...map[string]Bindable) Bind
 
 // RebindMapping resets the entity controlling this cid to only have the bindings
 // in the passed in event mapping
-func (c CID) RebindMapping(mapping Mapping) {
-	c.UnbindAllAndRebind(mapping.binds, mapping.eventNames)
+func (cid CID) RebindMapping(mapping Mapping) {
+	cid.UnbindAllAndRebind(mapping.binds, mapping.eventNames)
 }

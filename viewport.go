@@ -47,7 +47,7 @@ func updateScreen(x, y int) {
 		dlog.Verb("Set ViewXY to ", x, " ", y)
 		ViewPos = image.Point{x, y}
 	}
-	eb.Trigger("ViewportUpdate", []float64{float64(ViewPos.X), float64(ViewPos.Y)})
+	logicHandler.Trigger("ViewportUpdate", []float64{float64(ViewPos.X), float64(ViewPos.Y)})
 	dlog.Verb("ViewX, Y: ", ViewPos.X, " ", ViewPos.Y)
 }
 

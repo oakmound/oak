@@ -2,9 +2,6 @@ package event
 
 import (
 	"sync"
-	"time"
-
-	"github.com/oakmound/oak/timing"
 )
 
 // Oak uses the following built in events:
@@ -30,51 +27,6 @@ import (
 // - ViewportUpdate: Triggered when the viewport changes.
 //   Payload: []float64{viewportX, viewportY}
 
-// Trigger an event, but only
-// for one ID. Use case example:
-// on onHit event
-func (id CID) Trigger(eventName string, data interface{}) {
-
-	go func(eventName string, data interface{}) {
-		eb := GetBus()
-		mutex.RLock()
-		iid := int(id)
-		if idMap, ok := eb.bindingMap[eventName]; ok {
-			if bs, ok := idMap[iid]; ok {
-				for i := bs.highIndex - 1; i >= 0; i-- {
-					triggerDefault((*bs.highPriority[i]).sl, iid, eventName, data)
-				}
-				triggerDefault((bs.defaultPriority).sl, iid, eventName, data)
-
-				for i := 0; i < bs.lowIndex; i++ {
-					triggerDefault((*bs.lowPriority[i]).sl, iid, eventName, data)
-				}
-			}
-		}
-		mutex.RUnlock()
-	}(eventName, data)
-}
-
-// TriggerAfter will trigger the given event after d time.
-func (id CID) TriggerAfter(d time.Duration, eventName string, data interface{}) {
-	go func() {
-		timing.DoAfter(d, func() {
-			id.Trigger(eventName, data)
-		})
-	}()
-}
-
-// Trigger is equivalent to bus.Trigger(...)
-// Todo: move this to legacy.go, see mouse or collision
-func Trigger(eventName string, data interface{}) {
-	thisBus.Trigger(eventName, data)
-}
-
-// TriggerBack is equivalent to bus.TriggerBack(...)
-func TriggerBack(eventName string, data interface{}) chan bool {
-	return thisBus.TriggerBack(eventName, data)
-}
-
 // TriggerBack is a version of Trigger which returns a channel that
 // informs on when all bindables have been called and returned from
 // the input event. It is dangerous to use this unless you have a
@@ -94,7 +46,7 @@ func (eb *Bus) TriggerBack(eventName string, data interface{}) chan bool {
 
 	ch := make(chan bool)
 	go func(ch chan bool, eb *Bus, eventName string, data interface{}) {
-		ebtrigger(eb, eventName, data)
+		eb.trigger(eventName, data)
 		ch <- true
 	}(ch, eb, eventName, data)
 
@@ -105,48 +57,48 @@ func (eb *Bus) TriggerBack(eventName string, data interface{}) chan bool {
 // to the given event, with the passed in data.
 func (eb *Bus) Trigger(eventName string, data interface{}) {
 	go func(eb *Bus, eventName string, data interface{}) {
-		ebtrigger(eb, eventName, data)
+		eb.trigger(eventName, data)
 	}(eb, eventName, data)
 }
 
-func ebtrigger(eb *Bus, eventName string, data interface{}) {
-	mutex.RLock()
+func (eb *Bus) trigger(eventName string, data interface{}) {
+	eb.mutex.RLock()
 	// Loop through all bindableStores for this eventName
 	for id, bs := range (*eb).bindingMap[eventName] {
 		// Top to bottom, high priority
 		for i := bs.highIndex - 1; i >= 0; i-- {
-			triggerDefault((*bs.highPriority[i]).sl, id, eventName, data)
+			eb.triggerDefault((*bs.highPriority[i]).sl, id, eventName, data)
 		}
 	}
 
 	for id, bs := range (*eb).bindingMap[eventName] {
 		if bs != nil && bs.defaultPriority != nil {
-			triggerDefault((bs.defaultPriority).sl, id, eventName, data)
+			eb.triggerDefault((bs.defaultPriority).sl, id, eventName, data)
 		}
 	}
 
 	for id, bs := range (*eb).bindingMap[eventName] {
 		// Bottom to top, low priority
 		for i := 0; i < bs.lowIndex; i++ {
-			triggerDefault((*bs.lowPriority[i]).sl, id, eventName, data)
+			eb.triggerDefault((*bs.lowPriority[i]).sl, id, eventName, data)
 		}
 	}
-	mutex.RUnlock()
+	eb.mutex.RUnlock()
 }
 
-func triggerDefault(sl []Bindable, id int, eventName string, data interface{}) {
+func (eb *Bus) triggerDefault(sl []Bindable, id int, eventName string, data interface{}) {
 	prog := &sync.WaitGroup{}
 	prog.Add(len(sl))
 	for i, bnd := range sl {
 		go func(bnd Bindable, id int, eventName string, data interface{}, prog *sync.WaitGroup, index int) {
-			handleBindable(bnd, id, data, index, eventName)
+			eb.handleBindable(bnd, id, data, index, eventName)
 			prog.Done()
 		}(bnd, id, eventName, data, prog, i)
 	}
 	prog.Wait()
 }
 
-func handleBindable(bnd Bindable, id int, data interface{}, index int, eventName string) {
+func (eb *Bus) handleBindable(bnd Bindable, id int, data interface{}, index int, eventName string) {
 	if bnd != nil {
 		if id == 0 || GetEntity(id) != nil {
 			response := bnd(id, data)
@@ -169,7 +121,7 @@ func handleBindable(bnd Bindable, id int, data interface{}, index int, eventName
 						0,
 					},
 					index,
-				}.unbind()
+				}.unbind(eb)
 			}
 		}
 	}

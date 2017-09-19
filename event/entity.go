@@ -1,6 +1,8 @@
 package event
 
-import "sync"
+import (
+	"sync"
+)
 
 var (
 	highestID CID
@@ -8,17 +10,7 @@ var (
 	idMutex   = sync.Mutex{}
 )
 
-// Parse returns the given cid, or the entity's cid
-// if the given cid is 0. This way, multiple entities can be
-// composed together by passing 0 down to lower tiered constructors, so that
-// the topmost entity is stored once and bind functions will
-// bind to the topmost entity.
-func (cid CID) Parse(e Entity) CID {
-	if cid == 0 {
-		return e.Init()
-	}
-	return cid
-}
+// Todo: callers having assigned buses?
 
 // An Entity is an element which can be bound to,
 // in that it has a CID. All Entities need to implement
