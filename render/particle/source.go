@@ -6,6 +6,7 @@ import (
 
 	"github.com/200sc/go-dist/intrange"
 
+	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
 	"github.com/oakmound/oak/render"
@@ -166,7 +167,10 @@ func (ps *Source) addParticles() {
 		ps.particles[ps.nextPID] = p
 		ps.nextPID++
 		p.SetLayer(ps.Layer(bp.GetPos()))
-		render.Draw(p, ps.stackLevel)
+		_, err := render.Draw(p, ps.stackLevel)
+		if err != nil {
+			dlog.Error(err)
+		}
 	}
 
 }

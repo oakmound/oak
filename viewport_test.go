@@ -28,7 +28,6 @@ func resetOak() {
 	case <-quitCh:
 	default:
 	}
-	lifecycleInit = false
 }
 
 func sleep() {

@@ -50,7 +50,6 @@ func TestChooseX(t *testing.T) {
 	rand.Seed(int64(time.Now().UTC().Nanosecond()))
 	weights := []float64{1.0, .9, .8, .7, .6, .5, .4, .3, .2, .1}
 	chosenCts := make([]int, len(weights))
-	chosenCts = make([]int, len(weights))
 	for i := 0; i < testCt; i++ {
 		chosen := ChooseX(weights, 1)
 		for _, c := range chosen {

@@ -17,8 +17,6 @@ var (
 
 	windowRect     image.Rectangle
 	windowUpdateCh = make(chan bool)
-
-	lifecycleInit bool
 )
 
 func lifecycleLoop(s screen.Screen) {

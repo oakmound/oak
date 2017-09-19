@@ -140,13 +140,18 @@ func (rv *Reverting) IsStatic() bool {
 // Set calls Set on underlying types below this Reverting that cat be Set
 // Todo: if Set becomes used by more types, this should use an interface like
 // CanPause
-func (rv *Reverting) Set(k string) {
+func (rv *Reverting) Set(k string) error {
+	var err error
 	switch t := rv.Modifiable.(type) {
 	case *Compound:
-		t.Set(k)
+		err = t.Set(k)
+		if err != nil {
+			return err
+		}
 	}
 	switch t := rv.rs[0].(type) {
 	case *Compound:
-		t.Set(k)
+		err = t.Set(k)
 	}
+	return err
 }

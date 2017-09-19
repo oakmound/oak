@@ -88,8 +88,7 @@ func (cp *ColorParticle) GetLayer() int {
 
 // GetPos returns the middle of a color particle
 func (cp *ColorParticle) GetPos() physics.Vector {
-	fSize := float64(cp.size)
-	return physics.NewVector(cp.X()-fSize/2, cp.Y()-fSize/2)
+	return physics.NewVector(cp.X()-cp.size/2, cp.Y()-cp.size/2)
 }
 
 // GetDims returns the color particle's size, twice

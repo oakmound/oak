@@ -36,5 +36,5 @@ func NewZeroEvent(x, y float64) Event {
 
 // ToSpace converts a mouse event into a collision space
 func (e Event) ToSpace() *collision.Space {
-	return collision.NewUnassignedSpace(float64(e.X()), float64(e.Y()), 0.1, 0.1)
+	return collision.NewUnassignedSpace(e.X(), e.Y(), 0.1, 0.1)
 }

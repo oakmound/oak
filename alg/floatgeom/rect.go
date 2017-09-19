@@ -189,20 +189,20 @@ func (r Rect3) Contains(p Point3) bool {
 
 // ContainsRect tests whether r2 is is located inside r1.
 func (r Rect2) ContainsRect(r2 Rect2) bool {
-	return (r2.Min.X() >= r2.Min.X() &&
-		r2.Max.X() <= r2.Max.X() &&
-		r2.Min.Y() >= r2.Min.Y() &&
-		r2.Max.Y() <= r2.Max.Y())
+	return (r2.Min.X() >= r.Min.X() &&
+		r2.Max.X() <= r.Max.X() &&
+		r2.Min.Y() >= r.Min.Y() &&
+		r2.Max.Y() <= r.Max.Y())
 }
 
 // ContainsRect tests whether r2 is is located inside r1.
 func (r Rect3) ContainsRect(r2 Rect3) bool {
-	return (r2.Min.X() >= r2.Min.X() &&
-		r2.Max.X() <= r2.Max.X() &&
-		r2.Min.Y() >= r2.Min.Y() &&
-		r2.Max.Y() <= r2.Max.Y() &&
-		r2.Min.Z() >= r2.Min.Z() &&
-		r2.Max.Z() <= r2.Max.Z())
+	return (r2.Min.X() >= r.Min.X() &&
+		r2.Max.X() <= r.Max.X() &&
+		r2.Min.Y() >= r.Min.Y() &&
+		r2.Max.Y() <= r.Max.Y() &&
+		r2.Min.Z() >= r.Min.Z() &&
+		r2.Max.Z() <= r.Max.Z())
 }
 
 // GreaterOf returns a rectangle formed of the lowest values on each

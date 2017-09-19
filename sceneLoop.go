@@ -103,7 +103,10 @@ func sceneLoop(firstScene string) {
 		dlog.Info("Scene End", SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
-		logicHandler.Stop()
+		err = logicHandler.Stop()
+		if err != nil {
+			dlog.Error(err)
+		}
 		prevScene = SceneMap.CurrentScene
 
 		// Send a signal to stop drawing

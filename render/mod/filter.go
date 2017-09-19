@@ -12,7 +12,7 @@ type Filter func(*image.RGBA)
 
 // ConformToPalleteFilter is not a modification, but acts like ConformToPallete
 // without allocating a new *image.RGBA
-func ConformToPalleteFilter(p color.Palette) Filter {
+func ConformToPalleteFilter(p color.Model) Filter {
 	return func(rgba *image.RGBA) {
 		bounds := rgba.Bounds()
 		w := bounds.Max.X

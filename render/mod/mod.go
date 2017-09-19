@@ -272,7 +272,7 @@ func TrimColor(trimUnder color.Color) Mod {
 
 // ConformToPallete modifies the input image so that it's colors all fall
 // in the input color palette.
-func ConformToPallete(p color.Palette) Mod {
+func ConformToPallete(p color.Model) Mod {
 	return func(rgba image.Image) *image.RGBA {
 		bounds := rgba.Bounds()
 		w := bounds.Max.X

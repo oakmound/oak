@@ -158,11 +158,7 @@ func (t *Tree) HitLabel(sp *Space, labels ...Label) *Space {
 // Hit is an experimental new syntax that probably has performance hits
 // relative to Hits/HitLabel, see filters.go
 func (t *Tree) Hit(sp *Space, fs ...Filter) []*Space {
-	iresults := t.SearchIntersect(sp.Bounds())
-	results := make([]*Space, len(iresults))
-	for i, v := range iresults {
-		results[i] = v
-	}
+	results := t.SearchIntersect(sp.Bounds())
 	for _, f := range fs {
 		if len(results) == 0 {
 			return results

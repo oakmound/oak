@@ -5,6 +5,7 @@ import (
 
 	"time"
 
+	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/timing"
 )
 
@@ -35,26 +36,30 @@ func DrawColor(c color.Color, x1, y1, x2, y2 float64, layer, stackLayer int) Ren
 	cb.ShiftX(x1)
 	cb.ShiftY(y1)
 	if len(GlobalDrawStack.as) == 1 {
-		Draw(cb, layer)
+		_, err := Draw(cb, layer)
+		if err != nil {
+			dlog.Error(err)
+		}
 	} else {
 		cb.SetLayer(layer)
-		Draw(cb, stackLayer)
+		_, err := Draw(cb, stackLayer)
+		if err != nil {
+			dlog.Error(err)
+		}
 	}
 	return cb
 }
 
-// UndrawAfter will trigger a renderable's undraw function
-// after a given time has passed
-func UndrawAfter(r Renderable, t time.Duration) {
-	go func(r Renderable, t time.Duration) {
-		timing.DoAfter(t, func() {
+// DrawForTime draws and after d undraws an element
+func DrawForTime(r Renderable, l int, d time.Duration) error {
+	_, err := Draw(r, l)
+	if err != nil {
+		return err
+	}
+	go func(r Renderable, d time.Duration) {
+		timing.DoAfter(d, func() {
 			r.UnDraw()
 		})
-	}(r, t)
-}
-
-// DrawForTime is a wrapper for Draw and UndrawAfter
-func DrawForTime(r Renderable, l int, t time.Duration) {
-	Draw(r, l)
-	UndrawAfter(r, t)
+	}(r, d)
+	return nil
 }
