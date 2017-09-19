@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/200sc/rtreego"
-	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/alg/floatgeom"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
 )
@@ -21,7 +20,7 @@ const (
 // with a couple of ways of identifying
 // an underlying object.
 type Space struct {
-	Location *rtreego.Rect
+	Location floatgeom.Rect3
 	// A label can store type information.
 	// Recommended to use with an enum.
 	Label Label
@@ -34,28 +33,28 @@ type Space struct {
 }
 
 // Bounds satisfies the rtreego.Spatial interface.
-func (s *Space) Bounds() *rtreego.Rect {
+func (s *Space) Bounds() floatgeom.Rect3 {
 	return s.Location
 }
 
 // X returns a space's x position (leftmost)
 func (s *Space) X() float64 {
-	return s.Location.PointCoord(0)
+	return s.Location.Min.X()
 }
 
 // Y returns a space's y position (upmost)
 func (s *Space) Y() float64 {
-	return s.Location.PointCoord(1)
+	return s.Location.Min.Y()
 }
 
 // GetW returns a space's width (rightmost x - leftmost x)
 func (s *Space) GetW() float64 {
-	return s.Location.LengthsCoord(0)
+	return s.Location.W()
 }
 
 // GetH returns a space's height (upper y - lower y)
 func (s *Space) GetH() float64 {
-	return s.Location.LengthsCoord(1)
+	return s.Location.H()
 }
 
 // GetCenter returns the center point of the space
@@ -65,7 +64,7 @@ func (s *Space) GetCenter() (float64, float64) {
 
 // GetPos returns both y and x
 func (s *Space) GetPos() (float64, float64) {
-	return s.Location.PointCoord(1), s.Location.PointCoord(0)
+	return s.X(), s.Y()
 }
 
 // Above returns how much above this space another space is
@@ -81,7 +80,7 @@ func (s *Space) Below(other *Space) float64 {
 	return s.Y() - other.Y()
 }
 
-// Contains returns whether this space contains other
+// Contains returns whether this space contains another
 func (s *Space) Contains(other *Space) bool {
 	//You contain another space if it is fully inside your space
 	//If you are the same size and location as the space you are checking then you both contain eachother
@@ -232,27 +231,12 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 // If a negative width or height is given, the rectangle is
 // shifted to the left or up by that negative dimension and
 // the dimension is made positive.
-func NewRect(x, y, w, h float64) *rtreego.Rect {
-
-	rect, err := rtreego.NewRect(rtreego.Point{x, y}, [3]float64{w, h, 1})
-	if err != nil {
-		// Correct invalid dimensions
-		if w == 0 {
-			w = 1
-		} else if w < 0 {
-			x += w
-			w *= -1
-		}
-		if h == 0 {
-			h = 1
-		} else if h < 0 {
-			y += h
-			h *= -1
-		}
-		dlog.Warn("Corrected Rectangle Dimensions to", w, h)
-		// This error won't happen-- we just corrected all potential causes.
-		// If rtreego changes in the future this could also change.
-		rect, _ = rtreego.NewRect(rtreego.Point{x, y}, [3]float64{w, h, 1})
+func NewRect(x, y, w, h float64) floatgeom.Rect3 {
+	if w == 0 {
+		w = 1
 	}
-	return &rect
+	if h == 0 {
+		h = 1
+	}
+	return floatgeom.NewRect3WH(x, y, 0, w, h, 1)
 }

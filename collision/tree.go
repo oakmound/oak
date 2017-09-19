@@ -3,8 +3,6 @@ package collision
 import (
 	"errors"
 	"sync"
-
-	"github.com/200sc/rtreego"
 )
 
 var (
@@ -20,12 +18,16 @@ var (
 
 // A Tree provides a space for managing collisions between rectangles
 type Tree struct {
-	*rtreego.Rtree
+	*Rtree
 	sync.Mutex
 	minChildren, maxChildren int
 }
 
-// NewTree returns a new collision Tree
+// NewTree returns a new collision Tree. The first argument will be used
+// as the minimum children per tree node. The second will be the maximum
+// children per tree node. Further arguments are ignored. If less than two
+// arguments are given, DefaultMinChildren and DefaultMaxChildren will be
+// used.
 func NewTree(children ...int) (*Tree, error) {
 	minChildren := DefaultMinChildren
 	maxChildren := DefaultMaxChildren
@@ -39,7 +41,7 @@ func NewTree(children ...int) (*Tree, error) {
 		return nil, errors.New("MaxChildren must exceed MinChildren")
 	}
 	return &Tree{
-		Rtree:       rtreego.NewTree(minChildren, maxChildren),
+		Rtree:       newTree(minChildren, maxChildren),
 		minChildren: minChildren,
 		maxChildren: maxChildren,
 		Mutex:       sync.Mutex{},
@@ -48,7 +50,7 @@ func NewTree(children ...int) (*Tree, error) {
 
 // Clear resets a tree's contents to be empty
 func (t *Tree) Clear() {
-	t.Rtree = rtreego.NewTree(t.minChildren, t.maxChildren)
+	t.Rtree = newTree(t.minChildren, t.maxChildren)
 }
 
 // Add adds a set of spaces to the rtree
@@ -125,10 +127,10 @@ func (t *Tree) Hits(sp *Space) []*Space {
 	}
 	out := make([]*Space, len(results))
 	for i, v := range results {
-		if v.(*Space) == sp {
+		if v == sp {
 			hitSelf = i
 		}
-		out[i] = v.(*Space)
+		out[i] = v
 	}
 	if hitSelf != -1 {
 		out[hitSelf], out[len(out)-1] = out[len(out)-1], out[hitSelf]
@@ -145,8 +147,8 @@ func (t *Tree) HitLabel(sp *Space, labels ...Label) *Space {
 	results := t.SearchIntersect(sp.Bounds())
 	for _, v := range results {
 		for _, label := range labels {
-			if v.(*Space) != sp && v.(*Space).Label == label {
-				return v.(*Space)
+			if v != sp && v.Label == label {
+				return v
 			}
 		}
 	}
@@ -159,7 +161,7 @@ func (t *Tree) Hit(sp *Space, fs ...Filter) []*Space {
 	iresults := t.SearchIntersect(sp.Bounds())
 	results := make([]*Space, len(iresults))
 	for i, v := range iresults {
-		results[i] = v.(*Space)
+		results[i] = v
 	}
 	for _, f := range fs {
 		if len(results) == 0 {

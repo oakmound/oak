@@ -26,7 +26,7 @@ func (t *Tree) RayCast(x, y, degrees, length float64) []Point {
 		next := t.SearchIntersect(loc)
 
 		for k := 0; k < len(next); k++ {
-			nx := (next[k].(*Space))
+			nx := next[k]
 			if _, ok := resultHash[nx]; !ok {
 				resultHash[nx] = true
 				results = append(results, NewPoint(nx, x, y))
@@ -51,7 +51,7 @@ func (t *Tree) RayCastSingle(x, y, degrees, length float64, invalidIDS ...event.
 		next := t.SearchIntersect(loc)
 	output:
 		for k := 0; k < len(next); k++ {
-			nx := (next[k].(*Space))
+			nx := next[k]
 			for e := 0; e < len(invalidIDS); e++ {
 				if nx.CID == invalidIDS[e] {
 					continue output
@@ -76,7 +76,7 @@ func (t *Tree) RayCastSingleLabels(x, y, degrees, length float64, labels ...Labe
 		loc := NewRect(x, y, .1, .1)
 		next := t.SearchIntersect(loc)
 		for k := 0; k < len(next); k++ {
-			nx := (next[k].(*Space))
+			nx := next[k]
 			for _, label := range labels {
 				if nx.Label == label {
 					return NewPoint(nx, x, y)
@@ -100,7 +100,7 @@ func (t *Tree) RayCastSingleIgnoreLabels(x, y, degrees, length float64, labels .
 		next := t.SearchIntersect(loc)
 	output:
 		for k := 0; k < len(next); k++ {
-			nx := (next[k].(*Space))
+			nx := next[k]
 			for _, label := range labels {
 				if nx.Label == label {
 					continue output
@@ -125,7 +125,7 @@ func (t *Tree) RayCastSingleIgnore(x, y, degrees, length float64, invalidIDS []e
 		next := t.SearchIntersect(loc)
 	output:
 		for k := 0; k < len(next); k++ {
-			nx := (next[k].(*Space))
+			nx := next[k]
 			for _, label := range labels {
 				if nx.Label == label {
 					continue output
