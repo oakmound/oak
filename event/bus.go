@@ -59,8 +59,11 @@ type Bus struct {
 
 	mutex        sync.RWMutex
 	pendingMutex sync.Mutex
+
+	init sync.Once
 }
 
+// NewBus returns an empty event bus
 func NewBus() *Bus {
 	return &Bus{
 		bindingMap:          make(map[string]map[int]*bindableStore),
@@ -72,6 +75,7 @@ func NewBus() *Bus {
 		unbindAllAndRebinds: make([]UnbindAllOption, 0),
 		mutex:               sync.RWMutex{},
 		pendingMutex:        sync.Mutex{},
+		init:                sync.Once{},
 	}
 }
 

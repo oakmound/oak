@@ -10,20 +10,22 @@ import (
 // If you ask "Why does this not use select over channels, share memory by communicating",
 // the answer is we tried, and it was cripplingly slow.
 func (eb *Bus) ResolvePending() {
-	schedCt := 0
-	for {
-		eb.Flush()
+	eb.init.Do(func() {
+		schedCt := 0
+		for {
+			eb.Flush()
 
-		// This is a tight loop that can cause a pseudo-deadlock
-		// by refusing to release control to the go scheduler.
-		// This code prevents this from happening.
-		// See https://github.com/golang/go/issues/10958
-		schedCt++
-		if schedCt > 1000 {
-			schedCt = 0
-			runtime.Gosched()
+			// This is a tight loop that can cause a pseudo-deadlock
+			// by refusing to release control to the go scheduler.
+			// This code prevents this from happening.
+			// See https://github.com/golang/go/issues/10958
+			schedCt++
+			if schedCt > 1000 {
+				schedCt = 0
+				runtime.Gosched()
+			}
 		}
-	}
+	})
 }
 
 func (eb *Bus) resolveUnbindAllAndRebinds() {

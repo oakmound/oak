@@ -69,78 +69,82 @@ func (cid CID) UnbindAllAndRebind(binds []Bindable, events []string) {
 	}, binds, int(cid), events)
 }
 
-// Trigger is equivalent to bus.Trigger(...)
-// Todo: move this to legacy.go, see mouse or collision
+// Trigger calls Trigger on the DefaultBus
 func Trigger(eventName string, data interface{}) {
 	DefaultBus.Trigger(eventName, data)
 }
 
-// TriggerBack is equivalent to bus.TriggerBack(...)
+// TriggerBack calls TriggerBack on the DefaultBus
 func TriggerBack(eventName string, data interface{}) chan bool {
 	return DefaultBus.TriggerBack(eventName, data)
 }
 
-// GlobalBind binds on the default bus to the cid 0, a non entity.
+// GlobalBind calls GlobalBind on the DefaultBus
 func GlobalBind(fn Bindable, name string) {
 	DefaultBus.Bind(fn, name, 0)
 }
 
-// UnbindAll removes all events that match the given bindingOption from the
-// default event bus
+// UnbindAll calls UnbindAll on the DefaultBus
 func UnbindAll(opt BindingOption) {
 	DefaultBus.UnbindAll(opt)
 }
 
-// UnbindAllAndRebind is a way to reset the bindings on a CID efficiently,
-// given a new set of equal length binding and event slices. This is equivalent
-// to callign UnbindAll and then looping over Bind calls for the pairs of
-// bindables and event names, but uses less mutex time.
+// UnbindAllAndRebind calls UnbindAllAndRebind on the DefaultBus
 func UnbindAllAndRebind(bo BindingOption, binds []Bindable, cid int, events []string) {
 	DefaultBus.UnbindAllAndRebind(bo, binds, cid, events)
 }
 
-// UnbindBindable is a manual way to unbind a function Bindable. Use of
-// this with closures will result in undefined behavior.
+// UnbindBindable calls UnbindBindable on the DefaultBus
 func UnbindBindable(opt UnbindOption) {
 	DefaultBus.UnbindBindable(opt)
 }
 
+// Bind calls Bind on the DefaultBus
 func Bind(fn Bindable, name string, callerID int) {
 	DefaultBus.Bind(fn, name, callerID)
 }
 
+// BindPriority calls BindPriority on the DefaultBus
 func BindPriority(fn Bindable, opt BindingOption) {
 	DefaultBus.BindPriority(fn, opt)
 }
 
+// Flush calls Flush on the DefaultBus
 func Flush() error {
 	return DefaultBus.Flush()
 }
 
+// FramesElapsed calls FramesElapsed on the DefaultBus
 func FramesElapsed() int {
 	return DefaultBus.FramesElapsed()
 }
 
+// Reset calls Reset on the DefaultBus
 func Reset() {
 	DefaultBus.Reset()
 }
 
+// ResolvePending calls ResolvePending on the DefaultBus
 func ResolvePending() {
 	DefaultBus.ResolvePending()
 }
 
+// SetTick calls SetTick on the DefaultBus
 func SetTick(framerate int) error {
 	return DefaultBus.SetTick(framerate)
 }
 
+// Stop calls Stop on the DefaultBus
 func Stop() error {
 	return DefaultBus.Stop()
 }
 
+// Update calls Update on the DefaultBus
 func Update() error {
 	return DefaultBus.Update()
 }
 
+// UpdateLoop calls UpdateLoop on the DefaultBus
 func UpdateLoop(framerate int, updateCh chan<- bool) error {
 	return DefaultBus.UpdateLoop(framerate, updateCh)
 }
