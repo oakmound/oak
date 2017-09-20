@@ -110,6 +110,13 @@ func (sq *Sequence) Modify(ms ...mod.Mod) Modifiable {
 	return sq
 }
 
+// Filter filters each element in the sequence by the inputs
+func (sq *Sequence) Filter(fs ...mod.Filter) {
+	for _, r := range sq.rs {
+		r.Filter(fs...)
+	}
+}
+
 // IsStatic returns false for sequences
 func (sq *Sequence) IsStatic() bool {
 	return false

@@ -83,6 +83,13 @@ func (s *Sprite) Modify(ms ...mod.Mod) Modifiable {
 	return s
 }
 
+// Filter filters this sprite's rgba on all the input filters
+func (s *Sprite) Filter(fs ...mod.Filter) {
+	for _, f := range fs {
+		f(s.r)
+	}
+}
+
 // OverlaySprites combines sprites together through masking to form a single sprite
 func OverlaySprites(sps []Sprite) *Sprite {
 	tmpSprite := sps[len(sps)-1].Copy().(*Sprite)

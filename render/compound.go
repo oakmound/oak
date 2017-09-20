@@ -103,7 +103,7 @@ func (c *Compound) GetRGBA() *image.RGBA {
 	return rgba
 }
 
-// Modify performs a series of modifications on the Compound
+// Modify performs the input modifications on all elements of the Compound
 func (c *Compound) Modify(ms ...mod.Mod) Modifiable {
 	c.lock.RLock()
 	for _, r := range c.subRenderables {
@@ -111,6 +111,15 @@ func (c *Compound) Modify(ms ...mod.Mod) Modifiable {
 	}
 	c.lock.RUnlock()
 	return c
+}
+
+// Filter filters all elements of the compound with fs
+func (c *Compound) Filter(fs ...mod.Filter) {
+	c.lock.RLock()
+	for _, r := range c.subRenderables {
+		r.Filter(fs...)
+	}
+	c.lock.RUnlock()
 }
 
 //DrawOffset draws the Compound at an offset from its logical location

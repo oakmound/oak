@@ -20,5 +20,6 @@ type Modifiable interface {
 	Renderable
 	GetRGBA() *image.RGBA
 	Modify(...mod.Mod) Modifiable
+	Filter(...mod.Filter)
 	Copy() Modifiable
 }

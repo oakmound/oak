@@ -102,6 +102,13 @@ func (cs *Composite) Modify(ms ...mod.Mod) Modifiable {
 	return cs
 }
 
+// Filter filters each component part of this composite by all of the inputs.
+func (cs *Composite) Filter(fs ...mod.Filter) {
+	for _, r := range cs.rs {
+		r.Filter(fs...)
+	}
+}
+
 //Copy makes a new Composite with the same renderables
 func (cs *Composite) Copy() Modifiable {
 	cs2 := new(Composite)
