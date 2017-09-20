@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/oakmound/oak"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/mouse"
 	"github.com/oakmound/oak/render"
 	"github.com/oakmound/oak/shape"
 )
@@ -14,10 +16,23 @@ var (
 	cmp *render.Composite
 )
 
+func renderCurve(floats []float64) {
+	bz, err := shape.BezierCurve(floats...)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if cmp != nil {
+		cmp.UnDraw()
+	}
+	cmp = bezierDraw(bz)
+	render.Draw(cmp, 0)
+}
+
 func main() {
 
-	// c bezier accepts the same inputs as BezierCurve.
-	// The indicator will follow the path given here.
+	// c bezier X Y X Y X Y ...
+	// for defining custom points without using the mouse.
+	// does not interact with the mouse points tracked through left clicks.
 	oak.AddCommand("bezier", func(tokens []string) {
 		if len(tokens) < 4 {
 			return
@@ -32,19 +47,24 @@ func main() {
 				return
 			}
 		}
-		bz, err := shape.BezierCurve(floats...)
-		if err != nil {
-			fmt.Println(err)
-		}
-		if cmp != nil {
-			cmp.UnDraw()
-		}
-		cmp = bezierDraw(bz)
-		render.Draw(cmp, 0)
+		renderCurve(floats)
 	})
 
 	oak.AddScene("bezier", func(string, interface{}) {
-		// Stubs
+		mouseFloats := []float64{}
+		event.GlobalBind(func(_ int, mouseEvent interface{}) int {
+			me := mouseEvent.(mouse.Event)
+			// Left click to add a point to the curve
+			if me.Button == "LeftMouse" {
+				mouseFloats = append(mouseFloats, float64(me.X), float64(me.Y))
+				renderCurve(mouseFloats)
+				// Perform any other click to reset the drawn curve
+			} else {
+				mouseFloats = []float64{}
+				cmp.UnDraw()
+			}
+			return 0
+		}, "MousePress")
 	}, func() bool {
 		return true
 	}, func() (string, *oak.SceneResult) {
@@ -68,8 +88,8 @@ func bezierDrawRec(b shape.Bezier, list *render.Composite, alpha uint8) {
 		bezierDrawRec(bzn.Left, list, uint8(float64(alpha)*.5))
 		bezierDrawRec(bzn.Right, list, uint8(float64(alpha)*.5))
 	case shape.BezierPoint:
-		sp := render.NewColorBox(3, 3, color.RGBA{255, 0, 0, 255})
-		sp.SetPos(bzn.X-1, bzn.Y-1)
+		sp := render.NewColorBox(5, 5, color.RGBA{255, 255, 255, 255})
+		sp.SetPos(bzn.X-2, bzn.Y-2)
 		list.Append(sp)
 	default:
 	}
