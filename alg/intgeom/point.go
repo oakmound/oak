@@ -30,6 +30,32 @@ func (p Point) Add(p2 Point) Point {
 	return p
 }
 
+// LesserOf returns a point of the lowest X and Y component in the inputs.
+func (p Point) LesserOf(ps ...Point) Point {
+	for _, p2 := range ps {
+		if p2.X < p.X {
+			p.X = p2.X
+		}
+		if p2.Y < p.Y {
+			p.Y = p2.Y
+		}
+	}
+	return p
+}
+
+// GreaterOf returns a point of the highest X and Y component in the inputs.
+func (p Point) GreaterOf(ps ...Point) Point {
+	for _, p2 := range ps {
+		if p2.X > p.X {
+			p.X = p2.X
+		}
+		if p2.Y > p.Y {
+			p.Y = p2.Y
+		}
+	}
+	return p
+}
+
 // PointsBetween returns a line of points connecting p and p2
 func (p Point) PointsBetween(p2 Point) []Point {
 

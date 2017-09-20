@@ -91,6 +91,8 @@ func bezierDrawRec(b shape.Bezier, list *render.Composite, alpha uint8) {
 		sp := render.NewColorBox(5, 5, color.RGBA{255, 255, 255, 255})
 		sp.SetPos(bzn.X-2, bzn.Y-2)
 		list.Append(sp)
-	default:
 	}
 }
+
+// Todo: could add a little animation that follows each of the bezier curves
+// around as progress increases

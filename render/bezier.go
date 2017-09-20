@@ -18,26 +18,10 @@ func BezierLine(b shape.Bezier, c color.Color) *Sprite {
 	pts[1] = roundToIntPoint(b.Pos(high))
 	bezierDraw(b, &pts, low, high, pts[0], pts[1])
 
-	min := pts[0]
-	max := pts[0]
-	for _, p := range pts {
-		if p.X < min.X {
-			min.X = p.X
-		}
-		if p.X > max.X {
-			max.X = p.X
-		}
-		if p.Y < min.Y {
-			min.Y = p.Y
-		}
-		if p.Y > max.Y {
-			max.Y = p.Y
-		}
-	}
-	max.X++
-	max.Y++
+	min := pts[0].LesserOf(pts...)
+	max := pts[0].GreaterOf(pts...)
 
-	rgba := image.NewRGBA(image.Rect(0, 0, max.X-min.X, max.Y-min.Y))
+	rgba := image.NewRGBA(image.Rect(0, 0, 1+(max.X-min.X), 1+(max.Y-min.Y)))
 
 	for _, p := range pts {
 		rgba.Set(p.X-min.X, p.Y-min.Y, c)
