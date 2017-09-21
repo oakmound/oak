@@ -6,7 +6,7 @@ import "errors"
 // pairs. If the inputs have an odd length, an error noting so is returned, and
 // the Bezier returned is nil.
 func BezierCurve(coords ...float64) (Bezier, error) {
-	if len(coords)%2 != 0 {
+	if len(coords)%2 != 0 || len(coords) == 0 {
 		return nil, errors.New("Invalid number of inputs, len must be divisible by 2")
 	}
 	pts := make([]Bezier, len(coords)/2)
@@ -26,7 +26,7 @@ func BezierCurve(coords ...float64) (Bezier, error) {
 // some float64 progress between 0 and 1. This allows points, lines, and limitlessly complex
 // bezier curves to be represented under this interface.
 //
-// Beziers will not necessarily break if given an input outside of 0-1, but the results
+// Beziers will not necessarily break if given an input outside of 0 to 1, but the results
 // shouldn't be relied upon.
 type Bezier interface {
 	Pos(progress float64) (x, y float64)
@@ -46,6 +46,7 @@ func (bn BezierNode) Pos(progress float64) (x, y float64) {
 }
 
 // A BezierPoint covers cases where only 1 point is supplied, and serve as roots.
+// Consider: merging with floatgeom.Point2
 type BezierPoint struct {
 	X, Y float64
 }
