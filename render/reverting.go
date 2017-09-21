@@ -143,14 +143,14 @@ func (rv *Reverting) IsStatic() bool {
 func (rv *Reverting) Set(k string) error {
 	var err error
 	switch t := rv.Modifiable.(type) {
-	case *Compound:
+	case *Switch:
 		err = t.Set(k)
 		if err != nil {
 			return err
 		}
 	}
 	switch t := rv.rs[0].(type) {
-	case *Compound:
+	case *Switch:
 		err = t.Set(k)
 	}
 	return err

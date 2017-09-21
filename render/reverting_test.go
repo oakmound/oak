@@ -71,7 +71,7 @@ func TestRevertingCascadeFns(t *testing.T) {
 
 	sq := NewSequence(1, cb, cb, cb)
 
-	cmpd := NewCompound("base",
+	cmpd := NewSwitch("base",
 		map[string]Modifiable{
 			"base":  sq,
 			"other": EmptyRenderable(),
