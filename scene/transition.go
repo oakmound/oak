@@ -24,7 +24,7 @@ func Fade(rate float32, frames int) func(*image.RGBA, int) bool {
 			return false
 		}
 		i := float32(frame)
-		draw.Draw(buf, buf.Bounds(), mod.Brighten(rate*i)(buf), zeroPoint, screen.Src)
+		mod.Brighten(rate * i)(buf)
 		return true
 	}
 }

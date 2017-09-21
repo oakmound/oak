@@ -12,12 +12,7 @@ import (
 
 var (
 	neqmods = []mod.Mod{
-		mod.Brighten(10),
 		mod.CutRound(.5, .5),
-		mod.Fade(100),
-		mod.ApplyColor(color.RGBA{0, 255, 0, 255}),
-		mod.ColorBalance(100, 0, 0),
-		mod.ApplyMask(*NewColorBox(5, 5, color.RGBA{100, 100, 200, 200}).GetRGBA()),
 		mod.Rotate(10),
 		mod.Scale(2, 2),
 		mod.TrimColor(color.RGBA{255, 255, 255, 255}),

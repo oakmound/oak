@@ -94,7 +94,7 @@ func (s *Sprite) Filter(fs ...mod.Filter) {
 func OverlaySprites(sps []Sprite) *Sprite {
 	tmpSprite := sps[len(sps)-1].Copy().(*Sprite)
 	for i := len(sps) - 1; i > 0; i-- {
-		tmpSprite.SetRGBA(mod.FillMask(*sps[i-1].GetRGBA())(tmpSprite.GetRGBA()))
+		mod.FillMask(*sps[i-1].GetRGBA())(tmpSprite.GetRGBA())
 	}
 	return tmpSprite
 }

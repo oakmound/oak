@@ -10,7 +10,7 @@ import (
 // A SpriteParticle is a particle that has an amount of sprite rotation
 type SpriteParticle struct {
 	*baseParticle
-	rotation float64
+	rotation float32
 }
 
 // Draw redirectes to DrawOffset
@@ -28,7 +28,7 @@ func (sp *SpriteParticle) DrawOffsetGen(generator Generator, buff draw.Image, xO
 
 	sp.rotation += sp.rotation
 	gen := generator.(*SpriteGenerator)
-	rgba := gen.Base.Copy().Modify(mod.Rotate(int(sp.rotation))).GetRGBA()
+	rgba := gen.Base.Copy().Modify(mod.Rotate(sp.rotation)).GetRGBA()
 	render.ShinyDraw(buff, rgba, int(sp.X()+xOff), int(sp.Y()+yOff))
 }
 
