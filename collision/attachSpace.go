@@ -3,7 +3,6 @@ package collision
 import (
 	"errors"
 
-	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
 )
@@ -83,10 +82,9 @@ func attachSpaceEnter(id int, nothing interface{}) int {
 	x, y := as.follow.X()+as.offX, as.follow.Y()+as.offY
 	if x != (*as.aSpace).X() ||
 		y != (*as.aSpace).Y() {
-		err := UpdateSpace(x, y, (*as.aSpace).GetW(), (*as.aSpace).GetH(), *as.aSpace)
-		if err != nil {
-			dlog.Error(err)
-		}
+		// An error here would only be the result of a nil pointer,
+		// which would crash already.
+		UpdateSpace(x, y, (*as.aSpace).GetW(), (*as.aSpace).GetH(), *as.aSpace)
 	}
 	return 0
 }

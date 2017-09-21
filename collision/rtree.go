@@ -41,22 +41,11 @@ type node struct {
 	level   int // node depth in the Rtree
 }
 
-func (n *node) String() string {
-	return fmt.Sprintf("node{leaf: %v, entries: %v}", n.leaf, n.entries)
-}
-
 // entry represents a Space index record stored in a tree node.
 type entry struct {
 	bb    floatgeom.Rect3 // bounding-box of all children of this entry
 	child *node
 	obj   *Space
-}
-
-func (e entry) String() string {
-	if e.child != nil {
-		return fmt.Sprintf("entry{bb: %v, child: %v}", e.bb, e.child)
-	}
-	return fmt.Sprintf("entry{bb: %v, obj: %v}", e.bb, e.obj)
 }
 
 // Insertion
@@ -375,7 +364,7 @@ func (tree *Rtree) condenseTree(n *node) {
 				}
 			}
 			if len(n.parent.entries) == len(entries) {
-				// panic?????? whyyyy
+				// todo: don't panic
 				panic(fmt.Errorf("Failed to remove entry from parent"))
 			}
 			n.parent.entries = entries
