@@ -198,10 +198,10 @@ func TestSplit(t *testing.T) {
 	lbb := l.computeBoundingBox()
 	rbb := r.computeBoundingBox()
 	if lbb.Min.Distance(expLeft.Min) >= EPS || lbb.Max.Distance(expLeft.Max) >= EPS {
-		t.Errorf("expected left.bb = %s, got %s", expLeft, lbb)
+		t.Error("expected", expLeft, "got", lbb)
 	}
 	if rbb.Min.Distance(expRight.Min) >= EPS || rbb.Max.Distance(expRight.Max) >= EPS {
-		t.Errorf("expected right.bb = %s, got %s", expRight, rbb)
+		t.Error("expected", expRight, "got", rbb)
 	}
 }
 
