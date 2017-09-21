@@ -73,31 +73,115 @@ func Distance3(x1, y1, z1, x2, y2, z2 float64) float64 {
 }
 
 // LesserOf returns the lowest values on each axis of the input points as a point.
-func (p Point2) LesserOf(p2 Point2) Point2 {
-	p[0] = math.Min(p[0], p2[0])
-	p[1] = math.Min(p[1], p2[1])
+func (p Point2) LesserOf(ps ...Point2) Point2 {
+	for _, p2 := range ps {
+		p[0] = math.Min(p[0], p2[0])
+		p[1] = math.Min(p[1], p2[1])
+	}
 	return p
 }
 
 // LesserOf returns the lowest values on each axis of the input points as a point.
-func (p Point3) LesserOf(p2 Point3) Point3 {
-	p[0] = math.Min(p[0], p2[0])
-	p[1] = math.Min(p[1], p2[1])
-	p[2] = math.Min(p[2], p2[2])
+func (p Point3) LesserOf(ps ...Point3) Point3 {
+	for _, p2 := range ps {
+		p[0] = math.Min(p[0], p2[0])
+		p[1] = math.Min(p[1], p2[1])
+		p[2] = math.Min(p[2], p2[2])
+	}
 	return p
 }
 
 // GreaterOf returns the highest values on each axis of the input points as a point.
-func (p Point2) GreaterOf(p2 Point2) Point2 {
-	p[0] = math.Max(p[0], p2[0])
-	p[1] = math.Max(p[1], p2[1])
+func (p Point2) GreaterOf(ps ...Point2) Point2 {
+	for _, p2 := range ps {
+		p[0] = math.Max(p[0], p2[0])
+		p[1] = math.Max(p[1], p2[1])
+	}
 	return p
 }
 
 // GreaterOf returns the highest values on each axis of the input points as a point.
-func (p Point3) GreaterOf(p2 Point3) Point3 {
-	p[0] = math.Max(p[0], p2[0])
-	p[1] = math.Max(p[1], p2[1])
-	p[2] = math.Max(p[2], p2[2])
+func (p Point3) GreaterOf(ps ...Point3) Point3 {
+	for _, p2 := range ps {
+		p[0] = math.Max(p[0], p2[0])
+		p[1] = math.Max(p[1], p2[1])
+		p[2] = math.Max(p[2], p2[2])
+	}
+	return p
+}
+
+// Add combines the input points via addition.
+func (p Point2) Add(ps ...Point2) Point2 {
+	for _, p2 := range ps {
+		p[0] += p2[0]
+		p[1] += p2[1]
+	}
+	return p
+}
+
+// Sub combines the input points via subtraction.
+func (p Point2) Sub(ps ...Point2) Point2 {
+	for _, p2 := range ps {
+		p[0] -= p2[0]
+		p[1] -= p2[1]
+	}
+	return p
+}
+
+// Mul combines in the input points via multiplication.
+func (p Point2) Mul(ps ...Point2) Point2 {
+	for _, p2 := range ps {
+		p[0] *= p2[0]
+		p[1] *= p2[1]
+	}
+	return p
+}
+
+// Div combines the input points via division.
+func (p Point2) Div(ps ...Point2) Point2 {
+	for _, p2 := range ps {
+		p[0] /= p2[0]
+		p[1] /= p2[1]
+	}
+	return p
+}
+
+// Add combines the input points via addition.
+func (p Point3) Add(ps ...Point3) Point3 {
+	for _, p2 := range ps {
+		p[0] += p2[0]
+		p[1] += p2[1]
+		p[2] += p2[2]
+	}
+	return p
+}
+
+// Sub combines the input points via subtraction.
+func (p Point3) Sub(ps ...Point3) Point3 {
+	for _, p2 := range ps {
+		p[0] -= p2[0]
+		p[1] -= p2[1]
+		p[2] -= p2[2]
+	}
+	return p
+}
+
+// Mul combines in the input points via multiplication.
+func (p Point3) Mul(ps ...Point3) Point3 {
+	for _, p2 := range ps {
+		p[0] *= p2[0]
+		p[1] *= p2[1]
+		p[2] *= p2[2]
+	}
+	return p
+}
+
+// Div combines the input points via division.
+func (p Point3) Div(ps ...Point3) Point3 {
+	for _, p2 := range ps {
+		p[0] /= p2[0]
+		p[1] /= p2[1]
+		p[2] /= p2[2]
+	}
 	return p
 }

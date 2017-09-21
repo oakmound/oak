@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/oakmound/oak/alg"
-	"github.com/oakmound/oak/physics"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -21,12 +20,34 @@ type Text struct {
 // object with the associated font and screen position
 func (f *Font) NewText(str fmt.Stringer, x, y float64) *Text {
 	return &Text{
-		LayeredPoint: LayeredPoint{
-			Vector: physics.NewVector(x, y),
-		},
-		text: str,
-		d:    f,
+		LayeredPoint: NewLayeredPoint(x, y, 0),
+		text:         str,
+		d:            f,
 	}
+}
+
+type stringerIntPointer struct {
+	v *int
+}
+
+func (sip stringerIntPointer) String() string {
+	return strconv.Itoa(*sip.v)
+}
+
+// NewIntText wraps the given int pointer in a stringer interface
+func (f *Font) NewIntText(str *int, x, y float64) *Text {
+	return f.NewText(stringerIntPointer{str}, x, y)
+}
+
+type stringStringer string
+
+func (ss stringStringer) String() string {
+	return string(ss)
+}
+
+// NewStrText is a helper to take in a string instead of a stringer for NewText
+func (f *Font) NewStrText(str string, x, y float64) *Text {
+	return f.NewText(stringStringer(str), x, y)
 }
 
 // DrawOffset for a text object draws the text at t.(X,Y) + (xOff,yOff)
@@ -116,28 +137,4 @@ func (t *Text) ToSprite() *Sprite {
 	s := NewEmptySprite(t.X(), t.Y()-float64(height), width, height)
 	t.DrawOffset(s.GetRGBA(), -t.X(), (-t.Y())+float64(height))
 	return s
-}
-
-type stringerIntPointer struct {
-	v *int
-}
-
-func (sip stringerIntPointer) String() string {
-	return strconv.Itoa(*sip.v)
-}
-
-// NewIntText wraps the given int pointer in a stringer interface
-func (f *Font) NewIntText(str *int, x, y float64) *Text {
-	return f.NewText(stringerIntPointer{str}, x, y)
-}
-
-type stringStringer string
-
-func (ss stringStringer) String() string {
-	return string(ss)
-}
-
-// NewStrText is a helper to take in a string instead of a stringer for NewText
-func (f *Font) NewStrText(str string, x, y float64) *Text {
-	return f.NewText(stringStringer(str), x, y)
 }

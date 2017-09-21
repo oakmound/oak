@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/physics"
 	"github.com/oakmound/oak/render/mod"
 	"github.com/oakmound/oak/timing"
 )
@@ -28,9 +27,7 @@ type Sequence struct {
 // fps rate
 func NewSequence(fps float64, mods ...Modifiable) *Sequence {
 	return &Sequence{
-		LayeredPoint: LayeredPoint{
-			Vector: physics.NewVector(0, 0),
-		},
+		LayeredPoint: NewLayeredPoint(0, 0, 0),
 		pauseBool: pauseBool{
 			playing: true,
 		},

@@ -28,10 +28,10 @@ func (r Rect3) MaxDimensions() int {
 // x < x2 and y < y2, and will swap the inputs if that is not true.
 // If that enforcement is not desired, construct the struct manually.
 func NewRect2(x, y, x2, y2 float64) Rect2 {
-	if x < x2 {
+	if x > x2 {
 		x, x2 = x2, x
 	}
-	if y < y2 {
+	if y > y2 {
 		y, y2 = y2, y
 	}
 	return Rect2{
@@ -57,16 +57,25 @@ func NewRect2WH(x, y, w, h float64) Rect2 {
 	}
 }
 
+// NewBoundingRect2 will produce the minimal rectangle that contains all of
+// the input points.
+func NewBoundingRect2(pts ...Point2) Rect2 {
+	return Rect2{
+		Min: pts[0].LesserOf(pts...),
+		Max: pts[0].GreaterOf(pts...),
+	}
+}
+
 // NewRect3 returns an (X,Y,Z):(X2,Y2,Z2) rectangle. This enforces that
 // x < x2, y < y2, and z < z2, and will swap the inputs if that is not true.
 func NewRect3(x, y, z, x2, y2, z2 float64) Rect3 {
-	if x < x2 {
+	if x > x2 {
 		x, x2 = x2, x
 	}
-	if y < y2 {
+	if y > y2 {
 		y, y2 = y2, y
 	}
-	if z < z2 {
+	if z > z2 {
 		z, z2 = z2, z
 	}
 	return Rect3{
@@ -94,6 +103,15 @@ func NewRect3WH(x, y, z, w, h, d float64) Rect3 {
 	return Rect3{
 		Min: Point3{x, y, z},
 		Max: Point3{x + w, y + h, z + d},
+	}
+}
+
+// NewBoundingRect3 will produce the minimal rectangle that contains all of
+// the input points.
+func NewBoundingRect3(pts ...Point3) Rect3 {
+	return Rect3{
+		Min: pts[0].LesserOf(pts...),
+		Max: pts[0].GreaterOf(pts...),
 	}
 }
 
