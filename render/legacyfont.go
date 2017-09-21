@@ -14,7 +14,8 @@ func NewText(str fmt.Stringer, x, y float64) *Text {
 	return DefFont().NewText(str, x, y)
 }
 
-// NewIntText wraps the given int pointer in a stringer interface
+// NewIntText wraps the given int pointer in a stringer interface and creates
+// a text renderable that will diplay the underlying int value.
 func NewIntText(str *int, x, y float64) *Text {
 	return DefFont().NewIntText(str, x, y)
 }

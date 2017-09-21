@@ -185,3 +185,15 @@ func (p Point3) Div(ps ...Point3) Point3 {
 	}
 	return p
 }
+
+// ToRect converts this point into a rectangle spanning span distance
+// in each axis.
+func (p Point2) ToRect(span float64) Rect2 {
+	return NewRect2WH(p[0], p[1], span, span)
+}
+
+// ToRect converts this point into a rectangle spanning span distance
+// in each axis.
+func (p Point3) ToRect(span float64) Rect3 {
+	return NewRect3WH(p[0], p[1], p[2], span, span, span)
+}
