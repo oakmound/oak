@@ -1,12 +1,15 @@
 package event
 
-// Mapping stores a slice of event names and bindings
+// A Mapping stores a slice of event names and bindings
 type Mapping struct {
 	eventNames []string
 	binds      []Bindable
 }
 
-// BindingSet maps sets of bindings so that entitys can switch between sets of predefined EventMappings
+// A BindingSet stores sets of event mappings bound to string names.
+// The use case for a BindingSet is for a character that can exist in multiple states,
+// so that they can swiftly switch between the event bindings that define those
+// states.
 type BindingSet map[string]Mapping
 
 // Set makes a new EventMapping for BindingSet

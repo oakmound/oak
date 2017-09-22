@@ -81,7 +81,7 @@ func TriggerBack(eventName string, data interface{}) chan bool {
 
 // GlobalBind calls GlobalBind on the DefaultBus
 func GlobalBind(fn Bindable, name string) {
-	DefaultBus.Bind(fn, name, 0)
+	DefaultBus.GlobalBind(fn, name)
 }
 
 // UnbindAll calls UnbindAll on the DefaultBus

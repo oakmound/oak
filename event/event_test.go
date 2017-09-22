@@ -19,7 +19,7 @@ func sleep() {
 
 func TestBus(t *testing.T) {
 	triggers := 0
-	go DefaultBus.ResolvePending()
+	go ResolvePending()
 	GlobalBind(func(int, interface{}) int {
 		triggers++
 		return 0
@@ -34,7 +34,7 @@ func TestBus(t *testing.T) {
 
 func TestUnbind(t *testing.T) {
 	triggers := 0
-	go DefaultBus.ResolvePending()
+	go ResolvePending()
 	GlobalBind(func(int, interface{}) int {
 		triggers++
 		return UnbindSingle
@@ -73,7 +73,7 @@ func TestUnbind(t *testing.T) {
 	sleep()
 	assert.Equal(t, triggers, 4)
 
-	DefaultBus.Reset()
+	Reset()
 
 	Trigger("T", nil)
 	sleep()
@@ -88,7 +88,7 @@ func (e ent) Init() CID {
 
 func TestCID(t *testing.T) {
 	triggers := 0
-	go DefaultBus.ResolvePending()
+	go ResolvePending()
 	cid := CID(0).Parse(ent{})
 	cid.Bind(func(int, interface{}) int {
 		triggers++
@@ -150,7 +150,7 @@ func TestCID(t *testing.T) {
 }
 
 func TestEntity(t *testing.T) {
-	go DefaultBus.ResolvePending()
+	go ResolvePending()
 	e := ent{}
 	cid := e.Init()
 	cid2 := cid.Parse(e)
@@ -165,7 +165,7 @@ var (
 )
 
 func TestUnbindBindable(t *testing.T) {
-	go DefaultBus.ResolvePending()
+	go ResolvePending()
 	GlobalBind(tBinding, "T")
 	sleep()
 	Trigger("T", nil)
@@ -196,7 +196,7 @@ func tBinding(int, interface{}) int {
 }
 
 func TestPriority(t *testing.T) {
-	go DefaultBus.ResolvePending()
+	go ResolvePending()
 	e := ent{}
 	cid := e.Init()
 	x := 20
@@ -215,7 +215,7 @@ func TestPriority(t *testing.T) {
 	// If the events occured in the opposite order, x would be 11.
 
 	x = 20
-	DefaultBus.Trigger("T", nil)
+	Trigger("T", nil)
 	sleep()
 	assert.Equal(t, 12, x)
 
@@ -231,7 +231,7 @@ func TestBindableList(t *testing.T) {
 }
 
 func TestUnbindAllAndRebind(t *testing.T) {
-	go DefaultBus.ResolvePending()
+	go ResolvePending()
 	UnbindAllAndRebind(
 		BindingOption{
 			Event: Event{
