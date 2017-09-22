@@ -67,7 +67,10 @@ func (eb *Bus) trigger(eventName string, data interface{}) {
 	for id, bs := range (*eb).bindingMap[eventName] {
 		// Top to bottom, high priority
 		for i := bs.highIndex - 1; i >= 0; i-- {
-			eb.triggerDefault((*bs.highPriority[i]).sl, id, eventName, data)
+			lst := bs.highPriority[i]
+			if lst != nil {
+				eb.triggerDefault((*lst).sl, id, eventName, data)
+			}
 		}
 	}
 
@@ -80,7 +83,10 @@ func (eb *Bus) trigger(eventName string, data interface{}) {
 	for id, bs := range (*eb).bindingMap[eventName] {
 		// Bottom to top, low priority
 		for i := 0; i < bs.lowIndex; i++ {
-			eb.triggerDefault((*bs.lowPriority[i]).sl, id, eventName, data)
+			lst := bs.lowPriority[i]
+			if lst != nil {
+				eb.triggerDefault((*lst).sl, id, eventName, data)
+			}
 		}
 	}
 	eb.mutex.RUnlock()
