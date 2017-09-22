@@ -42,12 +42,18 @@ func (id CID) Trigger(eventName string, data interface{}) {
 		if idMap, ok := eb.bindingMap[eventName]; ok {
 			if bs, ok := idMap[iid]; ok {
 				for i := bs.highIndex - 1; i >= 0; i-- {
-					triggerDefault((*bs.highPriority[i]).sl, iid, eventName, data)
+					lst := bs.highPriority[i]
+					if lst != nil {
+						triggerDefault((*lst).sl, iid, eventName, data)
+					}
 				}
 				triggerDefault((bs.defaultPriority).sl, iid, eventName, data)
 
 				for i := 0; i < bs.lowIndex; i++ {
-					triggerDefault((*bs.lowPriority[i]).sl, iid, eventName, data)
+					lst := bs.lowPriority[i]
+					if lst != nil {
+						triggerDefault((*lst).sl, iid, eventName, data)
+					}
 				}
 			}
 		}
@@ -115,7 +121,10 @@ func ebtrigger(eb *Bus, eventName string, data interface{}) {
 	for id, bs := range (*eb).bindingMap[eventName] {
 		// Top to bottom, high priority
 		for i := bs.highIndex - 1; i >= 0; i-- {
-			triggerDefault((*bs.highPriority[i]).sl, id, eventName, data)
+			lst := bs.highPriority[i]
+			if lst != nil {
+				triggerDefault((*lst).sl, id, eventName, data)
+			}
 		}
 	}
 
@@ -128,7 +137,10 @@ func ebtrigger(eb *Bus, eventName string, data interface{}) {
 	for id, bs := range (*eb).bindingMap[eventName] {
 		// Bottom to top, low priority
 		for i := 0; i < bs.lowIndex; i++ {
-			triggerDefault((*bs.lowPriority[i]).sl, id, eventName, data)
+			lst := bs.lowPriority[i]
+			if lst != nil {
+				triggerDefault((*lst).sl, id, eventName, data)
+			}
 		}
 	}
 	mutex.RUnlock()
