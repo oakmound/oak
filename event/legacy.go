@@ -18,12 +18,18 @@ func (cid CID) Trigger(eventName string, data interface{}) {
 		if idMap, ok := DefaultBus.bindingMap[eventName]; ok {
 			if bs, ok := idMap[iid]; ok {
 				for i := bs.highIndex - 1; i >= 0; i-- {
-					DefaultBus.triggerDefault((*bs.highPriority[i]).sl, iid, eventName, data)
+					lst := bs.highPriority[i]
+					if lst != nil {
+						DefaultBus.triggerDefault((*lst).sl, iid, eventName, data)
+					}
 				}
 				DefaultBus.triggerDefault((bs.defaultPriority).sl, iid, eventName, data)
 
 				for i := 0; i < bs.lowIndex; i++ {
-					DefaultBus.triggerDefault((*bs.lowPriority[i]).sl, iid, eventName, data)
+					lst := bs.lowPriority[i]
+					if lst != nil {
+						DefaultBus.triggerDefault((*lst).sl, iid, eventName, data)
+					}
 				}
 			}
 		}
