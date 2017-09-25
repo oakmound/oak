@@ -5,7 +5,6 @@ import (
 	"image/draw"
 
 	"github.com/oakmound/oak/render/mod"
-	"github.com/oakmound/shiny/screen"
 )
 
 var (
@@ -37,7 +36,7 @@ func Zoom(xPerc, yPerc float64, frames int, zoomRate float64) func(*image.RGBA, 
 			return false
 		}
 		z := mod.Zoom(xPerc, yPerc, 1+zoomRate*float64(frame))
-		draw.Draw(buf, buf.Bounds(), z(buf), zeroPoint, screen.Src)
+		draw.Draw(buf, buf.Bounds(), z(buf), zeroPoint, draw.Src)
 		return true
 	}
 }

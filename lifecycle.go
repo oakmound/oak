@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	winBuffer     screen.Buffer
+	winBuffer     screen.Image
 	screenControl screen.Screen
 	windowControl screen.Window
 
@@ -28,7 +28,7 @@ func lifecycleLoop(s screen.Screen) {
 	// The window buffer represents the subsection of the world which is available to
 	// be shown in a window.
 	dlog.Info("Creating window buffer")
-	winBuffer, err = screenControl.NewBuffer(image.Point{ScreenWidth, ScreenHeight})
+	winBuffer, err = screenControl.NewImage(image.Point{ScreenWidth, ScreenHeight})
 	if err != nil {
 		dlog.Error(err)
 		return
@@ -82,9 +82,9 @@ func ChangeWindow(width, height int) {
 	// Draw a black frame to cover up smears
 	// Todo: could restrict the black to -just- the area not covered by the
 	// scaled screen buffer
-	buff, err := screenControl.NewBuffer(image.Point{width, height})
+	buff, err := screenControl.NewImage(image.Point{width, height})
 	if err == nil {
-		draw.Draw(buff.RGBA(), buff.Bounds(), imageBlack, zeroPoint, screen.Src)
+		draw.Draw(buff.RGBA(), buff.Bounds(), imageBlack, zeroPoint, draw.Src)
 		windowControl.Upload(zeroPoint, buff, buff.Bounds())
 	} else {
 		dlog.Error(err)

@@ -36,7 +36,7 @@ func drawLoop() {
 		panic(err)
 	}
 
-	draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
+	draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, draw.Src)
 	drawLoopPublish(tx)
 
 	DrawTicker = timing.NewDynamicTicker()
@@ -54,7 +54,7 @@ func drawLoop() {
 			dlog.Verb("Starting loading")
 			for {
 				<-DrawTicker.C
-				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
+				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, draw.Src)
 				if LoadingR != nil {
 					LoadingR.Draw(winBuffer.RGBA())
 				}
@@ -73,7 +73,7 @@ func drawLoop() {
 			dlog.Verb("Got something from viewport channel")
 			updateScreen(viewPoint[0], viewPoint[1])
 		case <-DrawTicker.C:
-			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, screen.Src)
+			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), imageBlack, zeroPoint, draw.Src)
 			render.PreDraw()
 			render.GlobalDrawStack.Draw(winBuffer.RGBA(), ViewPos, ScreenWidth, ScreenHeight)
 			drawLoopPublish(tx)
@@ -84,7 +84,7 @@ func drawLoop() {
 var (
 	drawLoopPublishDef = func(tx screen.Texture) {
 		tx.Upload(zeroPoint, winBuffer, winBuffer.Bounds())
-		windowControl.Scale(windowRect, tx, tx.Bounds(), screen.Src, nil)
+		windowControl.Scale(windowRect, tx, tx.Bounds(), draw.Src, nil)
 		windowControl.Publish()
 	}
 	drawLoopPublish = drawLoopPublishDef
