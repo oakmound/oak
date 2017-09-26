@@ -2,6 +2,8 @@ package oak
 
 import (
 	"image"
+	"math"
+	"time"
 
 	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/dlog"
@@ -60,7 +62,7 @@ func sceneLoop(firstScene string) {
 
 		dlog.Info("Looping Scene")
 		cont := true
-		logicTicker := logicLoop()
+		endLogicCh := logicLoop()
 		for cont {
 			select {
 			case <-sceneCh:
@@ -72,7 +74,13 @@ func sceneLoop(firstScene string) {
 		dlog.Info("Scene End", CurrentScene)
 
 		// We don't want enterFrames going off between scenes
-		close(logicTicker)
+		LogicTicker.SetTick(math.MaxInt32 * time.Second)
+		select {
+		case endLogicCh <- true:
+		case <-sceneCh:
+			endLogicCh <- true
+		}
+		<-endLogicCh
 		prevScene = CurrentScene
 
 		// Send a signal to stop drawing
