@@ -35,6 +35,7 @@ func logicLoop() chan bool {
 				sceneCh <- true
 			case <-doneCh:
 				LogicTicker.Stop()
+				doneCh <- true
 				return
 			}
 		}
