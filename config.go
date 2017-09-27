@@ -29,7 +29,6 @@ var (
 		"Oak Window",
 		false,
 		false,
-		false,
 	}
 )
 
@@ -45,10 +44,6 @@ type Config struct {
 	Title          string `json:"title"`
 	BatchLoad      bool   `json:"batchLoad"`
 	GestureSupport bool   `json:"gestureSupport"`
-	// DisableKeyhold is deprecated. Keyhold functionality
-	// no longer has a significant performance impact and so can't
-	// be disabled.
-	DisableKeyhold bool `json:"disableKeyHold"`
 }
 
 // Assets is a json type storing paths to different asset folders
@@ -184,8 +179,6 @@ func initConf() {
 	conf.BatchLoad = SetupConfig.BatchLoad
 
 	conf.GestureSupport = SetupConfig.GestureSupport
-
-	conf.DisableKeyhold = SetupConfig.DisableKeyhold
 
 	dlog.Error(conf)
 }
