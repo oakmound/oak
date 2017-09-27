@@ -1,9 +1,10 @@
 package render
 
 import (
-	"errors"
 	"image"
 	"image/draw"
+
+	"github.com/oakmound/oak/oakerr"
 
 	"github.com/oakmound/oak/dlog"
 )
@@ -71,7 +72,7 @@ func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
 func Draw(r Renderable, layers ...int) (Renderable, error) {
 	if r == nil {
 		dlog.Error("Tried to draw nil")
-		return nil, errors.New("Tried to draw nil")
+		return nil, oakerr.NilInput{InputName: "r"}
 	}
 	if len(GlobalDrawStack.as) == 1 {
 		return GlobalDrawStack.as[0].Add(r, layers...), nil
@@ -80,7 +81,7 @@ func Draw(r Renderable, layers ...int) (Renderable, error) {
 		stackLayer := layers[0]
 		if stackLayer < 0 || stackLayer >= len(GlobalDrawStack.as) {
 			dlog.Error("Layer", stackLayer, "does not exist on global draw stack")
-			return nil, errors.New("Layer does not exist on stack")
+			return nil, oakerr.InvalidInput{InputName: "layers"}
 		}
 		return GlobalDrawStack.as[stackLayer].Add(r, layers[1:]...), nil
 	}

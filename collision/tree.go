@@ -3,6 +3,8 @@ package collision
 import (
 	"errors"
 	"sync"
+
+	"github.com/oakmound/oak/oakerr"
 )
 
 var (
@@ -86,7 +88,7 @@ func (t *Tree) Remove(sps ...*Space) int {
 // a space can exist in multiple rtrees.
 func (t *Tree) UpdateSpace(x, y, w, h float64, s *Space) error {
 	if s == nil {
-		return errors.New("Input space was nil")
+		return oakerr.NilInput{InputName: "s"}
 	}
 	loc := NewRect(x, y, w, h)
 	t.Lock()
@@ -100,7 +102,7 @@ func (t *Tree) UpdateSpace(x, y, w, h float64, s *Space) error {
 // ShiftSpace adds x and y to a space and updates its position
 func (t *Tree) ShiftSpace(x, y float64, s *Space) error {
 	if s == nil {
-		return errors.New("Input space was nil")
+		return oakerr.NilInput{InputName: "s"}
 	}
 	x = x + s.X()
 	y = y + s.Y()

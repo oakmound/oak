@@ -1,10 +1,9 @@
 package audio
 
 import (
-	"errors"
-
 	"github.com/200sc/klangsynthese/audio"
 	"github.com/200sc/klangsynthese/font"
+	"github.com/oakmound/oak/oakerr"
 )
 
 // Audio is a struct of some audio data and the variables
@@ -84,7 +83,7 @@ func (a *Audio) Filter(fs ...audio.Filter) (audio.Audio, error) {
 			if consErr == nil {
 				consErr = err
 			} else {
-				consErr = errors.New(err.Error() + ":" + consErr.Error())
+				consErr = oakerr.ConsError{err, consErr}
 			}
 		}
 	}

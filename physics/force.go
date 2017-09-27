@@ -1,7 +1,7 @@
 package physics
 
 import (
-	"errors"
+	"github.com/oakmound/oak/oakerr"
 
 	"github.com/oakmound/oak/dlog"
 )
@@ -46,7 +46,7 @@ func (m *Mass) SetMass(inMass float64) error {
 		m.mass = inMass
 		return nil
 	}
-	return errors.New("Tried to set mass 0 or below")
+	return oakerr.InvalidInput{InputName: "inMass"}
 }
 
 //GetMass returns the mass of an object
@@ -75,7 +75,8 @@ func Push(a Pushes, b Pushable) error {
 	dlog.Verb("Pushing", b.GetMass())
 	if b.GetMass() <= 0 {
 		if b.GetMass() != frozen {
-			return errors.New("Pushed an object with invalid mass")
+			// Todo: this could be more specific
+			return oakerr.InsufficientInputs{InputName: "Mass", AtLeast: 0}
 		}
 		return nil
 	}

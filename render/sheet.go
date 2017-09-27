@@ -1,8 +1,9 @@
 package render
 
 import (
-	"errors"
 	"image"
+
+	"github.com/oakmound/oak/oakerr"
 )
 
 // Sheet is a 2D array of image rgbas
@@ -19,7 +20,11 @@ func (sh *Sheet) SubSprite(x, y int) *Sprite {
 func NewSheetSequence(sheet *Sheet, fps float64, frames ...int) (*Sequence, error) {
 
 	if len(frames)%2 != 0 {
-		return nil, errors.New("Uneven number of animation coordinates")
+		return nil, oakerr.IndivisibleInput{
+			InputName:    "frames",
+			IsList:       true,
+			MustDivideBy: 2,
+		}
 	}
 
 	sh := *sheet

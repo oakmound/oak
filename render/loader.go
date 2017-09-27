@@ -15,6 +15,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/oakmound/oak/oakerr"
+
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/fileutil"
 )
@@ -157,7 +159,7 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 		widthBuffers != sheetW-1 ||
 		heightBuffers != sheetH-1 {
 		dlog.Error("Bad dimensions given to load sheet")
-		return nil, errors.New("Bad dimensions given to load sheet")
+		return nil, oakerr.InvalidInput{InputName: "w,h"}
 	}
 
 	sheet := make(Sheet, sheetW)

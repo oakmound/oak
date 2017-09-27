@@ -16,5 +16,17 @@ func TestErrorsAreErrors(t *testing.T) {
 	assert.NotEmpty(t, err.Error())
 	err = InsufficientInputs{}
 	assert.NotEmpty(t, err.Error())
+	err = InvalidInput{}
+	assert.NotEmpty(t, err.Error())
+	err = NilInput{}
+	assert.NotEmpty(t, err.Error())
+	err = IndivisibleInput{}
+	assert.NotEmpty(t, err.Error())
+	err = IndivisibleInput{IsList: true}
+	assert.NotEmpty(t, err.Error())
+	err = ConsError{ExistingElement{}, ExistingElement{}}
+	assert.NotEmpty(t, err.Error())
+	err = UnsupportedFormat{}
+	assert.NotEmpty(t, err.Error())
 	// Assert nothing crashed
 }

@@ -1,12 +1,12 @@
 package render
 
 import (
-	"errors"
 	"image"
 	"image/draw"
 	"sync"
 
 	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/oakerr"
 	"github.com/oakmound/oak/physics"
 	"github.com/oakmound/oak/render/mod"
 )
@@ -39,7 +39,11 @@ func NewSwitch(start string, m map[string]Modifiable) *Switch {
 // Add makes a new entry in the Switch's map
 func (c *Switch) Add(k string, v Modifiable) (err error) {
 	if _, ok := c.subRenderables[k]; ok {
-		err = errors.New("Key already defined. Overwriting")
+		err = oakerr.ExistingElement{
+			InputName:   "k",
+			InputType:   "string",
+			Overwritten: true,
+		}
 	}
 	c.lock.Lock()
 	c.subRenderables[k] = v
@@ -51,7 +55,7 @@ func (c *Switch) Add(k string, v Modifiable) (err error) {
 func (c *Switch) Set(k string) error {
 	c.lock.RLock()
 	if _, ok := c.subRenderables[k]; !ok {
-		return errors.New("Unknown renderable for string " + k + " on Switch")
+		return oakerr.InvalidInput{InputName: "k"}
 	}
 	c.lock.RUnlock()
 	c.curRenderable = k

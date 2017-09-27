@@ -1,7 +1,6 @@
 package audio
 
 import (
-	"errors"
 	"path/filepath"
 	"strings"
 
@@ -29,7 +28,7 @@ func GetSounds(fileNames ...string) ([]Data, error) {
 		}
 	}
 	if len(sounds) == 0 {
-		return sounds, errors.New("Zero input filenames")
+		return sounds, oakerr.InsufficientInputs{AtLeast: 1, InputName: "fileName"}
 	}
 	return sounds, nil
 }
@@ -64,7 +63,7 @@ func Load(directory, filename string) (Data, error) {
 		case ".mp3":
 			buffer, err = mp3.Load(f)
 		default:
-			return nil, errors.New("Unsupported file ending " + end)
+			return nil, oakerr.UnsupportedFormat{Format: end}
 		}
 		if err != nil {
 			return nil, err
