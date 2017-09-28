@@ -57,7 +57,7 @@ func main() {
 			me := mouseEvent.(mouse.Event)
 			// Left click to add a point to the curve
 			if me.Button == "LeftMouse" {
-				mouseFloats = append(mouseFloats, float64(me.X), float64(me.Y))
+				mouseFloats = append(mouseFloats, float64(me.X()), float64(me.Y()))
 				renderCurve(mouseFloats)
 				// Perform any other click to reset the drawn curve
 			} else {
