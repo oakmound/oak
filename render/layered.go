@@ -1,8 +1,6 @@
 package render
 
 import (
-	"strconv"
-
 	"github.com/oakmound/oak/physics"
 )
 
@@ -90,11 +88,4 @@ func (ldp *LayeredPoint) GetDims() (int, int) {
 	// only be used to determine whether something is onscreen to be drawn.
 	// Todo: write own polygon containment library
 	return 6, 6
-}
-
-func (ldp *LayeredPoint) String() string {
-	x := strconv.FormatFloat(ldp.X(), 'f', 2, 32)
-	y := strconv.FormatFloat(ldp.Y(), 'f', 2, 32)
-	l := strconv.Itoa(ldp.layer)
-	return "X(): " + x + ", Y(): " + y + ", L: " + l
 }

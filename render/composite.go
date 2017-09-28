@@ -121,15 +121,6 @@ func (cs *Composite) Copy() Modifiable {
 	return cs2
 }
 
-func (cs *Composite) String() string {
-	s := "Composite{"
-	for _, v := range cs.rs {
-		s += v.String() + "\n"
-	}
-	s += "}"
-	return s
-}
-
 //CompositeR keeps track of a set of renderables at a location
 type CompositeR struct {
 	LayeredPoint
@@ -266,13 +257,4 @@ func (cs *CompositeR) GetRGBA() *image.RGBA {
 //AlwaysDirty notes that CompositeR is alwaysdirty
 func (cs *CompositeR) AlwaysDirty() bool {
 	return true
-}
-
-func (cs *CompositeR) String() string {
-	s := "CompositeR{"
-	for _, v := range cs.rs {
-		s += v.String() + "\n"
-	}
-	s += "}"
-	return s
 }

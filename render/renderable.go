@@ -41,9 +41,6 @@ type Renderable interface {
 	SetLayer(l int)
 	UnDraw()
 
-	// Utilities
-	String() string
-
 	// Physics
 	// Basic Implementing struct: physics.Vector
 	physics.Attachable
