@@ -3,6 +3,7 @@ package render
 import (
 	"image"
 	"image/color"
+	"math"
 	"testing"
 	"time"
 
@@ -79,6 +80,9 @@ func TestSequenceFunctions(t *testing.T) {
 	assert.Equal(t, h, 6)
 
 	assert.Equal(t, sq.IsStatic(), false)
+
+	assert.Nil(t, sq.Get(-1))
+	assert.Nil(t, sq.Get(math.MaxInt32))
 }
 
 func TestSequenceModify(t *testing.T) {
@@ -91,6 +95,8 @@ func TestSequenceModify(t *testing.T) {
 	w, h := sq.Get(0).GetDims()
 	assert.Equal(t, w, 5)
 	assert.Equal(t, h, 5)
+
+	sq.Filter(mod.Brighten(100))
 }
 
 func TestTweenSequence(t *testing.T) {

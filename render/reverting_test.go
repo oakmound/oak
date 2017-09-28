@@ -93,7 +93,8 @@ func TestRevertingCascadeFns(t *testing.T) {
 	assert.Equal(t, sq.cID, event.CID(1))
 	rv.update()
 
-	rv.Set("other")
+	assert.Nil(t, rv.Set("other"))
+	assert.NotNil(t, rv.Set("notincompound"))
 
 	rv.Pause()
 	assert.Equal(t, sq.playing, true)
