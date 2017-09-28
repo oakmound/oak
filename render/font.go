@@ -68,6 +68,11 @@ func (fg *FontGenerator) Generate() *Font {
 		fg.Color = defaultColor
 	}
 
+	loaded := LoadFont(dir, fg.File)
+	if loaded == nil {
+		return nil
+	}
+
 	return &Font{
 		FontGenerator: *fg,
 		Drawer: font.Drawer{
