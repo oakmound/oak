@@ -49,6 +49,7 @@ type bindableStore struct {
 type Bus struct {
 	bindingMap          map[string]map[int]*bindableStore
 	doneCh              chan bool
+	updateCh            chan bool
 	framesElapsed       int
 	Ticker              *timing.DynamicTicker
 	binds               []UnbindOption

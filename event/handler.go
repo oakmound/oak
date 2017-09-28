@@ -1,12 +1,21 @@
 package event
 
-import "github.com/oakmound/oak/timing"
+import (
+	"math"
+	"time"
+
+	"github.com/oakmound/oak/timing"
+)
+
+var (
+	_ Handler = &Bus{}
+)
 
 // Handler represents the necessary exported functions from an event.Bus
 // for use in oak internally, and thus the functions that need to be replaced
 // by alternative event handlers.
 type Handler interface {
-	UpdateLoop(framerate int, updateCh chan<- bool) error
+	UpdateLoop(framerate int, updateCh chan bool) error
 	FramesElapsed() int
 	SetTick(framerate int) error
 	Update() error
@@ -26,7 +35,7 @@ type Handler interface {
 // Flush() because it will be more efficient for a Logical
 // System to perform its own Updates outside of it’s exposed
 // interface.
-func (eb *Bus) UpdateLoop(framerate int, updateCh chan<- bool) error {
+func (eb *Bus) UpdateLoop(framerate int, updateCh chan bool) error {
 	// The logical loop.
 	// In order, it waits on receiving a signal to begin a logical frame.
 	// It then runs any functions bound to when a frame begins.
@@ -34,6 +43,7 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan<- bool) error {
 	ch := make(chan bool)
 	eb.framesElapsed = 0
 	eb.doneCh = ch
+	eb.updateCh = updateCh
 	go eb.ResolvePending()
 	go func(doneCh chan bool) {
 		eb.Ticker = timing.NewDynamicTicker()
@@ -43,9 +53,10 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan<- bool) error {
 			case <-eb.Ticker.C:
 				<-eb.TriggerBack("EnterFrame", eb.framesElapsed)
 				eb.framesElapsed++
-				updateCh <- true
+				eb.updateCh <- true
 			case <-doneCh:
 				eb.Ticker.Stop()
+				doneCh <- true
 				return
 			}
 		}
@@ -88,7 +99,13 @@ func (eb *Bus) Flush() error {
 
 // Stop ceases anything spawned by an ongoing UpdateLoop
 func (eb *Bus) Stop() error {
-	close(eb.doneCh)
+	eb.Ticker.SetTick(math.MaxInt32 * time.Second)
+	select {
+	case eb.doneCh <- true:
+	case <-eb.updateCh:
+		eb.doneCh <- true
+	}
+	<-eb.doneCh
 	return nil
 }
 
