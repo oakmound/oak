@@ -1,7 +1,6 @@
 package render
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 
@@ -60,7 +59,6 @@ func bezierDraw(b shape.Bezier, pts *[]intgeom.Point, low, high float64) {
 	// (high-low < 0.01) &&
 	if (p3.X == p2.X && p3.Y == p2.Y) ||
 		(p3.X == p1.X && p3.Y == p1.Y) {
-		fmt.Println(p3, p2, p1)
 		return
 	}
 	*pts = append(*pts, p3)
