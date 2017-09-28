@@ -5,7 +5,6 @@ import (
 
 	"time"
 
-	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/timing"
 )
 
@@ -25,29 +24,23 @@ func EmptyRenderable() Modifiable {
 // LoadSpriteAndDraw is shorthand for LoadSprite
 // followed by Draw.
 func LoadSpriteAndDraw(filename string, l int) (Renderable, error) {
-	s := LoadSprite(filename)
+	s, err := LoadSprite(filename)
+	if err != nil {
+		return nil, err
+	}
 	return Draw(s, l)
 }
 
 // DrawColor is equivalent to LoadSpriteAndDraw,
 // but with colorboxes.
-func DrawColor(c color.Color, x1, y1, x2, y2 float64, layer, stackLayer int) Renderable {
+func DrawColor(c color.Color, x1, y1, x2, y2 float64, layer, stackLayer int) (Renderable, error) {
 	cb := NewColorBox(int(x2), int(y2), c)
 	cb.ShiftX(x1)
 	cb.ShiftY(y1)
 	if len(GlobalDrawStack.as) == 1 {
-		_, err := Draw(cb, layer)
-		if err != nil {
-			dlog.Error(err)
-		}
-	} else {
-		cb.SetLayer(layer)
-		_, err := Draw(cb, stackLayer)
-		if err != nil {
-			dlog.Error(err)
-		}
+		return Draw(cb, layer)
 	}
-	return cb
+	return Draw(cb, stackLayer, layer)
 }
 
 // DrawForTime draws and after d undraws an element

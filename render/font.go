@@ -2,12 +2,12 @@ package render
 
 import (
 	"image"
-	"image/color"
 	"path/filepath"
 	"runtime"
 	"strings"
 
 	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/colornames"
 	"golang.org/x/image/font"
 
 	"github.com/oakmound/oak/dlog"
@@ -142,29 +142,24 @@ func parseFontHinting(hintType string) (faceHinting font.Hinting) {
 		dlog.Error("Unable to parse font hinting, ", hintType)
 		fallthrough
 	case "":
-		// Don't warn about undefined hinting
 		faceHinting = font.HintingNone
 	}
 	return faceHinting
 }
 
-//FontColor converts a small set of strings to colors
-//TODO: Implement a better version or pull in an outside library already doing this as this should be a fairly common utility function
+// FontColor accesses x/image/colornames and returns an image.Image for the input
+// string. If the string is not defined in x/image/colornames, it will return defaultColor
+// as defined by SetFontDefaults. The set of colors as defined by x/image/colornames matches
+// the set of colors as defined by the SVG 1.1 spec.
 func FontColor(s string) image.Image {
 	s = strings.ToLower(s)
-	switch s {
-	case "white":
-		return image.White
-	case "black":
-		return image.Black
-	case "green":
-		return image.NewUniform(color.RGBA{0, 255, 0, 255})
-	default:
-		return defaultColor
+	if c, ok := colornames.Map[s]; ok {
+		return image.NewUniform(c)
 	}
+	return defaultColor
 }
 
-//LoadFont loads in a font file and stores it with the given name. This is necessary before using the fonttype for a Font
+// LoadFont loads in a font file and stores it with the given name. This is necessary before using the fonttype for a Font
 func LoadFont(dir string, fontFile string) *truetype.Font {
 	if _, ok := loadedFonts[fontFile]; !ok {
 		fontBytes, err := fileutil.ReadFile(filepath.Join(dir, fontFile))

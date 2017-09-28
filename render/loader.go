@@ -96,13 +96,13 @@ func loadImage(directory, fileName string) (*image.RGBA, error) {
 }
 
 // LoadSprite loads the input fileName into a Sprite
-func LoadSprite(fileName string) *Sprite {
+func LoadSprite(fileName string) (*Sprite, error) {
 	r, err := loadImage(dir, fileName)
-	if err != nil {
+	if err != nil || r == nil {
 		dlog.Error(err)
-		return nil
+		return nil, err
 	}
-	return NewSprite(0, 0, r)
+	return NewSprite(0, 0, r), nil
 }
 
 // GetSheet tries to find the given file in the set of loaded sheets.

@@ -13,4 +13,6 @@ func TestDebugIdentity(t *testing.T) {
 	r2, ok := GetDebugRenderable("r")
 	assert.True(t, ok)
 	assert.Equal(t, r, r2)
+	_, ok = GetDebugRenderable("doesn't exist")
+	assert.False(t, ok)
 }

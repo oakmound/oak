@@ -24,6 +24,7 @@ func DrawCurve(rgba *image.RGBA, c color.Color, radius, thickness, initialAngle,
 			offY = offsets[1]
 		}
 	}
+	// Todo: use floatgeom not vectors
 	rVec := physics.NewVector(radius+offX, radius+offY)
 	delta := physics.AngleVector(initialAngle)
 	circum := 2 * radius * math.Pi

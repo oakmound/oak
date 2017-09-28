@@ -16,8 +16,10 @@ func TestBatchLoad(t *testing.T) {
 	assert.Equal(t, len(sh), 8)
 	_, err := loadImage("dir", "dummy.jpg")
 	assert.NotNil(t, err)
-	sp := LoadSprite("dummy.gif")
+	sp, err := LoadSprite("dummy.gif")
 	assert.Nil(t, sp)
-	sp = LoadSprite(filepath.Join("16", "jeremy.png"))
+	assert.NotNil(t, err)
+	sp, err = LoadSprite(filepath.Join("16", "jeremy.png"))
 	assert.NotNil(t, sp)
+	assert.Nil(t, err)
 }
