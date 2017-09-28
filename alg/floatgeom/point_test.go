@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGreaterOf(t *testing.T) {
+func TestPointGreaterOf(t *testing.T) {
 	a := Point2{0, 1}
 	b := Point2{1, 0}
 	assert.Equal(t, a.GreaterOf(b), Point2{1, 1})
@@ -18,7 +18,7 @@ func TestGreaterOf(t *testing.T) {
 	assert.Equal(t, c.GreaterOf(d), Point3{1, 2, 2})
 }
 
-func TestLesserOf(t *testing.T) {
+func TestPointLesserOf(t *testing.T) {
 	a := Point2{0, 1}
 	b := Point2{1, 0}
 	assert.Equal(t, a.LesserOf(b), Point2{0, 0})
@@ -28,7 +28,7 @@ func TestLesserOf(t *testing.T) {
 	assert.Equal(t, c.LesserOf(d), Point3{0, 1, 0})
 }
 
-func TestAccess(t *testing.T) {
+func TestPointAccess(t *testing.T) {
 	a := Point3{0, 1, 2}
 	assert.Equal(t, 0.0, a.Dim(0))
 	assert.Equal(t, 1.0, a.Dim(1))
@@ -56,7 +56,7 @@ var (
 	}
 )
 
-func TestDistance3(t *testing.T) {
+func TestPointDistance3(t *testing.T) {
 
 	expected := []float64{math.Sqrt(3)}
 
@@ -68,7 +68,7 @@ func TestDistance3(t *testing.T) {
 	}
 }
 
-func TestDistance2(t *testing.T) {
+func TestPointDistance2(t *testing.T) {
 	expected := []float64{math.Sqrt(2)}
 
 	for i, e := range expected {
@@ -79,7 +79,7 @@ func TestDistance2(t *testing.T) {
 	}
 }
 
-func TestAdd3(t *testing.T) {
+func TestPointAdd3(t *testing.T) {
 	expected := []Point3{
 		{1, 1, 1},
 	}
@@ -91,7 +91,7 @@ func TestAdd3(t *testing.T) {
 	}
 }
 
-func TestAdd2(t *testing.T) {
+func TestPointAdd2(t *testing.T) {
 	expected := []Point2{
 		{1, 1},
 	}
@@ -103,7 +103,7 @@ func TestAdd2(t *testing.T) {
 	}
 }
 
-func TestSub3(t *testing.T) {
+func TestPointSub3(t *testing.T) {
 	expected := []Point3{
 		{-1, -1, -1},
 	}
@@ -115,7 +115,7 @@ func TestSub3(t *testing.T) {
 	}
 }
 
-func TestSub2(t *testing.T) {
+func TestPointSub2(t *testing.T) {
 	expected := []Point2{
 		{-1, -1},
 	}
@@ -127,7 +127,7 @@ func TestSub2(t *testing.T) {
 	}
 }
 
-func TestMul3(t *testing.T) {
+func TestPointMul3(t *testing.T) {
 	expected := []Point3{
 		{0, 0, 0},
 	}
@@ -139,7 +139,7 @@ func TestMul3(t *testing.T) {
 	}
 }
 
-func TestMul2(t *testing.T) {
+func TestPointMul2(t *testing.T) {
 	expected := []Point2{
 		{0, 0},
 	}
@@ -151,7 +151,7 @@ func TestMul2(t *testing.T) {
 	}
 }
 
-func TestDiv3(t *testing.T) {
+func TestPointDiv3(t *testing.T) {
 	expected := []Point3{
 		{0, 0, 0},
 	}
@@ -163,7 +163,7 @@ func TestDiv3(t *testing.T) {
 	}
 }
 
-func TestDiv2(t *testing.T) {
+func TestPointDiv2(t *testing.T) {
 	expected := []Point2{
 		{0, 0},
 	}
@@ -179,7 +179,7 @@ var (
 	randTests = 100
 )
 
-func TestToRec(t *testing.T) {
+func TestPointToRec(t *testing.T) {
 	for i := 0; i < randTests; i++ {
 		span := rand.Float64()
 		x := rand.Float64()
