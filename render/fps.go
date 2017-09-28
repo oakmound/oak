@@ -53,7 +53,7 @@ func (df *DrawFPS) Replace(Renderable, Renderable, int) {
 
 // Copy does effectively nothing for a drawFPS
 func (df *DrawFPS) Copy() Stackable {
-	return new(DrawFPS)
+	return NewDrawFPS()
 }
 
 func (df *DrawFPS) draw(world draw.Image, view image.Point, w, h int) {
