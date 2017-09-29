@@ -13,9 +13,10 @@ type Colorable interface {
 // Color sets colors on a Colorable
 func Color(sc, scr, ec, ecr color.Color) func(Generator) {
 	return func(g Generator) {
-		c := g.(Colorable)
-		c.SetStartColor(sc, scr)
-		c.SetEndColor(ec, ecr)
+		if c, ok := g.(Colorable); ok {
+			c.SetStartColor(sc, scr)
+			c.SetEndColor(ec, ecr)
+		}
 	}
 }
 
@@ -28,8 +29,9 @@ type Colorable2 interface {
 // Color2 sets more colors on a Colorable2
 func Color2(sc, scr, ec, ecr color.Color) func(Generator) {
 	return func(g Generator) {
-		c := g.(Colorable2)
-		c.SetStartColor2(sc, scr)
-		c.SetEndColor2(ec, ecr)
+		if c, ok := g.(Colorable2); ok {
+			c.SetStartColor2(sc, scr)
+			c.SetEndColor2(ec, ecr)
+		}
 	}
 }

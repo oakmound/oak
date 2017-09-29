@@ -14,12 +14,12 @@ type CollisionParticle struct {
 	s *collision.ReactiveSpace
 }
 
-// Draw redirectes to DrawOffset
+// Draw redirects to DrawOffset
 func (cp *CollisionParticle) Draw(buff draw.Image) {
 	cp.DrawOffset(buff, 0, 0)
 }
 
-// DrawOffset redirectes to DrawOffsetGen
+// DrawOffset redirects to DrawOffsetGen
 func (cp *CollisionParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	cp.DrawOffsetGen(cp.Particle.GetBaseParticle().Src.Generator, buff, xOff, yOff)
 }
@@ -45,9 +45,4 @@ func (cp *CollisionParticle) Cycle(generator Generator) {
 // GetDims returns the dimensions of the space of the particle
 func (cp *CollisionParticle) GetDims() (int, int) {
 	return int(cp.s.GetW()), int(cp.s.GetH())
-}
-
-// String returns the type as string
-func (cp *CollisionParticle) String() string {
-	return "CollisionParticle"
 }

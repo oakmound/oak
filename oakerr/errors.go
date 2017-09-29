@@ -3,6 +3,7 @@ package oakerr
 import "strconv"
 
 // Todo: add language switches to all errors
+
 // The goal of putting structs here instead of returning errors.New(string)s
 // is to be able to easily recognize error types through checks on the consuming
 // side, and to be able to translate errors into other languages in a localized

@@ -142,7 +142,6 @@ func TestCID(t *testing.T) {
 	}, "T")
 
 	// ResetEntities, etc
-	assert.Equal(t, cid.String(), "1")
 	ResetEntities()
 
 	cid.Trigger("T", nil)

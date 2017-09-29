@@ -18,3 +18,15 @@ func TestDeallocate(t *testing.T) {
 	Deallocate(0)
 	assert.Equal(t, Allocate(0), 0)
 }
+
+func TestAllocatorLookup(t *testing.T) {
+	src := NewSource(NewColorGenerator(), 0)
+	cid := src.CID
+	pidBlock := Allocate(cid)
+	src2 := LookupSource(pidBlock * blockSize)
+	assert.Equal(t, src, src2)
+	assert.Nil(t, Lookup((pidBlock*blockSize)+1))
+	Deallocate(2)
+	Deallocate(1)
+	Deallocate(0)
+}

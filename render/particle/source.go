@@ -226,11 +226,6 @@ func (ps *Source) UnPause() {
 	ps.paused = false
 }
 
-// Placeholder
-func (ps *Source) String() string {
-	return "ParticleSource"
-}
-
 // ShiftX shift's a source's underlying generator
 func (ps *Source) ShiftX(x float64) {
 	ps.Generator.ShiftX(x)

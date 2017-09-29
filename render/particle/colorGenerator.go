@@ -99,7 +99,18 @@ type Sizeable interface {
 // Size is an option to set a Sizeable size
 func Size(i intrange.Range) func(Generator) {
 	return func(g Generator) {
-		g.(Sizeable).SetSize(i)
+		if g2, ok := g.(Sizeable); ok {
+			g2.SetSize(i)
+		}
+	}
+}
+
+// EndSize sets the end size of a Sizeable
+func EndSize(i intrange.Range) func(Generator) {
+	return func(g Generator) {
+		if g2, ok := g.(Sizeable); ok {
+			g2.SetEndSize(i)
+		}
 	}
 }
 

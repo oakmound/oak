@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"strconv"
+
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
 )
@@ -80,7 +82,7 @@ func (d *Doodad) String() string {
 	s := "Doodad: \nP{ "
 	s += d.Point.String()
 	s += " }\nID:{ "
-	s += d.CID.String()
+	s += strconv.Itoa(int(d.CID))
 	s += " }"
 	return s
 }

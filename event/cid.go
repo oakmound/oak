@@ -1,13 +1,7 @@
 package event
 
-import "strconv"
-
 // A CID is a caller ID that entities use to trigger and bind functionality
 type CID int
-
-func (cid CID) String() string {
-	return strconv.Itoa(int(cid))
-}
 
 // E is shorthand for GetEntity(int(cid))
 // But we apparently forgot we added this shorthand,
