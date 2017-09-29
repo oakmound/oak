@@ -88,21 +88,6 @@ func Draw(r Renderable, layers ...int) (Renderable, error) {
 	return GlobalDrawStack.as[0].Add(r), nil
 }
 
-// ReplaceDraw will undraw r1 and draw r2 after the next draw frame
-// Useful for not working
-func ReplaceDraw(r1, r2 Renderable, stackLayer, layer int) {
-	if r1 == nil || r2 == nil {
-		dlog.Error("Tried to draw nil")
-		return
-	}
-	if stackLayer < 0 || stackLayer >= len(GlobalDrawStack.as) {
-		dlog.Error("Layer", stackLayer, "does not exist on global draw stack")
-		return
-	}
-	r2.SetLayer(layer)
-	GlobalDrawStack.as[stackLayer].Replace(r1, r2, layer)
-}
-
 //Push appends an addable to the draw stack during the next predraw
 func (ds *DrawStack) Push(a Stackable) {
 	ds.toPush = append(ds.toPush, a)
