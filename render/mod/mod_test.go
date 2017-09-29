@@ -50,11 +50,50 @@ func TestAllModifications(t *testing.T) {
 	}, {
 		ColorBalance(0, 0, 0),
 		setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255}),
+	}, {
+		InPlace(Scale(2, 2)),
+		setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255}),
 	}}
 	for _, f := range filterList {
 		in2 := copyrgba(in)
 		f.Filter(in2)
 		assert.Equal(t, in2, f.RGBA)
+	}
+	type modCase struct {
+		Mod
+		*image.RGBA
+	}
+	modList := []modCase{{
+		TrimColor(color.RGBA{255, 0, 0, 255}),
+		newrgba(0, 0),
+	}, {
+		TrimColor(color.RGBA{0, 0, 0, 0}),
+		setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255}),
+	}, {
+		Zoom(1.0, 1.0, 1.0),
+		setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255}),
+	}, {
+		Cut(1, 1),
+		setAll(newrgba(1, 1), color.RGBA{255, 0, 0, 255}),
+	}, {
+		CutRel(.66, .66),
+		setAll(newrgba(2, 2), color.RGBA{255, 0, 0, 255}),
+	}, {
+		CutFromLeft(2, 2),
+		setAll(newrgba(2, 2), color.RGBA{255, 0, 0, 255}),
+	}, {
+		CutRound(.5, .5),
+		setOne(setOne(setOne(setOne(setOne(
+			setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255}),
+			color.RGBA{0, 0, 0, 0}, 0, 0),
+			color.RGBA{0, 0, 0, 0}, 1, 0),
+			color.RGBA{0, 0, 0, 0}, 2, 0),
+			color.RGBA{0, 0, 0, 0}, 0, 1),
+			color.RGBA{0, 0, 0, 0}, 0, 2),
+	}}
+
+	for _, m := range modList {
+		assert.Equal(t, m.Mod(in), m.RGBA)
 	}
 }
 
@@ -82,5 +121,10 @@ func setAll(rgba *image.RGBA, c color.Color) *image.RGBA {
 			rgba.Set(x, y, c)
 		}
 	}
+	return rgba
+}
+
+func setOne(rgba *image.RGBA, c color.Color, x, y int) *image.RGBA {
+	rgba.Set(x, y, c)
 	return rgba
 }

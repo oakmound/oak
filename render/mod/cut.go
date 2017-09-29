@@ -6,11 +6,10 @@ import (
 
 	"github.com/oakmound/oak/alg"
 	"github.com/oakmound/oak/alg/floatgeom"
-	"github.com/oakmound/oak/dlog"
 )
 
 // CutRound rounds the edges of the Modifiable with Bezier curves.
-// Todo: A nice bezier curve toolset would be nice
+// Todo: We have a nice bezier toolkit now, so use it here
 func CutRound(xOff, yOff float64) Mod {
 	return func(rgba image.Image) *image.RGBA {
 		bds := rgba.Bounds()
@@ -95,21 +94,16 @@ func CutFn(xMod, yMod, wMod, hMod func(int) int) Mod {
 func CutFromLeft(newWidth, newHeight int) Mod {
 	return CutFn(func(w int) int {
 		out := w - newWidth
-		dlog.Error("Startx", out)
 		return out
 	},
 		func(h int) int {
 			out := h - newHeight
-			dlog.Error("Starty", out)
 			return out
 		},
 		func(int) int {
-			dlog.Error("n width", newWidth)
-
 			return newWidth
 		},
 		func(int) int {
-			dlog.Error("n height", newHeight)
 			return newHeight
 		})
 }

@@ -98,7 +98,13 @@ func TrimColor(trimUnder color.Color) Mod {
 			}
 			yOff++
 		}
-		out := image.NewRGBA(image.Rect(0, 0, w-xOff+1, h-yOff+1))
+		newW := w - xOff + 1
+		newH := h - yOff + 1
+		if newW <= 0 || newH <= 0 {
+			newW = 0
+			newH = 0
+		}
+		out := image.NewRGBA(image.Rect(0, 0, newW, newH))
 		for x := xOff; x <= w; x++ {
 			for y := yOff; y <= h; y++ {
 				c := rgba.At(x, y)
