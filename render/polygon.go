@@ -7,7 +7,6 @@ import (
 
 	"github.com/oakmound/oak/alg/floatgeom"
 	"github.com/oakmound/oak/oakerr"
-	"github.com/oakmound/oak/physics"
 )
 
 // A Polygon is a renderable that is represented by a set of in order points
@@ -77,13 +76,13 @@ func (pg *Polygon) Fill(c color.Color) {
 
 // GetOutline returns a set of lines of the given color along this polygon's outline
 func (pg *Polygon) GetOutline(c color.Color) *Composite {
-	sl := NewComposite([]Modifiable{})
+	sl := NewComposite()
 	j := len(pg.points) - 1
 	for i, p2 := range pg.points {
 		p1 := pg.points[j]
 		MinX := math.Min(p1.X(), p2.X())
 		MinY := math.Min(p1.Y(), p2.Y())
-		sl.AppendOffset(NewLine(p1.X(), p1.Y(), p2.X(), p2.Y(), c), physics.NewVector(MinX, MinY))
+		sl.AppendOffset(NewLine(p1.X(), p1.Y(), p2.X(), p2.Y(), c), floatgeom.Point2{MinX, MinY})
 		j = i
 	}
 	return sl

@@ -77,15 +77,6 @@ func ResizeToFit(width, height int, resampling gift.Resampling) Mod {
 
 // Rotate returns a rotated rgba.
 func Rotate(degrees float32) Mod {
-	if degrees == 90 {
-		return rotate90
-	}
-	if degrees == 180 {
-		return rotate180
-	}
-	if degrees == 270 {
-		return rotate270
-	}
 	return RotateInterpolated(degrees, gift.CubicInterpolation)
 }
 
@@ -101,9 +92,14 @@ func RotateBackground(degrees float32, bckgrnd color.Color, interpolation gift.I
 	return GiftTransform(gift.Rotate(degrees, bckgrnd, interpolation))
 }
 
-var rotate180 = GiftTransform(gift.Rotate180())
-var rotate270 = GiftTransform(gift.Rotate270())
-var rotate90 = GiftTransform(gift.Rotate90())
+// Rotate180 performs a specialized rotation for 180 degrees.
+var Rotate180 = GiftTransform(gift.Rotate180())
+
+// Rotate270 performs a specialized rotation for 270 degrees.
+var Rotate270 = GiftTransform(gift.Rotate270())
+
+// Rotate90 performs a specialized rotation for 360 degrees.
+var Rotate90 = GiftTransform(gift.Rotate90())
 
 // Transpose flips horizontally and rotates 90 degrees counter clockwise.
 var Transpose = GiftTransform(gift.Transpose())
