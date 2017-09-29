@@ -11,6 +11,15 @@ import (
 // change the dimensions of the underlying image.
 type Filter func(*image.RGBA)
 
+// AndFilter combines multiple filters into one.
+func AndFilter(fs ...Filter) Filter {
+	return func(rgba *image.RGBA) {
+		for _, f := range fs {
+			f(rgba)
+		}
+	}
+}
+
 // ConformToPallete is not a modification, but acts like ConformToPallete
 // without allocating a new *image.RGBA
 func ConformToPallete(p color.Model) Filter {

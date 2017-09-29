@@ -5,13 +5,9 @@ import (
 	"image/color"
 
 	"github.com/oakmound/oak/alg"
+	"github.com/oakmound/oak/alg/floatgeom"
 	"github.com/oakmound/oak/dlog"
 )
-
-// todo: this should not be in this package
-type point struct {
-	X, Y float64
-}
 
 // CutRound rounds the edges of the Modifiable with Bezier curves.
 // Todo: A nice bezier curve toolset would be nice
@@ -41,9 +37,9 @@ func CutRound(xOff, yOff float64) Mod {
 			y1 := float64(c[1])
 			x2 := x1 + (float64(bds.Max.X*c[2]) * xOff)
 			y2 := y1 + (float64(bds.Max.Y*c[3]) * yOff)
-			p1 := point{x2, y1}
-			p2 := point{x1, y1}
-			p3 := point{x1, y2}
+			p1 := floatgeom.Point2{x2, y1}
+			p2 := floatgeom.Point2{x1, y1}
+			p3 := floatgeom.Point2{x1, y2}
 
 			// Progressing along the curve, whenever a new y value is
 			// intersected at a pixel delete all values
@@ -59,8 +55,8 @@ func CutRound(xOff, yOff float64) Mod {
 				// Could only redo this loop at new y values to save time,
 				// but because this is currently just a pre-processing Mod
 				// it should be okay
-				x := alg.RoundF64(curveAt.X)
-				for y := alg.RoundF64(curveAt.Y); y <= bds.Max.Y && y >= bds.Min.Y; y -= c[3] {
+				x := alg.RoundF64(curveAt.X())
+				for y := alg.RoundF64(curveAt.Y()); y <= bds.Max.Y && y >= bds.Min.Y; y -= c[3] {
 					newRgba.Set(x, y, color.RGBA{0, 0, 0, 0})
 				}
 			}
@@ -71,8 +67,8 @@ func CutRound(xOff, yOff float64) Mod {
 }
 
 // todo: this should not be in this package
-func pointBetween(p1, p2 point, f float64) point {
-	return point{p1.X*(1-f) + p2.X*f, p1.Y*(1-f) + p2.Y*f}
+func pointBetween(p1, p2 floatgeom.Point2, f float64) floatgeom.Point2 {
+	return floatgeom.Point2{p1.X()*(1-f) + p2.X()*f, p1.Y()*(1-f) + p2.Y()*f}
 }
 
 //CutFn  can reduce or add blank space to an input image.

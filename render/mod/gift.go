@@ -17,7 +17,7 @@ func GiftTransform(fs ...gift.Filter) Mod {
 	}
 }
 
-// GiftFilter converts any set of gift.Filters into a Mod.
+// GiftFilter converts any set of gift.Filters into a Filter.
 // if a filter is internally a transformation in gift, this will
 // not work and GiftTransform should be used instead.
 func GiftFilter(fs ...gift.Filter) Filter {
@@ -27,7 +27,7 @@ func GiftFilter(fs ...gift.Filter) Filter {
 }
 
 // Brighten brightens an image between -100 and 100. 100 will be solid white,
-// -100 will be solid black.
+// -100 will be solid black, for all colors not zero before filtering.
 func Brighten(brightenBy float32) Filter {
 	return GiftFilter(gift.Brightness(brightenBy))
 }
