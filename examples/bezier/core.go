@@ -75,7 +75,7 @@ func main() {
 }
 
 func bezierDraw(b shape.Bezier) *render.Composite {
-	list := render.NewComposite([]render.Modifiable{})
+	list := render.NewComposite()
 	bezierDrawRec(b, list, 255)
 	return list
 }
