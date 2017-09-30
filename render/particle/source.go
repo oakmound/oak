@@ -194,19 +194,22 @@ func rotateParticles(id int, nothing interface{}) int {
 // clearParticles is used after a Source has been stopped
 // to continue moving old particles for as long as they exist.
 func clearParticles(id int, nothing interface{}) int {
-	ps := event.GetEntity(id).(*Source)
-	if !ps.paused {
-		if ps.cycleParticles() {
-		} else {
-			if ps.EndFunc != nil {
-				ps.EndFunc()
+	if ps, ok := event.GetEntity(id).(*Source); ok {
+		if !ps.paused {
+			if ps.cycleParticles() {
+			} else {
+				if ps.EndFunc != nil {
+					ps.EndFunc()
+				}
+				event.DestroyEntity(id)
+				Deallocate(ps.pIDBlock)
+				return event.UnbindEvent
 			}
-			event.DestroyEntity(id)
-			Deallocate(ps.pIDBlock)
-			return event.UnbindEvent
 		}
+
+		return 0
 	}
-	return 0
+	return event.UnbindEvent
 }
 
 // Stop manually stops a Source, if its duration is infinite
