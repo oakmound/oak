@@ -229,7 +229,7 @@ func BatchLoad(baseFolder string) error {
 		dlog.Verb("folder ", i, folder.Name())
 		if folder.IsDir() {
 
-			frameW, frameH, err := parseLoadFolderName(aliases, folder.Name())
+			frameW, frameH, possibleSheet, err := parseLoadFolderName(aliases, folder.Name())
 			if err != nil {
 				return err
 			}
@@ -250,7 +250,7 @@ func BatchLoad(baseFolder string) error {
 
 						dlog.Verb("buffer: ", w, h, " frame: ", frameW, frameH)
 
-						if frameW == 0 || frameH == 0 {
+						if !possibleSheet {
 							continue
 						} else if w < frameW || h < frameH {
 							dlog.Error("File ", name, " in folder", folder.Name(), " is too small for folder dimensions", frameW, frameH)
@@ -261,9 +261,7 @@ func BatchLoad(baseFolder string) error {
 						} else if w != frameW || h != frameH {
 							dlog.Verb("Loading as sprite sheet")
 							_, err = LoadSheet(baseFolder, filepath.Join(folder.Name(), name), frameW, frameH, defaultPad)
-							if err != nil {
-								dlog.Error(err)
-							}
+							dlog.ErrorCheck(err)
 						}
 					} else {
 						dlog.Error("Unsupported file ending for batchLoad: ", name)
@@ -289,7 +287,7 @@ func parseAliasFile(baseFolder string) map[string]string {
 	return aliases
 }
 
-func parseLoadFolderName(aliases map[string]string, name string) (int, int, error) {
+func parseLoadFolderName(aliases map[string]string, name string) (int, int, bool, error) {
 	var frameW, frameH int
 	if name == "raw" {
 		frameW = 0
@@ -315,11 +313,11 @@ func parseLoadFolderName(aliases map[string]string, name string) (int, int, erro
 				frameW = val
 				frameH = val
 			} else {
-				return 0, 0, errors.New("Alias value not parseable as a frame width and height pair")
+				return 0, 0, false, errors.New("Alias value not parseable as a frame width and height pair")
 			}
 		} else {
-			return 0, 0, errors.New("Alias name not found in alias file")
+			return 0, 0, false, errors.New("Alias name not found in alias file")
 		}
 	}
-	return frameW, frameH, nil
+	return frameW, frameH, frameW != 0 && frameH != 0, nil
 }
