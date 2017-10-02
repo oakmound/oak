@@ -10,7 +10,7 @@ var (
 	// tracked for continuous mouse responsiveness on events
 	// that don't take in a mouse event
 	LastMouseEvent Event
-	// LaseMousePress is the last triggered mouse event,
+	// LastMousePress is the last triggered mouse event,
 	// where the mouse event was a press.
 	// If TrackMouseClicks is set to false then this will not be tracked
 	LastMousePress Event
