@@ -4,7 +4,6 @@ import (
 	// This file is being slowly converted to use gift over manual math and loops,
 	// because our math / loops will be more likely to have (and have already had)
 	// missable bugs.
-	//"github.com/anthonynsimon/bild/blend"
 
 	"github.com/oakmound/oak/alg"
 
@@ -12,10 +11,7 @@ import (
 
 	"image"
 	"image/color"
-	//"image/draw"
 	"math"
-
-	"github.com/oakmound/oak/dlog"
 )
 
 var (
@@ -172,8 +168,9 @@ func pointBetween(p1, p2 point, f float64) point {
 	return point{p1.X*(1-f) + p2.X*f, p1.Y*(1-f) + p2.Y*f}
 }
 
-//CutFn  can reduce or add blank space to an input image.
-// Each input function decides the starting location or offset of a cut.
+// CutFn can reduce or add blank space to an input image.
+// Each input function decides the starting location or offset of a cut,
+// depending on input width and height for functions on the appropriate axis.
 func CutFn(xMod, yMod, wMod, hMod func(int) int) Modification {
 	return func(rgba image.Image) *image.RGBA {
 		bds := rgba.Bounds()
@@ -194,25 +191,11 @@ func CutFn(xMod, yMod, wMod, hMod func(int) int) Modification {
 
 // CutFromLeft acts like cut but removes from the left hand side rather than the right
 func CutFromLeft(newWidth, newHeight int) Modification {
-	return CutFn(func(w int) int {
-		out := w - newWidth
-		dlog.Error("Startx", out)
-		return out
-	},
-		func(h int) int {
-			out := h - newHeight
-			dlog.Error("Starty", out)
-			return out
-		},
-		func(int) int {
-			dlog.Error("n width", newWidth)
-
-			return newWidth
-		},
-		func(int) int {
-			dlog.Error("n height", newHeight)
-			return newHeight
-		})
+	return CutFn(
+		func(w int) int { return w - newWidth },
+		func(h int) int { return h - newHeight },
+		func(int) int { return newWidth },
+		func(int) int { return newHeight })
 }
 
 // CutRel acts like Cut, but takes in a multiplier on the
@@ -224,11 +207,9 @@ func CutRel(relWidth, relHeight float64) Modification {
 		func(h int) int { return alg.RoundF64(float64(h) * relHeight) })
 }
 
-// Cut reduces (or increases, adding nothing)
+// Cut reduces (or increases, adding black transparent color)
 // the dimensions of the input image, setting them to newWidth and
-// newHeight. (Consider: use generic int modifiers here so we
-// don't need CutRel and Cut? i.e a function header like
-// Cut(wMod, hMod func(int) int)? )
+// newHeight.
 func Cut(newWidth, newHeight int) Modification {
 	return CutFn(func(int) int { return 0 },
 		func(int) int { return 0 },
@@ -270,18 +251,7 @@ func Fade(alpha int) Modification {
 func ApplyColor(c color.Color) Modification {
 	return func(rgba image.Image) *image.RGBA {
 
-		// u := image.NewUniform(c)
-		// bounds := rgba.Bounds()
-		// img := image.NewRGBA(bounds)
-		// draw.Draw(img, bounds, u, bounds.Min, draw.Src)
-
-		// return blend.Normal(rgba, img)
 		r1, g1, b1, a1 := c.RGBA()
-		// filter := gift.New(
-		// 	gift.ColorBalance(float32(r1*(255/100)), float32(g1*(255/100)), float32(b1*(255/100))))
-		// dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
-		// filter.Draw(dst, rgba)
-		// return dst
 
 		bounds := rgba.Bounds()
 		w := bounds.Max.X
@@ -311,7 +281,7 @@ func ApplyColor(c color.Color) Modification {
 // pixels in a second RGBA.
 func FillMask(img image.RGBA) Modification {
 	return func(rgba image.Image) *image.RGBA {
-		// Instead of static color it just two buffers melding
+
 		bounds := rgba.Bounds()
 		w := bounds.Max.X
 		h := bounds.Max.Y
@@ -358,7 +328,7 @@ func FillMask(img image.RGBA) Modification {
 // their alpha levels, and returns that as a new rgba.
 func ApplyMask(img image.RGBA) Modification {
 	return func(rgba image.Image) *image.RGBA {
-		// Instead of static color it just two buffers melding
+
 		bounds := rgba.Bounds()
 		w := bounds.Max.X
 		h := bounds.Max.Y
