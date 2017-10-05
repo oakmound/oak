@@ -197,3 +197,13 @@ func (p Point2) ToRect(span float64) Rect2 {
 func (p Point3) ToRect(span float64) Rect3 {
 	return NewRect3WH(p[0], p[1], p[2], span, span, span)
 }
+
+// ToAngle returns this point as an angle in degrees.
+func (p Point2) ToAngle() float64 {
+	return p.ToRadians() * 180 / math.Pi
+}
+
+// ToRadians returns this point as an angle in radians.
+func (p Point2) ToRadians() float64 {
+	return math.Atan2(p[1], p[0])
+}
