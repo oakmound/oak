@@ -8,6 +8,16 @@ type Point2 [2]float64
 // Point3 represents a 3D point in space.
 type Point3 [3]float64
 
+// AnglePoint creates a unit vector from the given angle in degrees as a Point2.
+func AnglePoint(angle float64) Point2 {
+	return RadianPoint(angle * math.Pi / 180)
+}
+
+// RadianPoint creates a unit vector from the given angle in radians as a Point2.
+func RadianPoint(radians float64) Point2 {
+	return Point2{math.Cos(radians), math.Sin(radians)}
+}
+
 // Dim returns the value of p in the ith dimension.
 // Panics if i > 1. No check is made for efficiency's sake, pending benchmarks,
 // but adding an error here would significantly worsen the API.
@@ -206,4 +216,14 @@ func (p Point2) ToAngle() float64 {
 // ToRadians returns this point as an angle in radians.
 func (p Point2) ToRadians() float64 {
 	return math.Atan2(p[1], p[0])
+}
+
+// AngleTo returns the angle from p to p2 in degrees.
+func (p Point2) AngleTo(p2 Point2) float64 {
+	return p.Sub(p2).ToAngle()
+}
+
+// RadiansTo returns the angle from p to p2 in radians.
+func (p Point2) RadiansTo(p2 Point2) float64 {
+	return p.Sub(p2).ToRadians()
 }

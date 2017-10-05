@@ -3,6 +3,7 @@ package particle
 import (
 	"github.com/200sc/go-dist/floatrange"
 	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/alg"
 	"github.com/oakmound/oak/physics"
 )
 
@@ -37,10 +38,10 @@ func LifeSpan(ls floatrange.Range) func(Generator) {
 	}
 }
 
-// Angle sets the initial angle of a particle
+// Angle sets the initial angle of a particle in degrees
 func Angle(a floatrange.Range) func(Generator) {
 	return func(g Generator) {
-		g.GetBaseGenerator().Angle = a
+		g.GetBaseGenerator().Angle = a.Mult(alg.DegToRad)
 	}
 }
 

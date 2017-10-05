@@ -2,8 +2,8 @@ package particle
 
 import (
 	"image/color"
-	"math"
 
+	"github.com/oakmound/oak/alg"
 	"github.com/oakmound/oak/shape"
 
 	"github.com/200sc/go-dist/intrange"
@@ -49,7 +49,7 @@ func (cg *ColorGenerator) setDefaults() {
 func (cg *ColorGenerator) Generate(layer int) *Source {
 	// Convert rotation from degrees to radians
 	if cg.Rotation != nil {
-		cg.Rotation = cg.Rotation.Mult(math.Pi / 180)
+		cg.Rotation = cg.Rotation.Mult(alg.DegToRad)
 	}
 	return NewSource(cg, layer)
 }

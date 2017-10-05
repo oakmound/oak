@@ -1,10 +1,9 @@
 package particle
 
 import (
-	"math"
-
 	"github.com/200sc/go-dist/floatrange"
 
+	"github.com/oakmound/oak/alg"
 	"github.com/oakmound/oak/render"
 )
 
@@ -36,7 +35,7 @@ func (sg *SpriteGenerator) setDefaults() {
 func (sg *SpriteGenerator) Generate(layer int) *Source {
 	// Convert rotation from degrees to radians
 	if sg.Rotation != nil {
-		sg.Rotation = sg.Rotation.Mult(math.Pi / 180)
+		sg.Rotation = sg.Rotation.Mult(alg.DegToRad)
 	}
 	return NewSource(sg, layer)
 }

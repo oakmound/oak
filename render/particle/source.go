@@ -126,7 +126,7 @@ func (ps *Source) addParticles() {
 	var p Particle
 	var bp *baseParticle
 	for i := 0; i < newParticleCount; i++ {
-		angle := pg.Angle.Poll() * math.Pi / 180.0
+		angle := pg.Angle.Poll()
 		speed := pg.Speed.Poll()
 		startLife := pg.LifeSpan.Poll()
 

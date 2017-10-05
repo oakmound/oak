@@ -1,7 +1,5 @@
 package collision
 
-import "github.com/oakmound/oak/event"
-
 // There's a default collision tree you can access via collision.func
 // as opposed to tree.func. This is considered a legacy set of features,
 // because the benefit to the API is minimal in exchange for a much harder
@@ -72,55 +70,4 @@ func (s *Space) UpdateLabel(classtype Label) {
 	DefTree.Remove(s)
 	s.Label = classtype
 	DefTree.Add(s)
-}
-
-// RayCast returns the set of points where a line
-// from x,y going at a certain angle, for a certain length, intersects
-// with existing rectangles in the rtree.
-// It converts the ray into a series of points which are themselves
-// used to check collision at a miniscule width and height.
-func RayCast(x, y, degrees, length float64) []Point {
-	return DefTree.RayCast(x, y, degrees, length)
-}
-
-// RayCastSingle acts as RayCast, but it returns only the first collision
-// that the generated ray intersects, ignoring entities
-// in the given invalidIDs list.
-// Example Use case: shooting a bullet, hitting the first thing that isn't yourself.
-func RayCastSingle(x, y, degrees, length float64, invalidIDS ...event.CID) Point {
-	return DefTree.RayCastSingle(x, y, degrees, length, invalidIDS...)
-}
-
-// RayCastSingleLabels acts like RayCastSingle, but only returns elements
-// that match one of the input labels
-func RayCastSingleLabels(x, y, degrees, length float64, labels ...Label) Point {
-	return DefTree.RayCastSingleLabels(x, y, degrees, length, labels...)
-}
-
-// RayCastSingleIgnoreLabels is the opposite of Labels, in that it will return
-// the first collision point that is not contained in the set of ignore labels
-func RayCastSingleIgnoreLabels(x, y, degrees, length float64, labels ...Label) Point {
-	return DefTree.RayCastSingleIgnoreLabels(x, y, degrees, length, labels...)
-}
-
-// RayCastSingleIgnore is just like ignore labels but also ignores certain
-// caller ids
-func RayCastSingleIgnore(x, y, degrees, length float64, invalidIDS []event.CID, labels ...Label) Point {
-	return DefTree.RayCastSingleIgnore(x, y, degrees, length, invalidIDS, labels...)
-}
-
-// ConeCast repeatedly calls RayCast in a cone shape
-// ConeCast advances COUNTER-CLOCKWISE
-func ConeCast(x, y, angle, angleWidth, rays, length float64) (points []Point) {
-	return DefTree.ConeCast(x, y, angle, angleWidth, rays, length)
-}
-
-// ConeCastSingle repeatedly calls RayCastSignle in a cone shape
-func ConeCastSingle(x, y, angle, angleWidth, rays, length float64, invalidIDS ...event.CID) (points []Point) {
-	return DefTree.ConeCastSingle(x, y, angle, angleWidth, rays, length, invalidIDS...)
-}
-
-// ConeCastSingleLabels repeatedly calls RayCastSingleLabels in a cone shape
-func ConeCastSingleLabels(x, y, angle, angleWidth, rays, length float64, labels ...Label) (points []Point) {
-	return DefTree.ConeCastSingleLabels(x, y, angle, angleWidth, rays, length, labels...)
 }
