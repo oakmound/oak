@@ -27,6 +27,9 @@ func SetDebugLevel(dL int) {
 func CreateLogFile() {
 }
 
+func ErrorCheck(in error) {
+}
+
 func Error(in ...interface{}) {
 }
 

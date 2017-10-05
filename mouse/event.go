@@ -1,13 +1,19 @@
 package mouse
 
 import "github.com/oakmound/oak/collision"
-import "github.com/oakmound/oak/physics"
+import (
+	"github.com/oakmound/oak/physics"
+)
 
 var (
 	// LastEvent is the last triggered mouse event,
 	// tracked for continuous mouse responsiveness on events
 	// that don't take in a mouse event
 	LastEvent = NewZeroEvent(0, 0)
+	// LastPress is the last triggered mouse event,
+	// where the mouse event was a press.
+	// If TrackMouseClicks is set to false then this will not be tracked
+	LastPress = NewZeroEvent(0, 0)
 )
 
 // An Event is passed in through all Mouse related event bindings to

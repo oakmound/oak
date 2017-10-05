@@ -6,9 +6,6 @@ import (
 	"github.com/oakmound/oak/dlog"
 )
 
-// BUG: There's some circumstance where DynamicTickers
-// are not properly initialized/closed in the engine
-
 // A DynamicTicker is a ticker which can
 // be sent signals in the form of durations to
 // change how often it ticks.

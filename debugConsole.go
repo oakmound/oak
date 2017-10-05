@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	// "github.com/oakmound/oak/dlog"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/oakmound/oak/collision"

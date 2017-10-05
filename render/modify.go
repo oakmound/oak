@@ -1,12 +1,6 @@
 package render
 
-import
-// This file is being slowly converted to use gift over manual math and loops,
-// because our math / loops will be more likely to have (and have already had)
-// missable bugs.
-//"github.com/anthonynsimon/bild/blend"
-
-(
+import (
 	"image"
 
 	"github.com/oakmound/oak/render/mod"

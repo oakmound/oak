@@ -37,8 +37,8 @@ type Stackable interface {
 func SetDrawStack(as ...Stackable) {
 	GlobalDrawStack = &DrawStack{as: as}
 	initialDrawStack = GlobalDrawStack.Copy()
-	dlog.Info("Global", GlobalDrawStack)
-	dlog.Info("Initial", initialDrawStack)
+	dlog.Info("Global draw stack", GlobalDrawStack)
+	dlog.Info("Initial draw stack", initialDrawStack)
 }
 
 //ResetDrawStack resets the Global stack back to the initial stack
@@ -49,7 +49,6 @@ func ResetDrawStack() {
 // Draw on a stack will render its contents to the input buffer, for a screen
 // of w,h dimensions, from a view point of view.
 func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
-
 	for _, a := range ds.as {
 		// If we had concurrent operations, we'd do it here
 		// in that case each draw call would return to us something
@@ -88,18 +87,20 @@ func Draw(r Renderable, layers ...int) (Renderable, error) {
 	return GlobalDrawStack.as[0].Add(r), nil
 }
 
-//Push appends an addable to the draw stack during the next predraw
+// Push appends a Stackable to the draw stack during the next PreDraw.
 func (ds *DrawStack) Push(a Stackable) {
 	ds.toPush = append(ds.toPush, a)
 
 }
 
-//Pop increments the pop counter
+// Pop pops an element from the stack at the next PreDraw call.
 func (ds *DrawStack) Pop() {
 	ds.toPop++
 }
 
-//PreDraw takes care of popping and pushing onto the stack. This helps safegaurd against operations taking place in the middle of a draw
+// PreDraw performs whatever processes need to occur before this can be
+// drawn. In the case of the stack, it enacts previous Push and Pop calls,
+// and signals to elements on the stack to also prepare to be drawn.
 func (ds *DrawStack) PreDraw() {
 	if ds.toPop > 0 {
 		ds.as = ds.as[0 : len(ds.as)-ds.toPop]
@@ -116,7 +117,7 @@ func (ds *DrawStack) PreDraw() {
 	}
 }
 
-//Copy creates a new deep copy of a Drawstack
+// Copy creates a new deep copy of a Drawstack
 func (ds *DrawStack) Copy() *DrawStack {
 	ds2 := new(DrawStack)
 	ds2.as = make([]Stackable, len(ds.as))
@@ -128,7 +129,7 @@ func (ds *DrawStack) Copy() *DrawStack {
 	return ds2
 }
 
-//PreDraw tries to reset the GlobalDrawStack or performs the GlobalDrawStack's predraw functions
+// PreDraw tries to reset the GlobalDrawStack or performs the GlobalDrawStack's predraw functions
 func PreDraw() {
 	if resetDraw {
 		ResetDrawStack()

@@ -95,10 +95,8 @@ func inputLoop() {
 				Event:  eventName,
 			}
 
-			pmouse.LastEvent = mevent
-
-			logicHandler.Trigger(eventName, mevent)
 			pmouse.Propagate(eventName+"On", mevent)
+			logicHandler.Trigger(eventName, mevent)
 
 		case gesture.Event:
 			eventName := "Gesture" + e.Type.String()
