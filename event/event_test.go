@@ -212,7 +212,7 @@ func TestPriority(t *testing.T) {
 	cid.Trigger("T", nil)
 	sleep()
 	assert.Equal(t, 12, x)
-	// If the events occured in the opposite order, x would be 11.
+	// If the events occurred in the opposite order, x would be 11.
 
 	x = 20
 	thisBus.Trigger("T", nil)
