@@ -122,7 +122,7 @@ func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
 			yOver = s.GetY() - y2
 		}
 	} else {
-		y2 := s.GetY() + s.GetW()
+		y2 := s.GetY() + s.GetH()
 		if other.GetY() < y2 {
 			yOver = y2 - other.GetY()
 		}
@@ -229,10 +229,32 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 // NewRect is a wrapper around rtreego.NewRect,
 // casting the given x,y to an rtreego.Point.
 // Used to not expose rtreego.Point to the user.
+// Invalid widths and heights are converted to be valid.
+// If zero width or height is given, it is replaced with 1.
+// If a negative width or height is given, the rectangle is
+// shifted to the left or up by that negative dimension and
+// the dimension is made positive.
 func NewRect(x, y, w, h float64) *rtreego.Rect {
+
 	rect, err := rtreego.NewRect(rtreego.Point{x, y}, [3]float64{w, h, 1})
 	if err != nil {
-		dlog.Error(err)
+		// Correct invalid dimensions
+		if w == 0 {
+			w = 1
+		} else if w < 0 {
+			x += w
+			w *= -1
+		}
+		if h == 0 {
+			h = 1
+		} else if h < 0 {
+			y += h
+			h *= -1
+		}
+		dlog.Warn("Corrected Rectangle Dimensions to", w, h)
+		// This error won't happen-- we just corrected all potential causes.
+		// If rtreego changes in the future this could also change.
+		rect, _ = rtreego.NewRect(rtreego.Point{x, y}, [3]float64{w, h, 1})
 	}
 	return &rect
 }

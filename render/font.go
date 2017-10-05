@@ -2,12 +2,12 @@ package render
 
 import (
 	"image"
-	"image/color"
 	"path/filepath"
 	"runtime"
 	"strings"
 
 	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/colornames"
 	"golang.org/x/image/font"
 
 	"github.com/oakmound/oak/dlog"
@@ -29,7 +29,7 @@ var (
 	loadedFonts = make(map[string]*truetype.Font)
 )
 
-//A FontGenerator  stores a set of information that can be used to create a font
+// A FontGenerator stores information that can be used to create a font
 type FontGenerator struct {
 	File    string
 	Color   image.Image
@@ -38,12 +38,13 @@ type FontGenerator struct {
 	DPI     float64
 }
 
-//DefFont returns the default font
+// DefFont returns a font built of the parameters set by SetFontDefaults.
 func DefFont() *Font {
 	return DefFontGenerator.Generate()
 }
 
-//Generate creates a font from the FontGenerator
+// Generate creates a font from the FontGenerator. Any parameters not supplied
+// will be filled in with defaults set through SetFontDefaults.
 func (fg *FontGenerator) Generate() *Font {
 
 	dir := fontdir
@@ -84,37 +85,38 @@ func (fg *FontGenerator) Generate() *Font {
 
 }
 
-//Copy cretaes a copy of the FontGenerator
+// Copy creates a copy of this FontGenerator
 func (fg *FontGenerator) Copy() *FontGenerator {
 	newFg := new(FontGenerator)
 	*newFg = *fg
 	return newFg
 }
 
-//A Font can both be generated and drawn
+// A Font is obtained as the result of FontGenerator.Generate(). It's used to
+// create text type renderables.
 type Font struct {
 	FontGenerator
 	font.Drawer
 }
 
-//Refresh regenerates the font per its generator's parameters
+// Refresh regenerates this font
 func (f *Font) Refresh() {
 	*f = *f.Generate()
 }
 
-//Copy returns a new font from the given fonts generate function
+// Copy returns a copy of this font
 func (f *Font) Copy() *Font {
 	return f.Generate()
 }
 
-//Reset sets the font to being a default font
+// Reset sets the font to being a default font
 func (f *Font) Reset() {
 	// Generate will return all defaults with no args
 	f.FontGenerator = FontGenerator{}
 	*f = *f.Generate()
 }
 
-//SetFontDefaults updates the default font parameters with the passed in arguments
+// SetFontDefaults updates the default font parameters with the passed in arguments
 func SetFontDefaults(wd, assetPath, fontPath, hinting, color, file string, size, dpi float64) {
 	fontdir = filepath.Join(
 		wd,
@@ -140,29 +142,24 @@ func parseFontHinting(hintType string) (faceHinting font.Hinting) {
 		dlog.Error("Unable to parse font hinting, ", hintType)
 		fallthrough
 	case "":
-		// Don't warn about undefined hinting
 		faceHinting = font.HintingNone
 	}
 	return faceHinting
 }
 
-//FontColor converts a small set of strings to colors
-//TODO: Implement a better version or pull in an outside library already doing this as this should be a fairly common utility function
+// FontColor accesses x/image/colornames and returns an image.Image for the input
+// string. If the string is not defined in x/image/colornames, it will return defaultColor
+// as defined by SetFontDefaults. The set of colors as defined by x/image/colornames matches
+// the set of colors as defined by the SVG 1.1 spec.
 func FontColor(s string) image.Image {
 	s = strings.ToLower(s)
-	switch s {
-	case "white":
-		return image.White
-	case "black":
-		return image.Black
-	case "green":
-		return image.NewUniform(color.RGBA{0, 255, 0, 255})
-	default:
-		return defaultColor
+	if c, ok := colornames.Map[s]; ok {
+		return image.NewUniform(c)
 	}
+	return defaultColor
 }
 
-//LoadFont loads in a font file and stores it with the given name. This is necessary before using the fonttype for a Font
+// LoadFont loads in a font file and stores it with the given name. This is necessary before using the fonttype for a Font
 func LoadFont(dir string, fontFile string) *truetype.Font {
 	if _, ok := loadedFonts[fontFile]; !ok {
 		fontBytes, err := fileutil.ReadFile(filepath.Join(dir, fontFile))

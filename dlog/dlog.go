@@ -143,6 +143,14 @@ func CreateLogFile() {
 	writer = bufio.NewWriter(fHandle)
 }
 
+// ErrorCheck checks that the input is not nil, then calls Error on it if it is
+// not. Otherwise it does nothing.
+func ErrorCheck(in error) {
+	if in != nil {
+		Error(in)
+	}
+}
+
 // Error will write a dlog if the debug level is not NONE
 func Error(in ...interface{}) {
 	if debugLevel > NONE {

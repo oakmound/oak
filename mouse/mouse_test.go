@@ -23,6 +23,14 @@ func TestButtonIdentity(t *testing.T) {
 	assert.Equal(t, GetMouseButton(mouse.ButtonNone), "")
 }
 
+func TestEventNameIdentity(t *testing.T) {
+	assert.Equal(t, GetEventName(mouse.DirPress, 0), "MousePress")
+	assert.Equal(t, GetEventName(mouse.DirRelease, 0), "MouseRelease")
+	assert.Equal(t, GetEventName(mouse.DirNone, -2), "MouseScrollDown")
+	assert.Equal(t, GetEventName(mouse.DirNone, -1), "MouseScrollUp")
+	assert.Equal(t, GetEventName(mouse.DirNone, 0), "MouseDrag")
+}
+
 type ent struct{}
 
 func (e ent) Init() event.CID {

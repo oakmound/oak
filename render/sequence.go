@@ -15,12 +15,12 @@ import (
 type Sequence struct {
 	LayeredPoint
 	pauseBool
-	rs            []Modifiable
-	lastChange    time.Time
-	sheetPos      int
-	frameTime     int64
-	cID           event.CID
-	Interruptable bool
+	InterruptBool
+	rs         []Modifiable
+	lastChange time.Time
+	sheetPos   int
+	frameTime  int64
+	cID        event.CID
 }
 
 // NewSequence returns a new sequence from the input modifiables, playing at
@@ -33,11 +33,13 @@ func NewSequence(mods []Modifiable, fps float64) *Sequence {
 		pauseBool: pauseBool{
 			playing: true,
 		},
-		sheetPos:      0,
-		frameTime:     timing.FPSToNano(fps),
-		rs:            mods,
-		lastChange:    time.Now(),
-		Interruptable: true,
+		InterruptBool: InterruptBool{
+			Interruptable: true,
+		},
+		sheetPos:   0,
+		frameTime:  timing.FPSToNano(fps),
+		rs:         mods,
+		lastChange: time.Now(),
 	}
 }
 

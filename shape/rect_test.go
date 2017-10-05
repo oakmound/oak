@@ -20,3 +20,28 @@ func TestRect(t *testing.T) {
 		}
 	}
 }
+
+func TestRectangleIn(t *testing.T) {
+	assert.False(t, Rectangle.In(10, 10, 5, 5))
+}
+
+func TestStrictRect(t *testing.T) {
+	sr := NewStrictRect(5, 5)
+	for x := 0; x < 6; x++ {
+		for y := 0; y < 6; y++ {
+			assert.False(t, sr.In(x, y))
+		}
+	}
+	r := sr.Rect()
+	for x := 0; x < 5; x++ {
+		for y := 0; y < 5; y++ {
+			assert.False(t, r[x][y])
+		}
+	}
+
+	sr[3][3] = true
+
+	out, err := sr.Outline()
+	assert.Nil(t, err)
+	assert.Len(t, out, 1)
+}

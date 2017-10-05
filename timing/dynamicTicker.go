@@ -6,9 +6,6 @@ import (
 	"github.com/oakmound/oak/dlog"
 )
 
-// BUG: There's some circumstance where DynamicTickers
-// are not properly initialized/closed in the engine
-
 // A DynamicTicker is a ticker which can
 // be sent signals in the form of durations to
 // change how often it ticks.
@@ -22,64 +19,76 @@ type DynamicTicker struct {
 // NewDynamicTicker returns a null-initialized
 // dynamic ticker
 func NewDynamicTicker() *DynamicTicker {
-	ch := make(chan time.Time)
-	resetCh := make(chan *time.Ticker)
-	forceTick := make(chan bool)
 	dt := &DynamicTicker{
 		ticker:    time.NewTicker(1000 * time.Hour),
-		C:         ch,
-		resetCh:   resetCh,
-		forceTick: forceTick,
+		C:         make(chan time.Time),
+		resetCh:   make(chan *time.Ticker),
+		forceTick: make(chan bool),
 	}
-	go func(dt *DynamicTicker) {
+	go func() {
+		for dt.loop() {
+		}
+	}()
+	return dt
+}
+
+func (dt *DynamicTicker) loop() bool {
+	select {
+	case v := <-dt.ticker.C:
 		for {
 			select {
-			case v := <-dt.ticker.C:
-				select {
-				case r := <-dt.forceTick:
-					if !r {
-						close(dt.forceTick)
-						close(dt.C)
-						close(dt.resetCh)
-						return
-					}
-					continue
-				case dt.C <- v:
-				case ticker := <-dt.resetCh:
-					dt.ticker.Stop()
-					dt.ticker = ticker
+			case r := <-dt.forceTick:
+				if !r {
+					dt.close()
+					return false
 				}
+				continue
 			case ticker := <-dt.resetCh:
 				dt.ticker.Stop()
 				dt.ticker = ticker
-			case r := <-dt.forceTick:
-				if !r {
-					close(dt.forceTick)
-					close(dt.C)
-					close(dt.resetCh)
-					return
-				}
-				select {
-				case r := <-dt.forceTick:
-					if !r {
-						close(dt.forceTick)
-						close(dt.C)
-						close(dt.resetCh)
-						return
-					}
-					continue
-				case dt.C <- time.Time{}:
-				}
+				return true
+			case dt.C <- v:
+				return true
 			}
 		}
-	}(dt)
-	return dt
+	case ticker := <-dt.resetCh:
+		dt.ticker.Stop()
+		dt.ticker = ticker
+	case r := <-dt.forceTick:
+		if !r {
+			dt.close()
+			return false
+		}
+		for {
+			select {
+			case r := <-dt.forceTick:
+				if !r {
+					dt.close()
+					return false
+				}
+				continue
+			case ticker := <-dt.resetCh:
+				dt.ticker.Stop()
+				dt.ticker = ticker
+				return true
+			case dt.C <- time.Time{}:
+				return true
+			}
+		}
+	}
+	return true
 }
 
 // SetTick changes the rate at which a dynamic ticker
 // ticks
 func (dt *DynamicTicker) SetTick(d time.Duration) {
 	dt.resetCh <- time.NewTicker(d)
+}
+
+func (dt *DynamicTicker) close() {
+	close(dt.C)
+	close(dt.resetCh)
+	close(dt.forceTick)
 }
 
 // Step will force the dynamic ticker to tick, once.
@@ -93,7 +102,6 @@ func (dt *DynamicTicker) Step() {
 }
 
 // Stop closes all internal channels and stops dt's internal ticker
-// Todo: this needs to be investigated-- it can panic!
 func (dt *DynamicTicker) Stop() {
 	defer func() {
 		if x := recover(); x != nil {
@@ -101,9 +109,6 @@ func (dt *DynamicTicker) Stop() {
 		}
 	}()
 	dt.ticker.Stop()
-	select {
-	case <-dt.C:
-	default:
-	}
 	dt.forceTick <- false
+	<-dt.forceTick
 }

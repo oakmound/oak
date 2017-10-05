@@ -4,7 +4,6 @@ import (
 	// This file is being slowly converted to use gift over manual math and loops,
 	// because our math / loops will be more likely to have (and have already had)
 	// missable bugs.
-	//"github.com/anthonynsimon/bild/blend"
 
 	"github.com/oakmound/oak/alg"
 
@@ -12,7 +11,6 @@ import (
 
 	"image"
 	"image/color"
-	//"image/draw"
 	"math"
 )
 
@@ -170,38 +168,53 @@ func pointBetween(p1, p2 point, f float64) point {
 	return point{p1.X*(1-f) + p2.X*f, p1.Y*(1-f) + p2.Y*f}
 }
 
-// CutRel acts like Cut, but takes in a multiplier on the
-// existing dimensions of the image.
-func CutRel(relWidth, relHeight float64) Modification {
+// CutFn can reduce or add blank space to an input image.
+// Each input function decides the starting location or offset of a cut,
+// depending on input width and height for functions on the appropriate axis.
+func CutFn(xMod, yMod, wMod, hMod func(int) int) Modification {
 	return func(rgba image.Image) *image.RGBA {
 		bds := rgba.Bounds()
-		newWidth := alg.RoundF64(float64(bds.Max.X) * relWidth)
-		newHeight := alg.RoundF64(float64(bds.Max.Y) * relHeight)
+		startX := xMod(bds.Max.X)
+		startY := yMod(bds.Max.Y)
+		newWidth := wMod(bds.Max.X)
+		newHeight := hMod(bds.Max.Y)
+
 		newRgba := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
 		for x := 0; x < newWidth; x++ {
 			for y := 0; y < newHeight; y++ {
-				newRgba.Set(x, y, rgba.At(x, y))
+				newRgba.Set(x, y, rgba.At(x+startX, y+startY))
 			}
 		}
 		return newRgba
 	}
 }
 
-// Cut reduces (or increases, adding nothing)
+// CutFromLeft acts like cut but removes from the left hand side rather than the right
+func CutFromLeft(newWidth, newHeight int) Modification {
+	return CutFn(
+		func(w int) int { return w - newWidth },
+		func(h int) int { return h - newHeight },
+		func(int) int { return newWidth },
+		func(int) int { return newHeight })
+}
+
+// CutRel acts like Cut, but takes in a multiplier on the
+// existing dimensions of the image.
+func CutRel(relWidth, relHeight float64) Modification {
+	return CutFn(func(int) int { return 0 },
+		func(int) int { return 0 },
+		func(w int) int { return alg.RoundF64(float64(w) * relWidth) },
+		func(h int) int { return alg.RoundF64(float64(h) * relHeight) })
+}
+
+// Cut reduces (or increases, adding black transparent color)
 // the dimensions of the input image, setting them to newWidth and
-// newHeight. (Consider: use generic int modifiers here so we
-// don't need CutRel and Cut? i.e a function header like
-// Cut(wMod, hMod func(int) int)? )
+// newHeight.
 func Cut(newWidth, newHeight int) Modification {
-	return func(rgba image.Image) *image.RGBA {
-		newRgba := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
-		for x := 0; x < newWidth; x++ {
-			for y := 0; y < newHeight; y++ {
-				newRgba.Set(x, y, rgba.At(x, y))
-			}
-		}
-		return newRgba
-	}
+	return CutFn(func(int) int { return 0 },
+		func(int) int { return 0 },
+		func(int) int { return newWidth },
+		func(int) int { return newHeight })
 }
 
 // Fade reduces the alpha of an image
@@ -238,18 +251,7 @@ func Fade(alpha int) Modification {
 func ApplyColor(c color.Color) Modification {
 	return func(rgba image.Image) *image.RGBA {
 
-		// u := image.NewUniform(c)
-		// bounds := rgba.Bounds()
-		// img := image.NewRGBA(bounds)
-		// draw.Draw(img, bounds, u, bounds.Min, draw.Src)
-
-		// return blend.Normal(rgba, img)
 		r1, g1, b1, a1 := c.RGBA()
-		// filter := gift.New(
-		// 	gift.ColorBalance(float32(r1*(255/100)), float32(g1*(255/100)), float32(b1*(255/100))))
-		// dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
-		// filter.Draw(dst, rgba)
-		// return dst
 
 		bounds := rgba.Bounds()
 		w := bounds.Max.X
@@ -279,7 +281,7 @@ func ApplyColor(c color.Color) Modification {
 // pixels in a second RGBA.
 func FillMask(img image.RGBA) Modification {
 	return func(rgba image.Image) *image.RGBA {
-		// Instead of static color it just two buffers melding
+
 		bounds := rgba.Bounds()
 		w := bounds.Max.X
 		h := bounds.Max.Y
@@ -326,7 +328,7 @@ func FillMask(img image.RGBA) Modification {
 // their alpha levels, and returns that as a new rgba.
 func ApplyMask(img image.RGBA) Modification {
 	return func(rgba image.Image) *image.RGBA {
-		// Instead of static color it just two buffers melding
+
 		bounds := rgba.Bounds()
 		w := bounds.Max.X
 		h := bounds.Max.Y
@@ -382,48 +384,40 @@ func TrimColor(trimUnder color.Color) Modification {
 	trimouter1:
 		for x := 0; x < w; x++ {
 			for y := 0; y < h; y++ {
-				c := rgba.At(x, y)
-				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
-					continue
+				r2, g2, b2, a2 := rgba.At(x, y).RGBA()
+				if !colorBelow(r, g, b, a, r2, g2, b2, a2) {
+					break trimouter1
 				}
-				break trimouter1
 			}
 			xOff++
 		}
 	trimouter2:
 		for x := w; x >= 0; x-- {
 			for y := 0; y < h; y++ {
-				c := rgba.At(x, y)
-				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
-					continue
+				r2, g2, b2, a2 := rgba.At(x, y).RGBA()
+				if !colorBelow(r, g, b, a, r2, g2, b2, a2) {
+					break trimouter2
 				}
-				break trimouter2
 			}
 			w--
 		}
 	trimouter3:
 		for y := h; y >= 0; y-- {
 			for x := 0; x < w; x++ {
-				c := rgba.At(x, y)
-				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
-					continue
+				r2, g2, b2, a2 := rgba.At(x, y).RGBA()
+				if !colorBelow(r, g, b, a, r2, g2, b2, a2) {
+					break trimouter3
 				}
-				break trimouter3
 			}
 			h--
 		}
 	trimouter4:
 		for y := 0; y < h; y++ {
 			for x := 0; x < w; x++ {
-				c := rgba.At(x, y)
-				r2, g2, b2, a2 := c.RGBA()
-				if r2 <= r && g2 <= g && b2 <= b && a2 <= a {
-					continue
+				r2, g2, b2, a2 := rgba.At(x, y).RGBA()
+				if !colorBelow(r, g, b, a, r2, g2, b2, a2) {
+					break trimouter4
 				}
-				break trimouter4
 			}
 			yOff++
 		}
@@ -436,6 +430,10 @@ func TrimColor(trimUnder color.Color) Modification {
 		}
 		return out
 	}
+}
+
+func colorBelow(r, g, b, a, r2, g2, b2, a2 uint32) bool {
+	return r2 <= r && g2 <= g && b2 <= b && a2 <= a
 }
 
 // ConformToPallete modifies the input image so that it's colors all fall

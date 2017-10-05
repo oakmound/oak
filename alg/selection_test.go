@@ -1,7 +1,6 @@
 package alg
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 	"testing"
@@ -71,7 +70,6 @@ func TestUniqueChooseX(t *testing.T) {
 	for i, v := range chosenCts {
 		outWeights[i] = float64(v) / float64(testCt)
 	}
-	//fmt.Println(outWeights)
 	for i := 0; i < len(weights)-1; i++ {
 		diff := math.Abs(outWeights[i] - outWeights[i+1])
 		assert.True(t, (outWeights[i] > outWeights[i+1]) || diff < .1)
@@ -93,7 +91,6 @@ func TestChooseX(t *testing.T) {
 	for i, v := range chosenCts {
 		outWeights[i] = float64(v) / float64(testCt)
 	}
-	fmt.Println(outWeights)
 	for i := 0; i < len(weights)-1; i++ {
 		diff := math.Abs(outWeights[i] - outWeights[i+1])
 		assert.True(t, (outWeights[i] > outWeights[i+1]) || diff < .1)

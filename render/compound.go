@@ -178,6 +178,9 @@ func (c *Compound) IsStatic() bool {
 }
 
 // SetTriggerID sets the ID AnimationEnd will trigger on for animating subtypes.
+// Todo: standardize this with the other interface Set functions so that it
+// also only acts on the current subRenderable, or the other way around, or
+// somehow offer both options
 func (c *Compound) SetTriggerID(cid event.CID) {
 	c.lock.RLock()
 	for _, r := range c.subRenderables {
@@ -208,6 +211,16 @@ func (c *Compound) RevertAll() {
 		switch t := v.(type) {
 		case *Reverting:
 			t.RevertAll()
+		}
+	}
+	c.lock.RUnlock()
+}
+
+func (c *Compound) update() {
+	c.lock.RLock()
+	for _, r := range c.subRenderables {
+		if u, ok := r.(updates); ok {
+			u.update()
 		}
 	}
 	c.lock.RUnlock()

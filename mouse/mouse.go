@@ -5,12 +5,38 @@ import (
 	"golang.org/x/mobile/event/mouse"
 )
 
+var (
+	//TrackMouseClicks enables the propagation of MouseClickOn during MouseRelease events
+	TrackMouseClicks = true
+)
+
 // Propagate triggers direct mouse events on entities which are clicked
 func Propagate(eventName string, me Event) {
+	LastMouseEvent = me
+
 	hits := DefTree.SearchIntersect(me.ToSpace().Bounds())
 	for _, v := range hits {
 		sp := v.(*collision.Space)
 		sp.CID.Trigger(eventName, me)
+	}
+
+	if TrackMouseClicks {
+		if eventName == "MousePressOn" {
+			LastMousePress = me
+		} else if eventName == "MouseReleaseOn" {
+			if me.Button == LastMousePress.Button {
+				pressHits := DefTree.SearchIntersect(LastMousePress.ToSpace().Bounds())
+				for _, v1 := range pressHits {
+					sp1 := v1.(*collision.Space)
+					for _, v2 := range hits {
+						sp2 := v2.(*collision.Space)
+						if sp1.CID == sp2.CID {
+							sp1.CID.Trigger("MouseClickOn", me)
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -34,4 +60,22 @@ func GetMouseButton(b mouse.Button) (s string) {
 		s = ""
 	}
 	return
+}
+
+// GetEventName returns a string event name given some mobile/mouse information
+func GetEventName(d mouse.Direction, b mouse.Button) string {
+	switch d {
+	case mouse.DirPress:
+		return "MousePress"
+	case mouse.DirRelease:
+		return "MouseRelease"
+	default:
+		switch b {
+		case -2:
+			return "MouseScrollDown"
+		case -1:
+			return "MouseScrollUp"
+		}
+	}
+	return "MouseDrag"
 }

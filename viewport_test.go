@@ -31,7 +31,7 @@ func resetOak() {
 }
 
 func sleep() {
-	time.Sleep(400 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 }
 
 func TestViewport(t *testing.T) {

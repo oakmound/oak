@@ -72,9 +72,9 @@ func ChooseX(weights []float64, n int) []int {
 	for i := 0; i < n; i++ {
 		j := CumWeightedChooseOne(remainingWeights)
 		// This might be deadcode, I can't get it to happen in tests
-		for weights[j] == 0 {
-			j = CumWeightedChooseOne(remainingWeights)
-		}
+		// for weights[j] == 0 {
+		// 	j = CumWeightedChooseOne(remainingWeights)
+		// }
 		out[i] = j
 	}
 	return out
