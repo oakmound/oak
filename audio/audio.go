@@ -83,7 +83,7 @@ func (a *Audio) Filter(fs ...audio.Filter) (audio.Audio, error) {
 			if consErr == nil {
 				consErr = err
 			} else {
-				consErr = oakerr.ConsError{err, consErr}
+				consErr = oakerr.ConsError{First: err, Second: consErr}
 			}
 		}
 	}

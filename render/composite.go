@@ -41,6 +41,11 @@ func (cs *Composite) SetIndex(i int, r Modifiable) {
 	cs.rs[i] = r
 }
 
+// Len returns the number of renderables in this composite.
+func (cs *Composite) Len() int {
+	return len(cs.rs)
+}
+
 // AddOffset offsets all renderables in the composite by a vector
 func (cs *Composite) AddOffset(i int, p floatgeom.Point2) {
 	if i < len(cs.rs) {
@@ -148,6 +153,11 @@ func (cs *CompositeR) AddOffset(i int, p floatgeom.Point2) {
 // Append adds a new renderable to CompositeR
 func (cs *CompositeR) Append(r Renderable) {
 	cs.rs = append(cs.rs, r)
+}
+
+// Len returns the number of renderables in this composite.
+func (cs *CompositeR) Len() int {
+	return len(cs.rs)
 }
 
 // SetIndex places a renderable at a certain point in the composites renderable slice
