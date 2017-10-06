@@ -36,6 +36,11 @@ func (cs *Composite) Append(r Modifiable) {
 	cs.rs = append(cs.rs, r)
 }
 
+// Prepend adds a new renderable to the front of the CompositeR.
+func (cs *Composite) Prepend(r Modifiable) {
+	cs.rs = append([]Modifiable{r}, cs.rs...)
+}
+
 // SetIndex places a renderable at a certain point in the composites renderable slice
 func (cs *Composite) SetIndex(i int, r Modifiable) {
 	cs.rs[i] = r
@@ -150,9 +155,14 @@ func (cs *CompositeR) AddOffset(i int, p floatgeom.Point2) {
 	}
 }
 
-// Append adds a new renderable to CompositeR
+// Append adds a new renderable to the end of the CompositeR.
 func (cs *CompositeR) Append(r Renderable) {
 	cs.rs = append(cs.rs, r)
+}
+
+// Prepend adds a new renderable to the front of the CompositeR.
+func (cs *CompositeR) Prepend(r Renderable) {
+	cs.rs = append([]Renderable{r}, cs.rs...)
 }
 
 // Len returns the number of renderables in this composite.
