@@ -14,7 +14,13 @@ type Slide interface {
 	Init()
 	Continue() bool
 	Prev() bool
-	Result() *scene.Result
+	Transition() scene.Transition
+}
+
+func slideResult(sl Slide) *scene.Result {
+	return &scene.Result{
+		Transition: sl.Transition(),
+	}
 }
 
 func AddSlides(slides ...Slide) {
@@ -25,15 +31,14 @@ func AddSlides(slides ...Slide) {
 		oak.AddScene("slide"+strconv.Itoa(i), scene.Scene{
 			Start: func(string, interface{}) { sl.Init() },
 			Loop:  sl.Continue,
-			// Todo: allow transitions
 			End: func() (string, *scene.Result) {
 				if sl.Prev() {
 					if i > 0 {
-						return "slide" + strconv.Itoa(i-1), sl.Result()
+						return "slide" + strconv.Itoa(i-1), slideResult(sl)
 					}
-					return "slide0", sl.Result()
+					return "slide0", slideResult(sl)
 				}
-				return "slide" + strconv.Itoa(i+1), sl.Result()
+				return "slide" + strconv.Itoa(i+1), slideResult(sl)
 			},
 		})
 	}

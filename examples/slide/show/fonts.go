@@ -1,12 +1,16 @@
 package show
 
 import (
+	"image"
+	"image/color"
 	"path/filepath"
 
 	"github.com/oakmound/oak/render"
 )
 
 var (
+	// Default size 12
+	// Default color white
 	Express = (&render.FontGenerator{
 		File: fpFilter("expressway rg.ttf"),
 	}).Generate()
@@ -16,13 +20,29 @@ var (
 	Libel = (&render.FontGenerator{
 		File: fpFilter("libel-suit-rg.ttf"),
 	}).Generate()
-
-	Express28 = func() *render.Font {
-		e2 := Express.Copy()
-		e2.Size = 28
-		return e2.Generate()
-	}()
 )
+
+type FontMod func(*render.Font) *render.Font
+
+func FontSet(set func(*render.Font)) FontMod {
+	return func(f *render.Font) *render.Font {
+		f = f.Copy()
+		set(f)
+		return f.Generate()
+	}
+}
+
+func FontSize(size float64) FontMod {
+	return FontSet(func(f *render.Font) {
+		f.Size = size
+	})
+}
+
+func FontColor(c color.Color) FontMod {
+	return FontSet(func(f *render.Font) {
+		f.Color = image.NewUniform(c)
+	})
+}
 
 // todo: we need to do this because some things
 // haven't started in the engine yet (the engine
