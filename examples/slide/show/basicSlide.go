@@ -47,15 +47,21 @@ func (ss *StaticSlide) Result() *scene.Result {
 	}
 }
 
-func NewStaticSlide(continueKey, prevKey string, rs ...render.Modifiable) *StaticSlide {
+func NewStaticSlide(rs ...render.Modifiable) *StaticSlide {
 	return &StaticSlide{
 		Rs:          render.NewComposite(rs...),
-		ContinueKey: continueKey,
-		PrevKey:     prevKey,
+		ContinueKey: "RightArrow",
+		PrevKey:     "LeftArrow",
 	}
 }
 
 func (ss *StaticSlide) WithTransition(trans scene.Transition) *StaticSlide {
 	ss.Transition = trans
+	return ss
+}
+
+func (ss *StaticSlide) WithControlKeys(cont, prev string) *StaticSlide {
+	ss.ContinueKey = cont
+	ss.PrevKey = prev
 	return ss
 }
