@@ -23,7 +23,7 @@ func slideResult(sl Slide) *scene.Result {
 	}
 }
 
-func AddSlides(slides ...Slide) {
+func Start(slides ...Slide) {
 	for i, sl := range slides {
 		i := i
 		sl := sl
@@ -70,8 +70,5 @@ func AddSlides(slides ...Slide) {
 			},
 		},
 	)
-}
-
-func Start() {
 	oak.Init("slide0")
 }

@@ -47,6 +47,5 @@ func main() {
 		slides[i] = s
 	}
 
-	show.AddSlides(slides...)
-	show.Start()
+	show.Start(slides...)
 }
