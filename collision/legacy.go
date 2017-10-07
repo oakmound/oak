@@ -124,3 +124,19 @@ func ConeCastSingle(x, y, angle, angleWidth, rays, length float64, invalidIDS []
 func ConeCastSingleLabels(x, y, angle, angleWidth, rays, length float64, labels ...Label) (points []Point) {
 	return DefTree.ConeCastSingleLabels(x, y, angle, angleWidth, rays, length, labels...)
 }
+
+// RayCastLabelsPiercing disregards "pierceCount" first results of RayCastSingleLabels
+func RayCastLabelsPiercing(x, y, degrees, length float64, pierceCount int, labels ...Label) Point {
+	return DefTree.RayCastLabelsPiercing(x, y, degrees, length, pierceCount, labels...)
+}
+
+// RayCastSingleIgnorePiercing  disregards "pierceCount" first results of  RayCastSingleIgnore
+func RayCastSingleIgnorePiercing(x, y, degrees, length float64, pierceCount int, invalidIDS []event.CID, labels ...Label) Point {
+	return DefTree.RayCastSingleIgnorePiercing(x, y, degrees, length, pierceCount, invalidIDS, labels...)
+}
+
+// ConeCastSingleLabels repeatedly calls RayCastLabelsPiercing in a cone shape
+func ConeCastSinglePiercing(x, y, angle, angleWidth, rays, length float64, pierceCount int, labels ...Label) (points []Point) {
+
+	return DefTree.ConeCastSinglePiercing(x, y, angle, angleWidth, rays, length, pierceCount, labels...)
+}
