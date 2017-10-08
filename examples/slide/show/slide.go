@@ -23,15 +23,47 @@ func slideResult(sl Slide) *scene.Result {
 	}
 }
 
+var (
+	skip   bool
+	skipTo string
+)
+
+func AddNumberShortcuts(max int) {
+	oak.AddCommand("slide", func(args []string) {
+		fmt.Println(args)
+		if len(args) < 2 {
+			return
+		}
+		v := args[1]
+		i, err := strconv.Atoi(v)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(i)
+		if i < 0 {
+			skipTo = "0"
+		} else if i <= max {
+			skipTo = v
+		} else {
+			skipTo = strconv.Itoa(max)
+		}
+		skip = true
+	})
+}
+
 func Start(slides ...Slide) {
 	for i, sl := range slides {
 		i := i
 		sl := sl
-		fmt.Println("slide" + strconv.Itoa(i))
 		oak.AddScene("slide"+strconv.Itoa(i), scene.Scene{
 			Start: func(string, interface{}) { sl.Init() },
-			Loop:  sl.Continue,
+			Loop:  func() bool { return sl.Continue() && !skip },
 			End: func() (string, *scene.Result) {
+				if skip {
+					skip = false
+					return "slide" + skipTo, slideResult(sl)
+				}
 				if sl.Prev() {
 					if i > 0 {
 						return "slide" + strconv.Itoa(i-1), slideResult(sl)
@@ -66,6 +98,7 @@ func Start(slides ...Slide) {
 			},
 			End: func() (string, *scene.Result) {
 				reset = false
+				skip = false
 				return "slide0", nil
 			},
 		},

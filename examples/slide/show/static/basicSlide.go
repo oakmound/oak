@@ -1,13 +1,16 @@
 package static
 
 import (
+	"os"
+
+	"github.com/oakmound/oak"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
 	"github.com/oakmound/oak/scene"
 )
 
 type Slide struct {
-	Rs          *render.Composite
+	Rs          *render.CompositeR
 	ContinueKey string
 	PrevKey     string
 	transition  scene.Transition
@@ -16,6 +19,7 @@ type Slide struct {
 }
 
 func (ss *Slide) Init() {
+	oak.SetFullScreen()
 	render.Draw(ss.Rs, 0)
 	event.GlobalBind(func(int, interface{}) int {
 		ss.cont = true
@@ -25,6 +29,10 @@ func (ss *Slide) Init() {
 		ss.prev = true
 		return 0
 	}, "KeyUp"+ss.PrevKey)
+	event.GlobalBind(func(int, interface{}) int {
+		os.Exit(0)
+		return 0
+	}, "KeyUpEscape")
 }
 
 func (ss *Slide) Continue() bool {
@@ -38,13 +46,19 @@ func (ss *Slide) Prev() bool {
 	return ret
 }
 
+func (ss *Slide) Append(rs ...render.Renderable) {
+	for _, r := range rs {
+		ss.Rs.Append(r)
+	}
+}
+
 func (ss *Slide) Transition() scene.Transition {
 	return ss.transition
 }
 
-func NewSlide(rs ...render.Modifiable) *Slide {
+func NewSlide(rs ...render.Renderable) *Slide {
 	return &Slide{
-		Rs:          render.NewComposite(rs...),
+		Rs:          render.NewCompositeR(rs...),
 		ContinueKey: "RightArrow",
 		PrevKey:     "LeftArrow",
 	}

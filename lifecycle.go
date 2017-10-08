@@ -49,6 +49,16 @@ func lifecycleLoop(s screen.Screen) {
 	<-quitCh
 }
 
+type FullScreenable interface {
+	SetFullScreen()
+}
+
+func SetFullScreen() {
+	if fs, ok := windowControl.(FullScreenable); ok {
+		fs.SetFullScreen()
+	}
+}
+
 func changeWindow(width, height int) {
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
