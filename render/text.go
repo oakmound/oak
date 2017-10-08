@@ -69,6 +69,11 @@ func (t *Text) SetFont(f *Font) {
 	t.d = f
 }
 
+func (t *Text) GetDims() (int, int) {
+	textWidth := t.d.MeasureString(t.text.String()).Round()
+	return textWidth, alg.RoundF64(t.d.Size)
+}
+
 // Center will shift the text so that the existing leftmost point
 // where the text sits becomes the center of the new text.
 func (t *Text) Center() {
