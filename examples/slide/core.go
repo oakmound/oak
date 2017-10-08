@@ -1,6 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"path/filepath"
+
+	"github.com/oakmound/oak/render/mod"
+
 	"github.com/oakmound/oak"
 	"github.com/oakmound/oak/examples/slide/show"
 	"github.com/oakmound/oak/examples/slide/show/static"
@@ -83,8 +88,17 @@ func main() {
 		)...,
 	)
 
-	sslides[intro+2].Append(TxtAt(Gnuolane72, "Things I Made", .5, .3))
-	sslides[intro+2].Append() // screenshots
+	sslides[intro+2].Append(TxtAt(Gnuolane72, "Games I Made", .5, .3))
+	sslides[intro+2].Append(
+		Image("botanist.PNG", .1, .5).Modify(mod.Scale(.5, .5)),
+		Image("agent.PNG", .1, .11).Modify(mod.Scale(.75, .75)),
+		Image("dyscrasia.PNG", .33, .65).Modify(mod.Scale(.5, .5)),
+		Image("esque.PNG", .4, .4).Modify(mod.Scale(.5, .5)),
+		Image("fantastic.PNG", .5, .65).Modify(mod.Scale(.5, .5)),
+		Image("flower.PNG", .7, .4).Modify(mod.Scale(.75, .75)),
+		Image("jeremy.PNG", .7, .1).Modify(mod.Scale(.5, .5)),
+		Image("wolf.PNG", .7, .7).Modify(mod.Scale(.5, .5)),
+	) // screenshots
 
 	// What I'm going to talk about
 	sslides[intro+3].Append(TxtAt(Gnuolane72, "Topics", .5, .2))
@@ -166,4 +180,14 @@ func YPos(r render.Renderable, pos float64) render.Renderable {
 
 func TxtFrom(f *render.Font, txt string, xpos, ypos float64) render.Renderable {
 	return f.NewStrText(txt, width*xpos, height*ypos)
+}
+
+func Image(file string, xpos, ypos float64) render.Modifiable {
+	s, err := render.LoadSprite(filepath.Join("raw", file))
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	s.SetPos(width*xpos, height*ypos)
+	return s
 }
