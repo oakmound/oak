@@ -64,9 +64,9 @@ func main() {
 		render.BezierThickLine(bz4, colornames.White, 1),
 	)
 
-	sslides := static.NewSlideSet(6,
+	sslides := static.NewSlideSet(12,
 		static.Background(bkg),
-		static.Transition(scene.Fade(5, 10)),
+		static.Transition(scene.Fade(4, 12)),
 	)
 
 	intro := 0
@@ -119,9 +119,69 @@ func main() {
 	sslides[whyGo+1].Append(TxtAt(Gnuolane72, "Why Go", .5, .2))
 	sslides[whyGo+1].Append(
 		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
-			"-",
+			"- Execution Speed",
+			"- Concurrency",
+			"- Fast Development",
+			"- Scales Well",
 		)...,
 	)
+	sslides[whyGo+2].Append(TxtAt(Gnuolane72, "Why Not Go", .5, .2))
+	sslides[whyGo+2].Append(
+		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+			"- Execution Speed",
+			"- Difficult to use Graphics Cards",
+			"- Difficult to vectorize instructions",
+			"- C is Unavoidable",
+		)...,
+	)
+
+	// Philosophy, engine discussion
+	philosophy := 7
+	sslides[philosophy].Append(TxtAt(Gnuolane72, "Design Philosophy", .5, .4))
+	sslides[philosophy+1].Append(TxtAt(Gnuolane72, "Design Philosophy", .5, .2))
+	sslides[philosophy+1].Append(
+		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+			"- No non-Go dependencies",
+			"- Ease of API",
+			"- If it's useful and generic, put it in the engine",
+		)...,
+	)
+	sslides[philosophy+2].Append(TxtAt(Gnuolane72, "Update Loops and Functions", .5, .2))
+	//
+	// Some game engines model their exposed API as a loop--
+	// stick all your logic inside update()
+	//
+	// In larger projects, this leads directly to an explicit splitting up of that
+	// loop into at least two parts-- update all entities, then
+	// draw all entities.
+	//
+	// The combining of these elements into one loop causes
+	// a major problem-- tying the rate at which entities update themselves
+	// to the rate at which entities are drawn. This leads to inflexible
+	// engines, and in large projects you'll have to do something to work around
+	// this, or if you hard lock your draw rate modders will post funny videos
+	// of your physics breaking when they try to fix your frame rate.
+	//
+	// Oak handles this loop for you, and splits it into two loops, one for
+	// drawing elements and one for logical frame updating.
+	//
+	sslides[philosophy+3].Append(TxtAt(Gnuolane72, "Update Loops and Functions", .5, .2))
+	//
+	// Another pattern used, in parallel with the Update Loop,
+	// is the Update Function. Give every entity in your game the
+	// Upate() function, and then your game logic is handled by calling Update()
+	// on everything. At a glance, this works very well in Go because your entities
+	// all fit into this single-function interface, but in games with a lot of
+	// entities you'll end up with a lot of entities that don't need to do
+	// anything on each frame.
+	//
+	// The engine needs to provide a way to handle game objects that don't
+	// need to be updated as well as those that do, and separating these into
+	// two groups explicitly makes the engine less extensible. Oak uses an
+	// event handler for this instead, where each entity that wants to use
+	// an update function binds that function to their entity id once.
+	//
+	sslides[philosophy+4].Append(TxtAt(Gnuolane72, "Useful Packages", .5, .2))
 
 	oak.SetupConfig.Screen = oak.Screen{
 		Width:  width,
