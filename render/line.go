@@ -86,7 +86,7 @@ func DrawLineColored(rgba *image.RGBA, x1, y1, x2, y2, thickness int, colorer Co
 		if xSlope == -1 {
 			wprg = 1 - wprg
 		}
-		return wprg + vprg/2
+		return (wprg + vprg) / 2
 	}
 
 	err := xDelta - yDelta
@@ -120,15 +120,24 @@ func drawLineBetween(x1, y1, x2, y2 int, colorer Colorer, thickness int) *image.
 	yDelta := math.Abs(float64(y2 - y1))
 
 	if xDelta == 0 && yDelta == 0 {
-		rect := image.Rect(0, 0, 1, 1)
+		width := 1 + 2*thickness
+		rect := image.Rect(0, 0, width, width)
 		rgba := image.NewRGBA(rect)
-		rgba.Set(0, 0, colorer(1.0))
+		for xm := 0; xm < width; xm++ {
+			for ym := 0; ym < width; ym++ {
+				rgba.Set(xm, ym, colorer(1.0))
+			}
+		}
 		return rgba
 	} else if xDelta == 0 {
-		rect := image.Rect(0, 0, 1, int(math.Floor(yDelta)))
+		width := 1 + 2*thickness
+		height := int(math.Floor(yDelta)) + 2*thickness
+		rect := image.Rect(0, 0, width, height)
 		rgba := image.NewRGBA(rect)
-		for i := 0.0; i <= math.Floor(yDelta); i++ {
-			rgba.Set(0, int(i), colorer(i/yDelta))
+		for ym := 0; ym < height; ym++ {
+			for xm := 0; xm < width; xm++ {
+				rgba.Set(xm, ym, colorer(float64(ym)/float64(height)))
+			}
 		}
 		return rgba
 	}
