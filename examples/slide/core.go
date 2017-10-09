@@ -147,6 +147,10 @@ func main() {
 		)...,
 	)
 	sslides[philosophy+2].Append(TxtAt(Gnuolane72, "Update Loops and Functions", .5, .2))
+	sslides[philosophy+2].Append(
+		Image("updateCode1.PNG", .3, .4),
+		Image("updateCode3.PNG", .6, .4),
+	)
 	//
 	// Some game engines model their exposed API as a loop--
 	// stick all your logic inside update()
@@ -166,6 +170,10 @@ func main() {
 	// drawing elements and one for logical frame updating.
 	//
 	sslides[philosophy+3].Append(TxtAt(Gnuolane72, "Update Loops and Functions", .5, .2))
+	sslides[philosophy+3].Append(
+		Image("updateCode2.PNG", .3, .5),
+		Image("updateCode3.PNG", .6, .5),
+	)
 	//
 	// Another pattern used, in parallel with the Update Loop,
 	// is the Update Function. Give every entity in your game the
