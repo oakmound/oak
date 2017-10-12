@@ -2,9 +2,6 @@ package main
 
 import (
 	"fmt"
-	"path/filepath"
-
-	"github.com/oakmound/oak/render/mod"
 
 	"github.com/oakmound/oak"
 	"github.com/oakmound/oak/examples/slide/show"
@@ -24,6 +21,8 @@ var (
 	Express28  = show.FontSize(28)(show.Express)
 	Gnuolane28 = show.FontSize(28)(show.Gnuolane)
 	Libel28    = show.FontSize(28)(show.Libel)
+
+	RLibel28 = show.FontColor(colornames.Blue)(Libel28)
 
 	Express44  = show.FontSize(44)(show.Express)
 	Gnuolane44 = show.FontSize(44)(show.Gnuolane)
@@ -64,60 +63,157 @@ func main() {
 		render.BezierThickLine(bz4, colornames.White, 1),
 	)
 
-	sslides := static.NewSlideSet(12,
+	setups := []slideSetup{
+		intro,
+		why,
+		philo,
+		particles,
+		ai,
+		levels,
+		conclusion,
+	}
+
+	total := 0
+
+	for _, setup := range setups {
+		total += setup.len
+	}
+
+	fmt.Println("Total slides", total)
+
+	sslides := static.NewSlideSet(total,
 		static.Background(bkg),
 		static.Transition(scene.Fade(4, 12)),
 	)
 
-	intro := 0
+	nextStart := 0
 
+	for _, setup := range setups {
+		setup.add(nextStart, sslides)
+		nextStart += setup.len
+	}
+
+	oak.SetupConfig.Screen = oak.Screen{
+		Width:  width,
+		Height: height,
+	}
+
+	slides := make([]show.Slide, len(sslides))
+	for i, s := range sslides {
+		slides[i] = s
+	}
+	show.AddNumberShortcuts(len(slides))
+	show.Start(slides...)
+}
+
+type slideSetup struct {
+	add func(int, []*static.Slide)
+	len int
+}
+
+var (
+	intro = slideSetup{
+		addIntro,
+		5,
+	}
+)
+
+func addIntro(i int, sslides []*static.Slide) {
 	// Intro: three slides
 	// Title
-	sslides[intro].Append(
-		TxtAt(Gnuolane72, "Applying Go to Game Programming", .5, .4),
+	sslides[i].Append(
+		Title("Applying Go to Game Programming"),
 		TxtAt(Gnuolane44, "Patrick Stephen", .5, .6),
 	)
+	// Thanks everybody for coming to this talk. I'm going to be talking about
+	// design patterns, philosophies, and generally useful tricks for
+	// developing video games in Go.
+
 	// Me
-	sslides[intro+1].Append(TxtAt(Gnuolane72, "Who Am I", .5, .3))
-	sslides[intro+1].Append(
-		TxtSetAt(Gnuolane44, .5, .63, 0, .07,
+	sslides[i+1].Append(Header("Who Am I"))
+	sslides[i+1].Append(
+		TxtSetAt(Gnuolane44, 0.5, 0.63, 0.0, 0.07,
 			"Graduate Student at University of Minnesota",
 			"Maintainer / Programmer of Oak",
 			"github.com/200sc  github.com/oakmound/oak",
 			"patrick.d.stephen@gmail.com",
+			"oakmoundstudio@gmail.com",
+		)...,
+	)
+	// My name is Patrick Stephen, I'm currently a Master's student at
+	// the University of Minnesota. I'm one of two primary maintainers
+	// of oak's source code, Oak being the game engine that we built
+	// to make our games with.
+	// If you have any questions that don't get answered in or after
+	// this talk, feel free to send those questions either to me
+	// personally or to our team's email, or if it applies, feel free
+	// to raise an issue on the repository.
+
+	sslides[i+2].Append(Header("Games I Made"))
+	sslides[i+2].Append(TxtAt(Gnuolane28, "White = Me, Blue = Oakmound", .5, .24))
+	sslides[i+2].Append(
+		ImageCaption("botanist.PNG", .67, .1, .5, Libel28, "Space Botanist"),
+		ImageCaption("agent.PNG", .1, .11, .85, RLibel28, "Agent Blue"),
+		ImageCaption("dyscrasia.PNG", .5, .65, .5, RLibel28, "Dyscrasia"),
+		ImageCaption("esque.PNG", .4, .37, .5, RLibel28, "Esque"),
+		ImageCaption("fantastic.PNG", .33, .65, .5, RLibel28, "A Fantastic Doctor"),
+		ImageCaption("flower.PNG", .7, .41, .75, Libel28, "Flower Son"),
+		ImageCaption("jeremy.PNG", .07, .5, .66, Libel28, "Jeremy The Clam"),
+		ImageCaption("wolf.PNG", .68, .71, .5, Libel28, "The Wolf Comes Out At 18:00"),
+	)
+	// These are games that I've made in the past, most being made
+	// for game jams, built in somewhere between 2 days and 2 weeks.
+	//
+	// We'll mostly be focusing on these three games, which are those
+	// that we've been working on in Go-- Agent Blue, Jeremy the Clam,
+	// and A Fantastic Doctor.
+
+	sslides[i+3].Append(Header("This Talk is Not About..."))
+	sslides[i+3].Append(
+		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+			"- Optimizing Go",
+			"- 3D Graphics in Go",
+			"- Mobile Games in Go",
 		)...,
 	)
 
-	sslides[intro+2].Append(TxtAt(Gnuolane72, "Games I Made", .5, .3))
-	sslides[intro+2].Append(
-		Image("botanist.PNG", .1, .5).Modify(mod.Scale(.5, .5)),
-		Image("agent.PNG", .1, .11).Modify(mod.Scale(.75, .75)),
-		Image("dyscrasia.PNG", .33, .65).Modify(mod.Scale(.5, .5)),
-		Image("esque.PNG", .4, .4).Modify(mod.Scale(.5, .5)),
-		Image("fantastic.PNG", .5, .65).Modify(mod.Scale(.5, .5)),
-		Image("flower.PNG", .7, .4).Modify(mod.Scale(.75, .75)),
-		Image("jeremy.PNG", .7, .1).Modify(mod.Scale(.5, .5)),
-		Image("wolf.PNG", .7, .7).Modify(mod.Scale(.5, .5)),
-	) // screenshots
+	// And just to get this out of the way, as you will probably
+	// note from the games I just showed, we aren't going to be
+	// talking about 3D games here or really performance intensive
+	// games, or games for non-desktop platforms, just because,
+	// while we haven't ignored these things I don't have
+	// any revolutionary breakthroughs to share about them right now.
 
-	// What I'm going to talk about
-	sslides[intro+3].Append(TxtAt(Gnuolane72, "Topics", .5, .2))
-	sslides[intro+3].Append(
+	sslides[i+4].Append(Header("Topics"))
+	sslides[i+4].Append(
 		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- Why Go",
 			"- Design Philosophy",
 			"- Particles",
-			"- Modifying Renderables",
 			"- AI with Interfaces",
 			"- Level Building with Interfaces",
 		)...,
 	)
 
-	whyGo := 4
+	// What we will talk about, is why Go is particular useful for
+	// developing games, the philosophy behind our engine and development
+	// strategy, and then some interesting use cases for applying
+	// design patterns that Go makes easy with particle generation,
+	// artificial intelligence, and constructing levels.
+}
+
+var (
+	why = slideSetup{
+		addWhy,
+		3,
+	}
+)
+
+func addWhy(i int, sslides []*static.Slide) {
 	// Topic: Why Go
-	sslides[whyGo].Append(TxtAt(Gnuolane72, "Why Go", .5, .4))
-	sslides[whyGo+1].Append(TxtAt(Gnuolane72, "Why Go", .5, .2))
-	sslides[whyGo+1].Append(
+	sslides[i].Append(Title("Why Go"))
+	sslides[i+1].Append(Header("Why Go"))
+	sslides[i+1].Append(
 		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- Execution Speed",
 			"- Concurrency",
@@ -125,8 +221,8 @@ func main() {
 			"- Scales Well",
 		)...,
 	)
-	sslides[whyGo+2].Append(TxtAt(Gnuolane72, "Why Not Go", .5, .2))
-	sslides[whyGo+2].Append(
+	sslides[i+2].Append(Header("Why Not Go"))
+	sslides[i+2].Append(
 		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- Execution Speed",
 			"- Difficult to use Graphics Cards",
@@ -134,22 +230,30 @@ func main() {
 			"- C is Unavoidable",
 		)...,
 	)
+}
 
+var (
+	philo = slideSetup{
+		addPhilo,
+		5,
+	}
+)
+
+func addPhilo(i int, sslides []*static.Slide) {
 	// Philosophy, engine discussion
-	philosophy := 7
-	sslides[philosophy].Append(TxtAt(Gnuolane72, "Design Philosophy", .5, .4))
-	sslides[philosophy+1].Append(TxtAt(Gnuolane72, "Design Philosophy", .5, .2))
-	sslides[philosophy+1].Append(
+	sslides[i].Append(Title("Design Philosophy"))
+	sslides[i+1].Append(Header("Design Philosophy"))
+	sslides[i+1].Append(
 		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- No non-Go dependencies",
 			"- Ease of API",
 			"- If it's useful and generic, put it in the engine",
 		)...,
 	)
-	sslides[philosophy+2].Append(TxtAt(Gnuolane72, "Update Loops and Functions", .5, .2))
-	sslides[philosophy+2].Append(
-		Image("updateCode1.PNG", .3, .4),
-		Image("updateCode3.PNG", .6, .4),
+	sslides[i+2].Append(Header("Update Loops and Functions"))
+	sslides[i+2].Append(
+		Image("updateCode1.PNG", .27, .4),
+		Image("updateCode3.PNG", .57, .4),
 	)
 	//
 	// Some game engines model their exposed API as a loop--
@@ -169,10 +273,10 @@ func main() {
 	// Oak handles this loop for you, and splits it into two loops, one for
 	// drawing elements and one for logical frame updating.
 	//
-	sslides[philosophy+3].Append(TxtAt(Gnuolane72, "Update Loops and Functions", .5, .2))
-	sslides[philosophy+3].Append(
-		Image("updateCode2.PNG", .3, .5),
-		Image("updateCode3.PNG", .6, .5),
+	sslides[i+3].Append(Header("Update Loops and Functions"))
+	sslides[i+3].Append(
+		Image("updateCode2.PNG", .27, .4),
+		Image("updateCode3.PNG", .57, .4),
 	)
 	//
 	// Another pattern used, in parallel with the Update Loop,
@@ -189,73 +293,82 @@ func main() {
 	// event handler for this instead, where each entity that wants to use
 	// an update function binds that function to their entity id once.
 	//
-	sslides[philosophy+4].Append(TxtAt(Gnuolane72, "Useful Packages", .5, .2))
+	sslides[i+4].Append(Header("Useful Packages"))
+	sslides[i+4].Append(
+		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+			"- oak/alg",
+			"- oak/intgeom, oak/floatgeom",
+			"- oak/physics",
+			"- oak/render/particle",
+		)...,
+	)
+}
 
-	oak.SetupConfig.Screen = oak.Screen{
-		Width:  width,
-		Height: height,
+var (
+	particles = slideSetup{
+		addParticles,
+		5,
 	}
+)
 
-	slides := make([]show.Slide, len(sslides))
-	for i, s := range sslides {
-		slides[i] = s
+func addParticles(i int, sslides []*static.Slide) {
+	sslides[i].Append(Title("Particles"))
+	sslides[i+1].Append(Header("Particles in CraftyJS"))
+	sslides[i+2].Append(Header("Variadic Functional Options"))
+	sslides[i+3].Append(Header("Particle Generators in Oak"))
+	sslides[i+4].Append(Header("Particle Generators in Oak"))
+}
+
+var (
+	ai = slideSetup{
+		addAI,
+		7,
 	}
-	show.AddNumberShortcuts(len(slides))
-	show.Start(slides...)
+)
+
+func addAI(i int, sslides []*static.Slide) {
+	sslides[i].Append(Title("Building AI with Interfaces"))
+	sslides[i+1].Append(Header("Building AI with Interfaces"))
+	sslides[i+2].Append(Header("Storing Small Interface Types"))
+	sslides[i+3].Append(Header("Storing Small Interface Types"))
+	sslides[i+4].Append(Header("When Your Interface is Massive"))
+	sslides[i+5].Append(Header("Condensing Massive Interfaces"))
+	sslides[i+6].Append(Header("... And you've got reusable AI"))
 }
 
-func TxtSetAt(f *render.Font, xpos, ypos, xadv, yadv float64, txts ...string) []render.Renderable {
-	rs := make([]render.Renderable, len(txts))
-	for i, txt := range txts {
-		rs[i] = TxtAt(f, txt, xpos, ypos)
-		xpos += xadv
-		ypos += yadv
+var (
+	levels = slideSetup{
+		addLevels,
+		8,
 	}
-	return rs
+)
+
+func addLevels(i int, sslides []*static.Slide) {
+	sslides[i].Append(Title("Designing Levels with Interfaces"))
+	sslides[i+1].Append(Header("Components of a Level"))
+	sslides[i+2].Append(Header("An Approach without Interfaces"))
+	sslides[i+3].Append(Header("An Approach without Interfaces"))
+	sslides[i+4].Append(Header("Level Interfaces: Attempt 1"))
+	sslides[i+5].Append(Header("Level Interfaces: Attempt 1"))
+	sslides[i+6].Append(Header("Level Interfaces: Attempt 2"))
+	sslides[i+7].Append(Header("Level Interfaces: Attempt 2"))
 }
 
-func TxtSetFrom(f *render.Font, xpos, ypos, xadv, yadv float64, txts ...string) []render.Renderable {
-	rs := make([]render.Renderable, len(txts))
-	for i, txt := range txts {
-		rs[i] = TxtFrom(f, txt, xpos, ypos)
-		xpos += xadv
-		ypos += yadv
+var (
+	conclusion = slideSetup{
+		addConclusion,
+		2,
 	}
-	return rs
-}
+)
 
-func TxtAt(f *render.Font, txt string, xpos, ypos float64) render.Renderable {
-	return Pos(f.NewStrText(txt, 0, 0), xpos, ypos)
-}
-
-func Pos(r render.Renderable, xpos, ypos float64) render.Renderable {
-	XPos(r, xpos)
-	YPos(r, ypos)
-	return r
-}
-
-func XPos(r render.Renderable, pos float64) render.Renderable {
-	w, _ := r.GetDims()
-	r.SetPos(width*pos-float64(w/2), r.Y())
-	return r
-}
-
-func YPos(r render.Renderable, pos float64) render.Renderable {
-	_, h := r.GetDims()
-	r.SetPos(r.X(), height*pos-float64(h/2))
-	return r
-}
-
-func TxtFrom(f *render.Font, txt string, xpos, ypos float64) render.Renderable {
-	return f.NewStrText(txt, width*xpos, height*ypos)
-}
-
-func Image(file string, xpos, ypos float64) render.Modifiable {
-	s, err := render.LoadSprite(filepath.Join("raw", file))
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	s.SetPos(width*xpos, height*ypos)
-	return s
+func addConclusion(i int, sslides []*static.Slide) {
+	sslides[i].Append(Header("Thanks To"))
+	sslides[i].Append(
+		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+			"- Nate Fudenberg, John Ficklin",
+			"- Contributors on Github",
+			"- You, Audience",
+		)...,
+	)
+	sslides[i+1].Append(Title("Questions"))
 }
