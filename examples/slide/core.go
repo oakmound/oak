@@ -195,11 +195,11 @@ func addIntro(i int, sslides []*static.Slide) {
 		)...,
 	)
 
-	// What we will talk about, is why Go is particular useful for
+	// What we will talk about, is why Go is particularly useful for
 	// developing games, the philosophy behind our engine and development
 	// strategy, and then some interesting use cases for applying
 	// design patterns that Go makes easy with particle generation,
-	// artificial intelligence, and constructing levels.
+	// artificial intelligence, and level construction.
 }
 
 var (
@@ -210,7 +210,6 @@ var (
 )
 
 func addWhy(i int, sslides []*static.Slide) {
-	// Topic: Why Go
 	sslides[i].Append(Title("Why Go"))
 	sslides[i+1].Append(Header("Why Go"))
 	sslides[i+1].Append(
@@ -221,6 +220,18 @@ func addWhy(i int, sslides []*static.Slide) {
 			"- Scales Well",
 		)...,
 	)
+
+	// So Go is particularly nice for building games one the one hand
+	// for its speed-- If you're used to building games with javascript
+	// or pygame, you'll have way more cpu cycles than you know how to
+	// deal with, especially if you use concurrency well on machines with
+	// multiple CPUs, which is going to be most of your audience.
+	//
+	// More importantly, Go is just as fast to develop with as those slower
+	// languages but it scales so much better. A little effort into decoupling
+	// your components with interfaces, and your code becomes far easier to read
+	// and increment on.
+
 	sslides[i+2].Append(Header("Why Not Go"))
 	sslides[i+2].Append(
 		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
@@ -230,6 +241,23 @@ func addWhy(i int, sslides []*static.Slide) {
 			"- C is Unavoidable",
 		)...,
 	)
+
+	// But what I've said so far mostly applies to game jam style games--
+	// how do you make a quick and dirty game in a few days without your
+	// code falling all over itself. If you're interested in doing something
+	// with heavy performance requirements, Go isn't the language to use.
+	// Go's speed isn't good enough for AAA games because it doesn't have easy
+	// access to things like OpenGL, Vulkan, or SIMD CPU instructions.
+	// What Go can do with these things is call out to C to do the work for it,
+	// but every C call in Go has overhead, and that overhead adds up if you're
+	// calling out to it thousands of times per second.
+	//
+	// There's other practical issues if you want to develop in Go even if you
+	// don't have high performance requirements-- depending on your platform
+	// you may need to install audio dependencies, usb dependencies, and so on,
+	// and for all of Go's benefits in cross compilation these dependencies
+	// completely break the hope of your game working the same on multiple
+	// platforms without you going in and testing it manually.
 }
 
 var (
@@ -246,10 +274,35 @@ func addPhilo(i int, sslides []*static.Slide) {
 	sslides[i+1].Append(
 		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- No non-Go dependencies",
-			"- Ease of API",
+			"- Ease / Terseness of API",
 			"- If it's useful and generic, put it in the engine",
 		)...,
 	)
+
+	// That brings us to our design philosphy in Oak.
+	// First, if we have a non-Go dependency, we also have an issue to
+	// replace that non-Go dependency ASAP. Right now we have just one.
+	//
+	// The motivation for having few dependencies isn't just so we can
+	// feel confident that all of our platforms are supported, but also
+	// making the engine easy to use. Most libraries in Go can be used
+	// with 'go get', and we want the same thing here-- a developer
+	// should be able to go get oak and immediately start working with it.
+	//
+	// After that, we want our API to be easy to use and small. Part of our
+	// motivation to start building Oak was that other game engines at the
+	// time took 500 lines to draw a cube or 400 lines to write Pong. Maybe
+	// at their core, those problems do take that many lines, but a lot of that
+	// code we can write for you (and also for us, so we don't have to keep
+	// re-writing it).
+	//
+	// In line with this, we follow a rule where if we have to rewrite something
+	// more than once for a game or for a package of the engine, that probably
+	// means that should be its own package and feature the engine provides.
+	// This does go against the go proverbs-- we do not follow the idea that
+	// a little copying is better than a little dependency, so long as we
+	// treat that dependency as part of the larger, engine dependency.
+
 	sslides[i+2].Append(Header("Update Loops and Functions"))
 	sslides[i+2].Append(
 		Image("updateCode1.PNG", .27, .4),
@@ -297,11 +350,30 @@ func addPhilo(i int, sslides []*static.Slide) {
 	sslides[i+4].Append(
 		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- oak/alg",
-			"- oak/intgeom, oak/floatgeom",
+			"- oak/alg/intgeom, oak/alg/floatgeom",
 			"- oak/physics",
 			"- oak/render/particle",
 		)...,
 	)
+	//
+	// These are some of the less obvious useful packages we've taken
+	// from games or sub-packages and built into their own package--
+	// in alg, we store things like rounding and selection algorithms.
+	// We found that we really needed to pick a random element from
+	// a list of weighted floats a lot, so we split it off here.
+	//
+	// intgeom and floatgeom should be self explanatory-- we and every
+	// other Go package continually redefine X,Y and X,Y,Z points of
+	// integers and floats, and we needed to stop redoing that work.
+	//
+	// Physics was built to store some physics primitives for handling
+	// propagation of forces, mass, friction, but was mostly built so
+	// we could attach entities to each other and stop having to move
+	// every sub-component in an entity when we moved the entity.
+	//
+	// And lastly, particle, where we figured being able to generate
+	// a lot of small images or colors in patterns was something that could easily
+	// spice up most games.
 }
 
 var (
@@ -313,8 +385,35 @@ var (
 
 func addParticles(i int, sslides []*static.Slide) {
 	sslides[i].Append(Title("Particles"))
-	sslides[i+1].Append(Header("Particles in CraftyJS"))
+	//
+	// Speaking of particles, that's our first example
+	// of applying some techniques Go provides for making this API something I
+	// would consider to be really special.
+	sslides[i+1].Append(Header("Particles in Other Engines"))
+	sslides[i+1].Append(
+		ImageCaption("craftyParticle.PNG", .3, .4, 1, Libel28, "CraftyJS"),
+		ImageCaption("phaserParticle.PNG", .45, .4, 1, Libel28, "PhaserJS"),
+	)
+	//
+	// For context, we'll look at how some other engines do their
+	// particle APIs. Before starting Oak we worked with CraftyJS,
+	// which has the nice feature that these giant blocks of settings
+	// can be stored and reused for new particles, but then you get
+	// giant settings blocks.
+	//
+	// Phaser uses the reverse approach-- you can't keep particle settings
+	// around but you don't need to set a bunch of settings you don't need.
+	//
+	// These examples aren't making the same particle emitter, by the way,
+	// they're just the first examples I found from the respective engine's
+	// documentation.
+
 	sslides[i+2].Append(Header("Variadic Functional Options"))
+	//
+	// So, I can't see the audience, but would someone there mind telling me
+	// whether you want me to go through Variadic Functional Options, or is
+	// that something that we know pretty well?
+	//
 	sslides[i+3].Append(Header("Particle Generators in Oak"))
 	sslides[i+4].Append(Header("Particle Generators in Oak"))
 }
