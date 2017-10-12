@@ -2,6 +2,12 @@ package main
 
 import (
 	"fmt"
+	"image/color"
+
+	"github.com/200sc/go-dist/floatrange"
+	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/render/mod"
+	"github.com/oakmound/oak/render/particle"
 
 	"github.com/oakmound/oak"
 	"github.com/oakmound/oak/examples/slide/show"
@@ -97,6 +103,8 @@ func main() {
 		Width:  width,
 		Height: height,
 	}
+	oak.SetupConfig.FrameRate = 30
+	oak.SetupConfig.DrawFrameRate = 30
 
 	slides := make([]show.Slide, len(sslides))
 	for i, s := range sslides {
@@ -379,16 +387,34 @@ func addPhilo(i int, sslides []*static.Slide) {
 var (
 	particles = slideSetup{
 		addParticles,
-		5,
+		6,
 	}
 )
 
 func addParticles(i int, sslides []*static.Slide) {
 	sslides[i].Append(Title("Particles"))
+	sslides[i].OnClick = func() {
+		go particle.NewColorGenerator(
+			particle.Size(intrange.Constant(4)),
+			particle.Angle(floatrange.NewLinear(0, 359)),
+			particle.Pos(width/2, height/2),
+			particle.Speed(floatrange.NewSpread(5, 2)),
+			particle.NewPerFrame(floatrange.NewSpread(5, 5)),
+			particle.Color(
+				color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 0},
+				color.RGBA{255, 255, 255, 255}, color.RGBA{0, 0, 0, 0},
+			),
+		).Generate(0)
+	}
 	//
 	// Speaking of particles, that's our first example
 	// of applying some techniques Go provides for making this API something I
 	// would consider to be really special.
+	//
+	// A particle generator is something like what's showing on screen now--
+	// a source of a bunch of colors or effects or images, and they're complex
+	// to implement only because of the vast number of options you can take in
+	// to a particle emitter.
 	sslides[i+1].Append(Header("Particles in Other Engines"))
 	sslides[i+1].Append(
 		ImageCaption("craftyParticle.PNG", .3, .4, 1, Libel28, "CraftyJS"),
@@ -415,7 +441,27 @@ func addParticles(i int, sslides []*static.Slide) {
 	// that something that we know pretty well?
 	//
 	sslides[i+3].Append(Header("Particle Generators in Oak"))
+	sslides[i+3].Append(Image("AndPt.PNG", .4, .4).Modify(mod.Scale(1.25, 1.25)))
+	// todo: more images
+	//
+	// We wanted to apply what crafty did with saving settings, but we wanted
+	// settings to not all be mandatory, so our functional pattern starts by
+	// setting a bunch of defaults, then applying all the options that are passed in.
+	// Because the Option type is an exported type, users can define their own settings,
+	// and one of the settings I like to define is the And helper, shown here.
+	//
 	sslides[i+4].Append(Header("Particle Generators in Oak"))
+	sslides[i+4].Append(Image("oakParticle.PNG", .4, .4).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+5].Append(Header("Aside: Filtering Audio with Functional Options"))
+	// todo: images
+	//
+	// On the implementation side, though, if you have multiple types of
+	// particle generators, it's really frustrating to have to define interfaces
+	// for them accepting a whole bunch of different kinds of settings or not.
+	// While we haven't refactored particles to use this approach yet, our
+	// audio library fixes this by defining all filters on audio as functions
+	// that define their own Apply function--  so the logic for whether or not
+	// a particle type supports a setting can be confined to the type of filter.
 }
 
 var (

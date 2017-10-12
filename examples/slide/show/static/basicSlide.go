@@ -16,6 +16,7 @@ type Slide struct {
 	transition  scene.Transition
 	cont        bool
 	prev        bool
+	OnClick     func()
 }
 
 func (ss *Slide) Init() {
@@ -33,6 +34,12 @@ func (ss *Slide) Init() {
 		os.Exit(0)
 		return 0
 	}, "KeyUpEscape")
+	if ss.OnClick != nil {
+		event.GlobalBind(func(int, interface{}) int {
+			ss.OnClick()
+			return 0
+		}, "MousePress")
+	}
 }
 
 func (ss *Slide) Continue() bool {
