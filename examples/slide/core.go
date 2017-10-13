@@ -469,18 +469,53 @@ func addParticles(i int, sslides []*static.Slide) {
 var (
 	ai = slideSetup{
 		addAI,
-		7,
+		6,
 	}
 )
 
 func addAI(i int, sslides []*static.Slide) {
 	sslides[i].Append(Title("Building AI with Interfaces"))
-	sslides[i+1].Append(Header("Building AI with Interfaces"))
+
+	sslides[i+1].Append(Header("Storing Small Interface Types"))
+
+	// Suppose you're storing all of your entities as rather small
+	// interfaces somewhere globally, say with a single function or
+	// how we do it, with just an Init() function that makes sure
+	// the entity has an associated ID.
+
 	sslides[i+2].Append(Header("Storing Small Interface Types"))
-	sslides[i+3].Append(Header("Storing Small Interface Types"))
-	sslides[i+4].Append(Header("When Your Interface is Massive"))
-	sslides[i+5].Append(Header("Condensing Massive Interfaces"))
-	sslides[i+6].Append(Header("... And you've got reusable AI"))
+
+	// A result of this is that you'll risk storing the wrong type
+	// in your glboal set when you start composing behaviors on top
+	// of one another. If Foo is composed of Bar and bar has an Init
+	// method, Foo can be stored in the list but you'll end up only
+	// getting Bar back when you pull the element back.
+	//
+	// So if you're using a pattern like this, make sure you call Init
+	// on the top-most entity you are binding things to. With this,
+	// we can bind a function to all of our AI entities that pulls
+	// them all out as an interface to update their logic each frame.
+
+	sslides[i+3].Append(Header("When Your Interface is Massive"))
+
+	// But now that you've stored all of your enemy types as themselves,
+	// if you've got a bunch of procedures that run on your AI for
+	// pathing, targetting, or attacking, you'll run into this issue
+	// where the interface that defines your AI needs to know a lot
+	// of different infromation for each of these different behaviors.
+
+	sslides[i+4].Append(Header("Condensing Massive Interfaces"))
+
+	// The solution to this is to implement this sort of interface,
+	// where you compose all of your entities with a struct that has
+	// a function to return itself (as a pointer). Define an interface
+	// of just that function and...
+
+	sslides[i+5].Append(Header("... And you've got reusable AI"))
+
+	// ... now you can store all of the things
+	// any AI entity needs in one embedded struct and run all of your
+	// entities on any AI procedure you have.
 }
 
 var (
@@ -493,12 +528,51 @@ var (
 func addLevels(i int, sslides []*static.Slide) {
 	sslides[i].Append(Title("Designing Levels with Interfaces"))
 	sslides[i+1].Append(Header("Components of a Level"))
-	sslides[i+2].Append(Header("An Approach without Interfaces"))
-	sslides[i+3].Append(Header("An Approach without Interfaces"))
-	sslides[i+4].Append(Header("Level Interfaces: Attempt 1"))
-	sslides[i+5].Append(Header("Level Interfaces: Attempt 1"))
-	sslides[i+6].Append(Header("Level Interfaces: Attempt 2"))
-	sslides[i+7].Append(Header("Level Interfaces: Attempt 2"))
+	//
+	// For building 2D levels we need a few different distinct
+	// components: the level itself, which is at some stage
+	// a whole bunch of tiles that need to be placed down,
+	// tiles themselves, entities that are placed in the level,
+	// and any subcomponents we want to split the tiles up into,
+	// like rooms.
+	//
+	sslides[i+2].Append(Header("A Poor Approach"))
+	//
+	// Our first approach to building levels didn't use interfaces.
+	// We're going to go through why this was a terrible idea.
+	// Agent Blue was the first game we started making in Go and so
+	// it also has all of our worst patterns in its code.
+	// ...
+	sslides[i+3].Append(Header("A Poor Approach"))
+	sslides[i+4].Append(Header("Modular Tile Enumeration"))
+	//
+	// So we were restricted because our tiles had too limited functionality.
+	// In Jeremy the Clam I tried to adapt this out by giving tiles explicit
+	// types based on their value, and each tile built itself using a Place
+	// function. So where before we had a tile interface, now tiles are just
+	// integers, making shared functionality a lot easier.
+	//
+	sslides[i+5].Append(Header("Modular Tile Enumeration"))
+	//
+	// However, the immediate problem caused from this was that we no longer
+	// could place multiple tiles in the same tile position. Before we could
+	// stack floor tiles below wall tiles or doodad tiles, and now we need
+	// tiles that are labeled as non-floors to place floors below them
+	// when they get inserted during the start of the level.
+	//
+	sslides[i+6].Append(Header("Level Interfaces"))
+	//
+	// We addressed this in A Fantastic Doctor by moving entity creation
+	// out of levels themselves, but also by abstracting the concept of a
+	// level in the first place. In this case, all a level (or in this
+	// game, an Organ) needs to provide is a Place() function to initialize
+	// all of its components when it is entered.
+	//
+	sslides[i+7].Append(Header("Level Interfaces"))
+	//
+	// So while we didn't do this, that means that we can extend organ
+	// functionality by making organs with layers of tiles instead of
+	// just one 2d layer.
 }
 
 var (
