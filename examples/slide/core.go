@@ -417,8 +417,8 @@ func addParticles(i int, sslides []*static.Slide) {
 	// to a particle emitter.
 	sslides[i+1].Append(Header("Particles in Other Engines"))
 	sslides[i+1].Append(
-		ImageCaption("craftyParticle.PNG", .3, .4, 1, Libel28, "CraftyJS"),
-		ImageCaption("phaserParticle.PNG", .45, .4, 1, Libel28, "PhaserJS"),
+		ImageCaption("craftyParticle.PNG", .17, .3, 1.25, Libel28, "CraftyJS"),
+		ImageCaption("phaserParticle.PNG", .40, .3, 1.25, Libel28, "PhaserJS"),
 	)
 	//
 	// For context, we'll look at how some other engines do their
@@ -441,7 +441,9 @@ func addParticles(i int, sslides []*static.Slide) {
 	// that something that we know pretty well?
 	//
 	sslides[i+3].Append(Header("Particle Generators in Oak"))
-	sslides[i+3].Append(Image("AndPt.PNG", .4, .4).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+3].Append(Image("AndPt.PNG", .13, .59).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+3].Append(Image("colorGen.PNG", .13, .29).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+3].Append(Image("particleOpts.PNG", .53, .29).Modify(mod.Scale(1.25, 1.25)))
 	// todo: more images
 	//
 	// We wanted to apply what crafty did with saving settings, but we wanted
@@ -451,9 +453,16 @@ func addParticles(i int, sslides []*static.Slide) {
 	// and one of the settings I like to define is the And helper, shown here.
 	//
 	sslides[i+4].Append(Header("Particle Generators in Oak"))
-	sslides[i+4].Append(Image("oakParticle.PNG", .4, .4).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+4].Append(Image("oakParticle.PNG", .27, .4).Modify(mod.Scale(1.25, 1.25)))
+	//
+	// This is what this code looks like in practice-- often
+	// particle effects will get thrown off to their own package in our games
+	// so we can use a shorter import for particle.
+	//
 	sslides[i+5].Append(Header("Aside: Filtering Audio with Functional Options"))
-	// todo: images
+	sslides[i+5].Append(Image("filter.PNG", .13, .29).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+5].Append(Image("audio.PNG", .53, .29).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+5].Append(Image("dataFilter.PNG", .13, .59).Modify(mod.Scale(1.25, 1.25)))
 	//
 	// On the implementation side, though, if you have multiple types of
 	// particle generators, it's really frustrating to have to define interfaces
