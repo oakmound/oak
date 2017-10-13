@@ -137,7 +137,6 @@ func addIntro(i int, sslides []*static.Slide) {
 	// design patterns, philosophies, and generally useful tricks for
 	// developing video games in Go.
 
-	// Me
 	sslides[i+1].Append(Header("Who Am I"))
 	sslides[i+1].Append(
 		TxtSetAt(Gnuolane44, 0.5, 0.63, 0.0, 0.07,
@@ -387,7 +386,7 @@ func addPhilo(i int, sslides []*static.Slide) {
 var (
 	particles = slideSetup{
 		addParticles,
-		6,
+		5,
 	}
 )
 
@@ -434,16 +433,10 @@ func addParticles(i int, sslides []*static.Slide) {
 	// they're just the first examples I found from the respective engine's
 	// documentation.
 
-	sslides[i+2].Append(Header("Variadic Functional Options"))
-	//
-	// So, I can't see the audience, but would someone there mind telling me
-	// whether you want me to go through Variadic Functional Options, or is
-	// that something that we know pretty well?
-	//
-	sslides[i+3].Append(Header("Particle Generators in Oak"))
-	sslides[i+3].Append(Image("AndPt.PNG", .13, .59).Modify(mod.Scale(1.25, 1.25)))
-	sslides[i+3].Append(Image("colorGen.PNG", .13, .29).Modify(mod.Scale(1.25, 1.25)))
-	sslides[i+3].Append(Image("particleOpts.PNG", .53, .29).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+2].Append(Header("Particle Generators in Oak"))
+	sslides[i+2].Append(Image("AndPt.PNG", .13, .59).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+2].Append(Image("colorGen.PNG", .13, .29).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+2].Append(Image("particleOpts.PNG", .53, .29).Modify(mod.Scale(1.25, 1.25)))
 	// todo: more images
 	//
 	// We wanted to apply what crafty did with saving settings, but we wanted
@@ -452,17 +445,17 @@ func addParticles(i int, sslides []*static.Slide) {
 	// Because the Option type is an exported type, users can define their own settings,
 	// and one of the settings I like to define is the And helper, shown here.
 	//
-	sslides[i+4].Append(Header("Particle Generators in Oak"))
-	sslides[i+4].Append(Image("oakParticle.PNG", .27, .4).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+3].Append(Header("Particle Generators in Oak"))
+	sslides[i+3].Append(Image("oakParticle.PNG", .27, .4).Modify(mod.Scale(1.25, 1.25)))
 	//
 	// This is what this code looks like in practice-- often
 	// particle effects will get thrown off to their own package in our games
 	// so we can use a shorter import for particle.
 	//
-	sslides[i+5].Append(Header("Aside: Filtering Audio with Functional Options"))
-	sslides[i+5].Append(Image("filter.PNG", .13, .29).Modify(mod.Scale(1.25, 1.25)))
-	sslides[i+5].Append(Image("audio.PNG", .53, .29).Modify(mod.Scale(1.25, 1.25)))
-	sslides[i+5].Append(Image("dataFilter.PNG", .13, .59).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+4].Append(Header("Aside: Filtering Audio with Functional Options"))
+	sslides[i+4].Append(Image("filter.PNG", .13, .29).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+4].Append(Image("audio.PNG", .53, .29).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+4].Append(Image("dataFilter.PNG", .13, .59).Modify(mod.Scale(1.25, 1.25)))
 	//
 	// On the implementation side, though, if you have multiple types of
 	// particle generators, it's really frustrating to have to define interfaces
@@ -511,7 +504,7 @@ func addLevels(i int, sslides []*static.Slide) {
 var (
 	conclusion = slideSetup{
 		addConclusion,
-		2,
+		3,
 	}
 )
 
@@ -524,5 +517,18 @@ func addConclusion(i int, sslides []*static.Slide) {
 			"- You, Audience",
 		)...,
 	)
-	sslides[i+1].Append(Title("Questions"))
+
+	// And I'll end by thanking the other people in Oakmound
+	// for working with me on our engine, those who've tried
+	// out the engine and raised issues or PRs, and all of you
+	// for listening.
+	sslides[i+1].Append(Header("Other GUI Programs"))
+	sslides[i+1].Append(ImageCaption("slide.PNG", .2, .4, 1.25, Libel28, "This Slideshow"))
+
+	// As a final note, to demonstrate some kind of versatility,
+	// this slide show was written in Oak as well.
+
+	sslides[i+2].Append(Title("Questions"))
+
+	// ?
 }
