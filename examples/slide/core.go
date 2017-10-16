@@ -41,6 +41,9 @@ var (
 
 func main() {
 
+	show.SetDims(width, height)
+	show.SetTitleFont(Gnuolane72)
+
 	bz1, _ := shape.BezierCurve(
 		width/15, height/5,
 		width/15, height/15,
@@ -130,16 +133,16 @@ func addIntro(i int, sslides []*static.Slide) {
 	// Intro: three slides
 	// Title
 	sslides[i].Append(
-		Title("Applying Go to Game Programming"),
-		TxtAt(Gnuolane44, "Patrick Stephen", .5, .6),
+		show.Title("Applying Go to Game Programming"),
+		show.TxtAt(Gnuolane44, "Patrick Stephen", .5, .6),
 	)
 	// Thanks everybody for coming to this talk. I'm going to be talking about
 	// design patterns, philosophies, and generally useful tricks for
 	// developing video games in Go.
 
-	sslides[i+1].Append(Header("Who Am I"))
+	sslides[i+1].Append(show.Header("Who Am I"))
 	sslides[i+1].Append(
-		TxtSetAt(Gnuolane44, 0.5, 0.63, 0.0, 0.07,
+		show.TxtSetAt(Gnuolane44, 0.5, 0.63, 0.0, 0.07,
 			"Graduate Student at University of Minnesota",
 			"Maintainer / Programmer of Oak",
 			"github.com/200sc  github.com/oakmound/oak",
@@ -156,17 +159,17 @@ func addIntro(i int, sslides []*static.Slide) {
 	// personally or to our team's email, or if it applies, feel free
 	// to raise an issue on the repository.
 
-	sslides[i+2].Append(Header("Games I Made"))
-	sslides[i+2].Append(TxtAt(Gnuolane28, "White = Me, Blue = Oakmound", .5, .24))
+	sslides[i+2].Append(show.Header("Games I Made"))
+	sslides[i+2].Append(show.TxtAt(Gnuolane28, "White = Me, Blue = Oakmound", .5, .24))
 	sslides[i+2].Append(
-		ImageCaption("botanist.PNG", .67, .1, .5, Libel28, "Space Botanist"),
-		ImageCaption("agent.PNG", .1, .11, .85, RLibel28, "Agent Blue"),
-		ImageCaption("dyscrasia.PNG", .5, .65, .5, RLibel28, "Dyscrasia"),
-		ImageCaption("esque.PNG", .4, .37, .5, RLibel28, "Esque"),
-		ImageCaption("fantastic.PNG", .33, .65, .5, RLibel28, "A Fantastic Doctor"),
-		ImageCaption("flower.PNG", .7, .41, .75, Libel28, "Flower Son"),
-		ImageCaption("jeremy.PNG", .07, .5, .66, Libel28, "Jeremy The Clam"),
-		ImageCaption("wolf.PNG", .68, .71, .5, Libel28, "The Wolf Comes Out At 18:00"),
+		show.ImageCaption("botanist.PNG", .67, .1, .5, Libel28, "Space Botanist"),
+		show.ImageCaption("agent.PNG", .1, .11, .85, RLibel28, "Agent Blue"),
+		show.ImageCaption("dyscrasia.PNG", .5, .65, .5, RLibel28, "Dyscrasia"),
+		show.ImageCaption("esque.PNG", .4, .37, .5, RLibel28, "Esque"),
+		show.ImageCaption("fantastic.PNG", .33, .65, .5, RLibel28, "A Fantastic Doctor"),
+		show.ImageCaption("flower.PNG", .7, .41, .75, Libel28, "Flower Son"),
+		show.ImageCaption("jeremy.PNG", .07, .5, .66, Libel28, "Jeremy The Clam"),
+		show.ImageCaption("wolf.PNG", .68, .71, .5, Libel28, "The Wolf Comes Out At 18:00"),
 	)
 	// These are games that I've made in the past, most being made
 	// for game jams, built in somewhere between 2 days and 2 weeks.
@@ -175,9 +178,9 @@ func addIntro(i int, sslides []*static.Slide) {
 	// that we've been working on in Go-- Agent Blue, Jeremy the Clam,
 	// and A Fantastic Doctor.
 
-	sslides[i+3].Append(Header("This Talk is Not About..."))
+	sslides[i+3].Append(show.Header("This Talk is Not About..."))
 	sslides[i+3].Append(
-		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+		show.TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- Optimizing Go",
 			"- 3D Graphics in Go",
 			"- Mobile Games in Go",
@@ -191,9 +194,9 @@ func addIntro(i int, sslides []*static.Slide) {
 	// while we haven't ignored these things I don't have
 	// any revolutionary breakthroughs to share about them right now.
 
-	sslides[i+4].Append(Header("Topics"))
+	sslides[i+4].Append(show.Header("Topics"))
 	sslides[i+4].Append(
-		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+		show.TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- Why Go",
 			"- Design Philosophy",
 			"- Particles",
@@ -217,10 +220,10 @@ var (
 )
 
 func addWhy(i int, sslides []*static.Slide) {
-	sslides[i].Append(Title("Why Go"))
-	sslides[i+1].Append(Header("Why Go"))
+	sslides[i].Append(show.Title("Why Go"))
+	sslides[i+1].Append(show.Header("Why Go"))
 	sslides[i+1].Append(
-		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+		show.TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- Execution Speed",
 			"- Concurrency",
 			"- Fast Development",
@@ -239,9 +242,9 @@ func addWhy(i int, sslides []*static.Slide) {
 	// your components with interfaces, and your code becomes far easier to read
 	// and increment on.
 
-	sslides[i+2].Append(Header("Why Not Go"))
+	sslides[i+2].Append(show.Header("Why Not Go"))
 	sslides[i+2].Append(
-		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+		show.TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- Execution Speed",
 			"- Difficult to use Graphics Cards",
 			"- Difficult to vectorize instructions",
@@ -276,10 +279,10 @@ var (
 
 func addPhilo(i int, sslides []*static.Slide) {
 	// Philosophy, engine discussion
-	sslides[i].Append(Title("Design Philosophy"))
-	sslides[i+1].Append(Header("Design Philosophy"))
+	sslides[i].Append(show.Title("Design Philosophy"))
+	sslides[i+1].Append(show.Header("Design Philosophy"))
 	sslides[i+1].Append(
-		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+		show.TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- No non-Go dependencies",
 			"- Ease / Terseness of API",
 			"- If it's useful and generic, put it in the engine",
@@ -310,10 +313,10 @@ func addPhilo(i int, sslides []*static.Slide) {
 	// a little copying is better than a little dependency, so long as we
 	// treat that dependency as part of the larger, engine dependency.
 
-	sslides[i+2].Append(Header("Update Loops and Functions"))
+	sslides[i+2].Append(show.Header("Update Loops and Functions"))
 	sslides[i+2].Append(
-		Image("updateCode1.PNG", .27, .4),
-		Image("updateCode3.PNG", .57, .4),
+		show.Image("updateCode1.PNG", .27, .4),
+		show.Image("updateCode3.PNG", .57, .4),
 	)
 	//
 	// Some game engines model their exposed API as a loop--
@@ -333,10 +336,10 @@ func addPhilo(i int, sslides []*static.Slide) {
 	// Oak handles this loop for you, and splits it into two loops, one for
 	// drawing elements and one for logical frame updating.
 	//
-	sslides[i+3].Append(Header("Update Loops and Functions"))
+	sslides[i+3].Append(show.Header("Update Loops and Functions"))
 	sslides[i+3].Append(
-		Image("updateCode2.PNG", .27, .4),
-		Image("updateCode3.PNG", .57, .4),
+		show.Image("updateCode2.PNG", .27, .4),
+		show.Image("updateCode3.PNG", .57, .4),
 	)
 	//
 	// Another pattern used, in parallel with the Update Loop,
@@ -353,9 +356,9 @@ func addPhilo(i int, sslides []*static.Slide) {
 	// event handler for this instead, where each entity that wants to use
 	// an update function binds that function to their entity id once.
 	//
-	sslides[i+4].Append(Header("Useful Packages"))
+	sslides[i+4].Append(show.Header("Useful Packages"))
 	sslides[i+4].Append(
-		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+		show.TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- oak/alg",
 			"- oak/alg/intgeom, oak/alg/floatgeom",
 			"- oak/physics",
@@ -391,7 +394,7 @@ var (
 )
 
 func addParticles(i int, sslides []*static.Slide) {
-	sslides[i].Append(Title("Particles"))
+	sslides[i].Append(show.Title("Particles"))
 	sslides[i].OnClick = func() {
 		go particle.NewColorGenerator(
 			particle.Size(intrange.Constant(4)),
@@ -414,10 +417,10 @@ func addParticles(i int, sslides []*static.Slide) {
 	// a source of a bunch of colors or effects or images, and they're complex
 	// to implement only because of the vast number of options you can take in
 	// to a particle emitter.
-	sslides[i+1].Append(Header("Particles in Other Engines"))
+	sslides[i+1].Append(show.Header("Particles in Other Engines"))
 	sslides[i+1].Append(
-		ImageCaption("craftyParticle.PNG", .17, .3, 1.25, Libel28, "CraftyJS"),
-		ImageCaption("phaserParticle.PNG", .40, .3, 1.25, Libel28, "PhaserJS"),
+		show.ImageCaption("craftyParticle.PNG", .17, .3, 1.25, Libel28, "CraftyJS"),
+		show.ImageCaption("phaserParticle.PNG", .40, .3, 1.25, Libel28, "PhaserJS"),
 	)
 	//
 	// For context, we'll look at how some other engines do their
@@ -433,10 +436,10 @@ func addParticles(i int, sslides []*static.Slide) {
 	// they're just the first examples I found from the respective engine's
 	// documentation.
 
-	sslides[i+2].Append(Header("Particle Generators in Oak"))
-	sslides[i+2].Append(Image("AndPt.PNG", .13, .59).Modify(mod.Scale(1.25, 1.25)))
-	sslides[i+2].Append(Image("colorGen.PNG", .13, .29).Modify(mod.Scale(1.25, 1.25)))
-	sslides[i+2].Append(Image("particleOpts.PNG", .53, .29).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+2].Append(show.Header("Particle Generators in Oak"))
+	sslides[i+2].Append(show.Image("AndPt.PNG", .13, .59).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+2].Append(show.Image("colorGen.PNG", .13, .29).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+2].Append(show.Image("particleOpts.PNG", .53, .29).Modify(mod.Scale(1.25, 1.25)))
 	// todo: more images
 	//
 	// We wanted to apply what crafty did with saving settings, but we wanted
@@ -445,17 +448,17 @@ func addParticles(i int, sslides []*static.Slide) {
 	// Because the Option type is an exported type, users can define their own settings,
 	// and one of the settings I like to define is the And helper, shown here.
 	//
-	sslides[i+3].Append(Header("Particle Generators in Oak"))
-	sslides[i+3].Append(Image("oakParticle.PNG", .27, .4).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+3].Append(show.Header("Particle Generators in Oak"))
+	sslides[i+3].Append(show.Image("oakParticle.PNG", .27, .4).Modify(mod.Scale(1.25, 1.25)))
 	//
 	// This is what this code looks like in practice-- often
 	// particle effects will get thrown off to their own package in our games
 	// so we can use a shorter import for particle.
 	//
-	sslides[i+4].Append(Header("Aside: Filtering Audio with Functional Options"))
-	sslides[i+4].Append(Image("filter.PNG", .13, .29).Modify(mod.Scale(1.25, 1.25)))
-	sslides[i+4].Append(Image("audio.PNG", .53, .29).Modify(mod.Scale(1.25, 1.25)))
-	sslides[i+4].Append(Image("dataFilter.PNG", .13, .59).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+4].Append(show.Header("Aside: Filtering Audio with Functional Options"))
+	sslides[i+4].Append(show.Image("filter.PNG", .13, .29).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+4].Append(show.Image("audio.PNG", .53, .29).Modify(mod.Scale(1.25, 1.25)))
+	sslides[i+4].Append(show.Image("dataFilter.PNG", .13, .59).Modify(mod.Scale(1.25, 1.25)))
 	//
 	// On the implementation side, though, if you have multiple types of
 	// particle generators, it's really frustrating to have to define interfaces
@@ -474,16 +477,16 @@ var (
 )
 
 func addAI(i int, sslides []*static.Slide) {
-	sslides[i].Append(Title("Building AI with Interfaces"))
+	sslides[i].Append(show.Title("Building AI with Interfaces"))
 
-	sslides[i+1].Append(Header("Storing Small Interface Types"))
+	sslides[i+1].Append(show.Header("Storing Small Interface Types"))
 
 	// Suppose you're storing all of your entities as rather small
 	// interfaces somewhere globally, say with a single function or
 	// how we do it, with just an Init() function that makes sure
 	// the entity has an associated ID.
 
-	sslides[i+2].Append(Header("Storing Small Interface Types"))
+	sslides[i+2].Append(show.Header("Storing Small Interface Types"))
 
 	// A result of this is that you'll risk storing the wrong type
 	// in your glboal set when you start composing behaviors on top
@@ -496,7 +499,7 @@ func addAI(i int, sslides []*static.Slide) {
 	// we can bind a function to all of our AI entities that pulls
 	// them all out as an interface to update their logic each frame.
 
-	sslides[i+3].Append(Header("When Your Interface is Massive"))
+	sslides[i+3].Append(show.Header("When Your Interface is Massive"))
 
 	// But now that you've stored all of your enemy types as themselves,
 	// if you've got a bunch of procedures that run on your AI for
@@ -504,14 +507,14 @@ func addAI(i int, sslides []*static.Slide) {
 	// where the interface that defines your AI needs to know a lot
 	// of different infromation for each of these different behaviors.
 
-	sslides[i+4].Append(Header("Condensing Massive Interfaces"))
+	sslides[i+4].Append(show.Header("Condensing Massive Interfaces"))
 
 	// The solution to this is to implement this sort of interface,
 	// where you compose all of your entities with a struct that has
 	// a function to return itself (as a pointer). Define an interface
 	// of just that function and...
 
-	sslides[i+5].Append(Header("... And you've got reusable AI"))
+	sslides[i+5].Append(show.Header("... And you've got reusable AI"))
 
 	// ... now you can store all of the things
 	// any AI entity needs in one embedded struct and run all of your
@@ -526,8 +529,8 @@ var (
 )
 
 func addLevels(i int, sslides []*static.Slide) {
-	sslides[i].Append(Title("Designing Levels with Interfaces"))
-	sslides[i+1].Append(Header("Components of a Level"))
+	sslides[i].Append(show.Title("Designing Levels with Interfaces"))
+	sslides[i+1].Append(show.Header("Components of a Level"))
 	//
 	// For building 2D levels we need a few different distinct
 	// components: the level itself, which is at some stage
@@ -536,15 +539,15 @@ func addLevels(i int, sslides []*static.Slide) {
 	// and any subcomponents we want to split the tiles up into,
 	// like rooms.
 	//
-	sslides[i+2].Append(Header("A Poor Approach"))
+	sslides[i+2].Append(show.Header("A Poor Approach"))
 	//
 	// Our first approach to building levels didn't use interfaces.
 	// We're going to go through why this was a terrible idea.
 	// Agent Blue was the first game we started making in Go and so
 	// it also has all of our worst patterns in its code.
 	// ...
-	sslides[i+3].Append(Header("A Poor Approach"))
-	sslides[i+4].Append(Header("Modular Tile Enumeration"))
+	sslides[i+3].Append(show.Header("A Poor Approach"))
+	sslides[i+4].Append(show.Header("Modular Tile Enumeration"))
 	//
 	// So we were restricted because our tiles had too limited functionality.
 	// In Jeremy the Clam I tried to adapt this out by giving tiles explicit
@@ -552,7 +555,7 @@ func addLevels(i int, sslides []*static.Slide) {
 	// function. So where before we had a tile interface, now tiles are just
 	// integers, making shared functionality a lot easier.
 	//
-	sslides[i+5].Append(Header("Modular Tile Enumeration"))
+	sslides[i+5].Append(show.Header("Modular Tile Enumeration"))
 	//
 	// However, the immediate problem caused from this was that we no longer
 	// could place multiple tiles in the same tile position. Before we could
@@ -560,7 +563,7 @@ func addLevels(i int, sslides []*static.Slide) {
 	// tiles that are labeled as non-floors to place floors below them
 	// when they get inserted during the start of the level.
 	//
-	sslides[i+6].Append(Header("Level Interfaces"))
+	sslides[i+6].Append(show.Header("Level Interfaces"))
 	//
 	// We addressed this in A Fantastic Doctor by moving entity creation
 	// out of levels themselves, but also by abstracting the concept of a
@@ -568,7 +571,7 @@ func addLevels(i int, sslides []*static.Slide) {
 	// game, an Organ) needs to provide is a Place() function to initialize
 	// all of its components when it is entered.
 	//
-	sslides[i+7].Append(Header("Level Interfaces"))
+	sslides[i+7].Append(show.Header("Level Interfaces"))
 	//
 	// So while we didn't do this, that means that we can extend organ
 	// functionality by making organs with layers of tiles instead of
@@ -583,9 +586,9 @@ var (
 )
 
 func addConclusion(i int, sslides []*static.Slide) {
-	sslides[i].Append(Header("Thanks To"))
+	sslides[i].Append(show.Header("Thanks To"))
 	sslides[i].Append(
-		TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
+		show.TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
 			"- Nate Fudenberg, John Ficklin",
 			"- Contributors on Github",
 			"- You, Audience",
@@ -596,13 +599,13 @@ func addConclusion(i int, sslides []*static.Slide) {
 	// for working with me on our engine, those who've tried
 	// out the engine and raised issues or PRs, and all of you
 	// for listening.
-	sslides[i+1].Append(Header("Other GUI Programs"))
-	sslides[i+1].Append(ImageCaption("slide.PNG", .2, .4, 1.25, Libel28, "This Slideshow"))
+	sslides[i+1].Append(show.Header("Other GUI Programs"))
+	sslides[i+1].Append(show.ImageCaption("slide.PNG", .2, .4, 1.25, Libel28, "This Slideshow"))
 
 	// As a final note, to demonstrate some kind of versatility,
 	// this slide show was written in Oak as well.
 
-	sslides[i+2].Append(Title("Questions"))
+	sslides[i+2].Append(show.Title("Questions"))
 
 	// ?
 }

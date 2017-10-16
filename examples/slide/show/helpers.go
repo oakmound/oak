@@ -1,4 +1,4 @@
-package main
+package show
 
 import (
 	"fmt"
@@ -8,6 +8,23 @@ import (
 
 	"github.com/oakmound/oak/render"
 )
+
+var (
+	width, height float64
+)
+
+func SetDims(w, h float64) {
+	width = w
+	height = h
+}
+
+var (
+	titleFont *render.Font
+)
+
+func SetTitleFont(f *render.Font) {
+	titleFont = f
+}
 
 func TxtSetAt(f *render.Font, xpos, ypos, xadv, yadv float64, txts ...string) []render.Renderable {
 	rs := make([]render.Renderable, len(txts))
@@ -24,11 +41,11 @@ func TxtAt(f *render.Font, txt string, xpos, ypos float64) render.Renderable {
 }
 
 func Title(str string) render.Renderable {
-	return TxtAt(Gnuolane72, str, .5, .4)
+	return TxtAt(titleFont, str, .5, .4)
 }
 
 func Header(str string) render.Renderable {
-	return TxtAt(Gnuolane72, str, .5, .2)
+	return TxtAt(titleFont, str, .5, .2)
 }
 
 func TxtSetFrom(f *render.Font, xpos, ypos, xadv, yadv float64, txts ...string) []render.Renderable {
