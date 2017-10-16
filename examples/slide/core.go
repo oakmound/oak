@@ -13,7 +13,6 @@ import (
 	"github.com/oakmound/oak/examples/slide/show"
 	"github.com/oakmound/oak/examples/slide/show/static"
 	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/scene"
 	"github.com/oakmound/oak/shape"
 	"golang.org/x/image/colornames"
 )
@@ -72,6 +71,8 @@ func main() {
 		render.BezierThickLine(bz4, colornames.White, 1),
 	)
 
+	oak.LoadingR = bkg
+
 	setups := []slideSetup{
 		intro,
 		why,
@@ -92,7 +93,7 @@ func main() {
 
 	sslides := static.NewSlideSet(total,
 		static.Background(bkg),
-		static.Transition(scene.Fade(4, 12)),
+		//static.Transition(scene.Fade(4, 12)),
 	)
 
 	nextStart := 0

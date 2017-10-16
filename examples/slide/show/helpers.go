@@ -90,6 +90,15 @@ func Image(file string, xpos, ypos float64) render.Modifiable {
 	return s
 }
 
+func ImageAt(file string, xpos, ypos float64, mods ...mod.Mod) render.Modifiable {
+	m := Image(file, xpos, ypos)
+	m.Modify(mods...)
+	w, h := m.GetDims()
+	m.ShiftX(float64(-w / 2))
+	m.ShiftY(float64(-h / 2))
+	return m
+}
+
 func ImageCaption(file string, xpos, ypos float64, scale float64, f *render.Font, cap string) render.Renderable {
 	r := Image(file, xpos, ypos)
 	r.Modify(mod.Scale(scale, scale))
