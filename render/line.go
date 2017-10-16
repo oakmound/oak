@@ -9,7 +9,14 @@ import (
 )
 
 // Todo:
-// Line and color optional syntax? should color / progress move to separate packages?
+// Our current concept of thickness expands out in both directions,
+// so it's impossible to draw a even-pixel thick line. This is probably
+// okay for an easy syntax like this but we might want to add in a
+// "Line constructor" type object like our ray-casters in release/2.0.0
+// so this behavior can be customized, i.e.-- if you take thickness as
+// pixel thickness, do you expand out left or right, or center, and how
+// are ties broken, etc. That would also help prevent the number of
+// different functions for line-drawing from continually increasing.
 
 // NewLine returns a line from x1,y1 to x2,y2 with the given color
 func NewLine(x1, y1, x2, y2 float64, c color.Color) *Sprite {
@@ -78,15 +85,15 @@ func DrawLineColored(rgba *image.RGBA, x1, y1, x2, y2, thickness int, colorer Co
 	h := int(yDelta)
 
 	progress := func(x, y, w, h int) float64 {
-		wprg := HorizontalProgress(x, y, w, h)
+		hprg := HorizontalProgress(x, y, w, h)
 		vprg := VerticalProgress(x, y, w, h)
 		if ySlope == -1 {
 			vprg = 1 - vprg
 		}
 		if xSlope == -1 {
-			wprg = 1 - wprg
+			hprg = 1 - hprg
 		}
-		return wprg + vprg/2
+		return (hprg + vprg) / 2
 	}
 
 	err := xDelta - yDelta
@@ -120,15 +127,24 @@ func drawLineBetween(x1, y1, x2, y2 int, colorer Colorer, thickness int) *image.
 	yDelta := math.Abs(float64(y2 - y1))
 
 	if xDelta == 0 && yDelta == 0 {
-		rect := image.Rect(0, 0, 1, 1)
+		width := 1 + 2*thickness
+		rect := image.Rect(0, 0, width, width)
 		rgba := image.NewRGBA(rect)
-		rgba.Set(0, 0, colorer(1.0))
+		for xm := 0; xm < width; xm++ {
+			for ym := 0; ym < width; ym++ {
+				rgba.Set(xm, ym, colorer(1.0))
+			}
+		}
 		return rgba
 	} else if xDelta == 0 {
-		rect := image.Rect(0, 0, 1, int(math.Floor(yDelta)))
+		width := 1 + 2*thickness
+		height := int(math.Floor(yDelta)) + 2*thickness
+		rect := image.Rect(0, 0, width, height)
 		rgba := image.NewRGBA(rect)
-		for i := 0.0; i <= math.Floor(yDelta); i++ {
-			rgba.Set(0, int(i), colorer(i/yDelta))
+		for xm := 0; xm < width; xm++ {
+			for ym := 0; ym < height; ym++ {
+				rgba.Set(xm, ym, colorer(float64(ym)/float64(height)))
+			}
 		}
 		return rgba
 	}
