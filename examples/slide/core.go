@@ -203,6 +203,7 @@ func addIntro(i int, sslides []*static.Slide) {
 			"- Particles",
 			"- AI with Interfaces",
 			"- Level Building with Interfaces",
+			"- Other Examples",
 		)...,
 	)
 
@@ -229,6 +230,7 @@ func addWhy(i int, sslides []*static.Slide) {
 			"- Concurrency",
 			"- Fast Development",
 			"- Scales Well",
+			"- Multiplatform Support",
 		)...,
 	)
 
@@ -377,10 +379,14 @@ func addPhilo(i int, sslides []*static.Slide) {
 	// other Go package continually redefine X,Y and X,Y,Z points of
 	// integers and floats, and we needed to stop redoing that work.
 	//
+	// simple slide
+	//
 	// Physics was built to store some physics primitives for handling
 	// propagation of forces, mass, friction, but was mostly built so
 	// we could attach entities to each other and stop having to move
 	// every sub-component in an entity when we moved the entity.
+	//
+	// simple slide
 	//
 	// And lastly, particle, where we figured being able to generate
 	// a lot of small images or colors in patterns was something that could easily
@@ -441,7 +447,6 @@ func addParticles(i int, sslides []*static.Slide) {
 	sslides[i+2].Append(show.Image("AndPt.PNG", .13, .59).Modify(mod.Scale(1.25, 1.25)))
 	sslides[i+2].Append(show.Image("colorGen.PNG", .13, .29).Modify(mod.Scale(1.25, 1.25)))
 	sslides[i+2].Append(show.Image("particleOpts.PNG", .53, .29).Modify(mod.Scale(1.25, 1.25)))
-	// todo: more images
 	//
 	// We wanted to apply what crafty did with saving settings, but we wanted
 	// settings to not all be mandatory, so our functional pattern starts by
@@ -516,6 +521,9 @@ func addAI(i int, sslides []*static.Slide) {
 	// of just that function and...
 
 	sslides[i+5].Append(show.Header("... And you've got reusable AI"))
+	sslides[i+5].Append(show.ImageAt("doctorEntity.PNG", .39, .5, mod.Scale(1.25, 1.25)))
+	sslides[i+5].Append(show.ImageAt("doctorHasE.PNG", .15, .5, mod.Scale(1.25, 1.25)))
+	sslides[i+5].Append(show.ImageAt("doctorBounce.PNG", .75, .5, mod.Scale(1.25, 1.25)))
 
 	// ... now you can store all of the things
 	// any AI entity needs in one embedded struct and run all of your
@@ -525,30 +533,33 @@ func addAI(i int, sslides []*static.Slide) {
 var (
 	levels = slideSetup{
 		addLevels,
-		8,
+		9,
 	}
 )
 
 func addLevels(i int, sslides []*static.Slide) {
 	sslides[i].Append(show.Title("Designing Levels with Interfaces"))
-	sslides[i+1].Append(show.Header("Components of a Level"))
-	//
-	// For building 2D levels we need a few different distinct
-	// components: the level itself, which is at some stage
-	// a whole bunch of tiles that need to be placed down,
-	// tiles themselves, entities that are placed in the level,
-	// and any subcomponents we want to split the tiles up into,
-	// like rooms.
-	//
-	sslides[i+2].Append(show.Header("A Poor Approach"))
+	sslides[i+1].Append(show.Header("A Poor Approach"))
+	sslides[i+1].Append(show.ImageCaption("agentLevelGenerate.PNG", .3, .1, 1, Libel28, "Level Generation in Agent Blue"))
+	sslides[i+1].Append(show.ImageAt("agentRoom.PNG", .6, .5, mod.Scale(1.25, 1.25)))
 	//
 	// Our first approach to building levels didn't use interfaces.
 	// We're going to go through why this was a terrible idea.
 	// Agent Blue was the first game we started making in Go and so
 	// it also has all of our worst patterns in its code.
 	// ...
+	sslides[i+2].Append(show.Header("A Poor Approach"))
+	sslides[i+2].Append(show.ImageCaption("agentTutorial.png", .2, .4, 5, Libel28, "Agent Blue Tutorial Map"))
+	sslides[i+2].Append(show.ImageCaption("agentLevelSelect.PNG", .5, .3, 1.25, Libel28, "Agent Blue Level Select Room (demo)"))
+	// Level vs LevelSelect
 	sslides[i+3].Append(show.Header("A Poor Approach"))
+	sslides[i+3].Append(show.ImageAt("agentDoodad.PNG", .5, .5, mod.Scale(1.25, 1.25)))
+	//
+	//	Doodads
+	//
 	sslides[i+4].Append(show.Header("Modular Tile Enumeration"))
+	sslides[i+4].Append(show.ImageAt("jeremyLevel.PNG", .4, .5))
+	sslides[i+4].Append(show.ImageAt("jeremyTileTypes.PNG", .6, .5))
 	//
 	// So we were restricted because our tiles had too limited functionality.
 	// In Jeremy the Clam I tried to adapt this out by giving tiles explicit
@@ -557,6 +568,7 @@ func addLevels(i int, sslides []*static.Slide) {
 	// integers, making shared functionality a lot easier.
 	//
 	sslides[i+5].Append(show.Header("Modular Tile Enumeration"))
+	sslides[i+5].Append(show.ImageAt("jeremyTilePlace.PNG", .5, .5))
 	//
 	// However, the immediate problem caused from this was that we no longer
 	// could place multiple tiles in the same tile position. Before we could
@@ -565,6 +577,7 @@ func addLevels(i int, sslides []*static.Slide) {
 	// when they get inserted during the start of the level.
 	//
 	sslides[i+6].Append(show.Header("Level Interfaces"))
+	sslides[i+6].Append(show.ImageAt("doctorLevelPlace.PNG", .5, .5))
 	//
 	// We addressed this in A Fantastic Doctor by moving entity creation
 	// out of levels themselves, but also by abstracting the concept of a
@@ -573,10 +586,15 @@ func addLevels(i int, sslides []*static.Slide) {
 	// all of its components when it is entered.
 	//
 	sslides[i+7].Append(show.Header("Level Interfaces"))
+	sslides[i+7].Append(show.ImageAt("doctorLevel.PNG", .5, .5))
 	//
 	// So while we didn't do this, that means that we can extend organ
 	// functionality by making organs with layers of tiles instead of
 	// just one 2d layer.
+
+	sslides[i+8].Append(show.Header("Level Files"))
+	sslides[i+8].Append(show.ImageCaption("jeremyFile.PNG", .2, .3, 1.0, Libel28, "A Jeremy Level File"))
+	sslides[i+8].Append(show.ImageCaption("doctorFile.PNG", .6, .3, 2.0, Libel28, "A Fantastic Doctor Level File"))
 }
 
 var (
