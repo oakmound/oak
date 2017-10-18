@@ -59,13 +59,15 @@ func (m *Mass) Freeze() {
 	m.mass = frozen
 }
 
-// Pushable is implemented by anything that has mass and therefore can be pushed.
+// Pushable is implemented by anything that has mass and directional movement,
+// and therefore can be pushed.
 type Pushable interface {
 	GetDelta() Vector
 	GetMass() float64
 }
 
-// A Pushes can push Pushable things by having an associated ForceVector
+// A Pushes can push Pushable things through its associated ForceVector, or
+// how hard the Pushable should move in a given direction
 type Pushes interface {
 	GetForce() ForceVector
 }

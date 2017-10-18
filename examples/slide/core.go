@@ -276,7 +276,7 @@ func addWhy(i int, sslides []*static.Slide) {
 var (
 	philo = slideSetup{
 		addPhilo,
-		5,
+		7,
 	}
 )
 
@@ -362,8 +362,8 @@ func addPhilo(i int, sslides []*static.Slide) {
 	sslides[i+4].Append(show.Header("Useful Packages"))
 	sslides[i+4].Append(
 		show.TxtSetFrom(Gnuolane44, .25, .35, 0, .07,
-			"- oak/alg",
 			"- oak/alg/intgeom, oak/alg/floatgeom",
+			"- oak/alg",
 			"- oak/physics",
 			"- oak/render/particle",
 		)...,
@@ -371,22 +371,27 @@ func addPhilo(i int, sslides []*static.Slide) {
 	//
 	// These are some of the less obvious useful packages we've taken
 	// from games or sub-packages and built into their own package--
-	// in alg, we store things like rounding and selection algorithms.
-	// We found that we really needed to pick a random element from
-	// a list of weighted floats a lot, so we split it off here.
 	//
 	// intgeom and floatgeom should be self explanatory-- we and every
 	// other Go package continually redefine X,Y and X,Y,Z points of
 	// integers and floats, and we needed to stop redoing that work.
 	//
-	// simple slide
+	sslides[i+5].Append(show.Header("oak/alg"))
+	sslides[i+5].Append(show.ImageAt("degToRad.PNG", .3, .5, mod.Scale(1.25, 1.25)))
+	sslides[i+5].Append(show.ImageAt("chooseX.PNG", .6, .5, mod.Scale(1.25, 1.25)))
+	//
+	// in alg, we store things like rounding and selection algorithms.
+	// We found that we really needed to pick a random element from
+	// a list of weighted floats a lot, so we split it off here.
+	//
+	sslides[i+6].Append(show.Header("oak/physics"))
+	sslides[i+6].Append(show.ImageAt("push.PNG", .3, .5, mod.Scale(1.25, 1.25)))
+	sslides[i+6].Append(show.ImageAt("attachable.PNG", .7, .5, mod.Scale(1.25, 1.25)))
 	//
 	// Physics was built to store some physics primitives for handling
 	// propagation of forces, mass, friction, but was mostly built so
 	// we could attach entities to each other and stop having to move
 	// every sub-component in an entity when we moved the entity.
-	//
-	// simple slide
 	//
 	// And lastly, particle, where we figured being able to generate
 	// a lot of small images or colors in patterns was something that could easily
@@ -405,6 +410,7 @@ func addParticles(i int, sslides []*static.Slide) {
 	sslides[i].OnClick = func() {
 		go particle.NewColorGenerator(
 			particle.Size(intrange.Constant(4)),
+			particle.EndSize(intrange.Constant(7)),
 			particle.Angle(floatrange.NewLinear(0, 359)),
 			particle.Pos(width/2, height/2),
 			particle.Speed(floatrange.NewSpread(5, 2)),
@@ -478,34 +484,16 @@ func addParticles(i int, sslides []*static.Slide) {
 var (
 	ai = slideSetup{
 		addAI,
-		6,
+		5,
 	}
 )
 
 func addAI(i int, sslides []*static.Slide) {
 	sslides[i].Append(show.Title("Building AI with Interfaces"))
 
-	sslides[i+1].Append(show.Header("Storing Small Interface Types"))
-
-	// Suppose you're storing all of your entities as rather small
-	// interfaces somewhere globally, say with a single function or
-	// how we do it, with just an Init() function that makes sure
-	// the entity has an associated ID.
-
-	sslides[i+2].Append(show.Header("Storing Small Interface Types"))
-
-	// A result of this is that you'll risk storing the wrong type
-	// in your glboal set when you start composing behaviors on top
-	// of one another. If Foo is composed of Bar and bar has an Init
-	// method, Foo can be stored in the list but you'll end up only
-	// getting Bar back when you pull the element back.
-	//
-	// So if you're using a pattern like this, make sure you call Init
-	// on the top-most entity you are binding things to. With this,
-	// we can bind a function to all of our AI entities that pulls
-	// them all out as an interface to update their logic each frame.
-
-	sslides[i+3].Append(show.Header("When Your Interface is Massive"))
+	sslides[i+1].Append(show.Header("When Your Interface is Massive"))
+	sslides[i+1].Append(show.ImageAt("agentAI.PNG", .4, .5))
+	sslides[i+1].Append(show.ImageAt("agentCharacter.PNG", .7, .5))
 
 	// But now that you've stored all of your enemy types as themselves,
 	// if you've got a bunch of procedures that run on your AI for
@@ -513,27 +501,32 @@ func addAI(i int, sslides []*static.Slide) {
 	// where the interface that defines your AI needs to know a lot
 	// of different infromation for each of these different behaviors.
 
-	sslides[i+4].Append(show.Header("Condensing Massive Interfaces"))
+	sslides[i+2].Append(show.Header("Condensing Massive Interfaces"))
+	sslides[i+2].Append(show.ImageAt("agentEnemy.PNG", .5, .5))
 
 	// The solution to this is to implement this sort of interface,
 	// where you compose all of your entities with a struct that has
 	// a function to return itself (as a pointer). Define an interface
 	// of just that function and...
 
-	sslides[i+5].Append(show.Header("... And you've got reusable AI"))
-	sslides[i+5].Append(show.ImageAt("doctorEntity.PNG", .39, .5, mod.Scale(1.25, 1.25)))
-	sslides[i+5].Append(show.ImageAt("doctorHasE.PNG", .15, .5, mod.Scale(1.25, 1.25)))
-	sslides[i+5].Append(show.ImageAt("doctorBounce.PNG", .75, .5, mod.Scale(1.25, 1.25)))
+	sslides[i+3].Append(show.Header("Reusable AI"))
+	sslides[i+3].Append(show.ImageAt("doctorEntity.PNG", .39, .5, mod.Scale(1.25, 1.25)))
+	sslides[i+3].Append(show.ImageAt("doctorHasE.PNG", .15, .5, mod.Scale(1.25, 1.25)))
+	sslides[i+3].Append(show.ImageAt("doctorBounce.PNG", .75, .5, mod.Scale(1.25, 1.25)))
 
 	// ... now you can store all of the things
 	// any AI entity needs in one embedded struct and run all of your
 	// entities on any AI procedure you have.
+
+	sslides[i+4].Append(show.Header("Aside: Composition for Private Features"))
+	sslides[i+4].Append(show.ImageAt("phase.PNG", .3, .5))
+	sslides[i+4].Append(show.ImageAt("phaseCollision.PNG", .7, .5))
 }
 
 var (
 	levels = slideSetup{
 		addLevels,
-		9,
+		8,
 	}
 )
 
@@ -577,7 +570,8 @@ func addLevels(i int, sslides []*static.Slide) {
 	// when they get inserted during the start of the level.
 	//
 	sslides[i+6].Append(show.Header("Level Interfaces"))
-	sslides[i+6].Append(show.ImageAt("doctorLevelPlace.PNG", .5, .5))
+	sslides[i+6].Append(show.ImageAt("doctorLevelPlace.PNG", .3, .5))
+	sslides[i+6].Append(show.ImageAt("doctorLevel.PNG", .7, .5))
 	//
 	// We addressed this in A Fantastic Doctor by moving entity creation
 	// out of levels themselves, but also by abstracting the concept of a
@@ -585,16 +579,13 @@ func addLevels(i int, sslides []*static.Slide) {
 	// game, an Organ) needs to provide is a Place() function to initialize
 	// all of its components when it is entered.
 	//
-	sslides[i+7].Append(show.Header("Level Interfaces"))
-	sslides[i+7].Append(show.ImageAt("doctorLevel.PNG", .5, .5))
 	//
 	// So while we didn't do this, that means that we can extend organ
 	// functionality by making organs with layers of tiles instead of
 	// just one 2d layer.
-
-	sslides[i+8].Append(show.Header("Level Files"))
-	sslides[i+8].Append(show.ImageCaption("jeremyFile.PNG", .2, .3, 1.0, Libel28, "A Jeremy Level File"))
-	sslides[i+8].Append(show.ImageCaption("doctorFile.PNG", .6, .3, 2.0, Libel28, "A Fantastic Doctor Level File"))
+	sslides[i+7].Append(show.Header("Level Files"))
+	sslides[i+7].Append(show.ImageCaption("jeremyFile.PNG", .2, .3, 1.0, Libel28, "A Jeremy Level File"))
+	sslides[i+7].Append(show.ImageCaption("doctorFile.PNG", .6, .3, 2.0, Libel28, "A Fantastic Doctor Level File"))
 }
 
 var (

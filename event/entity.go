@@ -20,7 +20,7 @@ type Entity interface {
 	Init() CID
 }
 
-// NextID finds the next id (always incrementing)
+// NextID finds the next available caller id (always incrementing)
 // and returns it, after adding the given entity to
 // the slice of callers at the returned index.
 func NextID(e Entity) CID {
