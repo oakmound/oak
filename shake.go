@@ -32,7 +32,7 @@ func (ss *ScreenShaker) Shake(dur time.Duration) {
 	doneTime := time.Now().Add(dur)
 	mag := ss.Magnitude
 
-	var setViewPos image.Point
+	setViewPos := ViewPos
 	// If we end up doing this pattern more,
 	// we need to replace defaultUpdateScreen
 	// with a local definition of what updateScreen
