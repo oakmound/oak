@@ -147,6 +147,15 @@ func (p Point2) Mul(ps ...Point2) Point2 {
 	return p
 }
 
+// MulConst multiplies all elements of a point by the input floats
+func (p Point2) MulConst(fs ...float64) Point2 {
+	for _, f := range fs {
+		p[0] *= f
+		p[1] *= f
+	}
+	return p
+}
+
 // Div combines the input points via division.
 func (p Point2) Div(ps ...Point2) Point2 {
 	for _, p2 := range ps {
@@ -182,6 +191,16 @@ func (p Point3) Mul(ps ...Point3) Point3 {
 		p[0] *= p2[0]
 		p[1] *= p2[1]
 		p[2] *= p2[2]
+	}
+	return p
+}
+
+// MulConst multiplies all elements of a point by the input floats
+func (p Point3) MulConst(fs ...float64) Point3 {
+	for _, f := range fs {
+		p[0] *= f
+		p[1] *= f
+		p[2] *= f
 	}
 	return p
 }
