@@ -25,31 +25,34 @@ func SetScreen(x, y int) {
 	viewportCh <- [2]int{x, y}
 }
 
-func updateScreen(x, y int) {
-	if useViewBounds {
-		if viewBounds.minX <= x && viewBounds.maxX >= x+ScreenWidth {
-			dlog.Verb("Set ViewX to ", x)
-			ViewPos.X = x
-		} else if viewBounds.minX > x {
-			ViewPos.X = viewBounds.minX
-		} else if viewBounds.maxX < x+ScreenWidth {
-			ViewPos.X = viewBounds.maxX - ScreenWidth
+var (
+	defaultUpdateScreen = func(x, y int) {
+		if useViewBounds {
+			if viewBounds.minX <= x && viewBounds.maxX >= x+ScreenWidth {
+				dlog.Verb("Set ViewX to ", x)
+				ViewPos.X = x
+			} else if viewBounds.minX > x {
+				ViewPos.X = viewBounds.minX
+			} else if viewBounds.maxX < x+ScreenWidth {
+				ViewPos.X = viewBounds.maxX - ScreenWidth
+			}
+			if viewBounds.minY <= y && viewBounds.maxY >= y+ScreenHeight {
+				dlog.Verb("Set ViewY to ", y)
+				ViewPos.Y = y
+			} else if viewBounds.minY > y {
+				ViewPos.Y = viewBounds.minY
+			} else if viewBounds.maxY < y+ScreenHeight {
+				ViewPos.Y = viewBounds.maxY - ScreenHeight
+			}
+		} else {
+			dlog.Verb("Set ViewXY to ", x, " ", y)
+			ViewPos = image.Point{x, y}
 		}
-		if viewBounds.minY <= y && viewBounds.maxY >= y+ScreenHeight {
-			dlog.Verb("Set ViewY to ", y)
-			ViewPos.Y = y
-		} else if viewBounds.minY > y {
-			ViewPos.Y = viewBounds.minY
-		} else if viewBounds.maxY < y+ScreenHeight {
-			ViewPos.Y = viewBounds.maxY - ScreenHeight
-		}
-	} else {
-		dlog.Verb("Set ViewXY to ", x, " ", y)
-		ViewPos = image.Point{x, y}
+		eb.Trigger("ViewportUpdate", []float64{float64(ViewPos.X), float64(ViewPos.Y)})
+		dlog.Verb("ViewX, Y: ", ViewPos.X, " ", ViewPos.Y)
 	}
-	eb.Trigger("ViewportUpdate", []float64{float64(ViewPos.X), float64(ViewPos.Y)})
-	dlog.Verb("ViewX, Y: ", ViewPos.X, " ", ViewPos.Y)
-}
+	updateScreen = defaultUpdateScreen
+)
 
 // SetViewportBounds sets the minimum and maximum position of the viewport, including
 // screen dimensions
