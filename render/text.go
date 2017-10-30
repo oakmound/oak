@@ -85,6 +85,12 @@ func (t *Text) SetIntP(i *int) {
 	t.text = stringerIntPointer{i}
 }
 
+// StringLiteral returns what text is currently rendering.
+// Note this avoids the pretty print addtions that the String function adds.
+func (t *Text) StringLiteral() string {
+	return t.text.String()
+}
+
 // Todo: more SetX methods like float, floatP
 
 func (t *Text) String() string {
