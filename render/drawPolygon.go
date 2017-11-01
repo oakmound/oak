@@ -9,8 +9,10 @@ var (
 	drawPolygon      polyclip.Polygon
 )
 
+// Todo 2.0: draw polygons should be stack or stack-item specific, not global
+
 // SetDrawPolygon sets the draw polygon and flags that draw functions
-// should check for containment in the polygon before running
+// should check for containment in the polygon before drawing elements
 func SetDrawPolygon(p polyclip.Polygon) {
 	usingDrawPolygon = true
 	drawPolygon = p

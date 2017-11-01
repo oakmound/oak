@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-// A RenderableHeap managed a set of renderables to be drawn in explicit layered
+// A RenderableHeap manages a set of renderables to be drawn in explicit layered
 // order, using an internal heap to manage that order.
 type RenderableHeap struct {
 	rs      []Renderable
