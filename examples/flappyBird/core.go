@@ -10,6 +10,7 @@ import (
 	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/entities"
 	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/key"
 	"github.com/oakmound/oak/render"
 	"github.com/oakmound/oak/timing"
 )
@@ -119,11 +120,11 @@ func newFlappy(x, y float64) *Flappy {
 			f.Delta.SetY(0)
 		}
 		return 0
-	}, "EnterFrame")
+	}, event.Enter)
 	f.Bind(func(int, interface{}) int {
 		f.Delta.ShiftY(-4)
 		return 0
-	}, "KeyDownW")
+	}, key.Down+key.W)
 	return f
 }
 
@@ -145,7 +146,7 @@ func newPillar(x, y, h float64, isAbove bool) {
 	p.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), p.CID)
 	p.Space.Label = pillar
 	collision.Add(p.Space)
-	p.Bind(enterPillar, "EnterFrame")
+	p.Bind(enterPillar, event.Enter)
 	p.R.SetLayer(1)
 	render.Draw(p.R, 0)
 }

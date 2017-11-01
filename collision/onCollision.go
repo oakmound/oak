@@ -38,11 +38,18 @@ func PhaseCollision(s *Space, trees ...*Tree) error {
 		} else {
 			oc.tree = DefTree
 		}
-		s.CID.Bind(phaseCollisionEnter, "EnterFrame")
+		s.CID.Bind(phaseCollisionEnter, event.Enter)
 		return nil
 	}
 	return errors.New("This space's entity does not implement collisionPhase")
 }
+
+// CollisionStart/Stop: when a PhaseCollision entity starts/stops touching some label.
+// Payload: (Label) the label the entity has started/stopped touching
+const (
+	Start = "CollisionStart"
+	Stop  = "CollisionStop"
+)
 
 func phaseCollisionEnter(id int, nothing interface{}) int {
 	e := event.GetEntity(id).(collisionPhase)
@@ -56,7 +63,7 @@ func phaseCollisionEnter(id int, nothing interface{}) int {
 	for _, h := range hits {
 		l := h.Label
 		if _, ok := oc.Touching[l]; !ok {
-			event.CID(id).Trigger("CollisionStart", l)
+			event.CID(id).Trigger(Start, l)
 		}
 		newTouching[l] = true
 	}
@@ -64,7 +71,7 @@ func phaseCollisionEnter(id int, nothing interface{}) int {
 	// if we lost any, trigger off collision
 	for l := range oc.Touching {
 		if _, ok := newTouching[l]; !ok {
-			event.CID(id).Trigger("CollisionStop", l)
+			event.CID(id).Trigger(Stop, l)
 		}
 	}
 

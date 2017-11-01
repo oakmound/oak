@@ -21,9 +21,9 @@ func Propagate(eventName string, me Event) {
 	}
 
 	if TrackMouseClicks {
-		if eventName == "MousePressOn" {
+		if eventName == PressOn {
 			LastMousePress = me
-		} else if eventName == "MouseReleaseOn" {
+		} else if eventName == ReleaseOn {
 			if me.Button == LastMousePress.Button {
 				pressHits := DefTree.SearchIntersect(LastMousePress.ToSpace().Bounds())
 				for _, v1 := range pressHits {
@@ -31,7 +31,7 @@ func Propagate(eventName string, me Event) {
 					for _, v2 := range hits {
 						sp2 := v2.(*collision.Space)
 						if sp1.CID == sp2.CID {
-							sp1.CID.Trigger("MouseClickOn", me)
+							sp1.CID.Trigger(ClickOn, me)
 						}
 					}
 				}
@@ -66,16 +66,16 @@ func GetMouseButton(b mouse.Button) (s string) {
 func GetEventName(d mouse.Direction, b mouse.Button) string {
 	switch d {
 	case mouse.DirPress:
-		return "MousePress"
+		return Press
 	case mouse.DirRelease:
-		return "MouseRelease"
+		return Release
 	default:
 		switch b {
 		case -2:
-			return "MouseScrollDown"
+			return ScrollDown
 		case -1:
-			return "MouseScrollUp"
+			return ScrollUp
 		}
 	}
-	return "MouseDrag"
+	return Drag
 }
