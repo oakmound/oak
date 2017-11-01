@@ -4,7 +4,8 @@ import (
 	"runtime"
 
 	"github.com/oakmound/oak/dlog"
-	pmouse "github.com/oakmound/oak/mouse"
+	okey "github.com/oakmound/oak/key"
+	omouse "github.com/oakmound/oak/mouse"
 	"github.com/oakmound/oak/physics"
 	"github.com/oakmound/shiny/gesture"
 	"golang.org/x/mobile/event/key"
@@ -48,16 +49,16 @@ func inputLoop() {
 		// The specific key that is pressed is passed as the data interface for
 		// the former events, but not for the latter.
 		case key.Event:
+			// key.Code strings all begin with "Code". This strips that off.
 			k := GetKeyBind(e.Code.String()[4:])
 			if e.Direction == key.DirPress {
-				//dlog.Verb("--------------------", e.Code.String()[4:], k)
 				setDown(k)
-				logicHandler.Trigger("KeyDown", k)
-				logicHandler.Trigger("KeyDown"+k, nil)
+				logicHandler.Trigger(okey.Down, k)
+				logicHandler.Trigger(okey.Down+k, nil)
 			} else if e.Direction == key.DirRelease {
 				setUp(k)
-				logicHandler.Trigger("KeyUp", k)
-				logicHandler.Trigger("KeyUp"+k, nil)
+				logicHandler.Trigger(okey.Up, k)
+				logicHandler.Trigger(okey.Up+k, nil)
 			}
 
 		// Send mouse events
@@ -74,8 +75,8 @@ func inputLoop() {
 		//
 		// Mouse events all receive an x, y, and button string.
 		case mouse.Event:
-			button := pmouse.GetMouseButton(e.Button)
-			eventName := pmouse.GetEventName(e.Direction, e.Button)
+			button := omouse.GetMouseButton(e.Button)
+			eventName := omouse.GetEventName(e.Direction, e.Button)
 			if e.Direction == mouse.DirPress {
 				setDown(button)
 			} else if e.Direction == mouse.DirRelease {
@@ -88,20 +89,20 @@ func inputLoop() {
 			// Todo: consider incorporating viewport into the event, see the
 			// workaround needed in mouseDetails, and how mouse events might not
 			// propagate to their expected position.
-			mevent := pmouse.Event{
+			mevent := omouse.Event{
 				Vector: physics.NewVector32((((e.X - float32(windowRect.Min.X)) / float32(windowRect.Max.X-windowRect.Min.X)) * float32(ScreenWidth)),
 					(((e.Y - float32(windowRect.Min.Y)) / float32(windowRect.Max.Y-windowRect.Min.Y)) * float32(ScreenHeight))),
 				Button: button,
 				Event:  eventName,
 			}
 
-			pmouse.Propagate(eventName+"On", mevent)
+			omouse.Propagate(eventName+"On", mevent)
 			logicHandler.Trigger(eventName, mevent)
 
 		case gesture.Event:
 			eventName := "Gesture" + e.Type.String()
 			dlog.Verb(eventName)
-			logicHandler.Trigger(eventName, pmouse.FromShinyGesture(e))
+			logicHandler.Trigger(eventName, omouse.FromShinyGesture(e))
 
 		// There's something called a paint event that we don't respond to
 

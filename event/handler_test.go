@@ -13,7 +13,7 @@ func TestHandler(t *testing.T) {
 	Bind(func(int, interface{}) int {
 		triggers++
 		return 0
-	}, "EnterFrame", 0)
+	}, Enter, 0)
 	sleep()
 	assert.Equal(t, 1, triggers)
 	<-updateCh
@@ -40,7 +40,7 @@ func TestHandler(t *testing.T) {
 		return 0
 	}, BindingOption{
 		Event: Event{
-			Name:     "EnterFrame",
+			Name:     Enter,
 			CallerID: 0,
 		},
 		Priority: 4,
@@ -53,7 +53,7 @@ func TestHandler(t *testing.T) {
 		return 0
 	}, BindingOption{
 		Event: Event{
-			Name:     "EnterFrame",
+			Name:     Enter,
 			CallerID: 0,
 		},
 		Priority: 3,

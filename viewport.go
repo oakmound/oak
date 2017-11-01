@@ -48,7 +48,7 @@ var (
 			dlog.Verb("Set ViewXY to ", x, " ", y)
 			ViewPos = image.Point{x, y}
 		}
-		logicHandler.Trigger("ViewportUpdate", []float64{float64(ViewPos.X), float64(ViewPos.Y)})
+		logicHandler.Trigger(event.ViewportUpdate, []float64{float64(ViewPos.X), float64(ViewPos.Y)})
 		dlog.Verb("ViewX, Y: ", ViewPos.X, " ", ViewPos.Y)
 	}
 	updateScreen = defaultUpdateScreen

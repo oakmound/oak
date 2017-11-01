@@ -39,7 +39,7 @@ func (lf *LogicFPS) PreDraw() {
 	// NewDrawFPS is called, DefFont() does not exist.
 	if lf.txt == nil {
 		lf.Init()
-		lf.Bind(logicFPSBind, "EnterFrame")
+		lf.Bind(logicFPSBind, event.Enter)
 		lf.txt = DefFont().NewIntText(&lf.fps, 10, 30)
 	}
 }

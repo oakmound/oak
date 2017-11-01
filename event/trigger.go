@@ -4,28 +4,7 @@ import (
 	"sync"
 )
 
-// Oak uses the following built in events:
-//
-// - EnterFrame: the beginning of every logical frame.
-//   Payload: (int) frames passed since this scene started
-//
-// - CollisionStart/Stop: when a PhaseCollision entity starts/stops touching some label.
-//   Payload: (collision.Label) the label the entity has started/stopped touching
-//
-// - MouseCollisionStart/Stop: as above, for mouse collision
-//   Payload: (mouse.Event)
-//
-// - KeyDown/Up: when a key is pressed down / lifted up.
-//   Payload: (string) the key pressed
-//
-// - Mouse events: MousePress, MouseRelease, MouseScrollDown, MouseScrollUp, MouseDrag
-//   Payload: (mouse.Event) details on the mouse event
-//
-// - AnimationEnd: Triggered on animations CIDs when they loop from the last to the first frame
-//   Payload: nil
-//
-// - ViewportUpdate: Triggered when the viewport changes.
-//   Payload: []float64{viewportX, viewportY}
+
 
 // TriggerBack is a version of Trigger which returns a channel that
 // informs on when all bindables have been called and returned from

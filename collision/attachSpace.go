@@ -38,7 +38,7 @@ func Attach(v physics.Vector, s *Space, offsets ...float64) error {
 		as := t.getAttachSpace()
 		as.aSpace = &s
 		as.follow = v
-		s.CID.BindPriority(attachSpaceEnter, "EnterFrame", -1)
+		s.CID.BindPriority(attachSpaceEnter, event.Enter, -1)
 		if len(offsets) > 0 {
 			as.offX = offsets[0]
 			if len(offsets) > 1 {
@@ -62,7 +62,7 @@ func Detach(s *Space) error {
 			event.UnbindOption{
 				BindingOption: event.BindingOption{
 					Event: event.Event{
-						Name:     "EnterFrame",
+						Name:     event.Enter,
 						CallerID: int(s.CID),
 					},
 					Priority: -1,

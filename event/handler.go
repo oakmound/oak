@@ -51,7 +51,7 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan bool) error {
 		for {
 			select {
 			case <-eb.Ticker.C:
-				<-eb.TriggerBack("EnterFrame", eb.framesElapsed)
+				<-eb.TriggerBack(Enter, eb.framesElapsed)
 				eb.framesElapsed++
 				eb.updateCh <- true
 			case <-doneCh:
@@ -66,7 +66,7 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan bool) error {
 
 // Update updates all entities bound to this handler
 func (eb *Bus) Update() error {
-	<-eb.TriggerBack("EnterFrame", eb.framesElapsed)
+	<-eb.TriggerBack(Enter, eb.framesElapsed)
 	return nil
 }
 
