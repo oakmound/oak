@@ -122,6 +122,24 @@ func (cs *Composite) String() string {
 	return s
 }
 
+func (cs *Composite) ToSprite() *Sprite {
+	w, h := 0.0, 0.0
+	for _, v := range cs.rs {
+		x := v.GetX()
+		y := v.GetY()
+		w2, h2 := v.GetDims()
+		if float64(w2)+x > w {
+			w = float64(w2) + x
+		}
+		if float64(h2)+y > h {
+			h = float64(h2) + y
+		}
+	}
+	rgba := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
+	cs.Draw(rgba)
+	return NewSprite(cs.X(), cs.Y(), rgba)
+}
+
 //CompositeR keeps track of a set of renderables at a location
 type CompositeR struct {
 	LayeredPoint
