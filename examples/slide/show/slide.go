@@ -58,8 +58,16 @@ func Start(slides ...Slide) {
 		sl := sl
 		oak.AddScene("slide"+strconv.Itoa(i), scene.Scene{
 			Start: func(string, interface{}) { sl.Init() },
-			Loop:  func() bool { return sl.Continue() && !skip },
+			Loop: func() bool {
+				cont := sl.Continue() && !skip
+				// This should be disable-able
+				if !cont {
+					oak.LoadingR = render.NewSprite(0, 0, oak.ScreenShot())
+				}
+				return cont
+			},
 			End: func() (string, *scene.Result) {
+
 				if skip {
 					skip = false
 					return "slide" + skipTo, slideResult(sl)

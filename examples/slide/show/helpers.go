@@ -3,6 +3,7 @@ package show
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/oakmound/oak/render/mod"
 
@@ -97,6 +98,41 @@ func ImageAt(file string, xpos, ypos float64, mods ...mod.Mod) render.Modifiable
 	m.ShiftX(float64(-w / 2))
 	m.ShiftY(float64(-h / 2))
 	return m
+}
+
+func ImageCaptionSize(file string, xpos, ypos float64, w, h float64, f *render.Font, cap string) render.Renderable {
+	r, err := render.LoadSprite(filepath.Join("raw", file))
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	w2, h2 := r.GetDims()
+	w3 := float64(w2) / width
+	h3 := float64(h2) / height
+	wScale := w / w3
+	hScale := h / h3
+	if wScale > hScale {
+		wScale = hScale
+	} else {
+		hScale = wScale
+	}
+	r.Modify(mod.Scale(wScale, hScale))
+	w4, h4 := r.GetDims()
+	r.SetPos(width*xpos, height*ypos)
+	r.ShiftX(float64(-w4 / 2))
+	r.ShiftY(float64(-h4 / 2))
+
+	x := r.X() + float64(w4)/2
+	y := r.Y() + float64(h4) + 42
+
+	caps := strings.Split(cap, "\n")
+	for i := 1; i < len(caps); i++ {
+		// remove whitespace
+		caps[i] = strings.TrimSpace(caps[i])
+	}
+	s := TxtSetAt(f, float64(x)/width, float64(y)/height, 0, .04, caps...)
+
+	return render.NewCompositeR(append(s, r)...)
 }
 
 func ImageCaption(file string, xpos, ypos float64, scale float64, f *render.Font, cap string) render.Renderable {
