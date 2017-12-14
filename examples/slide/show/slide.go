@@ -2,6 +2,8 @@ package show
 
 import (
 	"fmt"
+	"image"
+	"image/color"
 	"strconv"
 
 	"github.com/oakmound/oak"
@@ -85,10 +87,14 @@ func Start(slides ...Slide) {
 
 	reset := false
 
+	var oldBackground *image.Uniform
+
 	// Todo: customizable end slide
 	oak.AddScene("slide"+strconv.Itoa(len(slides)),
 		scene.Scene{
 			Start: func(string, interface{}) {
+				oldBackground = oak.Background
+				oak.Background = image.NewUniform(color.RGBA{0, 0, 0, 255})
 				render.Draw(
 					Express.NewStrText(
 						"Spacebar to restart show ...",
@@ -105,6 +111,7 @@ func Start(slides ...Slide) {
 				return !reset
 			},
 			End: func() (string, *scene.Result) {
+				oak.Background = oldBackground
 				reset = false
 				skip = false
 				return "slide0", nil
