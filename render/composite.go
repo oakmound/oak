@@ -46,6 +46,11 @@ func (cs *Composite) Add(i int, r Modifiable) {
 	cs.rs[i] = r
 }
 
+// Len returns the number of renderables in this composite.
+func (cs *Composite) Len() int {
+	return len(cs.rs)
+}
+
 //AddOffset offsets all renderables in the composite by a vector
 func (cs *Composite) AddOffset(i int, v physics.Vector) {
 	if i < len(cs.rs) {
