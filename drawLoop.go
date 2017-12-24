@@ -21,11 +21,9 @@ var (
 // DrawLoop
 // Unless told to stop, the draw channel will repeatedly
 // 1. draw black to a temporary buffer
-// 2. run any functions bound to precede drawing.
-// 3. draw all elements onto the temporary buffer.
-// 4. run any functions bound to follow drawing.
-// 5. draw the buffer's data at the viewport's position to the screen.
-// 6. publish the screen to display in window.
+// 2. draw all elements onto the temporary buffer.
+// 3. draw the buffer's data at the viewport's position to the screen.
+// 4. publish the screen to display in window.
 func drawLoop() {
 	<-drawCh
 
