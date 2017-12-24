@@ -11,6 +11,12 @@ import (
 
 // BezierLine converts a bezier into a line sprite.
 func BezierLine(b shape.Bezier, c color.Color) *Sprite {
+	return BezierThickLine(b, c, 0)
+}
+
+// BezierThickLine draws a BezierLine wrapping each colored pixel in
+// a square of width and height = thickness
+func BezierThickLine(b shape.Bezier, c color.Color, thickness int) *Sprite {
 	low := 0.0
 	high := 1.0
 	pts := make([]intgeom.Point, 2)
@@ -24,7 +30,13 @@ func BezierLine(b shape.Bezier, c color.Color) *Sprite {
 	rgba := image.NewRGBA(image.Rect(0, 0, 1+(max.X-min.X), 1+(max.Y-min.Y)))
 
 	for _, p := range pts {
-		rgba.Set(p.X-min.X, p.Y-min.Y, c)
+		x := p.X - min.X
+		y := p.Y - min.Y
+		for i := x - thickness; i <= x+thickness; i++ {
+			for j := y - thickness; j <= y+thickness; j++ {
+				rgba.Set(i, j, c)
+			}
+		}
 	}
 
 	return NewSprite(float64(min.X), float64(min.Y), rgba)
