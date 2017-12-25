@@ -19,10 +19,10 @@ import (
 var (
 	fontdir string
 
-	defaultHinting  = font.HintingNone
-	defaultSize     = 12.0
-	defaultDPI      = 72.0
-	defaultColor    = image.White
+	defaultHinting              = font.HintingNone
+	defaultSize                 = 12.0
+	defaultDPI                  = 72.0
+	defaultColor    image.Image = image.White
 	defaultFontFile string
 
 	// DefFontGenerator is a default font generator of no options

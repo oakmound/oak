@@ -4,7 +4,6 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/oakmound/oak/alg/floatgeom"
 	"github.com/oakmound/oak/physics"
 )
 
@@ -190,13 +189,14 @@ func (cs *CompositeR) Len() int {
 	return len(cs.rs)
 }
 
-// Add places a renderable at a certain point in the composites renderable slice
-func (cs *CompositeR) Add(i int, r Renderable) {
-	cs.rs[i] = r
+//Add stages a renderable to be added to CompositeR at a give position in the slice
+func (cs *CompositeR) Add(r Renderable, i int) Renderable {
+	cs.toPush = append(cs.toPush, r)
+	return r
 }
 
-// SetOffsets sets all renderables in CompositeR to the passed in Vector positions positions
-func (cs *CompositeR) SetOffsets(ps ...floatgeom.Point2) {
+//SetOffsets sets all renderables in CompositeR to the passed in Vector positions positions
+func (cs *CompositeR) SetOffsets(ps []physics.Vector) {
 	for i, p := range ps {
 		if i < len(cs.rs) {
 			cs.rs[i].SetPos(p.X(), p.Y())
@@ -211,7 +211,7 @@ func (cs *CompositeR) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	}
 }
 
-// Draw draws the CompositeR at its logical location and therefore its consituent renderables as well
+// Draw draws the CompositeR at its set location to the input buffer
 func (cs *CompositeR) Draw(buff draw.Image) {
 	for _, c := range cs.rs {
 		c.DrawOffset(buff, cs.X(), cs.Y())
@@ -231,15 +231,10 @@ func (cs *CompositeR) GetRGBA() *image.RGBA {
 	return nil
 }
 
-// Get returns renderable from a given index in CompositeR
+// Get returns a renderable from this compositeR's given index.
+// if i >= cs.Len(), this will panic.
 func (cs *CompositeR) Get(i int) Renderable {
 	return cs.rs[i]
-}
-
-// Add stages a renderable to be added to the Composite at the next PreDraw
-func (cs *CompositeR) Add(r Renderable, _ ...int) Renderable {
-	cs.toPush = append(cs.toPush, r)
-	return r
 }
 
 //Replace updates a renderable in the CompositeR to the new Renderable
@@ -272,26 +267,6 @@ func (cs *CompositeR) Copy() Addable {
 	return cs2
 }
 
-//SetOffsets sets all renderables in CompositeR to the passed in Vector positions positions
-func (cs *CompositeR) SetOffsets(ps []physics.Vector) {
-	for i, p := range ps {
-		if i < len(cs.rs) {
-			cs.rs[i].SetPos(p.X(), p.Y())
-		}
-	}
-}
-
-//Get returns renderable at given location in CompositeR
-func (cs *CompositeR) Get(i int) Renderable {
-	return cs.rs[i]
-}
-
-//DrawOffset Draws the CompositeR with an offset from its logical location.
-func (cs *CompositeR) DrawOffset(buff draw.Image, xOff, yOff float64) {
-	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X()+xOff, cs.Y()+yOff)
-	}
-}
 func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, screenH int) {
 	realLength := len(cs.rs)
 	for i := 0; i < realLength; i++ {
@@ -320,26 +295,6 @@ func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, scree
 		}
 	}
 	cs.rs = cs.rs[0:realLength]
-}
-
-//Draw draws the CompositeR at its logical location and therefore its consituent renderables as well
-func (cs *CompositeR) Draw(buff draw.Image) {
-	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X(), cs.Y())
-	}
-}
-
-//UnDraw undraws the CompositeR and therefore its consituent renderables as well
-func (cs *CompositeR) UnDraw() {
-	cs.layer = Undraw
-	for _, c := range cs.rs {
-		c.UnDraw()
-	}
-}
-
-//GetRGBA does not work on composites and returns nil
-func (cs *CompositeR) GetRGBA() *image.RGBA {
-	return nil
 }
 
 //AlwaysDirty notes that CompositeR is alwaysdirty

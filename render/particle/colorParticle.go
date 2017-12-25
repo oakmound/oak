@@ -17,12 +17,12 @@ type ColorParticle struct {
 	size       int
 }
 
-// Draw redirectes to DrawOffset
+// Draw redirects to DrawOffset
 func (cp *ColorParticle) Draw(buff draw.Image) {
 	cp.DrawOffset(buff, 0, 0)
 }
 
-// DrawOffset redirectes to DrawOffsetGen
+// DrawOffset redirects to DrawOffsetGen
 func (cp *ColorParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	cp.DrawOffsetGen(cp.GetBaseParticle().Src.Generator, buff, xOff, yOff)
 }

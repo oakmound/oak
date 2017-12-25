@@ -50,12 +50,12 @@ func phaseCollisionEnter(id int, nothing interface{}) int {
 
 	if oc.OnCollisionS.Contains(LastMouseEvent.ToSpace()) {
 		if !oc.wasTouching {
-			event.CID(id).Trigger(Start, LastEvent)
+			event.CID(id).Trigger(Start, LastMouseEvent)
 			oc.wasTouching = true
 		}
 	} else {
 		if oc.wasTouching {
-			event.CID(id).Trigger(Stop, LastEvent)
+			event.CID(id).Trigger(Stop, LastMouseEvent)
 			oc.wasTouching = false
 		}
 
