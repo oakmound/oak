@@ -291,10 +291,7 @@ func parseAliasFile(baseFolder string) map[string]string {
 
 func parseLoadFolderName(aliases map[string]string, name string) (int, int, bool, error) {
 	var frameW, frameH int
-	if name == "raw" {
-		frameW = 0
-		frameH = 0
-	} else if result := regexpTwoNumbers.Find([]byte(name)); result != nil {
+	if result := regexpTwoNumbers.Find([]byte(name)); result != nil {
 		vals := strings.Split(string(result), "x")
 		dlog.Verb("Extracted dimensions: ", vals)
 		frameW, _ = strconv.Atoi(vals[0])
@@ -318,7 +315,9 @@ func parseLoadFolderName(aliases map[string]string, name string) (int, int, bool
 				return 0, 0, false, errors.New("Alias value not parseable as a frame width and height pair")
 			}
 		} else {
-			return 0, 0, false, errors.New("Alias name not found in alias file")
+			dlog.Info("Folder name", name, "parsed to 0x0 (unbound) dimensions.")
+			frameW = 0
+			frameH = 0
 		}
 	}
 	return frameW, frameH, frameW != 0 && frameH != 0, nil
