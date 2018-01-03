@@ -164,7 +164,9 @@ func FontColor(s string) image.Image {
 	return defaultColor
 }
 
-// LoadFont loads in a font file and stores it with the given name. This is necessary before using the fonttype for a Font
+// LoadFont loads in a font file and stores it with the given fontFile name.
+// This is necessary before using that file in a generator, otherwise the default
+// directory will be tried at generation time.
 func LoadFont(dir string, fontFile string) *truetype.Font {
 	if _, ok := loadedFonts[fontFile]; !ok {
 		fontBytes, err := fileutil.ReadFile(filepath.Join(dir, fontFile))
