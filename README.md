@@ -1,6 +1,6 @@
 # Oak 
 ### A pure Go game engine
-[![GoDoc](https://godoc.org/github.com/OakmoundStudio/oak?status.svg)](https://godoc.org/github.com/OakmoundStudio/oak)
+[![GoDoc](https://godoc.org/github.com/oakmound/oak?status.svg)](https://godoc.org/github.com/OakmoundStudio/oak)
 [![Go Report Card](https://goreportcard.com/badge/github.com/oakmound/oak)](https://goreportcard.com/report/github.com/oakmound/oak)
 [![Build Status](https://travis-ci.org/oakmound/oak.svg?branch=master)](https://travis-ci.org/oakmound/oak)
 [![Code Coverage](https://codecov.io/gh/oakmound/oak/branch/develop/graph/badge.svg)](https://codecov.io/gh/oakmound/oak)
