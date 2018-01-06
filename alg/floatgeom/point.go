@@ -342,7 +342,7 @@ func (p Point3) ProjectZ() Point2 {
 
 // ToAngle returns this point as an angle in degrees.
 func (p Point2) ToAngle() float64 {
-	return p.ToRadians() * 180 / math.Pi
+	return p.ToRadians() * alg.RadToDeg
 }
 
 // ToRadians returns this point as an angle in radians.
