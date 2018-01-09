@@ -33,7 +33,9 @@ type Stackable interface {
 	draw(draw.Image, image.Point, int, int)
 }
 
-//SetDrawStack takes in a set of Addables which act as the set of Drawstacks available
+// SetDrawStack takes in a set of Addables which act as the set of Drawstacks available
+// and resets how calls to Draw will act. If this is called mid scene,
+// all elements on the existing draw stack will be lost.
 func SetDrawStack(as ...Stackable) {
 	GlobalDrawStack = &DrawStack{as: as}
 	initialDrawStack = GlobalDrawStack.Copy()

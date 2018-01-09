@@ -9,7 +9,9 @@ import (
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/colornames"
 	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 
+	"github.com/oakmound/oak/alg/intgeom"
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/fileutil"
 )
@@ -68,10 +70,19 @@ func (fg *FontGenerator) Generate() *Font {
 		fg.Color = defaultColor
 	}
 
-	loaded := LoadFont(dir, fg.File)
-	if loaded == nil {
+	fnt := LoadFont(dir, fg.File)
+	if fnt == nil {
 		return nil
 	}
+	// This logic is copied from truetype for their face scaling
+	scl := fixed.Int26_6(0.5 + (fg.Size * fg.DPI * 64 / 72))
+	bds := fnt.Bounds(scl)
+	intBds := intgeom.NewRect(
+		bds.Min.X.Round(),
+		bds.Min.Y.Round(),
+		bds.Max.X.Round(),
+		bds.Max.Y.Round(),
+	)
 
 	return &Font{
 		FontGenerator: *fg,
@@ -80,12 +91,13 @@ func (fg *FontGenerator) Generate() *Font {
 			// by their respective parse functions in the
 			// zero case.
 			Src: fg.Color,
-			Face: truetype.NewFace(LoadFont(dir, fg.File), &truetype.Options{
+			Face: truetype.NewFace(fnt, &truetype.Options{
 				Size:    fg.Size,
 				DPI:     fg.DPI,
 				Hinting: parseFontHinting(fg.Hinting),
 			}),
 		},
+		bounds: intBds,
 	}
 
 }
@@ -102,6 +114,7 @@ func (fg *FontGenerator) Copy() *FontGenerator {
 type Font struct {
 	FontGenerator
 	font.Drawer
+	bounds intgeom.Rect
 }
 
 // Refresh regenerates this font

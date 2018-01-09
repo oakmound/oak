@@ -1,6 +1,8 @@
 package audio
 
 import (
+	"errors"
+
 	"github.com/200sc/klangsynthese/audio"
 	"github.com/200sc/klangsynthese/font"
 	"github.com/oakmound/oak/oakerr"
@@ -56,6 +58,9 @@ func errChannel(err error) <-chan error {
 
 // Stop stops an audio's playback
 func (a *Audio) Stop() error {
+	if a == nil || a.toStop == nil {
+		return errors.New("Nil audio stopped")
+	}
 	return a.toStop.Stop()
 }
 

@@ -19,7 +19,7 @@ type ScreenShaker struct {
 
 var (
 	// DefShaker is the global default shaker, used when oak.Shake is called.
-	DefShaker = ScreenShaker{true, floatgeom.Point2{1.0, 1.0}}
+	DefShaker = ScreenShaker{false, floatgeom.Point2{1.0, 1.0}}
 )
 
 // ShakeScreen will Shake using the package global DefShaker

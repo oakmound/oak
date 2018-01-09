@@ -4,8 +4,6 @@ import (
 	"sync"
 )
 
-
-
 // TriggerBack is a version of Trigger which returns a channel that
 // informs on when all bindables have been called and returned from
 // the input event. It is dangerous to use this unless you have a
