@@ -71,6 +71,7 @@ func (fg *FontGenerator) Generate() *Font {
 	}
 
 	fnt := LoadFont(dir, fg.File)
+	// This logic is copied from truetype for their face scaling
 	scl := fixed.Int26_6(0.5 + (fg.Size * fg.DPI * 64 / 72))
 	bds := fnt.Bounds(scl)
 	intBds := intgeom.NewRect(
