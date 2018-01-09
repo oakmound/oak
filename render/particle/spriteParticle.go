@@ -12,7 +12,7 @@ type SpriteParticle struct {
 	rotation float64
 }
 
-// Draw redirectes to DrawOffset
+// Draw redirects to DrawOffset
 func (sp *SpriteParticle) Draw(buff draw.Image) {
 	sp.DrawOffset(buff, 0, 0)
 }

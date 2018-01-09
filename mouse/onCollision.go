@@ -31,11 +31,18 @@ func PhaseCollision(s *collision.Space) error {
 	case collisionPhase:
 		oc := t.getCollisionPhase()
 		oc.OnCollisionS = s
-		s.CID.Bind(phaseCollisionEnter, "EnterFrame")
+		s.CID.Bind(phaseCollisionEnter, event.Enter)
 		return nil
 	}
 	return errors.New("This space's entity does not implement collisionPhase")
 }
+
+// MouseCollisionStart/Stop: see collision Start/Stop, for mouse collision
+// Payload: (mouse.Event)
+const (
+	Start = "MouseCollisionStart"
+	Stop  = "MouseCollisionStop"
+)
 
 func phaseCollisionEnter(id int, nothing interface{}) int {
 	e := event.GetEntity(id).(collisionPhase)
@@ -43,12 +50,12 @@ func phaseCollisionEnter(id int, nothing interface{}) int {
 
 	if oc.OnCollisionS.Contains(LastMouseEvent.ToSpace()) {
 		if !oc.wasTouching {
-			event.CID(id).Trigger("MouseCollisionStart", LastMouseEvent)
+			event.CID(id).Trigger(Start, LastMouseEvent)
 			oc.wasTouching = true
 		}
 	} else {
 		if oc.wasTouching {
-			event.CID(id).Trigger("MouseCollisionStop", LastMouseEvent)
+			event.CID(id).Trigger(Stop, LastMouseEvent)
 			oc.wasTouching = false
 		}
 

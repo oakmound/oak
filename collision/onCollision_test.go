@@ -21,7 +21,7 @@ func TestCollisionPhase(t *testing.T) {
 	go func() {
 		for {
 			<-time.After(5 * time.Millisecond)
-			<-event.TriggerBack("EnterFrame", nil)
+			<-event.TriggerBack(event.Enter, nil)
 		}
 	}()
 	cp := cphase{}

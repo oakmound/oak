@@ -114,7 +114,7 @@ func viewportCommands(tokenString []string) {
 		if viewportLocked {
 			speed := parseTokenAsInt(tokenString, 1, 5)
 			viewportLocked = false
-			event.GlobalBind(moveViewportBinding(speed), "EnterFrame")
+			event.GlobalBind(moveViewportBinding(speed), event.Enter)
 		} else {
 			fmt.Println("Viewport is already unbound")
 		}

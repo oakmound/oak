@@ -14,10 +14,12 @@ func NewPoint(x, y int) Point {
 
 // Distance is the euclidean distance function
 func (p Point) Distance(p2 Point) float64 {
-	return distance(p.X, p.Y, p2.X, p2.Y)
+	return Distance(p.X, p.Y, p2.X, p2.Y)
 }
 
-func distance(x1, y1, x2, y2 int) float64 {
+// Distance is the euclidean distance function
+// from two implicit int pairs
+func Distance(x1, y1, x2, y2 int) float64 {
 	return math.Sqrt(
 		math.Pow((float64(x1)-float64(x2)), 2) +
 			math.Pow((float64(y1)-float64(y2)), 2))

@@ -15,12 +15,12 @@ type GradientParticle struct {
 	endColor2   color.Color
 }
 
-// Draw redirectes to DrawOffset
+// Draw redirects to DrawOffset
 func (gp *GradientParticle) Draw(buff draw.Image) {
 	gp.DrawOffset(buff, 0, 0)
 }
 
-// DrawOffset redirectes to DrawOffsetGen
+// DrawOffset redirects to DrawOffsetGen
 func (gp *GradientParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	gp.DrawOffsetGen(gp.GetBaseParticle().Src.Generator, buff, xOff, yOff)
 }

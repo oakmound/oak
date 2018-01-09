@@ -23,7 +23,7 @@ func NewPerFrame(npf floatrange.Range) func(Generator) {
 	}
 }
 
-// Pos sets the position of a generator
+// Pos sets the initial position of spawned particles
 func Pos(x, y float64) func(Generator) {
 	return func(g Generator) {
 		g.SetPos(x, y)

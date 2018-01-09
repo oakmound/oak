@@ -61,7 +61,7 @@ func loadImage(directory, fileName string) (*image.RGBA, error) {
 			}
 		}()
 
-		ext := fileName[len(fileName)-4:]
+		ext := strings.ToLower(fileName[len(fileName)-4:])
 		var img image.Image
 		switch ext {
 		case ".png":
@@ -238,7 +238,7 @@ func BatchLoad(baseFolder string) error {
 			for _, file := range files {
 				if !file.IsDir() {
 					name := file.Name()
-					if _, ok := supportedFileEndings[name[len(name)-4:]]; ok {
+					if _, ok := supportedFileEndings[strings.ToLower(name[len(name)-4:])]; ok {
 						dlog.Verb("loading file ", name)
 						buff, err := loadImage(baseFolder, filepath.Join(folder.Name(), name))
 						if err != nil {

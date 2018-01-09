@@ -21,7 +21,7 @@ type ColorGenerator struct {
 	Shape shape.Shape
 }
 
-// NewColorGenerator returns a new color generator
+// NewColorGenerator returns a new color generator with some applied options.
 func NewColorGenerator(options ...func(Generator)) Generator {
 	g := new(ColorGenerator)
 	g.setDefaults()

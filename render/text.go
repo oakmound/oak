@@ -48,6 +48,15 @@ func (t *Text) SetFont(f *Font) {
 	t.d = f
 }
 
+// GetDims reports the width and height of a text renderable
+func (t *Text) GetDims() (int, int) {
+	// BUG: reported height is too low, test this impl:
+	// bounds, adv := t.d.BoundString(t.text.String())
+	// return adv.Round(), bounds.Max.Y.Round()
+	textWidth := t.d.MeasureString(t.text.String()).Round()
+	return textWidth, alg.RoundF64(t.d.Size)
+}
+
 // Center will shift the text so that the existing leftmost point
 // where the text sits becomes the center of the new text.
 func (t *Text) Center() {
@@ -74,6 +83,12 @@ func (t *Text) SetInt(i int) {
 // the value is behind the pointer when it is drawn
 func (t *Text) SetIntP(i *int) {
 	t.text = stringerIntPointer{i}
+}
+
+// StringLiteral returns what text is currently rendering.
+// Note this avoids the pretty print addtions that the String function adds.
+func (t *Text) StringLiteral() string {
+	return t.text.String()
 }
 
 // Todo: more SetX methods like float, floatP
@@ -112,9 +127,9 @@ func (t *Text) Wrap(charLimit int, vertInc float64) []*Text {
 // of Modifications.
 func (t *Text) ToSprite() *Sprite {
 	width := t.d.MeasureString(t.text.String()).Round()
-	height := alg.RoundF64(t.d.Size)
-	s := NewEmptySprite(t.X(), t.Y()-float64(height), width, height)
-	t.DrawOffset(s.GetRGBA(), -t.X(), (-t.Y())+float64(height))
+	height := t.d.bounds.Max.Y
+	s := NewEmptySprite(t.X(), t.Y()-float64(height), width, height+5)
+	t.DrawOffset(s.GetRGBA(), -t.X(), -t.Y()+float64(height))
 	return s
 }
 

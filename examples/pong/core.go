@@ -33,6 +33,9 @@ func main() {
 	oak.Init("pong")
 }
 
+// Todo: this was written before we had vectors, then changed at release 1.0 to be a lot
+// more verbose once we had vectors, but we'd really like it to not be so
+// wordy.
 func newBall(x, y float64) {
 	b := entities.NewMoving(x, y, 10, 10, render.NewColorBox(10, 10, color.RGBA{0, 255, 0, 255}), 0, 0)
 	render.Draw(b.R, 2)
@@ -62,7 +65,7 @@ func newBall(x, y float64) {
 			b.Delta.SetY(-1 * b.Delta.Y())
 		}
 		return 0
-	}, "EnterFrame")
+	}, event.Enter)
 }
 
 func newPaddle(x, y float64, player int) {
@@ -71,9 +74,9 @@ func newPaddle(x, y float64, player int) {
 	render.Draw(p.R, 1)
 	p.Space.UpdateLabel(paddle)
 	if player == 1 {
-		p.Bind(enterPaddle("UpArrow", "DownArrow"), "EnterFrame")
+		p.Bind(enterPaddle("UpArrow", "DownArrow"), event.Enter)
 	} else {
-		p.Bind(enterPaddle("W", "S"), "EnterFrame")
+		p.Bind(enterPaddle("W", "S"), event.Enter)
 	}
 	p.SetPos(x, y)
 }

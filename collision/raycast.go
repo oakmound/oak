@@ -183,3 +183,83 @@ func (t *Tree) ConeCastSingleLabels(x, y, angle, angleWidth, rays, length float6
 	}
 	return
 }
+
+// RayCastLabelsPiercing disregards "pierceCount" first results of RayCastSingleLabels
+func (t *Tree) RayCastLabelsPiercing(x, y, degrees, length float64, pierceCount int, labels ...Label) Point {
+	resultHash := make(map[*Space]bool)
+	s := math.Sin(degrees * math.Pi / 180)
+	c := math.Cos(degrees * math.Pi / 180)
+
+	for i := 0.0; i < length; i++ {
+		loc := NewRect(x, y, .1, .1)
+		next := t.SearchIntersect(loc)
+		for k := 0; k < len(next); k++ {
+			nx := (next[k].(*Space))
+			if _, ok := resultHash[nx]; !ok {
+
+				for _, label := range labels {
+					if nx.Label == label {
+						if pierceCount <= 0 {
+							return NewPoint(nx, x, y)
+						}
+						resultHash[nx] = true
+						pierceCount--
+					}
+				}
+			}
+		}
+		x += c
+		y += s
+
+	}
+	return NilPoint()
+}
+
+// RayCastSingleIgnorePiercing  disregards "pierceCount" first results of  RayCastSingleIgnore
+func (t *Tree) RayCastSingleIgnorePiercing(x, y, degrees, length float64, pierceCount int, invalidIDS []event.CID, labels ...Label) Point {
+	resultHash := make(map[*Space]bool)
+	s := math.Sin(degrees * math.Pi / 180)
+	c := math.Cos(degrees * math.Pi / 180)
+	for i := 0.0; i < length; i++ {
+		loc := NewRect(x, y, .1, .1)
+		next := t.SearchIntersect(loc)
+	output:
+		for k := 0; k < len(next); k++ {
+			nx := (next[k].(*Space))
+			if _, ok := resultHash[nx]; !ok {
+
+				for _, label := range labels {
+					if nx.Label == label {
+						continue output
+					}
+				}
+				for e := 0; e < len(invalidIDS); e++ {
+					if nx.CID == invalidIDS[e] {
+						continue output
+					}
+				}
+				if pierceCount <= 0 {
+					return NewPoint(nx, x, y)
+				}
+				resultHash[nx] = true
+				pierceCount--
+			}
+		}
+		x += c
+		y += s
+
+	}
+	return NilPoint()
+}
+
+// ConeCastSingleLabels repeatedly calls RayCastLabelsPiercing in a cone shape
+func (t *Tree) ConeCastSinglePiercing(x, y, angle, angleWidth, rays, length float64, pierceCount int, labels ...Label) (points []Point) {
+	da := angleWidth / rays
+	for a := angle; a < angle+angleWidth; a += da {
+		cp := t.RayCastLabelsPiercing(x, y, a, length, pierceCount, labels...)
+		if cp.Zone != nil {
+			points = append(points, cp)
+		}
+	}
+	return
+}

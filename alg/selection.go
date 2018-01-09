@@ -126,3 +126,16 @@ func CumWeightedFromMap(weightMap map[int]float64) int {
 
 	return keys[CumWeightedChooseOne(values)]
 }
+
+// CumulativeWeights converts a slice of weights into
+// a slice of cumulative weights, where each index
+// is the sum of all weights up until that index in
+// the original slice
+func CumulativeWeights(weights []float64) []float64 {
+	cum := make([]float64, len(weights))
+	cum[0] = weights[0]
+	for i := 1; i < len(weights); i++ {
+		cum[i] = cum[i-1] + weights[i]
+	}
+	return cum
+}

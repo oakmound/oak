@@ -69,7 +69,7 @@ func (sq *Sequence) update() {
 		sq.lastChange = time.Now()
 		sq.sheetPos = (sq.sheetPos + 1) % len(sq.rs)
 		if sq.sheetPos == (len(sq.rs)-1) && sq.cID != 0 {
-			sq.cID.Trigger("AnimationEnd", nil)
+			sq.cID.Trigger(event.AnimationEnd, nil)
 		}
 	}
 }

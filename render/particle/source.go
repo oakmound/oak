@@ -45,7 +45,7 @@ func NewSource(g Generator, stackLevel int) *Source {
 // Init allows a source to be considered as an entity, and initializes it
 func (ps *Source) Init() event.CID {
 	CID := event.NextID(ps)
-	CID.Bind(rotateParticles, "EnterFrame")
+	CID.Bind(rotateParticles, event.Enter)
 	ps.CID = CID
 	ps.pIDBlock = Allocate(ps.CID)
 	if ps.Generator.GetBaseGenerator().Duration != Inf {
@@ -218,7 +218,7 @@ func (ps *Source) Stop() {
 	if ps == nil {
 		return
 	}
-	ps.CID.UnbindAllAndRebind([]event.Bindable{clearParticles}, []string{"EnterFrame"})
+	ps.CID.UnbindAllAndRebind([]event.Bindable{clearParticles}, []string{event.Enter})
 }
 
 // Pause on a Source just stops the repetition
