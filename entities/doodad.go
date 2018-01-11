@@ -52,7 +52,7 @@ func (d *Doodad) GetRenderable() render.Renderable {
 // two tiers of draw layers
 func (d *Doodad) SetRenderable(r render.Renderable) {
 	if d.R != nil {
-		d.R.UnDraw()
+		d.R.Undraw()
 	}
 	d.R = r
 	render.Draw(d.R, d.R.GetLayer())
@@ -62,7 +62,7 @@ func (d *Doodad) SetRenderable(r render.Renderable) {
 // entity mapping for this Doodad
 func (d *Doodad) Destroy() {
 	if d.R != nil {
-		d.R.UnDraw()
+		d.R.Undraw()
 	}
 	d.CID.UnbindAll()
 	event.DestroyEntity(int(d.CID))

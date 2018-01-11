@@ -63,7 +63,7 @@ func (ps *Source) cycleParticles() bool {
 		p := ps.particles[i]
 		bp := p.GetBaseParticle()
 		for bp.Life <= 0 {
-			p.UnDraw()
+			p.Undraw()
 			cycled = true
 			if pg.EndFunc != nil && bp.Life > IgnoreEnd {
 				pg.EndFunc(p)

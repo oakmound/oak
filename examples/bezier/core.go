@@ -23,7 +23,7 @@ func renderCurve(floats []float64) {
 		fmt.Println(err)
 	}
 	if cmp != nil {
-		cmp.UnDraw()
+		cmp.Undraw()
 	}
 	cmp = bezierDraw(bz)
 	render.Draw(cmp, 0)
@@ -62,7 +62,7 @@ func main() {
 				// Perform any other click to reset the drawn curve
 			} else {
 				mouseFloats = []float64{}
-				cmp.UnDraw()
+				cmp.Undraw()
 			}
 			return 0
 		}, "MousePress")
