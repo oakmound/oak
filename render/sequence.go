@@ -55,6 +55,7 @@ func (sq *Sequence) Copy() Modifiable {
 	}
 
 	newSq.rs = newRs
+	newSq.LayeredPoint = sq.LayeredPoint.Copy()
 	return newSq
 }
 
