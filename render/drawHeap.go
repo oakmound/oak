@@ -43,7 +43,7 @@ func (rh *RenderableHeap) Add(r Renderable, layers ...int) Renderable {
 //Replace adds a Renderable and removes an old one
 func (rh *RenderableHeap) Replace(r1, r2 Renderable, layer int) {
 	rh.Add(r2, layer)
-	r1.UnDraw()
+	r1.Undraw()
 }
 
 // Satisfying the Heap interface

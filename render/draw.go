@@ -51,7 +51,7 @@ func DrawForTime(r Renderable, l int, d time.Duration) error {
 	}
 	go func(r Renderable, d time.Duration) {
 		timing.DoAfter(d, func() {
-			r.UnDraw()
+			r.Undraw()
 		})
 	}(r, d)
 	return nil

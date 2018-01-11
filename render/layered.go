@@ -5,17 +5,34 @@ import (
 )
 
 const (
-	// Undraw is a constant used to undraw elements
+	// Undraw is a constant used to represent the layer of elements
+	// to be undrawn. This is exported in the rare case that there is
+	// a need to use the default value for something else.
 	Undraw = -1000
 )
 
-//A Layered object is one with a layer
-type Layered struct {
+// Layered types know the order they should be drawn in relative to
+// other layered types. Higher layers are drawn after lower layers,
+// and so will appear on top of them. Layers are anticipated to be
+// all positive, and if this is not true the Undraw constant should
+// be changed. Failing to change the Undraw constant to something outside
+// of the range of the set of valid layers could result in unanticipated
+// undrawn renderables.
+//
+// Basic Implementing struct: Layer
+type Layered interface {
+	GetLayer() int
+	SetLayer(l int)
+	Undraw()
+}
+
+//A Layer object has a draw layer
+type Layer struct {
 	layer int
 }
 
 //GetLayer returns the layer of an object if it has one or else returns that the object needs to be undrawn
-func (ld *Layered) GetLayer() int {
+func (ld *Layer) GetLayer() int {
 	if ld == nil {
 		return Undraw
 	}
@@ -23,26 +40,26 @@ func (ld *Layered) GetLayer() int {
 }
 
 //SetLayer sets an object that has a layer to the given layer
-func (ld *Layered) SetLayer(l int) {
+func (ld *Layer) SetLayer(l int) {
 	ld.layer = l
 }
 
-//UnDraw sets that a layered object should be undrawn
-func (ld *Layered) UnDraw() {
+//Undraw sets that a Layer object should be undrawn
+func (ld *Layer) Undraw() {
 	ld.layer = Undraw
 }
 
 //A LayeredPoint is an object with a position Vector and a layer
 type LayeredPoint struct {
 	physics.Vector
-	Layered
+	Layer
 }
 
 //NewLayeredPoint creates a new LayeredPoint at a given location and layer
 func NewLayeredPoint(x, y float64, l int) LayeredPoint {
 	return LayeredPoint{
-		Vector:  physics.NewVector(x, y),
-		Layered: Layered{l},
+		Vector: physics.NewVector(x, y),
+		Layer:  Layer{l},
 	}
 }
 
@@ -52,14 +69,14 @@ func (ldp *LayeredPoint) GetLayer() int {
 	if ldp == nil {
 		return Undraw
 	}
-	return ldp.Layered.GetLayer()
+	return ldp.Layer.GetLayer()
 }
 
 // Copy deep copies the LayeredPoint
 func (ldp *LayeredPoint) Copy() LayeredPoint {
 	ldp2 := LayeredPoint{}
 	ldp2.Vector = ldp.Vector.Copy()
-	ldp2.Layered = ldp.Layered
+	ldp2.Layer = ldp.Layer
 	return ldp2
 }
 

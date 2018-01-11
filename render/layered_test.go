@@ -7,7 +7,7 @@ import (
 )
 
 func TestLayeredNils(t *testing.T) {
-	var ld *Layered
+	var ld *Layer
 	assert.Equal(t, Undraw, ld.GetLayer())
 	var ldp *LayeredPoint
 	assert.Equal(t, Undraw, ldp.GetLayer())

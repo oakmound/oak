@@ -86,11 +86,11 @@ func (cs *Composite) Draw(buff draw.Image) {
 	}
 }
 
-// UnDraw stops the composite from being drawn
-func (cs *Composite) UnDraw() {
+// Undraw stops the composite from being drawn
+func (cs *Composite) Undraw() {
 	cs.layer = Undraw
 	for _, c := range cs.rs {
-		c.UnDraw()
+		c.Undraw()
 	}
 }
 
@@ -198,11 +198,11 @@ func (cs *CompositeR) Draw(buff draw.Image) {
 	}
 }
 
-// UnDraw undraws the CompositeR and its consituent renderables
-func (cs *CompositeR) UnDraw() {
+// Undraw undraws the CompositeR and its consituent renderables
+func (cs *CompositeR) Undraw() {
 	cs.layer = Undraw
 	for _, c := range cs.rs {
-		c.UnDraw()
+		c.Undraw()
 	}
 }
 
@@ -225,7 +225,7 @@ func (cs *CompositeR) Add(r Renderable, _ ...int) Renderable {
 // Replace updates a renderable in the CompositeR to the new Renderable
 func (cs *CompositeR) Replace(r1, r2 Renderable, i int) {
 	cs.Add(r2, i)
-	r1.UnDraw()
+	r1.Undraw()
 }
 
 // PreDraw updates the CompositeR with the new renderables to add. This helps keep consistency and mitigates the threat of unsafe operations.
