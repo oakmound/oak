@@ -71,12 +71,21 @@ var (
 // It spawns off an event loop of several goroutines
 // and loops through scenes after initialization.
 func Init(firstScene string) {
+	dlog.SetLogger(dlog.NewLogger())
 	dlog.CreateLogFile()
 
 	initConf()
 
 	// Set variables from conf file
-	dlog.SetStringDebugLevel(conf.Debug.Level)
+	lvl, err := dlog.ParseDebugLevel(conf.Debug.Level)
+	dlog.SetDebugLevel(lvl)
+	// We are intentionally using the lvl value before checking error,
+	// because we can only log errors through dlog itself anyway
+	if err != nil {
+		// We do this knowing that the default debug level when SetDebugLevel fails
+		// is ERROR, so this will be recorded.
+		dlog.Error(err)
+	}
 	dlog.SetDebugFilter(conf.Debug.Filter)
 
 	dlog.Info("Oak Init Start")

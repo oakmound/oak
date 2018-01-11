@@ -1,147 +1,20 @@
-//+build !nolog
-
 package dlog
 
-import (
-	"bufio"
-	"bytes"
-	"fmt"
+import "errors"
 
-	"os"
-	"runtime"
-	"strconv"
-	"strings"
-	"time"
-)
-
-// LogLevel represents the levels a debug message can have
-type LogLevel int
-
-// Logging levels
-const (
-	NONE LogLevel = iota
-	ERROR
-	WARN
-	INFO
-	VERBOSE
-)
-
-var (
-	byt         = bytes.NewBuffer(make([]byte, 0))
-	debugLevel  = ERROR
-	debugFilter = ""
-	writer      *bufio.Writer
-)
-
-// GetLogLevel returns the current log level, i.e WARN or INFO...
-func GetLogLevel() LogLevel {
-	return debugLevel
+// A Logger is a minimal log interface for the content oak wants to log:
+// four levels of logging.
+type Logger interface {
+	Error(...interface{})
+	Warn(...interface{})
+	Info(...interface{})
+	Verb(...interface{})
 }
 
-// dLog, the primary function of the package,
-// prints out and writes to file a string
-// containing the logged data separated by spaces,
-// prepended with file and line information.
-// It only includes logs which pass the current filters.
-// Todo: use io.Multiwriter to simplify the writing to
-// both logfiles and stdout
-func dLog(console, override bool, in ...interface{}) {
-	//(pc uintptr, file string, line int, ok bool)
-	_, f, line, ok := runtime.Caller(2)
-	if ok {
-		f = truncateFileName(f)
-		if !checkFilter(f, in) && !override {
-			return
-		}
-
-		// Note on errors: these functions all return
-		// errors, but they are always nil.
-		byt.WriteRune('[')
-		byt.WriteString(f)
-		byt.WriteRune(':')
-		byt.WriteString(strconv.Itoa(line))
-		byt.WriteString("]  ")
-		for _, elem := range in {
-			byt.WriteString(fmt.Sprintf("%v ", elem))
-		}
-		byt.WriteRune('\n')
-
-		if console {
-			fmt.Print(byt.String())
-		}
-
-		if writer != nil {
-			_, err := writer.WriteString(byt.String())
-			if err != nil {
-				// We can't log errors while we are in the error
-				// logging function.
-				fmt.Println("Logging error", err)
-			}
-			err = writer.Flush()
-			if err != nil {
-				fmt.Println("Logging error", err)
-			}
-		}
-
-		byt.Reset()
-	}
-}
-
-// FileWrite runs dLog, but JUST writes to file instead
-// of also to stdout.
-func FileWrite(in ...interface{}) {
-	dLog(false, true, in...)
-}
-
-func truncateFileName(f string) string {
-	index := strings.LastIndex(f, "/")
-	lIndex := strings.LastIndex(f, ".")
-	return f[index+1 : lIndex]
-}
-
-func checkFilter(f string, in ...interface{}) bool {
-	ret := false
-	for _, elem := range in {
-		ret = ret || strings.Contains(fmt.Sprintf("%s", elem), debugFilter)
-	}
-	return ret || strings.Contains(f, debugFilter)
-}
-
-// SetDebugFilter sets the string which determines
-// what debug messages get printed. Only messages
-// which contain the filer as a pseudo-regex
-func SetDebugFilter(filter string) {
-	debugFilter = filter
-}
-
-// SetDebugLevel sets what message levels of debug
-// will be printed.
-func SetDebugLevel(dL LogLevel) {
-	if dL < NONE || dL > VERBOSE {
-		Warn("Unknown debug level: ", dL)
-		debugLevel = NONE
-	} else {
-		debugLevel = dL
-	}
-}
-
-// CreateLogFile creates a file in the 'logs' directory
-// of the starting point of this program to write logs to
-func CreateLogFile() {
-	file := "logs/dlog"
-	file += time.Now().Format("_Jan_2_15-04-05_2006")
-	file += ".txt"
-	fHandle, err := os.Create(file)
-	if err != nil {
-		// We can't log an error that comes from
-		// our error logging functions
-		//panic(err)
-		// But this is also not an error we want to panic on!
-		fmt.Println("[oak]-------- No logs directory found. No logs will be written to file.")
-		return
-	}
-	writer = bufio.NewWriter(fHandle)
-}
+// OakLogger is the Logger which all oak log functions are passed through.
+// If this is not manually set through SetLogger, oak will initialize this
+// to the an instance of the private logger type
+var oakLogger Logger
 
 // ErrorCheck checks that the input is not nil, then calls Error on it if it is
 // not. Otherwise it does nothing.
@@ -151,53 +24,60 @@ func ErrorCheck(in error) {
 	}
 }
 
-// Error will write a dlog if the debug level is not NONE
-func Error(in ...interface{}) {
-	if debugLevel > NONE {
-		dLog(true, true, in)
+// Error will write a log if the debug level is not NONE
+var Error = func(...interface{}) {}
+
+// Warn will write a log if the debug level is higher than ERROR
+var Warn = func(...interface{}) {}
+
+// Info will write a log if the debug level is higher than WARN
+var Info = func(...interface{}) {}
+
+// Verb will write a log if the debug level is higher than INFO
+var Verb = func(...interface{}) {}
+
+// SetLogger defines what logger should be used for oak's internal logging.
+// If this is NOT called before oak.Init is called (assuming this is being
+// used with oak), then it will be called with the default logger as a part
+// of oak.Init.
+func SetLogger(l Logger) {
+	_, isDefault := l.(*logger)
+	if isDefault && oakLogger != nil {
+		// The user set the logger themselves,
+		// don't reset to the default logger
+		return
+	}
+	oakLogger = l
+	Error = l.Error
+	Warn = l.Warn
+	Info = l.Info
+	Verb = l.Verb
+	// If this logger supports the additional functionality described
+	// by the FullLogger interface, enable those functions. Otherwise
+	// they are NOPs. (the default logger supports these functions.)
+	if fl, ok := l.(FullLogger); ok {
+		fullOakLogger = fl
+		FileWrite = fl.FileWrite
+		SetDebugFilter = fl.SetDebugFilter
+		SetDebugLevel = fl.SetDebugLevel
+		CreateLogFile = fl.CreateLogFile
 	}
 }
 
-// Warn will write a dLog if the debug level is higher than ERROR
-func Warn(in ...interface{}) {
-	if debugLevel > ERROR {
-		dLog(true, true, in)
-	}
-}
-
-// Info will write a dLog if the debug level is higher than WARN
-func Info(in ...interface{}) {
-	if debugLevel > WARN {
-		dLog(true, false, in)
-	}
-}
-
-// Verb will write a dLog if the debug level is higher than INFO
-func Verb(in ...interface{}) {
-	if debugLevel > INFO {
-		dLog(true, false, in)
-	}
-}
-
-// SetStringDebugLevel parses the input string as one of the debug levels
-func SetStringDebugLevel(debugL string) {
-
-	var dLevel LogLevel
-	switch debugL {
+// ParseDebugLevel parses the input string as a known debug levels
+func ParseDebugLevel(s string) (Level, error) {
+	switch s {
 	case "INFO":
-		dLevel = INFO
+		return INFO, nil
 	case "VERBOSE":
-		dLevel = VERBOSE
+		return VERBOSE, nil
 	case "ERROR":
-		dLevel = ERROR
+		return ERROR, nil
 	case "WARN":
-		dLevel = WARN
+		return WARN, nil
 	case "NONE":
-		dLevel = NONE
+		return NONE, nil
 	default:
-		dLevel = ERROR
-		fmt.Println("setting dlog level to \"", debugL, "\" failed, it is now set to ERROR")
+		return ERROR, errors.New("parsing dlog level of \"" + s + "\" failed")
 	}
-
-	SetDebugLevel(dLevel)
 }
