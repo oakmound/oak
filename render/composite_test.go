@@ -30,7 +30,7 @@ func TestComposite(t *testing.T) {
 
 	cmp.Draw(image.NewRGBA(image.Rect(0, 0, 10, 10)))
 	cmp.DrawOffset(image.NewRGBA(image.Rect(0, 0, 10, 10)), 5, 5)
-	cmp.UnDraw()
+	cmp.Undraw()
 	assert.Equal(t, Undraw, cmp.GetLayer())
 	cmp2 := cmp.Copy()
 	cmp2.Filter(mod.Brighten(-100))
@@ -40,7 +40,7 @@ func TestComposite(t *testing.T) {
 		NewColorBox(1, 1, color.RGBA{0, 0, 0, 255}),
 		NewColorBox(3, 3, color.RGBA{0, 0, 0, 255}),
 	)
-	cmp3.UnDraw()
+	cmp3.Undraw()
 	cmp3.SetOffsets(
 		floatgeom.Point2{4, 4},
 		floatgeom.Point2{1, 1},
@@ -72,7 +72,7 @@ func TestCompositeR(t *testing.T) {
 	cmp.Draw(image.NewRGBA(image.Rect(0, 0, 10, 10)))
 	cmp.DrawOffset(image.NewRGBA(image.Rect(0, 0, 10, 10)), 5, 5)
 	cmp.draw(image.NewRGBA(image.Rect(0, 0, 3, 3)), image.Point{0, 0}, 100, 100)
-	cmp.UnDraw()
+	cmp.Undraw()
 	assert.Equal(t, Undraw, cmp.GetLayer())
 
 	cmp.Replace(cmp.Get(0), NewColorBox(1, 1, color.RGBA{0, 0, 128, 255}), 0)
