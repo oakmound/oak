@@ -37,6 +37,10 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
  an alternative that requires zero or near-zero dependencies. (We are very sad about the linux audio 
  dependency and are considering writing an audio driver just to get rid of it.)
 
+## Support
+
+For talk about the engine or help, that is not significant enough to be an Issue or PR, see the #oak channel on the [gophers slack](https://invite.slack.golangbridge.org/). 
+
 ## Features
 1. Window Rendering
     - Windows and key events through [shiny](https://github.com/golang/exp/tree/master/shiny)
