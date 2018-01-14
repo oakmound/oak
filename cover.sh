@@ -6,6 +6,9 @@ echo "" > coverage.txt
 #     cat profile.out >> coverage.txt
 #     rm profile.out
 # fi
+#
+# Don't run coverage on examples, just test that they compile
+go test ./examples/...
 go test -coverprofile=profile.out -covermode=atomic ./shape
 if [ -f profile.out ]; then
     cat profile.out >> coverage.txt
