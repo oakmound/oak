@@ -310,3 +310,10 @@ func parseLoadFolderName(aliases map[string]string, name string) (int, int, bool
 	}
 	return frameW, frameH, frameW != 0 && frameH != 0, nil
 }
+
+// SetAssetPaths sets the directories that files are loaded from when using
+// the LoadSprite utility (and others). Oak will call this with SetupConfig.Assets
+// joined with SetupConfig.Images after Init.
+func SetAssetPaths(imagedir string) {
+	dir = imagedir
+}

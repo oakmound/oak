@@ -115,6 +115,7 @@ func Init(firstScene string) {
 	dlog.Info("Init Scene Loop")
 	go sceneLoop(firstScene)
 	dlog.Info("Init asset load")
+	render.SetAssetPaths(imageDir)
 	go loadAssets(imageDir, audioDir)
 	dlog.Info("Init Console")
 	go debugConsole(debugResetCh, skipSceneCh, os.Stdin)
