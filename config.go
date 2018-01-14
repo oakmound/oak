@@ -21,7 +21,7 @@ var (
 	conf = Config{
 		Assets{"assets/", "audio/", "images/", "font/"},
 		Debug{"", "ERROR"},
-		Screen{480, 640, 1},
+		Screen{0, 0, 480, 640, 1},
 		Font{"none", 12.0, 72.0, "", "white"},
 		60,
 		60,
@@ -62,6 +62,8 @@ type Debug struct {
 
 // Screen is a json type storing the starting screen width and height
 type Screen struct {
+	X      int `json:"X"`
+	Y      int `json:"Y"`
 	Height int `json:"height"`
 	Width  int `json:"width"`
 	Scale  int `json:"scale"`
@@ -120,7 +122,9 @@ func initConfDebug() {
 }
 
 func initConfScreen() {
-
+	// we have no check here, because if X or Y is 0, they are ignored.
+	conf.Screen.X = SetupConfig.Screen.X
+	conf.Screen.Y = SetupConfig.Screen.Y
 	if SetupConfig.Screen.Width != 0 {
 		conf.Screen.Width = SetupConfig.Screen.Width
 	}

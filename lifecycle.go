@@ -37,7 +37,7 @@ func lifecycleLoop(s screen.Screen) {
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.\
 	dlog.Info("Creating window controller")
-	changeWindow(ScreenWidth*conf.Screen.Scale, ScreenHeight*conf.Screen.Scale)
+	changeWindow(int32(conf.Screen.X), int32(conf.Screen.Y), ScreenWidth*conf.Screen.Scale, ScreenHeight*conf.Screen.Scale)
 
 	dlog.Info("Starting draw loop")
 	go drawLoop()
@@ -49,10 +49,10 @@ func lifecycleLoop(s screen.Screen) {
 	<-quitCh
 }
 
-func changeWindow(width, height int) {
+func changeWindow(x, y int32, width, height int) {
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
-	wC, err := windowController(screenControl, width, height)
+	wC, err := windowController(screenControl, x, y, width, height)
 	if err != nil {
 		dlog.Error(err)
 		panic(err)

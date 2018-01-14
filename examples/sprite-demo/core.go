@@ -66,6 +66,10 @@ func main() {
 		render.NewDrawFPS(),
 		render.NewLogicFPS(),
 	)
+
+	oak.SetupConfig.Screen.X = 1
+	oak.SetupConfig.Screen.Y = 1
+
 	oak.Init("demo")
 }
 
