@@ -10,6 +10,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/oakmound/oak/collision"
+	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/mouse"
 	"github.com/oakmound/oak/render"
@@ -39,6 +40,7 @@ func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 		"skip":     skipCommands(skipScene),
 		"print":    printCommands,
 		"mouse":    mouseCommands,
+		"move":     moveWindow,
 	}
 
 	for {
@@ -170,5 +172,25 @@ func mouseCommands(tokenString []string) {
 		event.GlobalBind(mouseDetails, "MouseRelease")
 	default:
 		fmt.Println("Bad Mouse Input")
+	}
+}
+
+func moveWindow(in []string) {
+	if len(in) < 4 {
+		dlog.Error("Insufficient integer arguments for moving window")
+		return
+	}
+	ints := make([]int, 4)
+	var err error
+	for i := range ints {
+		ints[i], err = strconv.Atoi(in[i])
+		if err != nil {
+			dlog.Error(err)
+			return
+		}
+	}
+	err = MoveWindow(ints[0], ints[1], ints[2], ints[3])
+	if err != nil {
+		dlog.Error(err)
 	}
 }
