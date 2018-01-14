@@ -120,7 +120,7 @@ func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point, error) {
 		return outline, nil
 	}
 
-	return followOutline(shape, dirInc, x, y, w, h, sx, sy, direction, outline), nil
+	return followOutline(shape, dirInc, x, y, sx, sy, w, h, direction, outline), nil
 }
 
 func followOutline(shape Shape, dirInc int, x, y, sx, sy, w, h, direction int, outline []intgeom.Point) []intgeom.Point {
