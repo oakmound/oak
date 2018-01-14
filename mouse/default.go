@@ -2,9 +2,6 @@ package mouse
 
 import "github.com/oakmound/oak/collision"
 
-// There is no legacy_test.go because these functions are duplicate of functions
-// in collision/legacy.go
-
 // There's a default collision tree you can access via collision.func
 // as opposed to tree.func
 var (

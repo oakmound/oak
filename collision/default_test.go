@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLegacyFns(t *testing.T) {
+func TestDefaultFns(t *testing.T) {
 	Clear()
 	s := NewUnassignedSpace(0, 0, 10, 10)
 	Add(s)

@@ -13,17 +13,24 @@ type Solid struct {
 	Doodad
 	W, H  float64
 	Space *collision.Space
+	Tree  *collision.Tree
 }
 
 // NewSolid returns an initialized Solid that is not drawn and whose space
-// belongs to no collision tree
-func NewSolid(x, y, w, h float64, r render.Renderable, cid event.CID) Solid {
+// belongs to the given collision tree. If nil is given as the tree, it will
+// belong to collision.DefTree
+func NewSolid(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CID) Solid {
 	s := Solid{}
 	cid = cid.Parse(&s)
 	s.Doodad = NewDoodad(x, y, r, cid)
 	s.W = w
 	s.H = h
+	if tree == nil {
+		tree = collision.DefTree
+	}
+	s.Tree = tree
 	s.Space = collision.NewSpace(x, y, w, h, cid)
+	s.Tree.Add(s.Space)
 	return s
 }
 
@@ -45,14 +52,11 @@ func (s *Solid) SetLogicDim(w, h float64) {
 	s.H = h
 }
 
-// SetSpace assigns a solid a collision space and puts it in the default
-// collision tree. This is legacy behavior that should change.
+// SetSpace assigns a solid a collision space and puts it in this Solid's Tree
 func (s *Solid) SetSpace(sp *collision.Space) {
-	// Todo: these functions should not be here, or this should know what
-	// tree it belongs to!
-	collision.Remove(s.Space)
+	s.Tree.Remove(s.Space)
 	s.Space = sp
-	collision.Add(s.Space)
+	s.Tree.Add(s.Space)
 }
 
 // GetSpace returns a solid's collision space
@@ -90,15 +94,14 @@ func (s *Solid) SetPos(x float64, y float64) {
 	if s.R != nil {
 		s.R.SetPos(x, y)
 	}
-	// This uses the legacy collision tree behavior
-	collision.UpdateSpace(s.X(), s.Y(), s.W, s.H, s.Space)
+	s.Tree.UpdateSpace(s.X(), s.Y(), s.W, s.H, s.Space)
 }
 
-// Destroy removes this solid's collision space from the default tree (todo)
+// Destroy removes this solid's collision space from it's Tree
 // and destroys the doodad portion of the solid.
 func (s *Solid) Destroy() {
 	s.Doodad.Destroy()
-	collision.Remove(s.Space)
+	s.Tree.Remove(s.Space)
 }
 
 func (s *Solid) String() string {

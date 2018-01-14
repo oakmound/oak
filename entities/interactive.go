@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
 	"github.com/oakmound/oak/render"
@@ -13,10 +14,10 @@ type Interactive struct {
 }
 
 // NewInteractive returns a new Interactive
-func NewInteractive(x, y, w, h float64, r render.Renderable, cid event.CID, friction float64) Interactive {
+func NewInteractive(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CID, friction float64) Interactive {
 	i := Interactive{}
 	cid = cid.Parse(&i)
-	i.Reactive = NewReactive(x, y, w, h, r, cid)
+	i.Reactive = NewReactive(x, y, w, h, r, tree, cid)
 	i.vMoving = vMoving{
 		Delta:    physics.NewVector(0, 0),
 		Speed:    physics.NewVector(0, 0),

@@ -14,16 +14,23 @@ type Reactive struct {
 	Doodad
 	W, H   float64
 	RSpace *collision.ReactiveSpace
+	Tree   *collision.Tree
 }
 
-// NewReactive returns a new reactive
-func NewReactive(x, y, w, h float64, r render.Renderable, cid event.CID) Reactive {
+// NewReactive returns a new Reactive struct. The added space will
+// be added to the input tree, or DefTree if none is given.
+func NewReactive(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CID) Reactive {
 	rct := Reactive{}
 	cid = cid.Parse(&rct)
 	rct.Doodad = NewDoodad(x, y, r, cid)
 	rct.W = w
 	rct.H = h
 	rct.RSpace = collision.NewEmptyReactiveSpace(collision.NewSpace(x, y, w, h, cid))
+	if tree == nil {
+		tree = collision.DefTree
+	}
+	rct.Tree = tree
+	rct.Tree.Add(rct.RSpace.Space)
 	return rct
 }
 
@@ -47,11 +54,11 @@ func (r *Reactive) SetLogicDim(w, h float64) {
 }
 
 // SetSpace sets this reactive's collision space to the given reactive space,
-// updating the default collision tree to include it. Todo: fix that
+// updating it's collision tree to include it.
 func (r *Reactive) SetSpace(sp *collision.ReactiveSpace) {
-	collision.Remove(r.RSpace.Space)
+	r.Tree.Remove(r.RSpace.Space)
 	r.RSpace = sp
-	collision.Add(r.RSpace.Space)
+	r.Tree.Add(r.RSpace.Space)
 }
 
 // GetSpace returns this reactive's space underlying its RSpace
@@ -76,14 +83,14 @@ func (r *Reactive) ShiftPos(x, y float64) {
 func (r *Reactive) SetPos(x, y float64) {
 	r.SetLogicPos(x, y)
 	r.R.SetPos(x, y)
-	collision.UpdateSpace(r.X(), r.Y(), r.W, r.H, r.RSpace.Space)
+	r.Tree.UpdateSpace(r.X(), r.Y(), r.W, r.H, r.RSpace.Space)
 }
 
 // Destroy destroys this reactive's doodad component and removes its space
-// from the default collision tree (todo: legacy, fix this)
+// from it's collision tree
 func (r *Reactive) Destroy() {
 	r.Doodad.Destroy()
-	collision.Remove(r.RSpace.Space)
+	r.Tree.Remove(r.RSpace.Space)
 }
 
 func (r *Reactive) String() string {

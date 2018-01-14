@@ -48,7 +48,7 @@ func NewCliffRacer(y float64) *CliffRacer {
 		dlog.Error(err)
 		return nil
 	}
-	cr.Moving = entities.NewMoving(640, y, 80, 80, sp, cr.Init(), 0)
+	cr.Moving = entities.NewMoving(640, y, 80, 80, sp, nil, cr.Init(), 0)
 	cr.Speed = physics.NewVector(rand.Float64()*10+3, rand.Float64()*4-2)
 	render.Draw(cr.R, 100)
 	cr.Space = collision.NewLabeledSpace(cr.X(), cr.Y(), 80, 80, CLIFFRACER)
@@ -83,7 +83,7 @@ func (p *Player) Init() event.CID {
 
 func NewPlayer() {
 	p := new(Player)
-	p.Solid = entities.NewSolid(50, 100, 10, 10, render.NewColorBox(10, 10, color.RGBA{255, 0, 0, 255}), p.Init())
+	p.Solid = entities.NewSolid(50, 100, 10, 10, render.NewColorBox(10, 10, color.RGBA{255, 0, 0, 255}), nil, p.Init())
 	render.Draw(p.R, 80)
 	collision.Add(p.Space)
 	p.CID.Bind(playerEnter, "EnterFrame")

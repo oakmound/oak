@@ -1,6 +1,6 @@
 package event
 
-// As in collision and mouse, legacy.go lists functions that
+// As in collision and mouse, default.go lists functions that
 // only operate on DefaultBus, a package global bus.
 
 var (

@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
 	"github.com/oakmound/oak/render"
@@ -13,10 +14,10 @@ type Moving struct {
 }
 
 // NewMoving returns a new Moving
-func NewMoving(x, y, w, h float64, r render.Renderable, cid event.CID, friction float64) Moving {
+func NewMoving(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CID, friction float64) Moving {
 	m := Moving{}
 	cid = cid.Parse(&m)
-	m.Solid = NewSolid(x, y, w, h, r, cid)
+	m.Solid = NewSolid(x, y, w, h, r, tree, cid)
 	m.vMoving = vMoving{
 		Delta:    physics.NewVector(0, 0),
 		Speed:    physics.NewVector(0, 0),

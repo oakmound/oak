@@ -22,7 +22,7 @@ const (
 func main() {
 	oak.Add("demo", func(string, interface{}) {
 		act := &AttachCollisionTest{}
-		act.Solid = entities.NewSolid(50, 50, 50, 50, render.NewColorBox(50, 50, color.RGBA{0, 0, 0, 255}), act.Init())
+		act.Solid = entities.NewSolid(50, 50, 50, 50, render.NewColorBox(50, 50, color.RGBA{0, 0, 0, 255}), nil, act.Init())
 
 		collision.Attach(act.Vector, act.Space, 0, 0)
 
@@ -96,22 +96,22 @@ func main() {
 			return 0
 		}, "CollisionStop")
 
-		upleft := entities.NewSolid(0, 0, 320, 240, render.NewColorBox(320, 240, color.RGBA{100, 0, 0, 100}), 0)
+		upleft := entities.NewSolid(0, 0, 320, 240, render.NewColorBox(320, 240, color.RGBA{100, 0, 0, 100}), nil, 0)
 		upleft.Space.UpdateLabel(RED)
 		upleft.R.SetLayer(0)
 		render.Draw(upleft.R, 0)
 
-		upright := entities.NewSolid(320, 0, 320, 240, render.NewColorBox(320, 240, color.RGBA{0, 100, 0, 100}), 0)
+		upright := entities.NewSolid(320, 0, 320, 240, render.NewColorBox(320, 240, color.RGBA{0, 100, 0, 100}), nil, 0)
 		upright.Space.UpdateLabel(GREEN)
 		upright.R.SetLayer(0)
 		render.Draw(upright.R, 0)
 
-		botleft := entities.NewSolid(0, 240, 320, 240, render.NewColorBox(320, 240, color.RGBA{0, 0, 100, 100}), 0)
+		botleft := entities.NewSolid(0, 240, 320, 240, render.NewColorBox(320, 240, color.RGBA{0, 0, 100, 100}), nil, 0)
 		botleft.Space.UpdateLabel(BLUE)
 		botleft.R.SetLayer(0)
 		render.Draw(botleft.R, 0)
 
-		botright := entities.NewSolid(320, 240, 320, 240, render.NewColorBox(320, 240, color.RGBA{0, 100, 100, 100}), 0)
+		botright := entities.NewSolid(320, 240, 320, 240, render.NewColorBox(320, 240, color.RGBA{0, 100, 100, 100}), nil, 0)
 		botright.Space.UpdateLabel(TEAL)
 		botright.R.SetLayer(0)
 		render.Draw(botright.R, 0)

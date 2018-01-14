@@ -1,9 +1,7 @@
 package collision
 
 // There's a default collision tree you can access via collision.func
-// as opposed to tree.func. This is considered a legacy set of features,
-// because the benefit to the API is minimal in exchange for a much harder
-// to use collision tree. It does make small applications a little shorter.
+// as opposed to tree.func.
 var (
 	DefTree *Tree
 )
@@ -54,18 +52,18 @@ func HitLabel(sp *Space, labels ...Label) *Space {
 	return DefTree.HitLabel(sp, labels...)
 }
 
-// Update updates this space with the legacy rtree
+// Update updates this space with the default rtree
 func (s *Space) Update(x, y, w, h float64) error {
 	return DefTree.UpdateSpace(x, y, w, h, s)
 }
 
-// SetDim sets the dimensions of the space in the legacy rtree
+// SetDim sets the dimensions of the space in the default rtree
 func (s *Space) SetDim(w, h float64) error {
 	return s.Update(s.X(), s.Y(), w, h)
 }
 
 // UpdateLabel changes the label behind this space and resets
-// it in the legacy rtree
+// it in the default rtree
 func (s *Space) UpdateLabel(classtype Label) {
 	DefTree.Remove(s)
 	s.Label = classtype

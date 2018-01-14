@@ -85,7 +85,7 @@ func (f *Flappy) Init() event.CID {
 func newFlappy(x, y float64) *Flappy {
 	f := new(Flappy)
 	f.Init()
-	f.Interactive = entities.NewInteractive(x, y, 32, 32, render.NewColorBox(32, 32, color.RGBA{0, 255, 255, 255}), f.CID, 1)
+	f.Interactive = entities.NewInteractive(x, y, 32, 32, render.NewColorBox(32, 32, color.RGBA{0, 255, 255, 255}), nil, f.CID, 1)
 
 	f.RSpace.Add(pillar, func(s1, s2 *collision.Space) {
 		playerHitPillar = true
@@ -144,7 +144,7 @@ func (p *Pillar) Init() event.CID {
 func newPillar(x, y, h float64, isAbove bool) {
 	p := new(Pillar)
 	p.Init()
-	p.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), p.CID)
+	p.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), nil, p.CID)
 	p.Space.Label = pillar
 	collision.Add(p.Space)
 	p.Bind(enterPillar, event.Enter)

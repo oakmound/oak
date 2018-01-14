@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLegacyFns(t *testing.T) {
+func TestDefaultFunctions(t *testing.T) {
 	Clear()
 	s := collision.NewUnassignedSpace(0, 0, 10, 10)
 	Add(s)
