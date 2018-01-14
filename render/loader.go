@@ -57,7 +57,7 @@ func loadImage(directory, fileName string) (*image.RGBA, error) {
 		ext := strings.ToLower(fileName[len(fileName)-4:])
 		decoder, ok := fileDecoders[ext]
 		if !ok {
-			return nil, errors.New("No decoder found for file type: " + ext)
+			return nil, errors.New("No decoder available for file type: " + ext)
 		}
 		img, err := decoder(imgFile)
 
@@ -244,7 +244,7 @@ func BatchLoad(baseFolder string) error {
 							continue
 						} else if w < frameW || h < frameH {
 							dlog.Error("File ", name, " in folder", folder.Name(), " is too small for folder dimensions", frameW, frameH)
-							return errors.New("File in folder is too small for these folder dimensions")
+							return errors.New("File in folder is too small for folder dimensions: " + strconv.Itoa(w) + ", " + strconv.Itoa(h))
 
 							// Load this as a sheet if it is greater
 							// than the folder size's frame size

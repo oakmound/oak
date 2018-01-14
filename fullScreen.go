@@ -1,6 +1,8 @@
 package oak
 
-import "errors"
+import (
+	"github.com/oakmound/oak/oakerr"
+)
 
 type FullScreenable interface {
 	SetFullScreen()
@@ -11,7 +13,9 @@ func SetFullScreen() error {
 		fs.SetFullScreen()
 		return nil
 	}
-	return errors.New("Fullscreen not supported on this platform")
+	return oakerr.UnsupportedPlatform{
+		Operation: "SetFullScreen",
+	}
 }
 
 type PositionableWindow interface {
@@ -23,5 +27,7 @@ func MoveWindow(x, y, w, h int) error {
 		mw.MoveWindow(int32(x), int32(y), int32(w), int32(h))
 		return nil
 	}
-	return errors.New("Window movement not supported on this platform")
+	return oakerr.UnsupportedPlatform{
+		Operation: "MoveWindow",
+	}
 }

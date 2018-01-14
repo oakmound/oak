@@ -2,7 +2,7 @@ package oakerr
 
 import "strconv"
 
-// Todo: add language switches to all errors
+// Todo: add language switches to initialization to change what the errors return
 
 // The goal of putting structs here instead of returning errors.New(string)s
 // is to be able to easily recognize error types through checks on the consuming
@@ -116,4 +116,14 @@ type ConsError struct {
 
 func (ce ConsError) Error() string {
 	return ce.First.Error() + ":" + ce.Second.Error()
+}
+
+// UnsupportedPlatform is returned when functionality isn't supported
+// on the hardware or operating system used.
+type UnsupportedPlatform struct {
+	Operation string
+}
+
+func (up UnsupportedPlatform) Error() string {
+	return up.Operation + " is not supported on this platform/OS"
 }

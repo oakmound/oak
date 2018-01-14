@@ -30,5 +30,7 @@ func TestErrorsAreErrors(t *testing.T) {
 	assert.NotEmpty(t, err.Error())
 	err = InvalidLength{}
 	assert.NotEmpty(t, err.Error())
+	err = UnsupportedPlatform{}
+	assert.NotEmpty(t, err.Error())
 	// Assert nothing crashed
 }

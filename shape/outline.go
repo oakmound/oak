@@ -84,7 +84,7 @@ func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point, error) {
 		startX += xDelta
 		startY += yDelta
 		if startX >= fw || startY >= fh {
-			return []intgeom.Point{}, errors.New("Could not find any valid space on the shapes diagonal... Assuming that it is not valid for outlines")
+			return []intgeom.Point{}, errors.New("Could not find an outline space on the shape's diagonal")
 		}
 	}
 
