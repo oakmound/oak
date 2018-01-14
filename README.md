@@ -28,11 +28,11 @@ See the [examples](examples) folder for longer demos.
 
 ## Motivation
 The initial version of oak was made to support Oakmound Studio's game,
-[Agent Blue](https://github.com/OakmoundStudio/AgentRelease) and was developed in parallel.
-Oak supports Windows with no dependencies and Linux with limited audio dependencies.
+[Agent Blue](https://github.com/OakmoundStudio/AgentRelease), and was developed in parallel.
+Oak supports Windows with no dependencies and Linux with limited audio dependencies. We don't own a machine to check with, but hypothetically it supports OSX as well.
  We hope that users will be able to make great pure Go games with oak and welcome improvements.
  
- Because Oak wants to have as few dependencies as possible, Oak does not use OpenGL or [GLFW](https://github.com/go-gl/glfw).
+ Because Oak wants to have as few non-Go dependencies as possible, Oak does not use OpenGL or [GLFW](https://github.com/go-gl/glfw).
  We're open to adding support for these in the future for performance gains, but we always want
  an alternative that requires zero or near-zero dependencies. (We are very sad about the linux audio 
  dependency and are considering writing an audio driver just to get rid of it.)
