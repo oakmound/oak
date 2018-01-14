@@ -5,9 +5,6 @@ import (
 	"errors"
 	"image"
 	"image/color"
-	"image/gif"
-	"image/jpeg"
-	"image/png"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -24,12 +21,6 @@ import (
 var (
 	regexpSingleNumber, _ = regexp.Compile(`^\d+$`)
 	regexpTwoNumbers, _   = regexp.Compile(`^\d+x\d+$`)
-	supportedFileEndings  = map[string]bool{
-		"jpeg": true,
-		".jpg": true,
-		".gif": true,
-		".png": true,
-	}
 )
 
 var (
@@ -64,15 +55,12 @@ func loadImage(directory, fileName string) (*image.RGBA, error) {
 		}()
 
 		ext := strings.ToLower(fileName[len(fileName)-4:])
-		var img image.Image
-		switch ext {
-		case ".png":
-			img, err = png.Decode(imgFile)
-		case ".gif":
-			img, err = gif.Decode(imgFile)
-		case "jpeg", ".jpg":
-			img, err = jpeg.Decode(imgFile)
+		decoder, ok := fileDecoders[ext]
+		if !ok {
+			return nil, errors.New("No decoder found for file type: " + ext)
 		}
+		img, err := decoder(imgFile)
+
 		if err != nil {
 			loadLock.Unlock()
 			return nil, err
@@ -240,7 +228,7 @@ func BatchLoad(baseFolder string) error {
 			for _, file := range files {
 				if !file.IsDir() {
 					name := file.Name()
-					if _, ok := supportedFileEndings[strings.ToLower(name[len(name)-4:])]; ok {
+					if _, ok := fileDecoders[strings.ToLower(name[len(name)-4:])]; ok {
 						dlog.Verb("loading file ", name)
 						buff, err := loadImage(baseFolder, filepath.Join(folder.Name(), name))
 						if err != nil {

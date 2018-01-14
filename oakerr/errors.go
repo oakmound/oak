@@ -94,6 +94,20 @@ func (ii InvalidInput) Error() string {
 	return "Invalid input: " + ii.InputName
 }
 
+// InvalidLength is returned when some input has an explicit required length
+// that was not provided.
+type InvalidLength struct {
+	InputName      string
+	Length         int
+	RequiredLength int
+}
+
+func (il InvalidLength) Error() string {
+	return "Invalid input length for " + il.InputName +
+		". Was " + strconv.Itoa(il.Length) +
+		", expected " + strconv.Itoa(il.Length)
+}
+
 // ConsError is returned by specific functions that can coalesce errors
 // over a series of inputs.
 type ConsError struct {
