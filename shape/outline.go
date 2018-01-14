@@ -2,6 +2,7 @@ package shape
 
 import (
 	"errors"
+	"fmt"
 	"math"
 
 	"github.com/oakmound/oak/alg/intgeom"
@@ -111,12 +112,13 @@ func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point, error) {
 		return outline, nil
 	}
 
-	return followOutline(shape, dirInc, x, y, w, h, sx, sy, direction, outline), nil
+	return followOutline(shape, dirInc, x, y, sx, sy, w, h, direction, outline), nil
 }
 
 func followOutline(shape Shape, dirInc int, x, y, sx, sy, w, h, direction int, outline []intgeom.Point) []intgeom.Point {
 	//Follow the outline point by point
 	for x != sx || y != sy {
+		fmt.Println(x, y)
 		outline = append(outline, intgeom.NewPoint(x, y))
 		direction -= 2
 		if direction < 0 {
@@ -127,6 +129,7 @@ func followOutline(shape Shape, dirInc int, x, y, sx, sy, w, h, direction int, o
 		//From a point on the outline look clockwise around for next direction
 		for !inOutline(shape, x, y, w, h) {
 			for i := 0; i < dirInc; i++ {
+				fmt.Println(i)
 				x += pointDeltas[direction*2]
 				y += pointDeltas[direction*2+1]
 				direction = (direction + 1) % lastdirection
