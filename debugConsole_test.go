@@ -30,8 +30,8 @@ func TestDebugConsole(t *testing.T) {
 	rCh := make(chan bool)
 	sCh := make(chan bool)
 	r := bytes.NewBufferString(
-		"c test\n" +
-			"c nothing\n" +
+		"test\n" +
+			"nothing\n" +
 			"viewport unlock\n" +
 			"viewport unlock\n" +
 			"viewport lock\n" +

@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/oakmound/oak/oakerr"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/dlog"
@@ -18,15 +20,22 @@ import (
 )
 
 var (
-	viewportLocked  = true
-	commands        = make(map[string]func([]string))
-	builtinCommands = make(map[string]func([]string))
+	viewportLocked = true
+	commands       = make(map[string]func([]string))
 )
 
 // AddCommand adds a console command to call fn when
-// 'c <s> <args>' is input to the console
-func AddCommand(s string, fn func([]string)) {
+// '<s> <args>' is input to the console
+func AddCommand(s string, fn func([]string)) error {
+	if _, ok := commands[s]; ok {
+		return oakerr.ExistingElement{
+			InputName:   "s",
+			InputType:   "string",
+			Overwritten: false,
+		}
+	}
 	commands[s] = fn
+	return nil
 }
 
 func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
@@ -34,14 +43,13 @@ func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 	spew.Config.DisableMethods = true
 	spew.Config.MaxDepth = 2
 
-	builtinCommands = map[string]func([]string){
-		"viewport": viewportCommands,
-		"fade":     fadeCommands,
-		"skip":     skipCommands(skipScene),
-		"print":    printCommands,
-		"mouse":    mouseCommands,
-		"move":     moveWindow,
-	}
+	// built in commands
+	AddCommand("viewport", viewportCommands)
+	AddCommand("fade", fadeCommands)
+	AddCommand("skip", skipCommands(skipScene))
+	AddCommand("print", printCommands)
+	AddCommand("mouse", mouseCommands)
+	AddCommand("move", moveWindow)
 
 	for {
 		select {
@@ -50,29 +58,14 @@ func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 		default:
 		}
 		for scanner.Scan() {
-			//Parse the Input
 			tokenString := strings.Fields(scanner.Text())
-			if len(tokenString) < 2 {
+			if len(tokenString) == 0 {
 				continue
 			}
-
-			// The builtin commands should probably be split off, so that
-			// they aren't on by default always. It's worth considering making
-			// all commands through the AddCommand function and removing the
-			// requirement to precede custom commands with 'c', which would
-			// then require that we return an error for overwriting old command
-			// names with new commands.
-			if tokenString[0] == "c" || tokenString[0] == "cheat" {
-				// Requires that cheats are all one word! <-- don't forget
-				if fn, ok := commands[tokenString[1]]; ok {
-					fn(tokenString[1:])
-				} else {
-					fmt.Println("Unknown command", tokenString[1])
-				}
-			} else if fn, ok := builtinCommands[tokenString[0]]; ok {
+			if fn, ok := commands[tokenString[0]]; ok {
 				fn(tokenString[1:])
 			} else {
-				fmt.Println("Unrecognized Input")
+				fmt.Println("Unknown command", tokenString[0])
 			}
 		}
 	}
