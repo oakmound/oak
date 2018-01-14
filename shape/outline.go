@@ -2,6 +2,7 @@ package shape
 
 import (
 	"errors"
+	"math"
 
 	"github.com/oakmound/oak/alg/intgeom"
 )
@@ -43,30 +44,31 @@ var (
 
 // ToOutline returns the set of points along the input shape's outline, if
 // one exists.
-// todo: support 8-directional or 4-directional outlines
 func ToOutline(shape Shape) func(...int) ([]intgeom.Point, error) {
 	return func(sizes ...int) ([]intgeom.Point, error) {
 		return toOutline(shape, 1, sizes...)
 	}
 }
 
-// this is a hack to support 4 and 8 directional outlines
-func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point, error) {
+func parseSizes(sizes []int) (int, int) {
 	w := sizes[0]
 	h := sizes[0]
 	if len(sizes) > 1 {
 		h = sizes[1]
 	}
+	return w, h
+}
+
+// this is a hack to support 4 and 8 directional outlines
+func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point, error) {
+	w, h := parseSizes(sizes)
 
 	//First decrement on diagonal to find start of outline
 	startX := 0.0
 	startY := 0.0
 	fw := float64(w)
 	fh := float64(h)
-	maxDim := fw
-	if h > w {
-		maxDim = fh
-	}
+	maxDim := math.Max(fw, fh)
 	xDelta := fw / maxDim
 	yDelta := fh / maxDim
 	for !shape.In(int(startX), int(startY), sizes...) {
@@ -131,6 +133,8 @@ func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point, error) {
 	return outline, nil
 }
 
+// ToOutline4 returns the set of points along the input shape's outline, if
+// one exists, but will move only up, left, right, or down to form this outline.
 func ToOutline4(shape Shape) func(...int) ([]intgeom.Point, error) {
 	return func(sizes ...int) ([]intgeom.Point, error) {
 		return toOutline(shape, 2, sizes...)

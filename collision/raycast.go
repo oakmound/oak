@@ -252,7 +252,7 @@ func (t *Tree) RayCastSingleIgnorePiercing(x, y, degrees, length float64, pierce
 	return NilPoint()
 }
 
-// ConeCastSingleLabels repeatedly calls RayCastLabelsPiercing in a cone shape
+// ConeCastSinglePiercing repeatedly calls RayCastLabelsPiercing in a cone shape
 func (t *Tree) ConeCastSinglePiercing(x, y, angle, angleWidth, rays, length float64, pierceCount int, labels ...Label) (points []Point) {
 	da := angleWidth / rays
 	for a := angle; a < angle+angleWidth; a += da {

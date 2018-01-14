@@ -7,8 +7,6 @@ import (
 	"github.com/oakmound/oak/timing"
 )
 
-
-
 // Trigger an event, but only
 // for one ID. Use case example:
 // on onHit event

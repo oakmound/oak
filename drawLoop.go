@@ -13,9 +13,10 @@ import (
 )
 
 var (
+	// Background is the uniform color drawn to the screen in between draw frames
 	Background = image.Black
 	// DrawTicker is an unused parallel to LogicTicker to set the draw framerate
-	DrawTicker *timing.DynamicTicker 
+	DrawTicker *timing.DynamicTicker
 )
 
 // DrawLoop
@@ -35,7 +36,6 @@ func drawLoop() {
 	if err != nil {
 		panic(err)
 	}
-
 
 	draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), Background, zeroPoint, draw.Src)
 	drawLoopPublish(tx)

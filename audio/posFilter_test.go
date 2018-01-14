@@ -39,6 +39,6 @@ func TestPosFilter(t *testing.T) {
 	time.Sleep(a.PlayLength())
 	// Assert left ear hears audio
 
-	_, err = kla.Filter(PosFilter(NewEars(&x2, &y2, 0, 0)))
+	_, _ = kla.Filter(PosFilter(NewEars(&x2, &y2, 0, 0)))
 	// assert.NotNil(t, err)
 }

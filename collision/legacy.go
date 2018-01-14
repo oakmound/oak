@@ -135,7 +135,7 @@ func RayCastSingleIgnorePiercing(x, y, degrees, length float64, pierceCount int,
 	return DefTree.RayCastSingleIgnorePiercing(x, y, degrees, length, pierceCount, invalidIDS, labels...)
 }
 
-// ConeCastSingleLabels repeatedly calls RayCastLabelsPiercing in a cone shape
+// ConeCastSinglePiercing repeatedly calls RayCastLabelsPiercing in a cone shape
 func ConeCastSinglePiercing(x, y, angle, angleWidth, rays, length float64, pierceCount int, labels ...Label) (points []Point) {
 
 	return DefTree.ConeCastSinglePiercing(x, y, angle, angleWidth, rays, length, pierceCount, labels...)
