@@ -14,7 +14,7 @@ On linux, for audio, see [klangsynthese](https://github.com/200sc/klangsynthese)
 
 ## Usage
 This is an example of the most basic oak program:
-```
+```go
 oak.AddScene("firstScene",
     // Initialization function
     func(prevScene string, inData interface{}) {}, 
