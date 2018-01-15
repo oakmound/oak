@@ -66,3 +66,19 @@ func TestHandler(t *testing.T) {
 	sleep()
 	Reset()
 }
+
+func BenchmarkHandler(b *testing.B) {
+	triggers := 0
+	entities := 10
+	go DefaultBus.ResolvePending()
+	for i := 0; i < entities; i++ {
+		DefaultBus.GlobalBind(func(int, interface{}) int {
+			triggers++
+			return 0
+		}, Enter)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		<-DefaultBus.TriggerBack(Enter, DefaultBus.framesElapsed)
+	}
+}
