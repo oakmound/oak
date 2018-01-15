@@ -4,9 +4,76 @@ import (
 	"math"
 	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func Seed() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+func TestPointNormalize(t *testing.T) {
+	p1 := Point2{100, 200}.Normalize()
+	p2 := Point3{100, 200, 300}.Normalize()
+
+	assert.InEpsilon(t, p1.X(), 1/math.Sqrt(5), .0001)
+	assert.InEpsilon(t, p1.Y(), 2/math.Sqrt(5), .0001)
+	assert.InEpsilon(t, p2.X(), 1/math.Sqrt(14), .0001)
+	assert.InEpsilon(t, p2.Y(), 2/math.Sqrt(14), .0001)
+	assert.InEpsilon(t, p2.Z(), 3/math.Sqrt(14), .0001)
+}
+
+func TestPointProject(t *testing.T) {
+	Seed()
+	for i := 0; i < randTests; i++ {
+		x, y, z := rand.Float64(), rand.Float64(), rand.Float64()
+		p := Point3{x, y, z}
+		assert.Equal(t, Point2{x, y}, p.ProjectZ())
+		assert.Equal(t, Point2{x, z}, p.ProjectY())
+		assert.Equal(t, Point2{y, z}, p.ProjectX())
+	}
+}
+
+func TestPointConstMods(t *testing.T) {
+	p1 := Point2{1, 1}
+	p2 := Point3{1, 1, 1}
+	assert.Equal(t, Point2{5, 5}, p1.MulConst(5))
+	assert.Equal(t, Point3{100, 100, 100}, p2.MulConst(100))
+	p3 := Point2{2, 2}
+	p4 := Point3{2, 2, 2}
+	assert.Equal(t, Point2{.5, .5}, p3.DivConst(4))
+	assert.Equal(t, Point3{.25, .25, .25}, p4.DivConst(8))
+}
+
+func TestAnglePoints(t *testing.T) {
+	p1 := Point2{1, 0}
+	p2 := Point2{0, 1}
+
+	assert.Equal(t, p1, AnglePoint(0))
+	assert.Equal(t, p1, RadianPoint(0))
+	p3 := AnglePoint(90)
+	p4 := RadianPoint(math.Pi / 2)
+	assert.InEpsilon(t, p2.Y(), p3.Y(), .0001)
+	assert.InEpsilon(t, p2.Y(), p4.Y(), .0001)
+
+	deg := p1.ToAngle()
+	rds := p1.ToRadians()
+
+	assert.Equal(t, 0.0, deg)
+	assert.Equal(t, 0.0, rds)
+
+	deg = p2.ToAngle()
+	rds = p2.ToRadians()
+
+	assert.InEpsilon(t, 90.0, deg, .0001)
+	assert.InEpsilon(t, math.Pi/2, rds, .0001)
+
+	p5 := Point2{-1, 0}
+
+	assert.InEpsilon(t, 45.0, p2.AngleTo(p5), .0001)
+	assert.InEpsilon(t, math.Pi/4, p2.RadiansTo(p5), .0001)
+}
 
 func TestPointGreaterOf(t *testing.T) {
 	a := Point2{0, 1}
