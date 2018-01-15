@@ -20,7 +20,7 @@ type Slide struct {
 }
 
 func (ss *Slide) Init() {
-	oak.SetFullScreen()
+	oak.SetFullScreen(true)
 	render.Draw(ss.Rs, 0)
 	event.GlobalBind(func(int, interface{}) int {
 		ss.cont = true
