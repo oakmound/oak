@@ -7,7 +7,6 @@ import (
 
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/render"
-	"github.com/oakmound/shiny/driver"
 )
 
 var (
@@ -120,5 +119,5 @@ func Init(firstScene string) {
 	dlog.Info("Init Console")
 	go debugConsole(debugResetCh, skipSceneCh, os.Stdin)
 	dlog.Info("Init Main Driver")
-	driver.Main(lifecycleLoop)
+	InitDriver(lifecycleLoop)
 }
