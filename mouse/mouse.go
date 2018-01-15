@@ -1,6 +1,7 @@
 package mouse
 
 import (
+	"github.com/oakmound/oak/event"
 	"golang.org/x/mobile/event/mouse"
 )
 
@@ -27,6 +28,7 @@ func Propagate(eventName string, me Event) {
 				for _, sp1 := range pressHits {
 					for _, sp2 := range hits {
 						if sp1.CID == sp2.CID {
+							event.Trigger(Click, me)
 							sp1.CID.Trigger(ClickOn, me)
 						}
 					}
