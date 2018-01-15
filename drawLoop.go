@@ -21,8 +21,8 @@ var (
 
 // DrawLoop
 // Unless told to stop, the draw channel will repeatedly
-// 1. draw black to a temporary buffer
-// 2. draw all elements onto the temporary buffer.
+// 1. draw the background color to a temporary buffer
+// 2. draw all visible rendered elements onto the temporary buffer.
 // 3. draw the buffer's data at the viewport's position to the screen.
 // 4. publish the screen to display in window.
 func drawLoop() {
