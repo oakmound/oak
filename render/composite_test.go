@@ -47,6 +47,9 @@ func TestComposite(t *testing.T) {
 		floatgeom.Point2{2, 2},
 	)
 	assert.Equal(t, cmp2, cmp3)
+
+	cmp3.Prepend(nil)
+	assert.Equal(t, 4, cmp3.Len())
 }
 
 func TestCompositeR(t *testing.T) {
@@ -83,4 +86,6 @@ func TestCompositeR(t *testing.T) {
 
 	cmp2.draw(image.NewRGBA(image.Rect(0, 0, 3, 3)), image.Point{0, 0}, 100, 100)
 
+	cmp2.Prepend(nil)
+	assert.Equal(t, 1, cmp2.Len())
 }
