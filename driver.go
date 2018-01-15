@@ -16,5 +16,6 @@ var InitDriver = DefaultDriver
 // Driver alternatives
 var (
 	DefaultDriver = driver.Main
-	GLDriver      = gldriver.Main
+	//disabled for https://github.com/golang/go/issues/23451
+	//GLDriver      = gldriver.Main
 )
