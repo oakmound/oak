@@ -89,3 +89,9 @@ func TestCumWeightedFromMap(t *testing.T) {
 	chosen := CumWeightedFromMap(m)
 	assert.True(t, chosen < 10)
 }
+
+func TestCumulativeWeights(t *testing.T) {
+	weights := []float64{1, 2, 3, 4, 5, 6, 7}
+	cum := CumulativeWeights(weights)
+	assert.Equal(t, []float64{1, 3, 6, 10, 15, 21, 28}, cum)
+}

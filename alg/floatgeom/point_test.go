@@ -13,6 +13,12 @@ func Seed() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+func TestPointRotate(t *testing.T) {
+	p := Point2{0, 1}
+	assert.Equal(t, -1.0, p.Rotate(90).X())
+	assert.Equal(t, -1.0, p.RotateRadians(math.Pi).Y())
+}
+
 func TestPointNormalize(t *testing.T) {
 	p1 := Point2{100, 200}.Normalize()
 	p2 := Point3{100, 200, 300}.Normalize()
@@ -22,6 +28,11 @@ func TestPointNormalize(t *testing.T) {
 	assert.InEpsilon(t, p2.X(), 1/math.Sqrt(14), .0001)
 	assert.InEpsilon(t, p2.Y(), 2/math.Sqrt(14), .0001)
 	assert.InEpsilon(t, p2.Z(), 3/math.Sqrt(14), .0001)
+
+	p3 := Point2{0, 0}
+	p4 := Point3{0, 0, 0}
+	assert.Equal(t, p3, p3.Normalize())
+	assert.Equal(t, p4, p4.Normalize())
 }
 
 func TestPointProject(t *testing.T) {
