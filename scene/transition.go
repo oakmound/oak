@@ -15,7 +15,7 @@ var (
 type Transition func(*image.RGBA, int) bool
 
 // Fade is a scene transition that fades to black at a given rate for
-// a total of frames frames
+// a total of 'frames' frames
 func Fade(rate float32, frames int) func(*image.RGBA, int) bool {
 	rate *= -1
 	return func(buf *image.RGBA, frame int) bool {

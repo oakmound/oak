@@ -15,13 +15,14 @@ type Result struct {
 	Transition
 }
 
-// End is a function returning the next scene and a SceneResult
-type End func() (string, *Result)
-
 // Start is a function taking in a previous scene and a payload
-// of data from the previous scene's end
+// of data from the previous scene's end.
 type Start func(prevScene string, data interface{})
 
 // Loop is a function that returns whether or not the current scene
 // should continue to loop.
 type Loop func() bool
+
+// End is a function returning the next scene and a SceneResult of 
+// input settings for the next scene.
+type End func() (string, *Result)
