@@ -50,6 +50,7 @@ func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 	AddCommand("print", printCommands)
 	AddCommand("mouse", mouseCommands)
 	AddCommand("move", moveWindow)
+	AddCommand("fullscreen", fullScreen)
 
 	for {
 		select {
@@ -183,6 +184,13 @@ func moveWindow(in []string) {
 		}
 	}
 	err = MoveWindow(ints[0], ints[1], ints[2], ints[3])
+	if err != nil {
+		dlog.Error(err)
+	}
+}
+
+func fullScreen([]string) {
+	err := SetFullScreen()
 	if err != nil {
 		dlog.Error(err)
 	}
