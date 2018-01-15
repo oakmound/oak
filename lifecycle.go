@@ -34,8 +34,6 @@ func lifecycleLoop(s screen.Screen) {
 		return
 	}
 
-	// The window controller handles incoming hardware or platform events and
-	// publishes image data to the screen.\
 	dlog.Info("Creating window controller")
 	changeWindow(int32(conf.Screen.X), int32(conf.Screen.Y), ScreenWidth*conf.Screen.Scale, ScreenHeight*conf.Screen.Scale)
 

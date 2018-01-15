@@ -1,7 +1,7 @@
 package mouse
 
 // Mouse events: MousePress, MouseRelease, MouseScrollDown, MouseScrollUp, MouseDrag
-// Payload: (mouse.Event) details on the mouse event
+// Payload: (mouse.Event) details of the mouse event
 const (
 	Press      = "MousePress"
 	Release    = "MouseRelease"
