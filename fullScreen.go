@@ -5,12 +5,12 @@ import (
 )
 
 type FullScreenable interface {
-	SetFullScreen()
+	SetFullScreen(bool)
 }
 
-func SetFullScreen() error {
+func SetFullScreen(on bool) error {
 	if fs, ok := windowControl.(FullScreenable); ok {
-		fs.SetFullScreen()
+		fs.SetFullScreen(on)
 		return nil
 	}
 	return oakerr.UnsupportedPlatform{

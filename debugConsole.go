@@ -189,8 +189,14 @@ func moveWindow(in []string) {
 	}
 }
 
-func fullScreen([]string) {
-	err := SetFullScreen()
+func fullScreen(sub []string) {
+	on := true
+	if len(sub) > 0 {
+		if sub[0] == "off" {
+			on = false
+		}
+	}
+	err := SetFullScreen(on)
 	if err != nil {
 		dlog.Error(err)
 	}
