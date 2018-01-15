@@ -22,7 +22,7 @@ func TestMouseClicks(t *testing.T) {
 	DefTree.Add(sp)
 	Propagate(PressOn, NewEvent(5, 5, "LeftMouse", PressOn))
 	Propagate(ReleaseOn, NewEvent(5, 5, "LeftMouse", ReleaseOn))
-	time.Sleep(400 * time.Millisecond)
+	time.Sleep(1 * time.Second)
 	assert.True(t, triggered)
 }
 
