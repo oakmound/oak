@@ -2,7 +2,6 @@ package oak
 
 import (
 	"github.com/oakmound/shiny/driver"
-	"github.com/oakmound/shiny/driver/gldriver"
 	"github.com/oakmound/shiny/screen"
 )
 
