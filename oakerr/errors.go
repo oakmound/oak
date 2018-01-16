@@ -115,7 +115,7 @@ type ConsError struct {
 }
 
 func (ce ConsError) Error() string {
-	return ce.First.Error() + ":" + ce.Second.Error()
+	return ce.First.Error() + "; " + ce.Second.Error()
 }
 
 // UnsupportedPlatform is returned when functionality isn't supported
