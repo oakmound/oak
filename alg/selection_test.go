@@ -72,7 +72,7 @@ func TestChooseX(t *testing.T) {
 	}
 }
 
-func TestCumWeightedFromMap(t *testing.T) {
+func TestWeightedMapChoice(t *testing.T) {
 	m := map[int]float64{
 		0: 1.0,
 		1: .9,
@@ -86,7 +86,7 @@ func TestCumWeightedFromMap(t *testing.T) {
 		9: .1,
 	}
 	// This uses the same underlying function as chooseX internally
-	chosen := CumWeightedFromMap(m)
+	chosen := WeightedMapChoice(m)
 	assert.True(t, chosen < 10)
 }
 

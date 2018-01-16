@@ -12,6 +12,9 @@ type stwHeap struct {
 }
 
 // Select Total Weight Heap
+// This name was chosen relatively arbitrarily, if there
+// is a canonical academic name for this structure we'd gladly
+// use that instead
 func newSTWHeap(f []float64) *stwHeap {
 	stwh := new(stwHeap)
 	f = append([]float64{0}, f...)
