@@ -60,7 +60,8 @@ var (
 	// effect next scene
 	FrameRate int
 
-	// DrawFrameRate is the unused equivalent to FrameRate
+	// DrawFrameRate is the equivalent to FrameRate for
+	// the rate at which the screen is drawn.
 	DrawFrameRate int
 
 	zeroPoint = image.Point{0, 0}
