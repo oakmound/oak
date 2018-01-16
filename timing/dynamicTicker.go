@@ -101,6 +101,15 @@ func (dt *DynamicTicker) Step() {
 	}
 }
 
+// ForceStep is the blocking equivalent to Step. After
+// this is called, it won't return until the ticker has
+// taken the forced step through. A potential use for this
+// is in benchmarking how often the work between ticks
+// can get done.
+func (dt *DynamicTicker) ForceStep() {
+	dt.forceTick <- true
+}
+
 // Stop closes all internal channels and stops dt's internal ticker
 func (dt *DynamicTicker) Stop() {
 	defer func() {
