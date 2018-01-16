@@ -183,8 +183,8 @@ func initConf() {
 	}
 
 	conf.BatchLoad = SetupConfig.BatchLoad
-
 	conf.GestureSupport = SetupConfig.GestureSupport
+	conf.LoadBuiltinCommands = SetupConfig.LoadBuiltinCommands
 
 	dlog.Error(conf)
 }
