@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-// RoundF64 rounds a float to an int
+// RoundF64 rounds a float64 to an int
 func RoundF64(a float64) int {
 	if a < 0 {
 		return int(math.Ceil(a - 0.5))
@@ -16,7 +16,12 @@ var (
 	ε = 1.0e-7
 )
 
-// F64eq uses epsilon equality to compare two float64s
+// F64eq equates two float64s within a small epsilon.
 func F64eq(f1, f2 float64) bool {
-	return math.Abs(f1-f2) <= ε
+	return F64eqEps(f1, f2, ε)
+}
+
+// F64eqEps equates two float64s within a provided epsilon.
+func F64eqEps(f1, f2, epsilon float64) bool {
+	return math.Abs(f1-f2) <= epsilon
 }
