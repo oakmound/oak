@@ -6,6 +6,7 @@ import (
 
 	"github.com/oakmound/oak/alg"
 	"github.com/oakmound/oak/dlog"
+	"golang.org/x/mobile/event/lifecycle"
 
 	"github.com/oakmound/shiny/screen"
 )
@@ -45,6 +46,11 @@ func lifecycleLoop(s screen.Screen) {
 	// The quit channel represents a signal
 	// for the engine to stop.
 	<-quitCh
+}
+
+// Quit sends a signal to the window to close itself, ending oak.
+func Quit() {
+	windowControl.Send(lifecycle.Event{To: lifecycle.StageDead})
 }
 
 func changeWindow(x, y int32, width, height int) {

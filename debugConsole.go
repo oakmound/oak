@@ -51,6 +51,7 @@ func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 	AddCommand("mouse", mouseCommands)
 	AddCommand("move", moveWindow)
 	AddCommand("fullscreen", fullScreen)
+	AddCommand("quit", func([]string) { Quit() })
 
 	for {
 		select {
