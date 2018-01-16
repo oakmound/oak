@@ -27,12 +27,14 @@ var (
 			}
 		},
 		End: func() (string, *scene.Result) {
-			return "", nil
+			return firstScene, nil
 		},
 	}
 )
 
-func sceneLoop(firstScene string) {
+var firstScene string
+
+func sceneLoop(first string) {
 	var prevScene string
 
 	result := new(scene.Result)
@@ -44,16 +46,8 @@ func sceneLoop(firstScene string) {
 
 	dlog.Verb("Draw Channel Activated")
 
-	loadingScene.End = func() (string, *scene.Result) {
-		return firstScene, nil
-	}
+	firstScene = first
 
-	// Todo: consider changing the name of this scene to avoid collisions
-	err := SceneMap.AddScene("loading", loadingScene)
-	if err != nil {
-		dlog.Error("Loading scene unable to be added", err)
-		panic("Loading scene unable to be added")
-	}
 	SceneMap.CurrentScene = "loading"
 
 	for {
@@ -65,7 +59,7 @@ func sceneLoop(firstScene string) {
 		scen, ok := SceneMap.GetCurrent()
 		if !ok {
 			dlog.Error("Unknown scene", SceneMap.CurrentScene)
-			panic("Unknown scene")
+			panic("Unknown scene " + SceneMap.CurrentScene)
 		}
 		go func() {
 			dlog.Info("Starting scene in goroutine", SceneMap.CurrentScene)
@@ -87,7 +81,7 @@ func sceneLoop(firstScene string) {
 		dlog.Info("Looping Scene")
 		cont := true
 
-		err = logicHandler.UpdateLoop(FrameRate, sceneCh)
+		err := logicHandler.UpdateLoop(FrameRate, sceneCh)
 		if err != nil {
 			dlog.Error(err)
 		}

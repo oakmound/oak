@@ -15,6 +15,14 @@ var (
 	SceneMap = scene.NewMap()
 )
 
+func init() {
+	// The scene "loading" is reserved
+	err := SceneMap.AddScene("loading", loadingScene)
+	if err != nil {
+		panic(err)
+	}
+}
+
 // AddScene is shorthand for oak.SceneMap.AddScene
 func AddScene(name string, s scene.Scene) error {
 	return SceneMap.AddScene(name, s)
