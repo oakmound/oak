@@ -29,21 +29,23 @@ var (
 		"Oak Window",
 		false,
 		false,
+		false,
 	}
 )
 
 // Config stores initialization settings for oak.
 type Config struct {
-	Assets         Assets `json:"assets"`
-	Debug          Debug  `json:"debug"`
-	Screen         Screen `json:"screen"`
-	Font           Font   `json:"font"`
-	FrameRate      int    `json:"frameRate"`
-	DrawFrameRate  int    `json:"drawFrameRate"`
-	Language       string `json:"language"`
-	Title          string `json:"title"`
-	BatchLoad      bool   `json:"batchLoad"`
-	GestureSupport bool   `json:"gestureSupport"`
+	Assets              Assets `json:"assets"`
+	Debug               Debug  `json:"debug"`
+	Screen              Screen `json:"screen"`
+	Font                Font   `json:"font"`
+	FrameRate           int    `json:"frameRate"`
+	DrawFrameRate       int    `json:"drawFrameRate"`
+	Language            string `json:"language"`
+	Title               string `json:"title"`
+	BatchLoad           bool   `json:"batchLoad"`
+	GestureSupport      bool   `json:"gestureSupport"`
+	LoadBuiltinCommands bool   `json:"loadBuiltinCommands"`
 }
 
 // Assets is a json type storing paths to different asset folders

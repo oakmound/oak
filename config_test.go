@@ -26,6 +26,7 @@ func TestDefaultConfig(t *testing.T) {
 		"Some Window",
 		true,
 		true,
+		true,
 	}
 	initConf()
 	assert.Equal(t, SetupConfig, conf)

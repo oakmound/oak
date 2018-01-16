@@ -25,7 +25,8 @@ var (
 )
 
 // AddCommand adds a console command to call fn when
-// '<s> <args>' is input to the console
+// '<s> <args>' is input to the console. fn will be called
+// with args split on whitespace.
 func AddCommand(s string, fn func([]string)) error {
 	if _, ok := commands[s]; ok {
 		return oakerr.ExistingElement{
@@ -44,14 +45,16 @@ func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 	spew.Config.MaxDepth = 2
 
 	// built in commands
-	AddCommand("viewport", viewportCommands)
-	AddCommand("fade", fadeCommands)
-	AddCommand("skip", skipCommands(skipScene))
-	AddCommand("print", printCommands)
-	AddCommand("mouse", mouseCommands)
-	AddCommand("move", moveWindow)
-	AddCommand("fullscreen", fullScreen)
-	AddCommand("quit", func([]string) { Quit() })
+	if conf.LoadBuiltinCommands {
+		dlog.ErrorCheck(AddCommand("viewport", viewportCommands))
+		dlog.ErrorCheck(AddCommand("fade", fadeCommands))
+		dlog.ErrorCheck(AddCommand("skip", skipCommands(skipScene)))
+		dlog.ErrorCheck(AddCommand("print", printCommands))
+		dlog.ErrorCheck(AddCommand("mouse", mouseCommands))
+		dlog.ErrorCheck(AddCommand("move", moveWindow))
+		dlog.ErrorCheck(AddCommand("fullscreen", fullScreen))
+		dlog.ErrorCheck(AddCommand("quit", func([]string) { Quit() }))
+	}
 
 	for {
 		select {
