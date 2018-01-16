@@ -58,6 +58,7 @@ func SetLogger(l Logger) {
 	if fl, ok := l.(FullLogger); ok {
 		fullOakLogger = fl
 		FileWrite = fl.FileWrite
+		GetLogLevel = fl.GetLogLevel
 		SetDebugFilter = fl.SetDebugFilter
 		SetDebugLevel = fl.SetDebugLevel
 		CreateLogFile = fl.CreateLogFile

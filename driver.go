@@ -19,5 +19,5 @@ var (
 	// we also need a way to say "you can use this if you have
 	// a C compiler, but still compile without using this if you
 	// don't"
-	//GLDriver      = gldriver.Main
+	// GLDriver = gldriver.Main
 )
