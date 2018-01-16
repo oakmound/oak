@@ -10,7 +10,7 @@ import (
 func TestHoles(t *testing.T) {
 	shapes := []struct {
 		sh   Shape
-		out  [][]intgeom.Point
+		out  [][]intgeom.Point2
 		w, h int
 	}{
 		{
@@ -19,8 +19,8 @@ func TestHoles(t *testing.T) {
 				{true, false, true},
 				{true, true, true},
 			}),
-			[][]intgeom.Point{
-				{intgeom.Point{1, 1}},
+			[][]intgeom.Point2{
+				{intgeom.Point2{1, 1}},
 			},
 			3, 3,
 		}, {
@@ -31,8 +31,8 @@ func TestHoles(t *testing.T) {
 				{false, true, true, true, false},
 				{false, false, false, false, false},
 			}),
-			[][]intgeom.Point{
-				{intgeom.Point{2, 2}},
+			[][]intgeom.Point2{
+				{intgeom.Point2{2, 2}},
 			},
 			5, 5,
 		},

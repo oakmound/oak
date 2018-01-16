@@ -4,14 +4,14 @@ import (
 	"github.com/oakmound/oak/alg/intgeom"
 )
 
-func GetHoles(sh Shape, w, h int) [][]intgeom.Point {
+func GetHoles(sh Shape, w, h int) [][]intgeom.Point2 {
 
-	flooding := make(map[intgeom.Point]bool)
+	flooding := make(map[intgeom.Point2]bool)
 
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
 			if !sh.In(x, y) {
-				flooding[intgeom.Point{x, y}] = true
+				flooding[intgeom.Point2{x, y}] = true
 			}
 		}
 	}
@@ -19,7 +19,7 @@ func GetHoles(sh Shape, w, h int) [][]intgeom.Point {
 	border := BorderPoints(w, h)
 
 	for _, p := range border {
-		if !sh.In(p.X, p.Y) {
+		if !sh.In(p.X(), p.Y()) {
 			BFSFlood(flooding, p)
 		}
 	}
@@ -27,7 +27,7 @@ func GetHoles(sh Shape, w, h int) [][]intgeom.Point {
 	// flooding is now a map of holes, points which are false
 	// but not on the border.
 
-	out := make([][]intgeom.Point, 0)
+	out := make([][]intgeom.Point2, 0)
 
 	for len(flooding) > 0 {
 		for k := range flooding {
@@ -38,25 +38,25 @@ func GetHoles(sh Shape, w, h int) [][]intgeom.Point {
 	return out
 }
 
-func BorderPoints(w, h int) []intgeom.Point {
-	out := make([]intgeom.Point, (w*2+h*2)-4)
+func BorderPoints(w, h int) []intgeom.Point2 {
+	out := make([]intgeom.Point2, (w*2+h*2)-4)
 	i := 0
 	for x := 0; x < w; x++ {
-		out[i] = intgeom.Point{x, 0}
-		out[i+1] = intgeom.Point{x, h - 1}
+		out[i] = intgeom.Point2{x, 0}
+		out[i+1] = intgeom.Point2{x, h - 1}
 		i += 2
 	}
 	for y := 1; y < h-1; y++ {
-		out[i] = intgeom.Point{0, y}
-		out[i+1] = intgeom.Point{w - 1, y}
+		out[i] = intgeom.Point2{0, y}
+		out[i+1] = intgeom.Point2{w - 1, y}
 		i += 2
 	}
 	return out
 }
 
-func BFSFlood(m map[intgeom.Point]bool, start intgeom.Point) []intgeom.Point {
-	visited := []intgeom.Point{}
-	toVisit := []intgeom.Point{start}
+func BFSFlood(m map[intgeom.Point2]bool, start intgeom.Point2) []intgeom.Point2 {
+	visited := []intgeom.Point2{}
+	toVisit := []intgeom.Point2{start}
 	for len(toVisit) > 0 {
 		next := toVisit[0]
 		delete(m, next)
@@ -66,7 +66,7 @@ func BFSFlood(m map[intgeom.Point]bool, start intgeom.Point) []intgeom.Point {
 		// literally adjacent points for adjacency
 		for x := -1; x <= 1; x++ {
 			for y := -1; y <= 1; y++ {
-				p := intgeom.Point{x + next.X, y + next.Y}
+				p := intgeom.Point2{x + next.X(), y + next.Y()}
 				if _, ok := m[p]; ok {
 					toVisit = append(toVisit, p)
 				}

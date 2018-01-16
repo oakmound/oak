@@ -148,7 +148,7 @@ func (t *Text) Wrap(charLimit int, vertInc float64) []*Text {
 // of Modifications.
 func (t *Text) ToSprite() *Sprite {
 	width := t.d.MeasureString(t.text.String()).Round()
-	height := t.d.bounds.Max.Y
+	height := t.d.bounds.Max.Y()
 	s := NewEmptySprite(t.X(), t.Y()-float64(height), width, height+5)
 	t.DrawOffset(s.GetRGBA(), -t.X(), -t.Y()+float64(height))
 	return s

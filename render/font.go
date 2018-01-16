@@ -77,7 +77,7 @@ func (fg *FontGenerator) Generate() *Font {
 	// This logic is copied from truetype for their face scaling
 	scl := fixed.Int26_6(0.5 + (fg.Size * fg.DPI * 64 / 72))
 	bds := fnt.Bounds(scl)
-	intBds := intgeom.NewRect(
+	intBds := intgeom.NewRect2(
 		bds.Min.X.Round(),
 		bds.Min.Y.Round(),
 		bds.Max.X.Round(),
@@ -114,7 +114,7 @@ func (fg *FontGenerator) Copy() *FontGenerator {
 type Font struct {
 	FontGenerator
 	font.Drawer
-	bounds intgeom.Rect
+	bounds intgeom.Rect2
 }
 
 // Refresh regenerates this font

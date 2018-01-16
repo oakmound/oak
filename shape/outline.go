@@ -44,8 +44,8 @@ var (
 
 // ToOutline returns the set of points along the input shape's outline, if
 // one exists.
-func ToOutline(shape Shape) func(...int) ([]intgeom.Point, error) {
-	return func(sizes ...int) ([]intgeom.Point, error) {
+func ToOutline(shape Shape) func(...int) ([]intgeom.Point2, error) {
+	return func(sizes ...int) ([]intgeom.Point2, error) {
 		return toOutline(shape, 1, sizes...)
 	}
 }
@@ -60,7 +60,7 @@ func parseSizes(sizes []int) (int, int) {
 }
 
 // this is a hack to support 4 and 8 directional outlines
-func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point, error) {
+func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point2, error) {
 	w, h := parseSizes(sizes)
 
 	//First decrement on diagonal to find start of outline
@@ -75,7 +75,7 @@ func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point, error) {
 		startX += xDelta
 		startY += yDelta
 		if startX >= fw || startY >= fh {
-			return []intgeom.Point{}, errors.New("Could not find an outline space on the shape's diagonal")
+			return []intgeom.Point2{}, errors.New("Could not find an outline space on the shape's diagonal")
 		}
 	}
 
@@ -90,7 +90,7 @@ func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point, error) {
 	x := sx
 	y := sy
 
-	outline := []intgeom.Point{intgeom.NewPoint(x, y)}
+	outline := []intgeom.Point2{intgeom.Point2{x, y}}
 
 	direction := topright
 	for i := 1; i < dirInc; i++ {
@@ -114,10 +114,10 @@ func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point, error) {
 	return followOutline(shape, dirInc, x, y, sx, sy, w, h, direction, outline), nil
 }
 
-func followOutline(shape Shape, dirInc int, x, y, sx, sy, w, h, direction int, outline []intgeom.Point) []intgeom.Point {
+func followOutline(shape Shape, dirInc int, x, y, sx, sy, w, h, direction int, outline []intgeom.Point2) []intgeom.Point2 {
 	//Follow the outline point by point
 	for x != sx || y != sy {
-		outline = append(outline, intgeom.NewPoint(x, y))
+		outline = append(outline, intgeom.Point2{x, y})
 		direction -= 2
 		if direction < 0 {
 			direction += lastdirection
@@ -138,8 +138,8 @@ func followOutline(shape Shape, dirInc int, x, y, sx, sy, w, h, direction int, o
 
 // ToOutline4 returns the set of points along the input shape's outline, if
 // one exists, but will move only up, left, right, or down to form this outline.
-func ToOutline4(shape Shape) func(...int) ([]intgeom.Point, error) {
-	return func(sizes ...int) ([]intgeom.Point, error) {
+func ToOutline4(shape Shape) func(...int) ([]intgeom.Point2, error) {
+	return func(sizes ...int) ([]intgeom.Point2, error) {
 		return toOutline(shape, 2, sizes...)
 	}
 }

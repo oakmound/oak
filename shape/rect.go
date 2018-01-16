@@ -59,7 +59,7 @@ func (sr StrictRect) In(x, y int, sizes ...int) bool {
 }
 
 // Outline returns this StrictRect's outline, ignoring the input dimensions.
-func (sr StrictRect) Outline(sizes ...int) ([]intgeom.Point, error) {
+func (sr StrictRect) Outline(sizes ...int) ([]intgeom.Point2, error) {
 	return ToOutline(sr)(len(sr), len(sr[0]))
 }
 
