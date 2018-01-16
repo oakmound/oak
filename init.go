@@ -81,11 +81,10 @@ func Init(firstScene string) {
 	dlog.SetDebugLevel(lvl)
 	// We are intentionally using the lvl value before checking error,
 	// because we can only log errors through dlog itself anyway
-	if err != nil {
-		// We do this knowing that the default debug level when SetDebugLevel fails
-		// is ERROR, so this will be recorded.
-		dlog.Error(err)
-	}
+
+	// We do this knowing that the default debug level when SetDebugLevel fails
+	// is ERROR, so this will be recorded.
+	dlog.ErrorCheck(err)
 	dlog.SetDebugFilter(conf.Debug.Filter)
 
 	dlog.Info("Oak Init Start")

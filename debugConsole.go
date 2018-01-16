@@ -188,9 +188,7 @@ func moveWindow(in []string) {
 		}
 	}
 	err = MoveWindow(ints[0], ints[1], ints[2], ints[3])
-	if err != nil {
-		dlog.Error(err)
-	}
+	dlog.ErrorCheck(err)
 }
 
 func fullScreen(sub []string) {
@@ -201,7 +199,5 @@ func fullScreen(sub []string) {
 		}
 	}
 	err := SetFullScreen(on)
-	if err != nil {
-		dlog.Error(err)
-	}
+	dlog.ErrorCheck(err)
 }

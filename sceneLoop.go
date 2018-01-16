@@ -81,10 +81,7 @@ func sceneLoop(first string) {
 		dlog.Info("Looping Scene")
 		cont := true
 
-		err := logicHandler.UpdateLoop(FrameRate, sceneCh)
-		if err != nil {
-			dlog.Error(err)
-		}
+		dlog.ErrorCheck(logicHandler.UpdateLoop(FrameRate, sceneCh))
 
 		for cont {
 			select {
@@ -97,10 +94,7 @@ func sceneLoop(first string) {
 		dlog.Info("Scene End", SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
-		err = logicHandler.Stop()
-		if err != nil {
-			dlog.Error(err)
-		}
+		dlog.ErrorCheck(logicHandler.Stop())
 		prevScene = SceneMap.CurrentScene
 
 		// Send a signal to stop drawing

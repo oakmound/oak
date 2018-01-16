@@ -48,10 +48,7 @@ func loadImage(directory, fileName string) (*image.RGBA, error) {
 			return nil, err
 		}
 		defer func() {
-			err = imgFile.Close()
-			if err != nil {
-				dlog.Error(err)
-			}
+			dlog.ErrorCheck(imgFile.Close())
 		}()
 
 		ext := strings.ToLower(fileName[len(fileName)-4:])
@@ -86,7 +83,7 @@ func loadImage(directory, fileName string) (*image.RGBA, error) {
 // LoadSprite loads the input fileName into a Sprite
 func LoadSprite(fileName string) (*Sprite, error) {
 	r, err := loadImage(dir, fileName)
-	if err != nil || r == nil {
+	if err != nil {
 		dlog.Error(err)
 		return nil, err
 	}

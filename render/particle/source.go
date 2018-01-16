@@ -168,9 +168,7 @@ func (ps *Source) addParticles() {
 		ps.nextPID++
 		p.SetLayer(ps.Layer(bp.GetPos()))
 		_, err := render.Draw(p, ps.stackLevel)
-		if err != nil {
-			dlog.Error(err)
-		}
+		dlog.ErrorCheck(err)
 	}
 
 }
