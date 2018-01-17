@@ -35,9 +35,38 @@ func TestHoles(t *testing.T) {
 				{intgeom.Point2{2, 2}},
 			},
 			5, 5,
+		}, {
+			StrictRect([][]bool{
+				{false, false, false, false, false, false},
+				{false, true, true, true, true, false},
+				{false, true, false, false, true, false},
+				{false, true, false, false, true, false},
+				{false, true, true, true, true, false},
+				{false, false, false, false, false, false},
+			}),
+			[][]intgeom.Point2{
+				{intgeom.Point2{2, 2},
+					intgeom.Point2{2, 3},
+					intgeom.Point2{3, 3},
+					intgeom.Point2{3, 2}},
+			},
+			6, 6,
 		},
 	}
 	for _, sh := range shapes {
-		assert.Equal(t, sh.out, GetHoles(sh.sh, sh.w, sh.h))
+		holes := GetHoles(sh.sh, sh.w, sh.h)
+		found := map[intgeom.Point2]bool{}
+		for _, group := range holes {
+			for _, p1 := range group {
+				found[p1] = true
+			}
+		}
+		for _, col := range sh.out {
+			for _, p := range col {
+				assert.True(t, found[p])
+				delete(found, p)
+			}
+		}
+		assert.Empty(t, found)
 	}
 }
