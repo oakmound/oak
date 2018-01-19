@@ -91,6 +91,13 @@ func (s *Solid) ShiftSpace(x, y float64) {
 	s.Tree.UpdateSpace(s.X()+x, s.Y()+y, s.W, s.H, s.Space)
 }
 
+// HitLabel will return the first space that this solid
+// collides with matching the given label that it finds,
+// or nil if it finds nothing.
+func (s *Solid) HitLabel(classtype collision.Label) *collision.Space {
+	return s.Tree.HitLabel(s.Space, classtype)
+}
+
 // Overwrites
 
 // Init satisfies event.Entity

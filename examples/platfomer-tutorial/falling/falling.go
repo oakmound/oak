@@ -44,7 +44,7 @@ func main() {
 			if oak.IsDown(key.D) {
 				char.ShiftX(char.Speed.X())
 			}
-			hit := collision.HitLabel(char.Space, Ground)
+			hit := char.HitLabel(Ground)
 			if hit == nil {
 				// Fall if there's no ground
 				char.Delta.ShiftY(fallSpeed)
