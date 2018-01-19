@@ -55,12 +55,10 @@ func main() {
 			aboveGround := false
 
 			hit := collision.HitLabel(char.Space, Ground)
-			if hit == nil {
-				// Fall if there's no ground
-				char.Delta.ShiftY(fallSpeed)
-				// If we've moved in y value this frame and in the last frame,
-				// we were below what we're trying to hit, we are still falling
-			} else if !(oldY != char.Y() && oldY+char.H > hit.Y()) {
+
+			// If we've moved in y value this frame and in the last frame,
+			// we were below what we're trying to hit, we are still falling
+			if hit != nil && !(oldY != char.Y() && oldY+char.H > hit.Y()) {
 				// Correct our y if we started falling into the ground
 				char.SetY(hit.Y() - char.H)
 				// Stop falling
@@ -70,6 +68,9 @@ func main() {
 					char.Delta.ShiftY(-char.Speed.Y())
 				}
 				aboveGround = true
+			} else {
+				// Fall if there's no ground
+				char.Delta.ShiftY(fallSpeed)
 			}
 
 			if hit != nil {
