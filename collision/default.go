@@ -65,7 +65,5 @@ func (s *Space) SetDim(w, h float64) error {
 // UpdateLabel changes the label behind this space and resets
 // it in the default rtree
 func (s *Space) UpdateLabel(classtype Label) {
-	DefTree.Remove(s)
-	s.Label = classtype
-	DefTree.Add(s)
+	DefTree.UpdateLabel(s, classtype)
 }

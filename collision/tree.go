@@ -82,6 +82,15 @@ func (t *Tree) Remove(sps ...*Space) int {
 	return removed
 }
 
+// UpdateLabel will set the input space's label in this tree. Modifying a
+// space's label without going through a tree's method such as this will
+// have no effect.
+func (t *Tree) UpdateLabel(s *Space, classtype Label) {
+	t.Remove(s)
+	s.Label = classtype
+	t.Add(s)
+}
+
 // UpdateSpace resets a space's location to a given
 // rtreego.Rect.
 // This is not an operation on a space because
