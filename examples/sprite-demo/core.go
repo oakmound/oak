@@ -75,7 +75,7 @@ func main() {
 }
 
 type Gopher struct {
-	entities.Doodad
+	*entities.Doodad
 	deltaX, deltaY float64
 	rotation       int
 }

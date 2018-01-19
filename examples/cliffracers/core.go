@@ -32,7 +32,7 @@ const (
 )
 
 type CliffRacer struct {
-	entities.Moving
+	*entities.Moving
 }
 
 func (cr *CliffRacer) Init() event.CID {
@@ -72,7 +72,7 @@ func moveCliffRacer(id int, nothing interface{}) int {
 }
 
 type Player struct {
-	entities.Solid
+	*entities.Solid
 }
 
 func (p *Player) Init() event.CID {

@@ -73,7 +73,7 @@ func main() {
 
 // A Flappy is on a journey to go to the right
 type Flappy struct {
-	entities.Interactive
+	*entities.Interactive
 }
 
 // Init satisfies the event.Entity interface
@@ -131,7 +131,7 @@ func newFlappy(x, y float64) *Flappy {
 
 // A Pillar blocks flappy from continuing forward
 type Pillar struct {
-	entities.Solid
+	*entities.Solid
 	hasScored bool
 }
 

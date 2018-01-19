@@ -129,7 +129,7 @@ func main() {
 }
 
 type AttachCollisionTest struct {
-	entities.Solid
+	*entities.Solid
 	// AttachSpace is a composable struct that allows
 	// spaces to be attached to vectors
 	collision.AttachSpace
