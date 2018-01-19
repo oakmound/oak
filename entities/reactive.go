@@ -19,10 +19,10 @@ type Reactive struct {
 
 // NewReactive returns a new Reactive struct. The added space will
 // be added to the input tree, or DefTree if none is given.
-func NewReactive(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CID) Reactive {
+func NewReactive(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CID) *Reactive {
 	rct := Reactive{}
 	cid = cid.Parse(&rct)
-	rct.Doodad = NewDoodad(x, y, r, cid)
+	rct.Doodad = *NewDoodad(x, y, r, cid)
 	rct.W = w
 	rct.H = h
 	rct.RSpace = collision.NewEmptyReactiveSpace(collision.NewSpace(x, y, w, h, cid))
@@ -31,7 +31,7 @@ func NewReactive(x, y, w, h float64, r render.Renderable, tree *collision.Tree, 
 	}
 	rct.Tree = tree
 	rct.Tree.Add(rct.RSpace.Space)
-	return rct
+	return &rct
 }
 
 // SetDim sets the dimensions of this reactive's space and it's logical dimensions

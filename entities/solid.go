@@ -19,10 +19,10 @@ type Solid struct {
 // NewSolid returns an initialized Solid that is not drawn and whose space
 // belongs to the given collision tree. If nil is given as the tree, it will
 // belong to collision.DefTree
-func NewSolid(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CID) Solid {
+func NewSolid(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CID) *Solid {
 	s := Solid{}
 	cid = cid.Parse(&s)
-	s.Doodad = NewDoodad(x, y, r, cid)
+	s.Doodad = *NewDoodad(x, y, r, cid)
 	s.W = w
 	s.H = h
 	if tree == nil {
@@ -31,7 +31,7 @@ func NewSolid(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid
 	s.Tree = tree
 	s.Space = collision.NewSpace(x, y, w, h, cid)
 	s.Tree.Add(s.Space)
-	return s
+	return &s
 }
 
 // SetDim sets the logical dimensions of the solid and the real
@@ -77,6 +77,18 @@ func (s *Solid) ShiftY(y float64) {
 // ShiftPos moves a solid by (x,y)
 func (s *Solid) ShiftPos(x, y float64) {
 	s.SetPos(s.X()+x, s.Y()+y)
+}
+
+// UpdateLabel will update it's label in this solid's
+// collision tree.
+func (s *Solid) UpdateLabel(classtype collision.Label) {
+	s.Tree.UpdateLabel(s.Space, classtype)
+}
+
+// ShiftSpace will shift this solid's collision space
+// by (x,y)
+func (s *Solid) ShiftSpace(x, y float64) {
+	s.Tree.UpdateSpace(s.X()+x, s.Y()+y, s.W, s.H, s.Space)
 }
 
 // Overwrites
