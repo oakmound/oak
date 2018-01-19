@@ -78,14 +78,12 @@ type Flappy struct {
 
 // Init satisfies the event.Entity interface
 func (f *Flappy) Init() event.CID {
-	f.CID = event.NextID(f)
-	return f.CID
+	return event.NextID(f)
 }
 
 func newFlappy(x, y float64) *Flappy {
 	f := new(Flappy)
-	f.Init()
-	f.Interactive = entities.NewInteractive(x, y, 32, 32, render.NewColorBox(32, 32, color.RGBA{0, 255, 255, 255}), nil, f.CID, 1)
+	f.Interactive = entities.NewInteractive(x, y, 32, 32, render.NewColorBox(32, 32, color.RGBA{0, 255, 255, 255}), nil, f.Init(), 1)
 
 	f.RSpace.Add(pillar, func(s1, s2 *collision.Space) {
 		playerHitPillar = true
@@ -137,19 +135,21 @@ type Pillar struct {
 
 // Init satisfies the event.Entity interface
 func (p *Pillar) Init() event.CID {
-	p.CID = event.NextID(p)
-	return p.CID
+	return event.NextID(p)
 }
 
 func newPillar(x, y, h float64, isAbove bool) {
 	p := new(Pillar)
-	p.Init()
-	p.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), nil, p.CID)
+	p.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), nil, p.Init())
 	p.Space.Label = pillar
 	collision.Add(p.Space)
 	p.Bind(enterPillar, event.Enter)
 	p.R.SetLayer(1)
 	render.Draw(p.R, 0)
+	// Don't score one out of each two pillars
+	if isAbove {
+		p.hasScored = true
+	}
 }
 
 func newPillarPair() {

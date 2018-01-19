@@ -144,9 +144,7 @@ type AttachCollisionTest struct {
 }
 
 func (act *AttachCollisionTest) Init() event.CID {
-	cid := event.NextID(act)
-	act.CID = cid
-	return cid
+	return event.NextID(act)
 }
 
 func (act *AttachCollisionTest) UpdateR() {

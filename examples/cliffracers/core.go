@@ -36,9 +36,7 @@ type CliffRacer struct {
 }
 
 func (cr *CliffRacer) Init() event.CID {
-	cid := event.NextID(cr)
-	cr.CID = cid
-	return cid
+	return event.NextID(cr)
 }
 
 func NewCliffRacer(y float64) *CliffRacer {
@@ -76,9 +74,7 @@ type Player struct {
 }
 
 func (p *Player) Init() event.CID {
-	cid := event.NextID(p)
-	p.CID = cid
-	return cid
+	return event.NextID(p)
 }
 
 func NewPlayer() {

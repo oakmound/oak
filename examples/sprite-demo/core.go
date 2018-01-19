@@ -81,8 +81,7 @@ type Gopher struct {
 }
 
 func (g *Gopher) Init() event.CID {
-	g.CID = event.NextID(g)
-	return g.CID
+	return event.NextID(g)
 }
 
 func NewGopher(layer int) {
