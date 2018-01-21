@@ -12,7 +12,7 @@ import (
 // Our current concept of thickness expands out in both directions,
 // so it's impossible to draw a even-pixel thick line. This is probably
 // okay for an easy syntax like this but we might want to add in a
-// "Line constructor" type object like our ray-casters in release/2.0.0
+// "Line constructor" type object like our ray-casters
 // so this behavior can be customized, i.e.-- if you take thickness as
 // pixel thickness, do you expand out left or right, or center, and how
 // are ties broken, etc. That would also help prevent the number of

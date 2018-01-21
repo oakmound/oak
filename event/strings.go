@@ -22,9 +22,6 @@ const (
 	// Enter : the beginning of every logical frame.
 	// Payload: (int) frames passed since this scene started
 	Enter = "EnterFrame"
-	//
-	// Consider moving the below to different packages before 2.0 release
-	//
 	// AnimationEnd: Triggered on animations CIDs when they loop from the last to the first frame
 	// Payload: nil
 	AnimationEnd = "AnimationEnd"

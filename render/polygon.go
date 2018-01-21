@@ -46,7 +46,6 @@ func NewPolygon(points ...floatgeom.Point2) (*Polygon, error) {
 }
 
 // UpdatePoints resets the points of this polygon to be the passed in points
-// Todo 2.0: Take in a variadic set instead of a slice
 func (pg *Polygon) UpdatePoints(points ...floatgeom.Point2) error {
 	if len(points) < 3 {
 		return oakerr.InsufficientInputs{AtLeast: 3, InputName: "points"}

@@ -26,10 +26,6 @@ const (
 	fuzzCt = 10
 )
 
-// Todo for color boxes, and things that take w/h --
-// return an error for negative (or 0 in some cases) w / h. The engine assumes
-// right now that the inputs will be valid, which is a mistake
-// this is a breaking change for 2.0
 func TestColorBoxFuzz(t *testing.T) {
 	for i := 0; i < fuzzCt; i++ {
 		w := widths.Poll()
