@@ -9,7 +9,6 @@ import (
 
 // A Modifiable is a Renderable that has functions to change its
 // underlying image.
-// This may be replaced with the gift library down the line
 type Modifiable interface {
 	Renderable
 	GetRGBA() *image.RGBA
