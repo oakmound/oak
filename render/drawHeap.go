@@ -14,6 +14,7 @@ type RenderableHeap struct {
 	toPush  []Renderable
 	static  bool
 	addLock sync.RWMutex
+	DrawPolygon
 }
 
 // NewHeap creates a new renderableHeap. The static boolean represents whether
@@ -119,7 +120,7 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 					y := h + y2
 					if x > viewPos.X && y > viewPos.Y &&
 						x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
-						if InDrawPolygon(x, y, x2, y2) {
+						if rh.InDrawPolygon(x, y, x2, y2) {
 							r.DrawOffset(world, vx, vy)
 						}
 					}

@@ -131,6 +131,7 @@ type CompositeR struct {
 	LayeredPoint
 	toPush []Renderable
 	rs     []Renderable
+	DrawPolygon
 }
 
 // NewCompositeR creates a new CompositeR from a slice of renderables
@@ -267,7 +268,7 @@ func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, scree
 		if x > viewPos.X && y > viewPos.Y &&
 			x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
 
-			if InDrawPolygon(x, y, x2, y2) {
+			if cs.InDrawPolygon(x, y, x2, y2) {
 				r.DrawOffset(world, float64(-viewPos.X), float64(-viewPos.Y))
 			}
 		}

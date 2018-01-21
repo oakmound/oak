@@ -8,12 +8,13 @@ import (
 )
 
 func TestDrawPolygon(t *testing.T) {
+	rh := RenderableHeap{}
 
-	a, b, c, d := DrawPolygonDim()
-	assert.Equal(t, 0.0, a)
-	assert.Equal(t, 0.0, b)
-	assert.Equal(t, 0.0, c)
-	assert.Equal(t, 0.0, d)
+	r := rh.DrawPolygonDim()
+	assert.Equal(t, 0.0, r.Min.X())
+	assert.Equal(t, 0.0, r.Min.Y())
+	assert.Equal(t, 0.0, r.Max.X())
+	assert.Equal(t, 0.0, r.Max.Y())
 
 	x := 10.0
 	y := 10.0
@@ -21,13 +22,13 @@ func TestDrawPolygon(t *testing.T) {
 	y2 := 20.0
 
 	pgn := polyclip.Polygon{{{X: x, Y: y}, {X: x, Y: y2}, {X: x2, Y: y2}, {X: x2, Y: y}}}
-	SetDrawPolygon(pgn)
+	rh.SetDrawPolygon(pgn)
 
-	x3, y3, x4, y4 := DrawPolygonDim()
-	assert.Equal(t, x, x3)
-	assert.Equal(t, y, y3)
-	assert.Equal(t, x2, x4)
-	assert.Equal(t, y2, y4)
+	r = rh.DrawPolygonDim()
+	assert.Equal(t, x, r.Min.X())
+	assert.Equal(t, y, r.Min.Y())
+	assert.Equal(t, x2, r.Max.X())
+	assert.Equal(t, y2, r.Max.Y())
 
 	type testcase struct {
 		elems         [4]int
@@ -41,13 +42,13 @@ func TestDrawPolygon(t *testing.T) {
 	}
 
 	for _, cas := range tests {
-		assert.Equal(t, cas.shouldSucceed, InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]))
+		assert.Equal(t, cas.shouldSucceed, rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]))
 	}
 
-	ClearDrawPolygon()
+	rh.ClearDrawPolygon()
 
 	for _, cas := range tests {
-		assert.Equal(t, true, InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]))
+		assert.Equal(t, true, rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]))
 
 	}
 }
