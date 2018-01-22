@@ -12,7 +12,7 @@ func RoundF64(a float64) int {
 	return int(math.Floor(a + 0.5))
 }
 
-var (
+const (
 	ε = 1.0e-7
 )
 

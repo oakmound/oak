@@ -1,12 +1,11 @@
 package timing
 
 import (
-	"math"
 	"time"
 )
 
-var (
-	nanoPerSecond = math.Pow(10, 9)
+const (
+	nanoPerSecond = 1000000000
 )
 
 // FPS returns the number of frames being processed per second,
