@@ -3,9 +3,11 @@ package floatgeom
 //Tri3 is a triangle of Point3s
 type Tri3 [3]Point3
 
-//Centroid finds the centroid of a triangle
+// Barycentric finds the barycentric coordinates of the given x,y cartesian
+// coordinates within this triangle. If the point (x,y) is outside of the
+// triangle, one of the output values will be negative.
 // Credit goes to github.com/yellingintothefan for their work in gel
-func (t Tri3) Centroid(x, y float64) Point3 {
+func (t Tri3) Barycentric(x, y float64) Point3 {
 	p := Point3{x, y, 0.0}
 	v0 := t[1].Sub(t[0])
 	v1 := t[2].Sub(t[0])
