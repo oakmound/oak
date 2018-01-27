@@ -59,7 +59,7 @@ func NewCaster(opts ...CastOption) *Caster {
 
 // CastTo casts a ray from origin to target, and otherwise acts as Cast.
 func (c *Caster) CastTo(origin, target floatgeom.Point2) []collision.Point {
-	return c.Cast(origin, floatgeom.AnglePoint(origin.AngleTo(target)))
+	return c.Cast(origin, floatgeom.AnglePoint(target.AngleTo(origin)))
 }
 
 // Cast creates a ray from origin pointing at the given angle and returns
