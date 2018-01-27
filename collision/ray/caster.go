@@ -17,6 +17,7 @@ var (
 		// there isn't a reasonable default.
 		// Consider: Cast() could take in distance as well.
 		CastDistance: 200,
+		Tree:         collision.DefTree,
 	}
 )
 
@@ -115,6 +116,16 @@ func (c *Caster) Copy() *Caster {
 	return c2
 }
 
+// Cast calls DefaultCaster.Cast. See (*Caster).Cast
+func Cast(origin, angle floatgeom.Point2) []collision.Point {
+	return DefaultCaster.Cast(origin, angle)
+}
+
+// CastTo calls DefaultCaster.CastTo. See (*Caster).CastTo
+func CastTo(origin, target floatgeom.Point2) []collision.Point {
+	return DefaultCaster.CastTo(origin, target)
+}
+
 // Tree sets the collision tree of a Caster.
 func Tree(t *collision.Tree) CastOption {
 	return func(c *Caster) {
@@ -135,5 +146,19 @@ func CenterPoints(on bool) CastOption {
 func Distance(dist float64) CastOption {
 	return func(c *Caster) {
 		c.CastDistance = dist
+	}
+}
+
+// PointSize determines the size of a caster's collision checks
+func PointSize(ps floatgeom.Point2) CastOption {
+	return func(c *Caster) {
+		c.PointSize = ps
+	}
+}
+
+// PointSpan determines the distance between collision check points
+func PointSpan(span float64) CastOption {
+	return func(c *Caster) {
+		c.PointSpan = span
 	}
 }

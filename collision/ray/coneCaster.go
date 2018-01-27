@@ -12,6 +12,7 @@ var (
 	DefaultConeCaster = &ConeCaster{
 		Caster:     DefaultCaster,
 		CenterCone: true,
+		ConeSpread: 1,
 		Rays:       1,
 	}
 )
@@ -78,6 +79,16 @@ func (cc *ConeCaster) Copy() *ConeCaster {
 	cc2 := new(ConeCaster)
 	*cc2 = *cc
 	return cc2
+}
+
+// ConeCast calls DefaultConeCaster.Cast. See (*ConeCaster).Cast
+func ConeCast(origin, angle floatgeom.Point2) []collision.Point {
+	return DefaultConeCaster.Cast(origin, angle)
+}
+
+// ConeCastTo calls DefaultConeCaster.CastTo. See (*ConeCaster).CastTo
+func ConeCastTo(origin, target floatgeom.Point2) []collision.Point {
+	return DefaultConeCaster.CastTo(origin, target)
 }
 
 // CenterCone sets whether the caster should center its cones around the
