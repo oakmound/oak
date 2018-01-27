@@ -4,6 +4,7 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/oakmound/oak/alg/floatgeom"
 	"github.com/oakmound/oak/oakerr"
 )
 
@@ -103,6 +104,18 @@ func (t *Tree) UpdateSpace(x, y, w, h float64, s *Space) error {
 	t.Lock()
 	t.Delete(s)
 	s.Location = loc
+	t.Insert(s)
+	t.Unlock()
+	return nil
+}
+
+func (t *Tree) UpdateSpaceRect(rect floatgeom.Rect3, s *Space) error {
+	if s == nil {
+		return oakerr.NilInput{InputName: "s"}
+	}
+	t.Lock()
+	t.Delete(s)
+	s.Location = rect
 	t.Insert(s)
 	t.Unlock()
 	return nil

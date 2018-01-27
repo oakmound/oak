@@ -223,6 +223,16 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 	}
 }
 
+// NewRectSpace creates a colliison space with the specified 3D rectangle
+func NewRectSpace(rect floatgeom.Rect3, l Label, cID event.CID) *Space {
+	return &Space{
+		rect,
+		l,
+		cID,
+		CID,
+	}
+}
+
 // NewRect is a wrapper around rtreego.NewRect,
 // casting the given x,y to an rtreego.Point.
 // Used to not expose rtreego.Point to the user.

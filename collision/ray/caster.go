@@ -130,3 +130,10 @@ func CenterPoints(on bool) CastOption {
 		c.CenterPoints = on
 	}
 }
+
+// Distance determines how far a caster will project rays before stopping
+func Distance(dist float64) CastOption {
+	return func(c *Caster) {
+		c.CastDistance = dist
+	}
+}
