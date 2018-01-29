@@ -1,15 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	"math/rand"
+	"path/filepath"
 	"time"
+
+	"github.com/oakmound/oak/render/mod"
 
 	"github.com/oakmound/oak"
 	"github.com/oakmound/oak/alg/floatgeom"
 	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/collision/ray"
+	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/entities"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/key"
@@ -32,18 +35,35 @@ var (
 	// position so long as we don't reset
 	// the player's position vector
 	playerPos physics.Vector
+
+	sheet [][]*render.Sprite
 )
 
 func main() {
 	oak.Add("tds", func(string, interface{}) {
+		// Initialization
 		playerAlive = true
+		var err error
+		sheet = render.GetSheet(filepath.Join("16x16", "sheet.png"))
+
+		// Player setup
+		eggplant, err := render.LoadSprite(filepath.Join("character", "eggplant-fish.png"))
+		playerR := render.NewSwitch("left", map[string]render.Modifiable{
+			"left": eggplant,
+			// We must copy the sprite before we modify it, or "left"
+			// will also be flipped.
+			"right": eggplant.Copy().Modify(mod.FlipX),
+		})
+		if err != nil {
+			dlog.Error(err)
+		}
 		char := entities.NewMoving(100, 100, 32, 32,
-			render.NewColorBox(32, 32, color.RGBA{0, 255, 0, 255}),
+			playerR,
 			nil, 0, 0)
 
 		char.Speed = physics.NewVector(5, 5)
 		playerPos = char.Point.Vector
-		render.Draw(char.R)
+		render.Draw(char.R, 2)
 
 		char.Bind(func(id int, _ interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
@@ -66,6 +86,18 @@ func main() {
 				playerAlive = false
 			}
 
+			// update animation
+			swtch := char.R.(*render.Switch)
+			if char.Delta.X() > 0 {
+				if swtch.Get() == "left" {
+					swtch.Set("right")
+				}
+			} else if char.Delta.X() < 0 {
+				if swtch.Get() == "right" {
+					swtch.Set("left")
+				}
+			}
+
 			return 0
 		}, event.Enter)
 
@@ -81,11 +113,12 @@ func main() {
 			}
 			render.DrawForTime(
 				render.NewLine(x, y, mevent.X(), mevent.Y(), color.RGBA{0, 128, 0, 128}),
-				1,
+				2,
 				time.Millisecond*50)
 			return 0
 		}, mouse.Press)
 
+		// Create enemies periodically
 		event.GlobalBind(func(_ int, frames interface{}) int {
 			f := frames.(int)
 			if f%EnemyRefresh == 0 {
@@ -94,11 +127,27 @@ func main() {
 			return 0
 		}, event.Enter)
 
+		// Draw the background
+		for x := 0; x < oak.ScreenWidth; x += 16 {
+			for y := 0; y < oak.ScreenHeight; y += 16 {
+				i := rand.Intn(3) + 1
+				// Get a random tile to draw in this position
+				sp := sheet[i/2][i%2].Copy()
+				sp.SetPos(float64(x), float64(y))
+				render.Draw(sp, 1)
+			}
+		}
+
 	}, func() bool {
 		return playerAlive
 	}, func() (string, *scene.Result) {
 		return "tds", nil
 	})
+
+	// This indicates to oak to automatically open and load image and audio
+	// files local to the project before starting any scene.
+	oak.SetupConfig.BatchLoad = true
+
 	oak.Init("tds")
 }
 
@@ -110,11 +159,16 @@ const (
 func NewEnemy() {
 	x, y := enemyPos()
 
+	enemyFrame := sheet[0][0].Copy()
+	enemyR := render.NewSwitch("left", map[string]render.Modifiable{
+		"left":  enemyFrame,
+		"right": enemyFrame.Copy().Modify(mod.FlipX),
+	})
 	enemy := entities.NewSolid(x, y, 16, 16,
-		render.NewColorBox(16, 16, color.RGBA{200, 0, 0, 200}),
+		enemyR,
 		nil, 0)
 
-	render.Draw(enemy.R)
+	render.Draw(enemy.R, 2)
 
 	enemy.UpdateLabel(Enemy)
 
@@ -126,12 +180,23 @@ func NewEnemy() {
 		pt2 := floatgeom.Point2{playerPos.X(), playerPos.Y()}
 		delta := pt2.Sub(pt).Normalize().MulConst(EnemySpeed)
 		enemy.ShiftPos(delta.X(), delta.Y())
+
+		// update animation
+		swtch := enemy.R.(*render.Switch)
+		if delta.X() > 0 {
+			if swtch.Get() == "left" {
+				swtch.Set("right")
+			}
+		} else if delta.X() < 0 {
+			if swtch.Get() == "right" {
+				swtch.Set("left")
+			}
+		}
 		return 0
 	}, event.Enter)
 
 	enemy.Bind(func(id int, _ interface{}) int {
 		enemy := event.GetEntity(id).(*entities.Solid)
-		fmt.Println("destroying")
 		enemy.Destroy()
 		return 0
 	}, "Destroy")
