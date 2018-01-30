@@ -26,6 +26,7 @@ type Generator struct {
 	Font         *render.Font
 	Layer        int
 	Text         string
+	Children     []Generator
 	// This should be a map
 	Binding    event.Bindable
 	Trigger    string
@@ -49,19 +50,23 @@ var (
 		R1:    nil,
 		R2:    nil,
 
-		Cid:     0,
-		Font:    nil,
-		Layer:   0,
-		Text:    "Button",
-		Binding: nil,
-		Trigger: "MouseClickOn",
+		Children: []Generator{},
+		Cid:      0,
+		Font:     nil,
+		Layer:    0,
+		Text:     "Button",
+		Binding:  nil,
+		Trigger:  "MouseClickOn",
 
 		Toggle: nil,
 	}
 )
 
 // Generate creates a Button from a generator.
-func (g Generator) Generate() *TextBox {
+func (g Generator) Generate() Btn {
+	return g.generate(nil)
+}
+func (g Generator) generate(parent *Generator) Btn {
 	var box render.Modifiable
 	if g.Toggle != nil {
 		//Handles checks and other toggle situations
@@ -164,7 +169,7 @@ func (g Generator) Generate() *TextBox {
 type Option func(Generator) Generator
 
 // New creates a button with the given options and defaults for all variables not set.
-func New(opts ...Option) *TextBox {
+func New(opts ...Option) Btn {
 	g := defaultGenerator
 	for _, opt := range opts {
 		g = opt(g)

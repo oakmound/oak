@@ -10,3 +10,11 @@ type Group struct {
 func (g *Group) GetActive() Btn {
 	return g.active
 }
+
+// ToggleGroup sets the group that this button is linked with
+func ToggleGroup(gr *Group) Option {
+	return func(g Generator) Generator {
+		g.Group = gr
+		return g
+	}
+}

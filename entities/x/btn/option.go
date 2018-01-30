@@ -43,15 +43,6 @@ func Pos(x, y float64) Option {
 	}
 }
 
-//TxtOff sets the text offset  of the button generator from the bottom left
-func TxtOff(x, y float64) Option {
-	return func(g Generator) Generator {
-		g.TxtX = x
-		g.TxtY = y
-		return g
-	}
-}
-
 //CID sets the starting CID of the button to be generated
 func CID(c event.CID) Option {
 	return func(g Generator) Generator {
@@ -99,26 +90,10 @@ func AndMod(m mod.Transform) Option {
 	}
 }
 
-//Font sets the font for the text of the button to be generated
-func Font(f *render.Font) Option {
-	return func(g Generator) Generator {
-		g.Font = f
-		return g
-	}
-}
-
 //Layer sets the layer of the button to be generated
 func Layer(l int) Option {
 	return func(g Generator) Generator {
 		g.Layer = l
-		return g
-	}
-}
-
-//Text sets the text of the button to be generated
-func Text(s string) Option {
-	return func(g Generator) Generator {
-		g.Text = s
 		return g
 	}
 }
@@ -131,14 +106,6 @@ func Toggle(r1, r2 render.Modifiable, isChecked *bool) Option {
 		g.R1 = r1.Copy()
 		g.R2 = r2.Copy()
 		g.Toggle = isChecked
-		return g
-	}
-}
-
-// ToggleGroup sets the group that this button is linked with
-func ToggleGroup(gr *Group) Option {
-	return func(g Generator) Generator {
-		g.Group = gr
 		return g
 	}
 }
