@@ -23,6 +23,27 @@ type Start func(prevScene string, data interface{})
 // should continue to loop.
 type Loop func() bool
 
-// End is a function returning the next scene and a SceneResult of 
+// End is a function returning the next scene and a SceneResult of
 // input settings for the next scene.
 type End func() (string, *Result)
+
+// BooleanLoop returns a Loop function that will end a scene as soon as the
+// input boolean is false, resetting it to true in the process for the
+// next scene
+func BooleanLoop(b *bool) Loop {
+	return func() bool {
+		if !(*b) {
+			*b = true
+			return false
+		}
+		return true
+	}
+}
+
+// GoTo returns an End function that, without any other customization possible,
+// will change to the input next scene.
+func GoTo(nextScene string) End {
+	return func() (string, *Result) {
+		return nextScene, nil
+	}
+}

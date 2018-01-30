@@ -39,6 +39,12 @@ func AddCommand(s string, fn func([]string)) error {
 	return nil
 }
 
+// ResetCommands will throw out all existing debug commands from the
+// debug console.
+func ResetCommands() {
+	commands = map[string]func([]string){}
+}
+
 func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 	scanner := bufio.NewScanner(input)
 	spew.Config.DisableMethods = true
