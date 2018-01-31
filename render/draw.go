@@ -23,12 +23,12 @@ func EmptyRenderable() Modifiable {
 
 // LoadSpriteAndDraw is shorthand for LoadSprite
 // followed by Draw.
-func LoadSpriteAndDraw(filename string, l int) (Renderable, error) {
+func LoadSpriteAndDraw(filename string, layers ...int) (Renderable, error) {
 	s, err := LoadSprite(filename)
 	if err != nil {
 		return nil, err
 	}
-	return Draw(s, l)
+	return Draw(s, layers...)
 }
 
 // DrawColor is equivalent to LoadSpriteAndDraw,
