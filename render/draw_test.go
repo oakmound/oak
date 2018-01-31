@@ -38,7 +38,7 @@ func TestDrawHelpers(t *testing.T) {
 	_, err = DrawColor(color.RGBA{255, 255, 255, 255}, 0, 0, 10, 10, 0, 3)
 	assert.NotNil(t, err)
 
-	err = DrawForTime(NewColorBox(5, 5, color.RGBA{255, 255, 255, 255}), 4, 0)
+	err = DrawForTime(NewColorBox(5, 5, color.RGBA{255, 255, 255, 255}), 0, 4)
 	assert.NotNil(t, err)
 
 	err = DrawForTime(NewColorBox(5, 5, color.RGBA{255, 255, 255, 255}), 0, 0)

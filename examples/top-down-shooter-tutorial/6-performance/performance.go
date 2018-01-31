@@ -23,8 +23,7 @@ import (
 )
 
 const (
-	Enemy  collision.Label = 1
-	Player collision.Label = 2
+	Enemy collision.Label = 1
 )
 
 var (
@@ -39,12 +38,20 @@ var (
 	sheet [][]*render.Sprite
 )
 
+const (
+	fieldWidth  = 1000
+	fieldHeight = 1000
+)
+
 func main() {
+
 	oak.Add("tds", func(string, interface{}) {
 		// Initialization
 		playerAlive = true
 		var err error
 		sheet = render.GetSheet(filepath.Join("16x16", "sheet.png"))
+
+		oak.SetViewportBounds(0, 0, fieldWidth, fieldHeight)
 
 		// Player setup
 		eggplant, err := render.LoadSprite(filepath.Join("character", "eggplant-fish.png"))
@@ -63,7 +70,7 @@ func main() {
 
 		char.Speed = physics.NewVector(5, 5)
 		playerPos = char.Point.Vector
-		render.Draw(char.R, 2)
+		render.Draw(char.R, 1, 2)
 
 		char.Bind(func(id int, _ interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
@@ -81,6 +88,21 @@ func main() {
 				char.Delta.ShiftX(char.Speed.X())
 			}
 			char.ShiftPos(char.Delta.X(), char.Delta.Y())
+			// Don't go out of bounds
+			if char.X() < 0 {
+				char.SetX(0)
+			} else if char.X() > fieldWidth-char.W {
+				char.SetX(fieldWidth - char.W)
+			}
+			if char.Y() < 0 {
+				char.SetY(0)
+			} else if char.Y() > fieldHeight-char.H {
+				char.SetY(fieldHeight - char.H)
+			}
+			oak.SetScreen(
+				int(char.R.X())-oak.ScreenWidth/2,
+				int(char.R.Y())-oak.ScreenHeight/2,
+			)
 			hit := char.HitLabel(Enemy)
 			if hit != nil {
 				playerAlive = false
@@ -106,15 +128,17 @@ func main() {
 			mevent := me.(mouse.Event)
 			x := char.X() + char.W/2
 			y := char.Y() + char.H/2
-			ray.DefaultCaster.CastDistance = floatgeom.Point2{x, y}.Sub(floatgeom.Point2{mevent.X(), mevent.Y()}).Magnitude()
-			hits := ray.CastTo(floatgeom.Point2{x, y}, floatgeom.Point2{mevent.X(), mevent.Y()})
+			mx := mevent.X() + float64(oak.ViewPos.X)
+			my := mevent.Y() + float64(oak.ViewPos.Y)
+			ray.DefaultCaster.CastDistance = floatgeom.Point2{x, y}.Sub(floatgeom.Point2{mx, my}).Magnitude()
+			hits := ray.CastTo(floatgeom.Point2{x, y}, floatgeom.Point2{mx, my})
 			for _, hit := range hits {
 				hit.Zone.CID.Trigger("Destroy", nil)
 			}
 			render.DrawForTime(
-				render.NewLine(x, y, mevent.X(), mevent.Y(), color.RGBA{0, 128, 0, 128}),
+				render.NewLine(x, y, mx, my, color.RGBA{0, 128, 0, 128}),
 				time.Millisecond*50,
-				2)
+				1, 2)
 			return 0
 		}, mouse.Press)
 
@@ -128,13 +152,13 @@ func main() {
 		}, event.Enter)
 
 		// Draw the background
-		for x := 0; x < oak.ScreenWidth; x += 16 {
-			for y := 0; y < oak.ScreenHeight; y += 16 {
+		for x := 0; x < fieldWidth; x += 16 {
+			for y := 0; y < fieldHeight; y += 16 {
 				i := rand.Intn(3) + 1
 				// Get a random tile to draw in this position
 				sp := sheet[i/2][i%2].Copy()
 				sp.SetPos(float64(x), float64(y))
-				render.Draw(sp, 1)
+				render.Draw(sp, 0, 1)
 			}
 		}
 
@@ -148,11 +172,18 @@ func main() {
 	// files local to the project before starting any scene.
 	oak.SetupConfig.BatchLoad = true
 
+	render.SetDrawStack(
+		render.NewCompositeR(),
+		render.NewHeap(false),
+		render.NewDrawFPS(),
+		render.NewLogicFPS(),
+	)
+
 	oak.Init("tds")
 }
 
 const (
-	EnemyRefresh = 30
+	EnemyRefresh = 25
 	EnemySpeed   = 2
 )
 
@@ -168,7 +199,7 @@ func NewEnemy() {
 		enemyR,
 		nil, 0)
 
-	render.Draw(enemy.R, 2)
+	render.Draw(enemy.R, 1, 2)
 
 	enemy.UpdateLabel(Enemy)
 
@@ -204,23 +235,23 @@ func NewEnemy() {
 
 func enemyPos() (float64, float64) {
 	// Spawn on the edge of the screen
-	perimeter := oak.ScreenWidth*2 + oak.ScreenHeight*2
+	perimeter := fieldWidth*2 + fieldHeight*2
 	pos := int(rand.Float64() * float64(perimeter))
 	// Top
-	if pos < oak.ScreenWidth {
+	if pos < fieldWidth {
 		return float64(pos), 0
 	}
-	pos -= oak.ScreenWidth
+	pos -= fieldWidth
 	// Right
-	if pos < oak.ScreenHeight {
-		return float64(oak.ScreenWidth), float64(pos)
+	if pos < fieldHeight {
+		return float64(fieldWidth), float64(pos)
 	}
 	// Bottom
-	pos -= oak.ScreenHeight
-	if pos < oak.ScreenWidth {
-		return float64(pos), float64(oak.ScreenHeight)
+	pos -= fieldHeight
+	if pos < fieldWidth {
+		return float64(pos), float64(fieldHeight)
 	}
-	pos -= oak.ScreenWidth
+	pos -= fieldWidth
 	// Left
 	return 0, float64(pos)
 }
