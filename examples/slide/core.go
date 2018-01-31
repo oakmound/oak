@@ -63,7 +63,7 @@ func main() {
 		width-(width/15), height-(height/15),
 		width-(width/5), height-(height/15))
 
-	bkg := render.NewComposite(
+	bkg := render.NewCompositeM(
 		render.NewColorBox(width, height, colornames.Seagreen),
 		render.BezierThickLine(bz1, colornames.White, 1),
 		render.BezierThickLine(bz2, colornames.White, 1),
