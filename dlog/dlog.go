@@ -1,6 +1,9 @@
 package dlog
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 // A Logger is a minimal log interface for the content oak wants to log:
 // four levels of logging.
@@ -67,6 +70,7 @@ func SetLogger(l Logger) {
 
 // ParseDebugLevel parses the input string as a known debug levels
 func ParseDebugLevel(s string) (Level, error) {
+	s = strings.ToUpper(s)
 	switch s {
 	case "INFO":
 		return INFO, nil
