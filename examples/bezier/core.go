@@ -31,7 +31,7 @@ func renderCurve(floats []float64) {
 
 func main() {
 
-	// c bezier X Y X Y X Y ...
+	// bezier X Y X Y X Y ...
 	// for defining custom points without using the mouse.
 	// does not interact with the mouse points tracked through left clicks.
 	oak.AddCommand("bezier", func(tokens []string) {
