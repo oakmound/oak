@@ -24,7 +24,7 @@ oak.AddScene("firstScene",
     func()(nextScene string, result *oak.SceneResult){return "firstScene", nil}) 
 oak.Init("firstScene")
 ```
-See the [examples](examples) folder for longer demos.
+See the [examples](examples) folder for longer demos, [godoc](https://godoc.org/github.com/oakmound/oak) for reference documentation, and the [wiki](https://github.com/oakmound/oak/wiki) for more guided feature sets, tutorials and walkthroughs.
 
 ## Motivation
 The initial version of oak was made to support Oakmound Studio's game,
