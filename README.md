@@ -102,7 +102,3 @@ For talk about the engine or help, that is not significant enough to be an Issue
 1. [Logging](https://godoc.org/github.com/oakmound/oak/dlog)
     - Controlled by config files
     - Filterable by string, debug level
-
-## Package-specific Usage
-
-... Pending! See examples or godoc!
