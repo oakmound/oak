@@ -8,7 +8,7 @@ import (
 
 func TestErrorsAreErrors(t *testing.T) {
 
-	var err error = NotLoaded{}
+	var err error = NotFound{}
 	assert.NotEmpty(t, err.Error())
 	err = ExistingElement{}
 	assert.NotEmpty(t, err.Error())

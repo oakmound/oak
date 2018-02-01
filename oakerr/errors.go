@@ -9,11 +9,13 @@ import "strconv"
 // side, and to be able to translate errors into other languages in a localized
 // area.
 
-// NotLoaded is returned when something is queried that is not yet loaded.
-type NotLoaded struct{}
+// NotFound is returned when some input was queried but not found.
+type NotFound struct {
+	InputName string
+}
 
-func (NotLoaded) Error() string {
-	return "File not loaded"
+func (nf NotFound) Error() string {
+	return nf.InputName + " was not found"
 }
 
 // ExistingElement is an alternative to ExistingFont, where in this case the
