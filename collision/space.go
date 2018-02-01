@@ -135,7 +135,7 @@ func (s *Space) OverlapVector(other *Space) physics.Vector {
 	return physics.NewVector(xover, yover)
 }
 
-// SubtractRect removes a rectangle from this rectangle and
+// SubtractRect removes a subrectangle from this rectangle and
 // returns the rectangles remaining after the portion has been
 // removed. The input x,y is relative to the original space:
 // Example: removing 1,1 from 10,10 -> 12,12 is OK, but removing

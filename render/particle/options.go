@@ -8,7 +8,7 @@ import (
 )
 
 // And chains together particle options into a single option
-// for pre-baking option sets
+// for prebaking option sets
 func And(as ...func(Generator)) func(Generator) {
 	return func(g Generator) {
 		for _, a := range as {
