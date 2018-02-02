@@ -49,7 +49,8 @@ func main() {
 		// Initialization
 		playerAlive = true
 		var err error
-		sheet = render.GetSheet(filepath.Join("16x16", "sheet.png"))
+		sheet, err = render.GetSheet(filepath.Join("16x16", "sheet.png"))
+		dlog.ErrorCheck(err)
 
 		oak.SetViewportBounds(0, 0, fieldWidth, fieldHeight)
 

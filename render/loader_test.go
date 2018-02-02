@@ -12,9 +12,10 @@ func TestBatchLoad(t *testing.T) {
 	fileutil.BindataDir = AssetDir
 	fileutil.BindataFn = Asset
 	assert.Nil(t, BatchLoad(filepath.Join("assets", "images")))
-	sh := GetSheet(filepath.Join("16", "jeremy.png"))
+	sh, err := GetSheet(filepath.Join("16", "jeremy.png"))
+	assert.Nil(t, err)
 	assert.Equal(t, len(sh), 8)
-	_, err := loadImage("dir", "dummy.jpg")
+	_, err = loadImage("dir", "dummy.jpg")
 	assert.NotNil(t, err)
 	sp, err := LoadSprite("dummy.gif")
 	assert.Nil(t, sp)

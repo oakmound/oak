@@ -1,14 +1,12 @@
 package render
 
 import (
-	"encoding/json"
 	"errors"
 	"image"
 	"image/color"
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"sync"
 
@@ -91,21 +89,32 @@ func LoadSprite(fileName string) (*Sprite, error) {
 }
 
 // GetSheet tries to find the given file in the set of loaded sheets.
-// If it fails, it will panic unhelpfully. Todo: fix this
-// If it succeeds, it will return the sheet (a 2d array of sprites)
-func GetSheet(fileName string) [][]*Sprite {
+// If SheetIsLoaded(filename) is not true, this returns an error.
+// Otherwise it will return the sheet as a 2d array of sprites
+func GetSheet(fileName string) ([][]*Sprite, error) {
 	sprites := make([][]*Sprite, 0)
 	dlog.Verb(loadedSheets, fileName, loadedSheets[fileName])
-
-	sheet, _ := LoadSheet(dir, fileName, 0, 0, 0)
+	if !SheetIsLoaded(fileName) {
+		return sprites, oakerr.NotFound{InputName: fileName}
+	}
+	sheet, err := LoadSheet(dir, fileName, 0, 0, 0)
+	if err != nil {
+		return sprites, err
+	}
 	for x, row := range *sheet {
 		sprites = append(sprites, make([]*Sprite, 0))
 		for y := range row {
 			sprites[x] = append(sprites[x], sheet.SubSprite(x, y))
 		}
 	}
+	return sprites, nil
+}
 
-	return sprites
+// SheetIsLoaded returns whether when LoadSheet is called, a cached sheet will
+// be used, or if false that a new file will attempt to be loaded and stored
+func SheetIsLoaded(filename string) bool {
+	_, ok := loadedSheets[filename]
+	return ok
 }
 
 // LoadSheet loads a file in some directory with sheets of (w,h) sized sprites,
@@ -125,6 +134,13 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 	dlog.Verb("Loading sheet: ", fileName)
 	rgba := loadedImages[fileName]
 	bounds := rgba.Bounds()
+
+	if w <= 0 {
+		return nil, oakerr.InvalidInput{InputName: "w"}
+	}
+	if h <= 0 {
+		return nil, oakerr.InvalidInput{InputName: "h"}
+	}
 
 	sheetW := bounds.Max.X / w
 	remainderW := bounds.Max.X % w
@@ -192,120 +208,6 @@ func subImage(rgba *image.RGBA, x, y, w, h int) *image.RGBA {
 		}
 	}
 	return out
-}
-
-// BatchLoad loads subdirectories from the given base folder and imports all files,
-// using alias rules to automatically determine the size of sprites and sheets in
-// subfolders.
-// A folder named 16x8 will have its images split into sheets where each sprite is
-// 16x8, for example. 16 is a shorter way of writing 16x16.
-// An alias.json file can be included that can indicate what dimensions named folders
-// represent, so a "tiles": "32" field in the json would indicate that sprite sheets
-// in the /tiles folder should be read as 32x32
-func BatchLoad(baseFolder string) error {
-
-	folders, err := fileutil.ReadDir(baseFolder)
-	if err != nil {
-		dlog.Error(err)
-		return err
-	}
-	aliases := parseAliasFile(baseFolder)
-
-	for i, folder := range folders {
-
-		dlog.Verb("folder ", i, folder.Name())
-		if folder.IsDir() {
-
-			frameW, frameH, possibleSheet, err := parseLoadFolderName(aliases, folder.Name())
-			if err != nil {
-				return err
-			}
-
-			files, _ := fileutil.ReadDir(filepath.Join(baseFolder, folder.Name()))
-			for _, file := range files {
-				if !file.IsDir() {
-					name := file.Name()
-					if _, ok := fileDecoders[strings.ToLower(name[len(name)-4:])]; ok {
-						dlog.Verb("loading file ", name)
-						buff, err := loadImage(baseFolder, filepath.Join(folder.Name(), name))
-						if err != nil {
-							dlog.Error(err)
-							continue
-						}
-						w := buff.Bounds().Max.X
-						h := buff.Bounds().Max.Y
-
-						dlog.Verb("buffer: ", w, h, " frame: ", frameW, frameH)
-
-						if !possibleSheet {
-							continue
-						} else if w < frameW || h < frameH {
-							dlog.Error("File ", name, " in folder", folder.Name(), " is too small for folder dimensions", frameW, frameH)
-							return errors.New("File in folder is too small for folder dimensions: " + strconv.Itoa(w) + ", " + strconv.Itoa(h))
-
-							// Load this as a sheet if it is greater
-							// than the folder size's frame size
-						} else if w != frameW || h != frameH {
-							dlog.Verb("Loading as sprite sheet")
-							_, err = LoadSheet(baseFolder, filepath.Join(folder.Name(), name), frameW, frameH, defaultPad)
-							dlog.ErrorCheck(err)
-						}
-					} else {
-						dlog.Error("Unsupported file ending for batchLoad: ", name)
-					}
-				}
-			}
-		} else {
-			dlog.Verb("Not Folder", folder.Name())
-		}
-	}
-	return nil
-}
-
-func parseAliasFile(baseFolder string) map[string]string {
-	aliasFile, err := fileutil.ReadFile(filepath.Join(baseFolder, "alias.json"))
-	aliases := make(map[string]string)
-	if err == nil {
-		err = json.Unmarshal(aliasFile, &aliases)
-		if err != nil {
-			dlog.Error("Alias file unparseable: ", err)
-		}
-	}
-	return aliases
-}
-
-func parseLoadFolderName(aliases map[string]string, name string) (int, int, bool, error) {
-	var frameW, frameH int
-	if result := regexpTwoNumbers.Find([]byte(name)); result != nil {
-		vals := strings.Split(string(result), "x")
-		dlog.Verb("Extracted dimensions: ", vals)
-		frameW, _ = strconv.Atoi(vals[0])
-		frameH, _ = strconv.Atoi(vals[1])
-	} else if result := regexpSingleNumber.Find([]byte(name)); result != nil {
-		val, _ := strconv.Atoi(string(result))
-		frameW = val
-		frameH = val
-	} else {
-		if aliased, ok := aliases[name]; ok {
-			if result := regexpTwoNumbers.Find([]byte(aliased)); result != nil {
-				vals := strings.Split(string(result), "x")
-				dlog.Verb("Extracted dimensions: ", vals)
-				frameW, _ = strconv.Atoi(vals[0])
-				frameH, _ = strconv.Atoi(vals[1])
-			} else if result := regexpSingleNumber.Find([]byte(aliased)); result != nil {
-				val, _ := strconv.Atoi(string(result))
-				frameW = val
-				frameH = val
-			} else {
-				return 0, 0, false, errors.New("Alias value not parseable as a frame width and height pair")
-			}
-		} else {
-			dlog.Info("Folder name", name, "parsed to 0x0 (unbound) dimensions.")
-			frameW = 0
-			frameH = 0
-		}
-	}
-	return frameW, frameH, frameW != 0 && frameH != 0, nil
 }
 
 // SetAssetPaths sets the directories that files are loaded from when using

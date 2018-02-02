@@ -44,7 +44,8 @@ func main() {
 		// Initialization
 		playerAlive = true
 		var err error
-		sheet = render.GetSheet(filepath.Join("16x16", "sheet.png"))
+		sheet, err = render.GetSheet(filepath.Join("16x16", "sheet.png"))
+		dlog.ErrorCheck(err)
 
 		// Player setup
 		eggplant, err := render.LoadSprite(filepath.Join("character", "eggplant-fish.png"))
