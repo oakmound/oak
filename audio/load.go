@@ -38,7 +38,7 @@ func Get(filename string) (Data, error) {
 	if IsLoaded(filename) {
 		return loaded[filename], nil
 	}
-	return nil, oakerr.NotFound{filename}
+	return nil, oakerr.NotFound{InputName: filename}
 }
 
 // Load joins the directory and filename, attempts to find
