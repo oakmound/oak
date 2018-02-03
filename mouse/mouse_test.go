@@ -13,20 +13,17 @@ import (
 
 func TestMouseClicks(t *testing.T) {
 	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
-	trigger := make(chan bool)
+	var triggered bool
 	go event.ResolvePending()
 	event.GlobalBind(func(int, interface{}) int {
-		trigger <- true
+		triggered = true
 		return 0
 	}, Click)
 	DefTree.Add(sp)
 	Propagate(PressOn, NewEvent(5, 5, "LeftMouse", PressOn))
 	Propagate(ReleaseOn, NewEvent(5, 5, "LeftMouse", ReleaseOn))
-	select {
-	case <-time.After(5 * time.Second):
-		t.Fail()
-	case <-trigger:
-	}
+	time.Sleep(1 * time.Second)
+	assert.True(t, triggered)
 }
 
 func TestButtonIdentity(t *testing.T) {
