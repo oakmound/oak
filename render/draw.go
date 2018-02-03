@@ -24,7 +24,7 @@ func EmptyRenderable() Modifiable {
 // LoadSpriteAndDraw is shorthand for LoadSprite
 // followed by Draw.
 func LoadSpriteAndDraw(filename string, layers ...int) (Renderable, error) {
-	s, err := LoadSprite(filename)
+	s, err := LoadSprite(dir, filename)
 	if err != nil {
 		return nil, err
 	}

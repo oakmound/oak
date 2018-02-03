@@ -44,7 +44,7 @@ func main() {
 			// Compare the use of the cache against the use of a reverting type below
 			cache = render.NewSwitch("0", make(map[string]render.Modifiable))
 			for i := 0; i < 360; i++ {
-				s, err := render.LoadSprite(filepath.Join("raw", "gopher11.png"))
+				s, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "gopher11.png"))
 				if err != nil {
 					dlog.Error(err)
 					return
@@ -62,7 +62,7 @@ func main() {
 	)
 
 	render.SetDrawStack(
-		render.NewHeap(false),
+		render.NewCompositeR(),
 		render.NewDrawFPS(),
 		render.NewLogicFPS(),
 	)

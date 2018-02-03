@@ -4,11 +4,17 @@ import (
 	"encoding/json"
 	"errors"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/fileutil"
+)
+
+var (
+	regexpSingleNumber, _ = regexp.Compile(`^\d+$`)
+	regexpTwoNumbers, _   = regexp.Compile(`^\d+x\d+$`)
 )
 
 // BatchLoad loads subdirectories from the given base folder and imports all files,
@@ -44,7 +50,7 @@ func BatchLoad(baseFolder string) error {
 					name := file.Name()
 					if _, ok := fileDecoders[strings.ToLower(name[len(name)-4:])]; ok {
 						dlog.Verb("loading file ", name)
-						buff, err := loadImage(baseFolder, filepath.Join(folder.Name(), name))
+						buff, err := loadSprite(baseFolder, filepath.Join(folder.Name(), name))
 						if err != nil {
 							dlog.Error(err)
 							continue

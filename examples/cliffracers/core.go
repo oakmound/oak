@@ -3,6 +3,7 @@ package main
 import (
 	"image/color"
 	"math/rand"
+	"path/filepath"
 	"time"
 
 	"github.com/oakmound/oak/collision"
@@ -41,7 +42,7 @@ func (cr *CliffRacer) Init() event.CID {
 
 func NewCliffRacer(y float64) *CliffRacer {
 	cr := new(CliffRacer)
-	sp, err := render.LoadSprite("raw/cliffracer.png")
+	sp, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "cliffracer.png"))
 	if err != nil {
 		dlog.Error(err)
 		return nil
@@ -120,7 +121,7 @@ func main() {
 	oak.Add("cliffRacers",
 		func(prevScene string, data interface{}) {
 			playerAlive = true
-			bkg, err := render.LoadSprite("raw/background.png")
+			bkg, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "background.png"))
 			if err != nil {
 				dlog.Error(err)
 				return

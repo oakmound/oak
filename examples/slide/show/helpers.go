@@ -82,7 +82,7 @@ func YPos(r render.Renderable, pos float64) render.Renderable {
 }
 
 func Image(file string, xpos, ypos float64) render.Modifiable {
-	s, err := render.LoadSprite(filepath.Join("raw", file))
+	s, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", file))
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -101,7 +101,7 @@ func ImageAt(file string, xpos, ypos float64, mods ...mod.Mod) render.Modifiable
 }
 
 func ImageCaptionSize(file string, xpos, ypos float64, w, h float64, f *render.Font, cap string) render.Renderable {
-	r, err := render.LoadSprite(filepath.Join("raw", file))
+	r, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", file))
 	if err != nil {
 		fmt.Println(err)
 		return nil
