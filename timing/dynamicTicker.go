@@ -35,22 +35,7 @@ func NewDynamicTicker() *DynamicTicker {
 func (dt *DynamicTicker) loop() bool {
 	select {
 	case v := <-dt.ticker.C:
-		for {
-			select {
-			case r := <-dt.forceTick:
-				if !r {
-					dt.close()
-					return false
-				}
-				continue
-			case ticker := <-dt.resetCh:
-				dt.ticker.Stop()
-				dt.ticker = ticker
-				return true
-			case dt.C <- v:
-				return true
-			}
-		}
+		return dt.send(v)
 	case ticker := <-dt.resetCh:
 		dt.ticker.Stop()
 		dt.ticker = ticker
@@ -59,24 +44,28 @@ func (dt *DynamicTicker) loop() bool {
 			dt.close()
 			return false
 		}
-		for {
-			select {
-			case r := <-dt.forceTick:
-				if !r {
-					dt.close()
-					return false
-				}
-				continue
-			case ticker := <-dt.resetCh:
-				dt.ticker.Stop()
-				dt.ticker = ticker
-				return true
-			case dt.C <- time.Time{}:
-				return true
-			}
-		}
+		return dt.send(time.Time{})
 	}
 	return true
+}
+
+func (dt *DynamicTicker) send(v time.Time) bool {
+	for {
+		select {
+		case r := <-dt.forceTick:
+			if !r {
+				dt.close()
+				return false
+			}
+			continue
+		case ticker := <-dt.resetCh:
+			dt.ticker.Stop()
+			dt.ticker = ticker
+			return true
+		case dt.C <- v:
+			return true
+		}
+	}
 }
 
 // SetTick changes the rate at which a dynamic ticker
