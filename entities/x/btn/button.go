@@ -24,7 +24,7 @@ type Generator struct {
 	RS           []render.Modifiable
 	Cid          event.CID
 	Font         *render.Font
-	Layer        int
+	Layers       []int
 	Text         string
 	Children     []Generator
 	// This should be a map
@@ -53,7 +53,7 @@ var (
 		Children: []Generator{},
 		Cid:      0,
 		Font:     nil,
-		Layer:    0,
+		Layers:   []int{0},
 		Text:     "Button",
 		Binding:  nil,
 		Trigger:  "MouseClickOn",
@@ -151,7 +151,7 @@ func (g Generator) generate(parent *Generator) Btn {
 		font = render.DefFont()
 	}
 	// Todo: if no string is defined, don't do this
-	btn := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layer)
+	btn := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
 	btn.SetString(g.Text)
 
 	if g.Binding != nil {

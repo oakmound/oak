@@ -90,10 +90,10 @@ func AndMod(m mod.Transform) Option {
 	}
 }
 
-//Layer sets the layer of the button to be generated
-func Layer(l int) Option {
+//Layers sets the layer of the button to be generated
+func Layers(ls ...int) Option {
 	return func(g Generator) Generator {
-		g.Layer = l
+		g.Layers = ls
 		return g
 	}
 }
