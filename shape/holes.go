@@ -4,6 +4,8 @@ import (
 	"github.com/oakmound/oak/alg/intgeom"
 )
 
+// GetHoles finds sets of points which are not In this shape that
+// are adjacent.
 func GetHoles(sh Shape, w, h int) [][]intgeom.Point2 {
 
 	flooding := make(map[intgeom.Point2]bool)
@@ -16,11 +18,11 @@ func GetHoles(sh Shape, w, h int) [][]intgeom.Point2 {
 		}
 	}
 
-	border := BorderPoints(w, h)
+	border := borderPoints(w, h)
 
 	for _, p := range border {
 		if !sh.In(p.X(), p.Y()) {
-			BFSFlood(flooding, p)
+			bfsFlood(flooding, p)
 		}
 	}
 
@@ -31,14 +33,14 @@ func GetHoles(sh Shape, w, h int) [][]intgeom.Point2 {
 
 	for len(flooding) > 0 {
 		for k := range flooding {
-			out = append(out, BFSFlood(flooding, k))
+			out = append(out, bfsFlood(flooding, k))
 		}
 	}
 
 	return out
 }
 
-func BorderPoints(w, h int) []intgeom.Point2 {
+func borderPoints(w, h int) []intgeom.Point2 {
 	out := make([]intgeom.Point2, (w*2+h*2)-4)
 	i := 0
 	for x := 0; x < w; x++ {
@@ -54,7 +56,7 @@ func BorderPoints(w, h int) []intgeom.Point2 {
 	return out
 }
 
-func BFSFlood(m map[intgeom.Point2]bool, start intgeom.Point2) []intgeom.Point2 {
+func bfsFlood(m map[intgeom.Point2]bool, start intgeom.Point2) []intgeom.Point2 {
 	visited := []intgeom.Point2{}
 	toVisit := []intgeom.Point2{start}
 	for len(toVisit) > 0 {
