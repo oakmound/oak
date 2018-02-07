@@ -82,7 +82,7 @@ func (s *Solid) ShiftPos(x, y float64) {
 // UpdateLabel will update it's label in this solid's
 // collision tree.
 func (s *Solid) UpdateLabel(classtype collision.Label) {
-	s.Tree.UpdateLabel(s.Space, classtype)
+	s.Tree.UpdateLabel(classtype, s.Space)
 }
 
 // ShiftSpace will shift this solid's collision space
