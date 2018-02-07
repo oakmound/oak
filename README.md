@@ -18,9 +18,9 @@ oak.Add("firstScene",
     // Initialization function
     func(prevScene string, inData interface{}) {}, 
     // Loop to continue or stop the current scene
-    func()bool{return true}, 
+    func() bool {return true}, 
     // Exit to transition to the next scene
-    func()(nextScene string, result *oak.SceneResult){return "firstScene", nil}) 
+    func() (nextScene string, result *oak.SceneResult) {return "firstScene", nil}) 
 oak.Init("firstScene")
 ```
 See the [examples](examples) folder for longer demos, [godoc](https://godoc.org/github.com/oakmound/oak) for reference documentation, and the [wiki](https://github.com/oakmound/oak/wiki) for more guided feature sets, tutorials and walkthroughs.
