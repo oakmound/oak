@@ -44,6 +44,8 @@ For talk about the engine or help, that is not significant enough to be an Issue
 1. Window Rendering
     - Windows and key events forked from [shiny](https://github.com/oakmound/shiny)
     - Logical frame rate distinct from Draw rate
+    - Fullscreen, Window Positioning support
+    - Auto-scaling for screen size changes, holding aspect ratio as desired.
 1. [Image Management](https://godoc.org/github.com/oakmound/oak/render)
     - `render.Renderable` interface
     - Sprite Sheet Batch Loading at startup
@@ -102,6 +104,3 @@ For talk about the engine or help, that is not significant enough to be an Issue
 1. [Logging](https://godoc.org/github.com/oakmound/oak/dlog)
     - Swappable with custom implementations
     - Default Implementation: 4 log levels, writes to file and stdout
-
-
-... And that's just a broad sample of the utilities Oak provides.
