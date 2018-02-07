@@ -91,7 +91,7 @@ func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point2, error) 
 	x := sx
 	y := sy
 
-	outline := []intgeom.Point2{intgeom.Point2{x, y}}
+	outline := []intgeom.Point2{{x, y}}
 
 	direction := topright
 	for i := 1; i < dirInc; i++ {
