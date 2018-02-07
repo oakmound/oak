@@ -103,3 +103,6 @@ For talk about the engine or help, that is not significant enough to be an Issue
 1. [Logging](https://godoc.org/github.com/oakmound/oak/dlog)
     - Swappable with custom implementations
     - Default Implementation: 4 log levels, writes to file and stdout
+
+
+... And that's just a broad sample of the utilities Oak provides.
