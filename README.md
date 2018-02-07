@@ -17,9 +17,9 @@ This is an example of the most basic oak program:
 oak.Add("firstScene",
     // Initialization function
     func(prevScene string, inData interface{}) {}, 
-    // Loop to continue or stop current scene
+    // Loop to continue or stop the current scene
     func()bool{return true}, 
-    // Exit to transition to next scene
+    // Exit to transition to the next scene
     func()(nextScene string, result *oak.SceneResult){return "firstScene", nil}) 
 oak.Init("firstScene")
 ```
