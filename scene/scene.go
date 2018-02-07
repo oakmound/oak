@@ -23,6 +23,6 @@ type Start func(prevScene string, data interface{})
 // should continue to loop.
 type Loop func() bool
 
-// End is a function returning the next scene and a SceneResult of 
+// End is a function returning the next scene and a SceneResult of
 // input settings for the next scene.
 type End func() (string, *Result)
