@@ -11,7 +11,7 @@ package render
 // animation should be able to be switched out of before it ends.
 //
 // Because this use case is minor, this is a candidate for removal from render
-// and moving into an auxillary package.
+// and moving into an auxiliary package.
 //
 // Unless otherwie noted, all NonInterruptable types are interruptable when
 // they are initialized and need to be switched (if the type supports it) to

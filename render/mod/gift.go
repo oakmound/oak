@@ -70,7 +70,7 @@ func ResizeToFill(width, height int, resampling gift.Resampling, anchor gift.Anc
 	return GiftTransform(gift.ResizeToFill(width, height, resampling, anchor))
 }
 
-// ResizeToFit will resize while perserving aspect ratio. See gift.ResizeToFit.
+// ResizeToFit will resize while preserving aspect ratio. See gift.ResizeToFit.
 func ResizeToFit(width, height int, resampling gift.Resampling) Mod {
 	return GiftTransform(gift.ResizeToFit(width, height, resampling))
 }
