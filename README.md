@@ -72,7 +72,7 @@ For talk about the engine or help, that is not significant enough to be an Issue
     - Positional filters to pan and scale audio based on a listening position
 1. [Collision](https://godoc.org/github.com/oakmound/oak/collision)
     - Collision R-Tree forked from [rtreego](https://github.com/dhconnelly/rtreego)
-    - [2D Raycasting](collision/ray)
+    - [2D Raycasting](https://godoc.org/github.com/oakmound/oak/collision/ray)
     - Collision Spaces
         - Attachable to Objects
         - Auto React to collisions through events
