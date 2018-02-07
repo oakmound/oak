@@ -6,7 +6,6 @@ import (
 	"github.com/oakmound/oak/dlog"
 	okey "github.com/oakmound/oak/key"
 	omouse "github.com/oakmound/oak/mouse"
-	"github.com/oakmound/oak/physics"
 	"github.com/oakmound/shiny/gesture"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
@@ -89,12 +88,12 @@ func inputLoop() {
 			// Todo: consider incorporating viewport into the event, see the
 			// workaround needed in mouseDetails, and how mouse events might not
 			// propagate to their expected position.
-			mevent := omouse.Event{
-				Vector: physics.NewVector32((((e.X - float32(windowRect.Min.X)) / float32(windowRect.Max.X-windowRect.Min.X)) * float32(ScreenWidth)),
-					(((e.Y - float32(windowRect.Min.Y)) / float32(windowRect.Max.Y-windowRect.Min.Y)) * float32(ScreenHeight))),
-				Button: button,
-				Event:  eventName,
-			}
+			mevent := omouse.NewEvent(
+				float64((((e.X - float32(windowRect.Min.X)) / float32(windowRect.Max.X-windowRect.Min.X)) * float32(ScreenWidth))),
+				float64((((e.Y - float32(windowRect.Min.Y)) / float32(windowRect.Max.Y-windowRect.Min.Y)) * float32(ScreenHeight))),
+				button,
+				eventName,
+			)
 
 			omouse.Propagate(eventName+"On", mevent)
 			logicHandler.Trigger(eventName, mevent)

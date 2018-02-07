@@ -1,8 +1,8 @@
 package mouse
 
-import "github.com/oakmound/oak/collision"
 import (
-	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/alg/floatgeom"
+	"github.com/oakmound/oak/collision"
 )
 
 var (
@@ -19,9 +19,8 @@ var (
 // An Event is passed in through all Mouse related event bindings to
 // indicate what type of mouse event was triggered, where it was triggered,
 // and which mouse button it concerns.
-// this is a candidate for merging with physics.Vector
 type Event struct {
-	physics.Vector
+	floatgeom.Point2
 	Button string
 	Event  string
 }
@@ -29,7 +28,7 @@ type Event struct {
 // NewEvent creates and returns an Event
 func NewEvent(x, y float64, button, event string) Event {
 	return Event{
-		Vector: physics.NewVector(x, y),
+		Point2: floatgeom.Point2{x, y},
 		Button: button,
 		Event:  event,
 	}
