@@ -1,10 +1,9 @@
 package particle
 
 import (
-	"math"
-
 	"github.com/200sc/go-dist/floatrange"
 
+	"github.com/oakmound/oak/alg"
 	"github.com/oakmound/oak/render"
 )
 
@@ -36,7 +35,7 @@ func (sg *SpriteGenerator) setDefaults() {
 func (sg *SpriteGenerator) Generate(layer int) *Source {
 	// Convert rotation from degrees to radians
 	if sg.Rotation != nil {
-		sg.Rotation = sg.Rotation.Mult(math.Pi / 180)
+		sg.Rotation = sg.Rotation.Mult(alg.DegToRad)
 	}
 	return NewSource(sg, layer)
 }
@@ -45,7 +44,7 @@ func (sg *SpriteGenerator) Generate(layer int) *Source {
 func (sg *SpriteGenerator) GenerateParticle(bp *baseParticle) Particle {
 	return &SpriteParticle{
 		baseParticle: bp,
-		rotation:     sg.SpriteRotation.Poll(),
+		rotation:     float32(sg.SpriteRotation.Poll()),
 	}
 }
 
@@ -78,4 +77,10 @@ func SpriteRotation(f floatrange.Range) func(Generator) {
 // SetSpriteRotation satisfied Sprited for SpriteGenerators
 func (sg *SpriteGenerator) SetSpriteRotation(f floatrange.Range) {
 	sg.SpriteRotation = f
+}
+
+// GetParticleSize returns the size of the sprite that the generator generates
+func (sg *SpriteGenerator) GetParticleSize() (float64, float64, bool) {
+	bounds := sg.Base.GetRGBA().Rect.Max
+	return float64(bounds.X), float64(bounds.Y), false
 }

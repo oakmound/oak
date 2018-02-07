@@ -1,7 +1,6 @@
 package particle
 
 import (
-	"image"
 	"image/color"
 	"image/draw"
 
@@ -33,19 +32,20 @@ func (gp *GradientParticle) DrawOffsetGen(generator Generator, buff draw.Image, 
 	c1 := render.GradientColorAt(gp.startColor, gp.endColor, progress)
 	c2 := render.GradientColorAt(gp.startColor2, gp.endColor2, progress)
 
-	img := image.NewRGBA64(image.Rect(0, 0, gp.size, gp.size))
+	size := int(((1 - progress) * gp.size) + (progress * gp.endSize))
 
-	for i := 0; i < gp.size; i++ {
-		for j := 0; j < gp.size; j++ {
-			if gen.Shape.In(i, j, gp.size) {
-				progress := gen.ProgressFunction(i, j, gp.size, gp.size)
+	halfSize := float64(size) / 2
+
+	xOffi := int(xOff - halfSize)
+	yOffi := int(yOff - halfSize)
+
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			if gen.Shape.In(i, j, size) {
+				progress := gen.ProgressFunction(i, j, size, size)
 				c := render.GradientColorAt(c1, c2, progress)
-				img.SetRGBA64(i, j, c)
+				render.ShinySet(buff, c, xOffi+i, yOffi+j)
 			}
 		}
 	}
-
-	halfSize := float64(gp.size / 2)
-
-	render.ShinyDraw(buff, img, int((xOff+gp.X())-halfSize), int((yOff+gp.Y())-halfSize))
 }

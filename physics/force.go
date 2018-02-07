@@ -1,7 +1,7 @@
 package physics
 
 import (
-	"errors"
+	"github.com/oakmound/oak/oakerr"
 
 	"github.com/oakmound/oak/dlog"
 )
@@ -46,7 +46,7 @@ func (m *Mass) SetMass(inMass float64) error {
 		m.mass = inMass
 		return nil
 	}
-	return errors.New("Tried to set mass 0 or below")
+	return oakerr.InvalidInput{InputName: "inMass"}
 }
 
 //GetMass returns the mass of an object
@@ -59,13 +59,15 @@ func (m *Mass) Freeze() {
 	m.mass = frozen
 }
 
-// Pushable is implemented by anything that has mass and therefore can be pushed.
+// Pushable is implemented by anything that has mass and directional movement,
+// and therefore can be pushed.
 type Pushable interface {
 	GetDelta() Vector
 	GetMass() float64
 }
 
-// A Pushes can push Pushable things by having an associated ForceVector
+// A Pushes can push Pushable things through its associated ForceVector, or
+// how hard the Pushable should move in a given direction
 type Pushes interface {
 	GetForce() ForceVector
 }
@@ -75,7 +77,8 @@ func Push(a Pushes, b Pushable) error {
 	dlog.Verb("Pushing", b.GetMass())
 	if b.GetMass() <= 0 {
 		if b.GetMass() != frozen {
-			return errors.New("Pushed an object with invalid mass")
+			// Todo: this could be more specific
+			return oakerr.InsufficientInputs{InputName: "Mass", AtLeast: 0}
 		}
 		return nil
 	}
@@ -83,7 +86,7 @@ func Push(a Pushes, b Pushable) error {
 	fdirection := a.GetForce().Copy()
 	totalF := *a.GetForce().Force / b.GetMass()
 	b.GetDelta().Add(fdirection.Normalize().Scale(totalF))
-	dlog.Verb("Total Force was ", totalF, " fdirection ", fdirection.GetX(), fdirection.GetY())
+	dlog.Verb("Total Force was ", totalF, " fdirection ", fdirection.X(), fdirection.Y())
 	return nil
 }
 

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/physics"
-	"golang.org/x/exp/shiny/gesture"
+	"github.com/oakmound/shiny/gesture"
 )
 
 // A GestureEvent is a conversion of a shiny Gesture to our local type so we

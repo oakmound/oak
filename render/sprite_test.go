@@ -7,6 +7,7 @@ import (
 
 	"github.com/200sc/go-dist/colorrange"
 	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/render/mod"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,10 +26,6 @@ const (
 	fuzzCt = 10
 )
 
-// Todo for color boxes, and things that take w/h --
-// return an error for negative (or 0 in some cases) w / h. The engine assumes
-// right now that the inputs will be valid, which is a mistake
-// this is a breaking change for 2.0
 func TestColorBoxFuzz(t *testing.T) {
 	for i := 0; i < fuzzCt; i++ {
 		w := widths.Poll()
@@ -233,7 +230,7 @@ func TestParseSubSprite(t *testing.T) {
 
 func TestModifySprite(t *testing.T) {
 	s := NewColorBox(10, 10, color.RGBA{255, 0, 0, 255})
-	s2 := s.Modify(Cut(5, 5))
+	s2 := s.Modify(mod.Cut(5, 5))
 	w, h := s2.GetDims()
 	assert.Equal(t, 5, w)
 	assert.Equal(t, 5, h)

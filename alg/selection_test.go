@@ -11,36 +11,6 @@ import (
 
 const testCt = 1000000
 
-func TestWeightedChoose(t *testing.T) {
-	rand.Seed(int64(time.Now().UTC().Nanosecond()))
-	weights := []float64{1.0, .9, .8, .7, .6, .5, .4, .3, .2, .1}
-	chosenCts := make([]int, len(weights))
-	for i := 0; i < testCt; i++ {
-		chosen, err := WeightedChoose(weights, 5)
-		assert.Nil(t, err)
-		for _, c := range chosen {
-			chosenCts[c]++
-		}
-	}
-	outWeights := make([]float64, len(weights))
-	for i, v := range chosenCts {
-		outWeights[i] = float64(v) / float64(testCt)
-	}
-	// We could have a more rigorous test
-	for i := 0; i < len(weights)-1; i++ {
-		diff := math.Abs(outWeights[i] - outWeights[i+1])
-		assert.True(t, (outWeights[i] > outWeights[i+1]) || diff < .1)
-	}
-	// Failure testing
-	_, err := WeightedChoose(weights, 20)
-	assert.NotNil(t, err)
-	// Single element
-	weights = []float64{1.0}
-	chosen, err := WeightedChoose(weights, 1)
-	assert.Nil(t, err)
-	assert.Equal(t, 0, chosen[0])
-}
-
 func TestUniqueChooseX(t *testing.T) {
 	rand.Seed(int64(time.Now().UTC().Nanosecond()))
 	// Assert that we choose everything when n = len(weights)
@@ -80,7 +50,6 @@ func TestChooseX(t *testing.T) {
 	rand.Seed(int64(time.Now().UTC().Nanosecond()))
 	weights := []float64{1.0, .9, .8, .7, .6, .5, .4, .3, .2, .1}
 	chosenCts := make([]int, len(weights))
-	chosenCts = make([]int, len(weights))
 	for i := 0; i < testCt; i++ {
 		chosen := ChooseX(weights, 1)
 		for _, c := range chosen {
@@ -103,7 +72,7 @@ func TestChooseX(t *testing.T) {
 	}
 }
 
-func TestCumWeightedFromMap(t *testing.T) {
+func TestWeightedMapChoice(t *testing.T) {
 	m := map[int]float64{
 		0: 1.0,
 		1: .9,
@@ -117,6 +86,12 @@ func TestCumWeightedFromMap(t *testing.T) {
 		9: .1,
 	}
 	// This uses the same underlying function as chooseX internally
-	chosen := CumWeightedFromMap(m)
+	chosen := WeightedMapChoice(m)
 	assert.True(t, chosen < 10)
+}
+
+func TestCumulativeWeights(t *testing.T) {
+	weights := []float64{1, 2, 3, 4, 5, 6, 7}
+	cum := CumulativeWeights(weights)
+	assert.Equal(t, []float64{1, 3, 6, 10, 15, 21, 28}, cum)
 }

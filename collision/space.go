@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Sythe2o0/rtreego"
-	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/alg/floatgeom"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/physics"
 )
@@ -21,7 +20,7 @@ const (
 // with a couple of ways of identifying
 // an underlying object.
 type Space struct {
-	Location *rtreego.Rect
+	Location floatgeom.Rect3
 	// A label can store type information.
 	// Recommended to use with an enum.
 	Label Label
@@ -34,59 +33,59 @@ type Space struct {
 }
 
 // Bounds satisfies the rtreego.Spatial interface.
-func (s *Space) Bounds() *rtreego.Rect {
+func (s *Space) Bounds() floatgeom.Rect3 {
 	return s.Location
 }
 
-// GetX returns a space's x position (leftmost)
-func (s *Space) GetX() float64 {
-	return s.Location.PointCoord(0)
+// X returns a space's x position (leftmost)
+func (s *Space) X() float64 {
+	return s.Location.Min.X()
 }
 
-// GetY returns a space's y position (upmost)
-func (s *Space) GetY() float64 {
-	return s.Location.PointCoord(1)
+// Y returns a space's y position (upmost)
+func (s *Space) Y() float64 {
+	return s.Location.Min.Y()
 }
 
 // GetW returns a space's width (rightmost x - leftmost x)
 func (s *Space) GetW() float64 {
-	return s.Location.LengthsCoord(0)
+	return s.Location.W()
 }
 
 // GetH returns a space's height (upper y - lower y)
 func (s *Space) GetH() float64 {
-	return s.Location.LengthsCoord(1)
+	return s.Location.H()
 }
 
 // GetCenter returns the center point of the space
 func (s *Space) GetCenter() (float64, float64) {
-	return s.GetX() + s.GetW()/2, s.GetY() + s.GetH()/2
+	return s.X() + s.GetW()/2, s.Y() + s.GetH()/2
 }
 
 // GetPos returns both y and x
 func (s *Space) GetPos() (float64, float64) {
-	return s.Location.PointCoord(1), s.Location.PointCoord(0)
+	return s.X(), s.Y()
 }
 
 // Above returns how much above this space another space is
 // Important note: (10,10) is Above (10,20), because in oak's
 // display, lower y values are higher than higher y values.
 func (s *Space) Above(other *Space) float64 {
-	return other.GetY() - s.GetY()
+	return other.Y() - s.Y()
 }
 
 // Below returns how much below this space another space is,
 // Equivalent to -1 * Above
 func (s *Space) Below(other *Space) float64 {
-	return s.GetY() - other.GetY()
+	return s.Y() - other.Y()
 }
 
-// Contains returns whether this space contains other
+// Contains returns whether this space contains another
 func (s *Space) Contains(other *Space) bool {
 	//You contain another space if it is fully inside your space
 	//If you are the same size and location as the space you are checking then you both contain eachother
-	if s.GetX() > other.GetX() || s.GetX()+s.GetW() < other.GetX()+other.GetW() ||
-		s.GetY() > other.GetY() || s.GetY()+s.GetH() < other.GetY()+other.GetH() {
+	if s.X() > other.X() || s.X()+s.GetW() < other.X()+other.GetW() ||
+		s.Y() > other.Y() || s.Y()+s.GetH() < other.Y()+other.GetH() {
 		return false
 	}
 	return true
@@ -94,37 +93,37 @@ func (s *Space) Contains(other *Space) bool {
 
 // LeftOf returns how far to the left other is of this space
 func (s *Space) LeftOf(other *Space) float64 {
-	return other.GetX() - s.GetX()
+	return other.X() - s.X()
 }
 
 // RightOf returns how far to the right other is of this space.
 // Equivalent to -1 * LeftOf
 func (s *Space) RightOf(other *Space) float64 {
-	return s.GetX() - other.GetX()
+	return s.X() - other.X()
 }
 
 // Overlap returns how much this space overlaps with another space
 func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
-	if s.GetX() > other.GetX() {
-		x2 := other.GetX() + other.GetW()
-		if s.GetX() < x2 {
-			xOver = s.GetX() - x2
+	if s.X() > other.X() {
+		x2 := other.X() + other.GetW()
+		if s.X() < x2 {
+			xOver = s.X() - x2
 		}
 	} else {
-		x2 := s.GetX() + s.GetW()
-		if other.GetX() < x2 {
-			xOver = x2 - other.GetX()
+		x2 := s.X() + s.GetW()
+		if other.X() < x2 {
+			xOver = x2 - other.X()
 		}
 	}
-	if s.GetY() > other.GetY() {
-		y2 := other.GetY() + other.GetH()
-		if s.GetY() < y2 {
-			yOver = s.GetY() - y2
+	if s.Y() > other.Y() {
+		y2 := other.Y() + other.GetH()
+		if s.Y() < y2 {
+			yOver = s.Y() - y2
 		}
 	} else {
-		y2 := s.GetY() + s.GetH()
-		if other.GetY() < y2 {
-			yOver = y2 - other.GetY()
+		y2 := s.Y() + s.GetH()
+		if other.Y() < y2 {
+			yOver = y2 - other.Y()
 		}
 	}
 	return
@@ -133,19 +132,17 @@ func (s *Space) Overlap(other *Space) (xOver, yOver float64) {
 // OverlapVector returns Overlap as a vector
 func (s *Space) OverlapVector(other *Space) physics.Vector {
 	xover, yover := s.Overlap(other)
-	// Todo: why are we multiplying by -1 here, shouldn't that
-	// also be happening in Overlap at least?
-	return physics.NewVector(-xover, -yover)
+	return physics.NewVector(xover, yover)
 }
 
-// SubtractRect removes a rectangle from this rectangle and
+// SubtractRect removes a subrectangle from this rectangle and
 // returns the rectangles remaining after the portion has been
 // removed. The input x,y is relative to the original space:
 // Example: removing 1,1 from 10,10 -> 12,12 is OK, but removing
 // 11,11 from 10,10 -> 12,12 will not act as expected.
 func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
-	x1 := s.GetX()
-	y1 := s.GetY()
+	x1 := s.X()
+	y1 := s.Y()
 	w1 := s.GetW()
 	h1 := s.GetH()
 
@@ -186,8 +183,8 @@ func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
 }
 
 func (s *Space) String() string {
-	return strconv.FormatFloat(s.GetX(), 'f', 2, 32) + "," +
-		strconv.FormatFloat(s.GetY(), 'f', 2, 32) + "," +
+	return strconv.FormatFloat(s.X(), 'f', 2, 32) + "," +
+		strconv.FormatFloat(s.Y(), 'f', 2, 32) + "," +
 		strconv.FormatFloat(s.GetW(), 'f', 2, 32) + "," +
 		strconv.FormatFloat(s.GetH(), 'f', 2, 32) + "::" +
 		strconv.Itoa(int(s.CID)) + "::" + fmt.Sprintf("%p", s)
@@ -226,6 +223,16 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 	}
 }
 
+// NewRectSpace creates a colliison space with the specified 3D rectangle
+func NewRectSpace(rect floatgeom.Rect3, l Label, cID event.CID) *Space {
+	return &Space{
+		rect,
+		l,
+		cID,
+		CID,
+	}
+}
+
 // NewRect is a wrapper around rtreego.NewRect,
 // casting the given x,y to an rtreego.Point.
 // Used to not expose rtreego.Point to the user.
@@ -234,27 +241,12 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 // If a negative width or height is given, the rectangle is
 // shifted to the left or up by that negative dimension and
 // the dimension is made positive.
-func NewRect(x, y, w, h float64) *rtreego.Rect {
-
-	rect, err := rtreego.NewRect(rtreego.Point{x, y}, [3]float64{w, h, 1})
-	if err != nil {
-		// Correct invalid dimensions
-		if w == 0 {
-			w = 1
-		} else if w < 0 {
-			x += w
-			w *= -1
-		}
-		if h == 0 {
-			h = 1
-		} else if h < 0 {
-			y += h
-			h *= -1
-		}
-		dlog.Warn("Corrected Rectangle Dimensions to", w, h)
-		// This error won't happen-- we just corrected all potential causes.
-		// If rtreego changes in the future this could also change.
-		rect, _ = rtreego.NewRect(rtreego.Point{x, y}, [3]float64{w, h, 1})
+func NewRect(x, y, w, h float64) floatgeom.Rect3 {
+	if w == 0 {
+		w = 1
 	}
-	return &rect
+	if h == 0 {
+		h = 1
+	}
+	return floatgeom.NewRect3WH(x, y, 0, w, h, 1)
 }

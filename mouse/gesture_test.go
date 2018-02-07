@@ -7,7 +7,7 @@ import (
 	"github.com/oakmound/oak/physics"
 	"github.com/stretchr/testify/assert"
 
-	"golang.org/x/exp/shiny/gesture"
+	"github.com/oakmound/shiny/gesture"
 )
 
 func TestGestureIdentity(t *testing.T) {

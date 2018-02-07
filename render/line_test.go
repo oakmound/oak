@@ -65,12 +65,12 @@ func TestGradientLine(t *testing.T) {
 	}
 }
 
-func TestDrawLineOnto(t *testing.T) {
+func TestDrawLine(t *testing.T) {
 	l := NewLine(0, 0, 10, 10, color.RGBA{255, 255, 255, 255})
 	rgba := l.GetRGBA()
 	// See height addition in line
 	rgba2 := image.NewRGBA(image.Rect(0, 0, 10, 11))
-	DrawLineOnto(rgba2, 0, 0, 10, 10, color.RGBA{255, 255, 255, 255})
+	DrawLine(rgba2, 0, 0, 10, 10, color.RGBA{255, 255, 255, 255})
 	assert.Equal(t, rgba, rgba2)
 }
 

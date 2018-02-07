@@ -6,7 +6,7 @@ import (
 	"github.com/oakmound/oak/dlog"
 	okey "github.com/oakmound/oak/key"
 	omouse "github.com/oakmound/oak/mouse"
-	"golang.org/x/exp/shiny/gesture"
+	"github.com/oakmound/shiny/gesture"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
 	"golang.org/x/mobile/event/mouse"
@@ -52,12 +52,12 @@ func inputLoop() {
 			k := GetKeyBind(e.Code.String()[4:])
 			if e.Direction == key.DirPress {
 				setDown(k)
-				eb.Trigger(okey.Down, k)
-				eb.Trigger(okey.Down+k, nil)
+				logicHandler.Trigger(okey.Down, k)
+				logicHandler.Trigger(okey.Down+k, nil)
 			} else if e.Direction == key.DirRelease {
 				setUp(k)
-				eb.Trigger(okey.Up, k)
-				eb.Trigger(okey.Up+k, nil)
+				logicHandler.Trigger(okey.Up, k)
+				logicHandler.Trigger(okey.Up+k, nil)
 			}
 
 		// Send mouse events
@@ -88,20 +88,20 @@ func inputLoop() {
 			// Todo: consider incorporating viewport into the event, see the
 			// workaround needed in mouseDetails, and how mouse events might not
 			// propagate to their expected position.
-			mevent := omouse.Event{
-				X:      (((e.X - float32(windowRect.Min.X)) / float32(windowRect.Max.X-windowRect.Min.X)) * float32(ScreenWidth)),
-				Y:      (((e.Y - float32(windowRect.Min.Y)) / float32(windowRect.Max.Y-windowRect.Min.Y)) * float32(ScreenHeight)),
-				Button: button,
-				Event:  eventName,
-			}
+			mevent := omouse.NewEvent(
+				float64((((e.X - float32(windowRect.Min.X)) / float32(windowRect.Max.X-windowRect.Min.X)) * float32(ScreenWidth))),
+				float64((((e.Y - float32(windowRect.Min.Y)) / float32(windowRect.Max.Y-windowRect.Min.Y)) * float32(ScreenHeight))),
+				button,
+				eventName,
+			)
 
 			omouse.Propagate(eventName+"On", mevent)
-			eb.Trigger(eventName, mevent)
+			logicHandler.Trigger(eventName, mevent)
 
 		case gesture.Event:
 			eventName := "Gesture" + e.Type.String()
 			dlog.Verb(eventName)
-			eb.Trigger(eventName, omouse.FromShinyGesture(e))
+			logicHandler.Trigger(eventName, omouse.FromShinyGesture(e))
 
 		// There's something called a paint event that we don't respond to
 
@@ -109,8 +109,6 @@ func inputLoop() {
 		case size.Event:
 			//dlog.Verb("Got size event", e)
 			ChangeWindow(e.WidthPx, e.HeightPx)
-		case error:
-			dlog.Error(e)
 		}
 		// This loop can be tight enough that the go scheduler never gets
 		// a chance to take control from this thread. This is a hack that

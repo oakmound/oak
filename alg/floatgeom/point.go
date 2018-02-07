@@ -1,6 +1,10 @@
 package floatgeom
 
-import "math"
+import (
+	"math"
+
+	"github.com/oakmound/oak/alg"
+)
 
 // Point2 represents a 2D point in space.
 type Point2 [2]float64
@@ -157,10 +161,23 @@ func (p Point2) MulConst(fs ...float64) Point2 {
 }
 
 // Div combines the input points via division.
+// Div does not check that the inputs are non zero before operating,
+// and can panic if that is not true.
 func (p Point2) Div(ps ...Point2) Point2 {
 	for _, p2 := range ps {
 		p[0] /= p2[0]
 		p[1] /= p2[1]
+	}
+	return p
+}
+
+// DivConst divides all elements of a point by the input floats
+// DivConst does not check that the inputs are non zero before operating,
+// and can panic if that is not true.
+func (p Point2) DivConst(fs ...float64) Point2 {
+	for _, f := range fs {
+		p[0] /= f
+		p[1] /= f
 	}
 	return p
 }
@@ -206,6 +223,8 @@ func (p Point3) MulConst(fs ...float64) Point3 {
 }
 
 // Div combines the input points via division.
+// Div does not check that the inputs are non zero before operating,
+// and can panic if that is not true.
 func (p Point3) Div(ps ...Point3) Point3 {
 	for _, p2 := range ps {
 		p[0] /= p2[0]
@@ -213,6 +232,81 @@ func (p Point3) Div(ps ...Point3) Point3 {
 		p[2] /= p2[2]
 	}
 	return p
+}
+
+// DivConst divides all elements of a point by the input floats
+// DivConst does not check that the inputs are non zero before operating,
+// and can panic if that is not true.
+func (p Point3) DivConst(fs ...float64) Point3 {
+	for _, f := range fs {
+		p[0] /= f
+		p[1] /= f
+		p[2] /= f
+	}
+	return p
+}
+
+// Dot returns the dot product of the input points
+func (p Point2) Dot(p2 Point2) float64 {
+	return p[0]*p2[0] + p[1]*p2[1]
+}
+
+// Dot returns the dot product of the input points
+func (p Point3) Dot(p2 Point3) float64 {
+	return p[0]*p2[0] + p[1]*p2[1] + p[2]*p2[2]
+}
+
+// Magnitude returns the magnitude of the combined components of a Point
+func (p Point2) Magnitude() float64 {
+	return math.Sqrt(p.Dot(p))
+}
+
+// Magnitude returns the magnitude of the combined components of a Point
+func (p Point3) Magnitude() float64 {
+	return math.Sqrt(p.Dot(p))
+}
+
+// Normalize converts this point into a unit vector.
+func (p Point2) Normalize() Point2 {
+	mgn := p.Magnitude()
+	if mgn == 0 {
+		return p
+	}
+	return p.DivConst(mgn)
+}
+
+// Normalize converts this point into a unit vector.
+func (p Point3) Normalize() Point3 {
+	mgn := p.Magnitude()
+	if mgn == 0 {
+		return p
+	}
+	return p.DivConst(mgn)
+}
+
+// Rotate takes in a set of angles and rotates v by their sum
+// the input angles are expected to be in degrees.
+func (p Point2) Rotate(fs ...float64) Point2 {
+	angle := 0.0
+	for _, f := range fs {
+		angle += f
+	}
+	mgn := p.Magnitude()
+	angle = p.ToRadians() + (angle * alg.DegToRad)
+
+	return Point2{math.Cos(angle) * mgn, math.Sin(angle) * mgn}
+}
+
+// RotateRadians takes in a set of angles and rotates v by their sum
+// the input angles are expected to be in radians.
+func (p Point2) RotateRadians(fs ...float64) Point2 {
+	angle := p.ToRadians()
+	for _, f := range fs {
+		angle += f
+	}
+	mgn := p.Magnitude()
+
+	return Point2{math.Cos(angle) * mgn, math.Sin(angle) * mgn}
 }
 
 // ToRect converts this point into a rectangle spanning span distance
@@ -227,9 +321,28 @@ func (p Point3) ToRect(span float64) Rect3 {
 	return NewRect3WH(p[0], p[1], p[2], span, span, span)
 }
 
+// ProjectX projects the Point3 onto the x axis, removing it's
+// x component and returning a Point2
+// todo: I'm not sure about this (these) function name
+func (p Point3) ProjectX() Point2 {
+	return Point2{p[1], p[2]}
+}
+
+// ProjectY projects the Point3 onto the y axis, removing it's
+// y component and returning a Point2
+func (p Point3) ProjectY() Point2 {
+	return Point2{p[0], p[2]}
+}
+
+// ProjectZ projects the Point3 onto the z axis, removing it's
+// z component and returning a Point2
+func (p Point3) ProjectZ() Point2 {
+	return Point2{p[0], p[1]}
+}
+
 // ToAngle returns this point as an angle in degrees.
 func (p Point2) ToAngle() float64 {
-	return p.ToRadians() * 180 / math.Pi
+	return p.ToRadians() * alg.RadToDeg
 }
 
 // ToRadians returns this point as an angle in radians.

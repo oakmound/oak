@@ -16,6 +16,13 @@ func TestVectorFuncs(t *testing.T) {
 	v3 = MaxVector(v2, v)
 	assert.Equal(t, v, v3)
 
+	x, y := 1.0, 1.0
+	v20 := PtrVector(&x, &y)
+	assert.Equal(t, v20, v)
+
+	v21 := NewVector32(1.0, 1.0)
+	assert.Equal(t, v, v21)
+
 	// Copy behavior
 	v4 := v.Copy()
 	assert.Equal(t, v, v4)
@@ -60,17 +67,13 @@ func TestVectorFuncs(t *testing.T) {
 	assert.Equal(t, v15.Distance(v16), 10.0)
 
 	// Getters
-	x, y := v16.GetPos()
-	x2 := v16.GetX()
+	x, y = v16.GetPos()
 	x3 := v16.X()
-	y2 := v16.GetY()
 	y3 := v16.Y()
 	x4 := *v16.Xp()
 	y4 := *v16.Yp()
-	assert.Equal(t, x, x2)
 	assert.Equal(t, x, x3)
 	assert.Equal(t, x, x4)
-	assert.Equal(t, y, y2)
 	assert.Equal(t, y, y3)
 	assert.Equal(t, y, y4)
 

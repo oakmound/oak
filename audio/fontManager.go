@@ -23,7 +23,11 @@ func (fm *FontManager) NewFont(name string, f *font.Font) error {
 	manager := (*fm)
 	var err error
 	if _, ok := manager[name]; ok {
-		err = oakerr.ExistingFontError{}
+		err = oakerr.ExistingElement{
+			InputName:   name,
+			InputType:   "font",
+			Overwritten: true,
+		}
 	}
 	manager[name] = f
 	return err

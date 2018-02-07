@@ -24,36 +24,41 @@ oak.AddScene("firstScene",
     func()(nextScene string, result *oak.SceneResult){return "firstScene", nil}) 
 oak.Init("firstScene")
 ```
-See the [examples](examples) folder for longer demos.
+See the [examples](examples) folder for longer demos, [godoc](https://godoc.org/github.com/oakmound/oak) for reference documentation, and the [wiki](https://github.com/oakmound/oak/wiki) for more guided feature sets, tutorials and walkthroughs.
 
 ## Motivation
 The initial version of oak was made to support Oakmound Studio's game,
-[Agent Blue](https://github.com/OakmoundStudio/AgentRelease) and was developed in parallel.
-Oak supports Windows with no dependencies and Linux with limited audio dependencies.
+[Agent Blue](https://github.com/OakmoundStudio/AgentRelease), and was developed in parallel.
+Oak supports Windows with no dependencies and Linux with limited audio dependencies. We don't own a machine to check with, but hypothetically it supports OSX as well.
  We hope that users will be able to make great pure Go games with oak and welcome improvements.
  
- Because Oak wants to have as few dependencies as possible, Oak does not use OpenGL or [GLFW](https://github.com/go-gl/glfw).
+ Because Oak wants to have as few non-Go dependencies as possible, Oak does not use OpenGL or [GLFW](https://github.com/go-gl/glfw).
  We're open to adding support for these in the future for performance gains, but we always want
  an alternative that requires zero or near-zero dependencies. (We are very sad about the linux audio 
  dependency and are considering writing an audio driver just to get rid of it.)
 
+## Support
+
+For talk about the engine or help, that is not significant enough to be an Issue or PR, see the #oak channel on the [gophers slack](https://invite.slack.golangbridge.org/). 
+
 ## Features
 1. Window Rendering
-    - Windows and key events through [shiny](https://github.com/golang/exp/tree/master/shiny)
+    - Windows and key events forked from [shiny](https://github.com/oakmound/shiny)
     - Logical frame rate distinct from Draw rate
 1. [Image Management](https://godoc.org/github.com/oakmound/oak/render)
     - `render.Renderable` interface
-    - TileSheet Batch Loading
+    - Sprite Sheet Batch Loading at startup
     - Manipulation
         - `render.Modifiable` interface
-        - Built in Shaping, Coloring, Shading, ...
-        - Some built ins via [gift](https://github.com/disintegration/gift)
-        - extensible Modification syntax `func(image.Image) *image.RGBA`
-        - Copying
+        - Built in Transformations and Filters
+        - Some built-ins via [gift](https://github.com/disintegration/gift)
+        - Extensible Modification syntax `func(image.Image) *image.RGBA`
     - Built in `Renderable` types
         - `Sprite`
-        - Sheet `Animation`
-        - `Sequence`, `Compound`, `Composite`
+        - Primitive builders, `ColorBox`, `Line`, `Bezier`
+        - `Sequence` for animations
+        - `Switch` for conditionally displaying one other Renderable
+        - `Composite` for displaying multiple Renderables as one
         - History-tracking `Reverting`
     - Primarily 2D
 1. [Particle System](https://godoc.org/github.com/oakmound/oak/render/particle)
@@ -66,8 +71,8 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
     - Batch Loading
     - Positional filters to pan and scale audio based on a listening position
 1. [Collision](https://godoc.org/github.com/oakmound/oak/collision)
-    - Collision R-Tree from [rtreego](https://github.com/dhconnelly/rtreego)
-    - 2D Raycasting
+    - Collision R-Tree forked from [rtreego](https://github.com/dhconnelly/rtreego)
+    - [2D Raycasting](collision/ray)
     - Collision Spaces
         - Attachable to Objects
         - Auto React to collisions through events
@@ -96,9 +101,5 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
         - 2D arrays
 1. [Custom Console Commands](debugConsole.go)
 1. [Logging](https://godoc.org/github.com/oakmound/oak/dlog)
-    - Controlled by config files
-    - Filterable by string, debug level
-
-## Package-specific Usage
-
-... Pending! See examples or godoc!
+    - Swappable with custom implementations
+    - Default Implementation: 4 log levels, writes to file and stdout

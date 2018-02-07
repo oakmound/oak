@@ -19,7 +19,7 @@ func TestGradientParticle(t *testing.T) {
 		Color(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
 		Color2(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
 		Size(intrange.Constant(5)),
-		//EndSize(intrange.Constant(10)),
+		EndSize(intrange.Constant(10)),
 		Shape(shape.Heart),
 		Progress(render.HorizontalProgress),
 		And(
@@ -45,8 +45,8 @@ func TestGradientParticle(t *testing.T) {
 	assert.Equal(t, 0, p.GetLayer())
 
 	p.Life = -1
-	// sz, _ := p.GetDims()
-	// assert.Equal(t, float64(sz), p.endSize)
+	sz, _ := p.GetDims()
+	assert.Equal(t, float64(sz), p.endSize)
 	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
 
 	_, _, ok := g.GetParticleSize()

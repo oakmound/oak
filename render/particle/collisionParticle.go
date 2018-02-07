@@ -46,8 +46,3 @@ func (cp *CollisionParticle) Cycle(generator Generator) {
 func (cp *CollisionParticle) GetDims() (int, int) {
 	return int(cp.s.GetW()), int(cp.s.GetH())
 }
-
-// String returns the type as string
-func (cp *CollisionParticle) String() string {
-	return "CollisionParticle"
-}

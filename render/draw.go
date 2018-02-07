@@ -23,38 +23,33 @@ func EmptyRenderable() Modifiable {
 
 // LoadSpriteAndDraw is shorthand for LoadSprite
 // followed by Draw.
-func LoadSpriteAndDraw(filename string, l int) (Renderable, error) {
-	s := LoadSprite(filename)
-	return Draw(s, l)
+func LoadSpriteAndDraw(filename string, layers ...int) (Renderable, error) {
+	s, err := LoadSprite(dir, filename)
+	if err != nil {
+		return nil, err
+	}
+	return Draw(s, layers...)
 }
 
 // DrawColor is equivalent to LoadSpriteAndDraw,
 // but with colorboxes.
-func DrawColor(c color.Color, x1, y1, x2, y2 float64, layer, stackLayer int) Renderable {
+func DrawColor(c color.Color, x1, y1, x2, y2 float64, layers ...int) (Renderable, error) {
 	cb := NewColorBox(int(x2), int(y2), c)
 	cb.ShiftX(x1)
 	cb.ShiftY(y1)
-	if len(GlobalDrawStack.as) == 1 {
-		Draw(cb, layer)
-	} else {
-		cb.SetLayer(layer)
-		Draw(cb, stackLayer)
+	return Draw(cb, layers...)
+}
+
+// DrawForTime draws and after d undraws an element
+func DrawForTime(r Renderable, d time.Duration, layers ...int) error {
+	_, err := Draw(r, layers...)
+	if err != nil {
+		return err
 	}
-	return cb
-}
-
-// UndrawAfter will trigger a renderable's undraw function
-// after a given time has passed
-func UndrawAfter(r Renderable, t time.Duration) {
-	go func(r Renderable, t time.Duration) {
-		timing.DoAfter(t, func() {
-			r.UnDraw()
+	go func(r Renderable, d time.Duration) {
+		timing.DoAfter(d, func() {
+			r.Undraw()
 		})
-	}(r, t)
-}
-
-// DrawForTime is a wrapper for Draw and UndrawAfter
-func DrawForTime(r Renderable, l int, t time.Duration) {
-	Draw(r, l)
-	UndrawAfter(r, t)
+	}(r, d)
+	return nil
 }

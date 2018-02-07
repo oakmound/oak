@@ -1,6 +1,6 @@
 package physics
 
-// Attachable represents things that can be passed into a Vector's attach method.
+// Attachable represents things that can be attached to Vectors
 type Attachable interface {
 	Detach() Vector
 	Attach(Attachable, ...float64) Vector

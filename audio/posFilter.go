@@ -11,8 +11,8 @@ import (
 // has a position.
 type SupportsPos interface {
 	supports.Encoding
-	GetX() *float64
-	GetY() *float64
+	Xp() *float64
+	Yp() *float64
 }
 
 var (
@@ -38,10 +38,11 @@ func (xp Pos) Apply(a audio.Audio) (audio.Audio, error) {
 func PosFilter(e *Ears) Pos {
 	return func(sp SupportsPos) {
 		filter.AssertStereo()(sp)
-		x, y := sp.GetX(), sp.GetY()
+		x := sp.Xp()
 		if x != nil {
 			p := e.CalculatePan(*x)
 			filter.Pan(p)(sp)
+			y := sp.Yp()
 			if y != nil {
 				v := e.CalculateVolume(physics.NewVector(*x, *y))
 				filter.Volume(v)(sp)

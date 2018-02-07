@@ -19,7 +19,7 @@ func TestSource(t *testing.T) {
 		Color(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
 		Color2(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
 		Size(intrange.Constant(5)),
-		//EndSize(intrange.Constant(10)),
+		EndSize(intrange.Constant(10)),
 		Shape(shape.Heart),
 		Progress(render.HorizontalProgress),
 		And(

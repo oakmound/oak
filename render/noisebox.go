@@ -36,5 +36,5 @@ func NewNoiseSequence(w, h, frames int, fps float64) *Sequence {
 	for i := 0; i < frames; i++ {
 		mods[i] = NewSeededNoiseBox(w, h, time.Now().Unix()*int64(i))
 	}
-	return NewSequence(mods, fps)
+	return NewSequence(fps, mods...)
 }

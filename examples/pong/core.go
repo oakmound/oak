@@ -9,6 +9,7 @@ import (
 	"github.com/oakmound/oak/entities"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/scene"
 )
 
 var (
@@ -21,7 +22,7 @@ const (
 )
 
 func main() {
-	oak.AddScene("pong",
+	oak.Add("pong",
 		func(prevScene string, data interface{}) {
 			newPaddle(20, 200, 1)
 			newPaddle(590, 200, 2)
@@ -29,7 +30,7 @@ func main() {
 			render.Draw(render.DefFont().NewIntText(&score2, 200, 20), 3)
 			render.Draw(render.DefFont().NewIntText(&score1, 400, 20), 3)
 		}, func() bool { return true },
-		func() (string, *oak.SceneResult) { return "pong", nil })
+		func() (string, *scene.Result) { return "pong", nil })
 	oak.Init("pong")
 }
 
@@ -37,7 +38,7 @@ func main() {
 // more verbose once we had vectors, but we'd really like it to not be so
 // wordy.
 func newBall(x, y float64) {
-	b := entities.NewMoving(x, y, 10, 10, render.NewColorBox(10, 10, color.RGBA{0, 255, 0, 255}), 0, 0)
+	b := entities.NewMoving(x, y, 10, 10, render.NewColorBox(10, 10, color.RGBA{0, 255, 0, 255}), nil, 0, 0)
 	render.Draw(b.R, 2)
 	b.Bind(func(id int, nothing interface{}) int {
 		if b.Delta.X() == 0 && b.Delta.Y() == 0 {
@@ -61,7 +62,7 @@ func newBall(x, y float64) {
 			b.Delta.SetX(0)
 			b.Delta.SetY(0)
 			b.SetPos(320, 240)
-		} else if b.Y() < 0 || b.Y() > 440-b.H {
+		} else if b.Y() < 0 || b.Y() > 480-b.H {
 			b.Delta.SetY(-1 * b.Delta.Y())
 		}
 		return 0
@@ -69,7 +70,7 @@ func newBall(x, y float64) {
 }
 
 func newPaddle(x, y float64, player int) {
-	p := entities.NewMoving(x, y, 20, 100, render.NewColorBox(20, 100, color.RGBA{255, 0, 0, 255}), 0, 0)
+	p := entities.NewMoving(x, y, 20, 100, render.NewColorBox(20, 100, color.RGBA{255, 0, 0, 255}), nil, 0, 0)
 	p.Speed.SetY(4)
 	render.Draw(p.R, 1)
 	p.Space.UpdateLabel(paddle)
@@ -91,7 +92,7 @@ func enterPaddle(up, down string) func(int, interface{}) int {
 			p.Delta.SetY(p.Speed.Y())
 		}
 		p.ShiftY(p.Delta.Y())
-		if p.Y() < 0 || p.Y() > (440-p.H) {
+		if p.Y() < 0 || p.Y() > (480-p.H) {
 			p.ShiftY(-p.Delta.Y())
 		}
 		return 0

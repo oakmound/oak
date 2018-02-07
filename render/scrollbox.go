@@ -95,11 +95,11 @@ func (s *ScrollBox) update() {
 }
 
 func (s *ScrollBox) shouldReappearY(m Renderable) bool {
-	return (s.dirY == 1 && m.GetY() <= s.reappear.Y()) || (s.dirY == -1 && m.GetY() >= s.reappear.Y())
+	return (s.dirY == 1 && m.Y() <= s.reappear.Y()) || (s.dirY == -1 && m.Y() >= s.reappear.Y())
 }
 
 func (s *ScrollBox) shouldReappearX(m Renderable) bool {
-	return (s.dirX == 1 && m.GetX() <= s.reappear.X()) || (s.dirX == -1 && m.GetX() >= s.reappear.X())
+	return (s.dirX == 1 && m.X() <= s.reappear.X()) || (s.dirX == -1 && m.X() >= s.reappear.X())
 }
 
 // Unpause resumes this scroll box's scrolling. Will delay the next scroll frame
@@ -154,7 +154,7 @@ func (s *ScrollBox) AddRenderable(rs ...Renderable) {
 		// I suppose because we assume the inputs are at 0,0?
 		switch r.(type) {
 		case *Text:
-			r.SetPos(r.GetX()*-1, r.GetY()*-1)
+			r.SetPos(r.X()*-1, r.Y()*-1)
 		}
 		s.Rs = append(s.Rs, r)
 	}
@@ -165,15 +165,15 @@ func (s *ScrollBox) drawRenderables() {
 	for _, r := range s.Rs {
 		// This might be the only place where we draw to a buffer that isn't
 		// oak's main buffer.
-		r.DrawOffset(s.GetRGBA(), -2*r.GetX(), -2*r.GetY())
+		r.DrawOffset(s.GetRGBA(), -2*r.X(), -2*r.Y())
 		if s.scrollRateY != 0 {
-			r.DrawOffset(s.GetRGBA(), -2*r.GetX(), -2*r.GetY()+s.reappear.Y())
+			r.DrawOffset(s.GetRGBA(), -2*r.X(), -2*r.Y()+s.reappear.Y())
 		}
 		if s.scrollRateX != 0 {
-			r.DrawOffset(s.GetRGBA(), -2*r.GetX()+s.reappear.X(), -2*r.GetY())
+			r.DrawOffset(s.GetRGBA(), -2*r.X()+s.reappear.X(), -2*r.Y())
 		}
 		if s.scrollRateX != 0 && s.scrollRateY != 0 {
-			r.DrawOffset(s.GetRGBA(), -2*r.GetX()+s.reappear.X(), -2*r.GetY()+s.reappear.Y())
+			r.DrawOffset(s.GetRGBA(), -2*r.X()+s.reappear.X(), -2*r.Y()+s.reappear.Y())
 		}
 	}
 }

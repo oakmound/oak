@@ -17,7 +17,7 @@ func TestColorParticle(t *testing.T) {
 		Rotation(floatrange.Constant(1)),
 		Color(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
 		Size(intrange.Constant(5)),
-		//EndSize(intrange.Constant(10)),
+		EndSize(intrange.Constant(10)),
 		Shape(shape.Heart),
 	)
 	src := g.Generate(0)
@@ -29,8 +29,8 @@ func TestColorParticle(t *testing.T) {
 	assert.Equal(t, 0, p.GetLayer())
 
 	p.Life = -1
-	// sz, _ := p.GetDims()
-	// assert.Equal(t, float64(sz), p.endSize)
+	sz, _ := p.GetDims()
+	assert.Equal(t, float64(sz), p.endSize)
 	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
 
 	var cp2 *ColorParticle

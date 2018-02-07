@@ -3,7 +3,7 @@ package oak
 import (
 	"image"
 
-	"golang.org/x/exp/shiny/screen"
+	"github.com/oakmound/shiny/screen"
 )
 
 // ScreenShot takes a snap shot of the window's image content.

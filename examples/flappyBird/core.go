@@ -12,6 +12,7 @@ import (
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/key"
 	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/scene"
 	"github.com/oakmound/oak/timing"
 )
 
@@ -31,7 +32,7 @@ const (
 )
 
 func main() {
-	oak.AddScene("bounce", func(string, interface{}) {
+	oak.Add("bounce", func(string, interface{}) {
 		score = 0
 		// 1. Make Player
 		newFlappy(90, 140)
@@ -60,7 +61,7 @@ func main() {
 			return false
 		}
 		return true
-	}, func() (string, *oak.SceneResult) {
+	}, func() (string, *scene.Result) {
 		return "bounce", nil
 	})
 	render.SetDrawStack(
@@ -72,19 +73,17 @@ func main() {
 
 // A Flappy is on a journey to go to the right
 type Flappy struct {
-	entities.Interactive
+	*entities.Interactive
 }
 
 // Init satisfies the event.Entity interface
 func (f *Flappy) Init() event.CID {
-	f.CID = event.NextID(f)
-	return f.CID
+	return event.NextID(f)
 }
 
 func newFlappy(x, y float64) *Flappy {
 	f := new(Flappy)
-	f.Init()
-	f.Interactive = entities.NewInteractive(x, y, 32, 32, render.NewColorBox(32, 32, color.RGBA{0, 255, 255, 255}), f.CID, 1)
+	f.Interactive = entities.NewInteractive(x, y, 32, 32, render.NewColorBox(32, 32, color.RGBA{0, 255, 255, 255}), nil, f.Init(), 1)
 
 	f.RSpace.Add(pillar, func(s1, s2 *collision.Space) {
 		playerHitPillar = true
@@ -130,25 +129,27 @@ func newFlappy(x, y float64) *Flappy {
 
 // A Pillar blocks flappy from continuing forward
 type Pillar struct {
-	entities.Solid
+	*entities.Solid
 	hasScored bool
 }
 
 // Init satisfies the event.Entity interface
 func (p *Pillar) Init() event.CID {
-	p.CID = event.NextID(p)
-	return p.CID
+	return event.NextID(p)
 }
 
 func newPillar(x, y, h float64, isAbove bool) {
 	p := new(Pillar)
-	p.Init()
-	p.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), p.CID)
+	p.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), nil, p.Init())
 	p.Space.Label = pillar
 	collision.Add(p.Space)
 	p.Bind(enterPillar, event.Enter)
 	p.R.SetLayer(1)
 	render.Draw(p.R, 0)
+	// Don't score one out of each two pillars
+	if isAbove {
+		p.hasScored = true
+	}
 }
 
 func newPillarPair() {

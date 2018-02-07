@@ -2,8 +2,8 @@ package particle
 
 import (
 	"image/color"
-	"math"
 
+	"github.com/oakmound/oak/alg"
 	"github.com/oakmound/oak/render"
 )
 
@@ -43,7 +43,7 @@ func (gg *GradientGenerator) setDefaults() {
 func (gg *GradientGenerator) Generate(layer int) *Source {
 	// Convert rotation from degrees to radians
 	if gg.Rotation != nil {
-		gg.Rotation = gg.Rotation.Mult(math.Pi / 180)
+		gg.Rotation = gg.Rotation.Mult(alg.DegToRad)
 	}
 	return NewSource(gg, layer)
 }
@@ -55,7 +55,7 @@ func (gg *GradientGenerator) GenerateParticle(bp *baseParticle) Particle {
 			baseParticle: bp,
 			startColor:   randColor(gg.StartColor, gg.StartColorRand),
 			endColor:     randColor(gg.EndColor, gg.EndColorRand),
-			size:         gg.Size.Poll(),
+			size:         float64(gg.Size.Poll()),
 		},
 		startColor2: randColor(gg.StartColor2, gg.StartColor2Rand),
 		endColor2:   randColor(gg.EndColor2, gg.EndColor2Rand),

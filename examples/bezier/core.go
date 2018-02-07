@@ -9,11 +9,12 @@ import (
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/mouse"
 	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/scene"
 	"github.com/oakmound/oak/shape"
 )
 
 var (
-	cmp *render.Composite
+	cmp *render.CompositeM
 )
 
 func renderCurve(floats []float64) {
@@ -22,7 +23,7 @@ func renderCurve(floats []float64) {
 		fmt.Println(err)
 	}
 	if cmp != nil {
-		cmp.UnDraw()
+		cmp.Undraw()
 	}
 	cmp = bezierDraw(bz)
 	render.Draw(cmp, 0)
@@ -30,7 +31,7 @@ func renderCurve(floats []float64) {
 
 func main() {
 
-	// c bezier X Y X Y X Y ...
+	// bezier X Y X Y X Y ...
 	// for defining custom points without using the mouse.
 	// does not interact with the mouse points tracked through left clicks.
 	oak.AddCommand("bezier", func(tokens []string) {
@@ -50,36 +51,36 @@ func main() {
 		renderCurve(floats)
 	})
 
-	oak.AddScene("bezier", func(string, interface{}) {
+	oak.Add("bezier", func(string, interface{}) {
 		mouseFloats := []float64{}
 		event.GlobalBind(func(_ int, mouseEvent interface{}) int {
 			me := mouseEvent.(mouse.Event)
 			// Left click to add a point to the curve
 			if me.Button == "LeftMouse" {
-				mouseFloats = append(mouseFloats, float64(me.X), float64(me.Y))
+				mouseFloats = append(mouseFloats, float64(me.X()), float64(me.Y()))
 				renderCurve(mouseFloats)
 				// Perform any other click to reset the drawn curve
 			} else {
 				mouseFloats = []float64{}
-				cmp.UnDraw()
+				cmp.Undraw()
 			}
 			return 0
 		}, "MousePress")
 	}, func() bool {
 		return true
-	}, func() (string, *oak.SceneResult) {
+	}, func() (string, *scene.Result) {
 		return "bezier", nil
 	})
 	oak.Init("bezier")
 }
 
-func bezierDraw(b shape.Bezier) *render.Composite {
-	list := render.NewComposite([]render.Modifiable{})
+func bezierDraw(b shape.Bezier) *render.CompositeM {
+	list := render.NewCompositeM()
 	bezierDrawRec(b, list, 255)
 	return list
 }
 
-func bezierDrawRec(b shape.Bezier, list *render.Composite, alpha uint8) {
+func bezierDrawRec(b shape.Bezier, list *render.CompositeM, alpha uint8) {
 	switch bzn := b.(type) {
 	case shape.BezierNode:
 		sp := render.BezierLine(b, color.RGBA{alpha, 0, 0, alpha})

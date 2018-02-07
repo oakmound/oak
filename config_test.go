@@ -18,7 +18,7 @@ func TestDefaultConfig(t *testing.T) {
 	SetupConfig = Config{
 		Assets{"a/", "a/", "i/", "f/"},
 		Debug{"FILTER", "INFO"},
-		Screen{240, 320, 2},
+		Screen{0, 0, 240, 320, 2},
 		Font{"hint", 20.0, 36.0, "luxisr.ttf", "green"},
 		30,
 		30,

@@ -18,7 +18,11 @@ func (fm *FontManager) NewFont(name string, fg FontGenerator) error {
 	manager := (*fm)
 	var err error
 	if _, ok := manager[name]; ok {
-		err = oakerr.ExistingFontError{}
+		err = oakerr.ExistingElement{
+			InputName:   name,
+			InputType:   "font",
+			Overwritten: true,
+		}
 	}
 	manager[name] = (&fg).Generate()
 	return err

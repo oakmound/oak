@@ -17,6 +17,7 @@ type Particle interface {
 	GetPos() physics.Vector
 	DrawOffsetGen(gen Generator, buff draw.Image, xOff, yOff float64)
 	Cycle(gen Generator)
+	setPID(int)
 }
 
 type baseParticle struct {
@@ -49,6 +50,6 @@ func (bp *baseParticle) GetDims() (int, int) {
 
 func (bp *baseParticle) Cycle(gen Generator) {}
 
-func (bp *baseParticle) String() string {
-	return "BaseParticle"
+func (bp *baseParticle) setPID(pid int) {
+	bp.pID = pid
 }

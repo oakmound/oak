@@ -2,33 +2,9 @@ package event
 
 import (
 	"reflect"
-	"strconv"
 	"sync"
-)
 
-var (
-	thisBus      = &Bus{make(map[string]map[int]*bindableStore)}
-	mutex        = sync.RWMutex{}
-	pendingMutex = sync.Mutex{}
-)
-
-const (
-	// NoResponse or 0, is returned by events that
-	// don't want the event bus to do anything with
-	// the event after they have been evaluated. This
-	// is the usual behavior.
-	NoResponse = iota
-	// Error should be returned by events that in some way
-	// caused an error to happen, but this does not do anything
-	// in the engine right now.
-	Error
-	// UnbindEvent unbinds everything for a specific
-	// event name from an entity at the bindable's
-	// priority.
-	UnbindEvent
-	// UnbindSingle just unbinds the one binding that
-	// it is returned from
-	UnbindSingle
+	"github.com/oakmound/oak/timing"
 )
 
 // Bindable is a way of saying "Any function
@@ -71,7 +47,37 @@ type bindableStore struct {
 
 // A Bus stores bindables to be triggered by events
 type Bus struct {
-	bindingMap map[string]map[int]*bindableStore
+	bindingMap          map[string]map[int]*bindableStore
+	doneCh              chan bool
+	updateCh            chan bool
+	framesElapsed       int
+	Ticker              *timing.DynamicTicker
+	binds               []UnbindOption
+	partUnbinds         []BindingOption
+	fullUnbinds         []UnbindOption
+	unbinds             []binding
+	unbindAllAndRebinds []UnbindAllOption
+
+	mutex        sync.RWMutex
+	pendingMutex sync.Mutex
+
+	init sync.Once
+}
+
+// NewBus returns an empty event bus
+func NewBus() *Bus {
+	return &Bus{
+		bindingMap:          make(map[string]map[int]*bindableStore),
+		doneCh:              make(chan bool),
+		binds:               make([]UnbindOption, 0),
+		partUnbinds:         make([]BindingOption, 0),
+		fullUnbinds:         make([]UnbindOption, 0),
+		unbinds:             make([]binding, 0),
+		unbindAllAndRebinds: make([]UnbindAllOption, 0),
+		mutex:               sync.RWMutex{},
+		pendingMutex:        sync.Mutex{},
+		init:                sync.Once{},
+	}
 }
 
 // An Event is an event name and an associated caller id
@@ -102,47 +108,19 @@ type binding struct {
 	index int
 }
 
-// A CID is a caller ID that entities use to trigger and bind functionality
-type CID int
-
-func (cid CID) String() string {
-	return strconv.Itoa(int(cid))
-}
-
-// E is shorthand for GetEntity(int(cid))
-// But we apparently forgot we added this shorthand,
-// because this isn't used anywhere.
-func (cid CID) E() interface{} {
-	return GetEntity(int(cid))
-}
-
-// GetBus exposes the package global event bus that probably shouldn't be
-// package global
-func GetBus() *Bus {
-	return thisBus
-}
-
-// Todo: move all of this onto the event bus struct
-var (
-	binds               = []UnbindOption{}
-	partUnbinds         = []BindingOption{}
-	fullUnbinds         = []UnbindOption{}
-	unbinds             = []binding{}
-	unbindAllAndRebinds = []UnbindAllOption{}
-)
-
-// ResetBus empties out all transient portions of the package global bus
-func ResetBus() {
-	mutex.Lock()
-	pendingMutex.Lock()
-	thisBus = &Bus{make(map[string]map[int]*bindableStore)}
-	binds = []UnbindOption{}
-	partUnbinds = []BindingOption{}
-	fullUnbinds = []UnbindOption{}
-	unbinds = []binding{}
-	unbindAllAndRebinds = []UnbindAllOption{}
-	pendingMutex.Unlock()
-	mutex.Unlock()
+// Reset empties out all transient portions of the bus. It will not stop
+// an ongoing loop.
+func (eb *Bus) Reset() {
+	eb.mutex.Lock()
+	eb.pendingMutex.Lock()
+	eb.bindingMap = make(map[string]map[int]*bindableStore)
+	eb.binds = []UnbindOption{}
+	eb.partUnbinds = []BindingOption{}
+	eb.fullUnbinds = []UnbindOption{}
+	eb.unbinds = []binding{}
+	eb.unbindAllAndRebinds = []UnbindAllOption{}
+	eb.pendingMutex.Unlock()
+	eb.mutex.Unlock()
 }
 
 // UnbindAllOption stores information needed to unbind and rebind

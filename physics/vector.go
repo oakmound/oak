@@ -1,6 +1,10 @@
 package physics
 
-import "math"
+import (
+	"math"
+
+	"github.com/oakmound/oak/alg"
+)
 
 // A Vector is a two-dimensional point or vector used throughout oak
 // to maintain functionality between packages.
@@ -24,10 +28,22 @@ func NewVector(x, y float64) Vector {
 	return Vector{x2, y2, 0, 0}
 }
 
+// NewVector32 accepts float32s (and will cast them to float64s), to create a vector
+func NewVector32(x, y float32) Vector {
+	return NewVector(float64(x), float64(y))
+}
+
+// PtrVector takes in pointers as opposed to float values-- these
+// same pointers will be used in the returned vector and by attachments
+// to that vector.
+func PtrVector(x, y *float64) Vector {
+	return Vector{x, y, 0, 0}
+}
+
 // AngleVector creates a unit vector by the cosine and sine of the given
 // angle in degrees
 func AngleVector(angle float64) Vector {
-	angle *= math.Pi / 180
+	angle *= alg.DegToRad
 	return NewVector(math.Cos(angle), math.Sin(angle))
 }
 
@@ -108,14 +124,14 @@ func (v Vector) Rotate(fs ...float64) Vector {
 		angle += f
 	}
 	mgn := v.Magnitude()
-	angle = math.Atan2(*v.y, *v.x) + (angle * (math.Pi) / 180)
+	angle = math.Atan2(*v.y, *v.x) + (angle * alg.DegToRad)
 
 	return v.SetPos(math.Cos(angle)*mgn, math.Sin(angle)*mgn)
 }
 
 // Angle returns this vector as an angle in degrees
 func (v Vector) Angle() float64 {
-	return math.Atan2(*v.y, *v.x) * 180 / math.Pi
+	return math.Atan2(*v.y, *v.x) * alg.RadToDeg
 }
 
 // Dot returns the dot product of the vectors
@@ -160,19 +176,9 @@ func (v Vector) X() float64 {
 	return *v.x + v.offX
 }
 
-// GetX returns this vector's x component todo: consider not having this
-func (v Vector) GetX() float64 {
-	return v.X()
-}
-
 // Y returns this vector's x component
 func (v Vector) Y() float64 {
 	return *v.y + v.offY
-}
-
-// GetY returns this vector's x component todo: consider not having this
-func (v Vector) GetY() float64 {
-	return v.Y()
 }
 
 // SetX returns a vector with its x component set to x

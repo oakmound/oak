@@ -5,6 +5,7 @@ import (
 
 	"github.com/200sc/klangsynthese/audio"
 	"github.com/200sc/klangsynthese/font"
+	"github.com/oakmound/oak/oakerr"
 )
 
 // Audio is a struct of some audio data and the variables
@@ -87,7 +88,7 @@ func (a *Audio) Filter(fs ...audio.Filter) (audio.Audio, error) {
 			if consErr == nil {
 				consErr = err
 			} else {
-				consErr = errors.New(err.Error() + ":" + consErr.Error())
+				consErr = oakerr.ConsError{First: err, Second: consErr}
 			}
 		}
 	}
@@ -100,13 +101,15 @@ func (a *Audio) MustFilter(fs ...audio.Filter) audio.Audio {
 	return ad
 }
 
-// GetX returns the X value of where this audio is coming from
-func (a *Audio) GetX() *float64 {
+// Xp returns a pointer to the x position of this audio, if it has one.
+// It has no position, this returns nil.
+func (a *Audio) Xp() *float64 {
 	return a.X
 }
 
-// GetY returns the Y value of where this audio is coming from
-func (a *Audio) GetY() *float64 {
+// Yp returns a pointer to the y position of this audio, if it has one.
+// It has no position, this returns nil. If This is not nil, Xp will not be nil.
+func (a *Audio) Yp() *float64 {
 	return a.Y
 }
 

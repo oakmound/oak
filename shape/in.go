@@ -38,7 +38,7 @@ func OrIn(is ...In) In {
 	}
 }
 
-// NotIn returns the opposite of a given In function for any query
+// NotIn returns the opposite of a given In function for any query.
 func NotIn(i In) In {
 	return func(x, y int, sizes ...int) bool {
 		return !i(x, y, sizes...)
@@ -59,8 +59,8 @@ func (ji JustIn) Rect(sizes ...int) [][]bool {
 	return InToRect(In(ji))(sizes...)
 }
 
-// Outline calls ToOutline on the JustIn
-func (ji JustIn) Outline(sizes ...int) ([]intgeom.Point, error) {
+// Outline calls ToOutline on a JustIn
+func (ji JustIn) Outline(sizes ...int) ([]intgeom.Point2, error) {
 	return ToOutline(ji)(sizes...)
 }
 
@@ -124,7 +124,6 @@ var (
 
 // XRange is an example In utility which returns values within a given
 // relative range (where 0 = 0 and 1 = size).
-//TODO: update to respect multiple sizes
 func XRange(a, b float64) In {
 	return func(x, y int, sizes ...int) bool {
 		xf := float64(x)

@@ -15,7 +15,7 @@ func TestParticle(t *testing.T) {
 
 	assert.Equal(t, render.Undraw, bp.GetLayer())
 
-	// bp = new(baseParticle)
-	// bp.setPID(100)
-	// assert.Equal(t, 100, bp.pID)
+	bp = new(baseParticle)
+	bp.setPID(100)
+	assert.Equal(t, 100, bp.pID)
 }

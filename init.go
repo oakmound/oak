@@ -6,9 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
-	"golang.org/x/exp/shiny/driver"
 )
 
 var (
@@ -62,17 +60,9 @@ var (
 	// effect next scene
 	FrameRate int
 
-	// DrawFrameRate is the unused equivalent to FrameRate
+	// DrawFrameRate is the equivalent to FrameRate for
+	// the rate at which the screen is drawn.
 	DrawFrameRate int
-
-	eb *event.Bus
-
-	// GlobalFirstScene is returned by the first
-	// loading scene
-	globalFirstScene string
-
-	// CurrentScene is the scene currently running in oak
-	CurrentScene string
 
 	zeroPoint = image.Point{0, 0}
 )
@@ -81,12 +71,20 @@ var (
 // It spawns off an event loop of several goroutines
 // and loops through scenes after initialization.
 func Init(firstScene string) {
+	dlog.SetLogger(dlog.NewLogger())
 	dlog.CreateLogFile()
 
 	initConf()
 
 	// Set variables from conf file
-	dlog.SetStringDebugLevel(conf.Debug.Level)
+	lvl, err := dlog.ParseDebugLevel(conf.Debug.Level)
+	dlog.SetDebugLevel(lvl)
+	// We are intentionally using the lvl value before checking error,
+	// because we can only log errors through dlog itself anyway
+
+	// We do this knowing that the default debug level when SetDebugLevel fails
+	// is ERROR, so this will be recorded.
+	dlog.ErrorCheck(err)
 	dlog.SetDebugFilter(conf.Debug.Filter)
 
 	dlog.Info("Oak Init Start")
@@ -116,9 +114,10 @@ func Init(firstScene string) {
 	dlog.Info("Init Scene Loop")
 	go sceneLoop(firstScene)
 	dlog.Info("Init asset load")
+	render.SetAssetPaths(imageDir)
 	go loadAssets(imageDir, audioDir)
 	dlog.Info("Init Console")
 	go debugConsole(debugResetCh, skipSceneCh, os.Stdin)
 	dlog.Info("Init Main Driver")
-	driver.Main(lifecycleLoop)
+	InitDriver(lifecycleLoop)
 }

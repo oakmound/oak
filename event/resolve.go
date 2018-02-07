@@ -2,8 +2,6 @@ package event
 
 import (
 	"runtime"
-
-	"github.com/oakmound/oak/dlog"
 )
 
 // ResolvePending is a contant loop that tracks slices of bind or unbind calls
@@ -11,48 +9,29 @@ import (
 // Todo: this should be a function on the event bus itself, and should have a better name
 // If you ask "Why does this not use select over channels, share memory by communicating",
 // the answer is we tried, and it was cripplingly slow.
-func ResolvePending() {
-	schedCt := 0
-	for {
-		if len(unbindAllAndRebinds) > 0 {
-			resolveUnbindAllAndRebinds()
-		}
-		// Specific unbinds
-		if len(unbinds) > 0 {
-			resolveUnbinds()
-		}
+func (eb *Bus) ResolvePending() {
+	eb.init.Do(func() {
+		schedCt := 0
+		for {
+			eb.Flush()
 
-		// A full set of unbind settings
-		if len(fullUnbinds) > 0 {
-			resolveFullUnbinds()
+			// This is a tight loop that can cause a pseudo-deadlock
+			// by refusing to release control to the go scheduler.
+			// This code prevents this from happening.
+			// See https://github.com/golang/go/issues/10958
+			schedCt++
+			if schedCt > 1000 {
+				schedCt = 0
+				runtime.Gosched()
+			}
 		}
-
-		// A partial set of unbind settings
-		if len(partUnbinds) > 0 {
-			resolvePartialUnbinds()
-		}
-
-		// Bindings
-		if len(binds) > 0 {
-			resolveBindings()
-		}
-
-		// This is a tight loop that can cause a pseudo-deadlock
-		// by refusing to release control to the go scheduler.
-		// This code prevents this from happening.
-		// See https://github.com/golang/go/issues/10958
-		schedCt++
-		if schedCt > 1000 {
-			schedCt = 0
-			runtime.Gosched()
-		}
-	}
+	})
 }
 
-func resolveUnbindAllAndRebinds() {
-	mutex.Lock()
-	pendingMutex.Lock()
-	for _, ubaarb := range unbindAllAndRebinds {
+func (eb *Bus) resolveUnbindAllAndRebinds() {
+	eb.mutex.Lock()
+	eb.pendingMutex.Lock()
+	for _, ubaarb := range eb.unbindAllAndRebinds {
 		unbind := ubaarb.ub
 		orderedBindables := ubaarb.bnds
 		orderedBindOptions := ubaarb.bs
@@ -64,62 +43,60 @@ func resolveUnbindAllAndRebinds() {
 			namekeys = append(namekeys, unbind.Name)
 			// Otherwise, iterate through all events.
 		} else {
-			for k := range thisBus.bindingMap {
+			for k := range eb.bindingMap {
 				namekeys = append(namekeys, k)
 			}
 		}
 
 		if unbind.CallerID != 0 {
 			for _, k := range namekeys {
-				delete(thisBus.bindingMap[k], unbind.CallerID)
+				delete(eb.bindingMap[k], unbind.CallerID)
 			}
 		} else {
 			for _, k := range namekeys {
-				delete(thisBus.bindingMap, k)
+				delete(eb.bindingMap, k)
 			}
 		}
-
-		dlog.Verb(thisBus.bindingMap)
 
 		// Bindings
 		for i := 0; i < len(orderedBindables); i++ {
 			fn := orderedBindables[i]
 			opt := orderedBindOptions[i]
-			list := thisBus.getBindableList(opt)
+			list := eb.getBindableList(opt)
 			list.storeBindable(fn)
 		}
 	}
-	unbindAllAndRebinds = []UnbindAllOption{}
-	pendingMutex.Unlock()
-	mutex.Unlock()
+	eb.unbindAllAndRebinds = []UnbindAllOption{}
+	eb.pendingMutex.Unlock()
+	eb.mutex.Unlock()
 }
 
-func resolveUnbinds() {
-	mutex.Lock()
-	pendingMutex.Lock()
-	for _, b := range unbinds {
-		thisBus.getBindableList(b.BindingOption).removeBinding(b)
+func (eb *Bus) resolveUnbinds() {
+	eb.mutex.Lock()
+	eb.pendingMutex.Lock()
+	for _, bnd := range eb.unbinds {
+		eb.getBindableList(bnd.BindingOption).removeBinding(bnd)
 	}
-	unbinds = []binding{}
-	pendingMutex.Unlock()
-	mutex.Unlock()
+	eb.unbinds = []binding{}
+	eb.pendingMutex.Unlock()
+	eb.mutex.Unlock()
 }
 
-func resolveFullUnbinds() {
-	mutex.Lock()
-	pendingMutex.Lock()
-	for _, opt := range fullUnbinds {
-		thisBus.getBindableList(opt.BindingOption).removeBindable(opt.Fn)
+func (eb *Bus) resolveFullUnbinds() {
+	eb.mutex.Lock()
+	eb.pendingMutex.Lock()
+	for _, opt := range eb.fullUnbinds {
+		eb.getBindableList(opt.BindingOption).removeBindable(opt.Fn)
 	}
-	fullUnbinds = []UnbindOption{}
-	pendingMutex.Unlock()
-	mutex.Unlock()
+	eb.fullUnbinds = []UnbindOption{}
+	eb.pendingMutex.Unlock()
+	eb.mutex.Unlock()
 }
 
-func resolvePartialUnbinds() {
-	mutex.Lock()
-	pendingMutex.Lock()
-	for _, opt := range partUnbinds {
+func (eb *Bus) resolvePartialUnbinds() {
+	eb.mutex.Lock()
+	eb.pendingMutex.Lock()
+	for _, opt := range eb.partUnbinds {
 		var namekeys []string
 
 		// If we were given a name,
@@ -129,35 +106,34 @@ func resolvePartialUnbinds() {
 
 			// Otherwise, iterate through all events.
 		} else {
-			for k := range thisBus.bindingMap {
+			for k := range eb.bindingMap {
 				namekeys = append(namekeys, k)
 			}
 		}
 
 		if opt.CallerID != 0 {
 			for _, k := range namekeys {
-				delete(thisBus.bindingMap[k], opt.CallerID)
+				delete(eb.bindingMap[k], opt.CallerID)
 			}
 		} else {
 			for _, k := range namekeys {
-				delete(thisBus.bindingMap, k)
+				delete(eb.bindingMap, k)
 			}
 		}
 	}
-	partUnbinds = []BindingOption{}
-	pendingMutex.Unlock()
-	mutex.Unlock()
-	dlog.Verb(thisBus.bindingMap)
+	eb.partUnbinds = []BindingOption{}
+	eb.pendingMutex.Unlock()
+	eb.mutex.Unlock()
 }
 
-func resolveBindings() {
-	mutex.Lock()
-	pendingMutex.Lock()
-	for _, bindSet := range binds {
-		list := thisBus.getBindableList(bindSet.BindingOption)
+func (eb *Bus) resolveBindings() {
+	eb.mutex.Lock()
+	eb.pendingMutex.Lock()
+	for _, bindSet := range eb.binds {
+		list := eb.getBindableList(bindSet.BindingOption)
 		list.storeBindable(bindSet.Fn)
 	}
-	binds = []UnbindOption{}
-	pendingMutex.Unlock()
-	mutex.Unlock()
+	eb.binds = []UnbindOption{}
+	eb.pendingMutex.Unlock()
+	eb.mutex.Unlock()
 }

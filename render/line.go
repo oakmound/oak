@@ -12,7 +12,7 @@ import (
 // Our current concept of thickness expands out in both directions,
 // so it's impossible to draw a even-pixel thick line. This is probably
 // okay for an easy syntax like this but we might want to add in a
-// "Line constructor" type object like our ray-casters in release/2.0.0
+// "Line constructor" type object like our ray-casters
 // so this behavior can be customized, i.e.-- if you take thickness as
 // pixel thickness, do you expand out left or right, or center, and how
 // are ties broken, etc. That would also help prevent the number of
@@ -45,9 +45,8 @@ func NewLineColored(x1, y1, x2, y2 float64, colorer Colorer, thickness int) *Spr
 	return NewSprite(minX-float64(thickness), minY-float64(thickness), rgba)
 }
 
-// DrawLineOnto draws a line onto an image rgba from one point to another
-// Todo: 2.0, rename to DrawLine
-func DrawLineOnto(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color) {
+// DrawLine draws a line onto an image rgba from one point to another
+func DrawLine(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color) {
 	DrawThickLine(rgba, x1, y1, x2, y2, c, 0)
 }
 

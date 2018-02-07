@@ -71,10 +71,13 @@ func (fg *FontGenerator) Generate() *Font {
 	}
 
 	fnt := LoadFont(dir, fg.File)
+	if fnt == nil {
+		return nil
+	}
 	// This logic is copied from truetype for their face scaling
 	scl := fixed.Int26_6(0.5 + (fg.Size * fg.DPI * 64 / 72))
 	bds := fnt.Bounds(scl)
-	intBds := intgeom.NewRect(
+	intBds := intgeom.NewRect2(
 		bds.Min.X.Round(),
 		bds.Min.Y.Round(),
 		bds.Max.X.Round(),
@@ -111,7 +114,7 @@ func (fg *FontGenerator) Copy() *FontGenerator {
 type Font struct {
 	FontGenerator
 	font.Drawer
-	bounds intgeom.Rect
+	bounds intgeom.Rect2
 }
 
 // Refresh regenerates this font
@@ -174,17 +177,19 @@ func FontColor(s string) image.Image {
 	return defaultColor
 }
 
-// LoadFont loads in a font file and stores it with the given name. This is necessary before using the fonttype for a Font
+// LoadFont loads in a font file and stores it with the given fontFile name.
+// This is necessary before using that file in a generator, otherwise the default
+// directory will be tried at generation time.
 func LoadFont(dir string, fontFile string) *truetype.Font {
 	if _, ok := loadedFonts[fontFile]; !ok {
 		fontBytes, err := fileutil.ReadFile(filepath.Join(dir, fontFile))
 		if err != nil {
-			dlog.Error(err.Error())
+			dlog.Error(err)
 			return nil
 		}
 		font, err := truetype.Parse(fontBytes)
 		if err != nil {
-			dlog.Error(err.Error())
+			dlog.Error(err)
 			return nil
 		}
 		loadedFonts[fontFile] = font

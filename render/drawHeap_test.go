@@ -27,12 +27,11 @@ func TestDrawHeapLoop(t *testing.T) {
 		{EmptyRenderable(), 0},
 		{NewEmptySprite(20, 20, 10, 10), 1},
 		{NewColorBox(30, 30, color.RGBA{255, 255, 255, 255}), 2},
-		{NewSequence([]Modifiable{
+		{NewSequence(10,
 			NewColorBox(5, 5, color.RGBA{0, 0, 0, 255}),
 			NewColorBox(6, 6, color.RGBA{20, 0, 0, 255}),
 			NewColorBox(7, 7, color.RGBA{40, 0, 0, 255}),
-			NewColorBox(8, 9, color.RGBA{60, 0, 0, 255}),
-		}, 10), 3},
+			NewColorBox(8, 9, color.RGBA{60, 0, 0, 255})), 3},
 		{NewScrollBox(
 			[]Renderable{
 				NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}),

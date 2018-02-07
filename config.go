@@ -21,7 +21,7 @@ var (
 	conf = Config{
 		Assets{"assets/", "audio/", "images/", "font/"},
 		Debug{"", "ERROR"},
-		Screen{480, 640, 1},
+		Screen{0, 0, 480, 640, 1},
 		Font{"none", 12.0, 72.0, "", "white"},
 		60,
 		60,
@@ -35,20 +35,17 @@ var (
 
 // Config stores initialization settings for oak.
 type Config struct {
-	Assets         Assets `json:"assets"`
-	Debug          Debug  `json:"debug"`
-	Screen         Screen `json:"screen"`
-	Font           Font   `json:"font"`
-	FrameRate      int    `json:"frameRate"`
-	DrawFrameRate  int    `json:"drawFrameRate"`
-	Language       string `json:"language"`
-	Title          string `json:"title"`
-	BatchLoad      bool   `json:"batchLoad"`
-	GestureSupport bool   `json:"gestureSupport"`
-	// DisableKeyhold is deprecated. Keyhold functionality
-	// no longer has a significant performance impact and so can't
-	// be disabled.
-	DisableKeyhold bool `json:"disableKeyHold"`
+	Assets              Assets `json:"assets"`
+	Debug               Debug  `json:"debug"`
+	Screen              Screen `json:"screen"`
+	Font                Font   `json:"font"`
+	FrameRate           int    `json:"frameRate"`
+	DrawFrameRate       int    `json:"drawFrameRate"`
+	Language            string `json:"language"`
+	Title               string `json:"title"`
+	BatchLoad           bool   `json:"batchLoad"`
+	GestureSupport      bool   `json:"gestureSupport"`
+	LoadBuiltinCommands bool   `json:"loadBuiltinCommands"`
 }
 
 // Assets is a json type storing paths to different asset folders
@@ -67,6 +64,8 @@ type Debug struct {
 
 // Screen is a json type storing the starting screen width and height
 type Screen struct {
+	X      int `json:"X"`
+	Y      int `json:"Y"`
 	Height int `json:"height"`
 	Width  int `json:"width"`
 	Scale  int `json:"scale"`
@@ -125,7 +124,9 @@ func initConfDebug() {
 }
 
 func initConfScreen() {
-
+	// we have no check here, because if X or Y is 0, they are ignored.
+	conf.Screen.X = SetupConfig.Screen.X
+	conf.Screen.Y = SetupConfig.Screen.Y
 	if SetupConfig.Screen.Width != 0 {
 		conf.Screen.Width = SetupConfig.Screen.Width
 	}
@@ -182,10 +183,8 @@ func initConf() {
 	}
 
 	conf.BatchLoad = SetupConfig.BatchLoad
-
 	conf.GestureSupport = SetupConfig.GestureSupport
-
-	conf.DisableKeyhold = SetupConfig.DisableKeyhold
+	conf.LoadBuiltinCommands = SetupConfig.LoadBuiltinCommands
 
 	dlog.Error(conf)
 }

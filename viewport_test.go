@@ -6,17 +6,18 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/scene"
 	"github.com/stretchr/testify/assert"
 )
 
 func testinit() {
-	AddScene("blank",
+	SceneMap.Add("blank",
 		// Initialization function
 		func(prevScene string, inData interface{}) {},
 		// Loop to continue or stop current scene
 		func() bool { return true },
 		// Exit to transition to next scene
-		func() (nextScene string, result *SceneResult) { return "blank", nil })
+		func() (nextScene string, result *scene.Result) { return "blank", nil })
 	go Init("blank")
 	time.Sleep(2 * time.Second)
 	// Assert that nothing went wrong
@@ -27,7 +28,6 @@ func resetOak() {
 	case <-quitCh:
 	default:
 	}
-	lifecycleInit = false
 }
 
 func sleep() {

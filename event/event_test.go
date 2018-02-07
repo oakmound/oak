@@ -73,7 +73,7 @@ func TestUnbind(t *testing.T) {
 	sleep()
 	assert.Equal(t, triggers, 4)
 
-	ResetBus()
+	Reset()
 
 	Trigger("T", nil)
 	sleep()
@@ -142,7 +142,6 @@ func TestCID(t *testing.T) {
 	}, "T")
 
 	// ResetEntities, etc
-	assert.Equal(t, cid.String(), "1")
 	ResetEntities()
 
 	cid.Trigger("T", nil)
@@ -215,23 +214,10 @@ func TestPriority(t *testing.T) {
 	// If the events occurred in the opposite order, x would be 11.
 
 	x = 20
-	thisBus.Trigger("T", nil)
+	Trigger("T", nil)
 	sleep()
 	assert.Equal(t, 12, x)
 
-}
-
-func TestAfter(t *testing.T) {
-	var x int
-	e := ent{}
-	cid := e.Init()
-	cid.Bind(func(int, interface{}) int {
-		x = 5
-		return 0
-	}, "T")
-	cid.TriggerAfter(time.Second, "T", nil)
-	time.Sleep(2 * time.Second)
-	assert.Equal(t, x, 5)
 }
 
 func TestBindableList(t *testing.T) {

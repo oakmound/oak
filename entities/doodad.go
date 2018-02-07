@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"strconv"
+
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
 )
@@ -17,15 +19,15 @@ type Doodad struct {
 // any other CID will assume that the struct containing this doodad has
 // already been initialized to the passed in CID.
 // This applies to ALL NewX functions in entities which take in a CID.
-func NewDoodad(x, y float64, r render.Renderable, CID event.CID) Doodad {
+func NewDoodad(x, y float64, r render.Renderable, CID event.CID) *Doodad {
 	if r != nil {
 		r.SetPos(x, y)
 	}
 	d := Doodad{}
-	d.Point = NewPoint(x, y)
+	d.Point = *NewPoint(x, y)
 	d.R = r
 	d.CID = CID.Parse(&d)
-	return d
+	return &d
 }
 
 // Init satisfies event.Entity
@@ -50,7 +52,7 @@ func (d *Doodad) GetRenderable() render.Renderable {
 // two tiers of draw layers
 func (d *Doodad) SetRenderable(r render.Renderable) {
 	if d.R != nil {
-		d.R.UnDraw()
+		d.R.Undraw()
 	}
 	d.R = r
 	render.Draw(d.R, d.R.GetLayer())
@@ -60,7 +62,7 @@ func (d *Doodad) SetRenderable(r render.Renderable) {
 // entity mapping for this Doodad
 func (d *Doodad) Destroy() {
 	if d.R != nil {
-		d.R.UnDraw()
+		d.R.Undraw()
 	}
 	d.CID.UnbindAll()
 	event.DestroyEntity(int(d.CID))
@@ -80,7 +82,7 @@ func (d *Doodad) String() string {
 	s := "Doodad: \nP{ "
 	s += d.Point.String()
 	s += " }\nID:{ "
-	s += d.CID.String()
+	s += strconv.Itoa(int(d.CID))
 	s += " }"
 	return s
 }

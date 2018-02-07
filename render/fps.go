@@ -41,7 +41,7 @@ func (df *DrawFPS) PreDraw() {
 }
 
 // Add does nothing for a drawFPS
-func (df *DrawFPS) Add(Renderable, int) Renderable {
+func (df *DrawFPS) Add(Renderable, ...int) Renderable {
 	//NOP
 	return nil
 }
@@ -52,8 +52,8 @@ func (df *DrawFPS) Replace(Renderable, Renderable, int) {
 }
 
 // Copy does effectively nothing for a drawFPS
-func (df *DrawFPS) Copy() Addable {
-	return new(DrawFPS)
+func (df *DrawFPS) Copy() Stackable {
+	return NewDrawFPS()
 }
 
 func (df *DrawFPS) draw(world draw.Image, view image.Point, w, h int) {

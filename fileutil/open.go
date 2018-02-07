@@ -56,14 +56,15 @@ func Open(file string) (io.ReadCloser, error) {
 	return os.Open(file)
 }
 
-// ReadFile replaces ioutil.ReadFile, trying to use the BinaryFn if it exists.
+// ReadFile replaces ioutil.ReadFile, trying to use the BindataFn if it exists.
 func ReadFile(file string) ([]byte, error) {
 	if BindataFn != nil {
 		rel, err := filepath.Rel(wd, file)
-		if err == nil {
-			return BindataFn(rel)
+		if err != nil {
+			dlog.Warn("Error in rel", err)
+			rel = file
 		}
-		dlog.Warn("Error in rel", err)
+		return BindataFn(rel)
 	}
 	return ioutil.ReadFile(file)
 }
@@ -89,6 +90,8 @@ func ReadDir(file string) ([]os.FileInfo, error) {
 			for i, s := range strs {
 				// If the data does not contain a period, we consider it
 				// a directory
+				// todo: can we supply a function that will tell us this
+				// so we don't make this (bad) assumption?
 				fis[i] = dummyfileinfo{s, !strings.ContainsRune(s, '.')}
 				dlog.Verb("Creating dummy file into for", s, fis[i])
 			}

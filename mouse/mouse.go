@@ -1,7 +1,7 @@
 package mouse
 
 import (
-	"github.com/oakmound/oak/collision"
+	"github.com/oakmound/oak/event"
 	"golang.org/x/mobile/event/mouse"
 )
 
@@ -12,25 +12,23 @@ var (
 
 // Propagate triggers direct mouse events on entities which are clicked
 func Propagate(eventName string, me Event) {
-	LastMouseEvent = me
+	LastEvent = me
 
 	hits := DefTree.SearchIntersect(me.ToSpace().Bounds())
-	for _, v := range hits {
-		sp := v.(*collision.Space)
+	for _, sp := range hits {
 		sp.CID.Trigger(eventName, me)
 	}
 
 	if TrackMouseClicks {
 		if eventName == PressOn {
-			LastMousePress = me
+			LastPress = me
 		} else if eventName == ReleaseOn {
-			if me.Button == LastMousePress.Button {
-				pressHits := DefTree.SearchIntersect(LastMousePress.ToSpace().Bounds())
-				for _, v1 := range pressHits {
-					sp1 := v1.(*collision.Space)
-					for _, v2 := range hits {
-						sp2 := v2.(*collision.Space)
+			if me.Button == LastPress.Button {
+				pressHits := DefTree.SearchIntersect(LastPress.ToSpace().Bounds())
+				for _, sp1 := range pressHits {
+					for _, sp2 := range hits {
 						if sp1.CID == sp2.CID {
+							event.Trigger(Click, me)
 							sp1.CID.Trigger(ClickOn, me)
 						}
 					}

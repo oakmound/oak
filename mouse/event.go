@@ -1,37 +1,45 @@
 package mouse
 
-import "github.com/oakmound/oak/collision"
 import (
-	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/alg/floatgeom"
+	"github.com/oakmound/oak/collision"
 )
 
 var (
-	// LastMouseEvent is the last triggered mouse event,
+	// LastEvent is the last triggered mouse event,
 	// tracked for continuous mouse responsiveness on events
 	// that don't take in a mouse event
-	LastMouseEvent Event
-	// LastMousePress is the last triggered mouse event,
+	LastEvent = NewZeroEvent(0, 0)
+	// LastPress is the last triggered mouse event,
 	// where the mouse event was a press.
 	// If TrackMouseClicks is set to false then this will not be tracked
-	LastMousePress Event
+	LastPress = NewZeroEvent(0, 0)
 )
 
 // An Event is passed in through all Mouse related event bindings to
 // indicate what type of mouse event was triggered, where it was triggered,
 // and which mouse button it concerns.
-// this is a candidate for merging with physics.Vector
 type Event struct {
-	X, Y   float32
+	floatgeom.Point2
 	Button string
 	Event  string
 }
 
-// ToSpace converts a mouse event into a collision space
-func (e Event) ToSpace() *collision.Space {
-	return collision.NewUnassignedSpace(float64(e.X), float64(e.Y), 0.1, 0.1)
+// NewEvent creates and returns an Event
+func NewEvent(x, y float64, button, event string) Event {
+	return Event{
+		Point2: floatgeom.Point2{x, y},
+		Button: button,
+		Event:  event,
+	}
 }
 
-// ToVector returns a mouse event's position as a physics.Vector
-func (e Event) ToVector() physics.Vector {
-	return physics.NewVector(float64(e.X), float64(e.Y))
+// NewZeroEvent creates an event with no button or event string.
+func NewZeroEvent(x, y float64) Event {
+	return NewEvent(x, y, "", "")
+}
+
+// ToSpace converts a mouse event into a collision space
+func (e Event) ToSpace() *collision.Space {
+	return collision.NewUnassignedSpace(e.X(), e.Y(), 0.1, 0.1)
 }

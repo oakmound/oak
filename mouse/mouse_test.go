@@ -11,6 +11,21 @@ import (
 	"golang.org/x/mobile/event/mouse"
 )
 
+func TestMouseClicks(t *testing.T) {
+	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
+	var triggered bool
+	go event.ResolvePending()
+	event.GlobalBind(func(int, interface{}) int {
+		triggered = true
+		return 0
+	}, Click)
+	DefTree.Add(sp)
+	Propagate(PressOn, NewEvent(5, 5, "LeftMouse", PressOn))
+	Propagate(ReleaseOn, NewEvent(5, 5, "LeftMouse", ReleaseOn))
+	time.Sleep(2 * time.Second)
+	assert.True(t, triggered)
+}
+
 func TestButtonIdentity(t *testing.T) {
 	// This is a pretty worthless test
 	assert.Equal(t, GetMouseButton(mouse.ButtonLeft), "LeftMouse")
@@ -47,11 +62,11 @@ func TestPropagate(t *testing.T) {
 	}, "MouseDownOn")
 	Add(s)
 	time.Sleep(200 * time.Millisecond)
-	Propagate("MouseUpOn", Event{15, 15, "LeftMouse", "MouseUp"})
+	Propagate("MouseUpOn", NewEvent(15, 15, "LeftMouse", "MouseUp"))
 	time.Sleep(200 * time.Millisecond)
 	assert.False(t, triggered)
 	time.Sleep(200 * time.Millisecond)
-	Propagate("MouseDownOn", Event{15, 15, "LeftMouse", "MouseDown"})
+	Propagate("MouseDownOn", NewEvent(15, 15, "LeftMouse", "MouseDown"))
 	time.Sleep(200 * time.Millisecond)
 	assert.True(t, triggered)
 }

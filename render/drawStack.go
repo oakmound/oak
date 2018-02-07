@@ -1,9 +1,10 @@
 package render
 
 import (
-	"errors"
 	"image"
 	"image/draw"
+
+	"github.com/oakmound/oak/oakerr"
 
 	"github.com/oakmound/oak/dlog"
 )
@@ -11,31 +12,31 @@ import (
 var (
 	// GlobalDrawStack is the stack that all draw calls are parsed through.
 	GlobalDrawStack = &DrawStack{
-		as: []Addable{NewHeap(false)},
+		as: []Stackable{NewHeap(false)},
 	}
 	initialDrawStack = GlobalDrawStack
 )
 
 //The DrawStack is a stack with a safe adding mechanism that creates isolation between draw steps via predraw
 type DrawStack struct {
-	as     []Addable
-	toPush []Addable
+	as     []Stackable
+	toPush []Stackable
 	toPop  int
 }
 
-// An Addable manages Renderables
-type Addable interface {
+// An Stackable manages Renderables
+type Stackable interface {
 	PreDraw()
-	Add(Renderable, int) Renderable
+	Add(Renderable, ...int) Renderable
 	Replace(Renderable, Renderable, int)
-	Copy() Addable
+	Copy() Stackable
 	draw(draw.Image, image.Point, int, int)
 }
 
 // SetDrawStack takes in a set of Addables which act as the set of Drawstacks available
 // and resets how calls to Draw will act. If this is called mid scene,
 // all elements on the existing draw stack will be lost.
-func SetDrawStack(as ...Addable) {
+func SetDrawStack(as ...Stackable) {
 	GlobalDrawStack = &DrawStack{as: as}
 	initialDrawStack = GlobalDrawStack.Copy()
 	dlog.Info("Global draw stack", GlobalDrawStack)
@@ -47,7 +48,8 @@ func ResetDrawStack() {
 	GlobalDrawStack = initialDrawStack.Copy()
 }
 
-//Draw actively draws the onto the actual screen
+// Draw on a stack will render its contents to the input buffer, for a screen
+// of w,h dimensions, from a view point of view.
 func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
 	for _, a := range ds.as {
 		// If we had concurrent operations, we'd do it here
@@ -57,43 +59,38 @@ func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
 	}
 }
 
-//Draw accesses the global draw stack
-func Draw(r Renderable, l int) (Renderable, error) {
+// Draw adds the given renderable to the global draw stack.
+//
+// If the draw stack has only one stackable, the item will be added to that
+// stackable with the input layers as its argument. Otherwise, the item will be added
+// to the l[0]th stackable, with remaining layers supplied to the stackable
+// as arguments.
+//
+// If zero layers are provided, it will add to the zeroth stack layer and
+// give nothing to the stackable's argument.
+//
+//
+func Draw(r Renderable, layers ...int) (Renderable, error) {
 	if r == nil {
 		dlog.Error("Tried to draw nil")
-		return nil, errors.New("Tried to draw nil")
+		return nil, oakerr.NilInput{InputName: "r"}
 	}
-	// If there's only one element, l refers to the layer
-	// within that element.
 	if len(GlobalDrawStack.as) == 1 {
-		return GlobalDrawStack.as[0].Add(r, l), nil
-
-		// Otherwise, l refers to the index within the DrawStack.
+		return GlobalDrawStack.as[0].Add(r, layers...), nil
 	}
-	if l < 0 || l >= len(GlobalDrawStack.as) {
-		dlog.Error("Layer", l, "does not exist on global draw stack")
-		return nil, errors.New("Layer does not exist on stack")
+	if len(layers) > 0 {
+		stackLayer := layers[0]
+		if stackLayer < 0 || stackLayer >= len(GlobalDrawStack.as) {
+			dlog.Error("Layer", stackLayer, "does not exist on global draw stack")
+			return nil, oakerr.InvalidInput{InputName: "layers"}
+		}
+		return GlobalDrawStack.as[stackLayer].Add(r, layers[1:]...), nil
 	}
-	return GlobalDrawStack.as[l].Add(r, r.GetLayer()), nil
+	return GlobalDrawStack.as[0].Add(r), nil
 }
 
-// ReplaceDraw will undraw r1 and draw r2 after the next draw frame
-// Useful for not working
-func ReplaceDraw(r1, r2 Renderable, stackLayer, layer int) {
-	if r1 == nil || r2 == nil {
-		dlog.Error("Tried to draw nil")
-		return
-	}
-	if stackLayer < 0 || stackLayer >= len(GlobalDrawStack.as) {
-		dlog.Error("Layer", stackLayer, "does not exist on global draw stack")
-		return
-	}
-	r2.SetLayer(layer)
-	GlobalDrawStack.as[stackLayer].Replace(r1, r2, layer)
-}
-
-// Push appends an addable to the draw stack during the next PreDraw.
-func (ds *DrawStack) Push(a Addable) {
+// Push appends a Stackable to the draw stack during the next PreDraw.
+func (ds *DrawStack) Push(a Stackable) {
 	ds.toPush = append(ds.toPush, a)
 
 }
@@ -115,7 +112,7 @@ func (ds *DrawStack) PreDraw() {
 		ds.as = append(ds.as, ds.toPush...)
 		// Should use two toPush lists, for this and
 		// draw heaps, so this call won't ever drop anything
-		ds.toPush = []Addable{}
+		ds.toPush = []Stackable{}
 	}
 	for _, a := range ds.as {
 		a.PreDraw()
@@ -125,7 +122,7 @@ func (ds *DrawStack) PreDraw() {
 // Copy creates a new deep copy of a Drawstack
 func (ds *DrawStack) Copy() *DrawStack {
 	ds2 := new(DrawStack)
-	ds2.as = make([]Addable, len(ds.as))
+	ds2.as = make([]Stackable, len(ds.as))
 	for i, a := range ds.as {
 		ds2.as[i] = a.Copy()
 	}

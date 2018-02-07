@@ -6,14 +6,9 @@ import "github.com/oakmound/oak/dlog"
 // and a set of options which are parsed out.
 // Returns a binding that can used to unbind this binding later.
 func (eb *Bus) BindPriority(fn Bindable, opt BindingOption) {
-	pendingMutex.Lock()
-	binds = append(binds, UnbindOption{opt, fn})
-	pendingMutex.Unlock()
-}
-
-// GlobalBind binds to the cid 0, a non entity.
-func GlobalBind(fn Bindable, name string) {
-	thisBus.Bind(fn, name, 0)
+	eb.pendingMutex.Lock()
+	eb.binds = append(eb.binds, UnbindOption{opt, fn})
+	eb.pendingMutex.Unlock()
 }
 
 // Bind adds a function to the event bus tied to the given callerID
@@ -31,18 +26,7 @@ func (eb *Bus) Bind(fn Bindable, name string, callerID int) {
 	eb.BindPriority(fn, bOpt)
 }
 
-// Bind on a CID is shorthand for bus.Bind(fn, name, cid)
-func (cid CID) Bind(fn Bindable, name string) {
-	thisBus.Bind(fn, name, int(cid))
-}
-
-// BindPriority on a CID is shorthand for bus.BindPriority(fn, ...)
-func (cid CID) BindPriority(fn Bindable, name string, priority int) {
-	thisBus.BindPriority(fn, BindingOption{
-		Event{
-			name,
-			int(cid),
-		},
-		priority,
-	})
+// GlobalBind binds on the bus to the cid 0, a non entity.
+func (eb *Bus) GlobalBind(fn Bindable, name string) {
+	eb.Bind(fn, name, 0)
 }

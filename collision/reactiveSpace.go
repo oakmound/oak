@@ -14,8 +14,7 @@ func NewEmptyReactiveSpace(s *Space) *ReactiveSpace {
 	}
 }
 
-// NewReactiveSpace creates a reactive space, please don't send in a nil
-// map to this, use NewEmptyReactiveSpace instead
+// NewReactiveSpace creates a reactive space
 func NewReactiveSpace(s *Space, onHits map[Label]OnHit) *ReactiveSpace {
 	return &ReactiveSpace{
 		Space:  s,

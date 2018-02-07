@@ -1,6 +1,9 @@
 package render
 
-import "github.com/oakmound/oak/event"
+import (
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/render/mod"
+)
 
 // The Reverting structure lets modifications be made to a Modifiable and then
 // reverted, up to arbitrary history limits.
@@ -20,8 +23,8 @@ func NewReverting(m Modifiable) *Reverting {
 
 // Revert goes back n steps in this Reverting's history and displays that Modifiable
 func (rv *Reverting) Revert(n int) {
-	x := rv.GetX()
-	y := rv.GetY()
+	x := rv.X()
+	y := rv.Y()
 
 	if n >= len(rv.rs) {
 		n = len(rv.rs) - 1
@@ -43,9 +46,9 @@ func (rv *Reverting) RevertAll() {
 // RevertAndModify reverts n steps and then modifies this reverting. This
 // is a separate function from Revert followed by Modify to prevent skipped
 // draw frames.
-func (rv *Reverting) RevertAndModify(n int, ms ...Modification) Modifiable {
-	x := rv.GetX()
-	y := rv.GetY()
+func (rv *Reverting) RevertAndModify(n int, ms ...mod.Mod) Modifiable {
+	x := rv.X()
+	y := rv.Y()
 	if n >= len(rv.rs) {
 		n = len(rv.rs) - 1
 	}
@@ -58,9 +61,26 @@ func (rv *Reverting) RevertAndModify(n int, ms ...Modification) Modifiable {
 	return rv
 }
 
+// RevertAndFilter acts as RevertAndModify, but with Filters.
+func (rv *Reverting) RevertAndFilter(n int, fs ...mod.Filter) Modifiable {
+	x := rv.X()
+	y := rv.Y()
+	if n >= len(rv.rs) {
+		n = len(rv.rs) - 1
+	}
+	if n > 0 {
+		rv.rs = rv.rs[:len(rv.rs)-n]
+	}
+	rv.rs[len(rv.rs)-1].Copy().Filter(fs...)
+	rv.rs = append(rv.rs, rv.rs[len(rv.rs)-1])
+	rv.Modifiable = rv.rs[len(rv.rs)-1]
+	rv.SetPos(x, y)
+	return rv
+}
+
 // Modify alters this reverting by the given modifications, appending the new
 // modified renderable to it's list of modified versions and displaying it.
-func (rv *Reverting) Modify(ms ...Modification) Modifiable {
+func (rv *Reverting) Modify(ms ...mod.Mod) Modifiable {
 	next := rv.Modifiable.Copy().Modify(ms...)
 	rv.rs = append(rv.rs, next)
 	rv.Modifiable = rv.rs[len(rv.rs)-1]
@@ -140,14 +160,14 @@ func (rv *Reverting) IsStatic() bool {
 func (rv *Reverting) Set(k string) error {
 	var err error
 	switch t := rv.Modifiable.(type) {
-	case *Compound:
+	case *Switch:
 		err = t.Set(k)
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 	switch t := rv.rs[0].(type) {
-	case *Compound:
+	case *Switch:
 		err = t.Set(k)
 	}
 	return err
