@@ -23,29 +23,26 @@ func EmptyRenderable() Modifiable {
 
 // LoadSpriteAndDraw is shorthand for LoadSprite
 // followed by Draw.
-func LoadSpriteAndDraw(filename string, l int) (Renderable, error) {
-	s, err := LoadSprite(filename)
+func LoadSpriteAndDraw(filename string, layers ...int) (Renderable, error) {
+	s, err := LoadSprite(dir, filename)
 	if err != nil {
 		return nil, err
 	}
-	return Draw(s, l)
+	return Draw(s, layers...)
 }
 
 // DrawColor is equivalent to LoadSpriteAndDraw,
 // but with colorboxes.
-func DrawColor(c color.Color, x1, y1, x2, y2 float64, layer, stackLayer int) (Renderable, error) {
+func DrawColor(c color.Color, x1, y1, x2, y2 float64, layers ...int) (Renderable, error) {
 	cb := NewColorBox(int(x2), int(y2), c)
 	cb.ShiftX(x1)
 	cb.ShiftY(y1)
-	if len(GlobalDrawStack.as) == 1 {
-		return Draw(cb, layer)
-	}
-	return Draw(cb, stackLayer, layer)
+	return Draw(cb, layers...)
 }
 
 // DrawForTime draws and after d undraws an element
-func DrawForTime(r Renderable, l int, d time.Duration) error {
-	_, err := Draw(r, l)
+func DrawForTime(r Renderable, d time.Duration, layers ...int) error {
+	_, err := Draw(r, layers...)
 	if err != nil {
 		return err
 	}

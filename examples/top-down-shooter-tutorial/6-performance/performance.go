@@ -48,6 +48,7 @@ func main() {
 	oak.Add("tds", func(string, interface{}) {
 		// Initialization
 		playerAlive = true
+		var err error
 		sprites, err := render.GetSheet(filepath.Join("16x16", "sheet.png"))
 		dlog.ErrorCheck(err)
 		sheet = sprites.ToSprites()
@@ -71,7 +72,7 @@ func main() {
 
 		char.Speed = physics.NewVector(5, 5)
 		playerPos = char.Point.Vector
-		render.Draw(char.R, 2)
+		render.Draw(char.R, 1, 2)
 
 		char.Bind(func(id int, _ interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
@@ -139,7 +140,7 @@ func main() {
 			render.DrawForTime(
 				render.NewLine(x, y, mx, my, color.RGBA{0, 128, 0, 128}),
 				time.Millisecond*50,
-				2)
+				1, 2)
 			return 0
 		}, mouse.Press)
 
@@ -159,7 +160,7 @@ func main() {
 				// Get a random tile to draw in this position
 				sp := sheet[i/2][i%2].Copy()
 				sp.SetPos(float64(x), float64(y))
-				render.Draw(sp, 1)
+				render.Draw(sp, 0, 1)
 			}
 		}
 
@@ -172,6 +173,13 @@ func main() {
 	// This indicates to oak to automatically open and load image and audio
 	// files local to the project before starting any scene.
 	oak.SetupConfig.BatchLoad = true
+
+	render.SetDrawStack(
+		render.NewCompositeR(),
+		render.NewHeap(false),
+		render.NewDrawFPS(),
+		render.NewLogicFPS(),
+	)
 
 	oak.Init("tds")
 }
@@ -193,7 +201,7 @@ func NewEnemy() {
 		enemyR,
 		nil, 0)
 
-	render.Draw(enemy.R, 2)
+	render.Draw(enemy.R, 1, 2)
 
 	enemy.UpdateLabel(Enemy)
 

@@ -1,2 +1,2 @@
-// Package intgeom stores primitives for floating point geometry
+// Package intgeom stores primitives for integer geometry
 package intgeom

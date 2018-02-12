@@ -17,7 +17,7 @@ var (
 	}
 )
 
-// SetDefaultConeCaster is analagous to SetDefaultCaster, however
+// SetDefaultConeCaster is analogous to SetDefaultCaster, however
 // is equivalent to setting the global variable.
 func SetDefaultConeCaster(coneCaster *ConeCaster) {
 	DefaultConeCaster = coneCaster

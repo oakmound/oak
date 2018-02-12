@@ -43,11 +43,12 @@ func main() {
 	oak.Add("tds", func(string, interface{}) {
 		// Initialization
 		playerAlive = true
-		var err error
-		sheet = render.GetSheet(filepath.Join("16x16", "sheet.png"))
+		sprites, err := render.GetSheet(filepath.Join("16x16", "sheet.png"))
+		dlog.ErrorCheck(err)
+		sheet = sprites.ToSprites()
 
 		// Player setup
-		eggplant, err := render.LoadSprite(filepath.Join("character", "eggplant-fish.png"))
+		eggplant, err := render.GetSprite(filepath.Join("character", "eggplant-fish.png"))
 		playerR := render.NewSwitch("left", map[string]render.Modifiable{
 			"left": eggplant,
 			// We must copy the sprite before we modify it, or "left"
@@ -113,8 +114,8 @@ func main() {
 			}
 			render.DrawForTime(
 				render.NewLine(x, y, mevent.X(), mevent.Y(), color.RGBA{0, 128, 0, 128}),
-				2,
-				time.Millisecond*50)
+				time.Millisecond*50,
+				2)
 			return 0
 		}, mouse.Press)
 
@@ -147,6 +148,7 @@ func main() {
 	// This indicates to oak to automatically open and load image and audio
 	// files local to the project before starting any scene.
 	oak.SetupConfig.BatchLoad = true
+	oak.SetupConfig.Debug.Level = "Verbose"
 
 	oak.Init("tds")
 }

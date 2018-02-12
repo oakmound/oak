@@ -31,13 +31,13 @@ func TestAttachSpace(t *testing.T) {
 	s := NewSpace(100, 100, 10, 10, as.Init())
 	assert.Nil(t, Attach(v, s, 4, 4))
 	v.SetPos(5, 5)
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	assert.Equal(t, s.X(), 9.0)
 	assert.Equal(t, s.Y(), 9.0)
 
 	assert.Nil(t, Detach(s))
 	v.SetPos(4, 4)
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	assert.Equal(t, s.X(), 9.0)
 	assert.Equal(t, s.Y(), 9.0)
 

@@ -21,6 +21,7 @@ func (p *Point) GetLogicPos() (float64, float64) {
 	return p.X(), p.Y()
 }
 
+// ShiftLogicPos shifts a point's underlying position by both x and y
 func (p *Point) ShiftLogicPos(x, y float64) {
 	p.Vector.SetPos(p.X()+x, p.Y()+y)
 }

@@ -80,8 +80,8 @@ func main() {
 			}
 			render.DrawForTime(
 				render.NewLine(x, y, mevent.X(), mevent.Y(), color.RGBA{0, 128, 0, 128}),
-				1,
-				time.Millisecond*50)
+				time.Millisecond*50,
+				1)
 			return 0
 		}, mouse.Press)
 

@@ -63,7 +63,7 @@ func main() {
 		width-(width/15), height-(height/15),
 		width-(width/5), height-(height/15))
 
-	bkg := render.NewComposite(
+	bkg := render.NewCompositeM(
 		render.NewColorBox(width, height, colornames.Seagreen),
 		render.BezierThickLine(bz1, colornames.White, 1),
 		render.BezierThickLine(bz2, colornames.White, 1),
@@ -292,7 +292,7 @@ func addPhilo(i int, sslides []*static.Slide) {
 		)...,
 	)
 
-	// That brings us to our design philosphy in Oak.
+	// That brings us to our design philosophy in Oak.
 	// First, if we have a non-Go dependency, we also have an issue to
 	// replace that non-Go dependency ASAP. Right now we have just one.
 	//
@@ -497,9 +497,9 @@ func addAI(i int, sslides []*static.Slide) {
 
 	// But now that you've stored all of your enemy types as themselves,
 	// if you've got a bunch of procedures that run on your AI for
-	// pathing, targetting, or attacking, you'll run into this issue
+	// pathing, targeting, or attacking, you'll run into this issue
 	// where the interface that defines your AI needs to know a lot
-	// of different infromation for each of these different behaviors.
+	// of different information for each of these different behaviors.
 
 	sslides[i+2].Append(show.Header("Condensing Massive Interfaces"))
 	sslides[i+2].Append(show.ImageAt("agentEnemy.PNG", .5, .5))

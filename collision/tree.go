@@ -86,7 +86,7 @@ func (t *Tree) Remove(sps ...*Space) int {
 // UpdateLabel will set the input space's label in this tree. Modifying a
 // space's label without going through a tree's method such as this will
 // have no effect.
-func (t *Tree) UpdateLabel(s *Space, classtype Label) {
+func (t *Tree) UpdateLabel(classtype Label, s *Space) {
 	t.Remove(s)
 	s.Label = classtype
 	t.Add(s)
@@ -109,6 +109,8 @@ func (t *Tree) UpdateSpace(x, y, w, h float64, s *Space) error {
 	return nil
 }
 
+// UpdateSpaceRect acts as UpdateSpace, but takes in a rectangle instead
+// of four distinct arguments.
 func (t *Tree) UpdateSpaceRect(rect floatgeom.Rect3, s *Space) error {
 	if s == nil {
 		return oakerr.NilInput{InputName: "s"}

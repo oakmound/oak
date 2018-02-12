@@ -11,7 +11,7 @@ import (
 )
 
 func TestComposite(t *testing.T) {
-	cmp := NewComposite(
+	cmp := NewCompositeM(
 		NewColorBox(5, 5, color.RGBA{255, 0, 0, 255}),
 		NewColorBox(3, 3, color.RGBA{0, 255, 0, 255}),
 	)
@@ -35,7 +35,7 @@ func TestComposite(t *testing.T) {
 	cmp2 := cmp.Copy()
 	cmp2.Filter(mod.Brighten(-100))
 	cmp2.Modify(mod.Scale(.5, .5))
-	cmp3 := NewComposite(
+	cmp3 := NewCompositeM(
 		NewColorBox(2, 2, color.RGBA{0, 0, 0, 255}),
 		NewColorBox(1, 1, color.RGBA{0, 0, 0, 255}),
 		NewColorBox(3, 3, color.RGBA{0, 0, 0, 255}),

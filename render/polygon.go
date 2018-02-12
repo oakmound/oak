@@ -74,8 +74,8 @@ func (pg *Polygon) Fill(c color.Color) {
 }
 
 // GetOutline returns a set of lines of the given color along this polygon's outline
-func (pg *Polygon) GetOutline(c color.Color) *Composite {
-	sl := NewComposite()
+func (pg *Polygon) GetOutline(c color.Color) *CompositeM {
+	sl := NewCompositeM()
 	j := len(pg.points) - 1
 	for i, p2 := range pg.points {
 		p1 := pg.points[j]

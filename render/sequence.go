@@ -41,6 +41,12 @@ func NewSequence(fps float64, mods ...Modifiable) *Sequence {
 	}
 }
 
+// SetFPS sets the number of frames that should advance per second to be
+// the input fps
+func (sq *Sequence) SetFPS(fps float64) {
+	sq.frameTime = timing.FPSToNano(fps)
+}
+
 // Copy copies each modifiable inside this sequence in order to produce a new
 // copied sequence
 func (sq *Sequence) Copy() Modifiable {

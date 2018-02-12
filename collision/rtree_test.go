@@ -1,3 +1,7 @@
+// Copyright 2012 Daniel Connelly.  All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the rtree-LICENSE file.
+
 package collision
 
 import (
@@ -275,7 +279,7 @@ func TestAdjustTreeNoPreviousSplit(t *testing.T) {
 	r10 := entry{bb: mustRect(floatgeom.Point3{1, 0}, [3]float64{1, 1, 1}).Location}
 	entries := []entry{r00, r01, r10}
 	n := node{rt.root, false, entries, 1}
-	rt.root.entries = []entry{entry{bb: floatgeom.Point3{0, 0}.ToRect(0), child: &n}}
+	rt.root.entries = []entry{{bb: floatgeom.Point3{0, 0}.ToRect(0), child: &n}}
 
 	rt.adjustTree(&n, nil)
 
@@ -749,9 +753,9 @@ func TestSortEntries(t *testing.T) {
 		mustRect(floatgeom.Point3{3, 3}, [3]float64{1, 1}),
 	}
 	entries := []entry{
-		entry{objs[2].Location, nil, objs[2]},
-		entry{objs[1].Location, nil, objs[1]},
-		entry{objs[0].Location, nil, objs[0]},
+		{objs[2].Location, nil, objs[2]},
+		{objs[1].Location, nil, objs[1]},
+		{objs[0].Location, nil, objs[0]},
 	}
 	sorted, dists := sortEntries(floatgeom.Point3{0, 0}, entries)
 	if sorted[0] != entries[2] || sorted[1] != entries[1] || sorted[2] != entries[0] {

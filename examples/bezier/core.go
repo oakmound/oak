@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	cmp *render.Composite
+	cmp *render.CompositeM
 )
 
 func renderCurve(floats []float64) {
@@ -31,7 +31,7 @@ func renderCurve(floats []float64) {
 
 func main() {
 
-	// c bezier X Y X Y X Y ...
+	// bezier X Y X Y X Y ...
 	// for defining custom points without using the mouse.
 	// does not interact with the mouse points tracked through left clicks.
 	oak.AddCommand("bezier", func(tokens []string) {
@@ -74,13 +74,13 @@ func main() {
 	oak.Init("bezier")
 }
 
-func bezierDraw(b shape.Bezier) *render.Composite {
-	list := render.NewComposite()
+func bezierDraw(b shape.Bezier) *render.CompositeM {
+	list := render.NewCompositeM()
 	bezierDrawRec(b, list, 255)
 	return list
 }
 
-func bezierDrawRec(b shape.Bezier, list *render.Composite, alpha uint8) {
+func bezierDrawRec(b shape.Bezier, list *render.CompositeM, alpha uint8) {
 	switch bzn := b.(type) {
 	case shape.BezierNode:
 		sp := render.BezierLine(b, color.RGBA{alpha, 0, 0, alpha})

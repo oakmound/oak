@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oakmound/oak/alg/floatgeom"
 	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/physics"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,10 +40,10 @@ func TestCollisionPhase(t *testing.T) {
 		return 0
 	}, "MouseCollisionStop")
 	time.Sleep(200 * time.Millisecond)
-	LastEvent = Event{physics.NewVector(10, 10), "", ""}
+	LastEvent = Event{floatgeom.Point2{10, 10}, "", ""}
 	time.Sleep(200 * time.Millisecond)
 	assert.True(t, active)
-	LastEvent = Event{physics.NewVector(21, 21), "", ""}
+	LastEvent = Event{floatgeom.Point2{21, 21}, "", ""}
 	time.Sleep(200 * time.Millisecond)
 	assert.False(t, active)
 	s = collision.NewSpace(10, 10, 10, 10, 5)

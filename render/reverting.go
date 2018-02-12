@@ -61,6 +61,23 @@ func (rv *Reverting) RevertAndModify(n int, ms ...mod.Mod) Modifiable {
 	return rv
 }
 
+// RevertAndFilter acts as RevertAndModify, but with Filters.
+func (rv *Reverting) RevertAndFilter(n int, fs ...mod.Filter) Modifiable {
+	x := rv.X()
+	y := rv.Y()
+	if n >= len(rv.rs) {
+		n = len(rv.rs) - 1
+	}
+	if n > 0 {
+		rv.rs = rv.rs[:len(rv.rs)-n]
+	}
+	rv.rs[len(rv.rs)-1].Copy().Filter(fs...)
+	rv.rs = append(rv.rs, rv.rs[len(rv.rs)-1])
+	rv.Modifiable = rv.rs[len(rv.rs)-1]
+	rv.SetPos(x, y)
+	return rv
+}
+
 // Modify alters this reverting by the given modifications, appending the new
 // modified renderable to it's list of modified versions and displaying it.
 func (rv *Reverting) Modify(ms ...mod.Mod) Modifiable {
