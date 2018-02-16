@@ -25,6 +25,12 @@ type Handler interface {
 	Trigger(event string, data interface{})
 }
 
+// A FullHandler will receive TriggerBack events from the engine
+// when sent (currently only OnStop, when the engine closes)
+type FullHandler interface {
+	TriggerBack(event string, data interface{}) chan bool
+}
+
 // UpdateLoop is expected to internally call Update()
 // or do something equivalent at the given frameRate,
 // sending signals to the sceneCh after each Update().

@@ -3,6 +3,8 @@ package oak
 import (
 	"runtime"
 
+	"github.com/oakmound/oak/event"
+
 	"github.com/oakmound/oak/dlog"
 	okey "github.com/oakmound/oak/key"
 	omouse "github.com/oakmound/oak/mouse"
@@ -35,6 +37,11 @@ func inputLoop() {
 		// We only currently respond to death lifecycle events.
 		case lifecycle.Event:
 			if e.To == lifecycle.StageDead {
+				// OnStop needs to be sent through TriggerBack, otherwise the
+				// program will close before the stop events get propagated.
+				if fh, ok := logicHandler.(event.FullHandler); ok {
+					fh.TriggerBack(event.OnStop, nil)
+				}
 				quitCh <- true
 				return
 			}
