@@ -35,6 +35,7 @@ func AddCommand(s string, fn func([]string)) error {
 			Overwritten: false,
 		}
 	}
+	dlog.Info("Adding command", s)
 	commands[s] = fn
 	return nil
 }
