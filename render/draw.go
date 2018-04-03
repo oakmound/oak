@@ -33,11 +33,17 @@ func LoadSpriteAndDraw(filename string, layers ...int) (Renderable, error) {
 
 // DrawColor is equivalent to LoadSpriteAndDraw,
 // but with colorboxes.
-func DrawColor(c color.Color, x1, y1, x2, y2 float64, layers ...int) (Renderable, error) {
-	cb := NewColorBox(int(x2), int(y2), c)
-	cb.ShiftX(x1)
-	cb.ShiftY(y1)
+func DrawColor(c color.Color, x, y, w, h float64, layers ...int) (Renderable, error) {
+	cb := NewColorBox(int(w), int(h), c)
+	cb.ShiftX(x)
+	cb.ShiftY(y)
 	return Draw(cb, layers...)
+}
+
+// DrawPoint draws a color on the screen as a single-widthed
+// pixel (box)
+func DrawPoint(c color.Color, x1, y1 float64, layers ...int) (Renderable, error) {
+	return DrawColor(c, x1, y1, 1, 1, layers...)
 }
 
 // DrawForTime draws and after d undraws an element
