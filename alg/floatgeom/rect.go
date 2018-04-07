@@ -115,6 +115,20 @@ func NewBoundingRect3(pts ...Point3) Rect3 {
 	}
 }
 
+// Shift moves the rectangle by a point returns a new instance
+func (r Rect2) Shift(p Point2) Rect2 {
+	r.Min = r.Min.Add(p)
+	r.Max = r.Max.Add(p)
+	return r
+}
+
+// Shift moves the rectangle by a point returns a new instance
+func (r Rect3) Shift(p Point3) Rect3 {
+	r.Min = r.Min.Add(p)
+	r.Max = r.Max.Add(p)
+	return r
+}
+
 // Area returns W * H.
 func (r Rect2) Area() float64 {
 	return r.W() * r.H()

@@ -160,6 +160,11 @@ func (p Point2) MulConst(fs ...float64) Point2 {
 	return p
 }
 
+// Cross gets the cross product of two Point 3s
+func (p Point3) Cross(p2 Point3) Point3 {
+	return Point3{p.Y()*p2.Z() - p.Z()*p2.Y(), p.Z()*p2.X() - p.X()*p2.Z(), p.X()*p2.Y() - p.Y()*p2.X()}
+}
+
 // Div combines the input points via division.
 // Div does not check that the inputs are non zero before operating,
 // and can panic if that is not true.
