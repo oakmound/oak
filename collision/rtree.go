@@ -489,6 +489,8 @@ func (tree *Rtree) nearestNeighbor(p floatgeom.Point3, n *node, d float64, neare
 }
 
 // NearestNeighbors returns the k nearest neighbors in the rtree to the input point.
+// Returns a slice of exactly k elements, some of which will be nil if there are not
+// enough elements in the tree. Todo: fix this
 func (tree *Rtree) NearestNeighbors(k int, p floatgeom.Point3) []*Space {
 	dists := make([]float64, k)
 	objs := make([]*Space, k)
