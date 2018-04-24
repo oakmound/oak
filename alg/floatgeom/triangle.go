@@ -29,8 +29,8 @@ func (t Tri3) Normal() Point3 {
 	v := t[2].Sub(t[0])
 
 	return Point3{
-		(u.Z() * v.Y()) - (u.Y() * v.Z()),
-		(u.X() * v.Z()) - (u.Z() * v.X()),
-		(u.Y() * v.X()) - (u.X() * v.Y()),
-	}
+		(u.Y() * v.Z()) - (u.Z() * v.Y()),
+		(u.Z() * v.X()) - (u.X() * v.Z()),
+		(u.X() * v.Y()) - (u.Y() * v.X()),
+	}.Normalize()
 }
