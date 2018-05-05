@@ -69,19 +69,20 @@ func borderPoints(w, h int) []intgeom.Point2 {
 
 func bfsFlood(m map[intgeom.Point2]bool, start intgeom.Point2) []intgeom.Point2 {
 	visited := []intgeom.Point2{}
-	toVisit := []intgeom.Point2{start}
-	for len(toVisit) > 0 {
-		next := toVisit[0]
-		delete(m, next)
-		toVisit = toVisit[1:]
-		visited = append(visited, next)
+	toVisit := map[intgeom.Point2]bool{start: true}
 
-		// literally adjacent points for adjacency
-		for x := -1; x <= 1; x++ {
-			for y := -1; y <= 1; y++ {
-				p := intgeom.Point2{x + next.X(), y + next.Y()}
-				if _, ok := m[p]; ok {
-					toVisit = append(toVisit, p)
+	for len(toVisit) > 0 {
+		for next := range toVisit {
+			delete(m, next)
+			delete(toVisit, next)
+			visited = append(visited, next)
+			// literally adjacent points for adjacency
+			for x := -1; x <= 1; x++ {
+				for y := -1; y <= 1; y++ {
+					p := intgeom.Point2{x + next.X(), y + next.Y()}
+					if _, ok := m[p]; ok {
+						toVisit[p] = true
+					}
 				}
 			}
 		}
