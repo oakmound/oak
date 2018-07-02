@@ -4,4 +4,5 @@ package key
 const (
 	Down = "KeyDown"
 	Up   = "KeyUp"
+	Held = "KeyHeld"
 )

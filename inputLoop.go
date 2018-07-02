@@ -65,6 +65,9 @@ func inputLoop() {
 				setUp(k)
 				logicHandler.Trigger(okey.Up, k)
 				logicHandler.Trigger(okey.Up+k, nil)
+			} else {
+				logicHandler.Trigger(okey.Held, k)
+				logicHandler.Trigger(okey.Held+k, nil)
 			}
 
 		// Send mouse events
