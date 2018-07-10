@@ -6,7 +6,7 @@ import (
 	"github.com/oakmound/oak/alg"
 )
 
-// Point2 represents a 2D point in space.
+// Point2 represents a 2D point on a plane.
 type Point2 [2]float64
 
 // Point3 represents a 3D point in space.
@@ -26,22 +26,19 @@ func RadianPoint(radians float64) Point2 {
 }
 
 // Dim returns the value of p in the ith dimension.
-// Panics if i > 1. No check is made for efficiency's sake, pending benchmarks,
-// but adding an error here would significantly worsen the API.
+// Panics if i > 1.
 func (p Point2) Dim(i int) float64 {
 	return p[i]
 }
 
 // Dim returns the value of p in the ith dimension.
-// Panics if i > 2. No check is made for efficiency's sake, pending benchmarks,
-// but adding an error here would significantly worsen the API.
+// Panics if i > 2.
 func (p Point3) Dim(i int) float64 {
 	return p[i]
 }
 
 // Dim returns the value of p in the ith dimension.
-// Panics if i > 3. No check is made for efficiency's sake, pending benchmarks,
-// but adding an error here would significantly worsen the API.
+// Panics if i > 3.
 func (p Point4) Dim(i int) float64 {
 	return p[i]
 }
