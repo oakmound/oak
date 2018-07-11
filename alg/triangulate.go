@@ -21,6 +21,10 @@ package alg
 //     4   / \   1
 //      \ /   \ /
 //       3-----2
+//
+// This makes additional assumptions that the points represented
+// by the indices are coplanar, and that there are no holes present
+// in the face.
 func TriangulateConvex(face []int) [][3]int {
 	if len(face) < 3 {
 		return [][3]int{}
