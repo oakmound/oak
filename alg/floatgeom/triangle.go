@@ -27,10 +27,7 @@ func (t Tri3) Barycentric(x, y float64) Point3 {
 func (t Tri3) Normal() Point3 {
 	u := t[1].Sub(t[0])
 	v := t[2].Sub(t[0])
+	// Check that the triangle is defined in a clockwise fashion.
 
-	return Point3{
-		(u.Y() * v.Z()) - (u.Z() * v.Y()),
-		(u.Z() * v.X()) - (u.X() * v.Z()),
-		(u.X() * v.Y()) - (u.Y() * v.X()),
-	}.Normalize()
+	return u.Cross(v).Normalize()
 }
