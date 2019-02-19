@@ -41,6 +41,18 @@ func GetEntity(i int) interface{} {
 	return nil
 }
 
+// ScanForEntity returns the first created entity that returns true for the given
+// comparator function. If no entity satisfying the condition is found, this
+// returns (-1, nil).
+func ScanForEntity(by func(interface{}) bool) (int, interface{}) {
+	for i, e := range callers {
+		if by(e) {
+			return i, e
+		}
+	}
+	return -1, nil
+}
+
 // HasEntity returns whether the given caller id is an initialized entity
 func HasEntity(i int) bool {
 	return len(callers) >= i && i != 0
