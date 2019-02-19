@@ -65,3 +65,8 @@ type vMoving struct {
 func (v vMoving) GetDelta() physics.Vector {
 	return v.Delta
 }
+
+// GetSpeed returns this moving's speed
+func (v vMoving) GetSpeed() physics.Vector {
+	return v.Speed
+}
