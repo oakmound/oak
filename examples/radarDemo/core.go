@@ -27,7 +27,7 @@ func main() {
 	oak.Add("demo", func(string, interface{}) {
 		act := &AttachCollisionTest{}
 
-		act.Moving = entities.NewMoving(50, 50, 50, 50, render.NewColorBox(50, 50, color.RGBA{0, 0, 0, 255}), nil, act.Init(), 1)
+		act.Moving = entities.NewMoving(200, 200, 50, 50, render.NewColorBox(50, 50, color.RGBA{0, 0, 0, 255}), nil, act.Init(), 1)
 		act.Moving.Speed = physics.NewVector(1, 1)
 
 		collision.Attach(act.Vector, act.Space, 0, 0)
@@ -66,24 +66,24 @@ func main() {
 		left := entities.NewSolid(0, 0, 320, 480, render.NewColorBox(320, 480, color.RGBA{100, 0, 0, 10}), nil, 0)
 		left.Space.UpdateLabel(RED)
 		left.R.SetLayer(0)
-		render.Draw(left.R, 0)
+		//render.Draw(left.R, 0)
 
 		right := entities.NewSolid(320, 0, 320, 480, render.NewColorBox(320, 480, color.RGBA{0, 100, 100, 10}), nil, 0)
 		right.Space.UpdateLabel(BLUE)
 		right.R.SetLayer(0)
-		render.Draw(right.R, 0)
+		//render.Draw(right.R, 0)
 
 		// Create the Radar
 		center := radar.RadarPoint{act.Xp(), act.Yp()}
 		points := make(map[radar.RadarPoint]color.Color)
-		r := radar.NewRadar(100, 100, points, center)
+		r := radar.NewRadar(25, 25, points, center)
 
 		enemy := NewEnemyOnRadar(float64(200))
 		enemy.CID.Bind(standardEnemyMove, "EnterFrame")
-		render.Draw(enemy.R, 2)
-		r.AddPoint(radar.RadarPoint{enemy.Xp(), enemy.Yp()}, color.RGBA{255, 255, 255, 255})
 
-		render.Draw(r, 1)
+		r.AddPoint(radar.RadarPoint{enemy.Xp(), enemy.Yp()}, color.RGBA{255, 255, 0, 0})
+		render.Draw(enemy.R, 0)
+		render.Draw(r, 0)
 
 	}, func() bool {
 		return true
@@ -107,7 +107,7 @@ func (eor *EnemyOnRadar) Init() event.CID {
 func NewEnemyOnRadar(y float64) *EnemyOnRadar {
 	fmt.Println("Sigh")
 	eor := new(EnemyOnRadar)
-	eor.Moving = entities.NewMoving(640, y, 80, 80, render.NewColorBox(320, 480, color.RGBA{0, 0, 0, 200}), nil, eor.Init(), 0)
+	eor.Moving = entities.NewMoving(50, y, 50, 50, render.NewColorBox(25, 25, color.RGBA{0, 200, 0, 0}), nil, eor.Init(), 0)
 	eor.Speed = physics.NewVector(-1*(rand.Float64()*2+1), rand.Float64()*2-1)
 	return eor
 }
@@ -115,19 +115,18 @@ func NewEnemyOnRadar(y float64) *EnemyOnRadar {
 func standardEnemyMove(id int, nothing interface{}) int {
 
 	eor := event.GetEntity(id).(*EnemyOnRadar)
-	fmt.Println("woof", eor.Speed.X(), eor.X(), eor.Y())
 	eor.ShiftX(eor.Speed.X())
 	eor.ShiftY(eor.Speed.Y())
 	if eor.X() < 0 {
 		eor.Speed = physics.NewVector(math.Abs(eor.Speed.X()), (eor.Speed.Y()))
 	}
-	if eor.X() > 100 {
+	if eor.X() > 400 {
 		eor.Speed = physics.NewVector(-1*math.Abs(eor.Speed.X()), (eor.Speed.Y()))
 	}
 	if eor.Y() < 0 {
 		eor.Speed = physics.NewVector(eor.Speed.X(), math.Abs(eor.Speed.Y()))
 	}
-	if eor.Y() > 100 {
+	if eor.Y() > 400 {
 		eor.Speed = physics.NewVector(eor.Speed.X(), -1*math.Abs(eor.Speed.Y()))
 	}
 	return 0

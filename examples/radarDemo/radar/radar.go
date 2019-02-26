@@ -38,7 +38,7 @@ func NewRadar(w, h int, points map[RadarPoint]color.Color, center RadarPoint) *R
 	r.height = h
 	r.center = center
 	r.r = image.NewRGBA(image.Rect(0, 0, w, h))
-	r.outline = render.NewColorBox(400, 400, color.RGBA{0, 0, 200, 0})
+	r.outline = render.NewColorBox(100, 100, color.RGBA{0, 0, 200, 0})
 	return r
 }
 
