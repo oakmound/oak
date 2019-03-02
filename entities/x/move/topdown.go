@@ -2,6 +2,7 @@ package move
 
 import (
 	"github.com/oakmound/oak"
+	"github.com/oakmound/oak/alg/floatgeom"
 	"github.com/oakmound/oak/key"
 	"github.com/oakmound/oak/physics"
 )
@@ -38,4 +39,32 @@ func TopDown(mvr Mover, up, down, left, right string) {
 	vec.Add(delta)
 	mvr.GetRenderable().SetPos(vec.X(), vec.Y())
 	mvr.GetSpace().Update(vec.X(), vec.Y(), 16, 16)
+}
+
+// CenterScreenOn will cause the screen to center on the given mover, obeying
+// viewport limits if they have been set previously
+func CenterScreenOn(mvr Mover) {
+	vec := mvr.Vec()
+	oak.SetScreen(
+		int(vec.X())-oak.ScreenWidth/2,
+		int(vec.Y())-oak.ScreenHeight/2,
+	)
+}
+
+// Limit restricts the movement of the mover to stay within a given rectangle
+func Limit(mvr Mover, rect floatgeom.Rect2) {
+	vec := mvr.Vec()
+	w, h := mvr.GetRenderable().GetDims()
+	wf := float64(w)
+	hf := float64(h)
+	if vec.X() < rect.Min.X() {
+		vec.SetX(0)
+	} else if vec.X() > rect.Max.X()-wf {
+		vec.SetX(rect.Max.X() - wf)
+	}
+	if vec.Y() < rect.Min.Y() {
+		vec.SetY(0)
+	} else if vec.Y() > rect.Max.Y()-hf {
+		vec.SetY(rect.Max.Y() - hf)
+	}
 }
