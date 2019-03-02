@@ -39,7 +39,7 @@ func TrackStats(no int, data interface{}) int {
 // TrackTimeStats acts like TrackStats, but tracks durations of events. If the
 // event has not started, it logs a start time, and then when the event ends
 // it will log the delta since the start.
-func TrackTimeStats(no int, data interface{}) int {
+func TrackTimeStats(no int, data interface{}) int {	
 	return DefStatistics.TrackTimeStats(no, data)
 }
 
