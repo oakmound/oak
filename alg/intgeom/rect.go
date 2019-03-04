@@ -170,6 +170,23 @@ func (r Rect3) Midpoint(i int) int {
 	return (r.Min[i] + r.Max[i]) / 2
 }
 
+// Center returns the center of this rectangle.
+func (r Rect2) Center() Point2 {
+	return Point2{
+		r.Midpoint(0),
+		r.Midpoint(1),
+	}
+}
+
+// Center returns the center of this rectangle.
+func (r Rect3) Center() Point3 {
+	return Point3{
+		r.Midpoint(0),
+		r.Midpoint(1),
+		r.Midpoint(2),
+	}
+}
+
 // Perimeter computes the sum of the edge lengths of a rectangle.
 func (r Rect2) Perimeter() int {
 	// The number of edges in an n-dimensional rectangle is n * 2^(n-1)

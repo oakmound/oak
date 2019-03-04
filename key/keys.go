@@ -63,7 +63,8 @@ const (
 	GraveAccent        = "GraveAccent"        //`
 	Comma              = "Comma"              //,
 	FullStop           = "FullStop"           //.
-	Slash              = "Slash"              ///
+	Period             = FullStop
+	Slash              = "Slash" ///
 	CapsLock           = "CapsLock"
 
 	F1  = "F1"
@@ -108,7 +109,8 @@ const (
 	Keypad8           = "Keypad8"
 	Keypad9           = "Keypad9"
 	Keypad0           = "Keypad0"
-	KeypadFullStop    = "KeypadFullStop"  //.
+	KeypadFullStop    = "KeypadFullStop" //.
+	KeypadPeriod      = KeypadFullStop
 	KeypadEqualSign   = "KeypadEqualSign" //=
 
 	F13 = "F13"

@@ -7,6 +7,15 @@ import (
 	"github.com/oakmound/oak/oakerr"
 )
 
+// LoadSprites calls LoadSheet and then Sheet.ToSprites.
+func LoadSprites(directory, fileName string, w, h, pad int) ([][]*Sprite, error) {
+	sh, err := LoadSheet(directory, fileName, w, h, pad)
+	if sh != nil {
+		return sh.ToSprites(), err
+	}
+	return nil, err
+}
+
 // LoadSheet loads a file in some directory with sheets of (w,h) sized sprites,
 // where there is pad pixels of vertical/horizontal pad between each sprite.
 // This will blow away any cached sheet with the same fileName.

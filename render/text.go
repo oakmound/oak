@@ -145,7 +145,7 @@ func (t *Text) Wrap(charLimit int, vertInc float64) []*Text {
 
 // ToSprite converts this text into a sprite, so that it is no longer
 // modifiable in terms of its text content, but is modifiable in terms
-// of Modifications.
+// of mod.Transform or mod.Filter.
 func (t *Text) ToSprite() *Sprite {
 	width := t.d.MeasureString(t.text.String()).Round()
 	height := t.d.bounds.Max.Y()

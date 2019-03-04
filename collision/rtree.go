@@ -464,6 +464,16 @@ func pruneEntries(p floatgeom.Point3, entries []entry, minDists []float64) []ent
 	return pruned
 }
 
+func pruneEntriesMinDist(d float64, entries []entry, minDists []float64) []entry {
+	var i int
+	for ; i < len(entries); i++ {
+		if minDists[i] > d {
+			break
+		}
+	}
+	return entries[:i]
+}
+
 func (tree *Rtree) nearestNeighbor(p floatgeom.Point3, n *node, d float64, nearest *Space) (*Space, float64) {
 	if n.leaf {
 		for _, e := range n.entries {
@@ -488,52 +498,53 @@ func (tree *Rtree) nearestNeighbor(p floatgeom.Point3, n *node, d float64, neare
 	return nearest, d
 }
 
-// NearestNeighbors returns the k nearest neighbors in the rtree to the input point.
+// NearestNeighbors returns the k nearest neighbors in the rtree to the input point
 func (tree *Rtree) NearestNeighbors(k int, p floatgeom.Point3) []*Space {
-	dists := make([]float64, k)
-	objs := make([]*Space, k)
-	for i := 0; i < k; i++ {
-		dists[i] = math.MaxFloat64
-		objs[i] = nil
-	}
+	dists := make([]float64, 0, k)
+	objs := make([]*Space, 0, k)
 	objs, _ = tree.nearestNeighbors(k, p, tree.root, dists, objs)
 	return objs
 }
 
 // insert obj into nearest and return the first k elements in increasing order.
 func insertNearest(k int, dists []float64, nearest []*Space, dist float64, obj *Space) ([]float64, []*Space) {
-	i := 0
-	for i < k && dist >= dists[i] {
+	i := sort.SearchFloat64s(dists, dist)
+	for i < len(nearest) && dist >= dists[i] {
 		i++
 	}
 	if i >= k {
 		return dists, nearest
 	}
 
-	left, right := dists[:i], dists[i:k-1]
-	updatedDists := make([]float64, k)
-	copy(updatedDists, left)
-	updatedDists[i] = dist
-	copy(updatedDists[i+1:], right)
+	if len(nearest) < k {
+		dists = append(dists, 0)
+		nearest = append(nearest, nil)
+	}
 
-	leftObjs, rightObjs := nearest[:i], nearest[i:k-1]
-	updatedNearest := make([]*Space, k)
-	copy(updatedNearest, leftObjs)
-	updatedNearest[i] = obj
-	copy(updatedNearest[i+1:], rightObjs)
+	left, right := dists[:i], dists[i:len(dists)-1]
+	copy(dists, left)
+	copy(dists[i+1:], right)
+	dists[i] = dist
 
-	return updatedDists, updatedNearest
+	leftObjs, rightObjs := nearest[:i], nearest[i:len(nearest)-1]
+	copy(nearest, leftObjs)
+	copy(nearest[i+1:], rightObjs)
+	nearest[i] = obj
+
+	return dists, nearest
 }
 
 func (tree *Rtree) nearestNeighbors(k int, p floatgeom.Point3, n *node, dists []float64, nearest []*Space) ([]*Space, []float64) {
 	if n.leaf {
 		for _, e := range n.entries {
-			dist := math.Sqrt(minDist(p, e.bb))
+			dist := minDist(p, e.bb)
 			dists, nearest = insertNearest(k, dists, nearest, dist, e.obj)
 		}
 	} else {
 		branches, branchDists := sortEntries(p, n.entries)
-		branches = pruneEntries(p, branches, branchDists)
+		if l := len(dists); l >= k {
+			branches = pruneEntriesMinDist(dists[l-1], branches, branchDists)
+		}
 		for _, e := range branches {
 			nearest, dists = tree.nearestNeighbors(k, p, e.child, dists, nearest)
 		}

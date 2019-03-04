@@ -115,6 +115,20 @@ func NewBoundingRect3(pts ...Point3) Rect3 {
 	}
 }
 
+// Shift moves the rectangle by a point returns a new instance
+func (r Rect2) Shift(p Point2) Rect2 {
+	r.Min = r.Min.Add(p)
+	r.Max = r.Max.Add(p)
+	return r
+}
+
+// Shift moves the rectangle by a point returns a new instance
+func (r Rect3) Shift(p Point3) Rect3 {
+	r.Min = r.Min.Add(p)
+	r.Max = r.Max.Add(p)
+	return r
+}
+
 // Area returns W * H.
 func (r Rect2) Area() float64 {
 	return r.W() * r.H()
@@ -168,6 +182,23 @@ func (r Rect2) Midpoint(i int) float64 {
 // Midpoint returns the midpoint of this rectangle's span over a given dimension.
 func (r Rect3) Midpoint(i int) float64 {
 	return (r.Min[i] + r.Max[i]) / 2
+}
+
+// Center returns the center of this rectangle
+func (r Rect2) Center() Point2 {
+	return Point2{
+		r.Midpoint(0),
+		r.Midpoint(1),
+	}
+}
+
+// Center returns the center of this rectangle
+func (r Rect3) Center() Point3 {
+	return Point3{
+		r.Midpoint(0),
+		r.Midpoint(1),
+		r.Midpoint(2),
+	}
 }
 
 // Perimeter computes the sum of the edge lengths of a rectangle.

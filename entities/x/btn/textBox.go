@@ -1,0 +1,81 @@
+package btn
+
+import (
+	"github.com/oakmound/oak/collision"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/mouse"
+	"github.com/oakmound/oak/render"
+)
+
+// TextBox is a Box with an associated text element
+type TextBox struct {
+	Box
+	*render.Text
+}
+
+// Init creates the CID
+func (b *TextBox) Init() event.CID {
+	b.CID = event.NextID(b)
+	return b.CID
+}
+
+// NewTextBox creates a textbox
+func NewTextBox(cid event.CID, x, y, w, h, txtX, txtY float64,
+	f *render.Font, r render.Renderable, layers ...int) *TextBox {
+
+	if f == nil {
+		f = render.DefFont()
+	}
+
+	b := new(TextBox)
+
+	cid = cid.Parse(b)
+
+	b.Box = *NewBox(cid, x, y, w, h, r, layers...)
+	b.Text = f.NewStrText("Init", 0, 0)
+	b.Text.Vector = b.Text.Attach(b.Box.Vector, txtX, (-txtY)+b.H)
+
+	// Add one to the layer so that the text shows up above the box itself
+	layers[len(layers)-1]++
+	render.Draw(b.Text, layers...)
+	return b
+}
+
+// Y pulls the y of the composed Box (disambiguation with the y of the text component)
+func (b *TextBox) Y() float64 {
+	return b.Box.Y()
+}
+
+// X pulls the x of the composed Box (disambiguation with the x of the text component)
+func (b *TextBox) X() float64 {
+	return b.Box.X()
+}
+
+// ShiftX shifts the box by x. The associated text is attached and so will be moved along by default
+func (b *TextBox) ShiftX(x float64) {
+	b.Box.ShiftX(x)
+}
+
+// ShiftY shifts the box by y. The associated text is attached and so will be moved along by default
+func (b *TextBox) ShiftY(y float64) {
+	b.Box.ShiftY(y)
+}
+
+// SetSpace overwrites entities.Solid,
+// pointing this button to use the mouse collision Rtree
+// instead of the entity collision space.
+func (b *TextBox) SetSpace(sp *collision.Space) {
+	mouse.Remove(b.Space)
+	b.Space = sp
+	mouse.Add(b.Space)
+}
+
+// SetPos acts as SetSpace does, overwriting entities.Solid.
+func (b *TextBox) SetPos(x, y float64) {
+	b.Box.SetPos(x, y)
+}
+
+// SetOffsets changes the text position within the box
+func (b *TextBox) SetOffsets(txtX, txtY float64) {
+	b.Text.Vector = b.Text.Attach(b.Box.Vector, txtX, -txtY+b.H)
+}

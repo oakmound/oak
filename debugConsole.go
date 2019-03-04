@@ -35,8 +35,15 @@ func AddCommand(s string, fn func([]string)) error {
 			Overwritten: false,
 		}
 	}
+	dlog.Info("Adding command", s)
 	commands[s] = fn
 	return nil
+}
+
+// ResetCommands will throw out all existing debug commands from the
+// debug console.
+func ResetCommands() {
+	commands = map[string]func([]string){}
 }
 
 func debugConsole(resetCh, skipScene chan bool, input io.Reader) {

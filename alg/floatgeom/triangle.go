@@ -22,3 +22,12 @@ func (t Tri3) Barycentric(x, y float64) Point3 {
 	u := 1.0 - v - w
 	return Point3{v, w, u}
 }
+
+// Normal calculates the surface normal of a triangle
+func (t Tri3) Normal() Point3 {
+	u := t[1].Sub(t[0])
+	v := t[2].Sub(t[0])
+	// Check that the triangle is defined in a clockwise fashion.
+
+	return u.Cross(v).Normalize()
+}

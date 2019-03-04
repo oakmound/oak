@@ -6,11 +6,14 @@ import (
 	"github.com/oakmound/oak/alg"
 )
 
-// Point2 represents a 2D point in space.
+// Point2 represents a 2D point on a plane.
 type Point2 [2]float64
 
 // Point3 represents a 3D point in space.
 type Point3 [3]float64
+
+// Point4 represents a 4D point, in space + some additional dimension.
+type Point4 [4]float64
 
 // AnglePoint creates a unit vector from the given angle in degrees as a Point2.
 func AnglePoint(angle float64) Point2 {
@@ -23,16 +26,20 @@ func RadianPoint(radians float64) Point2 {
 }
 
 // Dim returns the value of p in the ith dimension.
-// Panics if i > 1. No check is made for efficiency's sake, pending benchmarks,
-// but adding an error here would significantly worsen the API.
+// Panics if i > 1.
 func (p Point2) Dim(i int) float64 {
 	return p[i]
 }
 
 // Dim returns the value of p in the ith dimension.
-// Panics if i > 2. No check is made for efficiency's sake, pending benchmarks,
-// but adding an error here would significantly worsen the API.
+// Panics if i > 2.
 func (p Point3) Dim(i int) float64 {
+	return p[i]
+}
+
+// Dim returns the value of p in the ith dimension.
+// Panics if i > 3.
+func (p Point4) Dim(i int) float64 {
 	return p[i]
 }
 
@@ -59,6 +66,26 @@ func (p Point3) Y() float64 {
 // Z returns p's value on the Z axis.
 func (p Point3) Z() float64 {
 	return p.Dim(2)
+}
+
+// W returns p's value on the W axis.
+func (p Point4) W() float64 {
+	return p.Dim(0)
+}
+
+// X returns p's value on the X axis.
+func (p Point4) X() float64 {
+	return p.Dim(1)
+}
+
+// Y returns p's value on the Y axis.
+func (p Point4) Y() float64 {
+	return p.Dim(2)
+}
+
+// Z returns p's value on the Z axis.
+func (p Point4) Z() float64 {
+	return p.Dim(3)
 }
 
 // Distance calculates the distance between this Point2 and another.
@@ -160,6 +187,11 @@ func (p Point2) MulConst(fs ...float64) Point2 {
 	return p
 }
 
+// Cross gets the cross product of two Point 3s
+func (p Point3) Cross(p2 Point3) Point3 {
+	return Point3{p.Y()*p2.Z() - p.Z()*p2.Y(), p.Z()*p2.X() - p.X()*p2.Z(), p.X()*p2.Y() - p.Y()*p2.X()}
+}
+
 // Div combines the input points via division.
 // Div does not check that the inputs are non zero before operating,
 // and can panic if that is not true.
@@ -246,6 +278,19 @@ func (p Point3) DivConst(fs ...float64) Point3 {
 	return p
 }
 
+// DivConst divides all elements of a point by the input floats
+// DivConst does not check that the inputs are non zero before operating,
+// and can panic if that is not true.
+func (p Point4) DivConst(fs ...float64) Point4 {
+	for _, f := range fs {
+		p[0] /= f
+		p[1] /= f
+		p[2] /= f
+		p[3] /= f
+	}
+	return p
+}
+
 // Dot returns the dot product of the input points
 func (p Point2) Dot(p2 Point2) float64 {
 	return p[0]*p2[0] + p[1]*p2[1]
@@ -256,6 +301,11 @@ func (p Point3) Dot(p2 Point3) float64 {
 	return p[0]*p2[0] + p[1]*p2[1] + p[2]*p2[2]
 }
 
+// Dot returns the dot product of the input points
+func (p Point4) Dot(p2 Point4) float64 {
+	return p[0]*p2[0] + p[1]*p2[1] + p[2]*p2[2] + p[3]*p2[3]
+}
+
 // Magnitude returns the magnitude of the combined components of a Point
 func (p Point2) Magnitude() float64 {
 	return math.Sqrt(p.Dot(p))
@@ -263,6 +313,11 @@ func (p Point2) Magnitude() float64 {
 
 // Magnitude returns the magnitude of the combined components of a Point
 func (p Point3) Magnitude() float64 {
+	return math.Sqrt(p.Dot(p))
+}
+
+// Magnitude returns the magnitude of the combined components of a Point
+func (p Point4) Magnitude() float64 {
 	return math.Sqrt(p.Dot(p))
 }
 
@@ -277,6 +332,15 @@ func (p Point2) Normalize() Point2 {
 
 // Normalize converts this point into a unit vector.
 func (p Point3) Normalize() Point3 {
+	mgn := p.Magnitude()
+	if mgn == 0 {
+		return p
+	}
+	return p.DivConst(mgn)
+}
+
+// Normalize converts this point into a unit vector.
+func (p Point4) Normalize() Point4 {
 	mgn := p.Magnitude()
 	if mgn == 0 {
 		return p
@@ -358,4 +422,28 @@ func (p Point2) AngleTo(p2 Point2) float64 {
 // RadiansTo returns the angle from p to p2 in radians.
 func (p Point2) RadiansTo(p2 Point2) float64 {
 	return p.Sub(p2).ToRadians()
+}
+
+func (p Point4) Conjugate() Point4 {
+	return Point4{
+		p[0],
+		-1 * p[1],
+		-1 * p[2],
+		-1 * p[3],
+	}
+}
+
+func (p Point4) Inverse() Point4 {
+	cng := p.Conjugate()
+	return cng.Normalize()
+}
+
+// ref: https://www.mathworks.com/help/aeroblks/quaternionmultiplication.html
+func (p Point4) MulQuat(p2 Point4) Point4 {
+	return Point4{
+		p2[0]*p[0] - p2[1]*p[1] - p2[2]*p[2] - p2[3]*p[3],
+		p2[0]*p[1] + p2[1]*p[0] - p2[2]*p[3] + p2[3]*p[2],
+		p2[0]*p[2] + p2[1]*p[3] + p2[2]*p[0] - p2[3]*p[1],
+		p2[0]*p[3] - p2[1]*p[2] + p2[2]*p[1] + p2[3]*p[0],
+	}
 }
