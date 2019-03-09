@@ -1,5 +1,9 @@
 package scene
 
+import (
+	"github.com/oakmound/oak/dlog"
+)
+
 // A Scene is a set of functions defining what needs to happen when a scene
 // starts, loops, and ends.
 type Scene struct {
@@ -45,5 +49,18 @@ func BooleanLoop(b *bool) Loop {
 func GoTo(nextScene string) End {
 	return func() (string, *Result) {
 		return nextScene, nil
+	}
+}
+
+// GoToPtr returns an End function that, without any other customization possible,
+// will change to the input next scene. It takes a pointer so the scene can
+// be changed after this function is called.
+func GoToPtr(nextScene *string) End {
+	return func() (string, *Result) {
+		if nextScene == nil {
+			dlog.Error("Go To: next scene was nil")
+			return "", nil
+		}
+		return *nextScene, nil
 	}
 }
