@@ -1,7 +1,7 @@
 module github.com/oakmound/oak
 
 require (
-	github.com/200sc/go-dist v0.0.0-20180217184639-8bdf90fe4b02
+	github.com/200sc/go-dist v1.0.0
 	github.com/200sc/klangsynthese v0.1.1
 	github.com/BurntSushi/toml v0.3.1
 	github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802
@@ -10,10 +10,9 @@ require (
 	github.com/disintegration/gift v1.2.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/hajimehoshi/go-mp3 v0.1.1
-	github.com/oakmound/alsa-go v0.0.0-20190302183935-ba5351447e12
-	github.com/oakmound/lowrez17 v0.0.0-20180207115707-da6171067fff
-	github.com/oakmound/shiny v0.1.0
-	github.com/oakmound/w32 v1.0.0
+	github.com/oakmound/alsa-go v1.0.0
+	github.com/oakmound/shiny v0.2.0
+	github.com/oakmound/w32 v2.0.0
 	github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf
 	github.com/pkg/errors v0.8.1
 	github.com/pmezard/go-difflib v1.0.0

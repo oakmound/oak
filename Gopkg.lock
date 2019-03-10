@@ -2,7 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
   digest = "1:b4cf4077e6123e315ad327b9578b6aac5253b74095c9eb16bbb0479b3676805a"
   name = "github.com/200sc/go-dist"
   packages = [
@@ -12,6 +11,7 @@
   ]
   pruneopts = "UT"
   revision = "8bdf90fe4b023f2e176be67c7c27ea31dd89d324"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:7a13753f465bbc2b6c141de05f94dbdcaa066da0f49f226b94b6c46b4bba0ddf"
@@ -40,16 +40,31 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:130593c6d3a71ec66faec36cbe0017d56755ddc38c638e675b31552b6f1b9708"
+  digest = "1:5d10efb58e8385c77530e8df60dbb7efcf2f806e1a742f5dfc588f8aeb9e0a96"
   name = "github.com/BurntSushi/xgb"
   packages = [
     ".",
     "render",
+    "shape",
     "shm",
+    "xinerama",
     "xproto",
   ]
   pruneopts = "UT"
   revision = "27f122750802c950b2c869a5b63dafcf590ced95"
+
+[[projects]]
+  branch = "master"
+  digest = "1:93698a5b0ee991e62e44f2278c0a5baa3545f9ff64366e67060876aa8753e15d"
+  name = "github.com/BurntSushi/xgbutil"
+  packages = [
+    ".",
+    "ewmh",
+    "xevent",
+    "xprop",
+  ]
+  pruneopts = "UT"
+  revision = "f7c97cef3b4e6c88280a5a7091c3314e815ca243"
 
 [[projects]]
   branch = "master"
@@ -105,23 +120,15 @@
   version = "v0.1.1"
 
 [[projects]]
-  branch = "master"
   digest = "1:0aeaaf2037e67cfb35f8623b2164ca4469cd5c112521b75e19f34fc9e3a287b9"
   name = "github.com/oakmound/alsa-go"
   packages = ["."]
   pruneopts = "UT"
   revision = "ba5351447e1209bb9726d4330341eb07661e7200"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:aef6e035cb47dc2a202386f7599928ecd6525251ad746e6c8e7cc11cea996d5a"
-  name = "github.com/oakmound/lowrez17"
-  packages = ["game/layers"]
-  pruneopts = "UT"
-  revision = "da6171067fff33956a6af7f46e2226d6acd9cf9d"
-
-[[projects]]
-  digest = "1:5946d50a5b3ad30b970c44bfe3d5867c30398f25d95b87c96181dd2cad75e374"
+  digest = "1:b011f6daff4a9104e16311630be5edffdfb750cb63a0393ccf919108ba447ffa"
   name = "github.com/oakmound/shiny"
   packages = [
     "driver",
@@ -132,23 +139,25 @@
     "driver/internal/lifecycler",
     "driver/internal/swizzle",
     "driver/internal/win32",
+    "driver/internal/x11",
     "driver/internal/x11key",
     "driver/windriver",
     "driver/x11driver",
     "gesture",
     "screen",
+    "unit",
   ]
   pruneopts = "UT"
-  revision = "c45f2e40187a7a4659e19f7fcef90086db41801e"
-  version = "v0.1.0"
+  revision = "315515c7afb9b9a1a1f519694f2641fef88c65a4"
+  version = "v0.2.0"
 
 [[projects]]
-  digest = "1:17b5368f859a5ee0bc4521b9cb29b25ab1a69c86eab2ab2883b60efe3a3ad093"
+  digest = "1:d62ba403cf4b6b331f3be73bbe6a66549b70e3e93f918ec9870badd7f2c242aa"
   name = "github.com/oakmound/w32"
   packages = ["."]
   pruneopts = "UT"
-  revision = "b7f1cf6a58d56773f641d191180a5d81c5679ab1"
-  version = "v1.0.0"
+  revision = "9e34746976a263bb50637c5018561570515aa317"
+  version = "v2.0.0"
 
 [[projects]]
   branch = "master"
@@ -198,7 +207,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:97b3ccf91aec42b36b53970c65da2f0aaebae2f22f50459eeb7b23a4a56cf71a"
+  digest = "1:ac6265dc97b72daef957099ec5beba7c0a43bd2f365848444bebf581a0a0d67f"
   name = "golang.org/x/mobile"
   packages = [
     "event/key",
@@ -210,7 +219,7 @@
     "gl",
   ]
   pruneopts = "UT"
-  revision = "b8c6dab863a6bb7fceeb28cd882e272336b5d63d"
+  revision = "d2e1c1c4a691445933af238dcfc2869b0ffa7e91"
 
 [[projects]]
   branch = "master"
@@ -221,7 +230,7 @@
     "html/atom",
   ]
   pruneopts = "UT"
-  revision = "16b79f2e4e95ea23b2bf9903c9809ff7b013ce85"
+  revision = "c10a0554eabf8a6a7a6cc3097c9d9f43dcee0a43"
 
 [[projects]]
   branch = "master"
@@ -233,11 +242,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:237e8294fc988c135a81cfce460263ac3806d86ba9faef52130ddcc1ddd22fd4"
+  digest = "1:ae68415cb4e39b10569bcb1eb4d5c7c4737262fd2a55022b057e5e77e2e7b459"
   name = "golang.org/x/sys"
   packages = ["windows"]
   pruneopts = "UT"
-  revision = "c2f5717e611cf8e89a852a41081355194d80c943"
+  revision = "10058d7d4faa7dd5ef860cbd31af00903076e7b8"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -258,7 +267,6 @@
     "github.com/davecgh/go-spew/spew",
     "github.com/disintegration/gift",
     "github.com/golang/freetype/truetype",
-    "github.com/oakmound/lowrez17/game/layers",
     "github.com/oakmound/shiny/driver",
     "github.com/oakmound/shiny/gesture",
     "github.com/oakmound/shiny/screen",
