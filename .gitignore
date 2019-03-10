@@ -12,3 +12,7 @@
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
+
+# As a library we can't commit our vendor directory if it ever accidentally kept
+# around after updating dependencies
+vendor/*

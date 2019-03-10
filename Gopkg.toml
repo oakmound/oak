@@ -24,11 +24,6 @@
 #   go-tests = true
 #   unused-packages = true
 
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/200sc/go-dist"
-
 [[constraint]]
   name = "github.com/200sc/klangsynthese"
   version = "0.1.1"
@@ -54,12 +49,8 @@
   name = "github.com/golang/freetype"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/oakmound/lowrez17"
-
-[[constraint]]
   name = "github.com/oakmound/shiny"
-  version = "0.1.0"
+  version = "0.2.0"
 
 [[constraint]]
   name = "github.com/stretchr/testify"
