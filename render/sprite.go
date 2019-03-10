@@ -2,6 +2,7 @@ package render
 
 import (
 	"image"
+	"image/color"
 	"image/draw"
 
 	"github.com/oakmound/oak/render/mod"
@@ -47,6 +48,28 @@ func (s *Sprite) GetDims() (int, int) {
 // SetRGBA will replace the rgba behind this sprite
 func (s *Sprite) SetRGBA(r *image.RGBA) {
 	s.r = r
+}
+
+// Bounds is an alternative to GetDims that alows a sprite
+// to satisy draw.Image.
+func (s *Sprite) Bounds() image.Rectangle {
+	return s.r.Bounds()
+}
+
+// ColorModel allows sprites to satisfy draw.Image. Returns
+// color.RGBA.
+func (s *Sprite) ColorModel() color.Model {
+	return s.r.ColorModel()
+}
+
+// At returns the color of a given pixel location
+func (s *Sprite) At(x, y int) color.Color {
+	return s.r.At(x, y)
+}
+
+// Set sets a color of a given pixel location
+func (s *Sprite) Set(x, y int, c color.Color) {
+	s.r.Set(x, y, c)
 }
 
 // DrawOffset draws this sprite at +xOff, +yOff
