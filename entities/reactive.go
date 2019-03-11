@@ -66,6 +66,11 @@ func (r *Reactive) GetSpace() *collision.Space {
 	return r.RSpace.Space
 }
 
+// GetReactiveSpace returns this reactive's RSpace
+func (r *Reactive) GetReactiveSpace() *collision.ReactiveSpace {
+	return r.RSpace
+}
+
 // Overwrites
 
 // Init satisfies event.Entity
