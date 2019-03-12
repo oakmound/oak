@@ -97,9 +97,7 @@ func rgbaCopy(r *image.RGBA) *image.RGBA {
 	newRgba.Rect = r.Rect
 	newRgba.Stride = r.Stride
 	newRgba.Pix = make([]uint8, len(r.Pix))
-	for i, p := range r.Pix {
-		newRgba.Pix[i] = p
-	}
+	copy(newRgba.Pix, r.Pix)
 	return newRgba
 }
 
