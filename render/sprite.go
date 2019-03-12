@@ -63,11 +63,21 @@ func (s *Sprite) Draw(buff draw.Image) {
 func (s *Sprite) Copy() Modifiable {
 	newS := new(Sprite)
 	if s.r != nil {
-		newS.r = new(image.RGBA)
-		*newS.r = *s.r
+		newS.r = rgbaCopy(s.r)
 	}
 	newS.LayeredPoint = s.LayeredPoint.Copy()
 	return newS
+}
+
+func rgbaCopy(r *image.RGBA) *image.RGBA {
+	newRgba := new(image.RGBA)
+	newRgba.Rect = r.Rect
+	newRgba.Stride = r.Stride
+	newRgba.Pix = make([]uint8, len(r.Pix))
+	for i, p := range r.Pix {
+		newRgba.Pix[i] = p
+	}
+	return newRgba
 }
 
 // IsNil returns whether or not this sprite's rgba is nil.
