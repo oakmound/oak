@@ -28,8 +28,8 @@ var (
 )
 
 func parseShape(args []string) shape.Shape {
-	if len(args) > 0 {
-		switch args[0] {
+	if len(args) > 1 {
+		switch args[1] {
 		case "heart":
 			return shape.Heart
 		case "square":
@@ -289,38 +289,38 @@ func main() {
 }
 
 func parseRGBA(args []string) (r, g, b, a int, err error) {
-	if len(args) < 5 {
+	if len(args) < 4 {
 		return
 	}
-	r, err = strconv.Atoi(args[1])
+	r, err = strconv.Atoi(args[0])
 	if err != nil {
 		return
 	}
-	g, err = strconv.Atoi(args[2])
+	g, err = strconv.Atoi(args[1])
 	if err != nil {
 		return
 	}
-	b, err = strconv.Atoi(args[3])
+	b, err = strconv.Atoi(args[2])
 	if err != nil {
 		return
 	}
-	a, err = strconv.Atoi(args[4])
+	a, err = strconv.Atoi(args[3])
 	return
 }
 
 func parseFloats(args []string) (f1, f2 float64, two bool, err error) {
-	if len(args) < 2 {
+	if len(args) < 1 {
 		err = errors.New("No args")
 		return
 	}
-	f1, err = strconv.ParseFloat(args[1], 64)
+	f1, err = strconv.ParseFloat(args[0], 64)
 	if err != nil {
 		return
 	}
-	if len(args) < 3 {
+	if len(args) < 2 {
 		return
 	}
-	f2, err = strconv.ParseFloat(args[2], 64)
+	f2, err = strconv.ParseFloat(args[1], 64)
 	if err != nil {
 		return
 	}
@@ -329,18 +329,18 @@ func parseFloats(args []string) (f1, f2 float64, two bool, err error) {
 }
 
 func parseInts(args []string) (i1, i2 int, two bool, err error) {
-	if len(args) < 2 {
+	if len(args) < 1 {
 		err = errors.New("No args")
 		return
 	}
-	i1, err = strconv.Atoi(args[1])
+	i1, err = strconv.Atoi(args[0])
 	if err != nil {
 		return
 	}
-	if len(args) < 3 {
+	if len(args) < 2 {
 		return
 	}
-	i2, err = strconv.Atoi(args[2])
+	i2, err = strconv.Atoi(args[1])
 	if err != nil {
 		return
 	}
