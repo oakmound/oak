@@ -3,6 +3,7 @@ package render
 import (
 	"image"
 
+	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/oakerr"
 )
 
@@ -42,8 +43,9 @@ func NewSheetSequence(sheet *Sheet, fps float64, frames ...int) (*Sequence, erro
 
 	mods := make([]Modifiable, len(frames)/2)
 	for i := 0; i < len(frames); i += 2 {
-		if len(sh) < frames[i] || len(sh[frames[i]]) < frames[i+1] {
-			return nil, oakerr.InvalidInput{InputName: "Frame requested does not exist"}
+		if len(sh) <= frames[i] || len(sh[frames[i]]) <= frames[i+1] {
+			dlog.Error("Frame ", frames[i], frames[i+1], "requested but sheet has dimensions ", len(sh), len(sh[frames[i]]))
+			return nil, oakerr.InvalidInput{InputName: "Frame requested does not exist "}
 		}
 		mods[i/2] = NewSprite(0, 0, sh[frames[i]][frames[i+1]])
 	}
