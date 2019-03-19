@@ -55,7 +55,7 @@ func (fg *FontGenerator) Generate() *Font {
 		if defaultFontFile != "" {
 			fg.File = defaultFontFile
 		} else {
-			_, curFile, _, _ := runtime.Caller(1)
+			_, curFile, _, _ := runtime.Caller(0)
 			dir = filepath.Join(filepath.Dir(curFile), "default_assets", "font")
 			fg.File = "luxisr.ttf"
 		}
