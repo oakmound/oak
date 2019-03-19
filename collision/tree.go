@@ -83,14 +83,15 @@ func (t *Tree) Remove(sps ...*Space) int {
 	return removed
 }
 
-// UpdateLabel will set the input space's label in this tree. Modifying a
-// space's label without going through a tree's method such as this will
-// have no effect.
+// UpdateLabel will set the input space's label. DEPRECATED. Just set
+// the Label field on the Space pointer.
 func (t *Tree) UpdateLabel(classtype Label, s *Space) {
-	t.Remove(s)
 	s.Label = classtype
-	t.Add(s)
 }
+
+// ErrNotExist is returned by methods on spaces
+// when the space to update or act on did not exist
+var ErrNotExist = errors.New("Space did not exist to update")
 
 // UpdateSpace resets a space's location to a given
 // rtreego.Rect.
@@ -102,7 +103,11 @@ func (t *Tree) UpdateSpace(x, y, w, h float64, s *Space) error {
 	}
 	loc := NewRect(x, y, w, h)
 	t.Lock()
-	t.Delete(s)
+	deleted := t.Delete(s)
+	if !deleted {
+		t.Unlock()
+		return ErrNotExist
+	}
 	s.Location = loc
 	t.Insert(s)
 	t.Unlock()
@@ -116,7 +121,11 @@ func (t *Tree) UpdateSpaceRect(rect floatgeom.Rect3, s *Space) error {
 		return oakerr.NilInput{InputName: "s"}
 	}
 	t.Lock()
-	t.Delete(s)
+	deleted := t.Delete(s)
+	if !deleted {
+		t.Unlock()
+		return ErrNotExist
+	}
 	s.Location = rect
 	t.Insert(s)
 	t.Unlock()
@@ -138,8 +147,6 @@ func (t *Tree) ShiftSpace(x, y float64, s *Space) error {
 // themselves, if they exist in the tree, but self-collision
 // will not be reported by Hits.
 func (t *Tree) Hits(sp *Space) []*Space {
-	// Eventually we'll expose SearchIntersect for use cases where you
-	// want to see if you intersect yourself
 	results := t.SearchIntersect(sp.Bounds())
 	hitSelf := -1
 	i := 0
