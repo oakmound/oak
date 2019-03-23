@@ -5,8 +5,7 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version
-      - image: circleci/golang:1.x
+      - image: circleci/golang:1.12
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
