@@ -22,6 +22,11 @@ type Rtree struct {
 	height      int
 }
 
+// Size returns the rtree's size
+func (tree *Rtree) Size() int {
+	return tree.size
+}
+
 // NewTree creates a new R-tree instance.
 func newTree(MinChildren, MaxChildren int) *Rtree {
 	rt := Rtree{MinChildren: MinChildren, MaxChildren: MaxChildren}
@@ -307,6 +312,7 @@ func (tree *Rtree) Delete(obj *Space) bool {
 	for i, e := range n.entries {
 		if e.obj == obj {
 			ind = i
+			break
 		}
 	}
 	if ind < 0 {

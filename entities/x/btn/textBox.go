@@ -35,9 +35,11 @@ func NewTextBox(cid event.CID, x, y, w, h, txtX, txtY float64,
 	b.Text = f.NewStrText("Init", 0, 0)
 	b.Text.Vector = b.Text.Attach(b.Box.Vector, txtX, (-txtY)+b.H)
 
-	// Add one to the layer so that the text shows up above the box itself
-	layers[len(layers)-1]++
-	render.Draw(b.Text, layers...)
+	// We dont want to modify the input's layers but we do want the text to show up on top of the base renderable.
+	txtLayers := make([]int, len(layers))
+	copy(txtLayers, layers)
+	txtLayers[len(txtLayers)-1]++
+	render.Draw(b.Text, txtLayers...)
 	return b
 }
 

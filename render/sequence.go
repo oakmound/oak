@@ -24,7 +24,7 @@ type Sequence struct {
 }
 
 // NewSequence returns a new sequence from the input modifiables, playing at
-// fps rate
+// the given fps rate.
 func NewSequence(fps float64, mods ...Modifiable) *Sequence {
 	return &Sequence{
 		LayeredPoint: NewLayeredPoint(0, 0, 0),

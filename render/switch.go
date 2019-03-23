@@ -55,7 +55,7 @@ func (c *Switch) Add(k string, v Modifiable) (err error) {
 func (c *Switch) Set(k string) error {
 	c.lock.RLock()
 	if _, ok := c.subRenderables[k]; !ok {
-		return oakerr.InvalidInput{InputName: "k"}
+		return oakerr.NotFound{InputName: "k:" + k}
 	}
 	c.lock.RUnlock()
 	c.curRenderable = k

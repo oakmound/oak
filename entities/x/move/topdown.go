@@ -38,7 +38,8 @@ func TopDown(mvr Mover, up, down, left, right string) {
 	}
 	vec.Add(delta)
 	mvr.GetRenderable().SetPos(vec.X(), vec.Y())
-	mvr.GetSpace().Update(vec.X(), vec.Y(), 16, 16)
+	sp := mvr.GetSpace()
+	sp.Update(vec.X(), vec.Y(), sp.GetW(), sp.GetH())
 }
 
 // CenterScreenOn will cause the screen to center on the given mover, obeying
@@ -58,12 +59,12 @@ func Limit(mvr Mover, rect floatgeom.Rect2) {
 	wf := float64(w)
 	hf := float64(h)
 	if vec.X() < rect.Min.X() {
-		vec.SetX(0)
+		vec.SetX(rect.Min.X())
 	} else if vec.X() > rect.Max.X()-wf {
 		vec.SetX(rect.Max.X() - wf)
 	}
 	if vec.Y() < rect.Min.Y() {
-		vec.SetY(0)
+		vec.SetY(rect.Min.Y())
 	} else if vec.Y() > rect.Max.Y()-hf {
 		vec.SetY(rect.Max.Y() - hf)
 	}
