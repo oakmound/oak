@@ -278,6 +278,17 @@ func (p Point3) DivConst(fs ...float64) Point3 {
 	return p
 }
 
+// MulConst multiplies all elements of a point by the input floats
+func (p Point4) MulConst(fs ...float64) Point4 {
+	for _, f := range fs {
+		p[0] *= f
+		p[1] *= f
+		p[2] *= f
+		p[3] *= f
+	}
+	return p
+}
+
 // DivConst divides all elements of a point by the input floats
 // DivConst does not check that the inputs are non zero before operating,
 // and can panic if that is not true.
