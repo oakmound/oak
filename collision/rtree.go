@@ -22,6 +22,7 @@ type Rtree struct {
 	height      int
 }
 
+// Size returns the rtree's size
 func (tree *Rtree) Size() int {
 	return tree.size
 }
