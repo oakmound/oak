@@ -135,8 +135,7 @@ func ToggleList(chosen *int, rs ...render.Modifiable) Option {
 	}
 }
 
-//Binding sets the Binding of the button to be generated.
-// Todo: change binding/trigger to support multiple bindings
+//Binding sets the Binding of the button to be generated
 func Binding(bnd event.Bindable) Option {
 	return func(g Generator) Generator {
 		g.Binding = bnd
