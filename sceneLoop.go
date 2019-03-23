@@ -84,6 +84,8 @@ func sceneLoop(first string) {
 		dlog.ErrorCheck(logicHandler.UpdateLoop(FrameRate, sceneCh))
 
 		for cont {
+			// TODO 3.0: Scene loops should take a channel instead
+			// of work on this busy loop
 			select {
 			case <-sceneCh:
 				cont = scen.Loop()
