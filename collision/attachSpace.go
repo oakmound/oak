@@ -82,8 +82,9 @@ func attachSpaceEnter(id int, nothing interface{}) int {
 	x, y := as.follow.X()+as.offX, as.follow.Y()+as.offY
 	if x != (*as.aSpace).X() ||
 		y != (*as.aSpace).Y() {
-		// An error here would only be the result of a nil pointer,
-		// which would crash already.
+
+		// If this was a nil pointer it would have already crashed but as of release 2.2.0 this could error from the space to delete not existing in the rtree.
+		// TODO: consider the case where as.aspace is not in the default rtree
 		UpdateSpace(x, y, (*as.aSpace).GetW(), (*as.aSpace).GetH(), *as.aSpace)
 	}
 	return 0
