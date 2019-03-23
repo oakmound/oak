@@ -3,6 +3,8 @@ package collision
 import (
 	"testing"
 
+	"github.com/oakmound/oak/alg/floatgeom"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,11 +39,14 @@ func TestTreeScene(t *testing.T) {
 	// Update functions
 	assert.NotNil(t, tree.ShiftSpace(0, 0, nil))
 	assert.NotNil(t, tree.UpdateSpace(0, 0, 0, 0, nil))
+	assert.NotNil(t, tree.UpdateSpaceRect(floatgeom.NewRect3(0, 0, 0, 0, 0, 0), nil))
 
 	assert.Nil(t, tree.ShiftSpace(1, 1, s1))
 	assert.Empty(t, tree.Hits(NewSpace(0, 0, 1, 1, 0)))
 	assert.Nil(t, tree.UpdateSpace(20, 20, 5, 5, s2))
 	assert.NotNil(t, tree.HitLabel(NewSpace(21, 21, 20, 20, 0), 2))
+	assert.Nil(t, tree.UpdateSpaceRect(NewRect(40, 40, 5, 5), s2))
+	assert.NotNil(t, tree.HitLabel(NewSpace(40, 40, 20, 20, 0), 2))
 
 	// Removal, Clear
 	assert.Equal(t, 1, tree.Remove(s2))
