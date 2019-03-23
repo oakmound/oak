@@ -29,6 +29,7 @@ func TestAttachSpace(t *testing.T) {
 	as := aspace{}
 	v := physics.NewVector(0, 0)
 	s := NewSpace(100, 100, 10, 10, as.Init())
+	Add(s)
 	assert.Nil(t, Attach(v, s, 4, 4))
 	v.SetPos(5, 5)
 	time.Sleep(200 * time.Millisecond)
