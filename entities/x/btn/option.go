@@ -18,6 +18,13 @@ func And(opts ...Option) Option {
 	}
 }
 
+// Clear resets the button to be empty
+func Clear() Option {
+	return func(g Generator) Generator {
+		return Generator{}
+	}
+}
+
 //Width sets the Width of the button to be generated
 func Width(w float64) Option {
 	return func(g Generator) Generator {
@@ -39,6 +46,15 @@ func Pos(x, y float64) Option {
 	return func(g Generator) Generator {
 		g.X = x
 		g.Y = y
+		return g
+	}
+}
+
+//Offset increments the position of the button to be generated
+func Offset(x, y float64) Option {
+	return func(g Generator) Generator {
+		g.X += x
+		g.Y += y
 		return g
 	}
 }

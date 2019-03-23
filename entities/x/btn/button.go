@@ -172,6 +172,9 @@ type Option func(Generator) Generator
 func New(opts ...Option) Btn {
 	g := defaultGenerator
 	for _, opt := range opts {
+		if opt == nil {
+			continue
+		}
 		g = opt(g)
 	}
 	return g.Generate()
