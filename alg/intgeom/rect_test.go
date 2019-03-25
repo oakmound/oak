@@ -75,6 +75,29 @@ var (
 	}
 )
 
+func TestRect2Center(t *testing.T) {
+	expected := []Point2{
+		Point2{1, 1},
+		Point2{7, 7},
+		Point2{11, 11}}
+	for i, e := range expected {
+		c := r2cases[i]
+		assert.Equal(t, e, c.Center())
+	}
+}
+
+func TestRect3Center(t *testing.T) {
+	expected := []Point3{
+		Point3{1, 1, 1},
+		Point3{7, 7, 7},
+		Point3{11, 11, 11},
+	}
+	for i, e := range expected {
+		c := r3cases[i]
+		assert.Equal(t, e, c.Center())
+	}
+}
+
 func TestRect2ContainsRect(t *testing.T) {
 	r2 := NewRect2(0, 0, 10, 10)
 	expected := []bool{true, false, false}
