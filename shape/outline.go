@@ -2,7 +2,6 @@ package shape
 
 import (
 	"errors"
-	"fmt"
 	"math"
 
 	"github.com/oakmound/oak/alg/intgeom"
@@ -128,7 +127,6 @@ func followOutline(shape Shape, dirInc int, x, y, sx, sy, w, h, direction int, o
 		//From a point on the outline look clockwise around for next direction
 		for !inOutline(shape, x, y, w, h) {
 			for i := 0; i < dirInc; i++ {
-				fmt.Println(i)
 				x += pointDeltas[direction*2]
 				y += pointDeltas[direction*2+1]
 				direction = (direction + 1) % lastdirection
