@@ -3,6 +3,8 @@ package btn
 import (
 	"image/color"
 
+	"github.com/oakmound/oak/mouse"
+
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
 	"github.com/oakmound/oak/render/mod"
@@ -135,18 +137,16 @@ func ToggleList(chosen *int, rs ...render.Modifiable) Option {
 	}
 }
 
-//Binding sets the Binding of the button to be generated
-func Binding(bnd event.Bindable) Option {
+// Binding appends a function to be called when a specific event
+// is triggered.
+func Binding(s string, bnd event.Bindable) Option {
 	return func(g Generator) Generator {
-		g.Binding = bnd
+		g.Bindings[s] = append(g.Bindings[s], bnd)
 		return g
 	}
 }
 
-//Trigger sets the trigger for the Binding on the button to be generated
-func Trigger(s string) Option {
-	return func(g Generator) Generator {
-		g.Trigger = s
-		return g
-	}
+// Click appends a function to be called when the button is clicked on.
+func Click(bnd event.Bindable) Option {
+	return Binding(mouse.ClickOn, bnd)
 }
