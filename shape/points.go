@@ -25,7 +25,7 @@ func (p Points) In(x, y int, sizes ...int) bool {
 // Outline returns the set of points along the point map's outline, if
 // one exists
 func (p Points) Outline(sizes ...int) ([]intgeom.Point2, error) {
-	return ToOutline(p)()
+	return ToOutline(p)(sizes...)
 }
 
 // Rect returns a double slice of booleans representing the output of the In function in that rectangle
