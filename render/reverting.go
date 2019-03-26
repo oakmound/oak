@@ -87,6 +87,15 @@ func (rv *Reverting) Modify(ms ...mod.Mod) Modifiable {
 	return rv
 }
 
+// Filter alters this reverting by the given filters, appending the new
+// modified renderable to it's list of modified versions and displaying it.
+func (rv *Reverting) Filter(ms ...mod.Filter) {
+	next := rv.Modifiable.Copy()
+	next.Filter(ms...)
+	rv.rs = append(rv.rs, next)
+	rv.Modifiable = rv.rs[len(rv.rs)-1]
+}
+
 // Copy returns a copy of this Reverting
 func (rv *Reverting) Copy() Modifiable {
 	newRv := new(Reverting)
