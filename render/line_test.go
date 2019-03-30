@@ -72,6 +72,9 @@ func TestDrawLine(t *testing.T) {
 	rgba2 := image.NewRGBA(image.Rect(0, 0, 10, 11))
 	DrawLine(rgba2, 0, 0, 10, 10, color.RGBA{255, 255, 255, 255})
 	assert.Equal(t, rgba, rgba2)
+	rgba3 := image.NewRGBA(image.Rect(0, 0, 10, 11))
+	DrawGradientLine(rgba3, 10, 10, 0, 0, color.RGBA{255, 255, 255, 255}, color.RGBA{255, 255, 255, 255}, 0)
+	assert.Equal(t, rgba, rgba3)
 }
 
 func TestThickLinePoint(t *testing.T) {

@@ -73,6 +73,13 @@ func TestSequenceFunctions(t *testing.T) {
 	time.Sleep(1 * time.Second)
 	sq.update()
 	assert.Equal(t, sq.GetRGBA(), rgba1)
+	sq.SetFPS(.5)
+	time.Sleep(1 * time.Second)
+	sq.update()
+	assert.Equal(t, sq.GetRGBA(), rgba1)
+	time.Sleep(1 * time.Second)
+	sq.update()
+	assert.Equal(t, sq.GetRGBA(), rgba2)
 
 	// Sequences have 6,6 dimensions right now. See LayeredPoint.
 	w, h := sq.GetDims()
