@@ -9,7 +9,7 @@ func Condense(sh Shape, w, h int) []intgeom.Rect2 {
 
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
-			if sh.In(x, y) {
+			if sh.In(x, y, w, h) {
 				remainingSpaces[intgeom.Point2{x, y}] = struct{}{}
 			}
 		}
