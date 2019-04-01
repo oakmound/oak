@@ -25,6 +25,7 @@ func TestScanForEntity(t *testing.T) {
 	}
 	tcs := []testCase{
 		{
+			name: "Happy Path",
 			spinup: func() {
 				t := &testEntity{name: "nova"}
 				t.Init()
@@ -38,6 +39,17 @@ func TestScanForEntity(t *testing.T) {
 				return false
 			},
 			expectedID: 2,
+		},
+		{
+			name:   "Missing Entity",
+			spinup: func() {},
+			check: func(i interface{}) bool {
+				if te, ok := i.(*testEntity); ok {
+					return te.name == "celeste"
+				}
+				return false
+			},
+			expectedID: -1,
 		},
 	}
 
