@@ -28,6 +28,7 @@ type Handler interface {
 // A FullHandler will receive TriggerBack events from the engine
 // when sent (currently only OnStop, when the engine closes)
 type FullHandler interface {
+	Handler
 	TriggerBack(event string, data interface{}) chan bool
 }
 
