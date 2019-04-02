@@ -1,6 +1,7 @@
 package intgeom
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"testing"
@@ -75,6 +76,22 @@ func TestPointLesserOf(t *testing.T) {
 	c := Point3{0, 1, 2}
 	d := Point3{1, 2, 0}
 	assert.Equal(t, c.LesserOf(d), Point3{0, 1, 0})
+}
+
+func TestPointMagnitude(t *testing.T) {
+	a := Point2{2, 2}
+	b := Point2{1, 1}
+	c := a.LesserOf(b)
+	assert.True(t, a.Magnitude() > c.Magnitude())
+	assert.True(t, b.Magnitude() == c.Magnitude())
+
+	d := Point3{2, 3, 4}
+	e := Point3{1, 2, 3}
+	f := d.LesserOf(e)
+	fmt.Println(d.Magnitude(), e.Magnitude(), f.Magnitude())
+
+	assert.True(t, d.Magnitude() > f.Magnitude())
+	assert.True(t, e.Magnitude() == f.Magnitude())
 }
 
 func TestPointAccess(t *testing.T) {

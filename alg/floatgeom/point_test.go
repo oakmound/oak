@@ -36,8 +36,10 @@ func TestPointNormalize(t *testing.T) {
 
 	p4 := Point2{0, 0}
 	p5 := Point3{0, 0, 0}
+	p6 := Point4{0, 0, 0, 0}
 	assert.Equal(t, p4, p4.Normalize())
 	assert.Equal(t, p5, p5.Normalize())
+	assert.Equal(t, p6, p6.Normalize())
 }
 
 func TestPointProject(t *testing.T) {
@@ -303,4 +305,11 @@ func TestPointToRec(t *testing.T) {
 			Point2{x, y}.ToRect(span),
 		)
 	}
+}
+
+func TestQuaternionMultiplication(t *testing.T) {
+	a := Point4{1, 1, 1, 1}.Normalize()
+	b := a.Inverse()
+	c := Point4{1, 0, 0, 0}
+	assert.Equal(t, c, a.MulQuat(b))
 }
