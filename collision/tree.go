@@ -98,20 +98,8 @@ var ErrNotExist = errors.New("Space did not exist to update")
 // This is not an operation on a space because
 // a space can exist in multiple rtrees.
 func (t *Tree) UpdateSpace(x, y, w, h float64, s *Space) error {
-	if s == nil {
-		return oakerr.NilInput{InputName: "s"}
-	}
 	loc := NewRect(x, y, w, h)
-	t.Lock()
-	deleted := t.Delete(s)
-	if !deleted {
-		t.Unlock()
-		return ErrNotExist
-	}
-	s.Location = loc
-	t.Insert(s)
-	t.Unlock()
-	return nil
+	return t.UpdateSpaceRect(loc, s)
 }
 
 // UpdateSpaceRect acts as UpdateSpace, but takes in a rectangle instead

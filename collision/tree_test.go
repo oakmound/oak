@@ -6,6 +6,7 @@ import (
 	"github.com/oakmound/oak/alg/floatgeom"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTreeScene(t *testing.T) {
@@ -55,4 +56,10 @@ func TestTreeScene(t *testing.T) {
 	tree.Clear()
 
 	assert.Empty(t, tree.Hits(NewSpace(0, 0, 100, 100, 0)))
+}
+
+func TestUpdateSpaceNotExists(t *testing.T) {
+	tree, _ := NewTree(2, 20)
+	s := NewSpace(0, 0, 100, 100, 0)
+	require.NotNil(t, tree.UpdateSpace(4, 4, 100, 100, s))
 }
