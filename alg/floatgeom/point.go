@@ -435,6 +435,7 @@ func (p Point2) RadiansTo(p2 Point2) float64 {
 	return p.Sub(p2).ToRadians()
 }
 
+// A Conjugate of a Point4 often obtained to calculate the inverse of the Point4
 func (p Point4) Conjugate() Point4 {
 	return Point4{
 		p[0],
@@ -444,11 +445,13 @@ func (p Point4) Conjugate() Point4 {
 	}
 }
 
+// Inverse of a Point4, often used to get the inverse rotation of a quaternion
 func (p Point4) Inverse() Point4 {
 	cng := p.Conjugate()
 	return cng.Normalize()
 }
 
+// MulQuat multiplies two quaternions to generate a combined quarternion that represents both rotations
 // ref: https://www.mathworks.com/help/aeroblks/quaternionmultiplication.html
 func (p Point4) MulQuat(p2 Point4) Point4 {
 	return Point4{
