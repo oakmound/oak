@@ -26,4 +26,8 @@ func TestSheetSequence(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Nil(t, sq)
 
+	sq, err = NewSheetSequence(sheet, 10, 1, 100)
+	assert.NotNil(t, err)
+	assert.Nil(t, sq)
+
 }
