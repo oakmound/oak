@@ -102,10 +102,10 @@ func GetSheet(fileName string) (*Sheet, error) {
 	sheetLock.RLock()
 	dlog.Verb(loadedSheets, fileName, loadedSheets[fileName])
 	sh, ok := loadedSheets[fileName]
+	sheetLock.RUnlock()
 	if !ok {
 		return nil, oakerr.NotFound{InputName: fileName}
 	}
-	sheetLock.RUnlock()
 	return sh, nil
 }
 
