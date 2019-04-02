@@ -498,7 +498,7 @@ func TestFindLeaf(t *testing.T) {
 	}
 	verify(t, rt.root)
 	for _, thing := range things {
-		leaf := rt.findLeaf(rt.root, thing)
+		leaf, _ := rt.findLeaf(rt.root, thing)
 		if leaf == nil {
 			printNode(rt.root, 0)
 			t.Errorf("Unable to find leaf containing an entry after insertion!")
@@ -537,7 +537,7 @@ func TestFindLeafDoesNotExist(t *testing.T) {
 	}
 
 	obj := mustRect(floatgeom.Point3{99, 99}, [3]float64{99, 99})
-	leaf := rt.findLeaf(rt.root, obj)
+	leaf, _ := rt.findLeaf(rt.root, obj)
 	if leaf != nil {
 		t.Errorf("findLeaf failed to return nil for non-existent object")
 	}

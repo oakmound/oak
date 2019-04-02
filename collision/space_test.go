@@ -3,6 +3,8 @@ package collision
 import (
 	"testing"
 
+	"github.com/oakmound/oak/alg/floatgeom"
+
 	"github.com/oakmound/oak/physics"
 	"github.com/stretchr/testify/assert"
 )
@@ -54,6 +56,9 @@ func TestNewRect(t *testing.T) {
 	assert.Equal(t, 1.0, s.GetW())
 	assert.Equal(t, 1.0, s.GetH())
 	s = NewUnassignedSpace(0, 0, -10, -10)
+	assert.Equal(t, 10.0, s.GetW())
+	assert.Equal(t, 10.0, s.GetH())
+	s = NewRectSpace(floatgeom.NewRect3WH(0, 0, 0, 10, 10, 0), 0, 0)
 	assert.Equal(t, 10.0, s.GetW())
 	assert.Equal(t, 10.0, s.GetH())
 }

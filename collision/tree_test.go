@@ -1,11 +1,13 @@
 package collision
 
 import (
+	"math/rand"
 	"testing"
 
 	"github.com/oakmound/oak/alg/floatgeom"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTreeScene(t *testing.T) {
@@ -24,6 +26,7 @@ func TestTreeScene(t *testing.T) {
 	s1 := NewFullSpace(0, 0, 10, 10, 1, 3)
 	s2 := NewFullSpace(10, 10, 20, 20, 2, 4)
 	tree.Add(s1, s2)
+	assert.Equal(t, 2, tree.Size())
 	assert.Equal(t, len(tree.Hits(NewSpace(5, 5, 1, 1, 0))), 1)
 	assert.NotNil(t, tree.HitLabel(NewSpace(15, 15, 1, 1, 0), 2))
 	// Self-hit should not happen
@@ -55,4 +58,33 @@ func TestTreeScene(t *testing.T) {
 	tree.Clear()
 
 	assert.Empty(t, tree.Hits(NewSpace(0, 0, 100, 100, 0)))
+}
+
+func TestTreeStress(t *testing.T) {
+	spaces := 100000
+	tree, _ := NewTree(3, 6)
+	for i := 0; i < spaces; i++ {
+		tree.Add(randomSpace())
+	}
+	require.Equal(t, spaces, tree.Size())
+	for i := 0; i < spaces/100; i++ {
+		x := xRange.Poll()
+		y := yRange.Poll()
+		z := 0.0
+		tree.NearestNeighbors(rand.Intn(10), floatgeom.Point3{x, y, z})
+	}
+	for i := 0; i < spaces; i++ {
+		tree.Delete(randomSpace())
+	}
+}
+
+func TestHitsNils(t *testing.T) {
+	tree, _ := NewTree(2, 20)
+	tree.root = new(node)
+	tree.root.entries = append(tree.root.entries, entry{
+		bb:  floatgeom.NewRect3WH(0, 0, 0, 10, 10, 10),
+		obj: nil,
+	})
+	tree.root.leaf = true
+	require.Empty(t, tree.Hits(NewSpace(0, 0, 10, 10, 0)))
 }

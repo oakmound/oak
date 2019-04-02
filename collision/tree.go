@@ -151,7 +151,8 @@ func (t *Tree) Hits(sp *Space) []*Space {
 	hitSelf := -1
 	i := 0
 	for i < len(results) {
-		// Todo: figure out why we're getting nils
+		// Todo: replicate getting nils again, its not happening anymore
+		// without unexported field modification
 		if results[i] == nil {
 			results = append(results[:i], results[i+1:]...)
 		} else {
