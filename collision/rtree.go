@@ -303,19 +303,8 @@ func pickNext(left, right *node, entries []entry) (next int) {
 // Implemented per Section 3.3 of "R-trees: A Dynamic Index Structure for
 // Space Searching" by A. Guttman, Proceedings of ACM SIGMOD, p. 47-57, 1984.
 func (tree *Rtree) Delete(obj *Space) bool {
-	n := tree.findLeaf(tree.root, obj)
+	n, ind := tree.findLeaf(tree.root, obj)
 	if n == nil {
-		return false
-	}
-
-	ind := -1
-	for i, e := range n.entries {
-		if e.obj == obj {
-			ind = i
-			break
-		}
-	}
-	if ind < 0 {
 		return false
 	}
 
@@ -333,31 +322,32 @@ func (tree *Rtree) Delete(obj *Space) bool {
 	return true
 }
 
-// findLeaf finds the leaf node containing obj.
-func (tree *Rtree) findLeaf(n *node, obj *Space) *node {
+// findLeaf finds the leaf node containing obj and the index
+// within the node's entries where the obj was found
+func (tree *Rtree) findLeaf(n *node, obj *Space) (*node, int) {
 	if n.leaf {
-		return n
+		for i, leafEntry := range n.entries {
+			if leafEntry.obj == obj {
+				return n, i
+			}
+		}
+		return nil, -1
 	}
 	// if not leaf, search all candidate subtrees
 	for _, e := range n.entries {
 		if e.bb.ContainsRect(obj.Location) {
-			leaf := tree.findLeaf(e.child, obj)
+			leaf, i := tree.findLeaf(e.child, obj)
 			if leaf == nil {
 				continue
 			}
-			// check if the leaf actually contains the object
-			for _, leafEntry := range leaf.entries {
-				if leafEntry.obj == obj {
-					return leaf
-				}
-			}
+			return leaf, i
 		}
 	}
-	return nil
+	return nil, -1
 }
 
 // condenseTree deletes underflowing nodes and propagates the changes upwards.
-func (tree *Rtree) condenseTree(n *node) {
+func (tree *Rtree) condenseTree(n *node) error {
 	deleted := []*node{}
 
 	for n != tree.root {
@@ -370,8 +360,10 @@ func (tree *Rtree) condenseTree(n *node) {
 				}
 			}
 			if len(n.parent.entries) == len(entries) {
-				// todo: don't panic
-				panic(fmt.Errorf("Failed to remove entry from parent"))
+				// This suggests the tree is malformed, as the child has a
+				// reference to a parent that is not aware of them as a child
+				// in our experience we've never seen this error occur.
+				return fmt.Errorf("Failed to remove entry from parent")
 			}
 			n.parent.entries = entries
 
@@ -391,6 +383,7 @@ func (tree *Rtree) condenseTree(n *node) {
 		e := entry{n.computeBoundingBox(), n, nil}
 		tree.insert(e, n.level+1)
 	}
+	return nil
 }
 
 // Searching
@@ -548,7 +541,7 @@ func (tree *Rtree) nearestNeighbors(k int, p floatgeom.Point3, n *node, dists []
 		}
 	} else {
 		branches, branchDists := sortEntries(p, n.entries)
-		if l := len(dists); l >= k {
+		if l := len(dists); l >= k && l != 0 {
 			branches = pruneEntriesMinDist(dists[l-1], branches, branchDists)
 		}
 		for _, e := range branches {
