@@ -24,3 +24,24 @@ func TestBatchLoad(t *testing.T) {
 	assert.NotNil(t, sp)
 	assert.Nil(t, err)
 }
+
+func TestSetAssetPath(t *testing.T) {
+	fileutil.BindataDir = AssetDir
+	fileutil.BindataFn = Asset
+	_, err := LoadSheet(dir, filepath.Join("16", "jeremy.png"), 16, 16, 0)
+	assert.Nil(t, err)
+	UnloadAll()
+	SetAssetPaths(wd)
+	_, err = LoadSheet(dir, filepath.Join("16", "jeremy.png"), 16, 16, 0)
+	assert.NotNil(t, err)
+	UnloadAll()
+	SetAssetPaths(
+		filepath.Join(
+			wd,
+			"assets",
+			"images"),
+	)
+	_, err = LoadSheet(dir, filepath.Join("16", "jeremy.png"), 16, 16, 0)
+	assert.Nil(t, err)
+
+}
