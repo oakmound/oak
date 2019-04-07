@@ -1,4 +1,5 @@
 language: go
+dist: xenial
 go:
 - 1.x
 install:
