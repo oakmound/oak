@@ -93,7 +93,7 @@ func (cs *CompositeM) Undraw() {
 	}
 }
 
-// GetRGBA does not work on a CompositeM and therefore returns nil
+// GetRGBA always returns nil from Composites
 func (cs *CompositeM) GetRGBA() *image.RGBA {
 	return nil
 }
@@ -111,6 +111,26 @@ func (cs *CompositeM) Filter(fs ...mod.Filter) {
 	for _, r := range cs.rs {
 		r.Filter(fs...)
 	}
+}
+
+// ToSprite draws all of this
+func (cs *CompositeM) ToSprite() *Sprite {
+	var maxW, maxH int
+	for _, r := range cs.rs {
+		x, y := int(r.X()), int(r.Y())
+		w, h := r.GetDims()
+		if x+w > maxW {
+			maxW = x + w
+		}
+		if y+h > maxH {
+			maxH = y + h
+		}
+	}
+	sp := NewEmptySprite(cs.X(), cs.Y(), maxW, maxH)
+	for _, r := range cs.rs {
+		r.Draw(sp)
+	}
+	return sp
 }
 
 // Copy makes a new CompositeM with the same renderables
