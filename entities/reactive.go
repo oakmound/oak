@@ -94,8 +94,8 @@ func (r *Reactive) SetPos(x, y float64) {
 // Destroy destroys this reactive's doodad component and removes its space
 // from it's collision tree
 func (r *Reactive) Destroy() {
-	r.Doodad.Destroy()
 	r.Tree.Remove(r.RSpace.Space)
+	r.Doodad.Destroy()
 }
 
 func (r *Reactive) String() string {
