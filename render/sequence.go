@@ -47,6 +47,11 @@ func (sq *Sequence) SetFPS(fps float64) {
 	sq.frameTime = timing.FPSToNano(fps)
 }
 
+// GetDims of a Sequence returns the dims of the current Renderable for the sequence
+func (sq *Sequence) GetDims() (int, int) {
+	return sq.rs[sq.sheetPos].GetDims()
+}
+
 // Copy copies each modifiable inside this sequence in order to produce a new
 // copied sequence
 func (sq *Sequence) Copy() Modifiable {
