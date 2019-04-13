@@ -32,6 +32,12 @@ type FullHandler interface {
 	TriggerBack(event string, data interface{}) chan bool
 }
 
+// A Pauser is a handler that can be paused.
+type Pauser interface {
+	Pause()
+	Resume()
+}
+
 // UpdateLoop is expected to internally call Update()
 // or do something equivalent at the given frameRate,
 // sending signals to the sceneCh after each Update().
@@ -51,6 +57,7 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan bool) error {
 	eb.framesElapsed = 0
 	eb.doneCh = ch
 	eb.updateCh = updateCh
+	eb.framerate = framerate
 	go eb.ResolvePending()
 	go func(doneCh chan bool) {
 		eb.Ticker = timing.NewDynamicTicker()
@@ -114,6 +121,16 @@ func (eb *Bus) Stop() error {
 	}
 	<-eb.doneCh
 	return nil
+}
+
+// Pause stops the event bus from running any further enter events
+func (eb *Bus) Pause() {
+	eb.Ticker.SetTick(math.MaxInt32 * time.Second)
+}
+
+// Resume will resume emitting enter events
+func (eb *Bus) Resume() {
+	eb.Ticker.SetTick(timing.FPSToDuration(eb.framerate))
 }
 
 // FramesElapsed returns how many frames have elapsed since UpdateLoop was last called.

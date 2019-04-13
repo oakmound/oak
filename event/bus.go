@@ -57,6 +57,7 @@ type Bus struct {
 	fullUnbinds         []UnbindOption
 	unbinds             []binding
 	unbindAllAndRebinds []UnbindAllOption
+	framerate           int
 
 	mutex        sync.RWMutex
 	pendingMutex sync.Mutex
