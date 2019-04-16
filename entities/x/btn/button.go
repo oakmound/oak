@@ -21,6 +21,7 @@ type Generator struct {
 	Color2       color.Color
 	ProgressFunc func(x, y, w, h int) float64
 	Mod          mod.Transform
+	R            render.Modifiable
 	R1           render.Modifiable
 	R2           render.Modifiable
 	RS           []render.Modifiable
@@ -48,6 +49,7 @@ func defGenerator() Generator {
 		TxtY:  0,
 		Color: color.RGBA{255, 0, 0, 255},
 		Mod:   nil,
+		R:     nil,
 		R1:    nil,
 		R2:    nil,
 
@@ -146,6 +148,8 @@ func (g Generator) generate(parent *Generator) Btn {
 
 			return 0
 		})
+	} else if g.R != nil {
+		box = render.NewReverting(g.R)
 	} else if g.ProgressFunc != nil {
 		box = render.NewReverting(render.NewGradientBox(int(g.W), int(g.H), g.Color, g.Color2, g.ProgressFunc))
 	} else {

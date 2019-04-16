@@ -116,6 +116,15 @@ func Layers(ls ...int) Option {
 	}
 }
 
+// Renderable sets a renderable to use as a base image for the button.
+// Not compatible with Color / Toggle.
+func Renderable(r render.Modifiable) Option {
+	return func(g Generator) Generator {
+		g.R = r
+		return g
+	}
+}
+
 // Toggle sets that the type of the button toggles between two
 // modifiables when it is clicked. The boolean behind isChecked
 // is updated according to the state of the button.
