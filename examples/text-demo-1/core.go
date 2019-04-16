@@ -32,8 +32,11 @@ func main() {
 	oak.Add("demo",
 		// Init
 		func(prevScene string, payload interface{}) {
+			// We use the font at ./assets/font/luxisbi.ttf
+			// The /assets/font structure is determined by
+			// oak.SetupConfig.Assets
 			fg := render.FontGenerator{
-				File:    "luxisr.ttf",
+				File:    "luxisbi.ttf",
 				Color:   image.NewUniform(color.RGBA{255, 0, 0, 255}),
 				Size:    400,
 				Hinting: "",
