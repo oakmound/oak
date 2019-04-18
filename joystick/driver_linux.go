@@ -2,6 +2,13 @@ package joystick
 
 import "errors"
 
+func newOsJoystick() osJoystick {
+	return osJoystick{}
+}
+
+type osJoystick struct {
+}
+
 func osinit() {}
 
 func (j *Joystick) prepare() error {
