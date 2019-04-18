@@ -3,7 +3,6 @@
 package joystick
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -348,7 +347,6 @@ func WaitForJoysticks(pollRate time.Duration) (joyCh <-chan *Joystick, cancel fu
 				return
 			}
 			joys := getJoysticks()
-			fmt.Println(joys)
 		OUTER:
 			for _, j := range joys {
 				for _, j2 := range lastJoysticks {

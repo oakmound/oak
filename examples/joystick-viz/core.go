@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	"time"
 
@@ -133,7 +132,6 @@ func newRenderer(joy *joystick.Joystick) {
 		if !ok {
 			return 0
 		}
-		fmt.Println("Got disconnected event")
 		for _, r := range rend.rs {
 			r.Undraw()
 		}
@@ -166,8 +164,6 @@ func newRenderer(joy *joystick.Joystick) {
 		tgr = "RtTrigger"
 		x = rend.rs[tgr].X()
 		rend.rs[tgr].SetPos(x, rend.triggerY+float64(st.TriggerR/16))
-
-		fmt.Println(st.StickLX, st.StickLY)
 
 		pos := rend.lStickCenter
 		pos = pos.Add(floatgeom.Point2{
