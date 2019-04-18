@@ -15,7 +15,7 @@ import (
 
 // Events
 const (
-	JoystickChange  = "JoystickChange"
+	Change          = "JoystickChange"
 	ButtonDown      = "ButtonDown"
 	ButtonUp        = "ButtonUp"
 	RtTriggerChange = "RtTriggerChange"
@@ -109,7 +109,7 @@ func (lo *ListenOptions) sendFn() func(Triggerer, *State, *State) {
 	var fn func(Triggerer, *State, *State)
 	if lo.JoystickChanges {
 		fn = func(h Triggerer, cur, last *State) {
-			h.Trigger(JoystickChange, cur)
+			h.Trigger(Change, cur)
 		}
 	}
 	if lo.GenericButtonPresses {

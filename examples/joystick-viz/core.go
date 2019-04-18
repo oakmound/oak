@@ -5,6 +5,8 @@ import (
 	"image/color"
 	"time"
 
+	"github.com/oakmound/oak/render/mod"
+
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/render"
 
@@ -18,8 +20,12 @@ import (
 
 type renderer struct {
 	event.CID
-	joy *joystick.Joystick
-	rs  map[string]render.Modifiable
+	joy          *joystick.Joystick
+	rs           map[string]render.Modifiable
+	lastState    *joystick.State
+	triggerY     float64
+	lStickCenter floatgeom.Point2
+	rStickCenter floatgeom.Point2
 }
 
 func (r *renderer) Init() event.CID {
@@ -28,23 +34,23 @@ func (r *renderer) Init() event.CID {
 }
 
 var initialOffsets = map[string]floatgeom.Point2{
-	"Outline":   floatgeom.Point2{0, 0},
-	"LtStick":   floatgeom.Point2{50, 75},
-	"RtStick":   floatgeom.Point2{210, 115},
-	"Up":        floatgeom.Point2{90, 115},
-	"Left":      floatgeom.Point2{80, 125},
-	"Right":     floatgeom.Point2{100, 125},
-	"Down":      floatgeom.Point2{90, 135},
-	"Back":      floatgeom.Point2{130, 85},
-	"Start":     floatgeom.Point2{190, 85},
-	"X":         floatgeom.Point2{240, 85},
-	"Y":         floatgeom.Point2{250, 75},
-	"A":         floatgeom.Point2{250, 95},
-	"B":         floatgeom.Point2{260, 85},
-	"LB":        floatgeom.Point2{60, 40},
-	"RB":        floatgeom.Point2{260, 40},
-	"LtTrigger": floatgeom.Point2{40, 30},
-	"RtTrigger": floatgeom.Point2{240, 30},
+	"Outline":       floatgeom.Point2{0, 0},
+	"LtStick":       floatgeom.Point2{50, 75},
+	"RtStick":       floatgeom.Point2{210, 115},
+	"Up":            floatgeom.Point2{90, 115},
+	"Left":          floatgeom.Point2{80, 125},
+	"Right":         floatgeom.Point2{100, 125},
+	"Down":          floatgeom.Point2{90, 135},
+	"Back":          floatgeom.Point2{130, 85},
+	"Start":         floatgeom.Point2{190, 85},
+	"X":             floatgeom.Point2{240, 85},
+	"Y":             floatgeom.Point2{250, 75},
+	"A":             floatgeom.Point2{250, 95},
+	"B":             floatgeom.Point2{260, 85},
+	"LeftShoulder":  floatgeom.Point2{60, 40},
+	"RightShoulder": floatgeom.Point2{260, 40},
+	"LtTrigger":     floatgeom.Point2{40, 6},
+	"RtTrigger":     floatgeom.Point2{240, 6},
 }
 
 func newRenderer(joy *joystick.Joystick) {
@@ -54,8 +60,9 @@ func newRenderer(joy *joystick.Joystick) {
 		return
 	}
 	rend := &renderer{
-		joy: joy,
-		rs:  make(map[string]render.Modifiable),
+		joy:       joy,
+		rs:        make(map[string]render.Modifiable),
+		lastState: &joystick.State{},
 	}
 	rend.Init()
 	rend.rs["Outline"] = outline
@@ -71,8 +78,8 @@ func newRenderer(joy *joystick.Joystick) {
 	rend.rs["Y"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
 	rend.rs["A"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
 	rend.rs["B"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["LB"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["RB"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	rend.rs["LeftShoulder"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	rend.rs["RightShoulder"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
 	// Draw the triggers behind the outline to simulate pressing down
 	rend.rs["LtTrigger"] = render.NewColorBox(40, 30, color.RGBA{255, 255, 255, 255})
 	rend.rs["RtTrigger"] = render.NewColorBox(40, 30, color.RGBA{255, 255, 255, 255})
@@ -92,6 +99,7 @@ func newRenderer(joy *joystick.Joystick) {
 		}
 		if k == "LtTrigger" || k == "RtTrigger" {
 			render.Draw(r, 0)
+			rend.triggerY = r.Y()
 		} else if k == "Outline" {
 			render.Draw(r, 1)
 		} else {
@@ -99,8 +107,26 @@ func newRenderer(joy *joystick.Joystick) {
 		}
 	}
 
+	rend.lStickCenter = floatgeom.Point2{rend.rs["LtStick"].X(), rend.rs["LtStick"].Y()}
+	rend.rStickCenter = floatgeom.Point2{rend.rs["RtStick"].X(), rend.rs["RtStick"].Y()}
+
 	joy.Handler = rend
 	joy.Listen(nil)
+
+	bts := []string{
+		"X",
+		"A",
+		"Y",
+		"B",
+		"Up",
+		"Down",
+		"Left",
+		"Right",
+		"Back",
+		"Start",
+		"LeftShoulder",
+		"RightShoulder",
+	}
 
 	rend.Bind(func(id int, _ interface{}) int {
 		rend, ok := event.GetEntity(id).(*renderer)
@@ -113,11 +139,56 @@ func newRenderer(joy *joystick.Joystick) {
 		}
 		return 0
 	}, joystick.Disconnected)
+
+	rend.Bind(func(id int, state interface{}) int {
+		rend, ok := event.GetEntity(id).(*renderer)
+		if !ok {
+			return 0
+		}
+		st, ok := state.(*joystick.State)
+		if !ok {
+			return 0
+		}
+		for _, b := range bts {
+			r := rend.rs[b]
+			if st.Buttons[b] && !rend.lastState.Buttons[b] {
+				r.Filter(mod.Brighten(-40))
+			} else if !st.Buttons[b] && rend.lastState.Buttons[b] {
+				r.(*render.Reverting).Revert(1)
+			}
+		}
+		rend.lastState = st
+
+		tgr := "LtTrigger"
+		x := rend.rs[tgr].X()
+		rend.rs[tgr].SetPos(x, rend.triggerY+float64(st.TriggerL/16))
+
+		tgr = "RtTrigger"
+		x = rend.rs[tgr].X()
+		rend.rs[tgr].SetPos(x, rend.triggerY+float64(st.TriggerR/16))
+
+		fmt.Println(st.StickLX, st.StickLY)
+
+		pos := rend.lStickCenter
+		pos = pos.Add(floatgeom.Point2{
+			float64(st.StickLX / 2048),
+			-float64(st.StickLY / 2048),
+		})
+		rend.rs["LtStick"].SetPos(pos.X(), pos.Y())
+
+		pos = rend.rStickCenter
+		pos = pos.Add(floatgeom.Point2{
+			float64(st.StickRX / 2048),
+			-float64(st.StickRY / 2048),
+		})
+		rend.rs["RtStick"].SetPos(pos.X(), pos.Y())
+
+		return 0
+	}, joystick.Change)
 }
 
 func main() {
 	oak.Add("viz", func(string, interface{}) {
-		// Todo: Handle disconnection
 		joystick.Init()
 		go func() {
 			jCh, cancel := joystick.WaitForJoysticks(1 * time.Second)
