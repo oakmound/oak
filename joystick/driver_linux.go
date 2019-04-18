@@ -1,5 +1,7 @@
 package joystick
 
+import "errors"
+
 func osinit() {}
 
 func (j *Joystick) prepare() error {
@@ -7,7 +9,7 @@ func (j *Joystick) prepare() error {
 }
 
 func (j *Joystick) getState() (*State, error) {
-	return nil, return errors.New("OS not supported")
+	return nil, errors.New("OS not supported")
 }
 
 func (j *Joystick) vibrate(left, right uint16) error {
