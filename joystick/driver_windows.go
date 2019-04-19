@@ -35,22 +35,27 @@ func (j *Joystick) prepare() error {
 	return w32.XInputEnable(true)
 }
 
+type buttonName struct {
+	name      string
+	xinputVal uint16
+}
+
 var (
-	chkButtons = map[string]uint16{
-		"Up":            w32.XINPUT_GAMEPAD_DPAD_UP,
-		"Down":          w32.XINPUT_GAMEPAD_DPAD_DOWN,
-		"Left":          w32.XINPUT_GAMEPAD_DPAD_LEFT,
-		"Right":         w32.XINPUT_GAMEPAD_DPAD_RIGHT,
-		"Start":         w32.XINPUT_GAMEPAD_START,
-		"Back":          w32.XINPUT_GAMEPAD_BACK,
-		"LeftStick":     w32.XINPUT_GAMEPAD_LEFT_THUMB,
-		"RightStick":    w32.XINPUT_GAMEPAD_RIGHT_THUMB,
-		"LeftShoulder":  w32.XINPUT_GAMEPAD_LEFT_SHOULDER,
-		"RightShoulder": w32.XINPUT_GAMEPAD_RIGHT_SHOULDER,
-		"A":             w32.XINPUT_GAMEPAD_A,
-		"B":             w32.XINPUT_GAMEPAD_B,
-		"X":             w32.XINPUT_GAMEPAD_X,
-		"Y":             w32.XINPUT_GAMEPAD_Y,
+	chkButtons = []buttonName{
+		{"Up", w32.XINPUT_GAMEPAD_DPAD_UP},
+		{"Down", w32.XINPUT_GAMEPAD_DPAD_DOWN},
+		{"Left", w32.XINPUT_GAMEPAD_DPAD_LEFT},
+		{"Right", w32.XINPUT_GAMEPAD_DPAD_RIGHT},
+		{"Start", w32.XINPUT_GAMEPAD_START},
+		{"Back", w32.XINPUT_GAMEPAD_BACK},
+		{"LeftStick", w32.XINPUT_GAMEPAD_LEFT_THUMB},
+		{"RightStick", w32.XINPUT_GAMEPAD_RIGHT_THUMB},
+		{"LeftShoulder", w32.XINPUT_GAMEPAD_LEFT_SHOULDER},
+		{"RightShoulder", w32.XINPUT_GAMEPAD_RIGHT_SHOULDER},
+		{"A", w32.XINPUT_GAMEPAD_A},
+		{"B", w32.XINPUT_GAMEPAD_B},
+		{"X", w32.XINPUT_GAMEPAD_X},
+		{"Y", w32.XINPUT_GAMEPAD_Y},
 	}
 )
 
@@ -72,11 +77,11 @@ func (j *Joystick) getState() (*State, error) {
 		Buttons:  make(map[string]bool, len(chkButtons)),
 	}
 
-	for k, chk := range chkButtons {
-		if j.wstate.Gamepad.Buttons&chk > 0 {
-			s.Buttons[k] = true
+	for _, chk := range chkButtons {
+		if j.wstate.Gamepad.Buttons&chk.xinputVal > 0 {
+			s.Buttons[chk.name] = true
 		} else {
-			s.Buttons[k] = false
+			s.Buttons[chk.name] = false
 		}
 	}
 	return s, nil
