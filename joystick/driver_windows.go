@@ -1,11 +1,20 @@
 package joystick
 
-import "github.com/oakmound/w32"
+import (
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/timing"
+	"github.com/oakmound/w32"
+)
 
-func newOsJoystick() osJoystick {
-	return osJoystick{
-		wstate:    &w32.XInputState{},
-		vibration: &w32.XInputVibration{},
+func newJoystick(id uint32) *Joystick {
+	return &Joystick{
+		Handler:  event.DefaultBus,
+		PollRate: timing.FPSToDuration(60),
+		id:       id,
+		osJoystick: osJoystick{
+			wstate:    &w32.XInputState{},
+			vibration: &w32.XInputVibration{},
+		},
 	}
 }
 

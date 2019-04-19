@@ -7,9 +7,6 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/dlog"
-
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/timing"
 )
 
 // Events
@@ -66,17 +63,6 @@ type State struct {
 	StickLY  int16
 	StickRX  int16
 	StickRY  int16
-}
-
-// newJoystick is unexported because the only way to obtain a joystick
-// is via GetJoysticks or via listening to new joystick events.
-func newJoystick(id uint32) *Joystick {
-	return &Joystick{
-		Handler:    event.DefaultBus,
-		PollRate:   timing.FPSToDuration(60),
-		id:         id,
-		osJoystick: newOsJoystick(),
-	}
 }
 
 // ListenOptions can be passed into a joystick's Listen method to
