@@ -25,7 +25,7 @@ func newJoystick(devName string, id uint32) *Joystick {
 		id:       id,
 		osJoystick: osJoystick{
 			devName: devName,
-			quit: make(chan struct{})
+			quit: make(chan struct{}),
 		},
 	}
 }
@@ -51,7 +51,7 @@ const (
 )
 
 var (
-	buttons []string{
+	buttons = []string{
 		0: "A",
 		1: "B",
 		2: "X",
@@ -145,7 +145,7 @@ func (j *Joystick) vibrate(left, right uint16) error {
 func (j *Joystick) close() error {
 	go func() { 
 		j.quit <- struct{}{}
-	}
+	}()
 	return j.fh.Close()
 }
 
