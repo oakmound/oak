@@ -1,22 +1,27 @@
 package joystick
 
 import (
-	"github.com/oakmound/oak/dlog"
 	"errors"
+	"math"
 	"os"
+	"strconv"
+	"sync"
+
+	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/timing"
 
 	"encoding/binary"
 	"fmt"
 	"path/filepath"
 	"regexp"
-	"runtime"
 
 	"github.com/citilinkru/libudev"
 	"github.com/citilinkru/libudev/types"
 )
 
 // This has all been tested with wired xbox 360 controllers.
-// Todo: get more controllers, test with more controllers. 
+// Todo: get more controllers, test with more controllers.
 
 func newJoystick(devName string, id uint32) *Joystick {
 	return &Joystick{
@@ -24,21 +29,27 @@ func newJoystick(devName string, id uint32) *Joystick {
 		PollRate: timing.FPSToDuration(60),
 		id:       id,
 		osJoystick: osJoystick{
+			cache: State{
+				Buttons: make(map[string]bool),
+			},
 			devName: devName,
-			quit: make(chan struct{}),
+			quit:    make(chan struct{}),
 		},
 	}
 }
+
 type osJoystick struct {
 	devName string
-	fh *os.File
-	cache State
-	quit chan struct{}
+	fh      *os.File
+	cache   State
+	sync.Mutex
+	quit         chan struct{}
+	disconnected bool
 }
 
 func osinit() {}
 
-type event struct {
+type jevent struct {
 	Time   uint32
 	Value  int16
 	Type   uint8
@@ -46,7 +57,7 @@ type event struct {
 }
 
 const (
-	axisType = 2
+	axisType   = 2
 	buttonType = 1
 )
 
@@ -61,71 +72,77 @@ var (
 		6: "Back",
 		7: "Start",
 		// 8 is the "Xbox" button in the center
-		9: "LeftStick",
+		9:  "LeftStick",
 		10: "RightStick",
 	}
 )
 
 func (j *Joystick) prepare() error {
 	var err error
-	j.fh, err = os.Open(devName)
+	j.fh, err = os.Open(j.devName)
 	if err == nil {
 		go func(j *Joystick) {
 			// Read events continually
-			e := &event{}
+			e := &jevent{}
 			for {
 				select {
 				case <-j.quit:
-						return
+					return
+				default:
 				}
-				err := binary.Read(j.fh, binary.LittleEndian, &e)
-				dlog.ErrorCheck(err) 
+				err := binary.Read(j.fh, binary.LittleEndian, e)
+				if err != nil {
+					j.disconnected = true
+					return
+				}
+				j.Lock()
 				switch e.Type {
-					case axis:
-						switch e.Number {
-						case 0:
-							j.cache.StickLX = e.Value
-						case 1:
-							j.cache.StickLY = e.Value
-						case 2:
-							// The controller offers int16 fidelity of the 
-							// triggers. We're lowering it to Xinput's uint8
-							// Todo: Flip that around?
-							j.cache.TriggerL = uint8(uint16(e.Value)/16)
-						case 3:
-							j.cache.StickRX = e.Value
-						case 4:
-							j.cache.StickRY = e.Value
-						case 5:
-							j.cache.TriggerR = uint8(uint16(e.Value)/16)
-						case 6:
-							if e.Value < 0 {
-								j.cache.Buttons["Left"] = true
-								j.cache.Buttons["Right"] = false
-							} else if e.Value > 0 {
-								j.cache.Buttons["Right"] = true
-								j.cache.Buttons["Left"] = false
-							} else {
-								j.cache.Buttons["Right"] = false
-								j.cache.Buttons["Left"] = false
-							}
-						case 7:
-							if e.Value < 0 {
-								j.cache.Buttons["Up"] = true
-								j.cache.Buttons["Down"] = false
-							} else if e.Value > 0 {
-								j.cache.Buttons["Down"] = true
-								j.cache.Buttons["Up"] = false
-							} else {
-								j.cache.Buttons["Down"] = false
-								j.cache.Buttons["Up"] = false
-							}
+				case axisType:
+					switch e.Number {
+					case 0:
+						j.cache.StickLX = e.Value
+					case 1:
+						j.cache.StickLY = e.Value * -1
+					case 2:
+						// The controller offers int16 fidelity of the
+						// triggers. We're lowering it to Xinput's uint8
+						// Todo: Flip that around?
+						j.cache.TriggerL = uint8(uint16(e.Value) / 16)
+					case 3:
+						j.cache.StickRX = e.Value
+					case 4:
+						j.cache.StickRY = e.Value * -1
+					case 5:
+						j.cache.TriggerR = uint8(uint16(e.Value) / 16)
+					case 6:
+						if e.Value < 0 {
+							j.cache.Buttons["Left"] = true
+							j.cache.Buttons["Right"] = false
+						} else if e.Value > 0 {
+							j.cache.Buttons["Right"] = true
+							j.cache.Buttons["Left"] = false
+						} else {
+							j.cache.Buttons["Right"] = false
+							j.cache.Buttons["Left"] = false
 						}
-					case button:
-						j.cache.Buttons[buttons[e.Number]] = (e.Value == 1)
+					case 7:
+						if e.Value < 0 {
+							j.cache.Buttons["Up"] = true
+							j.cache.Buttons["Down"] = false
+						} else if e.Value > 0 {
+							j.cache.Buttons["Down"] = true
+							j.cache.Buttons["Up"] = false
+						} else {
+							j.cache.Buttons["Down"] = false
+							j.cache.Buttons["Up"] = false
+						}
+					}
+				case buttonType:
+					j.cache.Buttons[buttons[e.Number]] = (e.Value == 1)
 				}
 				// No mutex here could cause a frame delay on inputs
 				j.cache.Frame = e.Time
+				j.Unlock()
 			}
 		}(j)
 	}
@@ -133,8 +150,17 @@ func (j *Joystick) prepare() error {
 }
 
 func (j *Joystick) getState() (*State, error) {
+	if j.disconnected {
+		return nil, errors.New("Joystick disconnected")
+	}
 	s := new(State)
 	*s = j.cache
+	s.Buttons = make(map[string]bool)
+	j.Lock()
+	for k, b := range j.cache.Buttons {
+		s.Buttons[k] = b
+	}
+	j.Unlock()
 	return s, nil
 }
 
@@ -143,7 +169,7 @@ func (j *Joystick) vibrate(left, right uint16) error {
 }
 
 func (j *Joystick) close() error {
-	go func() { 
+	go func() {
 		j.quit <- struct{}{}
 	}()
 	return j.fh.Close()
@@ -154,7 +180,7 @@ func getJoysticks() []*Joystick {
 	err, dvs := sc.ScanDevices()
 	if err != nil {
 		fmt.Println(err)
-		return
+		return nil
 	}
 	// Joysticks contain "js%d"
 	rgx, err := regexp.Compile("js(\\d)+")
@@ -175,19 +201,19 @@ func getJoysticks() []*Joystick {
 			continue
 		}
 		// Todo: what else do we ignore?
-		fmt.Printf("%+v\n", d)
 		filtered = append(filtered, d)
 	}
 
 	joys := make([]*Joystick, len(filtered))
 	for i, f := range filtered {
 		var id uint32 = math.MaxUint32
-		matches := rgx.FindStringSubmatch(d.Devpath)		
+		matches := rgx.FindStringSubmatch(f.Devpath)
 		if len(matches) > 1 {
-			id, err = strconv.Atoi(matches[1]) 
+			idint, err := strconv.Atoi(matches[1])
+			id = uint32(idint)
 			dlog.ErrorCheck(err)
 		}
-		joys[i] = newJoystick(filepath.Join("/", "dev", d.Env["DEVNAME"]), id)
+		joys[i] = newJoystick(filepath.Join("/", "dev", f.Env["DEVNAME"]), id)
 	}
 	return joys
 }
