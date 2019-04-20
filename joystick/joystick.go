@@ -259,7 +259,7 @@ func (j *Joystick) Listen(opts *ListenOptions) (cancel func()) {
 			}
 			state, err := j.GetState()
 			if err != nil {
-				j.Handler.Trigger(Disconnected, nil)
+				j.Handler.Trigger(Disconnected, j.id)
 				dlog.Error(err)
 				t.Stop()
 				j.Close()
