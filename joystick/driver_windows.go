@@ -1,6 +1,8 @@
 package joystick
 
 import (
+	"sync"
+
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/timing"
 	"github.com/oakmound/w32"
@@ -27,8 +29,12 @@ type osJoystick struct {
 // The windows driver currently uses the xinput api.
 // We should consider providing alternatives.
 
+var once sync.Once
+
 func osinit() {
-	w32.InitXInput()
+	once.Do(func() {
+		w32.InitXInput()
+	})
 }
 
 func (j *Joystick) prepare() error {
