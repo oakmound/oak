@@ -1,8 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
+	"math"
 	"time"
+
+	"github.com/oakmound/oak/key"
 
 	"github.com/oakmound/oak/render/mod"
 
@@ -137,6 +141,20 @@ func newRenderer(joy *joystick.Joystick) {
 		}
 		return 0
 	}, joystick.Disconnected)
+
+	rend.Bind(func(id int, _ interface{}) int {
+		rend, ok := event.GetEntity(id).(*renderer)
+		if !ok {
+			return 0
+		}
+		fmt.Println("Triggering vibration")
+		rend.joy.Vibrate(math.MaxUint16, math.MaxUint16)
+		go func() {
+			time.Sleep(1 * time.Second)
+			rend.joy.Vibrate(0, 0)
+		}()
+		return 0
+	}, key.Down+key.Spacebar)
 
 	rend.Bind(func(id int, state interface{}) int {
 		rend, ok := event.GetEntity(id).(*renderer)
