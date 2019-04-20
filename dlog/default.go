@@ -41,7 +41,7 @@ func (l *logger) GetLogLevel() Level {
 // both logfiles and stdout
 func (l *logger) dLog(console, override bool, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
-	_, f, line, ok := runtime.Caller(3)
+	_, f, line, ok := runtime.Caller(2)
 	if ok {
 		f = truncateFileName(f)
 		if !l.checkFilter(f, in) && !override {
