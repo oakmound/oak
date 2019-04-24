@@ -137,7 +137,7 @@ func (cs *CompositeM) ToSprite() *Sprite {
 func (cs *CompositeM) Copy() Modifiable {
 	cs2 := new(CompositeM)
 	cs2.layer = cs.layer
-	cs2.Vector = cs.Vector
+	cs2.Vector = cs.Vector.Copy()
 	cs2.rs = make([]Modifiable, len(cs.rs))
 	for i, v := range cs.rs {
 		cs2.rs[i] = v.Copy()
