@@ -28,8 +28,8 @@ var (
 )
 
 func parseShape(args []string) shape.Shape {
-	if len(args) > 1 {
-		switch args[1] {
+	if len(args) > 0 {
+		switch args[0] {
 		case "heart":
 			return shape.Heart
 		case "square":
@@ -67,8 +67,8 @@ func main() {
 	})
 
 	oak.AddCommand("shape", func(args []string) {
-		if len(args) > 1 {
-			sh := parseShape(args[1:])
+		if len(args) > 0 {
+			sh := parseShape(args)
 			if sh != nil {
 				src.Generator.(pt.Shapeable).SetShape(sh)
 			}
@@ -204,7 +204,7 @@ func main() {
 	})
 
 	oak.AddCommand("startcolor", func(args []string) {
-		if len(args) > 4 {
+		if len(args) > 3 {
 			r, g, b, a, err := parseRGBA(args)
 			if err != nil {
 				return
@@ -215,7 +215,7 @@ func main() {
 	})
 
 	oak.AddCommand("startrand", func(args []string) {
-		if len(args) > 4 {
+		if len(args) > 3 {
 			r, g, b, a, err := parseRGBA(args)
 			if err != nil {
 				return
@@ -226,7 +226,7 @@ func main() {
 	})
 
 	oak.AddCommand("endcolor", func(args []string) {
-		if len(args) > 4 {
+		if len(args) > 3 {
 			r, g, b, a, err := parseRGBA(args)
 			if err != nil {
 				return
@@ -237,7 +237,7 @@ func main() {
 	})
 
 	oak.AddCommand("endrand", func(args []string) {
-		if len(args) > 4 {
+		if len(args) > 3 {
 			r, g, b, a, err := parseRGBA(args)
 			if err != nil {
 				return
