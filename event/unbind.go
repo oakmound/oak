@@ -13,7 +13,7 @@ func (eb *Bus) unbind(b binding) {
 
 // UnbindAllAndRebind is a way to reset the bindings on a CID efficiently,
 // given a new set of equal length binding and event slices. This is equivalent
-// to callign UnbindAll and then looping over Bind calls for the pairs of
+// to calling UnbindAll and then looping over Bind calls for the pairs of
 // bindables and event names, but uses less mutex time.
 func (eb *Bus) UnbindAllAndRebind(bo BindingOption, binds []Bindable, cid int, events []string) {
 	opts := make([]BindingOption, len(events))
