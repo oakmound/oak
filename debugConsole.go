@@ -40,6 +40,27 @@ func AddCommand(s string, fn func([]string)) error {
 	return nil
 }
 
+// ForceAddCommand adds or overwrites a console command to call fn when
+// '<s> <args>' is input to the console. fn will be called
+// with args split on whitespace. If a command is overwritten
+// the overwritten command will be returned.
+func ForceAddCommand(s string, fn func([]string)) func([]string) {
+
+	existing, overwritten := commands[s]
+	if overwritten {
+		dlog.Info("Overwriting command", s)
+	} else {
+		dlog.Info("Adding command", s)
+	}
+	commands[s] = fn
+	return existing
+}
+
+// ClearCommand clears an existing debug command by key: <s>
+func ClearCommand(s string) {
+	delete(commands, s)
+}
+
 // ResetCommands will throw out all existing debug commands from the
 // debug console.
 func ResetCommands() {
