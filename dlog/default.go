@@ -55,6 +55,8 @@ func (l *logger) dLog(console, override bool, in ...interface{}) {
 		l.byt.WriteRune(':')
 		l.byt.WriteString(strconv.Itoa(line))
 		l.byt.WriteString("]  ")
+		l.byt.WriteString(logLevels[l.GetLogLevel()])
+		l.byt.WriteRune(':')
 		for _, elem := range in {
 			l.byt.WriteString(fmt.Sprintf("%v ", elem))
 		}
