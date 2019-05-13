@@ -1,8 +1,13 @@
 package key
 
-// This lists event names used by oak for key input events.
 const (
+	// Down is sent when a key is pressed. It is sent both as
+	// Down, and as Down + the key name.
 	Down = "KeyDown"
-	Up   = "KeyUp"
+	// Up is sent when a key is released. It is sent both as
+	// Up, and as Up + the key name.
+	Up = "KeyUp"
+	// Held is sent when a key is held down. It is sent both as
+	// Held, and as Held + the key name.
 	Held = "KeyHeld"
 )
