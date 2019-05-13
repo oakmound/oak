@@ -26,6 +26,11 @@ var (
 	// into the config struct.
 	SetupBorderless bool
 
+	// SetupTopMost defines whether the initial screen will start on top of other
+	// windows (even when out of focus). This variable will go away when oak reaches
+	// 3.0, and it will be folded into the config struct.
+	SetupTopMost bool
+
 	// These are the default settings of a project. Anything within SetupConfig
 	// that is set to its zero value will not overwrite these settings.
 	conf = Config{

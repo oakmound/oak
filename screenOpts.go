@@ -36,7 +36,6 @@ func MoveWindow(x, y, w, h int) error {
 	}
 }
 
-
 // A Bordeerlesser is a window that can have its border removed or replaced after
 // removal.
 type Borderlesser interface {
@@ -51,5 +50,21 @@ func SetBorderless(on bool) error {
 	}
 	return oakerr.UnsupportedPlatform{
 		Operation: "SetBorderless",
+	}
+}
+
+// A TopMoster is a window that can be configured to stay on top of other windows.
+type TopMoster interface {
+	SetTopMost(bool) error
+}
+
+// SetTopMost attempts to set the local oak window to stay on top of other windows.
+// If the window does not support this functionality, it will report as such.
+func SetTopMost(on bool) error {
+	if tm, ok := windowControl.(TopMoster); ok {
+		return tm.SetTopMost(on)
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "SetTopMost",
 	}
 }
