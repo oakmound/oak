@@ -35,3 +35,21 @@ func MoveWindow(x, y, w, h int) error {
 		Operation: "MoveWindow",
 	}
 }
+
+
+// A Bordeerlesser is a window that can have its border removed or replaced after
+// removal.
+type Borderlesser interface {
+	SetBorderless(bool) error
+}
+
+// SetBorderless attempts to set the local oak window to have no border.
+// If the window does not support this functionaltiy, it will report as such.
+func SetBorderless(on bool) error {
+	if bs, ok := windowControl.(Borderlesser); ok {
+		return bs.SetBorderless(on)
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "SetBorderless",
+	}
+}
