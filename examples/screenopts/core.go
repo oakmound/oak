@@ -43,6 +43,8 @@ func main() {
 
 	// Try uncommenting these
 	// Both cannot be true at once!
+	// Todo: fix linux bug with client window size not being respected, consuming
+	// old border
 	// oak.SetupBorderless = true
 	// oak.SetupFullscreen = true
 
