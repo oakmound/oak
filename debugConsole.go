@@ -67,6 +67,17 @@ func ResetCommands() {
 	commands = map[string]func([]string){}
 }
 
+// GetDebugKeys returns the current debug console commands as a string array
+func GetDebugKeys() []string {
+	dkeys := make([]string, len(commands))
+	i := 0
+	for k := range commands {
+		dkeys[i] = k
+		i++
+	}
+	return dkeys
+}
+
 func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 	scanner := bufio.NewScanner(input)
 	spew.Config.DisableMethods = true
