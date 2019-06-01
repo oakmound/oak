@@ -75,7 +75,9 @@ func (d *Doodad) Destroy() {
 // of vector attachement.
 func (d *Doodad) SetPos(x, y float64) {
 	d.SetLogicPos(x, y)
-	d.R.SetPos(x, y)
+	if d.R != nil {
+		d.R.SetPos(x, y)
+	}
 }
 
 func (d *Doodad) String() string {

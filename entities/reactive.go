@@ -87,7 +87,9 @@ func (r *Reactive) ShiftPos(x, y float64) {
 // SetPos sets this reactive's logical, renderable, and collision position to be x,y
 func (r *Reactive) SetPos(x, y float64) {
 	r.SetLogicPos(x, y)
-	r.R.SetPos(x, y)
+	if r.R != nil {
+		r.R.SetPos(x, y)
+	}
 	r.Tree.UpdateSpace(r.X(), r.Y(), r.W, r.H, r.RSpace.Space)
 }
 
