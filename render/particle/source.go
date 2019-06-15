@@ -47,9 +47,9 @@ func (ps *Source) Init() event.CID {
 	ps.CID = CID
 	ps.pIDBlock = Allocate(ps.CID)
 	if ps.Generator.GetBaseGenerator().Duration != Inf {
-		go func(ps_p *Source, duration intrange.Range) {
+		go func(ps *Source, duration intrange.Range) {
 			timing.DoAfter(time.Duration(duration.Poll())*time.Millisecond, func() {
-				ps_p.Stop()
+				ps.Stop()
 			})
 		}(ps, ps.Generator.GetBaseGenerator().Duration)
 	}

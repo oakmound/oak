@@ -17,22 +17,9 @@ func LoadSprites(directory, fileName string, w, h, pad int) ([][]*Sprite, error)
 }
 
 // LoadSheet loads a file in some directory with sheets of (w,h) sized sprites,
-// where there is pad pixels of vertical/horizontal pad between each sprite.
+// where there is pad pixels of vertical/horizontal empty space between each sprite.
 // This will blow away any cached sheet with the same fileName.
 func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
-
-	if w <= 0 {
-		dlog.Error("Bad dimensions given to load sheet")
-		return nil, oakerr.InvalidInput{InputName: "w"}
-	}
-	if h <= 0 {
-		dlog.Error("Bad dimensions given to load sheet")
-		return nil, oakerr.InvalidInput{InputName: "h"}
-	}
-	if pad < 0 {
-		dlog.Error("Bad pad given to load sheet")
-		return nil, oakerr.InvalidInput{InputName: "pad"}
-	}
 
 	var rgba *image.RGBA
 	var ok bool
@@ -51,6 +38,35 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 	}
 
 	dlog.Verb("Loading sheet: ", fileName)
+
+	sheet, err := MakeSheet(rgba, w, h, pad)
+	if err != nil {
+		return nil, err
+	}
+
+	sheetLock.Lock()
+	defer sheetLock.Unlock()
+	loadedSheets[fileName] = sheet
+
+	return loadedSheets[fileName], nil
+}
+
+// MakeSheet converts an image into a sheet with (w,h) sized sprites,
+// where there is pad pixels of vertical/horizontal empty space between each sprite.
+func MakeSheet(rgba *image.RGBA, w, h, pad int) (*Sheet, error) {
+
+	if w <= 0 {
+		dlog.Error("Bad dimensions given to load sheet")
+		return nil, oakerr.InvalidInput{InputName: "w"}
+	}
+	if h <= 0 {
+		dlog.Error("Bad dimensions given to load sheet")
+		return nil, oakerr.InvalidInput{InputName: "h"}
+	}
+	if pad < 0 {
+		dlog.Error("Bad pad given to load sheet")
+		return nil, oakerr.InvalidInput{InputName: "pad"}
+	}
 
 	bounds := rgba.Bounds()
 
@@ -88,11 +104,7 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 	}
 
 	dlog.Verb("Loaded sheet into map")
-	sheetLock.Lock()
-	defer sheetLock.Unlock()
-	loadedSheets[fileName] = &sheet
-
-	return loadedSheets[fileName], nil
+	return &sheet, nil
 }
 
 // GetSheet tries to find the given file in the set of loaded sheets.
