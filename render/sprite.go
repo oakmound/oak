@@ -42,7 +42,8 @@ func (s *Sprite) GetDims() (int, int) {
 	if s.r == nil {
 		return 6, 6
 	}
-	return s.r.Bounds().Max.X, s.r.Bounds().Max.Y
+	bds := s.r.Bounds()
+	return bds.Max.X, bds.Max.Y
 }
 
 // SetRGBA will replace the rgba behind this sprite
