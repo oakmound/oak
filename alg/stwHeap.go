@@ -1,8 +1,6 @@
 package alg
 
 import (
-	"math/rand"
-
 	"github.com/oakmound/oak/dlog"
 )
 
@@ -29,12 +27,12 @@ func newSTWHeap(f []float64) *stwHeap {
 	return stwh
 }
 
-func (stwh *stwHeap) Pop() int {
+func (stwh *stwHeap) Pop(rng float64) int {
 	if stwh.weightsBelow[1] <= ε {
 		dlog.Warn("Pop on stwHeap with no remaining elements")
 		return -1
 	}
-	w := stwh.weightsBelow[1] * rand.Float64()
+	w := stwh.weightsBelow[1] * rng
 	i := 1
 
 	// With the >= here, we don't accept 0 weights
