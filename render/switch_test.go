@@ -85,6 +85,7 @@ func TestSwitchModifiability(t *testing.T) {
 	assert.Equal(t, cb.GetRGBA(), cmp.GetRGBA())
 
 	cmp.Filter(mod.Brighten(-100))
+	assert.NotEqual(t, cb.GetRGBA(), cmp.GetRGBA())
 	cmp.RevertAll()
 	assert.Equal(t, cb.GetRGBA(), cmp.GetRGBA())
 
