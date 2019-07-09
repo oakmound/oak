@@ -6,10 +6,21 @@
 [![Code Coverage](https://codecov.io/gh/oakmound/oak/branch/develop/graph/badge.svg)](https://codecov.io/gh/oakmound/oak)
 ----
 
+
 ## Installation
 `go get -u github.com/oakmound/oak/...`
 
-On linux, for audio, see [klangsynthese](https://github.com/200sc/klangsynthese) for audio installation requirements
+
+## Motivation
+The initial version of oak was made to support Oakmound Studio's game,
+[Agent Blue](https://github.com/OakmoundStudio/AgentRelease), and was developed in parallel.
+Oak supports Windows with no dependencies and Linux with limited audio dependencies. We don't own a machine to check with, but hypothetically it supports OSX as well.
+ We hope that users will be able to make great pure Go games with oak and welcome improvements.
+ 
+ Because Oak wants to have as few non-Go dependencies as possible, Oak does not use OpenGL or [GLFW](https://github.com/go-gl/glfw).
+ We're open to adding support for these in the future for performance gains, but we always want
+ an alternative that requires zero or near-zero dependencies.
+
 
 ## Usage
 This is an example of the most basic oak program:
@@ -25,20 +36,6 @@ oak.Init("firstScene")
 ```
 See the [examples](examples) folder for longer demos, [godoc](https://godoc.org/github.com/oakmound/oak) for reference documentation, and the [wiki](https://github.com/oakmound/oak/wiki) for more guided feature sets, tutorials and walkthroughs.
 
-## Motivation
-The initial version of oak was made to support Oakmound Studio's game,
-[Agent Blue](https://github.com/OakmoundStudio/AgentRelease), and was developed in parallel.
-Oak supports Windows with no dependencies and Linux with limited audio dependencies. We don't own a machine to check with, but hypothetically it supports OSX as well.
- We hope that users will be able to make great pure Go games with oak and welcome improvements.
- 
- Because Oak wants to have as few non-Go dependencies as possible, Oak does not use OpenGL or [GLFW](https://github.com/go-gl/glfw).
- We're open to adding support for these in the future for performance gains, but we always want
- an alternative that requires zero or near-zero dependencies. (We are very sad about the linux audio 
- dependency and are considering writing an audio driver just to get rid of it.)
-
-## Support
-
-For talk about the engine or help, that is not significant enough to be an Issue or PR, see the #oak channel on the [gophers slack](https://invite.slack.golangbridge.org/). 
 
 ## Features
 1. Window Rendering
@@ -104,3 +101,8 @@ For talk about the engine or help, that is not significant enough to be an Issue
 1. [Logging](https://godoc.org/github.com/oakmound/oak/dlog)
     - Swappable with custom implementations
     - Default Implementation: 4 log levels, writes to file and stdout
+
+
+## Support
+
+For talk about the engine or help, that is not significant enough to be an Issue or PR, see the #oak channel on the [gophers slack](https://invite.slack.golangbridge.org/). 
