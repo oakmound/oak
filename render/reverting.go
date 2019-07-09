@@ -71,8 +71,9 @@ func (rv *Reverting) RevertAndFilter(n int, fs ...mod.Filter) Modifiable {
 	if n > 0 {
 		rv.rs = rv.rs[:len(rv.rs)-n]
 	}
-	rv.rs[len(rv.rs)-1].Copy().Filter(fs...)
-	rv.rs = append(rv.rs, rv.rs[len(rv.rs)-1])
+	add := rv.rs[len(rv.rs)-1].Copy()
+	add.Filter(fs...)
+	rv.rs = append(rv.rs, add)
 	rv.Modifiable = rv.rs[len(rv.rs)-1]
 	rv.SetPos(x, y)
 	return rv

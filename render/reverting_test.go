@@ -69,8 +69,11 @@ func TestRevertingFilters(t *testing.T) {
 	rv.Filter(mod.Brighten(-100))
 	rgba1 := rv.GetRGBA()
 	rv = rv.Copy().(*Reverting)
-	assert.Equal(t, rv.GetRGBA(), rgba1)
-	rv.RevertAndFilter(1, mod.Brighten(-100))
+	assert.Equal(t, rgba1, rv.GetRGBA())
+	assert.Equal(t, 2, len(rv.rs))
+	rv2 := rv.RevertAndFilter(1, mod.Brighten(-100))
+	rv = rv2.Copy().(*Reverting)
+	assert.Equal(t, 2, len(rv.rs))
 	assert.Equal(t, rv.GetRGBA(), rgba1)
 
 }
