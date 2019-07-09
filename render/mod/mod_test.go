@@ -14,13 +14,13 @@ func TestComposedModifications(t *testing.T) {
 		CutFromLeft(2, 2),
 	}
 	base := setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
-	modList[0](base)
-	modList[1](base)
+	base = modList[0](base)
+	base = modList[1](base)
 	chained := setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
 
 	assert.NotEqual(t, base, chained)
 	mCombined := And(modList[0], modList[1])
-	mCombined(chained)
+	chained = mCombined(chained)
 	assert.Equal(t, base, chained)
 }
 
