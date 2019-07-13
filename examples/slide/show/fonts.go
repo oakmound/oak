@@ -8,9 +8,11 @@ import (
 	"github.com/oakmound/oak/render"
 )
 
+// Loaded Fonts
 var (
 	// Default size 12
 	// Default color white
+
 	Express = (&render.FontGenerator{
 		File: fpFilter("expressway rg.ttf"),
 	}).Generate()
@@ -22,8 +24,10 @@ var (
 	}).Generate()
 )
 
+// FontMod modifies a font
 type FontMod func(*render.Font) *render.Font
 
+// FontSet applies
 func FontSet(set func(*render.Font)) FontMod {
 	return func(f *render.Font) *render.Font {
 		f = f.Copy()
@@ -32,12 +36,14 @@ func FontSet(set func(*render.Font)) FontMod {
 	}
 }
 
+//FontSize sets size on a font
 func FontSize(size float64) FontMod {
 	return FontSet(func(f *render.Font) {
 		f.Size = size
 	})
 }
 
+//FontColor sets the color on a font
 func FontColor(c color.Color) FontMod {
 	return FontSet(func(f *render.Font) {
 		f.Color = image.NewUniform(c)

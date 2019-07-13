@@ -52,7 +52,7 @@ func main() {
 
 		for i := 0; i < 5; i++ {
 			x, y := rand.Float64()*400, rand.Float64()*400
-			enemy := NewEnemyOnRadar(x, y)
+			enemy := newEnemyOnRadar(x, y)
 			enemy.CID.Bind(standardEnemyMove, "EnterFrame")
 			render.Draw(enemy.R, 1, 1)
 			r.AddPoint(radar.Point{X: enemy.Xp(), Y: enemy.Yp()}, color.RGBA{255, 255, 0, 255})
@@ -83,15 +83,15 @@ func main() {
 	oak.Init("demo")
 }
 
-type EnemyOnRadar struct {
+type enemyOnRadar struct {
 	*entities.Moving
 }
 
-func (eor *EnemyOnRadar) Init() event.CID {
+func (eor *enemyOnRadar) Init() event.CID {
 	return event.NextID(eor)
 }
-func NewEnemyOnRadar(x, y float64) *EnemyOnRadar {
-	eor := new(EnemyOnRadar)
+func newEnemyOnRadar(x, y float64) *enemyOnRadar {
+	eor := new(enemyOnRadar)
 	eor.Moving = entities.NewMoving(50, y, 50, 50, render.NewColorBox(25, 25, color.RGBA{0, 200, 0, 0}), nil, eor.Init(), 0)
 	eor.Speed = physics.NewVector(-1*(rand.Float64()*2+1), rand.Float64()*2-1)
 	eor.Delta = eor.Speed
@@ -99,7 +99,7 @@ func NewEnemyOnRadar(x, y float64) *EnemyOnRadar {
 }
 
 func standardEnemyMove(id int, nothing interface{}) int {
-	eor := event.GetEntity(id).(*EnemyOnRadar)
+	eor := event.GetEntity(id).(*enemyOnRadar)
 	if eor.X() < 0 {
 		eor.Delta.SetPos(math.Abs(eor.Speed.X()), (eor.Speed.Y()))
 	}

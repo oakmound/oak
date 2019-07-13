@@ -88,30 +88,7 @@ func (g Generator) generate(parent *Generator) Btn {
 			"on":  g.R1,
 			"off": g.R2,
 		})
-		g.Bindings["MouseClickOn"] = append(g.Bindings["MouseClickOn"], func(id int, nothing interface{}) int {
-			btn := event.GetEntity(id).(Btn)
-			if btn.GetRenderable().(*render.Switch).Get() == "on" {
-				if g.Group != nil && g.Group.active == btn {
-					g.Group.active = nil
-				}
-				btn.GetRenderable().(*render.Switch).Set("off")
-			} else {
-				// We can pull this out to separate binding if group != nil
-				if g.Group != nil {
-					g.Group.active = btn
-					for _, b := range g.Group.members {
-						if b.GetRenderable().(*render.Switch).Get() == "on" {
-							b.Trigger("MouseClickOn", nil)
-						}
-					}
-				}
-				btn.GetRenderable().(*render.Switch).Set("on")
-
-			}
-			*g.Toggle = !*g.Toggle
-
-			return 0
-		})
+		g.Bindings["MouseClickOn"] = append(g.Bindings["MouseClickOn"], toggleFxn(g))
 	} else if g.ListChoice != nil {
 
 		start := "list" + strconv.Itoa(*g.ListChoice)
@@ -124,30 +101,7 @@ func (g Generator) generate(parent *Generator) Btn {
 		}
 		box = render.NewSwitch(start, mp)
 
-		g.Bindings["MouseClickOn"] = append(g.Bindings["MouseClickOn"], func(id int, button interface{}) int {
-			btn := event.GetEntity(id).(Btn)
-			i := *g.ListChoice
-			mEvent := button.(mouse.Event)
-
-			if mEvent.Button == "LeftMouse" {
-				i++
-				if i == len(g.RS) {
-					i = 0
-				}
-
-			} else if mEvent.Button == "RightMouse" {
-				i--
-				if i < 0 {
-					i += len(g.RS)
-				}
-			}
-
-			btn.GetRenderable().(*render.Switch).Set("list" + strconv.Itoa(i))
-
-			*g.ListChoice = i
-
-			return 0
-		})
+		g.Bindings["MouseClickOn"] = append(g.Bindings["MouseClickOn"], listFxn(g))
 	} else if g.R != nil {
 		box = render.NewReverting(g.R)
 	} else if g.ProgressFunc != nil {
@@ -201,4 +155,60 @@ func New(opts ...Option) Btn {
 		g = opt(g)
 	}
 	return g.Generate()
+}
+
+// toggleFxn sets up the mouseclick binding for toggle buttons created for goreport cyclo decrease
+func toggleFxn(g Generator) func(id int, nothing interface{}) int {
+	return func(id int, nothing interface{}) int {
+		btn := event.GetEntity(id).(Btn)
+		if btn.GetRenderable().(*render.Switch).Get() == "on" {
+			if g.Group != nil && g.Group.active == btn {
+				g.Group.active = nil
+			}
+			btn.GetRenderable().(*render.Switch).Set("off")
+		} else {
+			// We can pull this out to separate binding if group != nil
+			if g.Group != nil {
+				g.Group.active = btn
+				for _, b := range g.Group.members {
+					if b.GetRenderable().(*render.Switch).Get() == "on" {
+						b.Trigger("MouseClickOn", nil)
+					}
+				}
+			}
+			btn.GetRenderable().(*render.Switch).Set("on")
+
+		}
+		*g.Toggle = !*g.Toggle
+
+		return 0
+	}
+}
+
+// listFxn sets up the mouseclick binding for list buttons created for goreport cyclo decrease
+func listFxn(g Generator) func(id int, button interface{}) int {
+	return func(id int, button interface{}) int {
+		btn := event.GetEntity(id).(Btn)
+		i := *g.ListChoice
+		mEvent := button.(mouse.Event)
+
+		if mEvent.Button == "LeftMouse" {
+			i++
+			if i == len(g.RS) {
+				i = 0
+			}
+
+		} else if mEvent.Button == "RightMouse" {
+			i--
+			if i < 0 {
+				i += len(g.RS)
+			}
+		}
+
+		btn.GetRenderable().(*render.Switch).Set("list" + strconv.Itoa(i))
+
+		*g.ListChoice = i
+
+		return 0
+	}
 }
