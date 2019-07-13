@@ -87,7 +87,7 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
 
 ## Support <a name="support"></a>
 
-For talk about the engine or help, that is not significant enough to be an Issue or PR, see the #oak channel on the [gophers slack](https://invite.slack.golangbridge.org/). 
+For discussions not significant enough to be an Issue or PR, see the #oak channel on the [gophers slack](https://invite.slack.golangbridge.org/). 
 
 ## Quick Start <a name="quick-start"></a>
 This is an example of the most basic oak program:
