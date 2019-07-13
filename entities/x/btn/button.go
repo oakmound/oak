@@ -96,7 +96,7 @@ func (g Generator) generate(parent *Generator) Btn {
 				}
 				btn.GetRenderable().(*render.Switch).Set("off")
 			} else {
-				// We can pull this out to seperate binding if group != nil
+				// We can pull this out to separate binding if group != nil
 				if g.Group != nil {
 					g.Group.active = btn
 					for _, b := range g.Group.members {

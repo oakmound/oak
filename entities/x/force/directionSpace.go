@@ -12,7 +12,7 @@ type DirectionSpace struct {
 	physics.ForceVector
 }
 
-// Init initalizes the DirectionSpace as an entity
+// Init initializes the DirectionSpace as an entity
 func (ds *DirectionSpace) Init() event.CID {
 	return event.NextID(ds)
 }
