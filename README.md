@@ -18,6 +18,8 @@
 
 [Implementation and Examples](#examples)
 
+[Finished Games](#finished-games)
+
 
 ## Installation <a name="installation"/>
 `go get -u github.com/oakmound/oak/...`
@@ -103,5 +105,26 @@ oak.Init("firstScene")
 ```
 See the [examples](examples) folder for longer demos, [godoc](https://godoc.org/github.com/oakmound/oak) for reference documentation, and the [wiki](https://github.com/oakmound/oak/wiki) for more guided feature sets, tutorials and walkthroughs.
 
-## Implementation and Examples <a name="examples"></a>
+## Implementation and Examples <a name="examples"/>
 
+Platformer
+
+![Platformer](examples/platformer-tutorial/6-complete/example.gif)
+
+Top Down Shooter
+
+Radar
+
+![Radar](examples/radar-demo/example.gif)
+
+Slideshow
+
+![Slideshow](examples/slide/example.gif)
+
+## Finished Games <a name="finished-games"/>
+
+[Agent Blue](https://oakmound.itch.io/agent-blue)
+
+[Fantastic Doctor](https://github.com/oakmound/lowrez17)
+
+[Jeremy The Clam](https://github.com/200sc/jeremy)
