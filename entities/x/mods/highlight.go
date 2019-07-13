@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 
+	"github.com/oakmound/oak/alg/intgeom"
 	"github.com/oakmound/oak/render/mod"
 )
 
@@ -97,7 +98,7 @@ func Highlight(c color.Color, thickness int) mod.Mod {
 
 type Filter func(color.Color) color.Color
 
-func Inset(fn Filter, dir Dir) mod.Mod {
+func Inset(fn Filter, dir intgeom.Dir2) mod.Mod {
 	return func(img image.Image) *image.RGBA {
 		bds := img.Bounds()
 
