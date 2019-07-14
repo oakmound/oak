@@ -16,6 +16,7 @@ import (
 	"github.com/oakmound/oak/scene"
 )
 
+// Collision labels
 const (
 	// The only collision label we need for this demo is 'ground',
 	// indicating something we shouldn't be able to fall or walk through

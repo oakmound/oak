@@ -18,6 +18,7 @@ import (
 	"github.com/oakmound/oak/scene"
 )
 
+// Collision labels
 const (
 	Enemy  collision.Label = 1
 	Player collision.Label = 2
@@ -101,11 +102,13 @@ func main() {
 	oak.Init("tds")
 }
 
+// Top down shooter consts
 const (
 	EnemyRefresh = 30
 	EnemySpeed   = 2
 )
 
+// NewEnemy creates an enemy for a top down shooter
 func NewEnemy() {
 	x, y := enemyPos()
 

@@ -17,6 +17,7 @@ import (
 	"github.com/oakmound/oak"
 )
 
+// Cliffracer globals... If this was more complex we wouldnt have these
 var (
 	Font              *render.Font
 	text              *render.Text
@@ -27,19 +28,23 @@ var (
 	end               = make(chan bool)
 )
 
+// Cliffracing labels
 const (
 	NONE = iota
 	CLIFFRACER
 )
 
+// CliffRacer just implements moving
 type CliffRacer struct {
 	*entities.Moving
 }
 
+//Init sets up the cliffracer
 func (cr *CliffRacer) Init() event.CID {
 	return event.NextID(cr)
 }
 
+// NewCliffRacer creates a new cliffracer
 func NewCliffRacer(y float64) *CliffRacer {
 	cr := new(CliffRacer)
 	sp, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "cliffracer.png"))
@@ -70,14 +75,17 @@ func moveCliffRacer(id int, nothing interface{}) int {
 	return 0
 }
 
+// Player creates the player who dodges cliffracers
 type Player struct {
 	*entities.Solid
 }
 
+// Init sets up the Player
 func (p *Player) Init() event.CID {
 	return event.NextID(p)
 }
 
+// NewPlayer creates a new player
 func NewPlayer() {
 	p := new(Player)
 	p.Solid = entities.NewSolid(50, 100, 10, 10, render.NewColorBox(10, 10, color.RGBA{255, 0, 0, 255}), nil, p.Init())

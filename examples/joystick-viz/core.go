@@ -31,6 +31,7 @@ type renderer struct {
 	rStickCenter floatgeom.Point2
 }
 
+// Init sets CID on a renderable
 func (r *renderer) Init() event.CID {
 	r.CID = event.NextID(r)
 	return r.CID

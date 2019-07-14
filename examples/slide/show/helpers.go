@@ -113,7 +113,7 @@ func ImageAt(file string, xpos, ypos float64, mods ...mod.Mod) render.Modifiable
 	return m
 }
 
-// ImageCaptionSize
+// ImageCaptionSize set the caption and its size
 func ImageCaptionSize(file string, xpos, ypos float64, w, h float64, f *render.Font, cap string) render.Renderable {
 	r, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", file))
 	if err != nil {
@@ -149,6 +149,7 @@ func ImageCaptionSize(file string, xpos, ypos float64, w, h float64, f *render.F
 	return render.NewCompositeR(append(s, r)...)
 }
 
+// ImageCaption creates caption text
 func ImageCaption(file string, xpos, ypos float64, scale float64, f *render.Font, cap string) render.Renderable {
 	r := Image(file, xpos, ypos)
 	r.Modify(mod.Scale(scale, scale))

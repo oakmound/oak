@@ -8,10 +8,12 @@ import (
 	"github.com/oakmound/oak/render"
 )
 
+// Point is a utility function for location
 type Point struct {
 	X, Y *float64
 }
 
+// Radar helps store and present information around interesting entities on a radar map
 type Radar struct {
 	render.LayeredPoint
 	points        map[Point]color.Color
