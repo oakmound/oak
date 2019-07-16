@@ -4,22 +4,24 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/oakmound/oak)](https://goreportcard.com/report/github.com/oakmound/oak)
 [![Build Status](https://travis-ci.org/oakmound/oak.svg?branch=master)](https://travis-ci.org/oakmound/oak)
 [![Code Coverage](https://codecov.io/gh/oakmound/oak/branch/develop/graph/badge.svg)](https://codecov.io/gh/oakmound/oak)
-----
 
-[Installation](#installation)
 
-[Motivation](#motivation)
+## Table of Contents
+1. [Installation](#installation)
 
-[Features](#features)
+1. [Motivation](#motivation)
 
-[Support](#support)
+1. [Features](#features)
 
-[Quick Start](#quick-start)
+1. [Support](#support)
 
-[Implementation and Examples](#examples)
+1. [Quick Start](#quick-start)
 
-[Finished Games](#finished-games)
+1. [Implementation and Examples](#examples)
 
+1. [Finished Games](#finished-games)
+
+***
 
 ## Installation <a name="installation"/>
 `go get -u github.com/oakmound/oak/...`
@@ -55,12 +57,22 @@ Oak supports Windows with no dependencies and Linux with limited audio dependenc
         - Primitive builders, `ColorBox`, `Line`, `Bezier`
         - History-tracking `Reverting`
     - Primarily 2D
-1. [Particle System](https://godoc.org/github.com/oakmound/oak/render/particle)
+1. [Particle System](https://godoc.org/github.com/oakmound/oak/render/particle) 
+    - <details>
+      <summary>Click to see gif captured in examples/particle-demo</summary>
+      
+        ![particles!](examples\particle-demo\overviewExample.gif)
+    </details>
 1. [Mouse Handling](https://godoc.org/github.com/oakmound/oak/mouse)
     - Click Collision
     - MouseEnter / MouseExit reaction events
     - Drag Handling
 1. [Joystick Support](https://godoc.org/github.com/oakmound/oak/joystick)
+    - <details>
+      <summary>Click to see gif captured in examples/joystick-viz</summary>
+      
+        ![particles!](examples\joystick-viz\example.gif)
+    </details>
 1. [Audio Support](https://godoc.org/github.com/oakmound/oak/audio)
     - Positional filters to pan and scale audio based on a listening position
 1. [Collision](https://godoc.org/github.com/oakmound/oak/collision)
@@ -93,7 +105,9 @@ For discussions not significant enough to be an Issue or PR, see the #oak channe
 
 ## Quick Start <a name="quick-start"></a>
 This is an example of the most basic oak program:
+
 ```go
+
 oak.Add("firstScene",
     // Initialization function
     func(prevScene string, inData interface{}) {}, 
@@ -103,21 +117,64 @@ oak.Add("firstScene",
     func() (nextScene string, result *scene.Result) {return "firstScene", nil}) 
 oak.Init("firstScene")
 ```
+
 See the [examples](examples) folder for longer demos, [godoc](https://godoc.org/github.com/oakmound/oak) for reference documentation, and the [wiki](https://github.com/oakmound/oak/wiki) for more guided feature sets, tutorials and walkthroughs.
 
-## Implementation and Examples <a name="examples"/>
+## Implementation and Examples <a name="examples"></a>
 
-Platformer
+### Platformer
 
 ![Platformer](examples/platformer-tutorial/6-complete/example.gif)
 
-Top Down Shooter
 
-Radar
+Build up to having a simple platforming game by doing the following: Setup a character, get it to move, set basic gravity, get it to jump, make it onlyt jump on solid ground, put it all together.
+
+
+```go
+
+char := entities.NewMoving(100, 100, 16, 32,
+	render.NewColorBox(16, 32, color.RGBA{255, 0, 0, 255}),
+nil, 0, 0)
+```
+
+
+```go 
+
+char.Bind(func(id int, nothing interface{}) int {
+	char := event.GetEntity(id).(*entities.Moving)
+
+	// Move left and right with A and D
+	if oak.IsDown(key.A) {
+		char.Delta.SetX(-char.Speed.X())
+	} else if oak.IsDown(key.D) {
+		char.Delta.SetX(char.Speed.X())
+	} else {
+		char.Delta.SetX(0)
+	}
+	oldX, oldY := char.GetPos()
+    char.ShiftPos(char.Delta.X(), char.Delta.Y())
+	return 0
+}, event.Enter)
+```
+
+
+### Top Down Shooter
+
+Learn to use the collision library and make short term shots that collide with the entites marked with collision labels.
+
+
+![Shoota](examples\top-down-shooter-tutorial\6-performance\example.gif)
+
+
+### Radar
+
+Often times you might want to create a minimap or a radar for a game, check out this example for a barebones implementation
 
 ![Radar](examples/radar-demo/example.gif)
 
-Slideshow
+### Slideshow
+
+A different way to use the oak engine.
 
 ![Slideshow](examples/slide/example.gif)
 
