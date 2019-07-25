@@ -1,6 +1,7 @@
 package physics
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,4 +35,18 @@ func TestAttach(t *testing.T) {
 	v6 := v5.Detach()
 	v.SetPos(100, 100)
 	assert.NotEqual(t, v.Y(), v6.Y()-5)
+}
+
+func ExampleAttachable() {
+	v1 := NewVector(0, 0)
+	v2 := NewVector(0, 0)
+	v3 := NewVector(0, 0)
+	v2 = v2.Attach(v1, 5, 5)
+	v3 = v3.Attach(v1, 0, 0)
+	v1.ShiftX(1)
+	fmt.Printf("V2: x is %f, y is %f\n", v2.X(), v2.Y())
+	fmt.Printf("V3: x is %f, y is %f", v3.X(), v3.Y())
+	// Output:
+	// V2: x is 6.000000, y is 5.000000
+	// V3: x is 1.000000, y is 0.000000
 }
