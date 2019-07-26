@@ -36,7 +36,7 @@ func MoveWindow(x, y, w, h int) error {
 	}
 }
 
-// A Bordeerlesser is a window that can have its border removed or replaced after
+// A Borderlesser is a window that can have its border removed or replaced after
 // removal.
 type Borderlesser interface {
 	SetBorderless(bool) error

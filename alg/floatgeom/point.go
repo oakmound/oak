@@ -435,7 +435,7 @@ func (p Point2) RadiansTo(p2 Point2) float64 {
 	return p.Sub(p2).ToRadians()
 }
 
-// A Conjugate of a Point4 often obtained to calculate the inverse of the Point4
+// Conjugate returns a value of a Point4 often obtained to calculate the inverse
 func (p Point4) Conjugate() Point4 {
 	return Point4{
 		p[0],
