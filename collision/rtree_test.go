@@ -810,10 +810,8 @@ func TestNearestNeighbors(t *testing.T) {
 	}
 }
 
-func BenchmarkSearchIntersect(b *testing.B) {
-	b.StopTimer()
-	rt := newTree(3, 3)
-	things := []*Space{
+func getBenchThings() []*Space {
+	return []*Space{
 		mustRect(floatgeom.Point3{0, 0, 0}, [3]float64{2, 1, 1}),
 		mustRect(floatgeom.Point3{3, 1, 0}, [3]float64{1, 2, 1}),
 		mustRect(floatgeom.Point3{1, 2, 0}, [3]float64{2, 2, 1}),
@@ -825,6 +823,12 @@ func BenchmarkSearchIntersect(b *testing.B) {
 		mustRect(floatgeom.Point3{2, 8, 0}, [3]float64{1, 2, 1}),
 		mustRect(floatgeom.Point3{3, 8, 0}, [3]float64{1, 2, 1}),
 	}
+}
+
+func BenchmarkSearchIntersect(b *testing.B) {
+	b.StopTimer()
+	rt := newTree(3, 3)
+	things := getBenchThings()
 	for _, thing := range things {
 		rt.Insert(thing)
 	}
@@ -838,18 +842,7 @@ func BenchmarkSearchIntersect(b *testing.B) {
 func BenchmarkInsert(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		rt := newTree(3, 3)
-		things := []*Space{
-			mustRect(floatgeom.Point3{0, 0, 0}, [3]float64{2, 1, 1}),
-			mustRect(floatgeom.Point3{3, 1, 0}, [3]float64{1, 2, 1}),
-			mustRect(floatgeom.Point3{1, 2, 0}, [3]float64{2, 2, 1}),
-			mustRect(floatgeom.Point3{8, 6, 0}, [3]float64{1, 1, 1}),
-			mustRect(floatgeom.Point3{10, 3, 0}, [3]float64{1, 2, 1}),
-			mustRect(floatgeom.Point3{11, 7, 0}, [3]float64{1, 1, 1}),
-			mustRect(floatgeom.Point3{2, 6, 0}, [3]float64{1, 2, 1}),
-			mustRect(floatgeom.Point3{3, 6, 0}, [3]float64{1, 2, 1}),
-			mustRect(floatgeom.Point3{2, 8, 0}, [3]float64{1, 2, 1}),
-			mustRect(floatgeom.Point3{3, 8, 0}, [3]float64{1, 2, 1}),
-		}
+		things := getBenchThings()
 		for _, thing := range things {
 			rt.Insert(thing)
 		}

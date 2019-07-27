@@ -23,7 +23,6 @@ var (
 type Tree struct {
 	*Rtree
 	sync.Mutex
-	minChildren, maxChildren int
 }
 
 // NewTree returns a new collision Tree. The first argument will be used
@@ -44,16 +43,14 @@ func NewTree(children ...int) (*Tree, error) {
 		return nil, errors.New("MaxChildren must exceed MinChildren")
 	}
 	return &Tree{
-		Rtree:       newTree(minChildren, maxChildren),
-		minChildren: minChildren,
-		maxChildren: maxChildren,
-		Mutex:       sync.Mutex{},
+		Rtree: newTree(minChildren, maxChildren),
+		Mutex: sync.Mutex{},
 	}, nil
 }
 
 // Clear resets a tree's contents to be empty
 func (t *Tree) Clear() {
-	t.Rtree = newTree(t.minChildren, t.maxChildren)
+	t.Rtree = newTree(t.Rtree.MinChildren, t.Rtree.MaxChildren)
 }
 
 // Add adds a set of spaces to the rtree
@@ -125,8 +122,8 @@ func (t *Tree) ShiftSpace(x, y float64, s *Space) error {
 	if s == nil {
 		return oakerr.NilInput{InputName: "s"}
 	}
-	x = x + s.X()
-	y = y + s.Y()
+	x += s.X()
+	y += s.Y()
 	return t.UpdateSpace(x, y, s.GetW(), s.GetH(), s)
 }
 

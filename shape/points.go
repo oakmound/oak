@@ -4,7 +4,8 @@ import (
 	"github.com/oakmound/oak/alg/intgeom"
 )
 
-// Points is a shape defined by a set of points. It ignores input width and height given to it as it only cares about its points.
+// Points is a shape defined by a set of points.
+// It ignores input width and height given to it as it only cares about its points.
 type Points map[intgeom.Point2]struct{}
 
 // NewPoints creates a Points shape from any number of intgeom Points

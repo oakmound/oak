@@ -22,8 +22,8 @@ const (
 )
 
 // Init calls any os functions necessary to detect joysticks
-func Init() {
-	osinit()
+func Init() error {
+	return osinit()
 }
 
 // A Triggerer can either be an event bus or event CID, allowing
@@ -243,7 +243,7 @@ func (j *Joystick) Listen(opts *ListenOptions) (cancel func()) {
 	sendFn := opts.sendFn()
 	go func() {
 		// Perform required initialization to receive inputs from OS
-		j.Prepare()
+		dlog.ErrorCheck(j.Prepare())
 		t := time.NewTicker(j.PollRate)
 		lastState := &State{Frame: math.MaxUint32}
 		for {
@@ -311,7 +311,7 @@ func GetJoysticks() []*Joystick {
 }
 
 // WaitForJoysticks will regularly call GetJoysticks so to send signals
-// on the ouput channel when new joysticks are connected to the system.
+// on the output channel when new joysticks are connected to the system.
 // Call `cancel' to close the channel and stop polling.
 func WaitForJoysticks(pollRate time.Duration) (joyCh <-chan *Joystick, cancel func()) {
 	ch := make(chan *Joystick)

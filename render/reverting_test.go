@@ -85,7 +85,7 @@ func TestRevertingCascadeFns(t *testing.T) {
 	// (color box does not have these functions)
 	assert.True(t, rv.IsInterruptable())
 	assert.True(t, rv.IsStatic())
-	rv.Set("Foo")
+	assert.Nil(t, rv.Set("Foo"))
 	rv.Pause()
 	rv.Unpause()
 	rv.SetTriggerID(0)

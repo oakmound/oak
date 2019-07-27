@@ -28,11 +28,11 @@ func (tree *Rtree) Size() int {
 }
 
 // NewTree creates a new R-tree instance.
-func newTree(MinChildren, MaxChildren int) *Rtree {
-	rt := Rtree{MinChildren: MinChildren, MaxChildren: MaxChildren}
+func newTree(minChildren, maxChildren int) *Rtree {
+	rt := Rtree{MinChildren: minChildren, MaxChildren: maxChildren}
 	rt.height = 1
 	rt.root = &node{}
-	rt.root.entries = make([]entry, 0, MaxChildren)
+	rt.root.entries = make([]entry, 0, maxChildren)
 	rt.root.leaf = true
 	rt.root.level = 1
 	return &rt
@@ -217,7 +217,7 @@ func (n *node) split(minGroupSize int) (left, right *node) {
 		remaining = append(remaining[:next], remaining[next+1:]...)
 	}
 
-	return
+	return left, right
 }
 
 func assign(e entry, group *node) {
@@ -533,7 +533,9 @@ func insertNearest(k int, dists []float64, nearest []*Space, dist float64, obj *
 	return dists, nearest
 }
 
-func (tree *Rtree) nearestNeighbors(k int, p floatgeom.Point3, n *node, dists []float64, nearest []*Space) ([]*Space, []float64) {
+func (tree *Rtree) nearestNeighbors(k int, p floatgeom.Point3, n *node,
+	dists []float64, nearest []*Space) ([]*Space, []float64) {
+
 	if n.leaf {
 		for _, e := range n.entries {
 			dist := minDist(p, e.bb)

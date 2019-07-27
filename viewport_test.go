@@ -10,14 +10,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func testinit() {
-	SceneMap.Add("blank",
+func testinit(t *testing.T) {
+	err := SceneMap.Add("blank",
 		// Initialization function
 		func(prevScene string, inData interface{}) {},
 		// Loop to continue or stop current scene
 		func() bool { return true },
 		// Exit to transition to next scene
 		func() (nextScene string, result *scene.Result) { return "blank", nil })
+	assert.Nil(t, err)
 	go Init("blank")
 	time.Sleep(2 * time.Second)
 	// Assert that nothing went wrong
@@ -36,7 +37,7 @@ func sleep() {
 
 func TestViewport(t *testing.T) {
 	resetOak()
-	testinit()
+	testinit(t)
 	assert.Equal(t, ViewVector(), physics.NewVector(0, 0))
 	assert.Equal(t, ViewPos, image.Point{0, 0})
 	SetScreen(5, 5)

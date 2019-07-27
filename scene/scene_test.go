@@ -1,9 +1,10 @@
 package scene
 
 import (
-	"github.com/stretchr/testify/require"
 	"math/rand"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestBooleanLoop(t *testing.T) {

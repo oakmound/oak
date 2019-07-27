@@ -9,7 +9,7 @@ import (
 )
 
 // Use oak to display a scene with a single movable character
-func Example() { 
+func Example() {
 	Add("basicScene", func(string, interface{}) {
 
 		char := entities.NewMoving(100, 100, 16, 32,
@@ -32,7 +32,7 @@ func ExampleAdd() {
 	}, func() (string, *scene.Result) { // What scene to progress to, make sure its set up!
 		return "sceneToBeImplemented", nil
 	})
-} 
+}
 
 // Use AddCommand to grant access to command line commands. Often used to toggle debug modes.
 func ExampleAddCommand() {
@@ -51,17 +51,16 @@ func ExampleAddCommand() {
 
 	})
 }
- 
+
 func getBasicScene() scene.Scene {
-	return scene.Scene{func(string, interface{}) {
+	return scene.Scene{Start: func(string, interface{}) {
 		char := entities.NewMoving(100, 100, 16, 32,
 			render.NewColorBox(16, 32, color.RGBA{255, 0, 0, 255}),
 			nil, 0, 0)
 		render.Draw(char.R)
-
-	}, func() bool {
+	}, Loop: func() bool {
 		return true
-	}, func() (string, *scene.Result) {
+	}, End: func() (string, *scene.Result) {
 		return "basicScene", nil
 	},
 	}

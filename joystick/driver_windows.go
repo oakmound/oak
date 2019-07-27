@@ -31,10 +31,12 @@ type osJoystick struct {
 
 var once sync.Once
 
-func osinit() {
+func osinit() error {
+	var err error
 	once.Do(func() {
-		w32.InitXInput()
+		err = w32.InitXInput()
 	})
+	return err
 }
 
 func (j *Joystick) prepare() error {

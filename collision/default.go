@@ -1,15 +1,15 @@
 package collision
 
+import "sync"
+
 // There's a default collision tree you can access via collision.func
 // as opposed to tree.func.
 var (
-	DefTree *Tree
+	DefTree = &Tree{
+		Rtree: newTree(DefaultMinChildren, DefaultMaxChildren),
+		Mutex: sync.Mutex{},
+	}
 )
-
-func init() {
-	// This won't error so long as DefMinChildren < DefMaxChildren
-	DefTree, _ = NewTree()
-}
 
 // Clear resets the default tree's contents
 func Clear() {

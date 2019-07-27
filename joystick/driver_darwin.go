@@ -2,7 +2,9 @@ package joystick
 
 import "errors"
 
-func osinit() {}
+func osinit() error {
+	return nil
+}
 
 func newOsJoystick() osJoystick {
 	return osJoystick{}

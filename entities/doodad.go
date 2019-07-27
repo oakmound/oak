@@ -19,14 +19,14 @@ type Doodad struct {
 // any other CID will assume that the struct containing this doodad has
 // already been initialized to the passed in CID.
 // This applies to ALL NewX functions in entities which take in a CID.
-func NewDoodad(x, y float64, r render.Renderable, CID event.CID) *Doodad {
+func NewDoodad(x, y float64, r render.Renderable, cid event.CID) *Doodad {
 	if r != nil {
 		r.SetPos(x, y)
 	}
 	d := Doodad{}
 	d.Point = *NewPoint(x, y)
 	d.R = r
-	d.CID = CID.Parse(&d)
+	d.CID = cid.Parse(&d)
 	return &d
 }
 

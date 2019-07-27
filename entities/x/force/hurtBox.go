@@ -27,7 +27,9 @@ func NewHurtBox(x, y, w, h float64, duration time.Duration, l collision.Label, f
 
 // NewHurtColor creates a temporary collision space with a given force it should
 // apply to objects it collides with. The box is rendered as the given color
-func NewHurtColor(x, y, w, h float64, duration time.Duration, l collision.Label, fv physics.ForceVector, c color.Color, layers ...int) {
+func NewHurtColor(x, y, w, h float64, duration time.Duration, l collision.Label,
+	fv physics.ForceVector, c color.Color, layers ...int) {
+
 	cb := render.NewColorBox(int(w), int(h), c)
 	NewHurtDisplay(x, y, w, h, duration, l, fv, cb, layers...)
 }
@@ -35,7 +37,9 @@ func NewHurtColor(x, y, w, h float64, duration time.Duration, l collision.Label,
 // NewHurtDisplay creates a temporary collision space with a given force it should
 // apply to objects it collides with. The box is rendered as the given renderable.
 // The input renderable is not copied before it is drawn.
-func NewHurtDisplay(x, y, w, h float64, duration time.Duration, l collision.Label, fv physics.ForceVector, r render.Renderable, layers ...int) {
+func NewHurtDisplay(x, y, w, h float64, duration time.Duration, l collision.Label,
+	fv physics.ForceVector, r render.Renderable, layers ...int) {
+
 	hb := new(hurtBox)
 	hb.DirectionSpace = NewDirectionSpace(collision.NewLabeledSpace(x, y, w, h, l), fv)
 	collision.Add(hb.Space)

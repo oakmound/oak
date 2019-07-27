@@ -11,7 +11,9 @@ func newOsJoystick() osJoystick {
 type osJoystick struct {
 }
 
-func osinit() {}
+func osinit() error {
+	return nil
+}
 
 func (j *Joystick) prepare() error {
 	return errors.New("OS not supported")

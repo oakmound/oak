@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func DrawExample() {
+func ExampleDraw() {
 	// We haven't modified the draw stack, so it contains a single draw heap.
 	// Draw a Color Box
 	Draw(NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}), 3)

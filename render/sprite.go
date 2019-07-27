@@ -52,7 +52,7 @@ func (s *Sprite) SetRGBA(r *image.RGBA) {
 }
 
 // Bounds is an alternative to GetDims that alows a sprite
-// to satisy draw.Image.
+// to satisfy draw.Image.
 func (s *Sprite) Bounds() image.Rectangle {
 	return s.r.Bounds()
 }

@@ -21,7 +21,11 @@ func ExampleMap_GetCurrent() {
 	}
 	m.CurrentScene = "screen1"
 	sc, ok = m.GetCurrent()
-	sc.Start("screen0", nil)
+	if !ok {
+		fmt.Println("Screen one did not exist")
+	} else {
+		sc.Start("screen0", nil)
+	}
 	// Output: Screen two did not exist
 	// Starting screen one
 }

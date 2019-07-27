@@ -19,9 +19,9 @@ func (e ent) Init() event.CID {
 
 func TestDebugConsole(t *testing.T) {
 	triggered := false
-	AddCommand("test", func([]string) {
+	assert.Nil(t, AddCommand("test", func([]string) {
 		triggered = true
-	})
+	}))
 
 	render.UpdateDebugMap("r", render.EmptyRenderable())
 

@@ -47,7 +47,9 @@ type osJoystick struct {
 	disconnected bool
 }
 
-func osinit() {}
+func osinit() error {
+	return nil
+}
 
 type jevent struct {
 	Time   uint32

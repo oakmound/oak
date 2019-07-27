@@ -72,7 +72,8 @@ func (g Generator) Generate() Btn {
 
 func (g Generator) generate(parent *Generator) Btn {
 	var box render.Modifiable
-	if g.Toggle != nil {
+	switch {
+	case g.Toggle != nil:
 		//Handles checks and other toggle situations
 		start := "on"
 		if !(*g.Toggle) {
@@ -89,7 +90,7 @@ func (g Generator) generate(parent *Generator) Btn {
 			"off": g.R2,
 		})
 		g.Bindings["MouseClickOn"] = append(g.Bindings["MouseClickOn"], toggleFxn(g))
-	} else if g.ListChoice != nil {
+	case g.ListChoice != nil:
 
 		start := "list" + strconv.Itoa(*g.ListChoice)
 		mp := make(map[string]render.Modifiable)
@@ -102,11 +103,11 @@ func (g Generator) generate(parent *Generator) Btn {
 		box = render.NewSwitch(start, mp)
 
 		g.Bindings["MouseClickOn"] = append(g.Bindings["MouseClickOn"], listFxn(g))
-	} else if g.R != nil {
+	case g.R != nil:
 		box = render.NewReverting(g.R)
-	} else if g.ProgressFunc != nil {
+	case g.ProgressFunc != nil:
 		box = render.NewReverting(render.NewGradientBox(int(g.W), int(g.H), g.Color, g.Color2, g.ProgressFunc))
-	} else {
+	default:
 		box = render.NewReverting(render.NewColorBox(int(g.W), int(g.H), g.Color))
 	}
 

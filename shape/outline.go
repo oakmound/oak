@@ -114,7 +114,7 @@ func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point2, error) 
 	return followOutline(shape, dirInc, x, y, sx, sy, w, h, direction, outline), nil
 }
 
-func followOutline(shape Shape, dirInc int, x, y, sx, sy, w, h, direction int, outline []intgeom.Point2) []intgeom.Point2 {
+func followOutline(shape Shape, dirInc, x, y, sx, sy, w, h, direction int, outline []intgeom.Point2) []intgeom.Point2 {
 	//Follow the outline point by point
 	for x != sx || y != sy {
 		outline = append(outline, intgeom.Point2{x, y})

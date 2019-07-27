@@ -20,7 +20,7 @@ func (cid CID) Trigger(eventName string, data interface{}) {
 				for i := bs.highIndex - 1; i >= 0; i-- {
 					lst := bs.highPriority[i]
 					if lst != nil {
-						DefaultBus.triggerDefault((*lst).sl, iid, eventName, data)
+						DefaultBus.triggerDefault(lst.sl, iid, eventName, data)
 					}
 				}
 				DefaultBus.triggerDefault((bs.defaultPriority).sl, iid, eventName, data)
@@ -28,7 +28,7 @@ func (cid CID) Trigger(eventName string, data interface{}) {
 				for i := 0; i < bs.lowIndex; i++ {
 					lst := bs.lowPriority[i]
 					if lst != nil {
-						DefaultBus.triggerDefault((*lst).sl, iid, eventName, data)
+						DefaultBus.triggerDefault(lst.sl, iid, eventName, data)
 					}
 				}
 			}

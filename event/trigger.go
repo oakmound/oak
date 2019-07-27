@@ -41,23 +41,23 @@ func (eb *Bus) Trigger(eventName string, data interface{}) {
 func (eb *Bus) trigger(eventName string, data interface{}) {
 	eb.mutex.RLock()
 	// Loop through all bindableStores for this eventName
-	for id, bs := range (*eb).bindingMap[eventName] {
+	for id, bs := range eb.bindingMap[eventName] {
 		// Top to bottom, high priority
 		for i := bs.highIndex - 1; i >= 0; i-- {
 			lst := bs.highPriority[i]
 			if lst != nil {
-				eb.triggerDefault((*lst).sl, id, eventName, data)
+				eb.triggerDefault(lst.sl, id, eventName, data)
 			}
 		}
 	}
 
-	for id, bs := range (*eb).bindingMap[eventName] {
+	for id, bs := range eb.bindingMap[eventName] {
 		if bs != nil && bs.defaultPriority != nil {
 			eb.triggerDefault((bs.defaultPriority).sl, id, eventName, data)
 		}
 	}
 
-	for id, bs := range (*eb).bindingMap[eventName] {
+	for id, bs := range eb.bindingMap[eventName] {
 		// Bottom to top, low priority
 		for i := 0; i < bs.lowIndex; i++ {
 			lst := bs.lowPriority[i]

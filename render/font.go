@@ -150,17 +150,15 @@ func SetFontDefaults(wd, assetPath, fontPath, hinting, color, file string, size,
 func parseFontHinting(hintType string) (faceHinting font.Hinting) {
 	hintType = strings.ToLower(hintType)
 	switch hintType {
-	case "none":
+	default:
+		dlog.Error("Unable to parse font hinting, ", hintType)
+		fallthrough
+	case "", "none":
 		faceHinting = font.HintingNone
 	case "vertical":
 		faceHinting = font.HintingVertical
 	case "full":
 		faceHinting = font.HintingFull
-	default:
-		dlog.Error("Unable to parse font hinting, ", hintType)
-		fallthrough
-	case "":
-		faceHinting = font.HintingNone
 	}
 	return faceHinting
 }
