@@ -22,7 +22,7 @@ func TestCompoundFuncs(t *testing.T) {
 	assert.Nil(t, cmp.Set("blue"))
 	assert.Equal(t, cmp.GetRGBA().At(0, 0), color.RGBA{0, 0, 255, 255})
 	assert.Equal(t, cmp.Get(), "blue")
-	assert.Nil(t, cmp.Add("blue", NewColorBox(5, 5, color.RGBA{255, 255, 255, 255})))
+	assert.NotNil(t, cmp.Add("blue", NewColorBox(5, 5, color.RGBA{255, 255, 255, 255})))
 	assert.Equal(t, cmp.GetRGBA().At(0, 0), color.RGBA{255, 255, 255, 255})
 	assert.NotNil(t, cmp.Set("color5"))
 	assert.Equal(t, cmp.GetSub("empty"), NewColorBox(5, 5, color.RGBA{0, 0, 0, 0}))
