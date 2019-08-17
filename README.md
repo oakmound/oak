@@ -127,7 +127,7 @@ See the [examples](examples) folder for longer demos, [godoc](https://godoc.org/
 ![Platformer](examples/platformer-tutorial/6-complete/example.gif)
 
 
-Build up to having a simple platforming game by doing the following: Setup a character, get it to move, set basic gravity, get it to jump, make it onlyt jump on solid ground, put it all together.
+Build up to having a simple platforming game by doing the following: Setup a character, get it to move, set basic gravity, get it to jump, make it only jump on solid ground, put it all together.
 
 
 ```go
