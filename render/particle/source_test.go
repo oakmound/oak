@@ -16,8 +16,10 @@ import (
 func TestSource(t *testing.T) {
 	g := NewGradientGenerator(
 		Rotation(floatrange.Constant(1)),
-		Color(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
-		Color2(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
+		Color(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255},
+			color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
+		Color2(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255},
+			color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
 		Size(intrange.Constant(5)),
 		EndSize(intrange.Constant(10)),
 		Shape(shape.Heart),

@@ -4,7 +4,8 @@ import (
 	"github.com/oakmound/oak/alg/intgeom"
 )
 
-// Points is a shape defined by a set of points. It ignores input width and height given to it as it only cares about its points.
+// Points is a shape defined by a set of points.
+// It ignores input width and height given to it as it only cares about its points.
 type Points map[intgeom.Point2]struct{}
 
 // NewPoints creates a Points shape from any number of intgeom Points
@@ -25,7 +26,7 @@ func (p Points) In(x, y int, sizes ...int) bool {
 // Outline returns the set of points along the point map's outline, if
 // one exists
 func (p Points) Outline(sizes ...int) ([]intgeom.Point2, error) {
-	return ToOutline(p)()
+	return ToOutline(p)(sizes...)
 }
 
 // Rect returns a double slice of booleans representing the output of the In function in that rectangle

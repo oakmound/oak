@@ -4,6 +4,8 @@ import (
 	"image/color"
 	"strconv"
 
+	"github.com/oakmound/oak/dlog"
+
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/mouse"
 	"github.com/oakmound/oak/render"
@@ -19,6 +21,7 @@ type Generator struct {
 	Color2       color.Color
 	ProgressFunc func(x, y, w, h int) float64
 	Mod          mod.Transform
+	R            render.Modifiable
 	R1           render.Modifiable
 	R2           render.Modifiable
 	RS           []render.Modifiable
@@ -27,18 +30,17 @@ type Generator struct {
 	Layers       []int
 	Text         string
 	Children     []Generator
-	// This should be a map
-	Binding    event.Bindable
-	Trigger    string
-	Toggle     *bool
-	ListChoice *int
-	Group      *Group
+	Bindings     map[string][]event.Bindable
+	Trigger      string
+	Toggle       *bool
+	ListChoice   *int
+	Group        *Group
 }
 
-var (
+func defGenerator() Generator {
 	// A number of these fields could be removed, because they are the zero
 	// value, but are left for documentation
-	defaultGenerator = Generator{
+	return Generator{
 		X:     0,
 		Y:     0,
 		W:     1,
@@ -47,6 +49,7 @@ var (
 		TxtY:  0,
 		Color: color.RGBA{255, 0, 0, 255},
 		Mod:   nil,
+		R:     nil,
 		R1:    nil,
 		R2:    nil,
 
@@ -55,92 +58,57 @@ var (
 		Font:     nil,
 		Layers:   []int{0},
 		Text:     "Button",
-		Binding:  nil,
+		Bindings: make(map[string][]event.Bindable),
 		Trigger:  "MouseClickOn",
 
 		Toggle: nil,
 	}
-)
+}
 
 // Generate creates a Button from a generator.
 func (g Generator) Generate() Btn {
 	return g.generate(nil)
 }
+
 func (g Generator) generate(parent *Generator) Btn {
 	var box render.Modifiable
-	if g.Toggle != nil {
+	switch {
+	case g.Toggle != nil:
 		//Handles checks and other toggle situations
 		start := "on"
 		if !(*g.Toggle) {
 			start = "off"
 		}
+		if _, ok := g.R1.(*render.Reverting); !ok {
+			g.R1 = render.NewReverting(g.R1)
+		}
+		if _, ok := g.R2.(*render.Reverting); !ok {
+			g.R2 = render.NewReverting(g.R2)
+		}
 		box = render.NewSwitch(start, map[string]render.Modifiable{
 			"on":  g.R1,
 			"off": g.R2,
 		})
-		g.Binding = func(id int, nothing interface{}) int {
-			btn := event.GetEntity(id).(Btn)
-			if btn.GetRenderable().(*render.Switch).Get() == "on" {
-				if g.Group != nil && g.Group.active == btn {
-					g.Group.active = nil
-				}
-				btn.GetRenderable().(*render.Switch).Set("off")
-			} else {
-				// We can pull this out to seperate binding if group != nil
-				if g.Group != nil {
-					g.Group.active = btn
-					for _, b := range g.Group.members {
-						if b.GetRenderable().(*render.Switch).Get() == "on" {
-							b.Trigger("MouseClickOn", nil)
-						}
-					}
-				}
-				btn.GetRenderable().(*render.Switch).Set("on")
-
-			}
-			*g.Toggle = !*g.Toggle
-
-			return 0
-		}
-		g.Trigger = "MouseClickOn"
-	} else if g.ListChoice != nil {
+		g.Bindings["MouseClickOn"] = append(g.Bindings["MouseClickOn"], toggleFxn(g))
+	case g.ListChoice != nil:
 
 		start := "list" + strconv.Itoa(*g.ListChoice)
 		mp := make(map[string]render.Modifiable)
 		for i, r := range g.RS {
+			if _, ok := r.(*render.Reverting); !ok {
+				r = render.NewReverting(r)
+			}
 			mp["list"+strconv.Itoa(i)] = r
 		}
 		box = render.NewSwitch(start, mp)
 
-		g.Binding = func(id int, button interface{}) int {
-			btn := event.GetEntity(id).(*TextBox)
-			i := *g.ListChoice
-			mEvent := button.(mouse.Event)
-
-			if mEvent.Button == "LeftMouse" {
-				i++
-				if i == len(g.RS) {
-					i = 0
-				}
-
-			} else if mEvent.Button == "RightMouse" {
-				i--
-				if i < 0 {
-					i += len(g.RS)
-				}
-			}
-
-			btn.R.(*render.Switch).Set("list" + strconv.Itoa(i))
-
-			*g.ListChoice = i
-
-			return 0
-		}
-		g.Trigger = "MouseClickOn"
-	} else if g.ProgressFunc != nil {
-		box = render.NewGradientBox(int(g.W), int(g.H), g.Color, g.Color2, g.ProgressFunc)
-	} else {
-		box = render.NewColorBox(int(g.W), int(g.H), g.Color)
+		g.Bindings["MouseClickOn"] = append(g.Bindings["MouseClickOn"], listFxn(g))
+	case g.R != nil:
+		box = render.NewReverting(g.R)
+	case g.ProgressFunc != nil:
+		box = render.NewReverting(render.NewGradientBox(int(g.W), int(g.H), g.Color, g.Color2, g.ProgressFunc))
+	default:
+		box = render.NewReverting(render.NewColorBox(int(g.W), int(g.H), g.Color))
 	}
 
 	if g.Mod != nil {
@@ -150,13 +118,23 @@ func (g Generator) generate(parent *Generator) Btn {
 	if font == nil {
 		font = render.DefFont()
 	}
-	// Todo: if no string is defined, don't do this
-	btn := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
-	btn.SetString(g.Text)
-
-	if g.Binding != nil {
-		btn.Bind(g.Binding, g.Trigger)
+	var btn Btn
+	if g.Text != "" {
+		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
+		txtbx.SetString(g.Text)
+		btn = txtbx
+	} else {
+		btn = NewBox(g.Cid, g.X, g.Y, g.W, g.H, box, g.Layers...)
 	}
+
+	for k, v := range g.Bindings {
+		for _, b := range v {
+			btn.Bind(b, k)
+		}
+	}
+
+	err := mouse.PhaseCollision(btn.GetSpace())
+	dlog.ErrorCheck(err)
 
 	if g.Group != nil {
 		g.Group.members = append(g.Group.members, btn)
@@ -170,9 +148,68 @@ type Option func(Generator) Generator
 
 // New creates a button with the given options and defaults for all variables not set.
 func New(opts ...Option) Btn {
-	g := defaultGenerator
+	g := defGenerator()
 	for _, opt := range opts {
+		if opt == nil {
+			continue
+		}
 		g = opt(g)
 	}
 	return g.Generate()
+}
+
+// toggleFxn sets up the mouseclick binding for toggle buttons created for goreport cyclo decrease
+func toggleFxn(g Generator) func(id int, nothing interface{}) int {
+	return func(id int, nothing interface{}) int {
+		btn := event.GetEntity(id).(Btn)
+		if btn.GetRenderable().(*render.Switch).Get() == "on" {
+			if g.Group != nil && g.Group.active == btn {
+				g.Group.active = nil
+			}
+			btn.GetRenderable().(*render.Switch).Set("off")
+		} else {
+			// We can pull this out to separate binding if group != nil
+			if g.Group != nil {
+				g.Group.active = btn
+				for _, b := range g.Group.members {
+					if b.GetRenderable().(*render.Switch).Get() == "on" {
+						b.Trigger("MouseClickOn", nil)
+					}
+				}
+			}
+			btn.GetRenderable().(*render.Switch).Set("on")
+
+		}
+		*g.Toggle = !*g.Toggle
+
+		return 0
+	}
+}
+
+// listFxn sets up the mouseclick binding for list buttons created for goreport cyclo decrease
+func listFxn(g Generator) func(id int, button interface{}) int {
+	return func(id int, button interface{}) int {
+		btn := event.GetEntity(id).(Btn)
+		i := *g.ListChoice
+		mEvent := button.(mouse.Event)
+
+		if mEvent.Button == "LeftMouse" {
+			i++
+			if i == len(g.RS) {
+				i = 0
+			}
+
+		} else if mEvent.Button == "RightMouse" {
+			i--
+			if i < 0 {
+				i += len(g.RS)
+			}
+		}
+
+		btn.GetRenderable().(*render.Switch).Set("list" + strconv.Itoa(i))
+
+		*g.ListChoice = i
+
+		return 0
+	}
 }

@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	regexpSingleNumber, _ = regexp.Compile(`^\d+$`)
-	regexpTwoNumbers, _   = regexp.Compile(`^\d+x\d+$`)
+	regexpSingleNumber = regexp.MustCompile(`^\d+$`)
+	regexpTwoNumbers   = regexp.MustCompile(`^\d+x\d+$`)
 )
 
 // BatchLoad loads subdirectories from the given base folder and imports all files,
@@ -34,6 +34,8 @@ func BatchLoad(baseFolder string) error {
 	}
 	aliases := parseAliasFile(baseFolder)
 
+	warnFiles := []string{}
+
 	for i, folder := range folders {
 
 		dlog.Verb("folder ", i, folder.Name())
@@ -50,6 +52,10 @@ func BatchLoad(baseFolder string) error {
 					name := file.Name()
 					if _, ok := fileDecoders[strings.ToLower(name[len(name)-4:])]; ok {
 						dlog.Verb("loading file ", name)
+						lower := strings.ToLower(name)
+						if lower != name {
+							warnFiles = append(warnFiles, filepath.Join(folder.Name(), name))
+						}
 						buff, err := loadSprite(baseFolder, filepath.Join(folder.Name(), name))
 						if err != nil {
 							dlog.Error(err)
@@ -63,8 +69,10 @@ func BatchLoad(baseFolder string) error {
 						if !possibleSheet {
 							continue
 						} else if w < frameW || h < frameH {
-							dlog.Error("File ", name, " in folder", folder.Name(), " is too small for folder dimensions", frameW, frameH)
-							return errors.New("File in folder is too small for folder dimensions: " + strconv.Itoa(w) + ", " + strconv.Itoa(h))
+							dlog.Error("File ", name, " in folder", folder.Name(),
+								" is too small for folder dimensions", frameW, frameH)
+							return errors.New("File in folder is too small for folder dimensions: " +
+								strconv.Itoa(w) + ", " + strconv.Itoa(h))
 
 							// Load this as a sheet if it is greater
 							// than the folder size's frame size
@@ -81,6 +89,11 @@ func BatchLoad(baseFolder string) error {
 		} else {
 			dlog.Verb("Not Folder", folder.Name())
 		}
+	}
+	if len(warnFiles) != 0 {
+		fileNames := strings.Join(warnFiles, ",")
+		dlog.Warn("The files", fileNames, "are not all lowercase. This may cause data to fail to load"+
+			" when using tools like go-bindata.")
 	}
 	return nil
 }

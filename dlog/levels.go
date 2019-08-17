@@ -11,3 +11,11 @@ const (
 	INFO
 	VERBOSE
 )
+
+var logLevels = map[Level]string{
+	NONE:    "NONE",
+	ERROR:   "ERROR",
+	WARN:    "WARN",
+	INFO:    "INFO",
+	VERBOSE: "VERBOSE",
+}

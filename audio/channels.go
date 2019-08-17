@@ -28,7 +28,9 @@ func GetActiveChannel(f *font.Font, freq intrange.Range, fileNames ...string) (c
 	return getActiveChannel(f, freq, timing.ClearDelayCh, fileNames...)
 }
 
-func getActiveChannel(f *font.Font, freq intrange.Range, quitCh chan bool, fileNames ...string) (chan ChannelSignal, error) {
+func getActiveChannel(f *font.Font, freq intrange.Range, quitCh chan bool,
+	fileNames ...string) (chan ChannelSignal, error) {
+
 	datas, err := GetSounds(fileNames...)
 	if err != nil {
 		return nil, err

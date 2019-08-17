@@ -32,12 +32,16 @@ func (cm *ChannelManager) DefActiveChannel(freq intrange.Range, fileNames ...str
 }
 
 // GetChannel creates a channel using the given font.
-func (cm *ChannelManager) GetChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+func (cm *ChannelManager) GetChannel(f *font.Font, freq intrange.Range,
+	fileNames ...string) (chan ChannelSignal, error) {
+
 	return getChannel(f, freq, cm.quitCh, fileNames...)
 }
 
 // GetActiveChannel creates an active channel using the given font.
-func (cm *ChannelManager) GetActiveChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+func (cm *ChannelManager) GetActiveChannel(f *font.Font, freq intrange.Range,
+	fileNames ...string) (chan ChannelSignal, error) {
+
 	return getActiveChannel(f, freq, cm.quitCh, fileNames...)
 }
 

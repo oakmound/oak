@@ -36,7 +36,8 @@ func NewSwitch(start string, m map[string]Modifiable) *Switch {
 	}
 }
 
-// Add makes a new entry in the Switch's map
+// Add makes a new entry in the Switch's map. If the key already
+// existed, it will be overwritten and an error will be returned.
 func (c *Switch) Add(k string, v Modifiable) (err error) {
 	if _, ok := c.subRenderables[k]; ok {
 		err = oakerr.ExistingElement{

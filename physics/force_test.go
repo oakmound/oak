@@ -30,7 +30,7 @@ func TestForce(t *testing.T) {
 	}
 
 	assert.NotNil(t, dm.SetMass(-10))
-	dm.SetMass(10)
+	assert.Nil(t, dm.SetMass(10))
 
 	dm2 := &DeltaMass{
 		Mass{-10},

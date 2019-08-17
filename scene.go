@@ -28,7 +28,7 @@ func AddScene(name string, s scene.Scene) error {
 	return SceneMap.AddScene(name, s)
 }
 
-// Add is shorthand for oak.SceneMap.Add
+// Add is shorthand for oak.SceneMap.Add  /scene#Add
 func Add(name string, start scene.Start, loop scene.Loop, end scene.End) error {
 	return SceneMap.Add(name, start, loop, end)
 }

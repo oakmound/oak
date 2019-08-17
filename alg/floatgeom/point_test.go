@@ -22,17 +22,24 @@ func TestPointRotate(t *testing.T) {
 func TestPointNormalize(t *testing.T) {
 	p1 := Point2{100, 200}.Normalize()
 	p2 := Point3{100, 200, 300}.Normalize()
+	p3 := Point4{100, 200, 300, 400}.Normalize()
 
 	assert.InEpsilon(t, p1.X(), 1/math.Sqrt(5), .0001)
 	assert.InEpsilon(t, p1.Y(), 2/math.Sqrt(5), .0001)
 	assert.InEpsilon(t, p2.X(), 1/math.Sqrt(14), .0001)
 	assert.InEpsilon(t, p2.Y(), 2/math.Sqrt(14), .0001)
 	assert.InEpsilon(t, p2.Z(), 3/math.Sqrt(14), .0001)
+	assert.InEpsilon(t, p3.W(), 1/math.Sqrt(30), .0001)
+	assert.InEpsilon(t, p3.X(), 2/math.Sqrt(30), .0001)
+	assert.InEpsilon(t, p3.Y(), 3/math.Sqrt(30), .0001)
+	assert.InEpsilon(t, p3.Z(), 4/math.Sqrt(30), .0001)
 
-	p3 := Point2{0, 0}
-	p4 := Point3{0, 0, 0}
-	assert.Equal(t, p3, p3.Normalize())
+	p4 := Point2{0, 0}
+	p5 := Point3{0, 0, 0}
+	p6 := Point4{0, 0, 0, 0}
 	assert.Equal(t, p4, p4.Normalize())
+	assert.Equal(t, p5, p5.Normalize())
+	assert.Equal(t, p6, p6.Normalize())
 }
 
 func TestPointProject(t *testing.T) {
@@ -46,15 +53,26 @@ func TestPointProject(t *testing.T) {
 	}
 }
 
+func TestCrossProduct(t *testing.T) {
+	p1 := Point3{1, 2, 1}
+	p2 := Point3{3, 1, 3}
+
+	assert.Equal(t, Point3{5, 0, -5}, p1.Cross(p2))
+}
+
 func TestPointConstMods(t *testing.T) {
 	p1 := Point2{1, 1}
 	p2 := Point3{1, 1, 1}
+	p3 := Point4{1, 1, 1, 1}
 	assert.Equal(t, Point2{5, 5}, p1.MulConst(5))
 	assert.Equal(t, Point3{100, 100, 100}, p2.MulConst(100))
-	p3 := Point2{2, 2}
-	p4 := Point3{2, 2, 2}
-	assert.Equal(t, Point2{.5, .5}, p3.DivConst(4))
-	assert.Equal(t, Point3{.25, .25, .25}, p4.DivConst(8))
+	assert.Equal(t, Point4{500, 500, 500, 500}, p3.MulConst(500))
+	p4 := Point2{2, 2}
+	p5 := Point3{2, 2, 2}
+	p6 := Point4{2, 2, 2, 2}
+	assert.Equal(t, Point2{.5, .5}, p4.DivConst(4))
+	assert.Equal(t, Point3{.25, .25, .25}, p5.DivConst(8))
+	assert.Equal(t, Point4{1, 1, 1, 1}, p6.DivConst(2))
 }
 
 func TestAnglePoints(t *testing.T) {
@@ -107,19 +125,29 @@ func TestPointLesserOf(t *testing.T) {
 }
 
 func TestPointAccess(t *testing.T) {
-	a := Point3{0, 1, 2}
+	a := Point4{0, 1, 2, 3}
 	assert.Equal(t, 0.0, a.Dim(0))
 	assert.Equal(t, 1.0, a.Dim(1))
 	assert.Equal(t, 2.0, a.Dim(2))
-	assert.Equal(t, 0.0, a.X())
-	assert.Equal(t, 1.0, a.Y())
-	assert.Equal(t, 2.0, a.Z())
+	assert.Equal(t, 3.0, a.Dim(3))
+	assert.Equal(t, 0.0, a.W())
+	assert.Equal(t, 1.0, a.X())
+	assert.Equal(t, 2.0, a.Y())
+	assert.Equal(t, 3.0, a.Z())
 
-	b := Point2{0, 1}
+	b := Point3{0, 1, 2}
 	assert.Equal(t, 0.0, b.Dim(0))
 	assert.Equal(t, 1.0, b.Dim(1))
+	assert.Equal(t, 2.0, b.Dim(2))
 	assert.Equal(t, 0.0, b.X())
 	assert.Equal(t, 1.0, b.Y())
+	assert.Equal(t, 2.0, b.Z())
+
+	c := Point2{0, 1}
+	assert.Equal(t, 0.0, c.Dim(0))
+	assert.Equal(t, 1.0, c.Dim(1))
+	assert.Equal(t, 0.0, c.X())
+	assert.Equal(t, 1.0, c.Y())
 }
 
 // Pattern here: there's a set of input pairs here
@@ -277,4 +305,11 @@ func TestPointToRec(t *testing.T) {
 			Point2{x, y}.ToRect(span),
 		)
 	}
+}
+
+func TestQuaternionMultiplication(t *testing.T) {
+	a := Point4{1, 1, 1, 1}.Normalize()
+	b := a.Inverse()
+	c := Point4{1, 0, 0, 0}
+	assert.Equal(t, c, a.MulQuat(b))
 }

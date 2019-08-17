@@ -57,6 +57,7 @@ type Bus struct {
 	fullUnbinds         []UnbindOption
 	unbinds             []binding
 	unbindAllAndRebinds []UnbindAllOption
+	framerate           int
 
 	mutex        sync.RWMutex
 	pendingMutex sync.Mutex
@@ -67,7 +68,9 @@ type Bus struct {
 // NewBus returns an empty event bus
 func NewBus() *Bus {
 	return &Bus{
+		Ticker:              timing.NewDynamicTicker(),
 		bindingMap:          make(map[string]map[int]*bindableStore),
+		updateCh:            make(chan bool),
 		doneCh:              make(chan bool),
 		binds:               make([]UnbindOption, 0),
 		partUnbinds:         make([]BindingOption, 0),

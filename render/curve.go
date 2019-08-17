@@ -9,13 +9,22 @@ import (
 	"github.com/oakmound/oak/physics"
 )
 
+// NewCircle creates a sprite and draws a circle onto it
+func NewCircle(c color.Color, radius, thickness float64, offsets ...float64) *Sprite {
+	sp := NewEmptySprite(0, 0, int(radius)*2, int(radius)*2)
+	DrawCircle(sp.GetRGBA(), c, radius, thickness, offsets...)
+	return sp
+}
+
 // DrawCircle draws a circle on the input rgba, of color c.
 func DrawCircle(rgba *image.RGBA, c color.Color, radius, thickness float64, offsets ...float64) {
 	DrawCurve(rgba, c, radius, thickness, 0, 1, offsets...)
 }
 
 // DrawCurve draws a curve inward on the input rgba, of color c.
-func DrawCurve(rgba *image.RGBA, c color.Color, radius, thickness, initialAngle, circlePercentage float64, offsets ...float64) {
+func DrawCurve(rgba *image.RGBA, c color.Color, radius, thickness,
+	initialAngle, circlePercentage float64, offsets ...float64) {
+
 	offX := 0.0
 	offY := 0.0
 	if len(offsets) > 0 {

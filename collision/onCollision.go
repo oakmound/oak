@@ -29,9 +29,9 @@ type collisionPhase interface {
 // receive CollisionStart and CollisionStop events, appropriately when
 // entities begin to collide or stop colliding with the space.
 func PhaseCollision(s *Space, trees ...*Tree) error {
-	switch t := event.GetEntity(int(s.CID)).(type) {
-	case collisionPhase:
-		oc := t.getCollisionPhase()
+	en := event.GetEntity(int(s.CID))
+	if cp, ok := en.(collisionPhase); ok {
+		oc := cp.getCollisionPhase()
 		oc.OnCollisionS = s
 		if len(trees) > 0 {
 			oc.tree = trees[0]

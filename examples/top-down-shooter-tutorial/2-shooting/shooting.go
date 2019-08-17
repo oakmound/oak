@@ -15,6 +15,7 @@ import (
 	"github.com/oakmound/oak/scene"
 )
 
+// Collision labels
 const (
 	Enemy  collision.Label = 1
 	Player collision.Label = 2

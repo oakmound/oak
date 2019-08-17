@@ -11,6 +11,12 @@ import (
 func TestSimpleCircle(t *testing.T) {
 	rgba := image.NewRGBA(image.Rect(0, 0, 10, 10))
 	DrawCircle(rgba, color.RGBA{255, 255, 255, 255}, 5, 0, 0, 0)
+	circleRGBACheck(t, rgba)
+	c := NewCircle(color.RGBA{255, 255, 255, 255}, 5, 0, 0, 0)
+	circleRGBACheck(t, c.GetRGBA())
+}
+
+func circleRGBACheck(t *testing.T, rgba *image.RGBA) {
 	// For better or for worse, the current implementation produces
 	// . . . . . . . . . .
 	// . . . x x x x x . .

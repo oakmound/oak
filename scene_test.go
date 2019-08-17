@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/scene"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSceneTransition(t *testing.T) {
@@ -14,7 +15,7 @@ func TestSceneTransition(t *testing.T) {
 		"VERBOSE",
 		"",
 	}
-	AddScene("transition",
+	err := AddScene("transition",
 		scene.Scene{
 			// Initialization function
 			Start: func(prevScene string, inData interface{}) {},
@@ -25,7 +26,8 @@ func TestSceneTransition(t *testing.T) {
 				return "next", &scene.Result{Transition: scene.Fade(.001, 300)}
 			},
 		})
-	Add("next",
+	assert.Nil(t, err)
+	err = Add("next",
 		// Initialization function
 		func(prevScene string, inData interface{}) {},
 		// Loop to continue or stop current scene
@@ -34,6 +36,7 @@ func TestSceneTransition(t *testing.T) {
 		func() (nextScene string, result *scene.Result) {
 			return "next", nil
 		})
+	assert.Nil(t, err)
 	go Init("transition")
 	time.Sleep(2 * time.Second)
 

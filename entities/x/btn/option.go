@@ -3,6 +3,8 @@ package btn
 import (
 	"image/color"
 
+	"github.com/oakmound/oak/mouse"
+
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
 	"github.com/oakmound/oak/render/mod"
@@ -15,6 +17,13 @@ func And(opts ...Option) Option {
 			g = opt(g)
 		}
 		return g
+	}
+}
+
+// Clear resets the button to be empty
+func Clear() Option {
+	return func(g Generator) Generator {
+		return Generator{}
 	}
 }
 
@@ -39,6 +48,15 @@ func Pos(x, y float64) Option {
 	return func(g Generator) Generator {
 		g.X = x
 		g.Y = y
+		return g
+	}
+}
+
+//Offset increments the position of the button to be generated
+func Offset(x, y float64) Option {
+	return func(g Generator) Generator {
+		g.X += x
+		g.Y += y
 		return g
 	}
 }
@@ -98,6 +116,15 @@ func Layers(ls ...int) Option {
 	}
 }
 
+// Renderable sets a renderable to use as a base image for the button.
+// Not compatible with Color / Toggle.
+func Renderable(r render.Modifiable) Option {
+	return func(g Generator) Generator {
+		g.R = r
+		return g
+	}
+}
+
 // Toggle sets that the type of the button toggles between two
 // modifiables when it is clicked. The boolean behind isChecked
 // is updated according to the state of the button.
@@ -119,18 +146,16 @@ func ToggleList(chosen *int, rs ...render.Modifiable) Option {
 	}
 }
 
-//Binding sets the Binding of the button to be generated
-func Binding(bnd event.Bindable) Option {
+// Binding appends a function to be called when a specific event
+// is triggered.
+func Binding(s string, bnd event.Bindable) Option {
 	return func(g Generator) Generator {
-		g.Binding = bnd
+		g.Bindings[s] = append(g.Bindings[s], bnd)
 		return g
 	}
 }
 
-//Trigger sets the trigger for the Binding on the button to be generated
-func Trigger(s string) Option {
-	return func(g Generator) Generator {
-		g.Trigger = s
-		return g
-	}
+// Click appends a function to be called when the button is clicked on.
+func Click(bnd event.Bindable) Option {
+	return Binding(mouse.ClickOn, bnd)
 }

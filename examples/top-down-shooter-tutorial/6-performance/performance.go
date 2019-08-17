@@ -184,11 +184,13 @@ func main() {
 	oak.Init("tds")
 }
 
+// Top down shooter consts
 const (
 	EnemyRefresh = 25
 	EnemySpeed   = 2
 )
 
+// NewEnemy creates an enemy for a top down shooter
 func NewEnemy() {
 	x, y := enemyPos()
 

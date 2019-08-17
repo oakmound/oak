@@ -23,7 +23,6 @@ var (
 type Tree struct {
 	*Rtree
 	sync.Mutex
-	minChildren, maxChildren int
 }
 
 // NewTree returns a new collision Tree. The first argument will be used
@@ -44,16 +43,14 @@ func NewTree(children ...int) (*Tree, error) {
 		return nil, errors.New("MaxChildren must exceed MinChildren")
 	}
 	return &Tree{
-		Rtree:       newTree(minChildren, maxChildren),
-		minChildren: minChildren,
-		maxChildren: maxChildren,
-		Mutex:       sync.Mutex{},
+		Rtree: newTree(minChildren, maxChildren),
+		Mutex: sync.Mutex{},
 	}, nil
 }
 
 // Clear resets a tree's contents to be empty
 func (t *Tree) Clear() {
-	t.Rtree = newTree(t.minChildren, t.maxChildren)
+	t.Rtree = newTree(t.Rtree.MinChildren, t.Rtree.MaxChildren)
 }
 
 // Add adds a set of spaces to the rtree
@@ -98,20 +95,8 @@ var ErrNotExist = errors.New("Space did not exist to update")
 // This is not an operation on a space because
 // a space can exist in multiple rtrees.
 func (t *Tree) UpdateSpace(x, y, w, h float64, s *Space) error {
-	if s == nil {
-		return oakerr.NilInput{InputName: "s"}
-	}
 	loc := NewRect(x, y, w, h)
-	t.Lock()
-	deleted := t.Delete(s)
-	if !deleted {
-		t.Unlock()
-		return ErrNotExist
-	}
-	s.Location = loc
-	t.Insert(s)
-	t.Unlock()
-	return nil
+	return t.UpdateSpaceRect(loc, s)
 }
 
 // UpdateSpaceRect acts as UpdateSpace, but takes in a rectangle instead
@@ -137,8 +122,8 @@ func (t *Tree) ShiftSpace(x, y float64, s *Space) error {
 	if s == nil {
 		return oakerr.NilInput{InputName: "s"}
 	}
-	x = x + s.X()
-	y = y + s.Y()
+	x += s.X()
+	y += s.Y()
 	return t.UpdateSpace(x, y, s.GetW(), s.GetH(), s)
 }
 
@@ -151,7 +136,8 @@ func (t *Tree) Hits(sp *Space) []*Space {
 	hitSelf := -1
 	i := 0
 	for i < len(results) {
-		// Todo: figure out why we're getting nils
+		// Todo: replicate getting nils again, its not happening anymore
+		// without unexported field modification
 		if results[i] == nil {
 			results = append(results[:i], results[i+1:]...)
 		} else {

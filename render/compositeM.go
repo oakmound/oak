@@ -71,7 +71,8 @@ func (cs *CompositeM) Get(i int) Modifiable {
 	return cs.rs[i]
 }
 
-// DrawOffset draws the CompositeM with some offset from its logical position (and therefore sub renderables logical positions).
+// DrawOffset draws the CompositeM with some offset from its logical position
+// (and therefore sub renderables logical positions).
 func (cs *CompositeM) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	for _, c := range cs.rs {
 		c.DrawOffset(buff, cs.X()+xOff, cs.Y()+yOff)
@@ -137,7 +138,7 @@ func (cs *CompositeM) ToSprite() *Sprite {
 func (cs *CompositeM) Copy() Modifiable {
 	cs2 := new(CompositeM)
 	cs2.layer = cs.layer
-	cs2.Vector = cs.Vector
+	cs2.Vector = cs.Vector.Copy()
 	cs2.rs = make([]Modifiable, len(cs.rs))
 	for i, v := range cs.rs {
 		cs2.rs[i] = v.Copy()

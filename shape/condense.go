@@ -2,14 +2,15 @@ package shape
 
 import "github.com/oakmound/oak/alg/intgeom"
 
-// Condense finds a set of rectangles that covers the shape. Used to return a minimal set of rectangles in an appropriate time.
+// Condense finds a set of rectangles that covers the shape.
+// Used to return a minimal set of rectangles in an appropriate time.
 func Condense(sh Shape, w, h int) []intgeom.Rect2 {
 	condensed := []intgeom.Rect2{}
 	remainingSpaces := make(map[intgeom.Point2]struct{})
 
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
-			if sh.In(x, y) {
+			if sh.In(x, y, w, h) {
 				remainingSpaces[intgeom.Point2{x, y}] = struct{}{}
 			}
 		}

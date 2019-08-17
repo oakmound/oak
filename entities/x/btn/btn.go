@@ -1,6 +1,7 @@
 package btn
 
 import (
+	"github.com/oakmound/oak/collision"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/render"
 )
@@ -10,4 +11,5 @@ type Btn interface {
 	event.Caller
 	render.Positional
 	GetRenderable() render.Renderable
+	GetSpace() *collision.Space
 }

@@ -16,8 +16,8 @@ import (
 // ~60 fps draw rate with these examples in testing
 const (
 	strRangeTop = 128
-	strlen      = 360
-	strSize     = 4
+	strlen      = 250
+	strSize     = 6
 )
 
 var (
@@ -43,8 +43,9 @@ func main() {
 		// Init
 		func(prevScene string, payload interface{}) {
 			r = 255
+			// By not specifying "File", we use the default
+			// font built into the engine
 			fg := render.FontGenerator{
-				File:    "luxisr.ttf",
 				Color:   image.NewUniform(color.RGBA{255, 0, 0, 255}),
 				Size:    strSize,
 				Hinting: "",

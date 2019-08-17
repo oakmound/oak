@@ -278,6 +278,17 @@ func (p Point3) DivConst(fs ...float64) Point3 {
 	return p
 }
 
+// MulConst multiplies all elements of a point by the input floats
+func (p Point4) MulConst(fs ...float64) Point4 {
+	for _, f := range fs {
+		p[0] *= f
+		p[1] *= f
+		p[2] *= f
+		p[3] *= f
+	}
+	return p
+}
+
 // DivConst divides all elements of a point by the input floats
 // DivConst does not check that the inputs are non zero before operating,
 // and can panic if that is not true.
@@ -424,6 +435,7 @@ func (p Point2) RadiansTo(p2 Point2) float64 {
 	return p.Sub(p2).ToRadians()
 }
 
+// Conjugate returns a value of a Point4 often obtained to calculate the inverse
 func (p Point4) Conjugate() Point4 {
 	return Point4{
 		p[0],
@@ -433,11 +445,13 @@ func (p Point4) Conjugate() Point4 {
 	}
 }
 
+// Inverse of a Point4, often used to get the inverse rotation of a quaternion
 func (p Point4) Inverse() Point4 {
 	cng := p.Conjugate()
 	return cng.Normalize()
 }
 
+// MulQuat multiplies two quaternions to generate a combined quarternion that represents both rotations
 // ref: https://www.mathworks.com/help/aeroblks/quaternionmultiplication.html
 func (p Point4) MulQuat(p2 Point4) Point4 {
 	return Point4{

@@ -49,6 +49,7 @@ const (
 	Zero  = "0"
 
 	ReturnEnter        = "ReturnEnter"
+	Enter              = ReturnEnter
 	Escape             = "Escape"
 	DeleteBackspace    = "DeleteBackspace"
 	Tab                = "Tab"

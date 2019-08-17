@@ -11,7 +11,8 @@ import (
 func TestChannels(t *testing.T) {
 	_, err := DefChannel(intrange.Constant(5))
 	assert.NotNil(t, err)
-	Load(".", "test.wav")
+	_, err = Load(".", "test.wav")
+	assert.Nil(t, err)
 	ch, err := DefChannel(intrange.NewLinear(1, 100), "test.wav")
 	assert.Nil(t, err)
 	assert.NotNil(t, ch)

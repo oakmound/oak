@@ -74,16 +74,19 @@ func main() {
 	oak.Init("demo")
 }
 
+// Gopher is a basic bouncing renderable
 type Gopher struct {
 	*entities.Doodad
 	deltaX, deltaY float64
 	rotation       int
 }
 
+// Init sets up a gophers CID
 func (g *Gopher) Init() event.CID {
 	return event.NextID(g)
 }
 
+// NewGopher creates a gopher sprite to bounce around
 func NewGopher(layer int) {
 	goph := Gopher{}
 	goph.Doodad = entities.NewDoodad(

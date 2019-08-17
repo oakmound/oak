@@ -37,7 +37,7 @@ func InToRect(i In) Rect {
 type StrictRect [][]bool
 
 // NewStrictRect returns a StrictRect with the given strict dimensions, all
-// values set fo false.
+// values set to false.
 func NewStrictRect(w, h int) StrictRect {
 	sh := make(StrictRect, w)
 	for x := range sh {

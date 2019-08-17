@@ -48,12 +48,24 @@ func (s *Space) Y() float64 {
 }
 
 // GetW returns a space's width (rightmost x - leftmost x)
+// Deprecated: Use W instead
 func (s *Space) GetW() float64 {
 	return s.Location.W()
 }
 
 // GetH returns a space's height (upper y - lower y)
+// Deprecated: Use H instead
 func (s *Space) GetH() float64 {
+	return s.Location.H()
+}
+
+// W returns a space's width (rightmost x - leftmost x)
+func (s *Space) W() float64 {
+	return s.Location.W()
+}
+
+// H returns a space's height (upper y - lower y)
+func (s *Space) H() float64 {
 	return s.Location.H()
 }
 

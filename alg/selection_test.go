@@ -28,6 +28,8 @@ func TestUniqueChooseX(t *testing.T) {
 	// -1 represents an error from this
 	chosen = UniqueChooseX(weights, 20)
 	assert.Contains(t, chosen, -1)
+	chosen = UniqueChooseXSeeded(weights, 20, rand.New(rand.NewSource(0)))
+	assert.Contains(t, chosen, -1)
 	//
 	chosenCts = make([]int, len(weights))
 	for i := 0; i < testCt; i++ {
@@ -87,6 +89,8 @@ func TestWeightedMapChoice(t *testing.T) {
 	}
 	// This uses the same underlying function as chooseX internally
 	chosen := WeightedMapChoice(m)
+	assert.True(t, chosen < 10)
+	chosen = WeightedMapChoiceSeeded(m, rand.New(rand.NewSource(0)))
 	assert.True(t, chosen < 10)
 }
 

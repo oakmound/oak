@@ -47,7 +47,7 @@ func GetEntity(i int) interface{} {
 func ScanForEntity(by func(interface{}) bool) (int, interface{}) {
 	for i, e := range callers {
 		if by(e) {
-			return i, e
+			return i + 1, e
 		}
 	}
 	return -1, nil

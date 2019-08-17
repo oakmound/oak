@@ -27,6 +27,7 @@ func TestTextFns(t *testing.T) {
 
 	txt.SetString("Test2")
 	assert.Equal(t, "Test2", txt.text.String())
+	assert.Equal(t, "Test2", txt.StringLiteral())
 
 	n := 100
 	txt.SetIntP(&n)

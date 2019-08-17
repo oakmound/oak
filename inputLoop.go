@@ -57,15 +57,16 @@ func inputLoop() {
 		case key.Event:
 			// key.Code strings all begin with "Code". This strips that off.
 			k := GetKeyBind(e.Code.String()[4:])
-			if e.Direction == key.DirPress {
+			switch e.Direction {
+			case key.DirPress:
 				setDown(k)
 				logicHandler.Trigger(okey.Down, k)
 				logicHandler.Trigger(okey.Down+k, nil)
-			} else if e.Direction == key.DirRelease {
+			case key.DirRelease:
 				setUp(k)
 				logicHandler.Trigger(okey.Up, k)
 				logicHandler.Trigger(okey.Up+k, nil)
-			} else {
+			default:
 				logicHandler.Trigger(okey.Held, k)
 				logicHandler.Trigger(okey.Held+k, nil)
 			}

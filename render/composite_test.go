@@ -50,6 +50,16 @@ func TestComposite(t *testing.T) {
 
 	cmp3.Prepend(nil)
 	assert.Equal(t, 4, cmp3.Len())
+
+	cmp4 := NewCompositeM(
+		NewColorBox(2, 2, color.RGBA{0, 0, 0, 255}),
+		NewColorBox(1, 1, color.RGBA{0, 0, 0, 255}),
+		NewColorBox(3, 3, color.RGBA{0, 0, 0, 255}),
+	)
+
+	cSprite := cmp4.ToSprite()
+	assert.Equal(t, color.RGBA{0, 0, 0, 255}, cSprite.At(1, 1))
+
 }
 
 func TestCompositeR(t *testing.T) {

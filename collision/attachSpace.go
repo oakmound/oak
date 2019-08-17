@@ -47,14 +47,14 @@ func Attach(v physics.Vector, s *Space, offsets ...float64) error {
 		}
 		return nil
 	}
-	return errors.New("This space's entity is not composed of AttachSpace")
+	return errors.New("this space's entity is not composed of AttachSpace")
 }
 
 // Detach removes the attachSpaceEnter binding from an entity composed with
 // AttachSpace
 func Detach(s *Space) error {
-	switch event.GetEntity(int(s.CID)).(type) {
-	case attachSpace:
+	en := event.GetEntity(int(s.CID))
+	if _, ok := en.(attachSpace); ok {
 		// Todo: this syntax is ugly
 		// Note UnbindBindable is not a recommended way to unbind things,
 		// but is okay here because we know we are not unbinding a closure.
@@ -72,7 +72,7 @@ func Detach(s *Space) error {
 		)
 		return nil
 	}
-	return errors.New("This space's entity is not composed of AttachSpace")
+	return errors.New("this space's entity is not composed of AttachSpace")
 }
 
 // attachSpaceEnter currently uses the default tree, always. Todo: change this,
@@ -83,7 +83,8 @@ func attachSpaceEnter(id int, nothing interface{}) int {
 	if x != (*as.aSpace).X() ||
 		y != (*as.aSpace).Y() {
 
-		// If this was a nil pointer it would have already crashed but as of release 2.2.0 this could error from the space to delete not existing in the rtree.
+		// If this was a nil pointer it would have already crashed but as of release 2.2.0
+		// this could error from the space to delete not existing in the rtree.
 		// TODO: consider the case where as.aspace is not in the default rtree
 		UpdateSpace(x, y, (*as.aSpace).GetW(), (*as.aSpace).GetH(), *as.aSpace)
 	}

@@ -27,9 +27,9 @@ type collisionPhase interface {
 // receive MouseCollisionStart and MouseCollisionStop events, appropriately when
 // the mouse begins to hover or stops hovering over the input space.
 func PhaseCollision(s *collision.Space) error {
-	switch t := event.GetEntity(int(s.CID)).(type) {
-	case collisionPhase:
-		oc := t.getCollisionPhase()
+	en := event.GetEntity(int(s.CID))
+	if cp, ok := en.(collisionPhase); ok {
+		oc := cp.getCollisionPhase()
 		oc.OnCollisionS = s
 		s.CID.Bind(phaseCollisionEnter, event.Enter)
 		return nil

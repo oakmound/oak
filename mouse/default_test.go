@@ -15,10 +15,10 @@ func TestDefaultFunctions(t *testing.T) {
 	assert.Empty(t, Hits(collision.NewUnassignedSpace(1, 1, 1, 1)))
 
 	Add(s)
-	ShiftSpace(3, 3, s)
+	assert.Nil(t, ShiftSpace(3, 3, s))
 	assert.Empty(t, Hits(collision.NewUnassignedSpace(1, 1, 1, 1)))
 
-	UpdateSpace(0, 0, 10, 10, s)
+	assert.Nil(t, UpdateSpace(0, 0, 10, 10, s))
 	assert.NotEmpty(t, Hits(collision.NewUnassignedSpace(1, 1, 1, 1)))
 
 	Clear()

@@ -41,7 +41,7 @@ func (l *logger) GetLogLevel() Level {
 // both logfiles and stdout
 func (l *logger) dLog(console, override bool, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
-	_, f, line, ok := runtime.Caller(3)
+	_, f, line, ok := runtime.Caller(2)
 	if ok {
 		f = truncateFileName(f)
 		if !l.checkFilter(f, in) && !override {
@@ -55,6 +55,8 @@ func (l *logger) dLog(console, override bool, in ...interface{}) {
 		l.byt.WriteRune(':')
 		l.byt.WriteString(strconv.Itoa(line))
 		l.byt.WriteString("]  ")
+		l.byt.WriteString(logLevels[l.GetLogLevel()])
+		l.byt.WriteRune(':')
 		for _, elem := range in {
 			l.byt.WriteString(fmt.Sprintf("%v ", elem))
 		}

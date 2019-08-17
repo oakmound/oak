@@ -17,7 +17,8 @@ var (
 		mod.Scale(2, 2),
 		mod.TrimColor(color.RGBA{255, 255, 255, 255}),
 	}
-	eqmods = []mod.Mod{
+	neqfilters = []mod.Filter{mod.Brighten(-100)}
+	eqmods     = []mod.Mod{
 		mod.FlipX,
 		mod.FlipY,
 	}
@@ -55,6 +56,27 @@ func TestRevertingMods(t *testing.T) {
 	// Assert nothing went wrong with ^^
 }
 
+func TestRevertingFilters(t *testing.T) {
+	cb := NewColorBox(5, 5, color.RGBA{200, 0, 0, 255})
+	rv := NewReverting(cb)
+	assert.Equal(t, rv.GetRGBA(), cb.GetRGBA())
+	for _, f := range neqfilters {
+		rv.Filter(f)
+		assert.NotEqual(t, rv.GetRGBA(), cb.GetRGBA())
+		rv.Revert(1)
+		assert.Equal(t, rv.GetRGBA(), cb.GetRGBA())
+	}
+	rv.Filter(mod.Brighten(-100))
+	rgba1 := rv.GetRGBA()
+	rv = rv.Copy().(*Reverting)
+	assert.Equal(t, rgba1, rv.GetRGBA())
+	assert.Equal(t, 2, len(rv.rs))
+	rv2 := rv.RevertAndFilter(1, mod.Brighten(-100))
+	rv = rv2.Copy().(*Reverting)
+	assert.Equal(t, 2, len(rv.rs))
+	assert.Equal(t, rv.GetRGBA(), rgba1)
+
+}
 func TestRevertingCascadeFns(t *testing.T) {
 	cb := NewColorBox(5, 5, color.RGBA{200, 0, 0, 255})
 	rv := NewReverting(cb)
@@ -63,7 +85,7 @@ func TestRevertingCascadeFns(t *testing.T) {
 	// (color box does not have these functions)
 	assert.True(t, rv.IsInterruptable())
 	assert.True(t, rv.IsStatic())
-	rv.Set("Foo")
+	assert.Nil(t, rv.Set("Foo"))
 	rv.Pause()
 	rv.Unpause()
 	rv.SetTriggerID(0)

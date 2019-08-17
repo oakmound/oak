@@ -8,7 +8,7 @@ import (
 
 func TestHandler(t *testing.T) {
 	updateCh := make(chan bool)
-	UpdateLoop(60, updateCh)
+	assert.Nil(t, UpdateLoop(60, updateCh))
 	triggers := 0
 	Bind(func(int, interface{}) int {
 		triggers++
@@ -30,7 +30,7 @@ func TestHandler(t *testing.T) {
 		t.Fatal("Handler should be closed")
 	default:
 	}
-	Update()
+	assert.Nil(t, Update())
 	sleep()
 	assert.Equal(t, 3, triggers)
 	assert.Nil(t, Flush())
@@ -61,7 +61,7 @@ func TestHandler(t *testing.T) {
 
 	Flush()
 	sleep()
-	Update()
+	assert.Nil(t, Update())
 	sleep()
 	sleep()
 	Reset()

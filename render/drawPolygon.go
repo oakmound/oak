@@ -5,7 +5,7 @@ import (
 	"github.com/oakmound/oak/alg/floatgeom"
 )
 
-// A DrawPolygon is used to determine wheter elements should be drawn, defining
+// A DrawPolygon is used to determine whether elements should be drawn, defining
 // a polygonal area for what things should be visible.
 type DrawPolygon struct {
 	usingDrawPolygon bool

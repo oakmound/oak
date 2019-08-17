@@ -75,6 +75,29 @@ var (
 	}
 )
 
+func TestRect2Center(t *testing.T) {
+	expected := []Point2{
+		Point2{1.5, 1.5},
+		Point2{7, 7},
+		Point2{11.5, 11.5}}
+	for i, e := range expected {
+		c := r2cases[i]
+		assert.Equal(t, e, c.Center())
+	}
+}
+
+func TestRect3Center(t *testing.T) {
+	expected := []Point3{
+		Point3{1.5, 1.5, 1.5},
+		Point3{7, 7, 7},
+		Point3{11.5, 11.5, 11.5},
+	}
+	for i, e := range expected {
+		c := r3cases[i]
+		assert.Equal(t, e, c.Center())
+	}
+}
+
 func TestRect2ContainsRect(t *testing.T) {
 	r2 := NewRect2(0, 0, 10, 10)
 	expected := []bool{true, false, false}
@@ -103,6 +126,12 @@ func TestRect2Intersects(t *testing.T) {
 		c := r2cases[i]
 		assert.Equal(t, e, r2.Intersects(c))
 	}
+	r2 = r2.Shift(Point2{3, 3})
+	expectedUpdated := []bool{false, true, true}
+	for i, e := range expectedUpdated {
+		c := r2cases[i]
+		assert.Equal(t, e, r2.Intersects(c))
+	}
 }
 
 func TestRect3Intersects(t *testing.T) {
@@ -110,6 +139,12 @@ func TestRect3Intersects(t *testing.T) {
 	expected := []bool{true, true, false}
 
 	for i, e := range expected {
+		c := r3cases[i]
+		assert.Equal(t, e, r3.Intersects(c))
+	}
+	r3 = r3.Shift(Point3{3, 3, 3})
+	expectedUpdated := []bool{false, true, true}
+	for i, e := range expectedUpdated {
 		c := r3cases[i]
 		assert.Equal(t, e, r3.Intersects(c))
 	}

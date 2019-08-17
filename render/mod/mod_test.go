@@ -8,6 +8,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestComposedModifications(t *testing.T) {
+	modList := []Mod{
+		Zoom(2.0, 2.0, 2.0),
+		CutFromLeft(2, 2),
+	}
+	base := setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
+	base = modList[0](base)
+	base = modList[1](base)
+	chained := setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
+
+	assert.NotEqual(t, base, chained)
+	mCombined := And(modList[0], modList[1])
+	chained = mCombined(chained)
+	assert.Equal(t, base, chained)
+}
+
 func TestAllModifications(t *testing.T) {
 	in := setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
 	type filterCase struct {

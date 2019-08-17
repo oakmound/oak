@@ -27,7 +27,7 @@ func NewStatistics() *Statistics {
 	}
 }
 
-// A History keeps track of any recorded occurances of this statstic and their magnitude
+// A History keeps track of any recorded occurrences of this statstic and their magnitude
 type History struct {
 	Name   string
 	Events []Event

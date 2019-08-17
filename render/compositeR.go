@@ -111,7 +111,8 @@ func (cs *CompositeR) Replace(r1, r2 Renderable, i int) {
 	r1.Undraw()
 }
 
-// PreDraw updates the CompositeR with the new renderables to add. This helps keep consistency and mitigates the threat of unsafe operations.
+// PreDraw updates the CompositeR with the new renderables to add.
+// This helps keep consistency and mitigates the threat of unsafe operations.
 func (cs *CompositeR) PreDraw() {
 	push := cs.toPush
 	cs.toPush = []Renderable{}
