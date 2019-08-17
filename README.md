@@ -182,7 +182,7 @@ A different way to use the oak engine.
 
 [Agent Blue](https://oakmound.itch.io/agent-blue)
 
-![AgentBlue](https://img.itch.zone/aW1nLzkyNzQ3MS5naWY=/original/IUyVvL.gif)
+![AgentBlue](https://img.itch.zone/aW1hZ2UvMTk4MjIxLzkyNzUyOC5wbmc=/original/aRusLc.png)
 
 
 [Fantastic Doctor](https://github.com/oakmound/lowrez17)
