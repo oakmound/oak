@@ -178,10 +178,18 @@ A different way to use the oak engine.
 
 ![Slideshow](examples/slide/example.gif)
 
-## Finished Games <a name="finished-games"/>
+## Examples of Finished Games <a name="finished-games"/>
 
 [Agent Blue](https://oakmound.itch.io/agent-blue)
 
+![AgentBlue](https://img.itch.zone/aW1nLzkyNzQ3MS5naWY=/original/IUyVvL.gif)
+
+
 [Fantastic Doctor](https://github.com/oakmound/lowrez17)
 
+![Fantastic Overview](https://img.itch.zone/aW1hZ2UvMTY4NDk1Lzc4MDk1Mi5wbmc=/original/hIjzFm.png)
+
 [Jeremy The Clam](https://github.com/200sc/jeremy)
+
+![Clammy](https://img.itch.zone/aW1hZ2UvMTYzNjgyLzc1NDkxOS5wbmc=/original/%2BwvZ7j.png)
+
