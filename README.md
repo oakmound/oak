@@ -163,7 +163,7 @@ char.Bind(func(id int, nothing interface{}) int {
 Learn to use the collision library and make short term shots that collide with the entites marked with collision labels.
 
 
-![Shoota](examples\top-down-shooter-tutorial\6-performance\example.gif)
+![Shoota](examples/top-down-shooter-tutorial/6-performance/example.gif)
 
 
 ### Radar
