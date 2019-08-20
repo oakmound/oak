@@ -66,7 +66,7 @@ type State struct {
 }
 
 // ListenOptions can be passed into a joystick's Listen method to
-// change what events will be propaged out.
+// change what events will be propagated out.
 type ListenOptions struct {
 	// Each boolean dictates given event type(s) will be sent during Listen
 	// "JoystickChange": *State
