@@ -35,9 +35,7 @@ func (dp *DrawPolygon) SetPolygon(poly []floatgeom.Point2) {
 	dp.usingDrawPolygon = true
 	dp.dims = floatgeom.NewBoundingRect2(poly...)
 	dp.drawPolygon = poly
-	if isRectangular(poly...) {
-		dp.rectangular = true
-	}
+	dp.rectangular = isRectangular(poly...)
 }
 
 func isRectangular(pts ...floatgeom.Point2) bool {
