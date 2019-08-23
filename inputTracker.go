@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/event"
 	"github.com/oakmound/oak/joystick"
 	"github.com/oakmound/oak/key"
@@ -55,15 +56,12 @@ func (jh *joyHandler) Trigger(ev string, state interface{}) {
 }
 
 func trackJoystickChanges() {
-	joystick.Init()
+	dlog.ErrorCheck(joystick.Init())
 	go func() {
 		jCh, _ := joystick.WaitForJoysticks(3 * time.Second)
-		for {
-			select {
-			case j := <-jCh:
-				j.Handler = &joyHandler{}
-				j.Listen(nil)
-			}
+		for j := range jCh {
+			j.Handler = &joyHandler{}
+			j.Listen(nil)
 		}
 	}()
 }
