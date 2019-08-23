@@ -54,6 +54,20 @@ var (
 	updateScreen = defaultUpdateScreen
 )
 
+// GetViewportBounds reports what bounds the viewport has been set to, if any.
+func GetViewportBounds() (x1, y1, x2, y2 int, ok bool) {
+	if useViewBounds {
+		return viewBounds.minX, viewBounds.minY, viewBounds.maxX, viewBounds.maxY, true
+	}
+	return 0, 0, 0, 0, false
+}
+
+// RemoveViewportBounds removes restrictions on the viewport's movement. It will not
+// cause ViewPos to update immediately.
+func RemoveViewportBounds() {
+	useViewBounds = false
+}
+
 // SetViewportBounds sets the minimum and maximum position of the viewport, including
 // screen dimensions
 func SetViewportBounds(x1, y1, x2, y2 int) {
