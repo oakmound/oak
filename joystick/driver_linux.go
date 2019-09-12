@@ -16,8 +16,8 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/citilinkru/libudev"
-	"github.com/citilinkru/libudev/types"
+	"github.com/oakmound/libudev"
+	"github.com/oakmound/libudev/types"
 )
 
 // This has all been tested with wired xbox 360 controllers.

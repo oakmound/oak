@@ -18,7 +18,7 @@ type ScreenShaker struct {
 }
 
 var (
-	// DefShaker is the global default shaker, used when oak.Shake is called.
+	// DefShaker is the global default shaker, used when oak.ShakeScreen is called.
 	DefShaker = ScreenShaker{false, floatgeom.Point2{1.0, 1.0}}
 )
 
@@ -27,7 +27,8 @@ func ShakeScreen(dur time.Duration) {
 	DefShaker.Shake(dur)
 }
 
-// Shake shakes the screen based on this shaker's attributes. See ScreenShaker.
+// Shake shakes the screen based on this ScreenShaker's attributes.
+// See DefShaker for an example shaker setup
 func (ss *ScreenShaker) Shake(dur time.Duration) {
 	doneTime := time.Now().Add(dur)
 	mag := ss.Magnitude

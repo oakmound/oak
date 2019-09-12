@@ -9,23 +9,6 @@ import "math"
 // the center of a graph.
 type Eq func(x float64) (y float64)
 
-var (
-	// Top half of heart
-	hf1 Eq = func(x float64) (y float64) {
-		return -2.2*math.Pow(.4+x, 2) + 1
-	}
-	hf2 Eq = func(x float64) (y float64) {
-		return hf1(-x)
-	}
-	// Bottom half of heart
-	hf3 Eq = func(x float64) (y float64) {
-		return -math.Sqrt((x + 1)) + .2
-	}
-	hf4 Eq = func(x float64) (y float64) {
-		return hf3(-x)
-	}
-)
-
 // Below returns an In which reports true for all x,y coordinates below
 // the equation curve.
 func (eq Eq) Below() In {
@@ -58,6 +41,21 @@ func (eq Eq) Above() In {
 }
 
 var (
+	// Top half of heart
+	hf1 Eq = func(x float64) (y float64) {
+		return -2.2*math.Pow(.4+x, 2) + 1
+	}
+	hf2 Eq = func(x float64) (y float64) {
+		return hf1(-x)
+	}
+	// Bottom half of heart
+	hf3 Eq = func(x float64) (y float64) {
+		return -math.Sqrt((x + 1)) + .2
+	}
+	hf4 Eq = func(x float64) (y float64) {
+		return hf3(-x)
+	}
+
 	// Heart has an shape like the following:
 	// . . t . t . .
 	// . t t t t t .

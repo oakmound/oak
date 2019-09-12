@@ -93,6 +93,10 @@ func Init(firstScene string) {
 	render.SetFontDefaults(wd, conf.Assets.AssetPath, conf.Assets.FontPath,
 		conf.Font.Hinting, conf.Font.Color, conf.Font.File, conf.Font.Size,
 		conf.Font.DPI)
+
+	if conf.TrackInputChanges {
+		trackJoystickChanges()
+	}
 	// END of loading variables from configuration
 
 	SeedRNG(DefaultSeed)
@@ -105,7 +109,7 @@ func Init(firstScene string) {
 		conf.Assets.AudioPath)
 
 	dlog.Info("Init Scene Loop")
-	go sceneLoop(firstScene)
+	go sceneLoop(firstScene, conf.TrackInputChanges)
 	dlog.Info("Init asset load")
 	render.SetAssetPaths(imageDir)
 	go loadAssets(imageDir, audioDir)

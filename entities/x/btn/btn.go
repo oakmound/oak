@@ -12,4 +12,6 @@ type Btn interface {
 	render.Positional
 	GetRenderable() render.Renderable
 	GetSpace() *collision.Space
+	SetMetadata(string, string)
+	Metadata(string) (string, bool)
 }

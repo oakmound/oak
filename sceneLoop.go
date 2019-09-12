@@ -34,7 +34,7 @@ var (
 
 var firstScene string
 
-func sceneLoop(first string) {
+func sceneLoop(first string, trackingInputs bool) {
 	var prevScene string
 
 	result := new(scene.Result)
@@ -60,6 +60,9 @@ func sceneLoop(first string) {
 		if !ok {
 			dlog.Error("Unknown scene", SceneMap.CurrentScene)
 			panic("Unknown scene " + SceneMap.CurrentScene)
+		}
+		if trackingInputs {
+			trackInputChanges()
 		}
 		go func() {
 			dlog.Info("Starting scene in goroutine", SceneMap.CurrentScene)
