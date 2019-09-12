@@ -69,6 +69,14 @@ func main() {
 				}
 				aboveGround = true
 			} else {
+				//Restart when is below ground
+				if char.Y() > 500 {
+					char.Delta.SetY(0)
+					char.SetY(100)
+					char.SetX(100)
+					
+				}
+				
 				// Fall if there's no ground
 				char.Delta.ShiftY(fallSpeed)
 			}
