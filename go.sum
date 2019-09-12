@@ -26,8 +26,8 @@ github.com/oakmound/libudev v0.2.1 h1:gaXuw7Pbt3RSRxbUakAjl0dSW6Wo3TZWpwS5aMq8+E
 github.com/oakmound/libudev v0.2.1/go.mod h1:zYF5CkHY+UP6lzWbPR+XoVAscl/s+OncWA//qWjMLUs=
 github.com/oakmound/shiny v0.3.0 h1:PUxrM9qPk/9+rkSDjTvtb3wlUw5Oog0fHIG5N0eQ1mk=
 github.com/oakmound/shiny v0.3.0/go.mod h1:cJDeJQ/6Ovs2IiM4xTXjIC8zGJnECKvj8BOpTJ4qrhI=
-github.com/oakmound/w32 v2.0.0+incompatible h1:7YvN4e7uuHgAmOtDoKaTqOTLztKyTWt2cN8xvg894CI=
-github.com/oakmound/w32 v2.0.0+incompatible/go.mod h1:lzloWlclSXIU4cDr67WF8qjFFDO8gHHBIk4Qqe90enQ=
+github.com/oakmound/w32 v2.1.0+incompatible h1:vIkC6eJVOaAnwTTOyiVCGh24GoryPRmcvWq3cekkG2U=
+github.com/oakmound/w32 v2.1.0+incompatible/go.mod h1:lzloWlclSXIU4cDr67WF8qjFFDO8gHHBIk4Qqe90enQ=
 github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf h1:od9gEl9UQ/QNHlgYlgsSaC5SZ+CGbvO2/PCIgserJc0=
 github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf/go.mod h1:RBXkZ8n2vvtdJP6PO+TbU/N/DVuCDwUN53CU+C1pJOs=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
