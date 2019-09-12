@@ -24,8 +24,8 @@ github.com/hajimehoshi/go-mp3 v0.1.1/go.mod h1:4i+c5pDNKDrxl1iu9iG90/+fhP37lio6g
 github.com/hajimehoshi/oto v0.1.1/go.mod h1:hUiLWeBQnbDu4pZsAhOnGqMI1ZGibS6e2qhQdfpwz04=
 github.com/oakmound/libudev v0.2.1 h1:gaXuw7Pbt3RSRxbUakAjl0dSW6Wo3TZWpwS5aMq8+EA=
 github.com/oakmound/libudev v0.2.1/go.mod h1:zYF5CkHY+UP6lzWbPR+XoVAscl/s+OncWA//qWjMLUs=
-github.com/oakmound/shiny v0.2.0 h1:4XstMgUPynf9ehBp4XEUUNU0Vsz4q/Sv4DDZUmrX/Q4=
-github.com/oakmound/shiny v0.2.0/go.mod h1:cJDeJQ/6Ovs2IiM4xTXjIC8zGJnECKvj8BOpTJ4qrhI=
+github.com/oakmound/shiny v0.3.0 h1:PUxrM9qPk/9+rkSDjTvtb3wlUw5Oog0fHIG5N0eQ1mk=
+github.com/oakmound/shiny v0.3.0/go.mod h1:cJDeJQ/6Ovs2IiM4xTXjIC8zGJnECKvj8BOpTJ4qrhI=
 github.com/oakmound/w32 v2.0.0+incompatible h1:7YvN4e7uuHgAmOtDoKaTqOTLztKyTWt2cN8xvg894CI=
 github.com/oakmound/w32 v2.0.0+incompatible/go.mod h1:lzloWlclSXIU4cDr67WF8qjFFDO8gHHBIk4Qqe90enQ=
 github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf h1:od9gEl9UQ/QNHlgYlgsSaC5SZ+CGbvO2/PCIgserJc0=
