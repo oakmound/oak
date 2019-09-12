@@ -12,7 +12,7 @@ require (
 	github.com/hajimehoshi/go-mp3 v0.1.1
 	github.com/oakmound/alsa-go v1.0.0
 	github.com/oakmound/shiny v0.2.0
-	github.com/oakmound/w32 v2.0.0
+	github.com/oakmound/w32 v2.0.0+incompatible
 	github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf
 	github.com/pkg/errors v0.8.1
 	github.com/pmezard/go-difflib v1.0.0
@@ -23,3 +23,5 @@ require (
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
 	golang.org/x/sys v0.0.0-20190303192550-c2f5717e611c
 )
+
+go 1.13
