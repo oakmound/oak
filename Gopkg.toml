@@ -26,7 +26,7 @@
 
 [[constraint]]
   name = "github.com/200sc/klangsynthese"
-  version = "0.1.1"
+  version = "0.2.0"
 
 [[constraint]]
   name = "github.com/BurntSushi/toml"
@@ -50,7 +50,7 @@
 
 [[constraint]]
   name = "github.com/oakmound/shiny"
-  version = "0.2.0"
+  version = "0.3.0"
 
 [[constraint]]
   name = "github.com/stretchr/testify"

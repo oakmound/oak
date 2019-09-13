@@ -1,7 +1,7 @@
 github.com/200sc/go-dist v1.0.0 h1:Y9bl++4+d8NFv5hzwHyaxbXZmexVCic/rUdQOTq7Jec=
 github.com/200sc/go-dist v1.0.0/go.mod h1:+hhVw6j4BQF2HPwLFmsVM4VooSH9sn04apvH52hfboU=
-github.com/200sc/klangsynthese v0.1.1 h1:hA+/WZ+CnLCQ+QtH9dklAJlbDVsQtP8pBN59s1cVizw=
-github.com/200sc/klangsynthese v0.1.1/go.mod h1:1yEA6LmYbsEoAPJx+JN+UQk7k5yXebfWsuM1yGPK/3s=
+github.com/200sc/klangsynthese v0.2.0 h1:kVveiDyAXOylXJLsQKiT1wXD6Yy+jewrdrfB3urZC6c=
+github.com/200sc/klangsynthese v0.2.0/go.mod h1:1yEA6LmYbsEoAPJx+JN+UQk7k5yXebfWsuM1yGPK/3s=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802 h1:1BDTz0u9nC3//pOCMdNH+CiXJVYJh5UQNCOBG7jbELc=
@@ -22,14 +22,12 @@ github.com/gopherjs/gopherwasm v0.1.1/go.mod h1:kx4n9a+MzHH0BJJhvlsQ65hqLFXDO/m2
 github.com/hajimehoshi/go-mp3 v0.1.1 h1:Y33fAdTma70fkrxnc9u50Uq0lV6eZ+bkAlssdMmCwUc=
 github.com/hajimehoshi/go-mp3 v0.1.1/go.mod h1:4i+c5pDNKDrxl1iu9iG90/+fhP37lio6gNhjCx9WBJw=
 github.com/hajimehoshi/oto v0.1.1/go.mod h1:hUiLWeBQnbDu4pZsAhOnGqMI1ZGibS6e2qhQdfpwz04=
-github.com/oakmound/alsa-go v1.0.0 h1:TfP8Olu/VZ2wKV7s6lFhBkuqkZ7DPCImDHoksOqTDzg=
-github.com/oakmound/alsa-go v1.0.0/go.mod h1:zqg8Ay8UpaNzVgux6pJmbO8xZY8NC8jSSQkBWH0/rm0=
 github.com/oakmound/libudev v0.2.1 h1:gaXuw7Pbt3RSRxbUakAjl0dSW6Wo3TZWpwS5aMq8+EA=
 github.com/oakmound/libudev v0.2.1/go.mod h1:zYF5CkHY+UP6lzWbPR+XoVAscl/s+OncWA//qWjMLUs=
-github.com/oakmound/shiny v0.2.0 h1:4XstMgUPynf9ehBp4XEUUNU0Vsz4q/Sv4DDZUmrX/Q4=
-github.com/oakmound/shiny v0.2.0/go.mod h1:cJDeJQ/6Ovs2IiM4xTXjIC8zGJnECKvj8BOpTJ4qrhI=
-github.com/oakmound/w32 v2.0.0+incompatible h1:7YvN4e7uuHgAmOtDoKaTqOTLztKyTWt2cN8xvg894CI=
-github.com/oakmound/w32 v2.0.0+incompatible/go.mod h1:lzloWlclSXIU4cDr67WF8qjFFDO8gHHBIk4Qqe90enQ=
+github.com/oakmound/shiny v0.3.0 h1:PUxrM9qPk/9+rkSDjTvtb3wlUw5Oog0fHIG5N0eQ1mk=
+github.com/oakmound/shiny v0.3.0/go.mod h1:cJDeJQ/6Ovs2IiM4xTXjIC8zGJnECKvj8BOpTJ4qrhI=
+github.com/oakmound/w32 v2.1.0+incompatible h1:vIkC6eJVOaAnwTTOyiVCGh24GoryPRmcvWq3cekkG2U=
+github.com/oakmound/w32 v2.1.0+incompatible/go.mod h1:lzloWlclSXIU4cDr67WF8qjFFDO8gHHBIk4Qqe90enQ=
 github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf h1:od9gEl9UQ/QNHlgYlgsSaC5SZ+CGbvO2/PCIgserJc0=
 github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf/go.mod h1:RBXkZ8n2vvtdJP6PO+TbU/N/DVuCDwUN53CU+C1pJOs=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
@@ -39,6 +37,8 @@ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZN
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.3.0 h1:TivCn/peBQ7UY8ooIcPgZFpTNSz0Q2U6UrFlUfqbe0Q=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
+github.com/yobert/alsa v0.0.0-20190412010934-e9392a2624b7 h1:a2YSmAxh3Lf0hRrF6IVP2iBJDkTXig4baBsluAgWenk=
+github.com/yobert/alsa v0.0.0-20190412010934-e9392a2624b7/go.mod h1:CaowXBWOiSGWEpBBV8LoVnQTVPV4ycyviC9IBLj8dRw=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067 h1:KYGJGHOQy8oSi1fDlSpcZF0+juKwk/hEMv5SiwHogR0=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/mobile v0.0.0-20190302063618-b8c6dab863a6 h1:tXsjfk+rp0M+hHBZ1VZBPJWmTKZiS8VuCaKnB+fjnKo=
