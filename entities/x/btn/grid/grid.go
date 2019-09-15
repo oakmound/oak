@@ -17,7 +17,7 @@ var (
 	// value, but are left for documentation
 	defaultGenerator = Generator{
 		Content: [][]btn.Option{
-			[]btn.Option{
+			{
 				nil,
 			},
 		},

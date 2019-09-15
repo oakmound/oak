@@ -308,15 +308,15 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"assets/audio/ButtonDown.wav": assetsAudioButtondownWav,
-	"assets/audio/ButtonUp.wav": assetsAudioButtonupWav,
-	"assets/audio/Key.wav": assetsAudioKeyWav,
-	"assets/audio/PitEmpty.wav": assetsAudioPitemptyWav,
-	"assets/audio/Sand.wav": assetsAudioSandWav,
-	"assets/audio/Treasure.wav": assetsAudioTreasureWav,
+	"assets/audio/ButtonDown.wav":   assetsAudioButtondownWav,
+	"assets/audio/ButtonUp.wav":     assetsAudioButtonupWav,
+	"assets/audio/Key.wav":          assetsAudioKeyWav,
+	"assets/audio/PitEmpty.wav":     assetsAudioPitemptyWav,
+	"assets/audio/Sand.wav":         assetsAudioSandWav,
+	"assets/audio/Treasure.wav":     assetsAudioTreasureWav,
 	"assets/audio/jeremy.bfxrsound": assetsAudioJeremyBfxrsound,
-	"assets/images/16/jeremy.png": assetsImages16JeremyPng,
-	"assets/images/3/eyes.png": assetsImages3EyesPng,
+	"assets/images/16/jeremy.png":   assetsImages16JeremyPng,
+	"assets/images/3/eyes.png":      assetsImages3EyesPng,
 }
 
 // AssetDir returns the file names below a certain
@@ -358,23 +358,24 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
-	"assets": &bintree{nil, map[string]*bintree{
-		"audio": &bintree{nil, map[string]*bintree{
-			"ButtonDown.wav": &bintree{assetsAudioButtondownWav, map[string]*bintree{}},
-			"ButtonUp.wav": &bintree{assetsAudioButtonupWav, map[string]*bintree{}},
-			"Key.wav": &bintree{assetsAudioKeyWav, map[string]*bintree{}},
-			"PitEmpty.wav": &bintree{assetsAudioPitemptyWav, map[string]*bintree{}},
-			"Sand.wav": &bintree{assetsAudioSandWav, map[string]*bintree{}},
-			"Treasure.wav": &bintree{assetsAudioTreasureWav, map[string]*bintree{}},
-			"jeremy.bfxrsound": &bintree{assetsAudioJeremyBfxrsound, map[string]*bintree{}},
+	"assets": {nil, map[string]*bintree{
+		"audio": {nil, map[string]*bintree{
+			"ButtonDown.wav":   {assetsAudioButtondownWav, map[string]*bintree{}},
+			"ButtonUp.wav":     {assetsAudioButtonupWav, map[string]*bintree{}},
+			"Key.wav":          {assetsAudioKeyWav, map[string]*bintree{}},
+			"PitEmpty.wav":     {assetsAudioPitemptyWav, map[string]*bintree{}},
+			"Sand.wav":         {assetsAudioSandWav, map[string]*bintree{}},
+			"Treasure.wav":     {assetsAudioTreasureWav, map[string]*bintree{}},
+			"jeremy.bfxrsound": {assetsAudioJeremyBfxrsound, map[string]*bintree{}},
 		}},
-		"images": &bintree{nil, map[string]*bintree{
-			"16": &bintree{nil, map[string]*bintree{
-				"jeremy.png": &bintree{assetsImages16JeremyPng, map[string]*bintree{}},
+		"images": {nil, map[string]*bintree{
+			"16": {nil, map[string]*bintree{
+				"jeremy.png": {assetsImages16JeremyPng, map[string]*bintree{}},
 			}},
-			"3": &bintree{nil, map[string]*bintree{
-				"eyes.png": &bintree{assetsImages3EyesPng, map[string]*bintree{}},
+			"3": {nil, map[string]*bintree{
+				"eyes.png": {assetsImages3EyesPng, map[string]*bintree{}},
 			}},
 		}},
 	}},
@@ -423,4 +424,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-

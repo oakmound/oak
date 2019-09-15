@@ -74,9 +74,9 @@ func main() {
 					char.Delta.SetY(0)
 					char.SetY(100)
 					char.SetX(100)
-					
+
 				}
-				
+
 				// Fall if there's no ground
 				char.Delta.ShiftY(fallSpeed)
 			}
