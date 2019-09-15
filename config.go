@@ -34,17 +34,18 @@ var (
 	// These are the default settings of a project. Anything within SetupConfig
 	// that is set to its zero value will not overwrite these settings.
 	conf = Config{
-		Assets{"assets/", "audio/", "images/", "font/"},
-		Debug{"", "ERROR"},
-		Screen{0, 0, 480, 640, 1},
-		Font{"none", 12.0, 72.0, "", "white"},
-		60,
-		60,
-		"English",
-		"Oak Window",
-		false,
-		false,
-		false,
+		Assets:              Assets{"assets/", "audio/", "images/", "font/"},
+		Debug:               Debug{"", "ERROR"},
+		Screen:              Screen{0, 0, 480, 640, 1},
+		Font:                Font{"none", 12.0, 72.0, "", "white"},
+		FrameRate:           60,
+		DrawFrameRate:       60,
+		Language:            "English",
+		Title:               "Oak Window",
+		BatchLoad:           false,
+		GestureSupport:      false,
+		LoadBuiltinCommands: false,
+		TrackInputChanges:   false,
 	}
 )
 
@@ -61,6 +62,7 @@ type Config struct {
 	BatchLoad           bool   `json:"batchLoad"`
 	GestureSupport      bool   `json:"gestureSupport"`
 	LoadBuiltinCommands bool   `json:"loadBuiltinCommands"`
+	TrackInputChanges   bool   `json:"trackInputChanges"`
 }
 
 // Assets is a json type storing paths to different asset folders
@@ -200,6 +202,7 @@ func initConf() {
 	conf.BatchLoad = SetupConfig.BatchLoad
 	conf.GestureSupport = SetupConfig.GestureSupport
 	conf.LoadBuiltinCommands = SetupConfig.LoadBuiltinCommands
+	conf.TrackInputChanges = SetupConfig.TrackInputChanges
 
 	dlog.Error(conf)
 }

@@ -16,17 +16,17 @@ func TestDefaultConfig(t *testing.T) {
 	err = LoadConfData(f)
 	assert.Nil(t, err)
 	SetupConfig = Config{
-		Assets{"a/", "a/", "i/", "f/"},
-		Debug{"FILTER", "INFO"},
-		Screen{0, 0, 240, 320, 2},
-		Font{"hint", 20.0, 36.0, "luxisr.ttf", "green"},
-		30,
-		30,
-		"German",
-		"Some Window",
-		true,
-		true,
-		true,
+		Assets:              Assets{"a/", "a/", "i/", "f/"},
+		Debug:               Debug{"FILTER", "INFO"},
+		Screen:              Screen{0, 0, 240, 320, 2},
+		Font:                Font{"hint", 20.0, 36.0, "luxisr.ttf", "green"},
+		FrameRate:           30,
+		DrawFrameRate:       30,
+		Language:            "German",
+		Title:               "Some Window",
+		BatchLoad:           true,
+		GestureSupport:      true,
+		LoadBuiltinCommands: true,
 	}
 	initConf()
 	assert.Equal(t, SetupConfig, conf)

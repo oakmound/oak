@@ -128,6 +128,7 @@ func Renderable(r render.Modifiable) Option {
 // Toggle sets that the type of the button toggles between two
 // modifiables when it is clicked. The boolean behind isChecked
 // is updated according to the state of the button.
+// Todo: the copies here should be optional
 func Toggle(r1, r2 render.Modifiable, isChecked *bool) Option {
 	return func(g Generator) Generator {
 		g.R1 = r1.Copy()
@@ -158,4 +159,12 @@ func Binding(s string, bnd event.Bindable) Option {
 // Click appends a function to be called when the button is clicked on.
 func Click(bnd event.Bindable) Option {
 	return Binding(mouse.ClickOn, bnd)
+}
+
+// Todo: change this to AllowRevert, and reverse the default behavior
+func DisallowRevert() Option {
+	return func(g Generator) Generator {
+		g.DisallowRevert = true
+		return g
+	}
 }

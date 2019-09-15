@@ -14,27 +14,28 @@ import (
 
 // A Generator defines the variables used to create buttons from optional arguments
 type Generator struct {
-	X, Y         float64
-	W, H         float64
-	TxtX, TxtY   float64
-	Color        color.Color
-	Color2       color.Color
-	ProgressFunc func(x, y, w, h int) float64
-	Mod          mod.Transform
-	R            render.Modifiable
-	R1           render.Modifiable
-	R2           render.Modifiable
-	RS           []render.Modifiable
-	Cid          event.CID
-	Font         *render.Font
-	Layers       []int
-	Text         string
-	Children     []Generator
-	Bindings     map[string][]event.Bindable
-	Trigger      string
-	Toggle       *bool
-	ListChoice   *int
-	Group        *Group
+	X, Y           float64
+	W, H           float64
+	TxtX, TxtY     float64
+	Color          color.Color
+	Color2         color.Color
+	ProgressFunc   func(x, y, w, h int) float64
+	Mod            mod.Transform
+	R              render.Modifiable
+	R1             render.Modifiable
+	R2             render.Modifiable
+	RS             []render.Modifiable
+	Cid            event.CID
+	Font           *render.Font
+	Layers         []int
+	Text           string
+	Children       []Generator
+	Bindings       map[string][]event.Bindable
+	Trigger        string
+	Toggle         *bool
+	ListChoice     *int
+	Group          *Group
+	DisallowRevert bool
 }
 
 func defGenerator() Generator {
@@ -104,11 +105,14 @@ func (g Generator) generate(parent *Generator) Btn {
 
 		g.Bindings["MouseClickOn"] = append(g.Bindings["MouseClickOn"], listFxn(g))
 	case g.R != nil:
-		box = render.NewReverting(g.R)
+		box = g.R
 	case g.ProgressFunc != nil:
-		box = render.NewReverting(render.NewGradientBox(int(g.W), int(g.H), g.Color, g.Color2, g.ProgressFunc))
+		box = render.NewGradientBox(int(g.W), int(g.H), g.Color, g.Color2, g.ProgressFunc)
 	default:
-		box = render.NewReverting(render.NewColorBox(int(g.W), int(g.H), g.Color))
+		box = render.NewColorBox(int(g.W), int(g.H), g.Color)
+	}
+	if !g.DisallowRevert {
+		box = render.NewReverting(box)
 	}
 
 	if g.Mod != nil {
