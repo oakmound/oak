@@ -37,6 +37,8 @@ func (b *Box) GetRenderable() render.Renderable {
 	return b.R
 }
 
+// SetMetadata sets the metadata for some key to some value. Empty value strings
+// will not be stored.
 func (b *Box) SetMetadata(k, v string) {
 	if v == "" {
 		delete(b.metadata, k)
@@ -45,6 +47,7 @@ func (b *Box) SetMetadata(k, v string) {
 	}
 }
 
+// Metadata accesses the value, and whether it existed, for a given metadata key
 func (b *Box) Metadata(k string) (v string, ok bool) {
 	v, ok = b.metadata[k]
 	return v, ok
