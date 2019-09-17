@@ -164,7 +164,17 @@ func (rv *Reverting) IsStatic() bool {
 	return true
 }
 
-// Set calls Set on underlying types below this Reverting that cat be Set
+// Get calls Get on the active renderable below this Reverting. If nothing has a Get
+// method, it returns the empty string.
+func (rv *Reverting) Get() string {
+	switch t := rv.rs[0].(type) {
+	case *Switch:
+		return t.Get()
+	}
+	return ""
+}
+
+// Set calls Set on underlying types below this Reverting that can be Set
 // Todo: if Set becomes used by more types, this should use an interface like
 // CanPause
 func (rv *Reverting) Set(k string) error {
