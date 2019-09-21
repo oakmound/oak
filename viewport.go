@@ -2,6 +2,7 @@ package oak
 
 import (
 	"image"
+	"sync"
 
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/event"
@@ -10,7 +11,9 @@ import (
 
 var (
 	// ViewPos represents the point in the world which the viewport is anchored at.
-	ViewPos       = image.Point{}
+	ViewPos = image.Point{}
+	// ViewPosMutex is used to grant extra saftey in viewpos operations
+	ViewPosMutex  = sync.Mutex{}
 	useViewBounds = false
 	viewBounds    rect
 )
@@ -25,34 +28,48 @@ func SetScreen(x, y int) {
 	viewportCh <- [2]int{x, y}
 }
 
-var (
-	defaultUpdateScreen = func(x, y int) {
-		if useViewBounds {
-			if viewBounds.minX <= x && viewBounds.maxX >= x+ScreenWidth {
-				dlog.Verb("Set ViewX to ", x)
-				ViewPos.X = x
-			} else if viewBounds.minX > x {
-				ViewPos.X = viewBounds.minX
-			} else if viewBounds.maxX < x+ScreenWidth {
-				ViewPos.X = viewBounds.maxX - ScreenWidth
-			}
-			if viewBounds.minY <= y && viewBounds.maxY >= y+ScreenHeight {
-				dlog.Verb("Set ViewY to ", y)
-				ViewPos.Y = y
-			} else if viewBounds.minY > y {
-				ViewPos.Y = viewBounds.minY
-			} else if viewBounds.maxY < y+ScreenHeight {
-				ViewPos.Y = viewBounds.maxY - ScreenHeight
-			}
-		} else {
-			dlog.Verb("Set ViewXY to ", x, " ", y)
-			ViewPos = image.Point{x, y}
+// ShiftScreen sends a signal to the draw loop to shift the viewport by x,y
+func ShiftScreen(x, y int) {
+	dlog.Verb("Requesting shift of ViewPoint by ", x, y)
+	viewportShiftCh <- [2]int{x, y}
+}
+
+func updateScreen(x, y int) {
+	ViewPosMutex.Lock()
+	setViewport(x, y)
+	ViewPosMutex.Unlock()
+}
+
+func shiftViewPort(x, y int) {
+	ViewPosMutex.Lock()
+	setViewport(ViewPos.X+x, ViewPos.Y+y)
+	ViewPosMutex.Unlock()
+}
+func setViewport(x, y int) {
+	if useViewBounds {
+		if viewBounds.minX <= x && viewBounds.maxX >= x+ScreenWidth {
+			dlog.Verb("Set ViewX to ", x)
+			ViewPos.X = x
+		} else if viewBounds.minX > x {
+			ViewPos.X = viewBounds.minX
+		} else if viewBounds.maxX < x+ScreenWidth {
+			ViewPos.X = viewBounds.maxX - ScreenWidth
 		}
-		logicHandler.Trigger(event.ViewportUpdate, []float64{float64(ViewPos.X), float64(ViewPos.Y)})
-		dlog.Verb("ViewX, Y: ", ViewPos.X, " ", ViewPos.Y)
+		if viewBounds.minY <= y && viewBounds.maxY >= y+ScreenHeight {
+			dlog.Verb("Set ViewY to ", y)
+			ViewPos.Y = y
+		} else if viewBounds.minY > y {
+			ViewPos.Y = viewBounds.minY
+		} else if viewBounds.maxY < y+ScreenHeight {
+			ViewPos.Y = viewBounds.maxY - ScreenHeight
+		}
+	} else {
+		dlog.Verb("Set ViewXY to ", x, " ", y)
+		ViewPos = image.Point{x, y}
 	}
-	updateScreen = defaultUpdateScreen
-)
+	logicHandler.Trigger(event.ViewportUpdate, []float64{float64(ViewPos.X), float64(ViewPos.Y)})
+	dlog.Verb("ViewX, Y: ", ViewPos.X, " ", ViewPos.Y)
+}
 
 // GetViewportBounds reports what bounds the viewport has been set to, if any.
 func GetViewportBounds() (x1, y1, x2, y2 int, ok bool) {

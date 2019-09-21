@@ -40,6 +40,10 @@ var (
 	// viewport positions should be drawn
 	viewportCh = make(chan [2]int)
 
+	// The viewport shift channel controls when new
+	// viewport positions should be shifted to and drawn
+	viewportShiftCh = make(chan [2]int)
+
 	debugResetInProgress bool
 
 	// ScreenWidth is the width of the screen
