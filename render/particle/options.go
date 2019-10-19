@@ -38,6 +38,13 @@ func LifeSpan(ls floatrange.Range) func(Generator) {
 	}
 }
 
+// InfiniteLifeSpan will set particles to never die over time.
+func InfiniteLifeSpan() func(Generator) {
+	return func(g Generator) {
+		g.GetBaseGenerator().LifeSpan = floatrange.NewInfinite()
+	}
+}
+
 // Angle sets the initial angle of a particle in degrees
 func Angle(a floatrange.Range) func(Generator) {
 	return func(g Generator) {
