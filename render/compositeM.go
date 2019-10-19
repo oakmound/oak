@@ -114,7 +114,8 @@ func (cs *CompositeM) Filter(fs ...mod.Filter) {
 	}
 }
 
-// ToSprite draws all of this
+// ToSprite converts the composite into a sprite by drawing each layer in order
+// and overwriting lower layered pixels
 func (cs *CompositeM) ToSprite() *Sprite {
 	var maxW, maxH int
 	for _, r := range cs.rs {
