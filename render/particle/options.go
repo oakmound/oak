@@ -107,3 +107,11 @@ func Layer(l func(physics.Vector) int) func(Generator) {
 		g.GetBaseGenerator().LayerFunc = l
 	}
 }
+
+// Limit limits the total number of particles a particle generator can have
+// active at once.
+func Limit(limit int) func(Generator) {
+	return func(g Generator) {
+		g.GetBaseGenerator().ParticleLimit = limit
+	}
+}
