@@ -123,8 +123,10 @@ func (ps *Source) addParticles() {
 		newParticleCount = blockSize - ps.nextPID
 	}
 
-	if ps.nextPID+newParticleCount >= pg.ParticleLimit {
-		newParticleCount = pg.ParticleLimit - ps.nextPID
+	if pg.ParticleLimit != 0 {
+		if ps.nextPID+newParticleCount >= pg.ParticleLimit {
+			newParticleCount = pg.ParticleLimit - ps.nextPID
+		}
 	}
 
 	var p Particle
