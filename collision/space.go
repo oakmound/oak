@@ -235,6 +235,11 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 	}
 }
 
+// NewRect2Space returns a space with an associated caller id from a rect2
+func NewRect2Space(rect floatgeom.Rect2, cID event.CID) *Space {
+	return NewSpace(rect.Min.X(), rect.Min.Y(), rect.W(), rect.H(), cID)
+}
+
 // NewRectSpace creates a colliison space with the specified 3D rectangle
 func NewRectSpace(rect floatgeom.Rect3, l Label, cID event.CID) *Space {
 	return &Space{
