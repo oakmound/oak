@@ -25,17 +25,17 @@ func NewLine(x1, y1, x2, y2 float64, c color.Color) *Sprite {
 
 // NewThickLine returns a Line that has some value of thickness
 func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Sprite {
-	return NewLineColored(x1, y1, x2, y2, IdentityColorer(c), thickness)
+	return NewColoredLine(x1, y1, x2, y2, IdentityColorer(c), thickness)
 }
 
 // NewGradientLine returns a Line that has some value of thickness along with a start and end color
 func NewGradientLine(x1, y1, x2, y2 float64, c1, c2 color.Color, thickness int) *Sprite {
 	colorer := colorrange.NewLinear(c1, c2).Percentile
-	return NewLineColored(x1, y1, x2, y2, colorer, thickness)
+	return NewColoredLine(x1, y1, x2, y2, colorer, thickness)
 }
 
-// NewLineColored returns a line with a custom function for how each pixel in that line should be colored.
-func NewLineColored(x1, y1, x2, y2 float64, colorer Colorer, thickness int) *Sprite {
+// NewColoredLine returns a line with a custom function for how each pixel in that line should be colored.
+func NewColoredLine(x1, y1, x2, y2 float64, colorer Colorer, thickness int) *Sprite {
 	var rgba *image.RGBA
 	// We subtract the minimum from each side here
 	// to normalize the new line segment toward the origin
@@ -43,6 +43,11 @@ func NewLineColored(x1, y1, x2, y2 float64, colorer Colorer, thickness int) *Spr
 	minY := math.Min(y1, y2)
 	rgba = drawLineBetween(int(x1-minX), int(y1-minY), int(x2-minX), int(y2-minY), colorer, thickness)
 	return NewSprite(minX-float64(thickness), minY-float64(thickness), rgba)
+}
+
+// NewLineColored is an alias for NewColoredLine. Deprecated: use NewColoredLine instead.
+func NewLineColored(x1, y1, x2, y2 float64, colorer Colorer, thickness int) *Sprite {
+	return NewColoredLine(x1, y1, x2, y2, colorer, thickness)
 }
 
 // DrawLine draws a line onto an image rgba from one point to another
