@@ -7,6 +7,7 @@ import (
 
 	"github.com/oakmound/oak/dlog"
 	"github.com/oakmound/oak/render"
+	"github.com/oakmound/shiny/driver"
 )
 
 var (
@@ -72,6 +73,13 @@ func Init(firstScene string) {
 	dlog.CreateLogFile()
 
 	initConf()
+
+	if conf.Screen.TargetWidth != 0 && conf.Screen.TargetHeight != 0 {
+		w, h := driver.MonitorSize()
+		if w != 0 || h != 0 {
+			// Todo: Modify conf.Screen.Scale
+		}
+	}
 
 	// Set variables from conf file
 	lvl, err := dlog.ParseDebugLevel(conf.Debug.Level)
