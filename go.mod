@@ -12,7 +12,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/hajimehoshi/go-mp3 v0.1.1 // indirect
 	github.com/oakmound/libudev v0.2.1
-	github.com/oakmound/shiny v0.3.0
+	github.com/oakmound/shiny v0.4.0
 	github.com/oakmound/w32 v2.1.0+incompatible
 	github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf // indirect
 	github.com/pkg/errors v0.8.1 // indirect
