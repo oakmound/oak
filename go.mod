@@ -12,6 +12,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/hajimehoshi/go-mp3 v0.1.1 // indirect
 	github.com/oakmound/libudev v0.2.1
+	github.com/oakmound/oak v2.0.0+incompatible
 	github.com/oakmound/shiny v0.4.1-0.20191119013337-fdd972eb9250
 	github.com/oakmound/w32 v2.1.0+incompatible
 	github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf // indirect
@@ -21,7 +22,8 @@ require (
 	golang.org/x/image v0.0.0-20190227222117-0694c2d4d067
 	golang.org/x/mobile v0.0.0-20190302063618-b8c6dab863a6
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
-	golang.org/x/sys v0.0.0-20190303192550-c2f5717e611c // indirect
 )
+
+replace github.com/oakmound/oak => ../oak
 
 go 1.13
