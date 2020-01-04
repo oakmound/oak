@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/oakmound/oak/fileutil"
-	"github.com/oakmound/oak/render/internal/testdata/fonts"
+	"github.com/oakmound/oak/render/testdata/fonts"
 	"github.com/stretchr/testify/assert"
 )
 
