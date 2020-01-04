@@ -1,4 +1,4 @@
-module github.com/oakmound/oak
+module github.com/oakmound/oak/v2
 
 require (
 	github.com/200sc/go-dist v1.0.0
