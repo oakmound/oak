@@ -1,4 +1,4 @@
-module github.com/oakmound/oak
+module github.com/oakmound/oak/v2
 
 require (
 	github.com/200sc/go-dist v1.0.0
@@ -21,7 +21,8 @@ require (
 	golang.org/x/image v0.0.0-20190227222117-0694c2d4d067
 	golang.org/x/mobile v0.0.0-20190302063618-b8c6dab863a6
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
-	golang.org/x/sys v0.0.0-20190303192550-c2f5717e611c // indirect
 )
+
+replace github.com/oakmound/oak => ../oak
 
 go 1.13

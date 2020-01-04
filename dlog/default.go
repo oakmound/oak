@@ -42,6 +42,9 @@ func (l *logger) GetLogLevel() Level {
 func (l *logger) dLog(console, override bool, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)
+	if strings.Contains(f, "dlog") {
+		_, f, line, ok = runtime.Caller(3)
+	}
 	if ok {
 		f = truncateFileName(f)
 		if !l.checkFilter(f, in) && !override {
