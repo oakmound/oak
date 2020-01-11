@@ -1,9 +1,9 @@
 package ray
 
 import (
-	"github.com/oakmound/oak/alg"
-	"github.com/oakmound/oak/alg/floatgeom"
-	"github.com/oakmound/oak/collision"
+	"github.com/oakmound/oak/v2/alg"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/collision"
 )
 
 var (

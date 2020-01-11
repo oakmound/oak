@@ -9,7 +9,7 @@ import (
 	"math"
 	"sort"
 
-	"github.com/oakmound/oak/alg/floatgeom"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
 )
 
 // Rtree represents an R-tree, a balanced search tree for storing and querying

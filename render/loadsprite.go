@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/fileutil"
-	"github.com/oakmound/oak/oakerr"
+	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v2/fileutil"
+	"github.com/oakmound/oak/v2/oakerr"
 )
 
 func loadSprite(directory, fileName string) (*image.RGBA, error) {

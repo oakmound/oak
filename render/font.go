@@ -11,9 +11,9 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 
-	"github.com/oakmound/oak/alg/intgeom"
-	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/fileutil"
+	"github.com/oakmound/oak/v2/alg/intgeom"
+	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v2/fileutil"
 )
 
 var (

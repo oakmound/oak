@@ -3,7 +3,7 @@ package render
 import (
 	"image/draw"
 
-	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/v2/physics"
 )
 
 // A Renderable is anything which can

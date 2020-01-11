@@ -1,7 +1,7 @@
 package alg
 
 import (
-	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/v2/dlog"
 )
 
 type stwHeap struct {

@@ -1,7 +1,7 @@
 package oak
 
 import (
-	"github.com/oakmound/oak/oakerr"
+	"github.com/oakmound/oak/v2/oakerr"
 )
 
 // FullScreenable defines windows that can be set to full screen.

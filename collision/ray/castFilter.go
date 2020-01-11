@@ -1,8 +1,8 @@
 package ray
 
 import (
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/event"
 )
 
 // A CastFilter is a function that can be applied to a Caster

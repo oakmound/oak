@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/v2/physics"
 )
 
 // A ScrollBox is a renderable that draws other renderables to itself in a scrolling fashion,

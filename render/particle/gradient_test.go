@@ -7,9 +7,9 @@ import (
 
 	"github.com/200sc/go-dist/floatrange"
 	"github.com/200sc/go-dist/intrange"
-	"github.com/oakmound/oak/physics"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/shape"
+	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/shape"
 	"github.com/stretchr/testify/assert"
 )
 

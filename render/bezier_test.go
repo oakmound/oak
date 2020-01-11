@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/oakmound/oak/shape"
+	"github.com/oakmound/oak/v2/shape"
 	"github.com/stretchr/testify/assert"
 )
 

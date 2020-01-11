@@ -1,7 +1,7 @@
 package render
 
 import (
-	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/v2/physics"
 )
 
 const (

@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/oakmound/oak"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/key"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/scene"
+	oak "github.com/oakmound/oak/v2"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/key"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/scene"
 )
 
 func main() {

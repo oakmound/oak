@@ -5,16 +5,16 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/oakmound/oak/alg/floatgeom"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
 
-	"github.com/oakmound/oak"
-	"github.com/oakmound/oak/entities"
-	"github.com/oakmound/oak/entities/x/move"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/examples/radar-demo/radar"
-	"github.com/oakmound/oak/physics"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/scene"
+	oak "github.com/oakmound/oak/v2"
+	"github.com/oakmound/oak/v2/entities"
+	"github.com/oakmound/oak/v2/entities/x/move"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/examples/radar-demo/radar"
+	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/scene"
 )
 
 const (

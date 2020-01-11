@@ -8,9 +8,9 @@ import (
 
 	"image"
 
-	"github.com/oakmound/oak"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/scene"
+	oak "github.com/oakmound/oak/v2"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/scene"
 )
 
 var (

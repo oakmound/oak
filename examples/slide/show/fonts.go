@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"path/filepath"
 
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/v2/render"
 )
 
 // Loaded Fonts

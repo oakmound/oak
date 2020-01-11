@@ -3,7 +3,7 @@ package timing
 import (
 	"time"
 
-	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/v2/dlog"
 )
 
 // A DynamicTicker is a ticker which can

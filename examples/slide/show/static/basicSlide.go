@@ -3,10 +3,10 @@ package static
 import (
 	"os"
 
-	"github.com/oakmound/oak"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/scene"
+	oak "github.com/oakmound/oak/v2"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/scene"
 )
 
 type Slide struct {

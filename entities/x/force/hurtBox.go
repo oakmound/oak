@@ -4,10 +4,10 @@ import (
 	"image/color"
 	"time"
 
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/physics"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/timing"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/timing"
 )
 
 type hurtBox struct {

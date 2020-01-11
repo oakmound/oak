@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/scene"
+	"github.com/oakmound/oak/v2/scene"
 	"github.com/stretchr/testify/assert"
 )
 

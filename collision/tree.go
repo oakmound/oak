@@ -4,8 +4,8 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/oakmound/oak/alg/floatgeom"
-	"github.com/oakmound/oak/oakerr"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/oakerr"
 )
 
 var (

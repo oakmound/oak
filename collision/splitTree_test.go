@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/200sc/go-dist/floatrange"
-	"github.com/oakmound/oak/alg/floatgeom"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
 )
 
 type SplitTree struct {

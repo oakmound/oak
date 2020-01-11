@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/oakmound/oak/alg/floatgeom"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -1,7 +1,7 @@
 package shape
 
 import (
-	"github.com/oakmound/oak/alg/intgeom"
+	"github.com/oakmound/oak/v2/alg/intgeom"
 )
 
 // A Rect is a function that returns a 2d boolean array

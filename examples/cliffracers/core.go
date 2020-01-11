@@ -6,15 +6,15 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/entities"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/physics"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/scene"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v2/entities"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/scene"
 
-	"github.com/oakmound/oak"
+	oak "github.com/oakmound/oak/v2"
 )
 
 // Cliffracer globals... If this was more complex we wouldnt have these

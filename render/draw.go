@@ -5,7 +5,7 @@ import (
 
 	"time"
 
-	"github.com/oakmound/oak/timing"
+	"github.com/oakmound/oak/v2/timing"
 )
 
 var (

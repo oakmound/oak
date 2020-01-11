@@ -1,10 +1,10 @@
 package oak
 
 import (
-	"github.com/oakmound/oak/audio"
-	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/fileutil"
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/v2/audio"
+	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v2/fileutil"
+	"github.com/oakmound/oak/v2/render"
 )
 
 var (

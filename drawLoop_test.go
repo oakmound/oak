@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/scene"
+	"github.com/oakmound/oak/v2/scene"
 )
 
 var once sync.Once

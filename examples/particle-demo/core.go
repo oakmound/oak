@@ -9,14 +9,14 @@ import (
 
 	"github.com/200sc/go-dist/floatrange"
 	"github.com/200sc/go-dist/intrange"
-	"github.com/oakmound/oak"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/mouse"
-	"github.com/oakmound/oak/physics"
-	"github.com/oakmound/oak/render"
-	pt "github.com/oakmound/oak/render/particle"
-	"github.com/oakmound/oak/scene"
-	"github.com/oakmound/oak/shape"
+	oak "github.com/oakmound/oak/v2"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/mouse"
+	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v2/render"
+	pt "github.com/oakmound/oak/v2/render/particle"
+	"github.com/oakmound/oak/v2/scene"
+	"github.com/oakmound/oak/v2/shape"
 )
 
 var (

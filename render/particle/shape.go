@@ -1,6 +1,6 @@
 package particle
 
-import "github.com/oakmound/oak/shape"
+import "github.com/oakmound/oak/v2/shape"
 
 // Shapeable generators can have the Shape option called on them
 type Shapeable interface {

@@ -1,6 +1,6 @@
 package shape
 
-import "github.com/oakmound/oak/oakerr"
+import "github.com/oakmound/oak/v2/oakerr"
 
 // BezierCurve will form a Bezier on the given coordinates, expected in (x,y)
 // pairs. If the inputs have an odd length, an error noting so is returned, and

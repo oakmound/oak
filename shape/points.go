@@ -1,7 +1,7 @@
 package shape
 
 import (
-	"github.com/oakmound/oak/alg/intgeom"
+	"github.com/oakmound/oak/v2/alg/intgeom"
 )
 
 // Points is a shape defined by a set of points.

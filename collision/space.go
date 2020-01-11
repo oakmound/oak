@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/oakmound/oak/alg/floatgeom"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/physics"
 )
 
 // ID Types constant

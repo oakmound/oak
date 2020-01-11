@@ -8,15 +8,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oakmound/oak/oakerr"
+	"github.com/oakmound/oak/v2/oakerr"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/mouse"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/render/mod"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/mouse"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/render/mod"
 )
 
 var (

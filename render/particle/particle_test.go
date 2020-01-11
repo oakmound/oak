@@ -3,7 +3,7 @@ package particle
 import (
 	"testing"
 
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/v2/render"
 	"github.com/stretchr/testify/assert"
 )
 

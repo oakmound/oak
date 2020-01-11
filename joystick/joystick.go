@@ -6,7 +6,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/v2/dlog"
 )
 
 // Events

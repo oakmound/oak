@@ -5,7 +5,7 @@ import (
 
 	"github.com/200sc/go-dist/intrange"
 	"github.com/200sc/klangsynthese/font"
-	"github.com/oakmound/oak/timing"
+	"github.com/oakmound/oak/v2/timing"
 )
 
 // DefActiveChannel acts like GetActiveChannel when fed DefFont

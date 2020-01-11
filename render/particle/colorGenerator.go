@@ -3,8 +3,8 @@ package particle
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/alg"
-	"github.com/oakmound/oak/shape"
+	"github.com/oakmound/oak/v2/alg"
+	"github.com/oakmound/oak/v2/shape"
 
 	"github.com/200sc/go-dist/intrange"
 )

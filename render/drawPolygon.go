@@ -2,8 +2,8 @@ package render
 
 import (
 	"github.com/akavel/polyclip-go"
-	"github.com/oakmound/oak/alg"
-	"github.com/oakmound/oak/alg/floatgeom"
+	"github.com/oakmound/oak/v2/alg"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
 )
 
 // A DrawPolygon is used to determine whether elements should be drawn, defining

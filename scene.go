@@ -3,8 +3,8 @@ package oak
 import (
 	"time"
 
-	"github.com/oakmound/oak/scene"
-	"github.com/oakmound/oak/timing"
+	"github.com/oakmound/oak/v2/scene"
+	"github.com/oakmound/oak/v2/timing"
 )
 
 var (

@@ -3,11 +3,11 @@ package oak
 import (
 	"runtime"
 
-	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/v2/event"
 
-	"github.com/oakmound/oak/dlog"
-	okey "github.com/oakmound/oak/key"
-	omouse "github.com/oakmound/oak/mouse"
+	"github.com/oakmound/oak/v2/dlog"
+	okey "github.com/oakmound/oak/v2/key"
+	omouse "github.com/oakmound/oak/v2/mouse"
 	"github.com/oakmound/shiny/gesture"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"

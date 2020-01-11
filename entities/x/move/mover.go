@@ -1,9 +1,9 @@
 package move
 
 import (
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/physics"
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v2/render"
 )
 
 // A Mover can move its position, renderable, and space. Unless otherwise documented,

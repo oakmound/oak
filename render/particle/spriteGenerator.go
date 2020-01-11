@@ -3,8 +3,8 @@ package particle
 import (
 	"github.com/200sc/go-dist/floatrange"
 
-	"github.com/oakmound/oak/alg"
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/v2/alg"
+	"github.com/oakmound/oak/v2/render"
 )
 
 // A SpriteGenerator generate SpriteParticles

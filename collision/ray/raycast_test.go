@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/200sc/go-dist/floatrange"
-	"github.com/oakmound/oak/alg/floatgeom"
-	"github.com/oakmound/oak/collision"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/collision"
 	"github.com/stretchr/testify/assert"
 )
 

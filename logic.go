@@ -1,6 +1,6 @@
 package oak
 
-import "github.com/oakmound/oak/event"
+import "github.com/oakmound/oak/v2/event"
 
 var (
 	logicHandler event.Handler = event.DefaultBus
