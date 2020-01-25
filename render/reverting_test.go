@@ -5,8 +5,8 @@ import (
 	"math"
 	"testing"
 
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/render/mod"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/render/mod"
 	"github.com/stretchr/testify/assert"
 )
 

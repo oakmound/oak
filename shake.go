@@ -4,8 +4,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/oakmound/oak/alg/floatgeom"
-	"github.com/oakmound/oak/alg/intgeom"
+	"github.com/oakmound/oak/v2/alg/intgeom"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
 )
 
 // A ScreenShaker knows how to shake a screen by a (or up to a) given magnitude.

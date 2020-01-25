@@ -8,7 +8,7 @@ import (
 	"github.com/200sc/go-dist/floatrange"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/v2/render"
 )
 
 func TestSpriteParticle(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/oakmound/oak/render/mod"
+	"github.com/oakmound/oak/v2/render/mod"
 )
 
 var (

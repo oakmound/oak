@@ -3,7 +3,7 @@ package particle
 import (
 	"github.com/200sc/go-dist/floatrange"
 	"github.com/200sc/go-dist/intrange"
-	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/v2/physics"
 )
 
 var (

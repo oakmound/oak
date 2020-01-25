@@ -5,10 +5,10 @@ import (
 	"image/draw"
 	"sync"
 
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/oakerr"
-	"github.com/oakmound/oak/physics"
-	"github.com/oakmound/oak/render/mod"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v2/render/mod"
 )
 
 // The Switch type is intended for use to easily swap between multiple

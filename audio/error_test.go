@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/oakmound/oak/oakerr"
+	"github.com/oakmound/oak/v2/oakerr"
 )
 
 func TestErrorChannel(t *testing.T) {

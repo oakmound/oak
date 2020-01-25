@@ -3,7 +3,7 @@ package mouse
 import (
 	"time"
 
-	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/v2/physics"
 	"github.com/oakmound/shiny/gesture"
 )
 

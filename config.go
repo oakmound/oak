@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/oakmound/oak/fileutil"
+	"github.com/oakmound/oak/v2/fileutil"
 
-	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/v2/dlog"
 )
 
 var (

@@ -1,9 +1,9 @@
 package force
 
 import (
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/physics"
 )
 
 // A DirectionSpace combines collision and a intended direction collision should imply

@@ -3,11 +3,11 @@ package btn
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/mouse"
+	"github.com/oakmound/oak/v2/mouse"
 
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/render/mod"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/render/mod"
 )
 
 // And combines a variadic number of options

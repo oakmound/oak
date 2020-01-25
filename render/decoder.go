@@ -7,7 +7,7 @@ import (
 	"image/png"
 	"io"
 
-	"github.com/oakmound/oak/oakerr"
+	"github.com/oakmound/oak/v2/oakerr"
 
 	"golang.org/x/image/bmp"
 )

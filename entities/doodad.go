@@ -3,8 +3,8 @@ package entities
 import (
 	"strconv"
 
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/render"
 )
 
 // A Doodad is an entity composed of a position, a renderable, and a CallerID.

@@ -1,8 +1,8 @@
 package particle
 
 import (
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/event"
 )
 
 // A CollisionGenerator generates collision particles

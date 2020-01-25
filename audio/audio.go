@@ -5,7 +5,7 @@ import (
 
 	"github.com/200sc/klangsynthese/audio"
 	"github.com/200sc/klangsynthese/font"
-	"github.com/oakmound/oak/oakerr"
+	"github.com/oakmound/oak/v2/oakerr"
 )
 
 // Audio is a struct of some audio data and the variables

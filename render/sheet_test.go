@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/oakmound/oak/fileutil"
+	"github.com/oakmound/oak/v2/fileutil"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/oakmound/oak/render/mod"
+	"github.com/oakmound/oak/v2/render/mod"
 	//"image/draw"
 )
 

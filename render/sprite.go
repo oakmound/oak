@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/render/mod"
+	"github.com/oakmound/oak/v2/render/mod"
 )
 
 // A Sprite is a basic wrapper around image data and a point. The most basic Renderable.

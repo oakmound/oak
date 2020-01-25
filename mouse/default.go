@@ -1,6 +1,6 @@
 package mouse
 
-import "github.com/oakmound/oak/collision"
+import "github.com/oakmound/oak/v2/collision"
 
 // There's a default collision tree you can access via collision.func
 // as opposed to tree.func

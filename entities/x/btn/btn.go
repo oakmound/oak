@@ -1,9 +1,9 @@
 package btn
 
 import (
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/render"
 )
 
 // Btn defines a button for use in the UI

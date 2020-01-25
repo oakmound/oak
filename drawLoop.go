@@ -4,9 +4,9 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/timing"
+	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/timing"
 	"github.com/oakmound/shiny/screen"
 )
 

@@ -6,11 +6,11 @@ import (
 
 	"github.com/200sc/go-dist/intrange"
 
-	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/physics"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/timing"
+	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/timing"
 )
 
 const (

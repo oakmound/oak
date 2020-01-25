@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/render"
 	"github.com/oakmound/shiny/driver"
+	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v2/render"
 )
 
 var (

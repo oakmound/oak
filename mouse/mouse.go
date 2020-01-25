@@ -1,7 +1,7 @@
 package mouse
 
 import (
-	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/v2/event"
 	"golang.org/x/mobile/event/mouse"
 )
 

@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oakmound/oak/dlog"
-	"github.com/oakmound/oak/fileutil"
+	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v2/fileutil"
 )
 
 var (

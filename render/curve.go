@@ -5,8 +5,8 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/oakmound/oak/alg"
-	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/v2/alg"
+	"github.com/oakmound/oak/v2/physics"
 )
 
 // NewCircle creates a sprite and draws a circle onto it

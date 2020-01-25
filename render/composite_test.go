@@ -5,8 +5,8 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/oakmound/oak/alg/floatgeom"
-	"github.com/oakmound/oak/render/mod"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/render/mod"
 	"github.com/stretchr/testify/assert"
 )
 

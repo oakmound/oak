@@ -1,6 +1,6 @@
 package btn
 
-import "github.com/oakmound/oak/render"
+import "github.com/oakmound/oak/v2/render"
 
 //Text sets the text of the button to be generated
 func Text(s string) Option {

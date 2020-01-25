@@ -6,14 +6,14 @@ import (
 
 	"github.com/200sc/go-dist/floatrange"
 
-	"github.com/oakmound/oak"
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/entities"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/key"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/scene"
-	"github.com/oakmound/oak/timing"
+	oak "github.com/oakmound/oak/v2"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/entities"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/key"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/scene"
+	"github.com/oakmound/oak/v2/timing"
 )
 
 var (

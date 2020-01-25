@@ -3,9 +3,9 @@ package btn
 import (
 	"fmt"
 
-	"github.com/oakmound/oak/entities"
+	"github.com/oakmound/oak/v2/entities"
 
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/v2/render"
 )
 
 // NewText creates some uitext

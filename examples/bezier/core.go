@@ -5,12 +5,12 @@ import (
 	"image/color"
 	"strconv"
 
-	"github.com/oakmound/oak"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/mouse"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/scene"
-	"github.com/oakmound/oak/shape"
+	oak "github.com/oakmound/oak/v2"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/mouse"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/scene"
+	"github.com/oakmound/oak/v2/shape"
 )
 
 var (

@@ -6,14 +6,14 @@ import (
 
 	"github.com/200sc/go-dist/floatrange"
 	"github.com/200sc/go-dist/intrange"
-	"github.com/oakmound/oak/render/mod"
-	"github.com/oakmound/oak/render/particle"
+	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v2/render/particle"
 
-	"github.com/oakmound/oak"
-	"github.com/oakmound/oak/examples/slide/show"
-	"github.com/oakmound/oak/examples/slide/show/static"
-	"github.com/oakmound/oak/render"
-	"github.com/oakmound/oak/shape"
+	oak "github.com/oakmound/oak/v2"
+	"github.com/oakmound/oak/v2/examples/slide/show"
+	"github.com/oakmound/oak/v2/examples/slide/show/static"
+	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/shape"
 	"golang.org/x/image/colornames"
 )
 

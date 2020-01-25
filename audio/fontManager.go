@@ -2,7 +2,7 @@ package audio
 
 import (
 	"github.com/200sc/klangsynthese/font"
-	"github.com/oakmound/oak/oakerr"
+	"github.com/oakmound/oak/v2/oakerr"
 )
 
 // A FontManager is a map of names to Fonts that has a built in

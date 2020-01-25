@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/event"
 
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/mobile/event/mouse"

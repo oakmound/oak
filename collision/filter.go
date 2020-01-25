@@ -1,6 +1,6 @@
 package collision
 
-import "github.com/oakmound/oak/event"
+import "github.com/oakmound/oak/v2/event"
 
 // A Filter will take a set of collision spaces
 // and return the subset that match some requirement

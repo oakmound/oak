@@ -3,7 +3,7 @@ package physics
 import (
 	"testing"
 
-	"github.com/oakmound/oak/alg"
+	"github.com/oakmound/oak/v2/alg"
 	"github.com/stretchr/testify/assert"
 )
 

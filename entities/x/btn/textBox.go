@@ -1,10 +1,10 @@
 package btn
 
 import (
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/event"
-	"github.com/oakmound/oak/mouse"
-	"github.com/oakmound/oak/render"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/mouse"
+	"github.com/oakmound/oak/v2/render"
 )
 
 // TextBox is a Box with an associated text element

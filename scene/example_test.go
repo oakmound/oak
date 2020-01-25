@@ -3,7 +3,7 @@ package scene_test
 import (
 	"fmt"
 
-	"github.com/oakmound/oak/scene"
+	"github.com/oakmound/oak/v2/scene"
 )
 
 func ExampleMap_GetCurrent() {

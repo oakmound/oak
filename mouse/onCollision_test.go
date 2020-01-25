@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/alg/floatgeom"
-	"github.com/oakmound/oak/collision"
-	"github.com/oakmound/oak/event"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v2/event"
 	"github.com/stretchr/testify/assert"
 )
 

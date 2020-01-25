@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/physics"
+	"github.com/oakmound/oak/v2/physics"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/oakmound/shiny/gesture"

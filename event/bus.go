@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/oakmound/oak/timing"
+	"github.com/oakmound/oak/v2/timing"
 )
 
 // Bindable is a way of saying "Any function
