@@ -37,10 +37,12 @@ func inputLoop() {
 		// We only currently respond to death lifecycle events.
 		case lifecycle.Event:
 			if e.To == lifecycle.StageDead {
+				dlog.Info("Window closed.")
 				// OnStop needs to be sent through TriggerBack, otherwise the
 				// program will close before the stop events get propagated.
 				if fh, ok := logicHandler.(event.FullHandler); ok {
-					fh.TriggerBack(event.OnStop, nil)
+					dlog.Verb("Triggering OnStop.")
+					<-fh.TriggerBack(event.OnStop, nil)
 				}
 				quitCh <- true
 				return
