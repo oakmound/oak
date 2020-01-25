@@ -24,6 +24,10 @@
 ***
 
 ## Installation <a name="installation"/>
+`go get -u github.com/oakmound/oak/v2...`
+
+Or in GOPATH mode (not using go modules):
+
 `go get -u github.com/oakmound/oak/...`
 
 
