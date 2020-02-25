@@ -33,11 +33,11 @@ type Stackable interface {
 	draw(draw.Image, image.Point, int, int)
 }
 
-// SetDrawStack takes in a set of Addables which act as the set of Drawstacks available
+// SetDrawStack takes in a set of Stackable which act as the set of Drawstacks available
 // and resets how calls to Draw will act. If this is called mid scene,
 // all elements on the existing draw stack will be lost.
-func SetDrawStack(as ...Stackable) {
-	GlobalDrawStack = &DrawStack{as: as}
+func SetDrawStack(stackLayers ...Stackable) {
+	GlobalDrawStack = &DrawStack{as: stackLayers}
 	initialDrawStack = GlobalDrawStack.Copy()
 	dlog.Info("Global draw stack", GlobalDrawStack)
 	dlog.Info("Initial draw stack", initialDrawStack)
@@ -63,7 +63,7 @@ func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
 //
 // If the draw stack has only one stackable, the item will be added to that
 // stackable with the input layers as its argument. Otherwise, the item will be added
-// to the l[0]th stackable, with remaining layers supplied to the stackable
+// to the layers[0]th stackable, with remaining layers supplied to the stackable
 // as arguments.
 //
 // If zero layers are provided, it will add to the zeroth stack layer and
