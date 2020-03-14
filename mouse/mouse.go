@@ -45,15 +45,15 @@ func Propagate(eventName string, me Event) {
 func GetMouseButton(b mouse.Button) (s string) {
 	switch b {
 	case mouse.ButtonLeft:
-		s = "LeftMouse"
+		s = ButtonLeft
 	case mouse.ButtonMiddle:
-		s = "MiddleMouse"
+		s = ButtonMiddle
 	case mouse.ButtonRight:
-		s = "RightMouse"
+		s = ButtonRight
 	case mouse.ButtonWheelUp:
-		s = "ScrollUpMouse"
+		s = ButtonWheelUp
 	case mouse.ButtonWheelDown:
-		s = "ScrollDownMouse"
+		s = ButtonWheelDown
 	default:
 		s = ""
 	}
