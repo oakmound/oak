@@ -35,7 +35,7 @@ func ConformToPallete(p color.Model) Filter {
 	}
 }
 
-// Fade reduces the alpha of an image
+// Fade reduces the alpha of an image. It takes an alpha from 0-255.
 func Fade(alpha int) Filter {
 	return func(rgba *image.RGBA) {
 		bounds := rgba.Bounds()
