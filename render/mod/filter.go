@@ -170,6 +170,8 @@ func InPlace(m Mod) Filter {
 }
 
 // StripOuterAlpha from the image given a source image and a alpha level to denote stripping.
+// Note that this was implement for ease of implementation but not speed.
+// We could use image lib or a real depth first search to do fewer checks but this is easier...
 func StripOuterAlpha(m *image.RGBA, level int) Filter {
 	l := uint8(level)
 	return func(rgba *image.RGBA) {
@@ -185,7 +187,7 @@ func StripOuterAlpha(m *image.RGBA, level int) Filter {
 		w := bounds.Max.X
 		h := bounds.Max.Y
 
-		// check downwards
+		// check downwards for the given level.x
 		for x := 0; x < w; x++ {
 			for y := 0; y < h; y++ {
 				r := mr.RGBAAt(x, y)
@@ -197,7 +199,7 @@ func StripOuterAlpha(m *image.RGBA, level int) Filter {
 				}
 			}
 		}
-		// check left to right
+		// check left to right for the given level.
 		for y := 0; y < h; y++ {
 			for x := 0; x < w; x++ {
 				r := mr.RGBAAt(x, y)
@@ -210,7 +212,7 @@ func StripOuterAlpha(m *image.RGBA, level int) Filter {
 			}
 		}
 
-		// check downwards
+		// check bottom up for the given level.
 		for x := 0; x < w; x++ {
 			for y := h - 1; y >= 0; y-- {
 				r := mr.RGBAAt(x, y)
@@ -222,7 +224,7 @@ func StripOuterAlpha(m *image.RGBA, level int) Filter {
 				}
 			}
 		}
-		// check left to right
+		// check right to left for the given level.
 		for y := 0; y < h; y++ {
 			for x := w - 1; x >= 0; x-- {
 				r := mr.RGBAAt(x, y)
