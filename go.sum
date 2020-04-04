@@ -29,8 +29,6 @@ github.com/hajimehoshi/oto v0.1.1/go.mod h1:hUiLWeBQnbDu4pZsAhOnGqMI1ZGibS6e2qhQ
 github.com/hajimehoshi/oto v0.3.4/go.mod h1:PgjqsBJff0efqL2nlMJidJgVJywLn6M4y8PI4TfeWfA=
 github.com/oakmound/libudev v0.2.1 h1:gaXuw7Pbt3RSRxbUakAjl0dSW6Wo3TZWpwS5aMq8+EA=
 github.com/oakmound/libudev v0.2.1/go.mod h1:zYF5CkHY+UP6lzWbPR+XoVAscl/s+OncWA//qWjMLUs=
-github.com/oakmound/oak v2.0.0+incompatible h1:88iLPCK9PO+cVLUJpeZG0s7NmHSilkWzIQOolu3AL3E=
-github.com/oakmound/oak v2.0.0+incompatible/go.mod h1:LgESy19NqYObZlqk1GcoZJav1Wwmp+YGj2KvziJmU6A=
 github.com/oakmound/shiny v0.3.0 h1:PUxrM9qPk/9+rkSDjTvtb3wlUw5Oog0fHIG5N0eQ1mk=
 github.com/oakmound/shiny v0.3.0/go.mod h1:cJDeJQ/6Ovs2IiM4xTXjIC8zGJnECKvj8BOpTJ4qrhI=
 github.com/oakmound/shiny v0.4.1-0.20191119013337-fdd972eb9250 h1:hWv8ZoA9Rq+uAG+xHPhcN2H+W5mng330agAFxNAV4Js=
