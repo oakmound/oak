@@ -6,6 +6,7 @@ github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802 h1:1BDTz0u9nC3//pOCMdNH+CiXJVYJh5UQNCOBG7jbELc=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
+github.com/BurntSushi/xgbutil v0.0.0-20160919175755-f7c97cef3b4e/go.mod h1:uw9h2sd4WWHOPdJ13MQpwK5qYWKYDumDqxWWIknEQ+k=
 github.com/BurntSushi/xgbutil v0.0.0-20190907113008-ad855c713046 h1:O/r2Sj+8QcMF7V5IcmiE2sMFV2q3J47BEirxbXJAdzA=
 github.com/BurntSushi/xgbutil v0.0.0-20190907113008-ad855c713046/go.mod h1:uw9h2sd4WWHOPdJ13MQpwK5qYWKYDumDqxWWIknEQ+k=
 github.com/akavel/polyclip-go v0.0.0-20160111220610-2cfdb71461bd h1:/DQAi5feF/aviHBeEK8mS1D/bm6gNFlUFtDkX0L7jOU=
@@ -26,6 +27,9 @@ github.com/oakmound/libudev v0.2.1 h1:gaXuw7Pbt3RSRxbUakAjl0dSW6Wo3TZWpwS5aMq8+E
 github.com/oakmound/libudev v0.2.1/go.mod h1:zYF5CkHY+UP6lzWbPR+XoVAscl/s+OncWA//qWjMLUs=
 github.com/oakmound/shiny v0.4.2-0.20191119030223-0bee53b02481 h1:CRXgFNZ3V76GAjgwZ6c6V/PmBFy9iX55sC+fIDBpTVs=
 github.com/oakmound/shiny v0.4.2-0.20191119030223-0bee53b02481/go.mod h1:cJDeJQ/6Ovs2IiM4xTXjIC8zGJnECKvj8BOpTJ4qrhI=
+github.com/oakmound/shiny v0.4.2-beta h1:EDRP9/mEa3ndLX4aXCfjj9b8afDgx081mO0N+YYzuvw=
+github.com/oakmound/shiny v0.4.2-beta/go.mod h1:fEGagtAluRRrVkMQyzyL+G3j+TdsyOjrIajWunGmy3M=
+github.com/oakmound/w32 v2.0.0+incompatible/go.mod h1:lzloWlclSXIU4cDr67WF8qjFFDO8gHHBIk4Qqe90enQ=
 github.com/oakmound/w32 v2.1.0+incompatible h1:vIkC6eJVOaAnwTTOyiVCGh24GoryPRmcvWq3cekkG2U=
 github.com/oakmound/w32 v2.1.0+incompatible/go.mod h1:lzloWlclSXIU4cDr67WF8qjFFDO8gHHBIk4Qqe90enQ=
 github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf h1:od9gEl9UQ/QNHlgYlgsSaC5SZ+CGbvO2/PCIgserJc0=
@@ -44,10 +48,13 @@ github.com/yobert/alsa v0.0.0-20190412010934-e9392a2624b7/go.mod h1:CaowXBWOiSGW
 golang.org/x/exp v0.0.0-20190306152737-a1d7652674e8/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067 h1:KYGJGHOQy8oSi1fDlSpcZF0+juKwk/hEMv5SiwHogR0=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
+golang.org/x/mobile v0.0.0-20190307202846-d2e1c1c4a691/go.mod h1:z+o9i4GpDbdi3rU15maQ/Ox0txvL9dWGYEHz965HBQE=
 golang.org/x/mobile v0.0.0-20190415191353-3e0bab5405d6 h1:vyLBGJPIl9ZYbcQFM2USFmJBK6KI+t+z6jL0lbwjrnc=
 golang.org/x/mobile v0.0.0-20190415191353-3e0bab5405d6/go.mod h1:E/iHnbuqvinMTCcRqshq8CkpyQDoeVncDDYHnLhea+o=
+golang.org/x/net v0.0.0-20190310074541-c10a0554eabf/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
 golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6 h1:bjcUS9ztw9kFmmIxJInhon/0Is3p+EHBKNgquIzo1OI=
 golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
+golang.org/x/sys v0.0.0-20190310054646-10058d7d4faa/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20190312061237-fead79001313 h1:pczuHS43Cp2ktBEEmLwScxgjWsBSzdaQiKzUyf3DTTc=
 golang.org/x/sys v0.0.0-20190312061237-fead79001313/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20190429190828-d89cdac9e872 h1:cGjJzUd8RgBw428LXP65YXni0aiGNA4Bl+ls8SmLOm8=
