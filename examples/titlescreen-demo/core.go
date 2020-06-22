@@ -11,8 +11,10 @@ import (
 	"github.com/oakmound/oak/v2/scene"
 )
 
-type Axes uint8 //plural of axis
-//enum for what axes to center around
+// Axes are the plural of axis
+type Axes uint8 
+
+// This is an enum for what axes to center around
 const (
 	X Axes = iota
 	Y
