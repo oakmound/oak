@@ -20,8 +20,11 @@ var (
 
 func main() {
 	oak.Add("demo", func(string, interface{}) {
+		// Get an image that we will illustrate zooming with later
 		s, err := render.LoadSprite("assets", filepath.Join("raw", "mona-lisa.jpg"))
 		dlog.ErrorCheck(err)
+
+		// See the zoomR definition lower, wrap your renderable with a definition of how to zoom.
 		zoomer := &zoomR{
 			Renderable: s,
 			SetFn: func(buff draw.Image, x, y int, c color.Color) {
@@ -31,6 +34,8 @@ func main() {
 			},
 		}
 		render.Draw(zoomer)
+
+		// To illustrate zooming allow for arrow keys to control the main zoomable renderable.
 		event.GlobalBind(func(i int, _ interface{}) int {
 			if oak.IsDown(key.UpArrow) {
 				zoomOutFactorY -= .10
@@ -53,6 +58,7 @@ func main() {
 	oak.Init("demo")
 }
 
+// zoomR wraps a renderable with a function that details
 type zoomR struct {
 	render.Renderable
 	SetFn func(buff draw.Image, x, y int, c color.Color)
@@ -61,6 +67,8 @@ type zoomR struct {
 func (z *zoomR) Draw(buff draw.Image) {
 	z.DrawOffset(buff, 0, 0)
 }
+
+// DrawOffset to draw the zoomR by creating a customImage and applying the set funcitonality.
 func (z *zoomR) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	img := &customImage{buff, z.SetFn}
 	z.Renderable.DrawOffset(img, xOff, yOff)
