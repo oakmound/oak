@@ -61,8 +61,14 @@ func (dp *DrawPolygon) ClearDrawPolygon() {
 }
 
 // DrawPolygonDim returns the dimensions of this draw polygon, or (0,0)->(0,0)
-// if there is no draw polygon in use.
+// if there is no draw polygon in use. Deprecated: Use DrawPolygonBounds instead
 func (dp *DrawPolygon) DrawPolygonDim() floatgeom.Rect2 {
+	return dp.dims
+}
+
+// DrawPolygonBounds returns the dimensions of this draw polygon, or (0,0)->(0,0)
+// if there is no draw polygon in use. 
+func (dp *DrawPolygon) DrawPolygonBounds() floatgeom.Rect2 {
 	return dp.dims
 }
 
