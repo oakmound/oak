@@ -90,7 +90,8 @@ type Event struct {
 }
 
 // BindingOption is all the information required
-// to bind something
+// to bind something. Priority must be between -32
+// and 32, inclusive.
 type BindingOption struct {
 	Event
 	Priority int

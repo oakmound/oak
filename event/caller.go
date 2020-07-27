@@ -1,6 +1,6 @@
 package event
 
-// Caller can bind and trigger events
+// A Caller can bind, unbind and trigger events.
 type Caller interface {
 	Trigger(string, interface{})
 	Bind(Bindable, string)
