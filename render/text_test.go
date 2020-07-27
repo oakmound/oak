@@ -2,11 +2,8 @@ package render
 
 import (
 	"image"
-	"path/filepath"
 	"testing"
 
-	"github.com/oakmound/oak/v2/fileutil"
-	"github.com/oakmound/oak/v2/render/testdata/fonts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,8 +13,8 @@ func TestTextFns(t *testing.T) {
 	txt := DefFont().NewStrText("Test", 0, 0)
 
 	fg := FontGenerator{
-		File:  filepath.Join("default_assets", "font", "luxisr.ttf"),
-		Color: image.Black,
+		RawFile: luxisrTTF,
+		Color:   image.Black,
 	}
 
 	f := fg.Generate()
@@ -67,8 +64,6 @@ func (d dummyStringer) String() string {
 
 // Todo: move this to font_test.go, once we have font_test.go
 func initTestFont() {
-	DefFontGenerator = FontGenerator{File: filepath.Join("default_assets", "font", "luxisr.ttf")}
-	fileutil.BindataDir = fonts.AssetDir
-	fileutil.BindataFn = fonts.Asset
+	DefFontGenerator = FontGenerator{RawFile: luxisrTTF}
 	SetFontDefaults("", "", "", "", "white", "", 10, 10)
 }
