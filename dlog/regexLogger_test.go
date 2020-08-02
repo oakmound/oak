@@ -88,6 +88,50 @@ func TestRegexLogger_SetDebugFilter(t *testing.T) {
 	}
 }
 
+func TestRegexLogger_FilterOverrideLevel(t *testing.T) {
+	type testCase struct {
+		name     string
+		fn       func(cl *RegexLogger, buff *bytes.Buffer)
+		contains string
+	}
+	tcs := []testCase{
+		{
+			name: "default override: too low does not emit",
+			fn: func(cl *RegexLogger, buff *bytes.Buffer) {
+				cl.SetDebugFilter("filter1")
+				cl.Verb("does not contain")
+			},
+		}, {
+			name: "default override: emits",
+			fn: func(cl *RegexLogger, buff *bytes.Buffer) {
+				cl.SetDebugFilter("filter1")
+				cl.Warn("does not contain")
+			},
+			contains: "does not contain",
+		}, {
+			name: "custom override: too low does not emit",
+			fn: func(cl *RegexLogger, buff *bytes.Buffer) {
+				cl.SetDebugFilter("filter1")
+				cl.FilterOverrideLevel = ERROR
+				cl.Warn("does not contain")
+			},
+		}, {
+			name: "custom override: emits",
+			fn: func(cl *RegexLogger, buff *bytes.Buffer) {
+				cl.SetDebugFilter("filter1")
+				cl.FilterOverrideLevel = ERROR
+				cl.Error("does not contain")
+			},
+			contains: "does not contain",
+		},
+	}
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			testRegexLoggerContains(t, tc.fn, tc.contains)
+		})
+	}
+}
+
 func TestRegexLogger_SetDebugLevel(t *testing.T) {
 	cl := NewRegexLogger(NONE)
 	cl.SetDebugLevel(INFO)
