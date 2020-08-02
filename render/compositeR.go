@@ -8,7 +8,7 @@ import (
 )
 
 // A CompositeR is equivalent to a CompositeM for Renderables instead of
-// Modifiables. CompositeRs can also be used as Draw Stack elements.
+// Modifiables. CompositeRs also implements Stackable.
 type CompositeR struct {
 	LayeredPoint
 	toPush []Renderable

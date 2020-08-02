@@ -12,6 +12,7 @@ import (
 )
 
 // InputType expresses some form of input to the engine to represent a player
+// Todo v3: convert into int32 for use with atomic.SwapInt32
 type InputType int
 
 // Supported Input Types
