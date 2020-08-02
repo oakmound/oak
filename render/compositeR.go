@@ -3,6 +3,7 @@ package render
 import (
 	"image"
 	"image/draw"
+	"sync"
 
 	"github.com/oakmound/oak/v2/alg/floatgeom"
 )
@@ -11,8 +12,10 @@ import (
 // Modifiables. CompositeRs also implements Stackable.
 type CompositeR struct {
 	LayeredPoint
-	toPush []Renderable
-	rs     []Renderable
+	toPush      []Renderable
+	toUndraw    []Renderable
+	rs          []Renderable
+	predrawLock sync.Mutex
 	DrawPolygon
 }
 
@@ -21,6 +24,7 @@ func NewCompositeR(sl ...Renderable) *CompositeR {
 	cs := new(CompositeR)
 	cs.LayeredPoint = NewLayeredPoint(0, 0, 0)
 	cs.toPush = make([]Renderable, 0)
+	cs.toUndraw = make([]Renderable, 0)
 	cs.rs = sl
 	return cs
 }
@@ -101,22 +105,32 @@ func (cs *CompositeR) Get(i int) Renderable {
 
 // Add stages a renderable to be added to the Composite at the next PreDraw
 func (cs *CompositeR) Add(r Renderable, _ ...int) Renderable {
+	cs.predrawLock.Lock()
 	cs.toPush = append(cs.toPush, r)
+	cs.predrawLock.Unlock()
 	return r
 }
 
 // Replace updates a renderable in the CompositeR to the new Renderable
-func (cs *CompositeR) Replace(r1, r2 Renderable, i int) {
-	cs.Add(r2, i)
-	r1.Undraw()
+func (cs *CompositeR) Replace(old, new Renderable, i int) {
+	cs.predrawLock.Lock()
+	cs.toPush = append(cs.toPush, new)
+	cs.toUndraw = append(cs.toUndraw, old)
+	cs.predrawLock.Unlock()
+
 }
 
 // PreDraw updates the CompositeR with the new renderables to add.
 // This helps keep consistency and mitigates the threat of unsafe operations.
 func (cs *CompositeR) PreDraw() {
+	cs.predrawLock.Lock()
 	push := cs.toPush
 	cs.toPush = []Renderable{}
 	cs.rs = append(cs.rs, push...)
+	for _, r := range cs.toUndraw {
+		r.Undraw()
+	}
+	cs.predrawLock.Unlock()
 }
 
 // Copy returns a new composite with the same length slice of renderables but no actual renderables...
