@@ -12,9 +12,14 @@ import (
 	"time"
 )
 
-// CustomLogger is a logger implementation that offers some
+var (
+	_ FullLogger = &RegexLogger{}
+)
+
+// RegexLogger is a logger implementation that offers some
 // additional features on top of the default logger.
-type CustomLogger struct {
+// Todo v3: combine logger implementations.
+type RegexLogger struct {
 	debugLevel Level
 
 	debugFilter string
@@ -24,12 +29,13 @@ type CustomLogger struct {
 	FilterOverrideLevel Level
 
 	writer io.Writer
+	file   io.Writer
 }
 
-// NewCustomLogger returns a custom logger that writes to os.Stdout and
+// NewRegexLogger returns a custom logger that writes to os.Stdout and
 // overrides filters on WARN or higher messages.
-func NewCustomLogger(level Level) *CustomLogger {
-	return &CustomLogger{
+func NewRegexLogger(level Level) *RegexLogger {
+	return &RegexLogger{
 		debugLevel:          level,
 		writer:              os.Stdout,
 		FilterOverrideLevel: WARN,
@@ -37,7 +43,7 @@ func NewCustomLogger(level Level) *CustomLogger {
 }
 
 // GetLogLevel returns the current log level, i.e WARN or INFO...
-func (l *CustomLogger) GetLogLevel() Level {
+func (l *RegexLogger) GetLogLevel() Level {
 	return l.debugLevel
 }
 
@@ -46,9 +52,7 @@ func (l *CustomLogger) GetLogLevel() Level {
 // containing the logged data separated by spaces,
 // prepended with file and line information.
 // It only includes logs which pass the current filters.
-// Todo: use io.Multiwriter to simplify the writing to
-// both logfiles and stdout
-func (l *CustomLogger) dLog(override bool, in ...interface{}) {
+func (l *RegexLogger) dLog(w io.Writer, override bool, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)
 	if strings.Contains(f, "dlog") {
@@ -76,14 +80,17 @@ func (l *CustomLogger) dLog(override bool, in ...interface{}) {
 			return
 		}
 
-		_, err := l.writer.Write(fullLog)
+		_, err := w.Write(fullLog)
 		if err != nil {
 			fmt.Println("Logging error", err)
 		}
 	}
 }
 
-func (l *CustomLogger) checkFilter(fullLog []byte) bool {
+func (l *RegexLogger) checkFilter(fullLog []byte) bool {
+	if l.debugFilter == "" {
+		return true
+	}
 	if l.filterRegex != nil {
 		return l.filterRegex.Match(fullLog)
 	}
@@ -93,7 +100,7 @@ func (l *CustomLogger) checkFilter(fullLog []byte) bool {
 // SetDebugFilter sets the string which determines
 // what debug messages get printed. Only messages
 // which contain the filer as a pseudo-regex
-func (l *CustomLogger) SetDebugFilter(filter string) {
+func (l *RegexLogger) SetDebugFilter(filter string) {
 	l.debugFilter = filter
 	var err error
 	l.filterRegex, err = regexp.Compile(filter)
@@ -104,7 +111,7 @@ func (l *CustomLogger) SetDebugFilter(filter string) {
 
 // SetDebugLevel sets what message levels of debug
 // will be printed.
-func (l *CustomLogger) SetDebugLevel(dL Level) {
+func (l *RegexLogger) SetDebugLevel(dL Level) {
 	if dL < NONE || dL > VERBOSE {
 		l.Warn("Unknown debug level: ", dL)
 		l.debugLevel = NONE
@@ -115,58 +122,58 @@ func (l *CustomLogger) SetDebugLevel(dL Level) {
 
 // CreateLogFile creates a file in the 'logs' directory
 // of the starting point of this program to write logs to
-func (l *CustomLogger) CreateLogFile() {
+func (l *RegexLogger) CreateLogFile() {
 	file := "logs/dlog"
 	file += time.Now().Format("_Jan_2_15-04-05_2006")
 	file += ".txt"
-	fHandle, err := os.Create(file)
+	var err error
+	l.file, err = os.Create(file)
 	if err != nil {
-		// We can't log an error that comes from
-		// our error logging functions
-		//panic(err)
-		// But this is also not an error we want to panic on!
 		fmt.Println("[oak]-------- No logs directory found. No logs will be written to file.")
 		return
 	}
-	l.writer = io.MultiWriter(fHandle, l.writer)
+	l.writer = io.MultiWriter(l.file, l.writer)
 }
 
-// FileWrite acts just like a regular write on a CustomLogger. It does
+// FileWrite acts just like a regular write on a RegexLogger. It does
 // not respect overrides.
-func (l *CustomLogger) FileWrite(in ...interface{}) {
-	l.dLog(true, in...)
+func (l *RegexLogger) FileWrite(in ...interface{}) {
+	if l.file == nil {
+		return
+	}
+	l.dLog(l.file, true, in...)
 }
 
 // Error will write a dlog if the debug level is not NONE
-func (l *CustomLogger) Error(in ...interface{}) {
+func (l *RegexLogger) Error(in ...interface{}) {
 	if l.debugLevel > NONE {
-		l.dLog(l.FilterOverrideLevel > NONE, in)
+		l.dLog(l.writer, l.FilterOverrideLevel > NONE, in)
 	}
 }
 
 // Warn will write a dLog if the debug level is higher than ERROR
-func (l *CustomLogger) Warn(in ...interface{}) {
+func (l *RegexLogger) Warn(in ...interface{}) {
 	if l.debugLevel > ERROR {
-		l.dLog(l.FilterOverrideLevel > ERROR, in)
+		l.dLog(l.writer, l.FilterOverrideLevel > ERROR, in)
 	}
 }
 
 // Info will write a dLog if the debug level is higher than WARN
-func (l *CustomLogger) Info(in ...interface{}) {
+func (l *RegexLogger) Info(in ...interface{}) {
 	if l.debugLevel > WARN {
-		l.dLog(l.FilterOverrideLevel > WARN, in)
+		l.dLog(l.writer, l.FilterOverrideLevel > WARN, in)
 	}
 }
 
 // Verb will write a dLog if the debug level is higher than INFO
-func (l *CustomLogger) Verb(in ...interface{}) {
+func (l *RegexLogger) Verb(in ...interface{}) {
 	if l.debugLevel > INFO {
-		l.dLog(l.FilterOverrideLevel > INFO, in)
+		l.dLog(l.writer, l.FilterOverrideLevel > INFO, in)
 	}
 }
 
-// SetWriter sets the writer that CustomLogger logs to
-func (l *CustomLogger) SetWriter(w io.Writer) error {
+// SetWriter sets the writer that RegexLogger logs to
+func (l *RegexLogger) SetWriter(w io.Writer) error {
 	if w == nil {
 		return fmt.Errorf("cannot write to nil writer")
 	}
