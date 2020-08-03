@@ -29,8 +29,6 @@ github.com/oakmound/shiny v0.4.2-0.20191119030223-0bee53b02481 h1:CRXgFNZ3V76GAj
 github.com/oakmound/shiny v0.4.2-0.20191119030223-0bee53b02481/go.mod h1:cJDeJQ/6Ovs2IiM4xTXjIC8zGJnECKvj8BOpTJ4qrhI=
 github.com/oakmound/shiny v0.4.2-beta h1:EDRP9/mEa3ndLX4aXCfjj9b8afDgx081mO0N+YYzuvw=
 github.com/oakmound/shiny v0.4.2-beta/go.mod h1:fEGagtAluRRrVkMQyzyL+G3j+TdsyOjrIajWunGmy3M=
-github.com/oakmound/shiny v0.4.2-beta.0.20200620232743-6df262b89055 h1:Q6pxnU82bqSWes7nvRhbHWDFPMDX2L+sgpN2MBuW8AI=
-github.com/oakmound/shiny v0.4.2-beta.0.20200620232743-6df262b89055/go.mod h1:fEGagtAluRRrVkMQyzyL+G3j+TdsyOjrIajWunGmy3M=
 github.com/oakmound/w32 v2.0.0+incompatible/go.mod h1:lzloWlclSXIU4cDr67WF8qjFFDO8gHHBIk4Qqe90enQ=
 github.com/oakmound/w32 v2.1.0+incompatible h1:vIkC6eJVOaAnwTTOyiVCGh24GoryPRmcvWq3cekkG2U=
 github.com/oakmound/w32 v2.1.0+incompatible/go.mod h1:lzloWlclSXIU4cDr67WF8qjFFDO8gHHBIk4Qqe90enQ=
