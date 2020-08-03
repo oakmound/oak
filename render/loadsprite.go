@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/color"
 	"path/filepath"
-	"strings"
 
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/fileutil"
@@ -26,8 +25,7 @@ func loadSprite(directory, fileName string) (*image.RGBA, error) {
 			dlog.ErrorCheck(imgFile.Close())
 		}()
 
-		// Todo: split on the last (first?) period, not the last four characters
-		ext := strings.ToLower(fileName[len(fileName)-4:])
+		ext := filepath.Ext(fileName)
 		decoder, ok := fileDecoders[ext]
 		if !ok {
 			return nil, errors.New("No decoder available for file type: " + ext)

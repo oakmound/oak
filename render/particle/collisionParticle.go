@@ -30,7 +30,7 @@ func (cp *CollisionParticle) DrawOffsetGen(generator Generator, buff draw.Image,
 	cp.Particle.DrawOffsetGen(gen.Generator, buff, xOff, yOff)
 }
 
-// Cycle updates the collisiion particles variables once per rotation
+// Cycle updates the collision particles variables once per rotation
 func (cp *CollisionParticle) Cycle(generator Generator) {
 	gen := generator.(*CollisionGenerator)
 	pos := cp.Particle.GetPos()

@@ -1,8 +1,6 @@
 package oak
 
 import (
-	"runtime"
-
 	"github.com/oakmound/oak/v2/event"
 
 	"github.com/oakmound/oak/v2/dlog"
@@ -31,16 +29,17 @@ func inputLoop() {
 		// Standard input
 		eventFn = windowControl.NextEvent
 	}
-	schedCt := 0
 	for {
 		switch e := eventFn().(type) {
 		// We only currently respond to death lifecycle events.
 		case lifecycle.Event:
 			if e.To == lifecycle.StageDead {
+				dlog.Info("Window closed.")
 				// OnStop needs to be sent through TriggerBack, otherwise the
 				// program will close before the stop events get propagated.
 				if fh, ok := logicHandler.(event.FullHandler); ok {
-					fh.TriggerBack(event.OnStop, nil)
+					dlog.Verb("Triggering OnStop.")
+					<-fh.TriggerBack(event.OnStop, nil)
 				}
 				quitCh <- true
 				return
@@ -120,14 +119,6 @@ func inputLoop() {
 		case size.Event:
 			//dlog.Verb("Got size event", e)
 			ChangeWindow(e.WidthPx, e.HeightPx)
-		}
-		// This loop can be tight enough that the go scheduler never gets
-		// a chance to take control from this thread. This is a hack that
-		// solves that.
-		schedCt++
-		if schedCt > 1000 {
-			schedCt = 0
-			runtime.Gosched()
 		}
 	}
 }

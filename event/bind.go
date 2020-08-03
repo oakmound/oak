@@ -4,7 +4,8 @@ import "github.com/oakmound/oak/v2/dlog"
 
 // BindPriority is called by entities. Entities pass in a bindable function,
 // and a set of options which are parsed out.
-// Returns a binding that can used to unbind this binding later.
+// Returns a binding that can used to unbind this binding later. The priority
+// given to a binding must be between 32 and -32, inclusive.
 func (eb *Bus) BindPriority(fn Bindable, opt BindingOption) {
 	eb.pendingMutex.Lock()
 	eb.binds = append(eb.binds, UnbindOption{opt, fn})
@@ -12,7 +13,8 @@ func (eb *Bus) BindPriority(fn Bindable, opt BindingOption) {
 }
 
 // Bind adds a function to the event bus tied to the given callerID
-// to be called when the event name is triggered.
+// to be called when the event name is triggered. It is equivalent to
+// calling BindPriority with a zero Priority.
 func (eb *Bus) Bind(fn Bindable, name string, callerID int) {
 
 	bOpt := BindingOption{}

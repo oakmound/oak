@@ -36,7 +36,7 @@ var (
 	conf = Config{
 		Assets:              Assets{"assets/", "audio/", "images/", "font/"},
 		Debug:               Debug{"", "ERROR"},
-		Screen:              Screen{0, 0, 480, 640, 1},
+		Screen:              Screen{0, 0, 480, 640, 1, 0, 0},
 		Font:                Font{"none", 12.0, 72.0, "", "white"},
 		FrameRate:           60,
 		DrawFrameRate:       60,
@@ -86,6 +86,12 @@ type Screen struct {
 	Height int `json:"height"`
 	Width  int `json:"width"`
 	Scale  int `json:"scale"`
+	// Target sets the expected dimensions of the monitor the game will be opened on, in pixels.
+	// If Fullscreen is false, then a scaling will be applied to correct the game screen size to be
+	// appropriate for the Target size. If no TargetWidth or Height is provided, scaling will not
+	// be adjusted. 
+	TargetWidth int `json:"targetHeight"`
+	TargetHeight int `json:"targetWidth"`
 }
 
 // Font is a json type storing the default font settings
@@ -152,6 +158,12 @@ func initConfScreen() {
 	}
 	if SetupConfig.Screen.Scale != 0 {
 		conf.Screen.Scale = SetupConfig.Screen.Scale
+	}
+	if SetupConfig.Screen.TargetWidth != 0 {
+		conf.Screen.TargetWidth = SetupConfig.Screen.TargetWidth
+	}
+	if SetupConfig.Screen.TargetHeight != 0 {
+		conf.Screen.TargetHeight = SetupConfig.Screen.TargetHeight
 	}
 }
 

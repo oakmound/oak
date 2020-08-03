@@ -162,26 +162,31 @@ func New(opts ...Option) Btn {
 	return g.Generate()
 }
 
+type switcher interface {
+	Get() string
+	Set(string) error
+}
+
 // toggleFxn sets up the mouseclick binding for toggle buttons created for goreport cyclo decrease
 func toggleFxn(g Generator) func(id int, nothing interface{}) int {
 	return func(id int, nothing interface{}) int {
 		btn := event.GetEntity(id).(Btn)
-		if btn.GetRenderable().(*render.Switch).Get() == "on" {
+		if btn.GetRenderable().(switcher).Get() == "on" {
 			if g.Group != nil && g.Group.active == btn {
 				g.Group.active = nil
 			}
-			btn.GetRenderable().(*render.Switch).Set("off")
+			btn.GetRenderable().(switcher).Set("off")
 		} else {
 			// We can pull this out to separate binding if group != nil
 			if g.Group != nil {
 				g.Group.active = btn
 				for _, b := range g.Group.members {
-					if b.GetRenderable().(*render.Switch).Get() == "on" {
+					if b.GetRenderable().(switcher).Get() == "on" {
 						b.Trigger("MouseClickOn", nil)
 					}
 				}
 			}
-			btn.GetRenderable().(*render.Switch).Set("on")
+			btn.GetRenderable().(switcher).Set("on")
 
 		}
 		*g.Toggle = !*g.Toggle

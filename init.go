@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/oakmound/shiny/driver"
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/render"
 )
@@ -40,6 +41,10 @@ var (
 	// viewport positions should be drawn
 	viewportCh = make(chan [2]int)
 
+	// The viewport shift channel controls when new
+	// viewport positions should be shifted to and drawn
+	viewportShiftCh = make(chan [2]int)
+
 	debugResetInProgress bool
 
 	// ScreenWidth is the width of the screen
@@ -68,6 +73,13 @@ func Init(firstScene string) {
 	dlog.CreateLogFile()
 
 	initConf()
+
+	if conf.Screen.TargetWidth != 0 && conf.Screen.TargetHeight != 0 {
+		w, h := driver.MonitorSize()
+		if w != 0 || h != 0 {
+			// Todo: Modify conf.Screen.Scale
+		}
+	}
 
 	// Set variables from conf file
 	lvl, err := dlog.ParseDebugLevel(conf.Debug.Level)

@@ -45,6 +45,22 @@ func (cs *CompositeM) SetIndex(i int, r Modifiable) {
 	cs.rs[i] = r
 }
 
+// Slice creates a new CompositeM as a subslice of the existing CompositeM.
+// No Modifiables will be copied, and the original will not be modified.
+func (cs *CompositeM) Slice(start, end int) *CompositeM {
+	if start < 0 {
+		start = 0
+	}
+	if end > len(cs.rs) {
+		end = len(cs.rs)
+	}
+	newRs := cs.rs[start:end]
+	return &CompositeM{
+		LayeredPoint: cs.LayeredPoint.Copy(),
+		rs:           newRs,
+	}
+}
+
 // Len returns the number of renderables in this CompositeM.
 func (cs *CompositeM) Len() int {
 	return len(cs.rs)
@@ -114,7 +130,8 @@ func (cs *CompositeM) Filter(fs ...mod.Filter) {
 	}
 }
 
-// ToSprite draws all of this
+// ToSprite converts the composite into a sprite by drawing each layer in order
+// and overwriting lower layered pixels
 func (cs *CompositeM) ToSprite() *Sprite {
 	var maxW, maxH int
 	for _, r := range cs.rs {

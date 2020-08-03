@@ -10,7 +10,7 @@ import (
 
 const (
 	// FpsSmoothing is how much of the fps of the upcoming frame is used
-	// relative to the previous fps total when calculating the fps at a given
+	// relative to the previous fps total when calculating draw/logic fps at a given
 	// frame
 	FpsSmoothing = .25
 )
@@ -22,7 +22,7 @@ type DrawFPS struct {
 	txt      *Text
 }
 
-// NewDrawFPS returns a zero-initialized DrawFPS
+// NewDrawFPS returns a zero-initialized DrawFPS.
 func NewDrawFPS() *DrawFPS {
 	df := new(DrawFPS)
 	df.lastTime = time.Now()

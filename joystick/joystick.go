@@ -9,7 +9,7 @@ import (
 	"github.com/oakmound/oak/v2/dlog"
 )
 
-// Events
+// Events. All events include a *State payload.
 const (
 	Change          = "JoystickChange"
 	ButtonDown      = "ButtonDown"
