@@ -58,16 +58,11 @@ func inputLoop() {
 			k := GetKeyBind(e.Code.String()[4:])
 			switch e.Direction {
 			case key.DirPress:
-				setDown(k)
-				logicHandler.Trigger(okey.Down, k)
-				logicHandler.Trigger(okey.Down+k, nil)
+				TriggerKeyDown(k)
 			case key.DirRelease:
-				setUp(k)
-				logicHandler.Trigger(okey.Up, k)
-				logicHandler.Trigger(okey.Up+k, nil)
+				TriggerKeyUp(k)
 			default:
-				logicHandler.Trigger(okey.Held, k)
-				logicHandler.Trigger(okey.Held+k, nil)
+				TriggerKeyHeld(k)
 			}
 
 		// Send mouse events
@@ -86,11 +81,6 @@ func inputLoop() {
 		case mouse.Event:
 			button := omouse.GetMouseButton(e.Button)
 			eventName := omouse.GetEventName(e.Direction, e.Button)
-			if e.Direction == mouse.DirPress {
-				setDown(button)
-			} else if e.Direction == mouse.DirRelease {
-				setUp(button)
-			}
 			// The event triggered for mouse events has the same scaling as the
 			// render and collision space. I.e. if the viewport is at 0, the mouse's
 			// position is exactly the same as the position of a visible entity
@@ -104,9 +94,7 @@ func inputLoop() {
 				button,
 				eventName,
 			)
-
-			omouse.Propagate(eventName+"On", mevent)
-			logicHandler.Trigger(eventName, mevent)
+			TriggerMouseEvent(mevent)
 
 		case gesture.Event:
 			eventName := "Gesture" + e.Type.String()
@@ -121,4 +109,49 @@ func inputLoop() {
 			ChangeWindow(e.WidthPx, e.HeightPx)
 		}
 	}
+}
+
+// TriggerKeyDown triggers a software-emulated keypress.
+// This should be used cautiously when the keyboard is in use.
+// From the perspective of the event handler this is indistinguishable
+// from a real keypress.
+func TriggerKeyDown(k string) {
+	SetDown(k)
+	logicHandler.Trigger(okey.Down, k)
+	logicHandler.Trigger(okey.Down+k, nil)
+}
+
+// TriggerKeyUp triggers a software-emulated key release.
+// This should be used cautiously when the keyboard is in use.
+// From the perspective of the event handler this is indistinguishable
+// from a real key release.
+func TriggerKeyUp(k string) {
+	SetUp(k)
+	logicHandler.Trigger(okey.Up, k)
+	logicHandler.Trigger(okey.Up+k, nil)
+}
+
+// TriggerKeyHeld triggers a software-emulated key hold signal.
+// This should be used cautiously when the keyboard is in use.
+// From the perspective of the event handler this is indistinguishable
+// from a real key hold signal.
+func TriggerKeyHeld(k string) {
+	logicHandler.Trigger(okey.Held, k)
+	logicHandler.Trigger(okey.Held+k, nil)
+}
+
+// TriggerMouseEvent triggers a software-emulated mouse event.
+// This should be used cautiously when the mouse is in use.
+// From the perspective of the event handler this is indistinguishable
+// from a real key mouse press or movement.
+func TriggerMouseEvent(mevent omouse.Event) {
+	switch mevent.Event {
+	case omouse.Press:
+		SetDown(mevent.Button)
+	case omouse.Release:
+		SetUp(mevent.Button)
+	}
+
+	omouse.Propagate(mevent.Event+"On", mevent)
+	logicHandler.Trigger(mevent.Event, mevent)
 }

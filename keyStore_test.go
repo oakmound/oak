@@ -16,16 +16,16 @@ func TestKeyStore(t *testing.T) {
 	// Enum
 	// Pros: Uses less space, probably less time as well
 	// Cons: Requires import, key.A instead of "A", keybinds require an extended const block
-	setDown("Test")
+	SetDown("Test")
 	assert.True(t, IsDown("Test"))
-	setUp("Test")
+	SetUp("Test")
 	assert.False(t, IsDown("Test"))
-	setDown("Test")
+	SetDown("Test")
 	time.Sleep(2 * time.Second)
 	ok, d := IsHeld("Test")
 	assert.True(t, ok)
 	assert.True(t, d > 1950*time.Millisecond)
-	setUp("Test")
+	SetUp("Test")
 	ok, d = IsHeld("Test")
 	assert.False(t, ok)
 	assert.True(t, d == 0)
