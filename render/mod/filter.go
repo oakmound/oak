@@ -4,6 +4,8 @@ import (
 	"image"
 	"image/color"
 	"math"
+
+	"github.com/oakmound/oak/v2/dlog"
 )
 
 // A Filter modifies an input image in place. This is useful notably for modifying
@@ -35,7 +37,7 @@ func ConformToPallete(p color.Model) Filter {
 	}
 }
 
-// Fade reduces the alpha of an image
+// Fade reduces the alpha of an image. It takes an alpha from 0-255.
 func Fade(alpha int) Filter {
 	return func(rgba *image.RGBA) {
 		bounds := rgba.Bounds()
@@ -165,6 +167,80 @@ func InPlace(m Mod) Filter {
 			}
 		}
 	}
+}
+
+// StripOuterAlpha from the image given a source image and a alpha level to denote stripping.
+// Note that this was implement for ease of implementation but not speed.
+// We could use image lib or a real depth first search to do fewer checks but this is easier...
+func StripOuterAlpha(m *image.RGBA, level int) Filter {
+	l := uint8(level)
+	return func(rgba *image.RGBA) {
+		if m == nil {
+			dlog.Warn("Invalid rgba provided to stripouteralpha")
+			return
+		}
+
+		mr := m
+
+		//get an image
+		bounds := mr.Bounds()
+		w := bounds.Max.X
+		h := bounds.Max.Y
+
+		// check downwards for the given level.x
+		for x := 0; x < w; x++ {
+			for y := 0; y < h; y++ {
+				r := mr.RGBAAt(x, y)
+				if r.A <= l {
+					// Treating as transparent
+					rgba.Set(int(x), int(y), mr.At(x, y))
+				} else {
+					break
+				}
+			}
+		}
+		// check left to right for the given level.
+		for y := 0; y < h; y++ {
+			for x := 0; x < w; x++ {
+				r := mr.RGBAAt(x, y)
+				if r.A <= l {
+					// Treating as transparent
+					rgba.Set(int(x), int(y), mr.At(x, y))
+				} else {
+					break
+				}
+			}
+		}
+
+		// check bottom up for the given level.
+		for x := 0; x < w; x++ {
+			for y := h - 1; y >= 0; y-- {
+				r := mr.RGBAAt(x, y)
+				if r.A <= l {
+					// Treating as transparent
+					rgba.Set(int(x), int(y), mr.At(x, y))
+				} else {
+					break
+				}
+			}
+		}
+		// check right to left for the given level.
+		for y := 0; y < h; y++ {
+			for x := w - 1; x >= 0; x-- {
+				r := mr.RGBAAt(x, y)
+				if r.A <= l {
+					// Treating as transparent
+					rgba.Set(int(x), int(y), mr.At(x, y))
+				} else {
+					break
+				}
+			}
+		}
+
+		// apply image onto m
+
+	}
+
 }
 
 // There is no function to convert a Filter to a Mod, to promote not doing so.

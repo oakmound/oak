@@ -61,12 +61,18 @@ func drawLoop() {
 				case viewPoint := <-viewportCh:
 					dlog.Verb("Got something from viewport channel (waiting on draw)")
 					updateScreen(viewPoint[0], viewPoint[1])
+				case viewPoint := <-viewportShiftCh:
+					dlog.Verb("Got something from viewport shift channel (waiting on draw)")
+					shiftViewPort(viewPoint[0], viewPoint[1])
 				default:
 				}
 			}
 		case viewPoint := <-viewportCh:
 			dlog.Verb("Got something from viewport channel")
 			updateScreen(viewPoint[0], viewPoint[1])
+		case viewPoint := <-viewportShiftCh:
+			dlog.Verb("Got something from viewport shift channel")
+			shiftViewPort(viewPoint[0], viewPoint[1])
 		case <-DrawTicker.C:
 			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), Background, zeroPoint, draw.Src)
 			render.PreDraw()

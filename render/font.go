@@ -1,9 +1,9 @@
 package render
 
 import (
+	"fmt"
 	"image"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/golang/freetype/truetype"
@@ -34,10 +34,29 @@ var (
 // A FontGenerator stores information that can be used to create a font
 type FontGenerator struct {
 	File    string
+	RawFile []byte
 	Color   image.Image
 	Size    float64
 	Hinting string
 	DPI     float64
+}
+
+func (fg FontGenerator) String() string {
+	// Don't expose raw file content, it floods outputs
+	type cleanFontGenerator struct {
+		File    string
+		Color   image.Image
+		Size    float64
+		Hinting string
+		DPI     float64
+	}
+	clg := cleanFontGenerator{
+		File:    fg.File,
+		Size:    fg.Size,
+		Hinting: fg.Hinting,
+		DPI:     fg.DPI,
+	}
+	return fmt.Sprint(clg)
 }
 
 // DefFont returns a font built of the parameters set by SetFontDefaults.
@@ -51,13 +70,27 @@ func (fg *FontGenerator) Generate() *Font {
 
 	dir := fontdir
 	// Replace zero values with defaults
-	if fg.File == "" {
+	var fnt *truetype.Font
+	if fg.File == "" && len(fg.RawFile) == 0 {
 		if defaultFontFile != "" {
 			fg.File = defaultFontFile
 		} else {
-			_, curFile, _, _ := runtime.Caller(0)
-			dir = filepath.Join(filepath.Dir(curFile), "default_assets", "font")
-			fg.File = "luxisr.ttf"
+			fg.RawFile = luxisrTTF
+		}
+	}
+	if len(fg.RawFile) != 0 {
+		var err error
+		fnt, err = truetype.Parse(fg.RawFile)
+		if err != nil {
+			// Todo: expose error here
+			dlog.Error(err)
+			return nil
+		}
+	} else {
+		fnt = LoadFont(dir, fg.File)
+		if fnt == nil {
+			// Todo: expose error here
+			return nil
 		}
 	}
 	if fg.Size == 0 {
@@ -70,10 +103,6 @@ func (fg *FontGenerator) Generate() *Font {
 		fg.Color = defaultColor
 	}
 
-	fnt := LoadFont(dir, fg.File)
-	if fnt == nil {
-		return nil
-	}
 	// This logic is copied from truetype for their face scaling
 	scl := fixed.Int26_6(0.5 + (fg.Size * fg.DPI * 64 / 72))
 	bds := fnt.Bounds(scl)

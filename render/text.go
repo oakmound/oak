@@ -50,6 +50,19 @@ func (f *Font) NewStrText(str string, x, y float64) *Text {
 	return f.NewText(stringStringer(str), x, y)
 }
 
+type stringPtrStringer struct {
+	s *string
+}
+
+func (sp stringPtrStringer) String() string {
+	return string(*sp.s)
+}
+
+// NewStrPtrText is a helper to take in a string pointer for NewText
+func (f *Font) NewStrPtrText(str *string, x, y float64) *Text {
+	return f.NewText(stringPtrStringer{str}, x, y)
+}
+
 // DrawOffset for a text object draws the text at t.(X,Y) + (xOff,yOff)
 func (t *Text) DrawOffset(buff draw.Image, xOff, yOff float64) {
 	t.d.Drawer.Dst = buff

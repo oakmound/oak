@@ -24,3 +24,8 @@ func NewIntText(str *int, x, y float64) *Text {
 func NewStrText(str string, x, y float64) *Text {
 	return DefFont().NewStrText(str, x, y)
 }
+
+// NewStrPtrText is a helper to take in a string pointer for NewText
+func NewStrPtrText(str *string, x, y float64) *Text {
+	return DefFont().NewStrPtrText(str, x, y)
+}

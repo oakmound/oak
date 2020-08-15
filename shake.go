@@ -1,10 +1,10 @@
 package oak
 
 import (
-	"image"
 	"math/rand"
 	"time"
 
+	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/alg/floatgeom"
 )
 
@@ -32,41 +32,34 @@ func ShakeScreen(dur time.Duration) {
 func (ss *ScreenShaker) Shake(dur time.Duration) {
 	doneTime := time.Now().Add(dur)
 	mag := ss.Magnitude
+	delta := intgeom.Point2{}
 
-	setViewPos := ViewPos
-	// If we end up doing this pattern more,
-	// we need to replace defaultUpdateScreen
-	// with a local definition of what updateScreen
-	// was when this was called
-	updateScreen = func(x, y int) {
-		setViewPos = image.Point{x, y}
-		defaultUpdateScreen(x, y)
-	}
 	if ss.Random {
 		randOff := mag
 		go func() {
-			for time.Now().Before(doneTime) {
-				ViewPos = setViewPos
-				ViewPos.X += int(randOff.X())
-				ViewPos.Y += int(randOff.Y())
 
+			for time.Now().Before(doneTime) {
+				xDelta := int(randOff.X())
+				yDelta := int(randOff.Y())
+				ShiftScreen(xDelta-delta.X(), yDelta-delta.Y())
+				delta = intgeom.Point2{xDelta, yDelta}
 				mag = mag.MulConst(-1)
 				randOff = mag.MulConst(rand.Float64())
 			}
-			updateScreen = defaultUpdateScreen
-			updateScreen(setViewPos.X, setViewPos.Y)
+			ShiftScreen(-delta.X(), -delta.Y())
 		}()
 	} else {
 		go func() {
-			for time.Now().Before(doneTime) {
-				ViewPos = setViewPos
-				ViewPos.X += int(mag.X())
-				ViewPos.Y += int(mag.Y())
 
+			for time.Now().Before(doneTime) {
+				xDelta := int(mag.X())
+				yDelta := int(mag.Y())
+
+				ShiftScreen(xDelta, yDelta)
+				delta = delta.Add(intgeom.Point2{xDelta, yDelta})
 				mag = mag.MulConst(-1)
 			}
-			updateScreen = defaultUpdateScreen
-			updateScreen(setViewPos.X, setViewPos.Y)
+			ShiftScreen(-delta.X(), -delta.Y())
 		}()
 	}
 }

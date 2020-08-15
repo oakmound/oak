@@ -52,10 +52,11 @@ type BaseGenerator struct {
 	// Rotational acceleration, to change angle over time
 	Rotation floatrange.Range
 	// Gravity X() and Gravity Y() represent particle acceleration per frame.
-	Gravity    physics.Vector
-	SpeedDecay physics.Vector
-	EndFunc    func(Particle)
-	LayerFunc  func(physics.Vector) int
+	Gravity       physics.Vector
+	SpeedDecay    physics.Vector
+	EndFunc       func(Particle)
+	LayerFunc     func(physics.Vector) int
+	ParticleLimit int
 }
 
 // GetBaseGenerator returns this

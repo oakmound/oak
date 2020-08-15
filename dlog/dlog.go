@@ -21,10 +21,12 @@ var oakLogger Logger
 
 // ErrorCheck checks that the input is not nil, then calls Error on it if it is
 // not. Otherwise it does nothing.
-func ErrorCheck(in error) {
+// Emits the input error as is for additional processing if desired.
+func ErrorCheck(in error) error {
 	if in != nil {
 		Error(in)
 	}
+	return in
 }
 
 // Error will write a log if the debug level is not NONE

@@ -16,7 +16,13 @@ var (
 // control access to a keystate map
 // from key strings to down or up boolean
 // states.
-func setUp(key string) {
+
+// SetUp will cause later IsDown calls to report false
+// for the given key. This is called internally when
+// events are sent from the real keyboard and mouse.
+// Calling this can interrupt real input or cause
+// unintended behavior and should be done cautiously.
+func SetUp(key string) {
 	keyLock.Lock()
 	durationLock.Lock()
 	delete(keyState, key)
@@ -25,7 +31,12 @@ func setUp(key string) {
 	keyLock.Unlock()
 }
 
-func setDown(key string) {
+// SetDown will cause later IsDown calls to report true
+// for the given key. This is called internally when
+// events are sent from the real keyboard and mouse.
+// Calling this can interrupt real input or cause
+// unintended behavior and should be done cautiously.
+func SetDown(key string) {
 	keyLock.Lock()
 	keyState[key] = true
 	keyDurations[key] = time.Now()
@@ -41,6 +52,7 @@ func IsDown(key string) (k bool) {
 }
 
 // IsHeld returns whether a key is held down, and for how long
+// it has been held.
 func IsHeld(key string) (k bool, d time.Duration) {
 	keyLock.RLock()
 	k = keyState[key]

@@ -1,9 +1,5 @@
 package event
 
-import (
-	"runtime"
-)
-
 // ResolvePending is a contant loop that tracks slices of bind or unbind calls
 // and resolves them individually such that they don't break the bus
 // Todo: this should be a function on the event bus itself, and should have a better name
@@ -11,19 +7,8 @@ import (
 // the answer is we tried, and it was cripplingly slow.
 func (eb *Bus) ResolvePending() {
 	eb.init.Do(func() {
-		schedCt := 0
 		for {
 			eb.Flush()
-
-			// This is a tight loop that can cause a pseudo-deadlock
-			// by refusing to release control to the go scheduler.
-			// This code prevents this from happening.
-			// See https://github.com/golang/go/issues/10958
-			schedCt++
-			if schedCt > 1000 {
-				schedCt = 0
-				runtime.Gosched()
-			}
 		}
 	})
 }

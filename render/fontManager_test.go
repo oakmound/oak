@@ -2,7 +2,6 @@ package render
 
 import (
 	"image"
-	"path/filepath"
 	"testing"
 
 	"github.com/oakmound/oak/v2/oakerr"
@@ -23,8 +22,8 @@ func TestFontManager(t *testing.T) {
 	assert.Nil(t, f)
 
 	fg := FontGenerator{
-		File:  filepath.Join("default_assets", "font", "luxisr.ttf"),
-		Color: image.Black,
+		RawFile: luxisrTTF,
+		Color:   image.Black,
 	}
 
 	err := fm.NewFont("other", fg)

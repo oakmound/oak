@@ -585,7 +585,7 @@ func addLevels(i int, sslides []*static.Slide) {
 	// just one 2d layer.
 	sslides[i+7].Append(show.Header("Level Files"))
 	sslides[i+7].Append(show.ImageCaption("jeremyFile.PNG", .2, .3, 1.0, Libel28, "A Jeremy Level File"))
-	sslides[i+7].Append(show.ImageCaption("doctorFile.PNG", .6, .3, 2.0, Libel28, "A Fantastic Doctor Level File"))
+	sslides[i+7].Append(show.ImageCaption("doctorFile.png", .6, .3, 2.0, Libel28, "A Fantastic Doctor Level File"))
 }
 
 var (
