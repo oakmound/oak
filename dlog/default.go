@@ -11,6 +11,10 @@ import (
 	"time"
 )
 
+var (
+	_ FullLogger = &logger{}
+)
+
 type logger struct {
 	byt         *bytes.Buffer
 	debugLevel  Level
@@ -99,11 +103,12 @@ func truncateFileName(f string) string {
 }
 
 func (l *logger) checkFilter(f string, in ...interface{}) bool {
-	ret := false
 	for _, elem := range in {
-		ret = ret || strings.Contains(fmt.Sprintf("%s", elem), l.debugFilter)
+		if strings.Contains(fmt.Sprintf("%s", elem), l.debugFilter) {
+			return true
+		}
 	}
-	return ret || strings.Contains(f, l.debugFilter)
+	return strings.Contains(f, l.debugFilter)
 }
 
 // SetDebugFilter sets the string which determines
