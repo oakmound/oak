@@ -240,3 +240,16 @@ func fullScreen(sub []string) {
 	err := SetFullScreen(on)
 	dlog.ErrorCheck(err)
 }
+
+// RunCommand runs a command added with AddCommand.
+// It's intended use is making it easier to
+// alias commands/subcommands.
+// It returns an error if the command doesn't exist.
+func RunCommand(cmd string, args ...string) error {
+	fn, ok := commands[cmd]
+	if ok == false {
+		return fmt.Errorf("Unknown command %s",cmd)
+	}
+	fn(args)
+	return nil
+}
