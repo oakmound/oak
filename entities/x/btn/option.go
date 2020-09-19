@@ -4,6 +4,7 @@ import (
 	"image/color"
 
 	"github.com/oakmound/oak/v2/mouse"
+	"github.com/oakmound/oak/v2/shape"
 
 	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/render"
@@ -165,6 +166,15 @@ func Click(bnd event.Bindable) Option {
 func DisallowRevert() Option {
 	return func(g Generator) Generator {
 		g.DisallowRevert = true
+		return g
+	}
+}
+
+// Shape sets the underlying mouse collision to only be respected if in shape.
+// If color is responsible for arendering then it will be formed to this shape as well.
+func Shape(s shape.Shape) Option {
+	return func(g Generator) Generator {
+		g.Shape = s
 		return g
 	}
 }

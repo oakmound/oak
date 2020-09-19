@@ -5,11 +5,11 @@ import (
 	"strconv"
 
 	"github.com/oakmound/oak/v2/dlog"
-
 	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/mouse"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v2/shape"
 )
 
 // A Generator defines the variables used to create buttons from optional arguments
@@ -36,6 +36,7 @@ type Generator struct {
 	ListChoice     *int
 	Group          *Group
 	DisallowRevert bool
+	Shape          shape.Shape
 }
 
 func defGenerator() Generator {
@@ -73,6 +74,7 @@ func (g Generator) Generate() Btn {
 
 func (g Generator) generate(parent *Generator) Btn {
 	var box render.Modifiable
+	// handle differnt renderable options that could be passed to the generator
 	switch {
 	case g.Toggle != nil:
 		//Handles checks and other toggle situations
@@ -108,9 +110,16 @@ func (g Generator) generate(parent *Generator) Btn {
 		box = g.R
 	case g.ProgressFunc != nil:
 		box = render.NewGradientBox(int(g.W), int(g.H), g.Color, g.Color2, g.ProgressFunc)
+		if g.Shape != nil {
+			g.Mod = mod.SafeAnd(g.Mod, mod.CutShape(g.Shape))
+		}
 	default:
 		box = render.NewColorBox(int(g.W), int(g.H), g.Color)
+		if g.Shape != nil {
+			g.Mod = mod.SafeAnd(g.Mod, mod.CutShape(g.Shape))
+		}
 	}
+
 	if !g.DisallowRevert {
 		box = render.NewReverting(box)
 	}
