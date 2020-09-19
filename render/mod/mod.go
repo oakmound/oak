@@ -25,6 +25,25 @@ func And(ms ...Mod) Mod {
 	}
 }
 
+// SafeAnd removes any nil mods before passing the resultant set to the And function.
+// It will also return a functional no-op if the mods passed in are all nil.
+func SafeAnd(ms ...Mod) Mod {
+	i := 0
+	for i < len(ms) {
+		if ms[i] == nil {
+			ms = append(ms[:i], ms[i+1:]...)
+			continue
+		}
+		i++
+	}
+	if len(ms) == 0 {
+		return func(rgba image.Image) *image.RGBA {
+			return rgba.(*image.RGBA)
+		}
+	}
+	return And(ms...)
+}
+
 // Scale returns a scaled rgba.
 func Scale(xRatio, yRatio float64) Mod {
 	return func(rgba image.Image) *image.RGBA {

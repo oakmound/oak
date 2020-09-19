@@ -24,6 +24,33 @@ func TestComposedModifications(t *testing.T) {
 	assert.Equal(t, base, chained)
 }
 
+func TestSafeCompose(t *testing.T) {
+	modList := []Mod{
+		nil,
+		Zoom(2.0, 2.0, 2.0),
+		CutFromLeft(2, 2),
+		nil,
+	}
+	base := setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
+	base = modList[1](base)
+	base = modList[2](base)
+	chained := setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
+
+	assert.NotEqual(t, base, chained)
+	mCombined := SafeAnd(modList...)
+	chained = mCombined(chained)
+	assert.Equal(t, base, chained)
+
+	base = setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
+	modList = []Mod{
+		nil,
+		nil,
+	}
+	mCombined = SafeAnd(modList...)
+	assert.Equal(t, base, mCombined(base))
+
+}
+
 func TestAllModifications(t *testing.T) {
 	in := setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
 	type filterCase struct {
