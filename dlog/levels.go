@@ -19,3 +19,7 @@ var logLevels = map[Level]string{
 	INFO:    "INFO",
 	VERBOSE: "VERBOSE",
 }
+
+func (l Level) String() string {
+	return logLevels[l]
+}
