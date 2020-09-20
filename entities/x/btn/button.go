@@ -112,12 +112,12 @@ func (g Generator) generate(parent *Generator) Btn {
 	case g.ProgressFunc != nil:
 		box = render.NewGradientBox(int(g.W), int(g.H), g.Color, g.Color2, g.ProgressFunc)
 		if g.Shape != nil {
-			g.Mod = mod.SafeAnd(g.Mod, mod.CutShape(g.Shape))
+			g.Mod = mod.SafeAnd(mod.CutShape(g.Shape), g.Mod)
 		}
 	default:
 		box = render.NewColorBox(int(g.W), int(g.H), g.Color)
 		if g.Shape != nil {
-			g.Mod = mod.SafeAnd(g.Mod, mod.CutShape(g.Shape))
+			g.Mod = mod.SafeAnd(mod.CutShape(g.Shape), g.Mod)
 		}
 	}
 
