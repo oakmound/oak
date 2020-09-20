@@ -168,7 +168,12 @@ func (g Generator) generate(parent *Generator) Btn {
 			g.Bindings[k] = []event.Bindable{
 				func(id int, button interface{}) int {
 					btn := event.GetEntity(id).(Btn)
-					mEvent := button.(mouse.Event)
+					mEvent, ok := button.(mouse.Event)
+					// If the passed event is not a mouse event dont filter on location.
+					// Main current use case is for nil events passed via simulated clicks.
+					if !ok {
+						btn.Trigger(filteredK, button)
+					}
 					bSpace := btn.GetSpace().Bounds()
 					if g.Shape.In(int(mEvent.X()-bSpace.Min.X()), int(mEvent.Y()-bSpace.Min.Y()), int(bSpace.W()), int(bSpace.H())) {
 						btn.Trigger(filteredK, mEvent)
