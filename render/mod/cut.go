@@ -6,6 +6,7 @@ import (
 
 	"github.com/oakmound/oak/v2/alg"
 	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/shape"
 )
 
 // CutRound rounds the edges of the Modifiable with Bezier curves.
@@ -65,12 +66,32 @@ func CutRound(xOff, yOff float64) Mod {
 	}
 }
 
+// CutShape unsets pixels that are not in the provided shape.
+func CutShape(sh shape.Shape) Mod {
+	return func(rgba image.Image) *image.RGBA {
+		bds := rgba.Bounds()
+		newRgba := image.NewRGBA(bds)
+		newRect := sh.Rect(bds.Dx(), bds.Dy())
+
+		// start off as a copy
+		for x := bds.Min.X; x < bds.Max.X; x++ {
+			for y := bds.Min.Y; y < bds.Max.Y; y++ {
+				if newRect[x-bds.Min.X][y-bds.Min.Y] {
+					newRgba.Set(x, y, rgba.At(x, y))
+				}
+			}
+		}
+
+		return newRgba
+	}
+}
+
 // todo: this should not be in this package
 func pointBetween(p1, p2 floatgeom.Point2, f float64) floatgeom.Point2 {
 	return floatgeom.Point2{p1.X()*(1-f) + p2.X()*f, p1.Y()*(1-f) + p2.Y()*f}
 }
 
-//CutFn  can reduce or add blank space to an input image.
+// CutFn  can reduce or add blank space to an input image.
 // Each input function decides the starting location or offset of a cut.
 func CutFn(xMod, yMod, wMod, hMod func(int) int) Mod {
 	return func(rgba image.Image) *image.RGBA {
