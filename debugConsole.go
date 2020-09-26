@@ -92,6 +92,7 @@ func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 		dlog.ErrorCheck(AddCommand("mouse", mouseCommands))
 		dlog.ErrorCheck(AddCommand("move", moveWindow))
 		dlog.ErrorCheck(AddCommand("fullscreen", fullScreen))
+		dlog.ErrorCheck(AddCommand("help", printDebugCommands))
 		dlog.ErrorCheck(AddCommand("quit", func([]string) { Quit() }))
 	}
 
@@ -232,6 +233,10 @@ func mouseCommands(tokenString []string) {
 	default:
 		fmt.Println("Bad Mouse Input")
 	}
+}
+
+func printDebugCommands(tokenString []string) {
+	fmt.Printf("Commands: %s\n", strings.Join(GetDebugKeys(), ", "))
 }
 
 func moveWindow(in []string) {
