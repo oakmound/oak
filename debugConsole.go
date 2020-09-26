@@ -149,6 +149,10 @@ func mouseDetails(nothing int, mevent interface{}) int {
 }
 
 func viewportCommands(tokenString []string) {
+	if len(tokenString) > 0 {
+		fmt.Println("Input must start with the name of the viewport operation to perform.")
+		return
+	}
 	switch tokenString[0] {
 	case "unlock":
 		if viewportLocked {
@@ -170,6 +174,10 @@ func viewportCommands(tokenString []string) {
 }
 
 func fadeCommands(tokenString []string) {
+	if len(tokenString) > 0 {
+		fmt.Println("Input must start with the name of the renderable to fade")
+		return
+	}
 	toFade, ok := render.GetDebugRenderable(tokenString[0])
 	fadeVal := parseTokenAsInt(tokenString, 1, 255)
 	if ok {
@@ -181,6 +189,10 @@ func fadeCommands(tokenString []string) {
 
 func skipCommands(skipScene chan bool) func(tokenString []string) {
 	return func(tokenString []string) {
+		if len(tokenString) != 1 {
+			fmt.Println("Input must be a single string from the following (\"scene\"). ")
+			return
+		}
 		switch tokenString[0] {
 		case "scene":
 			skipScene <- true
@@ -191,19 +203,29 @@ func skipCommands(skipScene chan bool) func(tokenString []string) {
 }
 
 func printCommands(tokenString []string) {
-	if i, err := strconv.Atoi(tokenString[0]); err == nil {
-		if i > 0 && event.HasEntity(i) {
-			e := event.GetEntity(i)
-			fmt.Println(reflect.TypeOf(e), e)
-		} else {
-			fmt.Println("No entity ", i)
-		}
-	} else {
-		fmt.Println("Unable to parse", tokenString[0])
+	if len(tokenString) != 1 {
+		fmt.Println("Input must be a single number that corresponds to an entity.")
+		return
 	}
+	i, err := strconv.Atoi(tokenString[0])
+	if err != nil {
+		fmt.Println("Unable to parse", tokenString[0])
+		return
+	}
+	if i > 0 && event.HasEntity(i) {
+		e := event.GetEntity(i)
+		fmt.Println(reflect.TypeOf(e), e)
+	} else {
+		fmt.Println("No entity ", i)
+	}
+
 }
 
 func mouseCommands(tokenString []string) {
+	if len(tokenString) != 1 {
+		fmt.Println("Input must be a single string from the following (\"details\") ")
+		return
+	}
 	switch tokenString[0] {
 	case "details":
 		event.GlobalBind(mouseDetails, "MouseRelease")
@@ -248,7 +270,7 @@ func fullScreen(sub []string) {
 func RunCommand(cmd string, args ...string) error {
 	fn, ok := commands[cmd]
 	if ok == false {
-		return fmt.Errorf("Unknown command %s",cmd)
+		return fmt.Errorf("Unknown command %s", cmd)
 	}
 	fn(args)
 	return nil
