@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -236,7 +237,9 @@ func mouseCommands(tokenString []string) {
 }
 
 func printDebugCommands(tokenString []string) {
-	fmt.Printf("Commands: %s\n", strings.Join(GetDebugKeys(), ", "))
+	dbgKeys := GetDebugKeys()
+	sort.Strings(dbgKeys)
+	fmt.Printf("Commands: %s\n", strings.Join(dbgKeys, ", "))
 }
 
 func moveWindow(in []string) {
