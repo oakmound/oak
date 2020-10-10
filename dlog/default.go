@@ -70,16 +70,8 @@ func (l *logger) dLog(console, override bool, in ...interface{}) {
 		}
 
 		if l.writer != nil {
-			_, err := l.writer.WriteString(l.byt.String())
-			if err != nil {
-				// We can't log errors while we are in the error
-				// logging function.
-				fmt.Println("Logging error", err)
-			}
-			err = l.writer.Flush()
-			if err != nil {
-				fmt.Println("Logging error", err)
-			}
+			l.writer.WriteString(l.byt.String())
+			l.writer.Flush()
 		}
 
 		l.byt.Reset()
