@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/fileutil"
@@ -36,6 +37,8 @@ func BatchLoad(baseFolder string) error {
 
 	warnFiles := []string{}
 
+	var wg sync.WaitGroup
+
 	for i, folder := range folders {
 
 		dlog.Verb("folder ", i, folder.Name())
@@ -57,7 +60,9 @@ func BatchLoad(baseFolder string) error {
 						if lower != name {
 							warnFiles = append(warnFiles, relativePath)
 						}
+						wg.Add(1)
 						go func(baseFolder, relativePath string, possibleSheet bool, frameW, frameH int) {
+							defer wg.Done()
 							buff, err := loadSprite(baseFolder, relativePath)
 							if err != nil {
 								dlog.Error(err)
@@ -99,6 +104,7 @@ func BatchLoad(baseFolder string) error {
 		dlog.Warn("The files", fileNames, "are not all lowercase. This may cause data to fail to load"+
 			" when using tools like go-bindata.")
 	}
+	wg.Wait()
 	return nil
 }
 
