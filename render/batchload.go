@@ -53,34 +53,38 @@ func BatchLoad(baseFolder string) error {
 					if _, ok := fileDecoders[strings.ToLower(name[len(name)-4:])]; ok {
 						dlog.Verb("loading file ", name)
 						lower := strings.ToLower(name)
+						relativePath := filepath.Join(folder.Name(), name)
 						if lower != name {
-							warnFiles = append(warnFiles, filepath.Join(folder.Name(), name))
+							warnFiles = append(warnFiles, relativePath)
 						}
-						buff, err := loadSprite(baseFolder, filepath.Join(folder.Name(), name))
-						if err != nil {
-							dlog.Error(err)
-							continue
-						}
-						w := buff.Bounds().Max.X
-						h := buff.Bounds().Max.Y
+						go func(baseFolder, relativePath string, possibleSheet bool, frameW, frameH int) {
+							buff, err := loadSprite(baseFolder, relativePath)
+							if err != nil {
+								dlog.Error(err)
+								return
+							}
 
-						dlog.Verb("buffer: ", w, h, " frame: ", frameW, frameH)
+							if !possibleSheet {
+								return
+							}
 
-						if !possibleSheet {
-							continue
-						} else if w < frameW || h < frameH {
-							dlog.Error("File ", name, " in folder", folder.Name(),
-								" is too small for folder dimensions", frameW, frameH)
-							return errors.New("File in folder is too small for folder dimensions: " +
-								strconv.Itoa(w) + ", " + strconv.Itoa(h))
+							w := buff.Bounds().Max.X
+							h := buff.Bounds().Max.Y
 
-							// Load this as a sheet if it is greater
-							// than the folder size's frame size
-						} else if w != frameW || h != frameH {
-							dlog.Verb("Loading as sprite sheet")
-							_, err = LoadSheet(baseFolder, filepath.Join(folder.Name(), name), frameW, frameH, defaultPad)
-							dlog.ErrorCheck(err)
-						}
+							dlog.Verb("buffer: ", w, h, " frame: ", frameW, frameH)
+
+							if w < frameW || h < frameH {
+								dlog.Error("File ", name, " in folder", folder.Name(),
+									" is too small for folder dimensions", frameW, frameH)
+
+								// Load this as a sheet if it is greater
+								// than the folder size's frame size
+							} else if w != frameW || h != frameH {
+								dlog.Verb("Loading as sprite sheet")
+								_, err = LoadSheet(baseFolder, relativePath, frameW, frameH, defaultPad)
+								dlog.ErrorCheck(err)
+							}
+						}(baseFolder, relativePath, possibleSheet, frameW, frameH)
 					} else {
 						dlog.Error("Unsupported file ending for batchLoad: ", name)
 					}

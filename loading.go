@@ -5,6 +5,7 @@ import (
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/fileutil"
 	"github.com/oakmound/oak/v2/render"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -16,21 +17,24 @@ var (
 func loadAssets(imageDir, audioDir string) {
 	if conf.BatchLoad {
 		dlog.Info("Loading Images")
-		err := render.BatchLoad(imageDir)
-		if err != nil {
-			dlog.Error(err)
-			endLoad()
-			return
-		}
-		dlog.Info("Done Loading Images")
-		dlog.Info("Loading Audio")
-		err = audio.BatchLoad(audioDir)
-		if err != nil {
-			dlog.Error(err)
-			endLoad()
-			return
-		}
-		dlog.Info("Done Loading Audio")
+		var eg errgroup.Group
+		eg.Go(func() error {
+			err := render.BatchLoad(imageDir)
+			if err != nil {
+				return err
+			}
+			dlog.Info("Done Loading Images")
+			return nil
+		})
+		eg.Go(func() error {
+			err := audio.BatchLoad(audioDir)
+			if err != nil {
+				return err
+			}
+			dlog.Info("Done Loading Audio")
+			return nil
+		})
+		dlog.ErrorCheck(eg.Wait())
 	}
 	endLoad()
 }

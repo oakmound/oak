@@ -8,11 +8,12 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
 type logger struct {
-	byt         *bytes.Buffer
+	bytPool     sync.Pool
 	debugLevel  Level
 	debugFilter string
 	writer      *bufio.Writer
@@ -22,7 +23,11 @@ type logger struct {
 // no file, and level set to ERROR
 func NewLogger() Logger {
 	return &logger{
-		byt:        bytes.NewBuffer(make([]byte, 0)),
+		bytPool: sync.Pool{
+			New: func() interface{} {
+				return new(bytes.Buffer)
+			},
+		},
 		debugLevel: ERROR,
 	}
 }
@@ -51,30 +56,32 @@ func (l *logger) dLog(console, override bool, in ...interface{}) {
 			return
 		}
 
+		buffer := l.bytPool.Get().(*bytes.Buffer)
 		// Note on errors: these functions all return
 		// errors, but they are always nil.
-		l.byt.WriteRune('[')
-		l.byt.WriteString(f)
-		l.byt.WriteRune(':')
-		l.byt.WriteString(strconv.Itoa(line))
-		l.byt.WriteString("]  ")
-		l.byt.WriteString(logLevels[l.GetLogLevel()])
-		l.byt.WriteRune(':')
+		buffer.WriteRune('[')
+		buffer.WriteString(f)
+		buffer.WriteRune(':')
+		buffer.WriteString(strconv.Itoa(line))
+		buffer.WriteString("]  ")
+		buffer.WriteString(logLevels[l.GetLogLevel()])
+		buffer.WriteRune(':')
 		for _, elem := range in {
-			l.byt.WriteString(fmt.Sprintf("%v ", elem))
+			buffer.WriteString(fmt.Sprintf("%v ", elem))
 		}
-		l.byt.WriteRune('\n')
+		buffer.WriteRune('\n')
 
 		if console {
-			fmt.Print(l.byt.String())
+			fmt.Print(buffer.String())
 		}
 
 		if l.writer != nil {
-			l.writer.WriteString(l.byt.String())
+			l.writer.WriteString(buffer.String())
 			l.writer.Flush()
 		}
 
-		l.byt.Reset()
+		buffer.Reset()
+		l.bytPool.Put(buffer)
 	}
 }
 

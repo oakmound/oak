@@ -13,48 +13,52 @@ import (
 
 func loadSprite(directory, fileName string) (*image.RGBA, error) {
 
-	imageLock.Lock()
-	defer imageLock.Unlock()
-
-	if _, ok := loadedImages[fileName]; !ok {
-		imgFile, err := fileutil.Open(filepath.Join(directory, fileName))
-		if err != nil {
-			return nil, err
-		}
-		defer func() {
-			dlog.ErrorCheck(imgFile.Close())
-		}()
-
-		ext := filepath.Ext(fileName)
-		decoder, ok := fileDecoders[ext]
-		if !ok {
-			return nil, errors.New("No decoder available for file type: " + ext)
-		}
-		img, err := decoder(imgFile)
-
-		if err != nil {
-			return nil, err
-		}
-
-		// Todo: we internally just use *image.RGBA, but that choice
-		// of image encoding was arbitrary. If using the image.Image
-		// interface would not hurt performance considerably, we should
-		// just use that.
-		//
-		// This converts the
-		bounds := img.Bounds()
-		rgba := image.NewRGBA(bounds)
-		for x := 0; x < bounds.Max.X; x++ {
-			for y := 0; y < bounds.Max.Y; y++ {
-				rgba.Set(x, y, color.RGBAModel.Convert(img.At(x, y)))
-			}
-		}
-
-		loadedImages[fileName] = rgba
-
-		dlog.Verb("Loaded filename: ", fileName)
+	imageLock.RLock()
+	if img, ok := loadedImages[fileName]; ok {
+		imageLock.RUnlock()
+		return img, nil
 	}
-	return loadedImages[fileName], nil
+	imageLock.RUnlock()
+
+	imgFile, err := fileutil.Open(filepath.Join(directory, fileName))
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		dlog.ErrorCheck(imgFile.Close())
+	}()
+
+	ext := filepath.Ext(fileName)
+	decoder, ok := fileDecoders[ext]
+	if !ok {
+		return nil, errors.New("No decoder available for file type: " + ext)
+	}
+	img, err := decoder(imgFile)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Todo: we internally just use *image.RGBA, but that choice
+	// of image encoding was arbitrary. If using the image.Image
+	// interface would not hurt performance considerably, we should
+	// just use that.
+	//
+	// This converts the
+	bounds := img.Bounds()
+	rgba := image.NewRGBA(bounds)
+	for x := 0; x < bounds.Max.X; x++ {
+		for y := 0; y < bounds.Max.Y; y++ {
+			rgba.Set(x, y, color.RGBAModel.Convert(img.At(x, y)))
+		}
+	}
+
+	imageLock.Lock()
+	loadedImages[fileName] = rgba
+	imageLock.Unlock()
+
+	dlog.Verb("Loaded filename: ", fileName)
+	return rgba, nil
 }
 
 // SpriteIsLoaded returns whether, when LoadSprite is called, a cached sheet will

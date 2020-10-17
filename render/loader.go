@@ -15,12 +15,15 @@ var (
 		wd,
 		"assets",
 		"images")
+
+	imageLock    = sync.RWMutex{}
 	loadedImages = make(map[string]*image.RGBA)
+
+	sheetLock    = sync.RWMutex{}
 	loadedSheets = make(map[string]*Sheet)
+
 	// move to some batch load settings
 	defaultPad = 0
-	imageLock  = sync.RWMutex{}
-	sheetLock  = sync.RWMutex{}
 )
 
 func subImage(rgba *image.RGBA, x, y, w, h int) *image.RGBA {
