@@ -1,6 +1,7 @@
 package btn
 
 import (
+	"fmt"
 	"image/color"
 	"strconv"
 	"strings"
@@ -30,6 +31,8 @@ type Generator struct {
 	Font           *render.Font
 	Layers         []int
 	Text           string
+	TextPtr        *string
+	TextStringer   fmt.Stringer
 	Children       []Generator
 	Bindings       map[string][]event.Bindable
 	Trigger        string
@@ -136,6 +139,14 @@ func (g Generator) generate(parent *Generator) Btn {
 	if g.Text != "" {
 		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
 		txtbx.SetString(g.Text)
+		btn = txtbx
+	} else if g.TextPtr != nil {
+		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
+		txtbx.SetStringPtr(g.TextPtr)
+		btn = txtbx
+	} else if g.TextStringer != nil {
+		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
+		txtbx.SetStringer(g.TextStringer)
 		btn = txtbx
 	} else {
 		btn = NewBox(g.Cid, g.X, g.Y, g.W, g.H, box, g.Layers...)

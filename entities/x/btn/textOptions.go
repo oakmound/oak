@@ -1,13 +1,39 @@
 package btn
 
 import (
+	"fmt"
+
 	"github.com/oakmound/oak/v2/render"
 )
 
 //Text sets the text of the button to be generated
 func Text(s string) Option {
 	return func(g Generator) Generator {
+		g.TextPtr = nil
+		g.TextStringer = nil
 		g.Text = s
+		return g
+	}
+}
+
+// TextPtr sets the text of the button to be generated
+// to a string pointer.
+func TextPtr(s *string) Option {
+	return func(g Generator) Generator {
+		g.Text = ""
+		g.TextStringer = nil
+		g.TextPtr = s
+		return g
+	}
+}
+
+// TextStringer sets the text of the generated button to
+// use a fmt.Stringer String call
+func TextStringer(s fmt.Stringer) Option {
+	return func(g Generator) Generator {
+		g.Text = ""
+		g.TextPtr = nil
+		g.TextStringer = s
 		return g
 	}
 }

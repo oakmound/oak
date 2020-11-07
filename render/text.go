@@ -108,6 +108,16 @@ func (t *Text) SetString(str string) {
 	t.text = stringStringer(str)
 }
 
+// SetStringPtr accepts a string pointer as the stringer to be written
+func (t *Text) SetStringPtr(str *string) {
+	t.text = stringPtrStringer{str}
+}
+
+// SetStringer accepts an fmt.Stringer to write
+func (t *Text) SetStringer(s fmt.Stringer) {
+	t.text = s
+}
+
 //SetInt takes and converts the input integer to a string to write
 func (t *Text) SetInt(i int) {
 	t.text = stringStringer(strconv.Itoa(i))
@@ -115,6 +125,7 @@ func (t *Text) SetInt(i int) {
 
 // SetIntP takes in an integer pointer that will be drawn at whatever
 // the value is behind the pointer when it is drawn
+// TODO: (3.0) rename to SetIntPtr
 func (t *Text) SetIntP(i *int) {
 	t.text = stringerIntPointer{i}
 }
