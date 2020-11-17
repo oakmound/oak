@@ -68,3 +68,18 @@ func SetTopMost(on bool) error {
 		Operation: "SetTopMost",
 	}
 }
+
+type Titler interface {
+	SetTitle(string) error
+}
+
+// SetTopMost attempts to set the local oak window to stay on top of other windows.
+// If the window does not support this functionality, it will report as such.
+func SetTitle(title string) error {
+	if t, ok := windowControl.(Titler); ok {
+		return t.SetTitle(title)
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "SetTitle",
+	}
+}
