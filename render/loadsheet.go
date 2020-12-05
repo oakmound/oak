@@ -31,7 +31,7 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 
 	if !ok {
 		dlog.Verb("Missing file in loaded images: ", fileName)
-		rgba, err = loadSprite(directory, fileName)
+		rgba, err = loadSprite(directory, fileName, 0)
 		if err != nil {
 			return nil, err
 		}

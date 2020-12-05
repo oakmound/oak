@@ -17,6 +17,10 @@ import (
 // be an image file.
 type Decoder func(io.Reader) (image.Image, error)
 
+// CfgDecoder is an equivalent to Decoder that just exports
+// the color model and dimensions of the image.
+type CfgDecoder func(io.Reader) (image.Config, error)
+
 var (
 	fileDecoders = map[string]Decoder{
 		".jpeg": jpeg.Decode,
@@ -24,6 +28,13 @@ var (
 		".gif":  gif.Decode,
 		".png":  png.Decode,
 		".bmp":  bmp.Decode,
+	}
+	cfgDecoders = map[string]CfgDecoder{
+		".jpeg": jpeg.DecodeConfig,
+		".jpg":  jpeg.DecodeConfig,
+		".gif":  gif.DecodeConfig,
+		".png":  png.DecodeConfig,
+		".bmp":  bmp.DecodeConfig,
 	}
 )
 
@@ -38,11 +49,14 @@ func RegisterDecoder(ext string, decoder Decoder) error {
 			InputType:   "string",
 			Overwritten: false,
 		}
-		}
+	}
 	fileDecoders[ext] = decoder
 	return nil
-	}
-	_, ok := fileDecoders[ext]
+}
+
+// RegisterCfgDecoder acts like RegisterDecoder for CfgDecoders
+func RegisterCfgDecoder(ext string, decoder CfgDecoder) error {
+	_, ok := cfgDecoders[ext]
 	if ok {
 		return oakerr.ExistingElement{
 			InputName:   "ext",
@@ -50,6 +64,6 @@ func RegisterDecoder(ext string, decoder Decoder) error {
 			Overwritten: false,
 		}
 	}
-	fileDecoders[ext] = decoder
+	cfgDecoders[ext] = decoder
 	return nil
 }

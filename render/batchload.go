@@ -27,7 +27,12 @@ var (
 // represent, so a "tiles": "32" field in the json would indicate that sprite sheets
 // in the /tiles folder should be read as 32x32
 func BatchLoad(baseFolder string) error {
+	return BlankBatchLoad(baseFolder, 0)
+}
 
+// BlankBatchLoad acts like BatchLoad, but will not load and instead return a blank image
+// of the appropriate dimensions for anything above maxFileSize.
+func BlankBatchLoad(baseFolder string, maxFileSize int64) error {
 	folders, err := fileutil.ReadDir(baseFolder)
 	if err != nil {
 		dlog.Error(err)
@@ -63,7 +68,7 @@ func BatchLoad(baseFolder string) error {
 						wg.Add(1)
 						go func(baseFolder, relativePath string, possibleSheet bool, frameW, frameH int) {
 							defer wg.Done()
-							buff, err := loadSprite(baseFolder, relativePath)
+							buff, err := loadSprite(baseFolder, relativePath, maxFileSize)
 							if err != nil {
 								dlog.Error(err)
 								return

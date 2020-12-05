@@ -19,7 +19,7 @@ func loadAssets(imageDir, audioDir string) {
 		dlog.Info("Loading Images")
 		var eg errgroup.Group
 		eg.Go(func() error {
-			err := render.BatchLoad(imageDir)
+			err := render.BlankBatchLoad(imageDir, conf.BatchLoadOptions.MaxImageFileSize)
 			if err != nil {
 				return err
 			}

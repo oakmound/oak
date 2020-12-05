@@ -4,6 +4,7 @@ import (
 	"errors"
 	"image"
 	"image/color"
+	"os"
 	"path/filepath"
 
 	"github.com/oakmound/oak/v2/dlog"
@@ -11,7 +12,7 @@ import (
 	"github.com/oakmound/oak/v2/oakerr"
 )
 
-func loadSprite(directory, fileName string) (*image.RGBA, error) {
+func loadSprite(directory, fileName string, maxFileSize int64) (*image.RGBA, error) {
 
 	imageLock.RLock()
 	if img, ok := loadedImages[fileName]; ok {
@@ -20,7 +21,9 @@ func loadSprite(directory, fileName string) (*image.RGBA, error) {
 	}
 	imageLock.RUnlock()
 
-	imgFile, err := fileutil.Open(filepath.Join(directory, fileName))
+	fullPath := filepath.Join(directory, fileName)
+
+	imgFile, err := fileutil.Open(fullPath)
 	if err != nil {
 		return nil, err
 	}
@@ -29,6 +32,32 @@ func loadSprite(directory, fileName string) (*image.RGBA, error) {
 	}()
 
 	ext := filepath.Ext(fileName)
+
+	cfgDecoder, ok := cfgDecoders[ext]
+	if maxFileSize != 0 && ok {
+		info, err := os.Lstat(fullPath)
+		// This can't reasonably error as we already loaded the file above
+		dlog.ErrorCheck(err)
+		if info.Size() > maxFileSize {
+			// construct a blank image of the correct dimensions
+			cfg, err := cfgDecoder(imgFile)
+			if err != nil {
+				return nil, err
+			}
+			bounds := image.Rectangle{
+				Min: image.Point{0, 0},
+				Max: image.Point{cfg.Width, cfg.Height},
+			}
+			rgba := image.NewRGBA(bounds)
+			imageLock.Lock()
+			loadedImages[fileName] = rgba
+			imageLock.Unlock()
+
+			dlog.Verb("Blank loaded filename: ", fileName)
+			return rgba, nil
+		}
+	}
+
 	decoder, ok := fileDecoders[ext]
 	if !ok {
 		return nil, errors.New("No decoder available for file type: " + ext)
@@ -90,7 +119,7 @@ func LoadSprite(directory, fileName string) (*Sprite, error) {
 	if directory == "" {
 		directory = dir
 	}
-	r, err := loadSprite(directory, fileName)
+	r, err := loadSprite(directory, fileName, 0)
 	if err != nil {
 		dlog.Error(err)
 		return nil, err

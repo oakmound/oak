@@ -39,7 +39,8 @@ var (
 		Screen: Screen{0, 0, 480, 640, 1, 0, 0},
 		Font:   Font{"none", 12.0, 72.0, "", "white"},
 		BatchLoadOptions: BatchLoadOptions{
-			BlankOutAudio: true,
+			BlankOutAudio:    false,
+			MaxImageFileSize: 0,
 		},
 		FrameRate:           60,
 		DrawFrameRate:       60,
@@ -58,7 +59,7 @@ type Config struct {
 	Debug               Debug            `json:"debug"`
 	Screen              Screen           `json:"screen"`
 	Font                Font             `json:"font"`
-	BatchLoadOptions    BatchLoadOptions `json:"batchLoadOptions`
+	BatchLoadOptions    BatchLoadOptions `json:"batchLoadOptions"`
 	FrameRate           int              `json:"frameRate"`
 	DrawFrameRate       int              `json:"drawFrameRate"`
 	Language            string           `json:"language"`
@@ -110,7 +111,8 @@ type Font struct {
 // BatchLoadOptions is a json type storing customizations for batch loading.
 // These settings do not take effect unless batch load is true.
 type BatchLoadOptions struct {
-	BlankOutAudio bool `json:"blankOutAudio"`
+	BlankOutAudio    bool  `json:"blankOutAudio"`
+	MaxImageFileSize int64 `json:"maxImageFileSize"`
 }
 
 // LoadConf loads a config file, that could exist inside
@@ -197,6 +199,10 @@ func initConfFont() {
 
 func initConfBatchLoad() {
 	conf.BatchLoadOptions.BlankOutAudio = SetupConfig.BatchLoadOptions.BlankOutAudio
+
+	if SetupConfig.BatchLoadOptions.MaxImageFileSize != 0 {
+		conf.BatchLoadOptions.MaxImageFileSize = SetupConfig.BatchLoadOptions.MaxImageFileSize
+	}
 }
 
 func initConf() {

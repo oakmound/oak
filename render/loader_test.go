@@ -20,7 +20,7 @@ func TestBatchLoad(t *testing.T) {
 	sh, err := GetSheet(imgPath1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(sh.ToSprites()), 8)
-	_, err = loadSprite("dir", "dummy.jpg")
+	_, err = loadSprite("dir", "dummy.jpg", 0)
 	assert.NotNil(t, err)
 	sp, err := GetSprite("dummy.gif")
 	assert.Nil(t, sp)
