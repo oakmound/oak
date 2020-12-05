@@ -108,7 +108,17 @@ func setLoaded(filename string, data Data) {
 // BatchLoad attempts to load all files within a given directory
 // depending on their file ending (currently supporting .wav and .mp3)
 func BatchLoad(baseFolder string) error {
+	return batchLoad(baseFolder, false)
+}
 
+// BlankBatchLoad acts like BatchLoad, but replaces all loaded assets
+// with empty audio constructs. This is intended to reduce start-up
+// times in development.
+func BlankBatchLoad(baseFolder string) error {
+	return batchLoad(baseFolder, true)
+}
+
+func batchLoad(baseFolder string, blankOut bool) error {
 	files, err := fileutil.ReadDir(baseFolder)
 
 	if err != nil {
@@ -125,7 +135,13 @@ func BatchLoad(baseFolder string) error {
 			case ".wav", ".mp3":
 				dlog.Verb("loading file ", n)
 				eg.Go(func() error {
-					_, err := Load(baseFolder, n)
+					var err error
+					if blankOut {
+						dlog.Verb("blank loading file")
+						err = blankLoad(n)
+					} else {
+						_, err = Load(baseFolder, n)
+					}
 					if err != nil {
 						dlog.Error(err)
 						return err
@@ -140,4 +156,22 @@ func BatchLoad(baseFolder string) error {
 	err = eg.Wait()
 	dlog.Verb("Loading complete")
 	return err
+}
+
+func blankLoad(filename string) error {
+	mformat := audio.Format{
+		SampleRate: 44000,
+		Bits:       16,
+		Channels:   2,
+	}
+	buffer, err := audio.EncodeBytes(
+		audio.Encoding{
+			Format: mformat,
+		})
+	if err != nil {
+		return err
+	}
+	data := buffer.(audio.FullAudio)
+	setLoaded(filename, data)
+	return nil
 }

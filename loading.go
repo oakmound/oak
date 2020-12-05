@@ -27,7 +27,12 @@ func loadAssets(imageDir, audioDir string) {
 			return nil
 		})
 		eg.Go(func() error {
-			err := audio.BatchLoad(audioDir)
+			var err error
+			if conf.BatchLoadOptions.BlankOutAudio {
+				err = audio.BlankBatchLoad(audioDir)
+			} else {
+				err = audio.BatchLoad(audioDir)
+			}
 			if err != nil {
 				return err
 			}
