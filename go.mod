@@ -19,7 +19,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/yobert/alsa v0.0.0-20200618200352-d079056f5370 // indirect
-	golang.org/x/image v0.0.0-20190227222117-0694c2d4d067
+	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
 	golang.org/x/mobile v0.0.0-20190415191353-3e0bab5405d6
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
 )
