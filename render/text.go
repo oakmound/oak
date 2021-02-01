@@ -65,16 +65,18 @@ func (f *Font) NewStrPtrText(str *string, x, y float64) *Text {
 
 // DrawOffset for a text object draws the text at t.(X,Y) + (xOff,yOff)
 func (t *Text) DrawOffset(buff draw.Image, xOff, yOff float64) {
-	t.d.Drawer.Dst = buff
-	t.d.Drawer.Dot = fixed.P(int(t.X()+xOff), int(t.Y()+yOff))
-	t.d.DrawString(t.text.String())
+	t.drawWithFont(buff, xOff, yOff, t.d)
+}
+
+func (t *Text) drawWithFont(buff draw.Image, xOff, yOff float64, fnt *Font) {
+	fnt.Drawer.Dst = buff
+	fnt.Drawer.Dot = fixed.P(int(t.X()+xOff), int(t.Y()+yOff))
+	fnt.DrawString(t.text.String())
 }
 
 // Draw for a text draws the text at its layeredPoint position
 func (t *Text) Draw(buff draw.Image) {
-	t.d.Drawer.Dst = buff
-	t.d.Drawer.Dot = fixed.P(int(t.X()), int(t.Y()))
-	t.d.DrawString(t.text.String())
+	t.drawWithFont(buff, 0, 0, t.d)
 }
 
 // SetFont sets the drawer which renders the text each frame
@@ -171,9 +173,10 @@ func (t *Text) Wrap(charLimit int, vertInc float64) []*Text {
 // modifiable in terms of its text content, but is modifiable in terms
 // of mod.Transform or mod.Filter.
 func (t *Text) ToSprite() *Sprite {
-	width := t.d.MeasureString(t.text.String()).Round()
-	height := t.d.bounds.Max.Y()
+	tmpFnt := t.d.Copy()
+	width := tmpFnt.MeasureString(t.text.String()).Round()
+	height := tmpFnt.bounds.Max.Y()
 	s := NewEmptySprite(t.X(), t.Y()-float64(height), width, height+5)
-	t.DrawOffset(s.GetRGBA(), -t.X(), -t.Y()+float64(height))
+	t.drawWithFont(s.GetRGBA(), -t.X(), -t.Y()+float64(height), tmpFnt)
 	return s
 }
