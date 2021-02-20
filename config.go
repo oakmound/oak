@@ -3,6 +3,7 @@ package oak
 import (
 	"encoding/json"
 	"io"
+	"time"
 
 	"github.com/oakmound/oak/v2/fileutil"
 
@@ -50,6 +51,7 @@ var (
 		GestureSupport:      false,
 		LoadBuiltinCommands: false,
 		TrackInputChanges:   false,
+		EventRefreshRate:    0 * time.Second,
 	}
 )
 
@@ -64,6 +66,7 @@ type Config struct {
 	DrawFrameRate       int              `json:"drawFrameRate"`
 	Language            string           `json:"language"`
 	Title               string           `json:"title"`
+	EventRefreshRate    time.Duration    `json:"refreshRate"`
 	BatchLoad           bool             `json:"batchLoad"`
 	GestureSupport      bool             `json:"gestureSupport"`
 	LoadBuiltinCommands bool             `json:"loadBuiltinCommands"`
@@ -231,6 +234,10 @@ func initConf() {
 
 	if SetupConfig.Title != "" {
 		conf.Title = SetupConfig.Title
+	}
+
+	if SetupConfig.EventRefreshRate != 0 {
+		conf.EventRefreshRate = SetupConfig.EventRefreshRate
 	}
 
 	conf.BatchLoad = SetupConfig.BatchLoad

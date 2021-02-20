@@ -1,5 +1,7 @@
 package event
 
+import "time"
+
 // ResolvePending is a contant loop that tracks slices of bind or unbind calls
 // and resolves them individually such that they don't break the bus
 // Todo: this should have a better name
@@ -9,10 +11,15 @@ func (eb *Bus) ResolvePending() {
 	eb.init.Do(func() {
 		go func() {
 			for {
+				time.Sleep(eb.refreshRate)
 				eb.Flush()
 			}
 		}()
 	})
+}
+
+func (eb *Bus) SetRefreshRate(refreshRate time.Duration) {
+	eb.refreshRate = refreshRate
 }
 
 func (eb *Bus) resolveUnbindAllAndRebinds() {
