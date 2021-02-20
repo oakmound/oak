@@ -73,7 +73,6 @@ func CutShape(sh shape.Shape) Mod {
 		newRgba := image.NewRGBA(bds)
 		newRect := sh.Rect(bds.Dx(), bds.Dy())
 
-		// start off as a copy
 		for x := bds.Min.X; x < bds.Max.X; x++ {
 			for y := bds.Min.Y; y < bds.Max.Y; y++ {
 				if newRect[x-bds.Min.X][y-bds.Min.Y] {
