@@ -127,12 +127,14 @@ func Init(firstScene string) {
 		conf.Assets.AudioPath)
 
 	dlog.Info("Init Scene Loop")
-	go sceneLoop(firstScene, conf.TrackInputChanges)
+	go sceneLoop(firstScene, conf.TrackInputChanges, conf.DisableDebugConsole)
 	dlog.Info("Init asset load")
 	render.SetAssetPaths(imageDir)
 	go loadAssets(imageDir, audioDir)
-	dlog.Info("Init Console")
-	go debugConsole(debugResetCh, skipSceneCh, os.Stdin)
+	if !conf.DisableDebugConsole {
+		dlog.Info("Init Console")
+		go debugConsole(debugResetCh, skipSceneCh, os.Stdin)
+	}
 	dlog.Info("Init Main Driver")
 	InitDriver(lifecycleLoop)
 }

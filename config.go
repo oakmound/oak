@@ -52,6 +52,7 @@ var (
 		LoadBuiltinCommands: false,
 		TrackInputChanges:   false,
 		EventRefreshRate:    0 * time.Second,
+		DisableDebugConsole: false,
 	}
 )
 
@@ -71,6 +72,7 @@ type Config struct {
 	GestureSupport      bool             `json:"gestureSupport"`
 	LoadBuiltinCommands bool             `json:"loadBuiltinCommands"`
 	TrackInputChanges   bool             `json:"trackInputChanges"`
+	DisableDebugConsole bool             `json:"disableDebugConsole"`
 }
 
 // Assets is a json type storing paths to different asset folders
@@ -244,6 +246,7 @@ func initConf() {
 	conf.GestureSupport = SetupConfig.GestureSupport
 	conf.LoadBuiltinCommands = SetupConfig.LoadBuiltinCommands
 	conf.TrackInputChanges = SetupConfig.TrackInputChanges
+	conf.DisableDebugConsole = SetupConfig.DisableDebugConsole
 
 	dlog.Error(conf)
 }
