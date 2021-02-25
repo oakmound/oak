@@ -54,6 +54,142 @@ func TestCasterScene(t *testing.T) {
 			expected: []*collision.Space{
 				spaces["102-202"],
 			},
+		}, {
+			name: "Accept Filters",
+			setup: func() {
+				tree1.Add(spaces["100-200"])
+				tree1.Add(spaces["101-201"])
+				tree1.Add(spaces["102-202"])
+			},
+			teardown: func() {
+				tree1.Delete(spaces["100-200"])
+				tree1.Delete(spaces["101-201"])
+				tree1.Delete(spaces["102-202"])
+			},
+			opts: []CastOption{
+				Tree(tree1),
+				CenterPoints(true),
+				Distance(50),
+				PointSize(floatgeom.Point2{.001, .001}),
+				PointSpan(2),
+				LimitResults(2),
+				AcceptLabels(100),
+				AcceptIDs(200),
+			},
+			defCaster: NewCaster(),
+			origin:    floatgeom.Point2{5, 5},
+			target:    floatgeom.Point2{25, 25},
+			expected: []*collision.Space{
+				spaces["100-200"],
+			},
+		}, {
+			name: "StopAtLabel",
+			setup: func() {
+				tree1.Add(spaces["100-200"])
+				tree1.Add(spaces["101-201"])
+				tree1.Add(spaces["102-202"])
+			},
+			teardown: func() {
+				tree1.Delete(spaces["100-200"])
+				tree1.Delete(spaces["101-201"])
+				tree1.Delete(spaces["102-202"])
+			},
+			opts: []CastOption{
+				Tree(tree1),
+				CenterPoints(true),
+				Distance(50),
+				PointSize(floatgeom.Point2{.001, .001}),
+				PointSpan(2),
+				StopAtLabel(100),
+			},
+			defCaster: NewCaster(),
+			origin:    floatgeom.Point2{5, 5},
+			target:    floatgeom.Point2{25, 25},
+			expected: []*collision.Space{
+				spaces["100-200"],
+			},
+		}, {
+			name: "StopAtID",
+			setup: func() {
+				tree1.Add(spaces["100-200"])
+				tree1.Add(spaces["101-201"])
+				tree1.Add(spaces["102-202"])
+			},
+			teardown: func() {
+				tree1.Delete(spaces["100-200"])
+				tree1.Delete(spaces["101-201"])
+				tree1.Delete(spaces["102-202"])
+			},
+			opts: []CastOption{
+				Tree(tree1),
+				CenterPoints(true),
+				Distance(50),
+				PointSize(floatgeom.Point2{.001, .001}),
+				PointSpan(2),
+				StopAtID(201),
+			},
+			defCaster: NewCaster(),
+			origin:    floatgeom.Point2{5, 5},
+			target:    floatgeom.Point2{25, 25},
+			expected: []*collision.Space{
+				spaces["100-200"],
+				spaces["101-201"],
+			},
+		}, {
+			name: "StopAtNothing",
+			setup: func() {
+				tree1.Add(spaces["100-200"])
+				tree1.Add(spaces["101-201"])
+				tree1.Add(spaces["102-202"])
+			},
+			teardown: func() {
+				tree1.Delete(spaces["100-200"])
+				tree1.Delete(spaces["101-201"])
+				tree1.Delete(spaces["102-202"])
+			},
+			opts: []CastOption{
+				Tree(tree1),
+				CenterPoints(true),
+				Distance(50),
+				PointSize(floatgeom.Point2{.001, .001}),
+				PointSpan(2),
+				StopAtID(203),
+				StopAtLabel(103),
+			},
+			defCaster: NewCaster(),
+			origin:    floatgeom.Point2{5, 5},
+			target:    floatgeom.Point2{25, 25},
+			expected: []*collision.Space{
+				spaces["100-200"],
+				spaces["101-201"],
+				spaces["102-202"],
+			},
+		}, {
+			name: "Pierce",
+			setup: func() {
+				tree1.Add(spaces["100-200"])
+				tree1.Add(spaces["101-201"])
+				tree1.Add(spaces["102-202"])
+			},
+			teardown: func() {
+				tree1.Delete(spaces["100-200"])
+				tree1.Delete(spaces["101-201"])
+				tree1.Delete(spaces["102-202"])
+			},
+			opts: []CastOption{
+				Tree(tree1),
+				CenterPoints(true),
+				Distance(50),
+				PointSize(floatgeom.Point2{.001, .001}),
+				PointSpan(2),
+				Pierce(2),
+			},
+			defCaster: NewCaster(),
+			origin:    floatgeom.Point2{5, 5},
+			target:    floatgeom.Point2{25, 25},
+			expected: []*collision.Space{
+				spaces["102-202"],
+			},
 		},
 	}
 	for _, tc := range tcs {
@@ -73,5 +209,14 @@ func TestCasterScene(t *testing.T) {
 				tc.teardown()
 			}
 		})
+	}
+}
+
+func TestNewCasterDefaultTree(t *testing.T) {
+	DefaultCaster.Tree = nil
+	c := NewCaster()
+	DefaultCaster.Tree = collision.DefTree
+	if c.Tree == nil {
+		t.Fatal("nil caster tree should have been set to default tree")
 	}
 }
