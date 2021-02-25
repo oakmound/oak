@@ -2,6 +2,7 @@ package event
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -80,5 +81,32 @@ func BenchmarkHandler(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		<-DefaultBus.TriggerBack(Enter, DefaultBus.framesElapsed)
+	}
+}
+
+func TestPauseAndResume(t *testing.T) {
+	b := NewBus()
+	b.ResolvePending()
+	triggerCt := 0
+	b.Bind(func(int, interface{}) int {
+		triggerCt++
+		return 0
+	}, "EnterFrame", 0)
+	ch := make(chan bool, 1000)
+	b.UpdateLoop(60, ch)
+	time.Sleep(1 * time.Second)
+	b.Pause()
+	time.Sleep(1 * time.Second)
+	oldCt := triggerCt
+	time.Sleep(1 * time.Second)
+	if oldCt != triggerCt {
+		t.Fatalf("pause did not stop enter frame from triggering: expected %v got %v", oldCt, triggerCt)
+	}
+
+	b.Resume()
+	time.Sleep(1 * time.Second)
+	newCt := triggerCt
+	if newCt == oldCt {
+		t.Fatalf("resume did not resume enter frame triggering: expected %v got %v", oldCt, newCt)
 	}
 }
