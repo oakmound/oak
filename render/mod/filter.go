@@ -170,7 +170,7 @@ func InPlace(m Mod) Filter {
 }
 
 // StripOuterAlpha from the image given a source image and a alpha level to denote stripping.
-// Note that this was implement for ease of implementation but not speed.
+// Note that this was implemented for ease of implementation but not speed.
 // We could use image lib or a real depth first search to do fewer checks but this is easier...
 func StripOuterAlpha(m *image.RGBA, level int) Filter {
 	l := uint8(level)
@@ -193,7 +193,8 @@ func StripOuterAlpha(m *image.RGBA, level int) Filter {
 				r := mr.RGBAAt(x, y)
 				if r.A <= l {
 					// Treating as transparent
-					rgba.Set(int(x), int(y), mr.At(x, y))
+					r.A = 0
+					rgba.Set(int(x), int(y), r)
 				} else {
 					break
 				}
@@ -205,7 +206,8 @@ func StripOuterAlpha(m *image.RGBA, level int) Filter {
 				r := mr.RGBAAt(x, y)
 				if r.A <= l {
 					// Treating as transparent
-					rgba.Set(int(x), int(y), mr.At(x, y))
+					r.A = 0
+					rgba.Set(int(x), int(y), r)
 				} else {
 					break
 				}
@@ -218,7 +220,8 @@ func StripOuterAlpha(m *image.RGBA, level int) Filter {
 				r := mr.RGBAAt(x, y)
 				if r.A <= l {
 					// Treating as transparent
-					rgba.Set(int(x), int(y), mr.At(x, y))
+					r.A = 0
+					rgba.Set(int(x), int(y), r)
 				} else {
 					break
 				}
@@ -230,15 +233,13 @@ func StripOuterAlpha(m *image.RGBA, level int) Filter {
 				r := mr.RGBAAt(x, y)
 				if r.A <= l {
 					// Treating as transparent
-					rgba.Set(int(x), int(y), mr.At(x, y))
+					r.A = 0
+					rgba.Set(int(x), int(y), r)
 				} else {
 					break
 				}
 			}
 		}
-
-		// apply image onto m
-
 	}
 
 }

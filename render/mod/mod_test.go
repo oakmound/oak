@@ -96,7 +96,18 @@ func TestAllModifications(t *testing.T) {
 	}, {
 		InPlace(Scale(2, 2)),
 		setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255}),
-	}}
+	}, {
+		StripOuterAlpha(setOne(setOne(setOne(setOne(setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255}),
+			color.RGBA{0, 1, 0, 122}, 0, 0),
+			color.RGBA{0, 1, 0, 122}, 1, 0),
+			color.RGBA{0, 1, 0, 122}, 0, 1),
+			color.RGBA{0, 1, 0, 240}, 2, 2), 200),
+		setOne(setOne(setOne(setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255}),
+			color.RGBA{0, 1, 0, 0}, 0, 0),
+			color.RGBA{0, 1, 0, 0}, 1, 0),
+			color.RGBA{0, 1, 0, 0}, 0, 1),
+	},
+	}
 	for _, f := range filterList {
 		in2 := copyrgba(in)
 		f.Filter(in2)
