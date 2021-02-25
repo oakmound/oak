@@ -15,7 +15,8 @@ const (
 	FpsSmoothing = .25
 )
 
-// DrawFPS is a draw stack element that will draw the fps onto the screen
+// DrawFPS is a Stackable that will draw the fps onto the screen when a part of the
+// draw stack.
 type DrawFPS struct {
 	fps      int
 	lastTime time.Time

@@ -62,7 +62,7 @@ func drawLoop() {
 					dlog.Verb("Got something from viewport channel (waiting on draw)")
 					updateScreen(viewPoint[0], viewPoint[1])
 				case viewPoint := <-viewportShiftCh:
-					dlog.Verb("Got something from viewport shfit channel (waiting on draw)")
+					dlog.Verb("Got something from viewport shift channel (waiting on draw)")
 					shiftViewPort(viewPoint[0], viewPoint[1])
 				default:
 				}

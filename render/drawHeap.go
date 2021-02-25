@@ -8,12 +8,13 @@ import (
 )
 
 // A RenderableHeap manages a set of renderables to be drawn in explicit layered
-// order, using an internal heap to manage that order.
+// order, using an internal heap to manage that order. It implements Stackable.
 type RenderableHeap struct {
-	rs      []Renderable
-	toPush  []Renderable
-	static  bool
-	addLock sync.RWMutex
+	rs       []Renderable
+	toPush   []Renderable
+	toUndraw []Renderable
+	static   bool
+	addLock  sync.RWMutex
 	DrawPolygon
 }
 
@@ -27,6 +28,7 @@ func NewHeap(static bool) *RenderableHeap {
 	rh := new(RenderableHeap)
 	rh.rs = make([]Renderable, 0)
 	rh.toPush = make([]Renderable, 0)
+	rh.toUndraw = make([]Renderable, 0)
 	rh.static = static
 	rh.addLock = sync.RWMutex{}
 	return rh
@@ -64,10 +66,13 @@ func (rh *RenderableHeap) Add(r Renderable, layers ...int) Renderable {
 	return r
 }
 
-//Replace adds a Renderable and removes an old one
-func (rh *RenderableHeap) Replace(r1, r2 Renderable, layer int) {
-	rh.Add(r2, layer)
-	r1.Undraw()
+// Replace adds a Renderable and removes an old one
+func (rh *RenderableHeap) Replace(old, new Renderable, layer int) {
+	new.SetLayer(layer)
+	rh.addLock.Lock()
+	rh.toPush = append(rh.toPush, new)
+	rh.toUndraw = append(rh.toUndraw, old)
+	rh.addLock.Unlock()
 }
 
 // Satisfying the Heap interface
@@ -103,6 +108,11 @@ func (rh *RenderableHeap) PreDraw() {
 	for _, r := range rh.toPush {
 		if r != nil {
 			heap.Push(rh, r)
+		}
+	}
+	for _, r := range rh.toUndraw {
+		if r != nil {
+			r.Undraw()
 		}
 	}
 	rh.toPush = make([]Renderable, 0)
