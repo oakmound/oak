@@ -7,6 +7,7 @@ import (
 	"github.com/200sc/klangsynthese/audio"
 	"github.com/200sc/klangsynthese/mp3"
 	"github.com/200sc/klangsynthese/wav"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/fileutil"
@@ -49,46 +50,75 @@ func Get(filename string) (Data, error) {
 // one stored in the loeaded map.
 func Load(directory, filename string) (Data, error) {
 	dlog.Verb("Loading", directory, filename)
-	if !IsLoaded(filename) {
-		f, err := fileutil.Open(filepath.Join(directory, filename))
-		if err != nil {
-			return nil, err
-		}
-		defer f.Close()
-		var buffer audio.Audio
-		end := strings.ToLower(filename[len(filename)-4:])
-		switch end {
-		case ".wav":
-			buffer, err = wav.Load(f)
-		case ".mp3":
-			buffer, err = mp3.Load(f)
-		default:
-			return nil, oakerr.UnsupportedFormat{Format: end}
-		}
-		if err != nil {
-			return nil, err
-		}
-		loaded[filename] = buffer.(audio.FullAudio)
+	if data, ok := getLoaded(filename); ok {
+		return data, nil
 	}
-	return loaded[filename], nil
+	f, err := fileutil.Open(filepath.Join(directory, filename))
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	var buffer audio.Audio
+	end := strings.ToLower(filename[len(filename)-4:])
+	switch end {
+	case ".wav":
+		buffer, err = wav.Load(f)
+	case ".mp3":
+		buffer, err = mp3.Load(f)
+	default:
+		return nil, oakerr.UnsupportedFormat{Format: end}
+	}
+	if err != nil {
+		return nil, err
+	}
+	data := buffer.(audio.FullAudio)
+	setLoaded(filename, data)
+	return data, nil
 }
 
 // Unload removes an element from the loaded map. If the element does not
 // exist, it does nothing.
 func Unload(filename string) {
+	loadedLock.Lock()
 	delete(loaded, filename)
+	loadedLock.Unlock()
 }
 
 // IsLoaded is shorthand for (if _, ok := loaded[filename]; ok)
 func IsLoaded(filename string) bool {
+	loadedLock.RLock()
 	_, ok := loaded[filename]
+	loadedLock.RUnlock()
 	return ok
+}
+
+func getLoaded(filename string) (Data, bool) {
+	loadedLock.RLock()
+	data, ok := loaded[filename]
+	loadedLock.RUnlock()
+	return data, ok
+}
+
+func setLoaded(filename string, data Data) {
+	loadedLock.Lock()
+	loaded[filename] = data
+	loadedLock.Unlock()
 }
 
 // BatchLoad attempts to load all files within a given directory
 // depending on their file ending (currently supporting .wav and .mp3)
 func BatchLoad(baseFolder string) error {
+	return batchLoad(baseFolder, false)
+}
 
+// BlankBatchLoad acts like BatchLoad, but replaces all loaded assets
+// with empty audio constructs. This is intended to reduce start-up
+// times in development.
+func BlankBatchLoad(baseFolder string) error {
+	return batchLoad(baseFolder, true)
+}
+
+func batchLoad(baseFolder string, blankOut bool) error {
 	files, err := fileutil.ReadDir(baseFolder)
 
 	if err != nil {
@@ -96,6 +126,7 @@ func BatchLoad(baseFolder string) error {
 		return err
 	}
 
+	var eg errgroup.Group
 	for _, file := range files {
 		if !file.IsDir() {
 			n := file.Name()
@@ -103,16 +134,44 @@ func BatchLoad(baseFolder string) error {
 			switch strings.ToLower(n[len(n)-4:]) {
 			case ".wav", ".mp3":
 				dlog.Verb("loading file ", n)
-				_, err := Load(baseFolder, n)
-				if err != nil {
-					dlog.Error(err)
-					return err
-				}
+				eg.Go(func() error {
+					var err error
+					if blankOut {
+						dlog.Verb("blank loading file")
+						err = blankLoad(n)
+					} else {
+						_, err = Load(baseFolder, n)
+					}
+					if err != nil {
+						dlog.Error(err)
+						return err
+					}
+					return nil
+				})
 			default:
 				dlog.Error("Unsupported file ending for batchLoad: ", n)
 			}
 		}
 	}
+	err = eg.Wait()
 	dlog.Verb("Loading complete")
+	return err
+}
+
+func blankLoad(filename string) error {
+	mformat := audio.Format{
+		SampleRate: 44000,
+		Bits:       16,
+		Channels:   2,
+	}
+	buffer, err := audio.EncodeBytes(
+		audio.Encoding{
+			Format: mformat,
+		})
+	if err != nil {
+		return err
+	}
+	data := buffer.(audio.FullAudio)
+	setLoaded(filename, data)
 	return nil
 }

@@ -34,7 +34,7 @@ var (
 
 var firstScene string
 
-func sceneLoop(first string, trackingInputs bool) {
+func sceneLoop(first string, trackingInputs bool, debugConsoleDisabled bool) {
 	var prevScene string
 
 	result := new(scene.Result)
@@ -140,7 +140,7 @@ func sceneLoop(first string, trackingInputs bool) {
 			result = new(scene.Result)
 		}
 
-		if !debugResetInProgress {
+		if !debugConsoleDisabled && !debugResetInProgress {
 			debugResetInProgress = true
 			go func() {
 				debugResetCh <- true

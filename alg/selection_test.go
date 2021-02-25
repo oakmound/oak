@@ -99,3 +99,29 @@ func TestCumulativeWeights(t *testing.T) {
 	cum := CumulativeWeights(weights)
 	assert.Equal(t, []float64{1, 3, 6, 10, 15, 21, 28}, cum)
 }
+
+func TestWeightedChooseOne(t *testing.T) {
+	weights := []float64{0, 0, 0, 0, 0, 0, 1}
+	remaining := RemainingWeights(weights)
+	choice := WeightedChooseOne(remaining)
+	if choice != 6 {
+		t.Fatalf("Expected choice of 6, got %v", choice)
+	}
+}
+
+type float64er struct {
+	val float64
+}
+
+func (f *float64er) Float64() float64 {
+	return f.val
+}
+
+func TestWeightedChooseOneSeeded(t *testing.T) {
+	weights := []float64{1, 1, 1, 1, 1, 1, 1}
+	remaining := RemainingWeights(weights)
+	choice := WeightedChooseOneSeeded(remaining, &float64er{val: 0})
+	if choice != 6 {
+		t.Fatalf("Expected choice of 6, got %v", choice)
+	}
+}

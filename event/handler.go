@@ -32,6 +32,15 @@ type FullHandler interface {
 	TriggerBack(event string, data interface{}) chan bool
 }
 
+// ConfigHandler contains methods for configuring a running handler.
+// ConfigHandler is a new interface for backwards compatability.
+// TODO: v3: compress this interface into the main handler
+type ConfigHandler interface {
+	// SetRefreshRate configures how often a running handler will check
+	// for new binding and unbinding requests.
+	SetRefreshRate(time.Duration)
+}
+
 // A Pauser is a handler that can be paused.
 type Pauser interface {
 	Pause()

@@ -3,6 +3,7 @@ package event
 import (
 	"reflect"
 	"sync"
+	"time"
 
 	"github.com/oakmound/oak/v2/timing"
 )
@@ -58,6 +59,7 @@ type Bus struct {
 	unbinds             []binding
 	unbindAllAndRebinds []UnbindAllOption
 	framerate           int
+	refreshRate         time.Duration
 
 	mutex        sync.RWMutex
 	pendingMutex sync.Mutex

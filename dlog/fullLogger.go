@@ -15,7 +15,7 @@ type FullLogger interface {
 var fullOakLogger FullLogger
 
 // GetLogLevel returns the log level of the fullOakLogger, or
-// NONE if there is not fullOakLogger.
+// NONE if there is no fullOakLogger.
 var GetLogLevel = func() Level {
 	return NONE
 }

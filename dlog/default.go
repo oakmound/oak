@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -16,7 +17,7 @@ var (
 )
 
 type logger struct {
-	byt         *bytes.Buffer
+	bytPool     sync.Pool
 	debugLevel  Level
 	debugFilter string
 	writer      *bufio.Writer
@@ -26,7 +27,11 @@ type logger struct {
 // no file, and level set to ERROR
 func NewLogger() Logger {
 	return &logger{
-		byt:        bytes.NewBuffer(make([]byte, 0)),
+		bytPool: sync.Pool{
+			New: func() interface{} {
+				return new(bytes.Buffer)
+			},
+		},
 		debugLevel: ERROR,
 	}
 }
@@ -55,38 +60,32 @@ func (l *logger) dLog(console, override bool, in ...interface{}) {
 			return
 		}
 
+		buffer := l.bytPool.Get().(*bytes.Buffer)
 		// Note on errors: these functions all return
 		// errors, but they are always nil.
-		l.byt.WriteRune('[')
-		l.byt.WriteString(f)
-		l.byt.WriteRune(':')
-		l.byt.WriteString(strconv.Itoa(line))
-		l.byt.WriteString("]  ")
-		l.byt.WriteString(logLevels[l.GetLogLevel()])
-		l.byt.WriteRune(':')
+		buffer.WriteRune('[')
+		buffer.WriteString(f)
+		buffer.WriteRune(':')
+		buffer.WriteString(strconv.Itoa(line))
+		buffer.WriteString("]  ")
+		buffer.WriteString(logLevels[l.GetLogLevel()])
+		buffer.WriteRune(':')
 		for _, elem := range in {
-			l.byt.WriteString(fmt.Sprintf("%v ", elem))
+			buffer.WriteString(fmt.Sprintf("%v ", elem))
 		}
-		l.byt.WriteRune('\n')
+		buffer.WriteRune('\n')
 
 		if console {
-			fmt.Print(l.byt.String())
+			fmt.Print(buffer.String())
 		}
 
 		if l.writer != nil {
-			_, err := l.writer.WriteString(l.byt.String())
-			if err != nil {
-				// We can't log errors while we are in the error
-				// logging function.
-				fmt.Println("Logging error", err)
-			}
-			err = l.writer.Flush()
-			if err != nil {
-				fmt.Println("Logging error", err)
-			}
+			l.writer.WriteString(buffer.String())
+			l.writer.Flush()
 		}
 
-		l.byt.Reset()
+		buffer.Reset()
+		l.bytPool.Put(buffer)
 	}
 }
 
@@ -150,27 +149,27 @@ func (l *logger) CreateLogFile() {
 // Error will write a dlog if the debug level is not NONE
 func (l *logger) Error(in ...interface{}) {
 	if l.debugLevel > NONE {
-		l.dLog(true, true, in)
+		l.dLog(true, true, in...)
 	}
 }
 
 // Warn will write a dLog if the debug level is higher than ERROR
 func (l *logger) Warn(in ...interface{}) {
 	if l.debugLevel > ERROR {
-		l.dLog(true, true, in)
+		l.dLog(true, true, in...)
 	}
 }
 
 // Info will write a dLog if the debug level is higher than WARN
 func (l *logger) Info(in ...interface{}) {
 	if l.debugLevel > WARN {
-		l.dLog(true, false, in)
+		l.dLog(true, false, in...)
 	}
 }
 
 // Verb will write a dLog if the debug level is higher than INFO
 func (l *logger) Verb(in ...interface{}) {
 	if l.debugLevel > INFO {
-		l.dLog(true, false, in)
+		l.dLog(true, false, in...)
 	}
 }

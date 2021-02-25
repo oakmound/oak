@@ -5,9 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/oakmound/shiny/driver"
 	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/shiny/driver"
 )
 
 var (
@@ -109,6 +110,11 @@ func Init(firstScene string) {
 	if conf.TrackInputChanges {
 		trackJoystickChanges()
 	}
+	if conf.EventRefreshRate != 0 {
+		if cfgHandler, ok := logicHandler.(event.ConfigHandler); ok {
+			cfgHandler.SetRefreshRate(conf.EventRefreshRate)
+		}
+	}
 	// END of loading variables from configuration
 
 	SeedRNG(DefaultSeed)
@@ -121,12 +127,14 @@ func Init(firstScene string) {
 		conf.Assets.AudioPath)
 
 	dlog.Info("Init Scene Loop")
-	go sceneLoop(firstScene, conf.TrackInputChanges)
+	go sceneLoop(firstScene, conf.TrackInputChanges, conf.DisableDebugConsole)
 	dlog.Info("Init asset load")
 	render.SetAssetPaths(imageDir)
 	go loadAssets(imageDir, audioDir)
-	dlog.Info("Init Console")
-	go debugConsole(debugResetCh, skipSceneCh, os.Stdin)
+	if !conf.DisableDebugConsole {
+		dlog.Info("Init Console")
+		go debugConsole(debugResetCh, skipSceneCh, os.Stdin)
+	}
 	dlog.Info("Init Main Driver")
 	InitDriver(lifecycleLoop)
 }

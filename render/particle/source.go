@@ -233,6 +233,13 @@ func (ps *Source) UnPause() {
 	ps.paused = false
 }
 
+// IsPaused checks for whether the source is currently in a paused state.
+// It probably would have made more sense to export paused but this way if a lock is needed here in the future...
+// Then it wont change the api.
+func (ps *Source) IsPaused() bool {
+	return ps.paused
+}
+
 // ShiftX shift's a source's underlying generator
 func (ps *Source) ShiftX(x float64) {
 	ps.Generator.ShiftX(x)

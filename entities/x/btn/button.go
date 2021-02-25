@@ -1,15 +1,17 @@
 package btn
 
 import (
+	"fmt"
 	"image/color"
 	"strconv"
+	"strings"
 
 	"github.com/oakmound/oak/v2/dlog"
-
 	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/mouse"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v2/shape"
 )
 
 // A Generator defines the variables used to create buttons from optional arguments
@@ -29,6 +31,8 @@ type Generator struct {
 	Font           *render.Font
 	Layers         []int
 	Text           string
+	TextPtr        *string
+	TextStringer   fmt.Stringer
 	Children       []Generator
 	Bindings       map[string][]event.Bindable
 	Trigger        string
@@ -36,6 +40,7 @@ type Generator struct {
 	ListChoice     *int
 	Group          *Group
 	DisallowRevert bool
+	Shape          shape.Shape
 }
 
 func defGenerator() Generator {
@@ -73,6 +78,7 @@ func (g Generator) Generate() Btn {
 
 func (g Generator) generate(parent *Generator) Btn {
 	var box render.Modifiable
+	// handle differnt renderable options that could be passed to the generator
 	switch {
 	case g.Toggle != nil:
 		//Handles checks and other toggle situations
@@ -108,9 +114,16 @@ func (g Generator) generate(parent *Generator) Btn {
 		box = g.R
 	case g.ProgressFunc != nil:
 		box = render.NewGradientBox(int(g.W), int(g.H), g.Color, g.Color2, g.ProgressFunc)
+		if g.Shape != nil {
+			g.Mod = mod.SafeAnd(mod.CutShape(g.Shape), g.Mod)
+		}
 	default:
 		box = render.NewColorBox(int(g.W), int(g.H), g.Color)
+		if g.Shape != nil {
+			g.Mod = mod.SafeAnd(mod.CutShape(g.Shape), g.Mod)
+		}
 	}
+
 	if !g.DisallowRevert {
 		box = render.NewReverting(box)
 	}
@@ -127,8 +140,59 @@ func (g Generator) generate(parent *Generator) Btn {
 		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
 		txtbx.SetString(g.Text)
 		btn = txtbx
+	} else if g.TextPtr != nil {
+		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
+		txtbx.SetStringPtr(g.TextPtr)
+		btn = txtbx
+	} else if g.TextStringer != nil {
+		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
+		txtbx.SetStringer(g.TextStringer)
+		btn = txtbx
 	} else {
 		btn = NewBox(g.Cid, g.X, g.Y, g.W, g.H, box, g.Layers...)
+	}
+
+	// Update underlying mousecollision binding to only respect clicks in the shape.
+	// If a finer control is needed then it may make sense to use this as a starting off point
+	// instead of expanding this section.
+	if g.Shape != nil {
+
+		// extract keys prior to loop as the map will be permuted by the following operations
+		keys := make([]string, 0, len(g.Bindings))
+		for k := range g.Bindings {
+			// We only really care about mouse events.
+			// In some ways this is dangerous of an implementer has defined events that start with mouse...
+			// but in that case they might not use g.Shape anyways.
+			if !strings.HasPrefix(k, "Mouse") {
+				continue
+			}
+			keys = append(keys, k)
+		}
+		for _, k := range keys {
+			curBind := g.Bindings[k]
+			if curBind == nil {
+				continue
+			}
+			// This could cause issues with name collisions but its unlikely and documentation should help make it even more unlikely.
+			filteredK := "Filtered" + k
+			g.Bindings[filteredK] = g.Bindings[k]
+			g.Bindings[k] = []event.Bindable{
+				func(id int, button interface{}) int {
+					btn := event.GetEntity(id).(Btn)
+					mEvent, ok := button.(mouse.Event)
+					// If the passed event is not a mouse event dont filter on location.
+					// Main current use case is for nil events passed via simulated clicks.
+					if !ok {
+						btn.Trigger(filteredK, button)
+					}
+					bSpace := btn.GetSpace().Bounds()
+					if g.Shape.In(int(mEvent.X()-bSpace.Min.X()), int(mEvent.Y()-bSpace.Min.Y()), int(bSpace.W()), int(bSpace.H())) {
+						btn.Trigger(filteredK, mEvent)
+					}
+					return 0
+				},
+			}
+		}
 	}
 
 	for k, v := range g.Bindings {

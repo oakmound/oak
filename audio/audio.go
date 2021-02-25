@@ -12,8 +12,9 @@ import (
 // required to filter it through a sound font.
 type Audio struct {
 	*font.Audio
-	toStop audio.Audio
-	X, Y   *float64
+	toStop    audio.Audio
+	X, Y      *float64
+	setVolume int32
 }
 
 // New returns an audio from a font, some audio data, and optional
@@ -28,6 +29,15 @@ func New(f *font.Font, d Data, coords ...*float64) *Audio {
 		}
 	}
 	return a
+}
+
+// SetVolume attempts to set the volume of the underlying OS audio.
+func (a *Audio) SetVolume(v int32) error {
+	a.setVolume = v
+	if a.toStop != nil {
+		return a.toStop.SetVolume(v)
+	}
+	return nil
 }
 
 // Play begin's an audio's playback
@@ -45,6 +55,7 @@ func (a *Audio) Play() <-chan error {
 		return errChannel(err)
 	}
 	a.toStop = a4
+	a.toStop.SetVolume(a.setVolume)
 	return a4.Play()
 }
 

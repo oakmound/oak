@@ -3,6 +3,7 @@ package oak
 import (
 	"encoding/json"
 	"io"
+	"time"
 
 	"github.com/oakmound/oak/v2/fileutil"
 
@@ -34,10 +35,14 @@ var (
 	// These are the default settings of a project. Anything within SetupConfig
 	// that is set to its zero value will not overwrite these settings.
 	conf = Config{
-		Assets:              Assets{"assets/", "audio/", "images/", "font/"},
-		Debug:               Debug{"", "ERROR"},
-		Screen:              Screen{0, 0, 480, 640, 1, 0, 0},
-		Font:                Font{"none", 12.0, 72.0, "", "white"},
+		Assets: Assets{"assets/", "audio/", "images/", "font/"},
+		Debug:  Debug{"", "ERROR"},
+		Screen: Screen{0, 0, 480, 640, 1, 0, 0},
+		Font:   Font{"none", 12.0, 72.0, "", "white"},
+		BatchLoadOptions: BatchLoadOptions{
+			BlankOutAudio:    false,
+			MaxImageFileSize: 0,
+		},
 		FrameRate:           60,
 		DrawFrameRate:       60,
 		Language:            "English",
@@ -46,23 +51,28 @@ var (
 		GestureSupport:      false,
 		LoadBuiltinCommands: false,
 		TrackInputChanges:   false,
+		EventRefreshRate:    0 * time.Second,
+		DisableDebugConsole: false,
 	}
 )
 
 // Config stores initialization settings for oak.
 type Config struct {
-	Assets              Assets `json:"assets"`
-	Debug               Debug  `json:"debug"`
-	Screen              Screen `json:"screen"`
-	Font                Font   `json:"font"`
-	FrameRate           int    `json:"frameRate"`
-	DrawFrameRate       int    `json:"drawFrameRate"`
-	Language            string `json:"language"`
-	Title               string `json:"title"`
-	BatchLoad           bool   `json:"batchLoad"`
-	GestureSupport      bool   `json:"gestureSupport"`
-	LoadBuiltinCommands bool   `json:"loadBuiltinCommands"`
-	TrackInputChanges   bool   `json:"trackInputChanges"`
+	Assets              Assets           `json:"assets"`
+	Debug               Debug            `json:"debug"`
+	Screen              Screen           `json:"screen"`
+	Font                Font             `json:"font"`
+	BatchLoadOptions    BatchLoadOptions `json:"batchLoadOptions"`
+	FrameRate           int              `json:"frameRate"`
+	DrawFrameRate       int              `json:"drawFrameRate"`
+	Language            string           `json:"language"`
+	Title               string           `json:"title"`
+	EventRefreshRate    time.Duration    `json:"refreshRate"`
+	BatchLoad           bool             `json:"batchLoad"`
+	GestureSupport      bool             `json:"gestureSupport"`
+	LoadBuiltinCommands bool             `json:"loadBuiltinCommands"`
+	TrackInputChanges   bool             `json:"trackInputChanges"`
+	DisableDebugConsole bool             `json:"disableDebugConsole"`
 }
 
 // Assets is a json type storing paths to different asset folders
@@ -89,8 +99,8 @@ type Screen struct {
 	// Target sets the expected dimensions of the monitor the game will be opened on, in pixels.
 	// If Fullscreen is false, then a scaling will be applied to correct the game screen size to be
 	// appropriate for the Target size. If no TargetWidth or Height is provided, scaling will not
-	// be adjusted. 
-	TargetWidth int `json:"targetHeight"`
+	// be adjusted.
+	TargetWidth  int `json:"targetHeight"`
 	TargetHeight int `json:"targetWidth"`
 }
 
@@ -101,6 +111,13 @@ type Font struct {
 	DPI     float64 `json:"dpi"`
 	File    string  `json:"file"`
 	Color   string  `json:"color"`
+}
+
+// BatchLoadOptions is a json type storing customizations for batch loading.
+// These settings do not take effect unless batch load is true.
+type BatchLoadOptions struct {
+	BlankOutAudio    bool  `json:"blankOutAudio"`
+	MaxImageFileSize int64 `json:"maxImageFileSize"`
 }
 
 // LoadConf loads a config file, that could exist inside
@@ -185,6 +202,14 @@ func initConfFont() {
 	}
 }
 
+func initConfBatchLoad() {
+	conf.BatchLoadOptions.BlankOutAudio = SetupConfig.BatchLoadOptions.BlankOutAudio
+
+	if SetupConfig.BatchLoadOptions.MaxImageFileSize != 0 {
+		conf.BatchLoadOptions.MaxImageFileSize = SetupConfig.BatchLoadOptions.MaxImageFileSize
+	}
+}
+
 func initConf() {
 
 	initConfAssets()
@@ -194,6 +219,8 @@ func initConf() {
 	initConfScreen()
 
 	initConfFont()
+
+	initConfBatchLoad()
 
 	if SetupConfig.FrameRate != 0 {
 		conf.FrameRate = SetupConfig.FrameRate
@@ -211,10 +238,15 @@ func initConf() {
 		conf.Title = SetupConfig.Title
 	}
 
+	if SetupConfig.EventRefreshRate != 0 {
+		conf.EventRefreshRate = SetupConfig.EventRefreshRate
+	}
+
 	conf.BatchLoad = SetupConfig.BatchLoad
 	conf.GestureSupport = SetupConfig.GestureSupport
 	conf.LoadBuiltinCommands = SetupConfig.LoadBuiltinCommands
 	conf.TrackInputChanges = SetupConfig.TrackInputChanges
+	conf.DisableDebugConsole = SetupConfig.DisableDebugConsole
 
 	dlog.Error(conf)
 }

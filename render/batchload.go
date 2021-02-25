@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/fileutil"
@@ -26,7 +27,12 @@ var (
 // represent, so a "tiles": "32" field in the json would indicate that sprite sheets
 // in the /tiles folder should be read as 32x32
 func BatchLoad(baseFolder string) error {
+	return BlankBatchLoad(baseFolder, 0)
+}
 
+// BlankBatchLoad acts like BatchLoad, but will not load and instead return a blank image
+// of the appropriate dimensions for anything above maxFileSize.
+func BlankBatchLoad(baseFolder string, maxFileSize int64) error {
 	folders, err := fileutil.ReadDir(baseFolder)
 	if err != nil {
 		dlog.Error(err)
@@ -35,6 +41,8 @@ func BatchLoad(baseFolder string) error {
 	aliases := parseAliasFile(baseFolder)
 
 	warnFiles := []string{}
+
+	var wg sync.WaitGroup
 
 	for i, folder := range folders {
 
@@ -53,34 +61,40 @@ func BatchLoad(baseFolder string) error {
 					if _, ok := fileDecoders[strings.ToLower(name[len(name)-4:])]; ok {
 						dlog.Verb("loading file ", name)
 						lower := strings.ToLower(name)
+						relativePath := filepath.Join(folder.Name(), name)
 						if lower != name {
-							warnFiles = append(warnFiles, filepath.Join(folder.Name(), name))
+							warnFiles = append(warnFiles, relativePath)
 						}
-						buff, err := loadSprite(baseFolder, filepath.Join(folder.Name(), name))
-						if err != nil {
-							dlog.Error(err)
-							continue
-						}
-						w := buff.Bounds().Max.X
-						h := buff.Bounds().Max.Y
+						wg.Add(1)
+						go func(baseFolder, relativePath string, possibleSheet bool, frameW, frameH int) {
+							defer wg.Done()
+							buff, err := loadSprite(baseFolder, relativePath, maxFileSize)
+							if err != nil {
+								dlog.Error(err)
+								return
+							}
 
-						dlog.Verb("buffer: ", w, h, " frame: ", frameW, frameH)
+							if !possibleSheet {
+								return
+							}
 
-						if !possibleSheet {
-							continue
-						} else if w < frameW || h < frameH {
-							dlog.Error("File ", name, " in folder", folder.Name(),
-								" is too small for folder dimensions", frameW, frameH)
-							return errors.New("File in folder is too small for folder dimensions: " +
-								strconv.Itoa(w) + ", " + strconv.Itoa(h))
+							w := buff.Bounds().Max.X
+							h := buff.Bounds().Max.Y
 
-							// Load this as a sheet if it is greater
-							// than the folder size's frame size
-						} else if w != frameW || h != frameH {
-							dlog.Verb("Loading as sprite sheet")
-							_, err = LoadSheet(baseFolder, filepath.Join(folder.Name(), name), frameW, frameH, defaultPad)
-							dlog.ErrorCheck(err)
-						}
+							dlog.Verb("buffer: ", w, h, " frame: ", frameW, frameH)
+
+							if w < frameW || h < frameH {
+								dlog.Error("File ", name, " in folder", folder.Name(),
+									" is too small for folder dimensions", frameW, frameH)
+
+								// Load this as a sheet if it is greater
+								// than the folder size's frame size
+							} else if w != frameW || h != frameH {
+								dlog.Verb("Loading as sprite sheet")
+								_, err = LoadSheet(baseFolder, relativePath, frameW, frameH, defaultPad)
+								dlog.ErrorCheck(err)
+							}
+						}(baseFolder, relativePath, possibleSheet, frameW, frameH)
 					} else {
 						dlog.Error("Unsupported file ending for batchLoad: ", name)
 					}
@@ -95,6 +109,7 @@ func BatchLoad(baseFolder string) error {
 		dlog.Warn("The files", fileNames, "are not all lowercase. This may cause data to fail to load"+
 			" when using tools like go-bindata.")
 	}
+	wg.Wait()
 	return nil
 }
 
