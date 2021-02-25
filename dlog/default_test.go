@@ -25,22 +25,25 @@ func TestLogger(t *testing.T) {
 
 	lgr.writer = bufio.NewWriter(buff)
 
-	lgr.FileWrite("fileWrite")
-	lgr.Error("error")
-	lgr.Warn("warn")
-	lgr.Info("info")
-	lgr.Verb("verb")
+	callLogger := func() {
+		lgr.FileWrite("fileWrite")
+		lgr.Error("error")
+		lgr.Warn("warn")
+		lgr.Info("info")
+		lgr.Verb("verb")
 
-	lgr.SetDebugFilter("foo")
-	lgr.Verb("bar")
-	lgr.Verb("foo")
+		lgr.SetDebugFilter("foo")
+		lgr.Verb("bar")
+		lgr.Verb("foo")
+	}
+	callLogger()
 
-	expectedOut := `[testing:1194]  VERBOSE:fileWrite 
-[testing:1194]  VERBOSE:error 
-[testing:1194]  VERBOSE:warn 
-[testing:1194]  VERBOSE:info 
-[testing:1194]  VERBOSE:verb 
-[testing:1194]  VERBOSE:foo 
+	expectedOut := `[default_test:39]  VERBOSE:fileWrite 
+[default_test:39]  VERBOSE:error 
+[default_test:39]  VERBOSE:warn 
+[default_test:39]  VERBOSE:info 
+[default_test:39]  VERBOSE:verb 
+[default_test:39]  VERBOSE:foo 
 `
 
 	out := string(buff.Bytes())
