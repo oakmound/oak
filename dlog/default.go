@@ -144,27 +144,27 @@ func (l *logger) CreateLogFile() {
 // Error will write a dlog if the debug level is not NONE
 func (l *logger) Error(in ...interface{}) {
 	if l.debugLevel > NONE {
-		l.dLog(true, true, in)
+		l.dLog(true, true, in...)
 	}
 }
 
 // Warn will write a dLog if the debug level is higher than ERROR
 func (l *logger) Warn(in ...interface{}) {
 	if l.debugLevel > ERROR {
-		l.dLog(true, true, in)
+		l.dLog(true, true, in...)
 	}
 }
 
 // Info will write a dLog if the debug level is higher than WARN
 func (l *logger) Info(in ...interface{}) {
 	if l.debugLevel > WARN {
-		l.dLog(true, false, in)
+		l.dLog(true, false, in...)
 	}
 }
 
 // Verb will write a dLog if the debug level is higher than INFO
 func (l *logger) Verb(in ...interface{}) {
 	if l.debugLevel > INFO {
-		l.dLog(true, false, in)
+		l.dLog(true, false, in...)
 	}
 }
