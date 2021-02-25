@@ -13,6 +13,12 @@ func TestSpaceFuncs(t *testing.T) {
 	Clear()
 	s := NewUnassignedSpace(10, 10, 10, 10)
 	assert.NotEmpty(t, s.String())
+	if s.W() != 10.0 {
+		t.Fatalf("expected 10 width, got %v", s.W())
+	}
+	if s.H() != 10.0 {
+		t.Fatalf("expected 10 height, got %v", s.H())
+	}
 
 	// Getters
 	cx, cy := s.GetCenter()
@@ -61,4 +67,24 @@ func TestNewRect(t *testing.T) {
 	s = NewRectSpace(floatgeom.NewRect3WH(0, 0, 0, 10, 10, 0), 0, 0)
 	assert.Equal(t, 10.0, s.GetW())
 	assert.Equal(t, 10.0, s.GetH())
+}
+
+func TestNewRect2Space(t *testing.T) {
+	s1 := NewRect2Space(floatgeom.Rect2{
+		Min: floatgeom.Point2{5, 10},
+		Max: floatgeom.Point2{10, 15},
+	}, 0)
+	s2 := NewUnassignedSpace(5, 10, 5, 5)
+	if s1.X() != s2.X() {
+		t.Fatalf("mismatched X: %v vs %v", s1.X(), s2.X())
+	}
+	if s1.Y() != s2.Y() {
+		t.Fatalf("mismatched Y: %v vs %v", s1.Y(), s2.Y())
+	}
+	if s1.W() != s2.W() {
+		t.Fatalf("mismatched W: %v vs %v", s1.W(), s2.W())
+	}
+	if s1.H() != s2.H() {
+		t.Fatalf("mismatched H: %v vs %v", s1.H(), s2.H())
+	}
 }
