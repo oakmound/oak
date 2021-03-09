@@ -94,6 +94,10 @@ func inputLoop() {
 				button,
 				eventName,
 			)
+			if IncludeViewportInMouseEvents {
+				mevent.Point2[0] += float64(ViewPos.X)
+				mevent.Point2[1] += float64(ViewPos.Y)
+			}
 			TriggerMouseEvent(mevent)
 
 		case gesture.Event:
@@ -110,6 +114,8 @@ func inputLoop() {
 		}
 	}
 }
+
+var IncludeViewportInMouseEvents = false
 
 // TriggerKeyDown triggers a software-emulated keypress.
 // This should be used cautiously when the keyboard is in use.

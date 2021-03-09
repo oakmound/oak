@@ -25,7 +25,7 @@ const (
 	// AnimationEnd: Triggered on animations CIDs when they loop from the last to the first frame
 	// Payload: nil
 	AnimationEnd = "AnimationEnd"
-	// ViewportUpdate: Triggered when the position fo of the viewport changes
+	// ViewportUpdate: Triggered when the position of of the viewport changes
 	// Payload: []float64{viewportX, viewportY}
 	ViewportUpdate = "ViewportUpdate"
 	// OnStop: Triggered when the engine is stopped.

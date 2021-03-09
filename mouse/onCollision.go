@@ -58,7 +58,6 @@ func phaseCollisionEnter(id int, nothing interface{}) int {
 			event.CID(id).Trigger(Stop, LastEvent)
 			oc.wasTouching = false
 		}
-
 	}
 	return 0
 }
