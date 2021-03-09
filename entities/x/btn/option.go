@@ -3,6 +3,7 @@ package btn
 import (
 	"image/color"
 
+	"github.com/oakmound/oak/v2/collision"
 	"github.com/oakmound/oak/v2/mouse"
 	"github.com/oakmound/oak/v2/shape"
 
@@ -175,6 +176,13 @@ func DisallowRevert() Option {
 func Shape(s shape.Shape) Option {
 	return func(g Generator) Generator {
 		g.Shape = s
+		return g
+	}
+}
+
+func Label(l collision.Label) Option {
+	return func(g Generator) Generator {
+		g.Label = l
 		return g
 	}
 }

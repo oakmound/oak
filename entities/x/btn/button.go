@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/oakmound/oak/v2/collision"
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/mouse"
@@ -41,6 +42,7 @@ type Generator struct {
 	Group          *Group
 	DisallowRevert bool
 	Shape          shape.Shape
+	Label          collision.Label
 }
 
 func defGenerator() Generator {
@@ -139,17 +141,22 @@ func (g Generator) generate(parent *Generator) Btn {
 	if g.Text != "" {
 		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
 		txtbx.SetString(g.Text)
+		txtbx.Space.Label = g.Label
 		btn = txtbx
 	} else if g.TextPtr != nil {
 		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
 		txtbx.SetStringPtr(g.TextPtr)
+		txtbx.Space.Label = g.Label
 		btn = txtbx
 	} else if g.TextStringer != nil {
 		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
 		txtbx.SetStringer(g.TextStringer)
+		txtbx.Space.Label = g.Label
 		btn = txtbx
 	} else {
-		btn = NewBox(g.Cid, g.X, g.Y, g.W, g.H, box, g.Layers...)
+		bx := NewBox(g.Cid, g.X, g.Y, g.W, g.H, box, g.Layers...)
+		bx.Space.Label = g.Label
+		btn = bx
 	}
 
 	// Update underlying mousecollision binding to only respect clicks in the shape.
