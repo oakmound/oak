@@ -40,7 +40,6 @@ func Open(file string) (io.ReadCloser, error) {
 		// we get capitalization where we don't want it occasionally?
 		rel, err = filepath.Rel(wd, file)
 		if err != nil {
-			dlog.Warn(err)
 			// Just try the relative path by itself if we can't form
 			// an absolute path.
 			rel = file
