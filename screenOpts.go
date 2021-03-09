@@ -73,13 +73,37 @@ type Titler interface {
 	SetTitle(string) error
 }
 
-// SetTopMost attempts to set the local oak window to stay on top of other windows.
-// If the window does not support this functionality, it will report as such.
 func SetTitle(title string) error {
 	if t, ok := windowControl.(Titler); ok {
 		return t.SetTitle(title)
 	}
 	return oakerr.UnsupportedPlatform{
 		Operation: "SetTitle",
+	}
+}
+
+type TrayIconer interface {
+	SetTrayIcon(string) error
+}
+
+func SetTrayIcon(icon string) error {
+	if t, ok := windowControl.(TrayIconer); ok {
+		return t.SetTrayIcon(icon)
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "SetTrayIcon",
+	}
+}
+
+type TrayNotifier interface {
+	ShowNotification(title, msg string, icon bool) error
+}
+
+func ShowNotification(title, msg string, icon bool) error {
+	if t, ok := windowControl.(TrayNotifier); ok {
+		return t.ShowNotification(title, msg, icon)
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "ShowNotification",
 	}
 }
