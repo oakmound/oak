@@ -55,14 +55,15 @@ func inputLoop() {
 		// the former events, but not for the latter.
 		case key.Event:
 			// key.Code strings all begin with "Code". This strips that off.
-			k := GetKeyBind(e.Code.String()[4:])
+			//k := GetKeyBind()
+			// TODO v3: reevaluate key bindings-- we need the rune this event has
 			switch e.Direction {
 			case key.DirPress:
-				TriggerKeyDown(k)
+				TriggerKeyDown(e)
 			case key.DirRelease:
-				TriggerKeyUp(k)
+				TriggerKeyUp(e)
 			default:
-				TriggerKeyHeld(k)
+				TriggerKeyHeld(e)
 			}
 
 		// Send mouse events
@@ -121,29 +122,32 @@ var IncludeViewportInMouseEvents = false
 // This should be used cautiously when the keyboard is in use.
 // From the perspective of the event handler this is indistinguishable
 // from a real keypress.
-func TriggerKeyDown(k string) {
+func TriggerKeyDown(e key.Event) {
+	k := e.Code.String()[4:]
 	SetDown(k)
-	logicHandler.Trigger(okey.Down, k)
-	logicHandler.Trigger(okey.Down+k, nil)
+	logicHandler.Trigger(okey.Down, e)
+	logicHandler.Trigger(okey.Down+k, e)
 }
 
 // TriggerKeyUp triggers a software-emulated key release.
 // This should be used cautiously when the keyboard is in use.
 // From the perspective of the event handler this is indistinguishable
 // from a real key release.
-func TriggerKeyUp(k string) {
+func TriggerKeyUp(e key.Event) {
+	k := e.Code.String()[4:]
 	SetUp(k)
-	logicHandler.Trigger(okey.Up, k)
-	logicHandler.Trigger(okey.Up+k, nil)
+	logicHandler.Trigger(okey.Up, e)
+	logicHandler.Trigger(okey.Up+k, e)
 }
 
 // TriggerKeyHeld triggers a software-emulated key hold signal.
 // This should be used cautiously when the keyboard is in use.
 // From the perspective of the event handler this is indistinguishable
 // from a real key hold signal.
-func TriggerKeyHeld(k string) {
-	logicHandler.Trigger(okey.Held, k)
-	logicHandler.Trigger(okey.Held+k, nil)
+func TriggerKeyHeld(e key.Event) {
+	k := e.Code.String()[4:]
+	logicHandler.Trigger(okey.Held, e)
+	logicHandler.Trigger(okey.Held+k, e)
 }
 
 // TriggerMouseEvent triggers a software-emulated mouse event.
