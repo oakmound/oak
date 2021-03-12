@@ -10,6 +10,8 @@ var (
 	TrackMouseClicks = true
 )
 
+var lastRelativePress Event
+
 // Propagate triggers direct mouse events on entities which are clicked
 func Propagate(eventName string, me Event) {
 	LastEvent = me
@@ -20,7 +22,9 @@ func Propagate(eventName string, me Event) {
 	}
 
 	if TrackMouseClicks {
-		if eventName == PressOn {
+		if eventName == PressOn+"Relative" {
+			lastRelativePress = me
+		} else if eventName == PressOn {
 			LastPress = me
 		} else if eventName == ReleaseOn {
 			if me.Button == LastPress.Button {
@@ -30,6 +34,17 @@ func Propagate(eventName string, me Event) {
 						if sp1.CID == sp2.CID {
 							event.Trigger(Click, me)
 							sp1.CID.Trigger(ClickOn, me)
+						}
+					}
+				}
+			}
+		} else if eventName == ReleaseOn+"Relative" {
+			if me.Button == LastPress.Button {
+				pressHits := DefTree.SearchIntersect(lastRelativePress.ToSpace().Bounds())
+				for _, sp1 := range pressHits {
+					for _, sp2 := range hits {
+						if sp1.CID == sp2.CID {
+							sp1.CID.Trigger(ClickOn+"Relative", me)
 						}
 					}
 				}
