@@ -92,7 +92,7 @@ func ChangeWindow(width, height int) {
 	// scaled screen buffer
 	buff, err := screenControl.NewImage(image.Point{width, height})
 	if err == nil {
-		draw.Draw(buff.RGBA(), buff.Bounds(), Background, zeroPoint, draw.Src)
+		draw.Draw(buff.RGBA(), buff.Bounds(), bkgFn(), zeroPoint, draw.Src)
 		windowControl.Upload(zeroPoint, buff, buff.Bounds())
 	} else {
 		dlog.Error(err)
