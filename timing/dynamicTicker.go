@@ -17,7 +17,7 @@ type DynamicTicker struct {
 }
 
 // NewDynamicTicker returns a null-initialized
-// dynamic ticker
+// dynamic ticker.
 func NewDynamicTicker() *DynamicTicker {
 	dt := &DynamicTicker{
 		ticker:    time.NewTicker(1000 * time.Hour),
@@ -40,7 +40,7 @@ func (dt *DynamicTicker) loop() bool {
 		dt.ticker.Stop()
 		dt.ticker = ticker
 	case r := <-dt.forceTick:
-		if !r {
+		if r == forceStop {
 			dt.close()
 			return false
 		}
@@ -53,7 +53,7 @@ func (dt *DynamicTicker) send(v time.Time) bool {
 	for {
 		select {
 		case r := <-dt.forceTick:
-			if !r {
+			if r == forceStop {
 				dt.close()
 				return false
 			}
@@ -80,12 +80,17 @@ func (dt *DynamicTicker) close() {
 	close(dt.forceTick)
 }
 
+const (
+	forceTickOn = true
+	forceStop   = false
+)
+
 // Step will force the dynamic ticker to tick, once.
-// If the forced tick is not received, multiple calls
-// to step will do nothing.
+// If the forced tick is not received, successive calls
+// to Step will do nothing.
 func (dt *DynamicTicker) Step() {
 	select {
-	case dt.forceTick <- true:
+	case dt.forceTick <- forceTickOn:
 	default:
 	}
 }
@@ -96,7 +101,7 @@ func (dt *DynamicTicker) Step() {
 // is in benchmarking how often the work between ticks
 // can get done.
 func (dt *DynamicTicker) ForceStep() {
-	dt.forceTick <- true
+	dt.forceTick <- forceTickOn
 }
 
 // Stop closes all internal channels and stops dt's internal ticker
@@ -107,6 +112,6 @@ func (dt *DynamicTicker) Stop() {
 		}
 	}()
 	dt.ticker.Stop()
-	dt.forceTick <- false
+	dt.forceTick <- forceStop
 	<-dt.forceTick
 }
