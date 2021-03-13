@@ -1,13 +1,19 @@
 package shape
 
-import "github.com/oakmound/oak/v2/oakerr"
+import (
+	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/oakerr"
+)
 
 // BezierCurve will form a Bezier on the given coordinates, expected in (x,y)
 // pairs. If the inputs have an odd length, an error noting so is returned, and
 // the Bezier returned is nil.
 func BezierCurve(coords ...float64) (Bezier, error) {
 	if len(coords) == 0 {
-		return nil, oakerr.InsufficientInputs{AtLeast: 2, InputName: "coords"}
+		return nil, oakerr.InsufficientInputs{
+			AtLeast:   2,
+			InputName: "coords",
+		}
 	}
 	if len(coords)%2 != 0 {
 		return nil, oakerr.IndivisibleInput{
@@ -33,7 +39,7 @@ func BezierCurve(coords ...float64) (Bezier, error) {
 // some float64 progress between 0 and 1. This allows points, lines, and limitlessly complex
 // bezier curves to be represented under this interface.
 //
-// Beziers will not necessarily break if given an input outside of 0 to 1, but the results
+// Beziers should not break if given an input outside of 0 to 1, but the results
 // shouldn't be relied upon.
 type Bezier interface {
 	Pos(progress float64) (x, y float64)
@@ -53,12 +59,9 @@ func (bn BezierNode) Pos(progress float64) (x, y float64) {
 }
 
 // A BezierPoint covers cases where only 1 point is supplied, and serve as roots.
-// Consider: merging with floatgeom.Point2
-type BezierPoint struct {
-	X, Y float64
-}
+type BezierPoint floatgeom.Point2
 
 // Pos returns this point.
 func (bp BezierPoint) Pos(float64) (x, y float64) {
-	return bp.X, bp.Y
+	return bp[0], bp[1]
 }
