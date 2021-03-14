@@ -20,7 +20,7 @@ func (ss stringStringer) String() string {
 }
 
 func main() {
-	oak.Add("keyboard-test", func(string, interface{}) {
+	oak.Add("keyboard-test", func(*scene.Context) {
 		kRenderable := render.NewStrText("", 40, 40)
 		render.Draw(kRenderable, 0)
 		event.GlobalBind(func(_ int, k interface{}) int {

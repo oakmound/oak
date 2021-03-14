@@ -19,7 +19,7 @@ var (
 )
 
 func main() {
-	oak.Add("demo", func(string, interface{}) {
+	oak.Add("demo", func(*scene.Context) {
 		// Get an image that we will illustrate zooming with later
 		s, err := render.LoadSprite("assets", filepath.Join("raw", "mona-lisa.jpg"))
 		dlog.ErrorCheck(err)

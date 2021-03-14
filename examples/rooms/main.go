@@ -41,7 +41,7 @@ const (
 
 func main() {
 
-	oak.Add("rooms", func(string, interface{}) {
+	oak.Add("rooms", func(*scene.Context) {
 		char := entities.NewMoving(200, 200, 50, 50, render.NewColorBox(50, 50, color.RGBA{125, 125, 0, 255}), nil, 0, 1)
 		char.Speed = physics.NewVector(3, 3)
 

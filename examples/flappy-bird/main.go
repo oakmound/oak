@@ -32,7 +32,7 @@ const (
 )
 
 func main() {
-	oak.Add("bounce", func(string, interface{}) {
+	oak.Add("bounce", func(*scene.Context) {
 		score = 0
 		// 1. Make Player
 		newFlappy(90, 140)
@@ -40,16 +40,9 @@ func main() {
 		// 3. Make scrolling repeating pillars
 		go func() {
 			for {
-
-				select {
-				// this uses a signal sent when a scene ends,
-				// or when otherwise timing operations need
-				// to cease
-				case <-timing.ClearDelayCh:
-					return
-				case <-time.After(time.Duration(pillarFreq.Poll() * float64(time.Second))):
+				timing.DoAfter(time.Duration(pillarFreq.Poll()*float64(time.Second)), func() {
 					newPillarPair()
-				}
+				})
 			}
 		}()
 		// 4. Make Score

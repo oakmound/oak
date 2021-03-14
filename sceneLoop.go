@@ -14,12 +14,14 @@ import (
 
 var (
 	loadingScene = scene.Scene{
-		Start: func(prevScene string, data interface{}) {
+		Start: func(*scene.Context) {
+			// TODO: language
 			dlog.Info("Loading Scene Init")
 		},
 		Loop: func() bool {
 			select {
 			case <-startupLoadCh:
+				// TODO: language
 				dlog.Info("Load Complete")
 				return false
 			default:
@@ -39,11 +41,13 @@ func sceneLoop(first string, trackingInputs bool, debugConsoleDisabled bool) {
 
 	result := new(scene.Result)
 
+	// TODO: language
 	dlog.Info("First Scene Start")
 
 	drawCh <- true
 	drawCh <- true
 
+	// TODO: language
 	dlog.Verb("Draw Channel Activated")
 
 	firstScene = first
@@ -66,7 +70,10 @@ func sceneLoop(first string, trackingInputs bool, debugConsoleDisabled bool) {
 		}
 		go func() {
 			dlog.Info("Starting scene in goroutine", SceneMap.CurrentScene)
-			scen.Start(prevScene, result.NextSceneInput)
+			scen.Start(&scene.Context{
+				PreviousScene: prevScene,
+				SceneInput:    result.NextSceneInput,
+			})
 			transitionCh <- true
 		}()
 

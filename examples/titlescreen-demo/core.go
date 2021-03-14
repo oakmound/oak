@@ -12,7 +12,7 @@ import (
 )
 
 // Axes are the plural of axis
-type Axes uint8 
+type Axes uint8
 
 // This is an enum for what axes to center around
 const (
@@ -37,7 +37,7 @@ func center(obj render.Renderable, ax Axes) {
 
 func main() {
 	//make the scene for the titlescreen
-	oak.Add("titlescreen", func(string, interface{}) { //scene start
+	oak.Add("titlescreen", func(*scene.Context) { //scene start
 
 		//create text saying titlescreen in placeholder position
 		titleText := render.NewStrText("titlescreen", 0, 0)
@@ -71,7 +71,7 @@ func main() {
 	var player *entities.Moving
 
 	//define the "game" (it's just a square that can be moved with WASD)
-	oak.Add("game", func(string, interface{}) {
+	oak.Add("game", func(*scene.Context) {
 		//create the player, a blue 32x32 square at 100,100
 		player = entities.NewMoving(100, 100, 32, 32,
 			render.NewColorBox(32, 32, color.RGBA{0, 0, 255, 255}),

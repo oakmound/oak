@@ -23,7 +23,7 @@ const (
 
 func main() {
 	oak.Add("pong",
-		func(prevScene string, data interface{}) {
+		func(*scene.Context) {
 			newPaddle(20, 200, 1)
 			newPaddle(590, 200, 2)
 			newBall(320, 240)

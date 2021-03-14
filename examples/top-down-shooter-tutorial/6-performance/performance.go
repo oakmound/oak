@@ -45,7 +45,7 @@ const (
 
 func main() {
 
-	oak.Add("tds", func(string, interface{}) {
+	oak.Add("tds", func(*scene.Context) {
 		// Initialization
 		playerAlive = true
 		var err error

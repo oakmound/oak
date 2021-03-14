@@ -26,7 +26,7 @@ const (
 )
 
 func main() {
-	oak.Add("platformer", func(string, interface{}) {
+	oak.Add("platformer", func(*scene.Context) {
 
 		char := entities.NewMoving(100, 100, 16, 32,
 			render.NewColorBox(16, 32, color.RGBA{255, 0, 0, 255}),

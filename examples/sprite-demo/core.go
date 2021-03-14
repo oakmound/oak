@@ -26,7 +26,7 @@ var cache *render.Switch
 func main() {
 	oak.Add(
 		"demo",
-		func(string, interface{}) {
+		func(*scene.Context) {
 			layer := 0
 			layerTxt := render.DefFont().NewIntText(&layer, 30, 20)
 			layerTxt.SetLayer(100000000)

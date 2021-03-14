@@ -59,7 +59,7 @@ func Start(slides ...Slide) {
 		i := i
 		sl := sl
 		oak.AddScene("slide"+strconv.Itoa(i), scene.Scene{
-			Start: func(string, interface{}) { sl.Init() },
+			Start: func(*scene.Context) { sl.Init() },
 			Loop: func() bool {
 				cont := sl.Continue() && !skip
 				// This should be disable-able
@@ -92,7 +92,7 @@ func Start(slides ...Slide) {
 	// Todo: customizable end slide
 	oak.AddScene("slide"+strconv.Itoa(len(slides)),
 		scene.Scene{
-			Start: func(string, interface{}) {
+			Start: func(*scene.Context) {
 				oldBackground = oak.BackgroundColor
 				oak.BackgroundColor = image.NewUniform(color.RGBA{0, 0, 0, 255})
 				render.Draw(

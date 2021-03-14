@@ -203,7 +203,7 @@ func newRenderer(joy *joystick.Joystick) {
 }
 
 func main() {
-	oak.Add("viz", func(string, interface{}) {
+	oak.Add("viz", func(*scene.Context) {
 		joystick.Init()
 		go func() {
 			jCh, cancel := joystick.WaitForJoysticks(1 * time.Second)

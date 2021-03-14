@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	oak.Add("demo", func(string, interface{}) {
+	oak.Add("demo", func(*scene.Context) {
 		txt := render.NewStrText("Press F to toggle fullscreen. Press B to toggle borderless.", 50, 50)
 		render.Draw(txt)
 

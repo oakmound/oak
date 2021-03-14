@@ -247,7 +247,7 @@ func main() {
 		}
 	})
 
-	oak.Add("demo", func(string, interface{}) {
+	oak.Add("demo", func(*scene.Context) {
 		fmt.Println("Demo start")
 		x := 320.0
 		y := 240.0

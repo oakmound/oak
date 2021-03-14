@@ -127,7 +127,7 @@ func main() {
 	oak.LoadConf("oak.config")
 
 	oak.Add("cliffRacers",
-		func(prevScene string, data interface{}) {
+		func(*scene.Context) {
 			playerAlive = true
 			bkg, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "background.png"))
 			if err != nil {

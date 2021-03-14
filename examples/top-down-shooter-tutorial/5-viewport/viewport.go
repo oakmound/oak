@@ -46,7 +46,7 @@ const (
 
 func main() {
 
-	oak.Add("tds", func(string, interface{}) {
+	oak.Add("tds", func(*scene.Context) {
 		// Initialization
 		playerAlive = true
 		sprites, err := render.GetSheet(filepath.Join("16x16", "sheet.png"))

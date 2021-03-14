@@ -3,7 +3,6 @@ package scene
 import (
 	"sync"
 
-	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/oakerr"
 )
 
@@ -40,7 +39,11 @@ func (m *Map) GetCurrent() (Scene, bool) {
 
 // Add adds a scene with the given name and functions to the scene map.
 // It serves as a helper for not constructing a scene directly.
-func (m *Map) Add(name string, start Start, loop Loop, end End) error {
+func (m *Map) Add(name string,
+	start func(context *Context),
+	loop func() (cont bool),
+	end func() (nextScene string, result *Result)) error {
+
 	return m.AddScene(name, Scene{start, loop, end})
 }
 
@@ -50,14 +53,10 @@ func (m *Map) Add(name string, start Start, loop Loop, end End) error {
 // Checks if the Scene's start is nil, sets to noop if so.
 // Checks if the Scene's loop is nil, sets to infinite if so.
 // Checks if the Scene's end is nil, sets to loop to this scene if so.
-// Todo: this could change, with a function argument specifying whether or not the scene should
-// overwrite.
 func (m *Map) AddScene(name string, s Scene) error {
-	dlog.Info("[oak]-------- Adding", name)
-	var err error
 
 	if s.Start == nil {
-		s.Start = func(prevScene string, data interface{}) {}
+		s.Start = func(*Context) {}
 	}
 	if s.Loop == nil {
 		s.Loop = func() bool { return true }
@@ -66,6 +65,7 @@ func (m *Map) AddScene(name string, s Scene) error {
 		s.End = GoTo(name)
 	}
 
+	var err error
 	m.lock.Lock()
 	if _, ok := m.scenes[name]; ok {
 		err = oakerr.ExistingElement{

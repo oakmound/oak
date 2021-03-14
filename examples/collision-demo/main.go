@@ -20,7 +20,7 @@ const (
 )
 
 func main() {
-	oak.Add("demo", func(string, interface{}) {
+	oak.Add("demo", func(*scene.Context) {
 		act := &AttachCollisionTest{}
 		act.Solid = entities.NewSolid(50, 50, 50, 50, render.NewColorBox(50, 50, color.RGBA{0, 0, 0, 255}), nil, act.Init())
 

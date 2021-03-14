@@ -2,9 +2,9 @@ package main
 
 import (
 	"image/color"
+	"strconv"
 
 	"github.com/200sc/go-dist/floatrange"
-	"github.com/200sc/go-dist/intrange"
 
 	"image"
 
@@ -13,50 +13,48 @@ import (
 	"github.com/oakmound/oak/v2/scene"
 )
 
-// ~60 fps draw rate with these examples in testing
-const (
-	strRangeTop = 128
-	strlen      = 250
-	strSize     = 6
-)
-
 var (
 	font       *render.Font
 	r, g, b, a float64
 	diff       = floatrange.NewSpread(0, 10)
 	limit      = floatrange.NewLinear(0, 255)
-	strs       []*render.Text
 )
 
-func randomStr(chars int) string {
-	str := make([]rune, chars)
-	// ascii
-	strRange := intrange.NewLinear(0, strRangeTop)
-	for i := 0; i < chars; i++ {
-		str[i] = rune(strRange.Poll())
-	}
-	return string(str)
+type floatStringer struct {
+	f *float64
+}
+
+func (fs floatStringer) String() string {
+	return strconv.Itoa(int(*fs.f))
 }
 
 func main() {
 	oak.Add("demo",
 		// Init
-		func(prevScene string, payload interface{}) {
-			r = 255
-			// By not specifying "File", we use the default
-			// font built into the engine
+		func(*scene.Context) {
+			// We use the font at ./assets/font/luxisbi.ttf
+			// The /assets/font structure is determined by
+			// oak.SetupConfig.Assets
 			fg := render.FontGenerator{
+				File:    "luxisbi.ttf",
 				Color:   image.NewUniform(color.RGBA{255, 0, 0, 255}),
-				Size:    strSize,
+				Size:    400,
 				Hinting: "",
+				DPI:     10,
 			}
+			r = 255
 			font = fg.Generate()
-
-			for y := 0.0; y <= 480; y += strSize {
-				str := randomStr(strlen)
-				strs = append(strs, font.NewStrText(str, 0, y))
-				render.Draw(strs[len(strs)-1], 0)
-			}
+			render.Draw(font.NewStrText("Rainbow", 200, 200), 0)
+			render.Draw(font.NewText(floatStringer{&r}, 200, 250), 0)
+			render.Draw(font.NewText(floatStringer{&g}, 320, 250), 0)
+			render.Draw(font.NewText(floatStringer{&b}, 440, 250), 0)
+			font2 := font.Copy()
+			font2.Color = image.NewUniform(color.RGBA{255, 255, 255, 255})
+			font2.Refresh()
+			// Could give each r,g,b a color which is just the r,g,b value
+			render.Draw(font2.NewStrText("r", 170, 250), 0)
+			render.Draw(font2.NewStrText("g", 290, 250), 0)
+			render.Draw(font2.NewStrText("b", 410, 250), 0)
 		},
 		// Loop
 		func() bool {
@@ -73,9 +71,6 @@ func main() {
 					255,
 				},
 			)
-			for _, st := range strs {
-				st.SetString(randomStr(strlen))
-			}
 			return true
 		},
 
