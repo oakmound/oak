@@ -7,6 +7,7 @@ import (
 
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/oakerr"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/shiny/driver"
 )
@@ -92,14 +93,15 @@ func Init(firstScene string) {
 	// is ERROR, so this will be recorded.
 	dlog.ErrorCheck(err)
 	dlog.SetDebugFilter(conf.Debug.Filter)
+	oakerr.SetLanguageString(conf.Language)
 
+	// TODO: languages
 	dlog.Info("Oak Init Start")
 
 	ScreenWidth = conf.Screen.Width
 	ScreenHeight = conf.Screen.Height
 	FrameRate = conf.FrameRate
 	DrawFrameRate = conf.DrawFrameRate
-	SetLang(conf.Language)
 
 	wd, _ := os.Getwd()
 
@@ -126,6 +128,7 @@ func Init(firstScene string) {
 		conf.Assets.AssetPath,
 		conf.Assets.AudioPath)
 
+	// TODO: languages
 	dlog.Info("Init Scene Loop")
 	go sceneLoop(firstScene, conf.TrackInputChanges, conf.DisableDebugConsole)
 	dlog.Info("Init asset load")
