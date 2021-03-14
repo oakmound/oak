@@ -34,7 +34,6 @@ func NewSheetSequence(sheet *Sheet, fps float64, frames ...int) (*Sequence, erro
 	if len(frames)%2 != 0 {
 		return nil, oakerr.IndivisibleInput{
 			InputName:    "frames",
-			IsList:       true,
 			MustDivideBy: 2,
 		}
 	}

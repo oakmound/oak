@@ -188,9 +188,6 @@ func TestBezierCurveErrors(t *testing.T) {
 			if indivisible.InputName != "coords" {
 				t.Fatalf("expected input name to be 'coords', got %v", indivisible.InputName)
 			}
-			if !indivisible.IsList {
-				t.Fatalf("expected is list to be 'true', got %v", indivisible.IsList)
-			}
 		}
 	})
 }

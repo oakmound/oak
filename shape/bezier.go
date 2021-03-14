@@ -18,7 +18,6 @@ func BezierCurve(coords ...float64) (Bezier, error) {
 	if len(coords)%2 != 0 {
 		return nil, oakerr.IndivisibleInput{
 			InputName:    "coords",
-			IsList:       true,
 			MustDivideBy: 2,
 		}
 	}
@@ -64,4 +63,12 @@ type BezierPoint floatgeom.Point2
 // Pos returns this point.
 func (bp BezierPoint) Pos(float64) (x, y float64) {
 	return bp[0], bp[1]
+}
+
+func (bp BezierPoint) X() float64 {
+	return bp[0]
+}
+
+func (bp BezierPoint) Y() float64 {
+	return bp[1]
 }
