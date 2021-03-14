@@ -29,7 +29,7 @@ func (p Points) Outline(sizes ...int) ([]intgeom.Point2, error) {
 	return ToOutline(p)(sizes...)
 }
 
-// Rect returns a double slice of booleans representing the output of the In function in that rectangle
+// Rect returns a 2D slice of booleans representing the output of the In function in that rectangle
 func (p Points) Rect(sizes ...int) [][]bool {
 	return InToRect(p.In)(sizes...)
 }

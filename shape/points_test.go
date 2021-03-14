@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/oakmound/oak/v2/alg/intgeom"
-	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -16,18 +15,30 @@ var (
 )
 
 func TestPointsIn(t *testing.T) {
-	assert.True(t, testPoints.In(1, 3, 1, 1))
-	assert.False(t, testPoints.In(10, 10, 1, 1))
+	if !testPoints.In(1, 3, 1, 1) {
+		t.Fatalf("1,3 was not in testPoints")
+	}
+	if testPoints.In(1, 3, 1, 1) {
+		t.Fatalf("10,10 was in testPoints")
+	}
 }
 
 func TestPointsOutline(t *testing.T) {
 	testOutline, _ := testPoints.Outline(4, 4)
-	assert.Equal(t, intgeom.Point2{3, 2}, testOutline[3])
+	if (intgeom.Point2{3, 2}) != testOutline[3] {
+		t.Fatalf("expected 3,2 at index 3 in outline, was %v", testOutline[3])
+	}
 }
 
 func TestPointsRect(t *testing.T) {
 	testRect := testPoints.Rect(4, 4)
-	assert.False(t, testRect[0][0])
-	assert.False(t, testRect[2][2])
-	assert.True(t, testRect[1][1])
+	if testRect[0][0] {
+		t.Fatalf("0,0 should not be set")
+	}
+	if testRect[2][2] {
+		t.Fatalf("2,2 should not be set")
+	}
+	if !testRect[1][1] {
+		t.Fatalf("1,1 should be set")
+	}
 }
