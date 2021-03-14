@@ -56,7 +56,7 @@ func main() {
 		event.GlobalBind(func(_ int, mouseEvent interface{}) int {
 			me := mouseEvent.(mouse.Event)
 			// Left click to add a point to the curve
-			if me.Button == "LeftMouse" {
+			if me.Button == mouse.ButtonLeft {
 				mouseFloats = append(mouseFloats, float64(me.X()), float64(me.Y()))
 				renderCurve(mouseFloats)
 				// Perform any other click to reset the drawn curve
@@ -83,17 +83,18 @@ func bezierDraw(b shape.Bezier) *render.CompositeM {
 func bezierDrawRec(b shape.Bezier, list *render.CompositeM, alpha uint8) {
 	switch bzn := b.(type) {
 	case shape.BezierNode:
-		sp := render.BezierLine(b, color.RGBA{alpha, 0, 0, alpha})
+		c := color.RGBA{0, alpha, 0, alpha}
+		if alpha == 255 {
+			c = color.RGBA{alpha, 0, 0, alpha}
+		}
+		sp := render.BezierLine(b, c)
 		list.Append(sp)
 
 		bezierDrawRec(bzn.Left, list, uint8(float64(alpha)*.5))
 		bezierDrawRec(bzn.Right, list, uint8(float64(alpha)*.5))
 	case shape.BezierPoint:
 		sp := render.NewColorBox(5, 5, color.RGBA{255, 255, 255, 255})
-		sp.SetPos(bzn.X-2, bzn.Y-2)
+		sp.SetPos(bzn.X()-2, bzn.Y()-2)
 		list.Append(sp)
 	}
 }
-
-// Todo: could add a little animation that follows each of the bezier curves
-// around as progress increases
