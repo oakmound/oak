@@ -18,7 +18,7 @@ func TestPointsIn(t *testing.T) {
 	if !testPoints.In(1, 3, 1, 1) {
 		t.Fatalf("1,3 was not in testPoints")
 	}
-	if testPoints.In(1, 3, 1, 1) {
+	if testPoints.In(10, 10, 1, 1) {
 		t.Fatalf("10,10 was in testPoints")
 	}
 }
