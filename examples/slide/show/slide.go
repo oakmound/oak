@@ -87,14 +87,14 @@ func Start(slides ...Slide) {
 
 	reset := false
 
-	var oldBackground *image.Uniform
+	var oldBackground image.Image
 
 	// Todo: customizable end slide
 	oak.AddScene("slide"+strconv.Itoa(len(slides)),
 		scene.Scene{
 			Start: func(string, interface{}) {
-				oldBackground = oak.Background
-				oak.Background = image.NewUniform(color.RGBA{0, 0, 0, 255})
+				oldBackground = oak.BackgroundColor
+				oak.BackgroundColor = image.NewUniform(color.RGBA{0, 0, 0, 255})
 				render.Draw(
 					Express.NewStrText(
 						"Spacebar to restart show ...",
@@ -111,7 +111,7 @@ func Start(slides ...Slide) {
 				return !reset
 			},
 			End: func() (string, *scene.Result) {
-				oak.Background = oldBackground
+				oak.BackgroundColor = oldBackground
 				reset = false
 				skip = false
 				return "slide0", nil
