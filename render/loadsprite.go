@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/fileutil"
@@ -32,6 +33,7 @@ func loadSprite(directory, fileName string, maxFileSize int64) (*image.RGBA, err
 	}()
 
 	ext := filepath.Ext(fileName)
+	ext = strings.ToLower(ext)
 
 	cfgDecoder, ok := cfgDecoders[ext]
 	if maxFileSize != 0 && ok {
