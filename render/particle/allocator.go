@@ -6,72 +6,90 @@ const (
 	blockSize = 2048
 )
 
-var (
-	particleBlocks = make(map[int]event.CID)
-	nextOpenCh     = make(chan int)
-	freeCh         = make(chan int)
-	allocCh        = make(chan event.CID)
-	requestCh      = make(chan int)
-	responseCh     = make(chan event.CID)
-)
+// TODO: add .Stop?
+type Allocator struct {
+	particleBlocks map[int]event.CID
+	nextOpenCh     chan int
+	freeCh         chan int
+	allocCh        chan event.CID
+	requestCh      chan int
+	responseCh     chan event.CID
+}
 
-func init() {
-	go func() {
-		lastOpen := 0
-		for {
-			if _, ok := particleBlocks[lastOpen]; !ok {
-				select {
-				case pID := <-requestCh:
-					responseCh <- particleBlocks[pID/blockSize]
-					lastOpen--
-				case i := <-freeCh:
-					opened := freereceive(i)
-					if opened < lastOpen {
-						lastOpen = opened
-					}
-				case nextOpenCh <- lastOpen:
-					particleBlocks[lastOpen] = <-allocCh
-				}
-			}
+func NewAllocator() *Allocator {
+	return &Allocator{
+		particleBlocks: make(map[int]event.CID),
+		nextOpenCh:     make(chan int),
+		freeCh:         make(chan int),
+		allocCh:        make(chan event.CID),
+		requestCh:      make(chan int),
+		responseCh:     make(chan event.CID),
+	}
+}
+
+func (a *Allocator) Run() {
+	lastOpen := 0
+	for {
+		if _, ok := a.particleBlocks[lastOpen]; !ok {
 			select {
-			case i := <-freeCh:
-				opened := freereceive(i)
+			case pID := <-a.requestCh:
+				a.responseCh <- a.particleBlocks[pID/blockSize]
+				lastOpen--
+			case i := <-a.freeCh:
+				opened := a.freereceive(i)
 				if opened < lastOpen {
 					lastOpen = opened
 				}
-			default:
+			case a.nextOpenCh <- lastOpen:
+				a.particleBlocks[lastOpen] = <-a.allocCh
 			}
-			lastOpen++
 		}
-	}()
+		select {
+		case i := <-a.freeCh:
+			opened := a.freereceive(i)
+			if opened < lastOpen {
+				lastOpen = opened
+			}
+		default:
+		}
+		lastOpen++
+	}
 }
 
-func freereceive(i int) int {
-	delete(particleBlocks, i)
+var DefaultAllocator = NewAllocator()
+
+// This is an always-called init instead of Init because oak does not import this
+// package by default. If this package is not used, it will not run this goroutine.
+func init() {
+	go DefaultAllocator.Run()
+}
+
+func (a *Allocator) freereceive(i int) int {
+	delete(a.particleBlocks, i)
 	return i - 1
 }
 
 // Allocate requests a new block in the particle space for the given cid
-func Allocate(id event.CID) int {
-	nextOpen := <-nextOpenCh
-	allocCh <- id
+func (a *Allocator) Allocate(id event.CID) int {
+	nextOpen := <-a.nextOpenCh
+	a.allocCh <- id
 	return nextOpen
 }
 
 // Deallocate requests that the given block be removed from the particle space
-func Deallocate(block int) {
-	freeCh <- block
+func (a *Allocator) Deallocate(block int) {
+	a.freeCh <- block
 }
 
 // LookupSource requests the source that generated a pid
-func LookupSource(id int) *Source {
-	requestCh <- id
-	owner := <-responseCh
+func (a *Allocator) LookupSource(id int) *Source {
+	a.requestCh <- id
+	owner := <-a.responseCh
 	return event.GetEntity(int(owner)).(*Source)
 }
 
 // Lookup requests a specific particle in the particle space
-func Lookup(id int) Particle {
-	source := LookupSource(id)
+func (a *Allocator) Lookup(id int) Particle {
+	source := a.LookupSource(id)
 	return source.particles[id%blockSize]
 }

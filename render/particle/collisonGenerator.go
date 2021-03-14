@@ -55,7 +55,7 @@ func (cg *CollisionGenerator) GenerateParticle(bp *baseParticle) Particle {
 
 // GetParticleSize on a CollisionGenerator tells the caller that the particle size
 // is per-particle specific
-func (cg *CollisionGenerator) GetParticleSize() (float64, float64, bool) {
+func (cg *CollisionGenerator) GetParticleSize() (w float64, h float64, perParticle bool) {
 	return 0, 0, true
 }
 

@@ -21,14 +21,16 @@ const (
 // A Source is used to store and control a set of particles.
 type Source struct {
 	render.Layered
-	Generator  Generator
+	Generator Generator
+	*Allocator
+
 	particles  [blockSize]Particle
 	nextPID    int
 	CID        event.CID
 	pIDBlock   int
 	stackLevel int
-	paused     bool
 	EndFunc    func()
+	paused     bool
 }
 
 // NewSource creates a new source
@@ -36,6 +38,7 @@ func NewSource(g Generator, stackLevel int) *Source {
 	ps := new(Source)
 	ps.Generator = g
 	ps.stackLevel = stackLevel
+	ps.Allocator = DefaultAllocator
 	ps.Init()
 	return ps
 }
@@ -45,7 +48,7 @@ func (ps *Source) Init() event.CID {
 	CID := event.NextID(ps)
 	CID.Bind(rotateParticles, event.Enter)
 	ps.CID = CID
-	ps.pIDBlock = Allocate(ps.CID)
+	ps.pIDBlock = ps.Allocate(ps.CID)
 	if ps.Generator.GetBaseGenerator().Duration != Inf {
 		go func(ps *Source, duration intrange.Range) {
 			timing.DoAfter(time.Duration(duration.Poll())*time.Millisecond, func() {
@@ -201,7 +204,7 @@ func clearParticles(id int, nothing interface{}) int {
 					ps.EndFunc()
 				}
 				event.DestroyEntity(id)
-				Deallocate(ps.pIDBlock)
+				ps.Deallocate(ps.pIDBlock)
 				return event.UnbindEvent
 			}
 		}

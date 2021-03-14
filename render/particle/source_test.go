@@ -10,7 +10,6 @@ import (
 	"github.com/oakmound/oak/v2/physics"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/shape"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSource(t *testing.T) {
@@ -29,6 +28,7 @@ func TestSource(t *testing.T) {
 		),
 		Pos(20, 20),
 		LifeSpan(floatrange.Constant(10)),
+		Limit(2047),
 		Angle(floatrange.Constant(0)),
 		Speed(floatrange.Constant(0)),
 		Spread(10, 10),
@@ -53,23 +53,48 @@ func TestSource(t *testing.T) {
 	for clearParticles(int(src.CID), nil) != event.UnbindEvent {
 	}
 
-	assert.True(t, ended)
+	if !ended {
+		t.Fatalf("source did not stop after duration was exceeded")
+	}
 
 	src.Pause()
-	assert.True(t, src.paused)
+	if !src.IsPaused() {
+		t.Fatalf("Pause did not pause source")
+	}
 	src.UnPause()
-	assert.False(t, src.paused)
+	if src.IsPaused() {
+		t.Fatalf("Unpause did not unpause source")
+	}
 	x, y := src.Generator.GetPos()
 	src.ShiftX(10)
 	src.ShiftY(10)
 	x2, y2 := src.Generator.GetPos()
-	assert.Equal(t, x+10, x2)
-	assert.Equal(t, y+10, y2)
+	if x2 != x+10 {
+		t.Fatalf("x post shift expected %v, got %v", x+10, x2)
+	}
+	if y2 != y+10 {
+		t.Fatalf("y post shift expected %v, got %v", y+10, y2)
+	}
 	src.SetPos(-20, -30)
 	x2, y2 = src.Generator.GetPos()
-	assert.Equal(t, -20.0, x2)
-	assert.Equal(t, -30.0, y2)
+	if x2 != -20.0 {
+		t.Fatalf("setpos did not set x, expected %v got %v", -20, x2)
+	}
+	if y2 != -30.0 {
+		t.Fatalf("setpos did not set y, expected %v got %v", -30, y2)
+	}
 
 	var src2 *Source
 	src2.Stop()
+}
+
+func TestClearParticles(t *testing.T) {
+	t.Parallel()
+	t.Run("BadTypeBinding", func(t *testing.T) {
+		t.Parallel()
+		result := clearParticles(10000, nil)
+		if result != event.UnbindEvent {
+			t.Fatalf("expected UnbindEvent result, got %v", result)
+		}
+	})
 }

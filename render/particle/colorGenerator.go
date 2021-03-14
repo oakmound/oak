@@ -67,7 +67,7 @@ func (cg *ColorGenerator) GenerateParticle(bp *baseParticle) Particle {
 
 // GetParticleSize on a color generator returns that the particles
 // are per-particle specificially sized
-func (cg *ColorGenerator) GetParticleSize() (float64, float64, bool) {
+func (cg *ColorGenerator) GetParticleSize() (w float64, h float64, perParticle bool) {
 	return 0, 0, true
 }
 

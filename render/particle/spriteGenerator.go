@@ -80,7 +80,7 @@ func (sg *SpriteGenerator) SetSpriteRotation(f floatrange.Range) {
 }
 
 // GetParticleSize returns the size of the sprite that the generator generates
-func (sg *SpriteGenerator) GetParticleSize() (float64, float64, bool) {
+func (sg *SpriteGenerator) GetParticleSize() (w float64, h float64, perParticle bool) {
 	bounds := sg.Base.GetRGBA().Rect.Max
 	return float64(bounds.X), float64(bounds.Y), false
 }

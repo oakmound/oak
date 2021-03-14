@@ -4,29 +4,47 @@ import (
 	"testing"
 
 	"github.com/oakmound/oak/v2/event"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestAllocate(t *testing.T) {
+	a := NewAllocator()
+	go a.Run()
 	for i := 0; i < 100; i++ {
-		assert.Equal(t, Allocate(event.CID(i)), i)
+		if a.Allocate(event.CID(i)) != i {
+			t.Fatalf("expected allocation of id %d to match id", i)
+		}
 	}
 }
 
 func TestDeallocate(t *testing.T) {
-	Allocate(0)
-	Deallocate(0)
-	assert.Equal(t, Allocate(0), 0)
+	a := NewAllocator()
+	go a.Run()
+
+	a.Allocate(0)
+	a.Deallocate(0)
+
+	if a.Allocate(0) != 0 {
+		t.Fatalf("expected allocation of id %d to match id", 0)
+	}
 }
 
 func TestAllocatorLookup(t *testing.T) {
+	a := NewAllocator()
+	go a.Run()
+
 	src := NewSource(NewColorGenerator(), 0)
 	cid := src.CID
-	pidBlock := Allocate(cid)
-	src2 := LookupSource(pidBlock * blockSize)
-	assert.Equal(t, src, src2)
-	assert.Nil(t, Lookup((pidBlock*blockSize)+1))
-	Deallocate(2)
-	Deallocate(1)
-	Deallocate(0)
+	pidBlock := a.Allocate(cid)
+	src2 := a.LookupSource(pidBlock * blockSize)
+	if src != src2 {
+		t.Fatalf("Lookup on first block did not obtain allocated source")
+	}
+
+	src3 := a.Lookup((pidBlock * blockSize) + 1)
+	if src3 != nil {
+		t.Fatalf("Lookup on second block did not return nil")
+	}
+	a.Deallocate(2)
+	a.Deallocate(1)
+	a.Deallocate(0)
 }

@@ -4,18 +4,25 @@ import (
 	"testing"
 
 	"github.com/oakmound/oak/v2/render"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestParticle(t *testing.T) {
 	var bp *baseParticle
 	w, h := bp.GetDims()
-	assert.Equal(t, 0, w)
-	assert.Equal(t, 0, h)
+	if w != 0 {
+		t.Fatalf("expected 0 x, got %v", w)
+	}
+	if h != 0 {
+		t.Fatalf("expected 0 y, got %v", h)
+	}
 
-	assert.Equal(t, render.Undraw, bp.GetLayer())
+	if bp.GetLayer() != render.Undraw {
+		t.Fatalf("uninitialized particle was not set to the undraw layer")
+	}
 
 	bp = new(baseParticle)
 	bp.setPID(100)
-	assert.Equal(t, 100, bp.pID)
+	if bp.pID != 100 {
+		t.Fatalf("setPID failed, expected 100 got %v", bp.pID)
+	}
 }

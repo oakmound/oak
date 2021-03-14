@@ -67,14 +67,10 @@ func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOf
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
 			if gen.Shape.In(i, j, size) {
-				//fmt.Println("In", i, j)
-				//render.ShinySet(buff, c, xOffi+i, yOffi+j)
 				buff.Set(xOffi+i, yOffi+j, c)
 			}
 		}
 	}
-
-	//fmt.Println("Drawing particle", size, xOffi, yOffi)
 }
 
 // GetLayer returns baseParticle GetLayer. This is a safety check against auto-generated
@@ -99,6 +95,5 @@ func (cp *ColorParticle) GetDims() (int, int) {
 	}
 
 	size := int(((progress) * cp.size) + ((1 - progress) * cp.endSize))
-	//fmt.Println("Dim size", size)
 	return size, size
 }

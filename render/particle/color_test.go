@@ -9,7 +9,6 @@ import (
 	"github.com/200sc/go-dist/intrange"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/shape"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestColorParticle(t *testing.T) {
@@ -26,16 +25,24 @@ func TestColorParticle(t *testing.T) {
 	p := src.particles[0].(*ColorParticle)
 
 	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
-	assert.Equal(t, 0, p.GetLayer())
+	if p.GetLayer() != 0 {
+		t.Fatalf("expected 0 layer, got %v", p.GetLayer())
+	}
 
 	p.Life = -1
 	sz, _ := p.GetDims()
-	assert.Equal(t, float64(sz), p.endSize)
+	if sz != int(p.endSize) {
+		t.Fatalf("expected size %v at end of particle's life, got %v", p.endSize, sz)
+	}
 	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
 
 	var cp2 *ColorParticle
-	assert.Equal(t, render.Undraw, cp2.GetLayer())
+	if cp2.GetLayer() != render.Undraw {
+		t.Fatalf("uninitialized particle was not set to the undraw layer")
+	}
 
 	_, _, ok := g.GetParticleSize()
-	assert.True(t, ok)
+	if !ok {
+		t.Fatalf("get particle size not particle-specified")
+	}
 }
