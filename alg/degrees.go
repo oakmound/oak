@@ -13,9 +13,6 @@ const (
 	RadToDeg = 180 / math.Pi
 )
 
-// We might not want these types
-// It might be too much of a hassle to deal with them
-
 // A Radian value is a float that specifies it should be in radians.
 type Radian float64
 

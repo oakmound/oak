@@ -1,17 +1,19 @@
 package alg
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
+	"reflect"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 const testCt = 1000000
 
-func TestUniqueChooseX(t *testing.T) {
+func TestUniqueChooseXSuccess(t *testing.T) {
+	t.Parallel()
+
 	rand.Seed(int64(time.Now().UTC().Nanosecond()))
 	// Assert that we choose everything when n = len(weights)
 	weights := []float64{1.0, .9, .8, .7, .6, .5, .4, .3, .2, .1}
@@ -20,20 +22,49 @@ func TestUniqueChooseX(t *testing.T) {
 	for _, c := range chosen {
 		chosenCts[c]++
 	}
-	for _, v := range chosenCts {
-		assert.Equal(t, 1, v)
+	expected := make([]int, len(weights))
+	for i := 0; i < len(expected); i++ {
+		expected[i] = 1
 	}
-	// That about does it for uniqueness testing
-	// Failure testing
+	if !reflect.DeepEqual(expected, chosenCts) {
+		fmt.Println(expected, chosenCts)
+		t.Fatalf("UniqueChooseX did not choose every index once")
+	}
+}
+func TestUniqueChooseXFailure(t *testing.T) {
+	t.Parallel()
+	weights := []float64{1.0, .9, .8, .7, .6, .5, .4, .3, .2, .1}
+
 	// -1 represents an error from this
-	chosen = UniqueChooseX(weights, 20)
-	assert.Contains(t, chosen, -1)
-	chosen = UniqueChooseXSeeded(weights, 20, rand.New(rand.NewSource(0)))
-	assert.Contains(t, chosen, -1)
-	//
-	chosenCts = make([]int, len(weights))
+	chosen := UniqueChooseX(weights, 20)
+	for _, v := range chosen {
+		if v == -1 {
+			return
+		}
+	}
+	t.Fatalf("expected -1 index in results from 20 choices on 10 inputs")
+}
+
+func TestUniqueChooseXSeededFailure(t *testing.T) {
+	t.Parallel()
+	weights := []float64{1.0, .9, .8, .7, .6, .5, .4, .3, .2, .1}
+	chosen := UniqueChooseXSeeded(weights, 20, rand.New(rand.NewSource(0)))
+	for _, v := range chosen {
+		if v == -1 {
+			return
+		}
+	}
+	t.Fatalf("expected -1 index in results from 20 choices on 10 inputs")
+}
+
+func TestUniqueChooseXAverage(t *testing.T) {
+	t.Parallel()
+
+	rand.Seed(int64(time.Now().UTC().Nanosecond()))
+	weights := []float64{1.0, .9, .8, .7, .6, .5, .4, .3, .2, .1}
+	chosenCts := make([]int, len(weights))
 	for i := 0; i < testCt; i++ {
-		chosen = UniqueChooseX(weights, 1)
+		chosen := UniqueChooseX(weights, 1)
 		for _, c := range chosen {
 			chosenCts[c]++
 		}
@@ -44,11 +75,15 @@ func TestUniqueChooseX(t *testing.T) {
 	}
 	for i := 0; i < len(weights)-1; i++ {
 		diff := math.Abs(outWeights[i] - outWeights[i+1])
-		assert.True(t, (outWeights[i] > outWeights[i+1]) || diff < .1)
+		if (outWeights[i] <= outWeights[i+1]) && diff > .1 {
+			t.Fatalf("chooseX chose improbably unlikely choices")
+		}
 	}
 }
 
-func TestChooseX(t *testing.T) {
+func TestChooseXAverage(t *testing.T) {
+	t.Parallel()
+
 	rand.Seed(int64(time.Now().UTC().Nanosecond()))
 	weights := []float64{1.0, .9, .8, .7, .6, .5, .4, .3, .2, .1}
 	chosenCts := make([]int, len(weights))
@@ -64,17 +99,28 @@ func TestChooseX(t *testing.T) {
 	}
 	for i := 0; i < len(weights)-1; i++ {
 		diff := math.Abs(outWeights[i] - outWeights[i+1])
-		assert.True(t, (outWeights[i] > outWeights[i+1]) || diff < .1)
+		if (outWeights[i] <= outWeights[i+1]) && diff > .1 {
+			t.Fatalf("chooseX chose improbably unlikely choices")
+		}
 	}
-	// Zero weight testing
-	weights = []float64{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0}
+}
+
+func TestChooseXZeroWeights(t *testing.T) {
+	weights := []float64{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0}
 	for i := 0; i < testCt; i++ {
 		chosen := ChooseX(weights, 1)
-		assert.Equal(t, 8, chosen[0])
+		if len(chosen) != 1 {
+			t.Fatalf("chooseX with n = 1 did not return slice of length 1")
+		}
+		if chosen[0] != 8 {
+			t.Fatalf("slice weighted at index 8 did not return index 8")
+		}
 	}
 }
 
 func TestWeightedMapChoice(t *testing.T) {
+	t.Parallel()
+
 	m := map[int]float64{
 		0: 1.0,
 		1: .9,
@@ -89,20 +135,20 @@ func TestWeightedMapChoice(t *testing.T) {
 	}
 	// This uses the same underlying function as chooseX internally
 	chosen := WeightedMapChoice(m)
-	assert.True(t, chosen < 10)
+	if chosen < 0 || chosen > 9 {
+		t.Fatalf("WeightedMapChoice returned impossible value")
+	}
 	chosen = WeightedMapChoiceSeeded(m, rand.New(rand.NewSource(0)))
-	assert.True(t, chosen < 10)
-}
-
-func TestCumulativeWeights(t *testing.T) {
-	weights := []float64{1, 2, 3, 4, 5, 6, 7}
-	cum := CumulativeWeights(weights)
-	assert.Equal(t, []float64{1, 3, 6, 10, 15, 21, 28}, cum)
+	if chosen < 0 || chosen > 9 {
+		t.Fatalf("WeightedMapChoiceSeeded returned impossible value")
+	}
 }
 
 func TestWeightedChooseOne(t *testing.T) {
+	t.Parallel()
+
 	weights := []float64{0, 0, 0, 0, 0, 0, 1}
-	remaining := RemainingWeights(weights)
+	remaining := CumulativeWeights(weights)
 	choice := WeightedChooseOne(remaining)
 	if choice != 6 {
 		t.Fatalf("Expected choice of 6, got %v", choice)
@@ -118,8 +164,10 @@ func (f *float64er) Float64() float64 {
 }
 
 func TestWeightedChooseOneSeeded(t *testing.T) {
+	t.Parallel()
+
 	weights := []float64{1, 1, 1, 1, 1, 1, 1}
-	remaining := RemainingWeights(weights)
+	remaining := CumulativeWeights(weights)
 	choice := WeightedChooseOneSeeded(remaining, &float64er{val: 0})
 	if choice != 6 {
 		t.Fatalf("Expected choice of 6, got %v", choice)

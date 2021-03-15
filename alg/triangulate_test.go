@@ -1,12 +1,13 @@
 package alg
 
 import (
+	"reflect"
+	"strconv"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestTriangulateConvex(t *testing.T) {
+	t.Parallel()
 	type testCase struct {
 		in  []int
 		out [][3]int
@@ -29,8 +30,14 @@ func TestTriangulateConvex(t *testing.T) {
 			[][3]int{{0, 1, 2}, {0, 2, 3}, {0, 3, 4}},
 		},
 	}
-	for _, tc := range testCases {
-		out := TriangulateConvex(tc.in)
-		assert.Equal(t, tc.out, out)
+	for i, tc := range testCases {
+		tc := tc
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Parallel()
+			out := TriangulateConvex(tc.in)
+			if !reflect.DeepEqual(tc.out, out) {
+				t.Fatalf("expected %v got %v", tc.out, out)
+			}
+		})
 	}
 }
