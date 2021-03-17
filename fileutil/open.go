@@ -27,8 +27,8 @@ func (nopCloser) Close() error {
 	return nil
 }
 
-// Open is a wrapper around os.Open that will also check a function to access
-// byte data. The intended use is to use the go-bindata library to create an
+// Open is a wrapper around os.Open that will also check BindataFn to access
+// embedded data. The intended use is to use the an embedding library to create an
 // Asset function that matches this signature.
 func Open(file string) (io.ReadCloser, error) {
 	var err error

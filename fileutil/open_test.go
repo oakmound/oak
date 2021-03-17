@@ -3,17 +3,19 @@ package fileutil
 import (
 	"errors"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNopCloser(t *testing.T) {
-	assert.Nil(t, nopCloser{}.Close())
+	if (nopCloser{}).Close() != nil {
+		t.Fatalf("no op closer failed to close")
+	}
 }
 
 func TestOpen(t *testing.T) {
 	_, err := Open("notafile")
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("expected open to fail")
+	}
 	BindataFn = func(s string) ([]byte, error) {
 		if s == "exists" {
 			return []byte{0}, nil
@@ -21,15 +23,21 @@ func TestOpen(t *testing.T) {
 		return []byte{}, errors.New("Doesn't Exist")
 	}
 	_, err = Open("exists")
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatalf("expected open (exists) to pass")
+	}
 	_, err = Open("doesntexist")
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("expected open (doesntexist) to fail")
+	}
 	BindataFn = nil
 }
 
 func TestReadFile(t *testing.T) {
 	_, err := ReadFile("notafile")
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("expected read to fail")
+	}
 	BindataFn = func(s string) ([]byte, error) {
 		if s == "exists" {
 			return []byte{0}, nil
@@ -37,15 +45,21 @@ func TestReadFile(t *testing.T) {
 		return []byte{}, errors.New("Doesn't Exist")
 	}
 	_, err = ReadFile("exists")
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatalf("expected read (exists) to pass")
+	}
 	_, err = ReadFile("doesntexist")
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("expected read (doesntexist) to fail")
+	}
 	BindataFn = nil
 }
 
 func TestReadDir(t *testing.T) {
 	_, err := ReadDir("notafile")
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("expected read dir to fail")
+	}
 	BindataDir = func(s string) ([]string, error) {
 		if s == "exists" {
 			return []string{""}, nil
@@ -53,8 +67,12 @@ func TestReadDir(t *testing.T) {
 		return []string{}, errors.New("Doesn't Exist")
 	}
 	_, err = ReadDir("exists")
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatalf("expected read dir (exists) to pass")
+	}
 	_, err = ReadDir("doesntexist")
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("expected read dir (doesntexist) to fail")
+	}
 	BindataDir = nil
 }
