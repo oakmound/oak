@@ -85,7 +85,7 @@ func (a *Allocator) Deallocate(block int) {
 func (a *Allocator) LookupSource(id int) *Source {
 	a.requestCh <- id
 	owner := <-a.responseCh
-	return event.GetEntity(int(owner)).(*Source)
+	return event.GetEntity(owner).(*Source)
 }
 
 // Lookup requests a specific particle in the particle space

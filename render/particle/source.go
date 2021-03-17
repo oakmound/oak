@@ -46,7 +46,7 @@ func NewSource(g Generator, stackLevel int) *Source {
 // Init allows a source to be considered as an entity, and initializes it
 func (ps *Source) Init() event.CID {
 	CID := event.NextID(ps)
-	CID.Bind(rotateParticles, event.Enter)
+	CID.Bind(event.Enter, rotateParticles)
 	ps.CID = CID
 	ps.pIDBlock = ps.Allocate(ps.CID)
 	if ps.Generator.GetBaseGenerator().Duration != Inf {
@@ -184,8 +184,8 @@ func (ps *Source) addParticles() {
 
 // rotateParticles updates particles over time as long
 // as a Source is active.
-func rotateParticles(id int, nothing interface{}) int {
-	ps := event.GetEntity(id).(*Source)
+func rotateParticles(id event.CID, nothing interface{}) int {
+	ps := id.E().(*Source)
 	if !ps.paused {
 		ps.cycleParticles()
 		ps.addParticles()
@@ -195,8 +195,8 @@ func rotateParticles(id int, nothing interface{}) int {
 
 // clearParticles is used after a Source has been stopped
 // to continue moving old particles for as long as they exist.
-func clearParticles(id int, nothing interface{}) int {
-	if ps, ok := event.GetEntity(id).(*Source); ok {
+func clearParticles(id event.CID, nothing interface{}) int {
+	if ps, ok := id.E().(*Source); ok {
 		if !ps.paused {
 			if ps.cycleParticles() {
 			} else {
