@@ -13,12 +13,14 @@ import (
 func testinit(t *testing.T) {
 	err := SceneMap.Add("blank",
 		// Initialization function
-		func(prevScene string, inData interface{}) {},
+		func(*scene.Context) {},
 		// Loop to continue or stop current scene
 		func() bool { return true },
 		// Exit to transition to next scene
 		func() (nextScene string, result *scene.Result) { return "blank", nil })
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatalf("Scene Add failed: %v", err)
+	}
 	go Init("blank")
 	time.Sleep(2 * time.Second)
 	// Assert that nothing went wrong

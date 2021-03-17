@@ -1,5 +1,7 @@
 package key
 
+import "golang.org/x/mobile/event/key"
+
 const (
 	// Down is sent when a key is pressed. It is sent both as
 	// Down, and as Down + the key name.
@@ -11,3 +13,5 @@ const (
 	// Held, and as Held + the key name.
 	Held = "KeyHeld"
 )
+
+type Event = key.Event

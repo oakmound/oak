@@ -117,8 +117,8 @@ func SetViewportBounds(x1, y1, x2, y2 int) {
 	}
 }
 
-func moveViewportBinding(speed int) func(int, interface{}) int {
-	return func(cID int, n interface{}) int {
+func moveViewportBinding(speed int) func(event.CID, interface{}) int {
+	return func(cID event.CID, n interface{}) int {
 		dX := 0
 		dY := 0
 		if IsDown("UpArrow") {

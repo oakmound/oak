@@ -29,25 +29,25 @@ var (
 )
 
 func trackInputChanges() {
-	event.GlobalBind(func(int, interface{}) int {
+	event.GlobalBind(key.Down, func(event.CID, interface{}) int {
 		recentInputLock.Lock()
 		MostRecentInput = KeyboardMouse
 		// Trigger that the most recent input changed?
 		recentInputLock.Unlock()
 		return 0
-	}, key.Down)
-	event.GlobalBind(func(int, interface{}) int {
+	})
+	event.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
 		recentInputLock.Lock()
 		MostRecentInput = KeyboardMouse
 		recentInputLock.Unlock()
 		return 0
-	}, mouse.Press)
-	event.GlobalBind(func(int, interface{}) int {
+	})
+	event.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
 		recentInputLock.Lock()
 		MostRecentInput = Joystick
 		recentInputLock.Unlock()
 		return 0
-	}, "Tracking"+joystick.Change)
+	})
 }
 
 type joyHandler struct{}

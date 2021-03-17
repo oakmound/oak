@@ -45,6 +45,7 @@ func inputLoop() {
 				return
 			}
 			// ... this is where we would respond to window focus events
+			// TODO v3: window focus?? should be easy?
 
 		// Send key events
 		//
@@ -59,11 +60,11 @@ func inputLoop() {
 			// TODO v3: reevaluate key bindings-- we need the rune this event has
 			switch e.Direction {
 			case key.DirPress:
-				TriggerKeyDown(e)
+				TriggerKeyDown(okey.Event(e))
 			case key.DirRelease:
-				TriggerKeyUp(e)
+				TriggerKeyUp(okey.Event(e))
 			default:
-				TriggerKeyHeld(e)
+				TriggerKeyHeld(okey.Event(e))
 			}
 
 		// Send mouse events
@@ -80,7 +81,7 @@ func inputLoop() {
 		//
 		// Mouse events all receive an x, y, and button string.
 		case mouse.Event:
-			button := omouse.GetMouseButton(e.Button)
+			button := omouse.Button(e.Button)
 			eventName := omouse.GetEventName(e.Direction, e.Button)
 			// The event triggered for mouse events has the same scaling as the
 			// render and collision space. I.e. if the viewport is at 0, the mouse's
@@ -116,7 +117,7 @@ func inputLoop() {
 // This should be used cautiously when the keyboard is in use.
 // From the perspective of the event handler this is indistinguishable
 // from a real keypress.
-func TriggerKeyDown(e key.Event) {
+func TriggerKeyDown(e okey.Event) {
 	k := e.Code.String()[4:]
 	SetDown(k)
 	logicHandler.Trigger(okey.Down, e)
@@ -127,7 +128,7 @@ func TriggerKeyDown(e key.Event) {
 // This should be used cautiously when the keyboard is in use.
 // From the perspective of the event handler this is indistinguishable
 // from a real key release.
-func TriggerKeyUp(e key.Event) {
+func TriggerKeyUp(e okey.Event) {
 	k := e.Code.String()[4:]
 	SetUp(k)
 	logicHandler.Trigger(okey.Up, e)
@@ -138,7 +139,7 @@ func TriggerKeyUp(e key.Event) {
 // This should be used cautiously when the keyboard is in use.
 // From the perspective of the event handler this is indistinguishable
 // from a real key hold signal.
-func TriggerKeyHeld(e key.Event) {
+func TriggerKeyHeld(e okey.Event) {
 	k := e.Code.String()[4:]
 	logicHandler.Trigger(okey.Held, e)
 	logicHandler.Trigger(okey.Held+k, e)
@@ -149,13 +150,6 @@ func TriggerKeyHeld(e key.Event) {
 // From the perspective of the event handler this is indistinguishable
 // from a real key mouse press or movement.
 func TriggerMouseEvent(mevent omouse.Event) {
-	switch mevent.Event {
-	case omouse.Press:
-		SetDown(mevent.Button)
-	case omouse.Release:
-		SetUp(mevent.Button)
-	}
-
 	omouse.Propagate(mevent.Event+"On", mevent)
 	logicHandler.Trigger(mevent.Event, mevent)
 

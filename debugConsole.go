@@ -11,7 +11,6 @@ import (
 
 	"github.com/oakmound/oak/v2/oakerr"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/oakmound/oak/v2/collision"
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/event"
@@ -81,8 +80,6 @@ func GetDebugKeys() []string {
 
 func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 	scanner := bufio.NewScanner(input)
-	spew.Config.DisableMethods = true
-	spew.Config.MaxDepth = 2
 
 	// built in commands
 	if conf.LoadBuiltinCommands {
@@ -127,7 +124,7 @@ func parseTokenAsInt(tokenString []string, arrIndex int, defaultVal int) int {
 	return defaultVal
 }
 
-func mouseDetails(nothing int, mevent interface{}) int {
+func mouseDetails(nothing event.CID, mevent interface{}) int {
 	me := mevent.(mouse.Event)
 	x := int(me.X()) + ViewPos.X
 	y := int(me.Y()) + ViewPos.Y
@@ -139,9 +136,9 @@ func mouseDetails(nothing int, mevent interface{}) int {
 	}
 	if len(results) > 0 {
 		i := int(results[0].CID)
-		if i > 0 && event.HasEntity(i) {
-			e := event.GetEntity(i)
-			spew.Dump(e)
+		if i > 0 && event.HasEntity(event.CID(i)) {
+			e := event.GetEntity(event.CID(i))
+			fmt.Printf("%+v\n", e)
 		} else {
 			fmt.Println("No entity ", i)
 		}
@@ -160,7 +157,7 @@ func viewportCommands(tokenString []string) {
 		if viewportLocked {
 			speed := parseTokenAsInt(tokenString, 1, 5)
 			viewportLocked = false
-			event.GlobalBind(moveViewportBinding(speed), event.Enter)
+			event.GlobalBind(event.Enter, moveViewportBinding(speed))
 		} else {
 			fmt.Println("Viewport is already unbound")
 		}
@@ -214,8 +211,8 @@ func printCommands(tokenString []string) {
 		fmt.Println("Unable to parse", tokenString[0])
 		return
 	}
-	if i > 0 && event.HasEntity(i) {
-		e := event.GetEntity(i)
+	if i > 0 && event.HasEntity(event.CID(i)) {
+		e := event.GetEntity(event.CID(i))
 		fmt.Println(reflect.TypeOf(e), e)
 	} else {
 		fmt.Println("No entity ", i)
@@ -230,7 +227,7 @@ func mouseCommands(tokenString []string) {
 	}
 	switch tokenString[0] {
 	case "details":
-		event.GlobalBind(mouseDetails, "MouseRelease")
+		event.GlobalBind("MouseRelease", mouseDetails)
 	default:
 		fmt.Println("Bad Mouse Input")
 	}
