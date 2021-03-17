@@ -167,6 +167,7 @@ func blankLoad(filename string) error {
 	buffer, err := audio.EncodeBytes(
 		audio.Encoding{
 			Format: mformat,
+			Data:   []byte{0, 0, 0, 0},
 		})
 	if err != nil {
 		return err

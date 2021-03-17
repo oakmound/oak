@@ -42,12 +42,4 @@ func TestPlayAndLoad(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected playing unloaded test.wav to fail")
 	}
-	err = BatchLoad(".")
-	if err != nil {
-		t.Fatalf("expected batchload on valid path to succeed")
-	}
-	err = BatchLoad("GarbagePath")
-	if err == nil {
-		t.Fatalf("expected batchload on nonexistant path to fail")
-	}
 }
