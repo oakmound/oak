@@ -3,8 +3,7 @@ package event
 // A Caller can bind, unbind and trigger events.
 type Caller interface {
 	Trigger(string, interface{})
-	Bind(Bindable, string)
-	BindPriority(Bindable, string, int)
+	Bind(string, Bindable)
 	UnbindAll()
 	UnbindAllAndRebind([]Bindable, []string)
 	E() interface{}

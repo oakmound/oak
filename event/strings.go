@@ -12,10 +12,10 @@ package event
 //   Payload: (mouse.Event) details on the mouse event
 //
 // - KeyDown, KeyDown$a: when any key is pressed down, when key $a is pressed down.
-//   Payload: (string) the key pressed
+//   Payload: (key.Event) the key pressed
 //
 // - KeyUp, KeyUp$a: when any key is released, when key $a is released.
-//   Payload: (string) the key released
+//   Payload: (key.Event) the key released
 //
 // And the following:
 const (
