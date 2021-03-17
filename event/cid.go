@@ -7,7 +7,7 @@ type CID int
 // But we apparently forgot we added this shorthand,
 // because this isn't used anywhere.
 func (cid CID) E() interface{} {
-	return GetEntity(int(cid))
+	return GetEntity(cid)
 }
 
 // Parse returns the given cid, or the entity's cid

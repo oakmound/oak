@@ -1,14 +1,20 @@
 package ray
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/oakmound/oak/v2/alg/floatgeom"
 	"github.com/oakmound/oak/v2/collision"
-	"github.com/stretchr/testify/require"
 )
 
 func TestCasterScene(t *testing.T) {
+	SetDefaultCaster(&Caster{
+		PointSize:    floatgeom.Point2{.1, .1},
+		PointSpan:    1.0,
+		CastDistance: 200,
+		Tree:         collision.DefTree,
+	})
 	type testCase struct {
 		name           string
 		setup          func()
@@ -24,7 +30,9 @@ func TestCasterScene(t *testing.T) {
 		"102-202": collision.NewFullSpace(20, 20, 10, 10, 102, 202),
 	}
 	tree1, err := collision.NewTree(2, 20)
-	require.Nil(t, err)
+	if err != nil {
+		t.Fatalf("NewTree failed: %v", err)
+	}
 	tcs := []testCase{
 		{
 			name: "Ignore Filters",
@@ -201,9 +209,13 @@ func TestCasterScene(t *testing.T) {
 			SetDefaultCaster(tc.defCaster)
 			c := NewCaster(tc.opts...)
 			out := c.CastTo(tc.origin, tc.target)
-			require.Equal(t, len(tc.expected), len(out))
+			if len(out) != len(tc.expected) {
+				t.Fatalf("expected length not matched: %v vs %v", len(out), len(tc.expected))
+			}
 			for i, p := range out {
-				require.Equal(t, tc.expected[i], p.Zone)
+				if !reflect.DeepEqual(tc.expected[i], p.Zone) {
+					t.Fatalf("mismatch at index %d, %v vs %v", i, tc.expected[i], p.Zone)
+				}
 			}
 			if tc.teardown != nil {
 				tc.teardown()

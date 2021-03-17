@@ -3,15 +3,13 @@ package event
 import (
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func sleep() {
 	// this is effectively "sync", or wait for the previous
-	// goroutine job to get its job done (event does not
+	// goroutine job to get its job done (Trigger
 	// use channels for 'done' signals because we don't want
-	// to enable users to -wait- on triggers that won't actually
+	// to enable users to wait on triggers that won't actually
 	// happen -because they are waiting- within a call that is
 	// holding a lock)
 	time.Sleep(200 * time.Millisecond)
@@ -20,64 +18,78 @@ func sleep() {
 func TestBus(t *testing.T) {
 	triggers := 0
 	go ResolvePending()
-	GlobalBind(func(int, interface{}) int {
+	GlobalBind("T", Empty(func() {
 		triggers++
-		return 0
-	}, "T")
+	}))
 	sleep()
 	<-TriggerBack("T", nil)
-	assert.Equal(t, triggers, 1)
+	if triggers != 1 {
+		t.Fatalf("first trigger did not happen")
+	}
 	Trigger("T", nil)
 	sleep()
-	assert.Equal(t, triggers, 2)
+	if triggers != 2 {
+		t.Fatalf("second trigger did not happen")
+	}
 }
 
 func TestUnbind(t *testing.T) {
 	triggers := 0
 	go ResolvePending()
-	GlobalBind(func(int, interface{}) int {
+	GlobalBind("T", func(CID, interface{}) int {
 		triggers++
 		return UnbindSingle
-	}, "T")
+	})
 	sleep()
 	<-TriggerBack("T", nil)
-	assert.Equal(t, triggers, 1)
+	if triggers != 1 {
+		t.Fatalf("first trigger did not happen")
+	}
 	sleep()
 	Trigger("T", nil)
 	sleep()
-	assert.Equal(t, triggers, 1)
-
-	GlobalBind(func(int, interface{}) int {
+	if triggers != 1 {
+		t.Fatalf("second trigger after unbind happened")
+	}
+	GlobalBind("T", func(CID, interface{}) int {
 		triggers++
 		return 0
-	}, "T")
-	GlobalBind(func(int, interface{}) int {
+	})
+	GlobalBind("T", func(CID, interface{}) int {
 		triggers++
 		return UnbindEvent
-	}, "T")
+	})
 	sleep()
 	Trigger("T", nil)
 	sleep()
-	assert.Equal(t, triggers, 3)
+	if triggers != 3 {
+		t.Fatalf("global triggers did not happen")
+	}
 
 	Trigger("T", nil)
 	sleep()
-	assert.Equal(t, triggers, 3)
+	if triggers != 3 {
+		t.Fatalf("global triggers happened after unbind")
+	}
 
-	GlobalBind(func(int, interface{}) int {
+	GlobalBind("T", func(CID, interface{}) int {
 		triggers++
 		return 0
-	}, "T")
+	})
 	sleep()
 	Trigger("T", nil)
 	sleep()
-	assert.Equal(t, triggers, 4)
+	if triggers != 4 {
+		t.Fatalf("global triggers did not happen")
+	}
 
 	Reset()
 
 	Trigger("T", nil)
 	sleep()
-	assert.Equal(t, triggers, 4)
+	if triggers != 4 {
+		t.Fatalf("global triggers did not unbind after reset")
+	}
 }
 
 type ent struct{}
@@ -90,33 +102,20 @@ func TestCID(t *testing.T) {
 	triggers := 0
 	go ResolvePending()
 	cid := CID(0).Parse(ent{})
-	cid.Bind(func(int, interface{}) int {
+	cid.Bind("T", func(CID, interface{}) int {
 		triggers++
 		return 0
-	}, "T")
+	})
 	sleep()
 	cid.Trigger("T", nil)
 	sleep()
-	assert.Equal(t, triggers, 1)
-
-	// Priority
-	var first bool
-	cid.BindPriority(func(int, interface{}) int {
-		first = true
-		return 0
-	}, "P", 1)
-	cid.BindPriority(func(int, interface{}) int {
-		if !first {
-			panic("Priority -1 was called before priority 1")
-		}
-		return 0
-	}, "P", -1)
-	sleep()
-	cid.Trigger("P", nil)
+	if triggers != 1 {
+		t.Fatalf("first trigger did not happen")
+	}
 
 	// UnbindAllAndRebind
 	cid.UnbindAllAndRebind([]Bindable{
-		func(int, interface{}) int {
+		func(CID, interface{}) int {
 			triggers--
 			return 0
 		},
@@ -127,7 +126,9 @@ func TestCID(t *testing.T) {
 	sleep()
 	cid.Trigger("T", nil)
 	sleep()
-	assert.Equal(t, triggers, 0)
+	if triggers != 0 {
+		t.Fatalf("second trigger did not happen")
+	}
 
 	// UnbindAll
 	cid.UnbindAll()
@@ -135,11 +136,13 @@ func TestCID(t *testing.T) {
 	sleep()
 	cid.Trigger("T", nil)
 	sleep()
-	assert.Equal(t, triggers, 0)
+	if triggers != 0 {
+		t.Fatalf("second trigger did not unbind")
+	}
 
-	cid.Bind(func(int, interface{}) int {
+	cid.Bind("T", func(CID, interface{}) int {
 		panic("Should not have been triggered")
-	}, "T")
+	})
 
 	// ResetEntities, etc
 	ResetEntities()
@@ -153,10 +156,16 @@ func TestEntity(t *testing.T) {
 	e := ent{}
 	cid := e.Init()
 	cid2 := cid.Parse(e)
-	assert.Equal(t, cid, cid2)
-	assert.NotNil(t, cid.E().(ent))
-	DestroyEntity(int(cid))
-	assert.Nil(t, cid.E())
+	if cid != cid2 {
+		t.Fatalf("expected id %v got %v", cid, cid2)
+	}
+	if _, ok := cid.E().(ent); !ok {
+		t.Fatalf("cid entity was not present")
+	}
+	DestroyEntity(cid)
+	if cid.E() != nil {
+		t.Fatalf("cid entity was not deleted")
+	}
 }
 
 var (
@@ -165,20 +174,19 @@ var (
 
 func TestUnbindBindable(t *testing.T) {
 	go ResolvePending()
-	GlobalBind(tBinding, "T")
+	GlobalBind("T", tBinding)
 	sleep()
 	Trigger("T", nil)
 	sleep()
-	assert.Equal(t, ubTriggers, 1)
+	if ubTriggers != 1 {
+		t.Fatalf("first trigger did not happen")
+	}
 	// Fix this syntax
 	UnbindBindable(
 		UnbindOption{
-			BindingOption: BindingOption{
-				Event: Event{
-					Name:     "T",
-					CallerID: 0,
-				},
-				Priority: 0,
+			Event: Event{
+				Name:     "T",
+				CallerID: 0,
 			},
 			Fn: tBinding,
 		},
@@ -186,38 +194,14 @@ func TestUnbindBindable(t *testing.T) {
 	sleep()
 	Trigger("T", nil)
 	sleep()
-	assert.Equal(t, ubTriggers, 1)
+	if ubTriggers != 1 {
+		t.Fatalf("unbind call did not unbind trigger")
+	}
 }
 
-func tBinding(int, interface{}) int {
+func tBinding(CID, interface{}) int {
 	ubTriggers++
 	return 0
-}
-
-func TestPriority(t *testing.T) {
-	go ResolvePending()
-	e := ent{}
-	cid := e.Init()
-	x := 20
-	cid.BindPriority(func(int, interface{}) int {
-		x /= 2
-		return 0
-	}, "T", 1)
-	cid.BindPriority(func(int, interface{}) int {
-		x += 2
-		return 0
-	}, "T", -1)
-	sleep()
-	cid.Trigger("T", nil)
-	sleep()
-	assert.Equal(t, 12, x)
-	// If the events occurred in the opposite order, x would be 11.
-
-	x = 20
-	Trigger("T", nil)
-	sleep()
-	assert.Equal(t, 12, x)
-
 }
 
 func TestBindableList(t *testing.T) {
@@ -232,12 +216,9 @@ func TestBindableList(t *testing.T) {
 func TestUnbindAllAndRebind(t *testing.T) {
 	go ResolvePending()
 	UnbindAllAndRebind(
-		BindingOption{
-			Event: Event{
-				Name:     "T",
-				CallerID: 0,
-			},
-			Priority: 0,
+		Event{
+			Name:     "T",
+			CallerID: 0,
 		}, []Bindable{}, 0, []string{})
 }
 
@@ -245,11 +226,11 @@ func TestBindingSet(t *testing.T) {
 	triggers := 0
 	bs := BindingSet{}
 	bs.Set("one", map[string]Bindable{
-		"T": func(int, interface{}) int {
+		"T": func(CID, interface{}) int {
 			triggers++
 			return 0
 		},
-		"P": func(int, interface{}) int {
+		"P": func(CID, interface{}) int {
 			triggers *= 2
 			return 0
 		},
@@ -262,5 +243,7 @@ func TestBindingSet(t *testing.T) {
 	sleep()
 	cid.Trigger("P", nil)
 	sleep()
-	assert.Equal(t, triggers, 2)
+	if triggers != 2 {
+		t.Fatalf("triggers did not happen")
+	}
 }

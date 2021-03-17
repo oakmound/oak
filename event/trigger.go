@@ -40,40 +40,19 @@ func (eb *Bus) Trigger(eventName string, data interface{}) {
 
 func (eb *Bus) trigger(eventName string, data interface{}) {
 	eb.mutex.RLock()
-	// Loop through all bindableStores for this eventName
 	for id, bs := range eb.bindingMap[eventName] {
-		// Top to bottom, high priority
-		for i := bs.highIndex - 1; i >= 0; i-- {
-			lst := bs.highPriority[i]
-			if lst != nil {
-				eb.triggerDefault(lst.sl, id, eventName, data)
-			}
-		}
-	}
-
-	for id, bs := range eb.bindingMap[eventName] {
-		if bs != nil && bs.defaultPriority != nil {
-			eb.triggerDefault((bs.defaultPriority).sl, id, eventName, data)
-		}
-	}
-
-	for id, bs := range eb.bindingMap[eventName] {
-		// Bottom to top, low priority
-		for i := 0; i < bs.lowIndex; i++ {
-			lst := bs.lowPriority[i]
-			if lst != nil {
-				eb.triggerDefault((*lst).sl, id, eventName, data)
-			}
+		if bs != nil {
+			eb.triggerDefault(bs.sl, id, eventName, data)
 		}
 	}
 	eb.mutex.RUnlock()
 }
 
-func (eb *Bus) triggerDefault(sl []Bindable, id int, eventName string, data interface{}) {
+func (eb *Bus) triggerDefault(sl []Bindable, id CID, eventName string, data interface{}) {
 	prog := &sync.WaitGroup{}
 	prog.Add(len(sl))
 	for i, bnd := range sl {
-		go func(bnd Bindable, id int, eventName string, data interface{}, prog *sync.WaitGroup, index int) {
+		go func(bnd Bindable, id CID, eventName string, data interface{}, prog *sync.WaitGroup, index int) {
 			eb.handleBindable(bnd, id, data, index, eventName)
 			prog.Done()
 		}(bnd, id, eventName, data, prog, i)
@@ -81,27 +60,21 @@ func (eb *Bus) triggerDefault(sl []Bindable, id int, eventName string, data inte
 	prog.Wait()
 }
 
-func (eb *Bus) handleBindable(bnd Bindable, id int, data interface{}, index int, eventName string) {
+func (eb *Bus) handleBindable(bnd Bindable, id CID, data interface{}, index int, eventName string) {
 	if bnd != nil {
 		if id == 0 || GetEntity(id) != nil {
 			response := bnd(id, data)
 			switch response {
 			case UnbindEvent:
-				UnbindAll(BindingOption{
-					Event{
-						eventName,
-						id,
-					},
-					0,
+				UnbindAll(Event{
+					Name:     eventName,
+					CallerID: id,
 				})
 			case UnbindSingle:
 				binding{
-					BindingOption{
-						Event{
-							eventName,
-							id,
-						},
-						0,
+					Event{
+						Name:     eventName,
+						CallerID: id,
 					},
 					index,
 				}.unbind(eb)

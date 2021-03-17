@@ -3,27 +3,37 @@ package event
 import (
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestHandler(t *testing.T) {
 	updateCh := make(chan bool)
-	assert.Nil(t, UpdateLoop(60, updateCh))
+	if UpdateLoop(60, updateCh) != nil {
+		t.Fatalf("UpdateLoop failed")
+	}
 	triggers := 0
-	Bind(func(int, interface{}) int {
+	Bind(Enter, 0, func(CID, interface{}) int {
 		triggers++
 		return 0
-	}, Enter, 0)
+	})
 	sleep()
-	assert.Equal(t, 1, triggers)
+	if triggers != 1 {
+		t.Fatalf("expected update loop to increment triggers")
+	}
 	<-updateCh
 	sleep()
-	assert.Equal(t, 2, triggers)
-	assert.Equal(t, 2, FramesElapsed())
-	assert.Nil(t, SetTick(1))
+	if triggers != 2 {
+		t.Fatalf("expected update loop to increment triggers")
+	}
+	if FramesElapsed() != 2 {
+		t.Fatalf("expected 2 update frames to have elapsed")
+	}
+	if SetTick(1) != nil {
+		t.Fatalf("SetTick failed")
+	}
 	<-updateCh
-	assert.Nil(t, Stop())
+	if Stop() != nil {
+		t.Fatalf("Stop failed")
+	}
 	sleep()
 	sleep()
 	select {
@@ -31,38 +41,23 @@ func TestHandler(t *testing.T) {
 		t.Fatal("Handler should be closed")
 	default:
 	}
-	assert.Nil(t, Update())
+	if Update() != nil {
+		t.Fatalf("Update failed")
+	}
 	sleep()
-	assert.Equal(t, 3, triggers)
-	assert.Nil(t, Flush())
 
-	BindPriority(func(int, interface{}) int {
-		triggers = 100
-		return 0
-	}, BindingOption{
-		Event: Event{
-			Name:     Enter,
-			CallerID: 0,
-		},
-		Priority: 4,
-	})
-
-	BindPriority(func(int, interface{}) int {
-		if triggers != 100 {
-			t.Fatal("Wrong call order")
-		}
-		return 0
-	}, BindingOption{
-		Event: Event{
-			Name:     Enter,
-			CallerID: 0,
-		},
-		Priority: 3,
-	})
+	if triggers != 3 {
+		t.Fatalf("expected update to increment triggers")
+	}
+	if Flush() != nil {
+		t.Fatalf("Flush failed")
+	}
 
 	Flush()
 	sleep()
-	assert.Nil(t, Update())
+	if Update() != nil {
+		t.Fatalf("final Update failed")
+	}
 	sleep()
 	sleep()
 	Reset()
@@ -73,10 +68,10 @@ func BenchmarkHandler(b *testing.B) {
 	entities := 10
 	go DefaultBus.ResolvePending()
 	for i := 0; i < entities; i++ {
-		DefaultBus.GlobalBind(func(int, interface{}) int {
+		DefaultBus.GlobalBind(Enter, func(CID, interface{}) int {
 			triggers++
 			return 0
-		}, Enter)
+		})
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -88,10 +83,10 @@ func TestPauseAndResume(t *testing.T) {
 	b := NewBus()
 	b.ResolvePending()
 	triggerCt := 0
-	b.Bind(func(int, interface{}) int {
+	b.Bind("EnterFrame", 0, func(CID, interface{}) int {
 		triggerCt++
 		return 0
-	}, "EnterFrame", 0)
+	})
 	ch := make(chan bool, 1000)
 	b.UpdateLoop(60, ch)
 	time.Sleep(1 * time.Second)

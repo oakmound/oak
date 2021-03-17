@@ -34,9 +34,9 @@ func NextID(e Entity) CID {
 
 // GetEntity either returns callers[i-1]
 // or nil, if there is nothing at that index.
-func GetEntity(i int) interface{} {
-	if HasEntity(i) {
-		return callers[i-1]
+func GetEntity(id CID) interface{} {
+	if HasEntity(id) {
+		return callers[int(id)-1]
 	}
 	return nil
 }
@@ -54,16 +54,16 @@ func ScanForEntity(by func(interface{}) bool) (int, interface{}) {
 }
 
 // HasEntity returns whether the given caller id is an initialized entity
-func HasEntity(i int) bool {
-	return len(callers) >= i && i != 0
+func HasEntity(id CID) bool {
+	return CID(len(callers)) >= id && id != 0
 }
 
 // DestroyEntity sets the index within the caller list to nil. Note that this
 // does not reduce the size of the caller list, a potential change in the
 // future would be to A) use a map or B) reassign caller ids to not directly
 // correspond to indices within callers
-func DestroyEntity(i int) {
-	callers[i-1] = nil
+func DestroyEntity(id CID) {
+	callers[int(id)-1] = nil
 }
 
 // ResetEntities resets callers and highestID, effectively dropping the

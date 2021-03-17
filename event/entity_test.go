@@ -2,8 +2,6 @@ package event
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 type testEntity struct {
@@ -53,13 +51,16 @@ func TestScanForEntity(t *testing.T) {
 		},
 	}
 
-	// This test is not safe for concurrent running, as it
+	// This test is not safe for t.Parallel, as it
 	// modifies and relies on the callers global.
 	for _, tc := range tcs {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			tc.spinup()
 			id, _ := ScanForEntity(tc.check)
-			require.Equal(t, tc.expectedID, id)
+			if tc.expectedID != id {
+				t.Fatalf("expected id %v, got %v", tc.expectedID, id)
+			}
 			ResetEntities()
 		})
 	}

@@ -77,7 +77,6 @@ func (c *Caster) Cast(origin, angle floatgeom.Point2) []collision.Point {
 	cos := math.Cos(degrees)
 
 	for i := 0.0; i < c.CastDistance; i += c.PointSpan {
-
 		hits := c.Tree.SearchIntersect(
 			collision.NewRect(x, y, c.PointSize.X(), c.PointSize.Y()),
 		)

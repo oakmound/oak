@@ -48,7 +48,7 @@ func NewConeCaster(opts ...ConeCastOption) *ConeCaster {
 
 // CastTo casts a ray from origin to target, and otherwise acts as Cast.
 func (cc *ConeCaster) CastTo(origin, target floatgeom.Point2) []collision.Point {
-	return cc.Cast(origin, floatgeom.AnglePoint(origin.AngleTo(target)))
+	return cc.Cast(origin, floatgeom.AnglePoint(target.AngleTo(origin)))
 }
 
 // Cast creates a ray from origin pointing at the given angle and returns
@@ -68,7 +68,7 @@ func (cc *ConeCaster) Cast(origin, angle floatgeom.Point2) []collision.Point {
 		a -= cc.ConeSpread / 2
 	}
 
-	for degrees := a; degrees <= a+cc.ConeSpread; degrees += angleDelta {
+	for degrees := a; degrees < a+cc.ConeSpread; degrees += angleDelta {
 		points = append(points, cc.Caster.Cast(origin, floatgeom.RadianPoint(degrees))...)
 	}
 	return points
@@ -93,6 +93,19 @@ func ConeCastTo(origin, target floatgeom.Point2) []collision.Point {
 
 // CenterCone sets whether the caster should center its cones around the
 // input angles or progress out from those input angles. True by default.
+//
+// Example:
+// Casting from a to b:
+// if True:
+//    .  b  .
+//   . . .
+//  ...
+// a
+// if False:
+//    b     .
+//   .   .
+//  . .
+// a
 func CenterCone(on bool) ConeCastOption {
 	return func(cc *ConeCaster) {
 		cc.CenterCone = on

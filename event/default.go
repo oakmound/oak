@@ -14,65 +14,34 @@ func (cid CID) Trigger(eventName string, data interface{}) {
 
 	go func(eventName string, data interface{}) {
 		DefaultBus.mutex.RLock()
-		iid := int(cid)
 		if idMap, ok := DefaultBus.bindingMap[eventName]; ok {
-			if bs, ok := idMap[iid]; ok {
-				for i := bs.highIndex - 1; i >= 0; i-- {
-					lst := bs.highPriority[i]
-					if lst != nil {
-						DefaultBus.triggerDefault(lst.sl, iid, eventName, data)
-					}
-				}
-				DefaultBus.triggerDefault((bs.defaultPriority).sl, iid, eventName, data)
-
-				for i := 0; i < bs.lowIndex; i++ {
-					lst := bs.lowPriority[i]
-					if lst != nil {
-						DefaultBus.triggerDefault(lst.sl, iid, eventName, data)
-					}
-				}
+			if bs, ok := idMap[cid]; ok {
+				DefaultBus.triggerDefault(bs.sl, cid, eventName, data)
 			}
 		}
 		DefaultBus.mutex.RUnlock()
 	}(eventName, data)
 }
 
-// Bind on a CID is shorthand for bus.Bind(fn, name, cid), on the default bus.
-func (cid CID) Bind(fn Bindable, name string) {
-	DefaultBus.Bind(fn, name, int(cid))
-}
-
-// BindPriority on a CID is shorthand for bus.BindPriority(fn, ...), on the default bus.
-func (cid CID) BindPriority(fn Bindable, name string, priority int) {
-	DefaultBus.BindPriority(fn, BindingOption{
-		Event{
-			name,
-			int(cid),
-		},
-		priority,
-	})
+// Bind on a CID is shorthand for bus.Bind(name, cid, fn), on the default bus.
+func (cid CID) Bind(name string, fn Bindable) {
+	DefaultBus.Bind(name, cid, fn)
 }
 
 // UnbindAll removes all events with the given cid from the event bus
 func (cid CID) UnbindAll() {
-	DefaultBus.UnbindAll(BindingOption{
-		Event{
-			"",
-			int(cid),
-		},
-		0,
+	DefaultBus.UnbindAll(Event{
+		Name:     "",
+		CallerID: cid,
 	})
 }
 
 // UnbindAllAndRebind on a CID is equivalent to bus.UnbindAllAndRebind(..., cid)
 func (cid CID) UnbindAllAndRebind(binds []Bindable, events []string) {
-	DefaultBus.UnbindAllAndRebind(BindingOption{
-		Event{
-			"",
-			int(cid),
-		},
-		0,
-	}, binds, int(cid), events)
+	DefaultBus.UnbindAllAndRebind(Event{
+		Name:     "",
+		CallerID: cid,
+	}, binds, cid, events)
 }
 
 // Trigger calls Trigger on the DefaultBus
@@ -86,17 +55,17 @@ func TriggerBack(eventName string, data interface{}) chan bool {
 }
 
 // GlobalBind calls GlobalBind on the DefaultBus
-func GlobalBind(fn Bindable, name string) {
-	DefaultBus.GlobalBind(fn, name)
+func GlobalBind(name string, fn Bindable) {
+	DefaultBus.GlobalBind(name, fn)
 }
 
 // UnbindAll calls UnbindAll on the DefaultBus
-func UnbindAll(opt BindingOption) {
+func UnbindAll(opt Event) {
 	DefaultBus.UnbindAll(opt)
 }
 
 // UnbindAllAndRebind calls UnbindAllAndRebind on the DefaultBus
-func UnbindAllAndRebind(bo BindingOption, binds []Bindable, cid int, events []string) {
+func UnbindAllAndRebind(bo Event, binds []Bindable, cid CID, events []string) {
 	DefaultBus.UnbindAllAndRebind(bo, binds, cid, events)
 }
 
@@ -106,13 +75,8 @@ func UnbindBindable(opt UnbindOption) {
 }
 
 // Bind calls Bind on the DefaultBus
-func Bind(fn Bindable, name string, callerID int) {
-	DefaultBus.Bind(fn, name, callerID)
-}
-
-// BindPriority calls BindPriority on the DefaultBus
-func BindPriority(fn Bindable, opt BindingOption) {
-	DefaultBus.BindPriority(fn, opt)
+func Bind(name string, callerID CID, fn Bindable) {
+	DefaultBus.Bind(name, callerID, fn)
 }
 
 // Flush calls Flush on the DefaultBus
