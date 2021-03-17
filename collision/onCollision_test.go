@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/v2/event"
-	"github.com/stretchr/testify/assert"
 )
 
 type cphase struct {
@@ -27,29 +26,41 @@ func TestCollisionPhase(t *testing.T) {
 	cp := cphase{}
 	cid := cp.Init()
 	s := NewSpace(10, 10, 10, 10, cid)
-	assert.Nil(t, PhaseCollision(s))
+	err := PhaseCollision(s, nil)
+	if err != nil {
+		t.Fatalf("phase collision failed: %v", err)
+	}
 	var active bool
-	cid.Bind(func(int, interface{}) int {
+	cid.Bind("CollisionStart", func(event.CID, interface{}) int {
 		active = true
 		return 0
-	}, "CollisionStart")
-	cid.Bind(func(int, interface{}) int {
+	})
+	cid.Bind("CollisionStop", func(event.CID, interface{}) int {
 		active = false
 		return 0
-	}, "CollisionStop")
+	})
 
 	s2 := NewLabeledSpace(15, 15, 10, 10, 5)
 	Add(s2)
 	time.Sleep(200 * time.Millisecond)
-	assert.True(t, active)
+	if !active {
+		t.Fatalf("collision should be active")
+	}
 
 	Remove(s2)
 	time.Sleep(200 * time.Millisecond)
-	assert.False(t, active)
+	if active {
+		t.Fatalf("collision should be inactive")
+	}
 
 	s3 := NewSpace(10, 10, 10, 10, 5)
-	assert.NotNil(t, PhaseCollision(s3))
+	err = PhaseCollision(s3, nil)
+	if err == nil {
+		t.Fatalf("phase collision should have failed")
+	}
 
-	assert.Nil(t, PhaseCollision(s, DefTree))
-
+	err = PhaseCollision(s, DefTree)
+	if err != nil {
+		t.Fatalf("phase collision failed: %v", err)
+	}
 }

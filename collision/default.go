@@ -26,10 +26,7 @@ func Remove(sps ...*Space) {
 	DefTree.Remove(sps...)
 }
 
-// UpdateSpace resets a space's location to a given
-// rtreego.Rect.
-// This is not an operation on a space because
-// a space can exist in multiple rtrees.
+// UpdateSpace resets a space's location to a given rect.
 func UpdateSpace(x, y, w, h float64, s *Space) error {
 	return DefTree.UpdateSpace(x, y, w, h, s)
 }

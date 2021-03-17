@@ -28,17 +28,17 @@ type collisionPhase interface {
 // PhaseCollision binds to the entity behind the space's CID so that it will
 // receive CollisionStart and CollisionStop events, appropriately when
 // entities begin to collide or stop colliding with the space.
-func PhaseCollision(s *Space, trees ...*Tree) error {
-	en := event.GetEntity(int(s.CID))
+// If tree is nil, it uses DefTree
+func PhaseCollision(s *Space, tree *Tree) error {
+	en := s.CID.E()
 	if cp, ok := en.(collisionPhase); ok {
 		oc := cp.getCollisionPhase()
 		oc.OnCollisionS = s
-		if len(trees) > 0 {
-			oc.tree = trees[0]
-		} else {
+		oc.tree = tree
+		if oc.tree == nil {
 			oc.tree = DefTree
 		}
-		s.CID.Bind(phaseCollisionEnter, event.Enter)
+		s.CID.Bind(event.Enter, phaseCollisionEnter)
 		return nil
 	}
 	return errors.New("This space's entity does not implement collisionPhase")
@@ -51,8 +51,8 @@ const (
 	Stop  = "CollisionStop"
 )
 
-func phaseCollisionEnter(id int, nothing interface{}) int {
-	e := event.GetEntity(id).(collisionPhase)
+func phaseCollisionEnter(id event.CID, nothing interface{}) int {
+	e := id.E().(collisionPhase)
 	oc := e.getCollisionPhase()
 
 	// check hits

@@ -90,10 +90,11 @@ func (t *Tree) UpdateLabel(classtype Label, s *Space) {
 // when the space to update or act on did not exist
 var ErrNotExist = errors.New("Space did not exist to update")
 
+// UpdateSpace is not an operation on a space because
+// a space can exist in multiple trees.
+
 // UpdateSpace resets a space's location to a given
-// rtreego.Rect.
-// This is not an operation on a space because
-// a space can exist in multiple rtrees.
+// rect.
 func (t *Tree) UpdateSpace(x, y, w, h float64, s *Space) error {
 	loc := NewRect(x, y, w, h)
 	return t.UpdateSpaceRect(loc, s)
