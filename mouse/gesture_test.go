@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/v2/physics"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/oakmound/shiny/gesture"
 )
@@ -22,10 +21,22 @@ func TestGestureIdentity(t *testing.T) {
 		Time:        tm,
 	}
 	mge := FromShinyGesture(ge)
-	assert.Equal(t, mge.DoublePress, false)
-	assert.Equal(t, mge.LongPress, false)
-	assert.Equal(t, mge.Drag, true)
-	assert.Equal(t, mge.InitialPos, physics.NewVector(2.0, 3.0))
-	assert.Equal(t, mge.CurrentPos, physics.NewVector(4.0, 5.0))
-	assert.Equal(t, mge.Time, tm)
+	if mge.DoublePress != false {
+		t.Fatalf("got %v expected %v", mge.DoublePress, false)
+	}
+	if mge.LongPress != false {
+		t.Fatalf("got %v expected %v", mge.LongPress, false)
+	}
+	if mge.Drag != true {
+		t.Fatalf("got %v expected %v", mge.Drag, true)
+	}
+	if mge.InitialPos.X() != 2 || mge.InitialPos.Y() != 3.0 {
+		t.Fatalf("got %v expected %v", mge.InitialPos, physics.NewVector(2.0, 3.0))
+	}
+	if mge.CurrentPos.X() != 4.0 || mge.CurrentPos.Y() != 5.0 {
+		t.Fatalf("got %v expected %v", mge.CurrentPos, physics.NewVector(4.0, 5.0))
+	}
+	if mge.Time != tm {
+		t.Fatalf("got %v expected %v", mge.Time, tm)
+	}
 }

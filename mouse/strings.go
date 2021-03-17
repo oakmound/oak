@@ -17,11 +17,3 @@ const (
 	ClickOn      = Click + "On"
 	DragOn       = Drag + "On"
 )
-
-const (
-	ButtonLeft      = "LeftMouse"
-	ButtonMiddle    = "MiddleMouse"
-	ButtonRight     = "RightMouse"
-	ButtonWheelUp   = "ScrollUpMouse"
-	ButtonWheelDown = "ScrollDownMouse"
-)

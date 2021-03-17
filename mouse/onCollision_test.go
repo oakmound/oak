@@ -7,7 +7,6 @@ import (
 	"github.com/oakmound/oak/v2/alg/floatgeom"
 	"github.com/oakmound/oak/v2/collision"
 	"github.com/oakmound/oak/v2/event"
-	"github.com/stretchr/testify/assert"
 )
 
 type cphase struct {
@@ -29,23 +28,31 @@ func TestCollisionPhase(t *testing.T) {
 	cp := cphase{}
 	cid := cp.Init()
 	s := collision.NewSpace(10, 10, 10, 10, cid)
-	assert.Nil(t, PhaseCollision(s))
+	if PhaseCollision(s) != nil {
+		t.Fatalf("phase collision errored")
+	}
 	var active bool
-	cid.Bind(func(int, interface{}) int {
+	cid.Bind("MouseCollisionStart", func(event.CID, interface{}) int {
 		active = true
 		return 0
-	}, "MouseCollisionStart")
-	cid.Bind(func(int, interface{}) int {
+	})
+	cid.Bind("MouseCollisionStop", func(event.CID, interface{}) int {
 		active = false
 		return 0
-	}, "MouseCollisionStop")
+	})
 	time.Sleep(200 * time.Millisecond)
-	LastEvent = Event{floatgeom.Point2{10, 10}, "", ""}
+	LastEvent = Event{floatgeom.Point2{10, 10}, ButtonNone, ""}
 	time.Sleep(200 * time.Millisecond)
-	assert.True(t, active)
-	LastEvent = Event{floatgeom.Point2{21, 21}, "", ""}
+	if !active {
+		t.Fatalf("phase collision did not trigger")
+	}
+	LastEvent = Event{floatgeom.Point2{21, 21}, ButtonNone, ""}
 	time.Sleep(200 * time.Millisecond)
-	assert.False(t, active)
+	if active {
+		t.Fatalf("phase collision triggered innapropriately")
+	}
 	s = collision.NewSpace(10, 10, 10, 10, 5)
-	assert.NotNil(t, PhaseCollision(s))
+	if PhaseCollision(s) == nil {
+		t.Fatalf("phase collision did not error on invalid space")
+	}
 }

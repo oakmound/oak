@@ -21,12 +21,12 @@ var (
 // and which mouse button it concerns.
 type Event struct {
 	floatgeom.Point2
-	Button string
-	Event  string
+	Button
+	Event string
 }
 
 // NewEvent creates and returns an Event
-func NewEvent(x, y float64, button, event string) Event {
+func NewEvent(x, y float64, button Button, event string) Event {
 	return Event{
 		Point2: floatgeom.Point2{x, y},
 		Button: button,
@@ -36,7 +36,7 @@ func NewEvent(x, y float64, button, event string) Event {
 
 // NewZeroEvent creates an event with no button or event string.
 func NewZeroEvent(x, y float64) Event {
-	return NewEvent(x, y, "", "")
+	return NewEvent(x, y, ButtonNone, "")
 }
 
 // ToSpace converts a mouse event into a collision space

@@ -53,27 +53,20 @@ func Propagate(eventName string, me Event) {
 	}
 }
 
-// GetMouseButton is a utitilty function which translates
-// integer values of mouse keys from golang's event/mouse library
-// into strings.
-// Intended for internal use.
-func GetMouseButton(b mouse.Button) (s string) {
-	switch b {
-	case mouse.ButtonLeft:
-		s = ButtonLeft
-	case mouse.ButtonMiddle:
-		s = ButtonMiddle
-	case mouse.ButtonRight:
-		s = ButtonRight
-	case mouse.ButtonWheelUp:
-		s = ButtonWheelUp
-	case mouse.ButtonWheelDown:
-		s = ButtonWheelDown
-	default:
-		s = ""
-	}
-	return
-}
+type Button = mouse.Button
+
+const (
+	ButtonLeft       = mouse.ButtonLeft
+	ButtonMiddle     = mouse.ButtonMiddle
+	ButtonRight      = mouse.ButtonRight
+	ButtonWheelDown  = mouse.ButtonWheelDown
+	ButtonWheelUp    = mouse.ButtonWheelUp
+	ButtonWheelLeft  = mouse.ButtonWheelLeft
+	ButtonWheelRight = mouse.ButtonWheelRight
+	ButtonNone       = mouse.ButtonNone
+)
+
+//TODO V3: should event names be strings?
 
 // GetEventName returns a string event name given some mobile/mouse information
 func GetEventName(d mouse.Direction, b mouse.Button) string {

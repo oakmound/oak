@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/oakmound/oak/v2/collision"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDefaultFunctions(t *testing.T) {
@@ -12,19 +11,33 @@ func TestDefaultFunctions(t *testing.T) {
 	s := collision.NewUnassignedSpace(0, 0, 10, 10)
 	Add(s)
 	Remove(s)
-	assert.Empty(t, Hits(collision.NewUnassignedSpace(1, 1, 1, 1)))
+	if len(Hits(collision.NewUnassignedSpace(1, 1, 1, 1))) != 0 {
+		t.Fatalf("expected empty tree to have no contents")
+	}
 
 	Add(s)
-	assert.Nil(t, ShiftSpace(3, 3, s))
-	assert.Empty(t, Hits(collision.NewUnassignedSpace(1, 1, 1, 1)))
+	if ShiftSpace(3, 3, s) != nil {
+		t.Fatalf("shift space failed")
+	}
+	if len(Hits(collision.NewUnassignedSpace(1, 1, 1, 1))) != 0 {
+		t.Fatalf("hit away from space should not collide with space")
+	}
 
-	assert.Nil(t, UpdateSpace(0, 0, 10, 10, s))
-	assert.NotEmpty(t, Hits(collision.NewUnassignedSpace(1, 1, 1, 1)))
+	if UpdateSpace(0, 0, 10, 10, s) != nil {
+		t.Fatalf("update space failed")
+	}
+	if len(Hits(collision.NewUnassignedSpace(1, 1, 1, 1))) == 0 {
+		t.Fatalf("hit on space should collide")
+	}
 
 	Clear()
-	assert.Empty(t, Hits(collision.NewUnassignedSpace(1, 1, 1, 1)))
+	if len(Hits(collision.NewUnassignedSpace(1, 1, 1, 1))) != 0 {
+		t.Fatalf("expected cleared tree to have no contents")
+	}
 
 	s = collision.NewLabeledSpace(0, 0, 10, 10, collision.Label(2))
 	Add(s)
-	assert.NotEmpty(t, HitLabel(collision.NewUnassignedSpace(1, 1, 1, 1), collision.Label(2)))
+	if HitLabel(collision.NewUnassignedSpace(1, 1, 1, 1), collision.Label(2)) == nil {
+		t.Fatalf("hit label missed")
+	}
 }
