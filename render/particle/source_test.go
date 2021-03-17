@@ -48,9 +48,9 @@ func TestSource(t *testing.T) {
 	}
 
 	for i := 0; i < 1000; i++ {
-		rotateParticles(int(src.CID), nil)
+		rotateParticles(src.CID, nil)
 	}
-	for clearParticles(int(src.CID), nil) != event.UnbindEvent {
+	for clearParticles(src.CID, nil) != event.UnbindEvent {
 	}
 
 	if !ended {
