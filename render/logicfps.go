@@ -35,12 +35,12 @@ func NewLogicFPS() *LogicFPS {
 
 // PreDraw does nothing for a drawFPS
 func (lf *LogicFPS) PreDraw() {
-	//NOP
+	// usually a NOP
 	// This is not done in NewDrawFPS because at the time when
 	// NewDrawFPS is called, DefFont() does not exist.
 	if lf.txt == nil {
 		lf.Init()
-		lf.Bind(logicFPSBind, event.Enter)
+		lf.Bind(event.Enter, logicFPSBind)
 		lf.txt = DefFont().NewIntText(&lf.fps, 10, 30)
 	}
 }
@@ -65,7 +65,7 @@ func (lf *LogicFPS) draw(world draw.Image, view image.Point, w, h int) {
 	lf.txt.Draw(world)
 }
 
-func logicFPSBind(id int, nothing interface{}) int {
+func logicFPSBind(id event.CID, nothing interface{}) int {
 	lf := event.GetEntity(id).(*LogicFPS)
 	lf.fps = int((timing.FPS(lf.lastTime, time.Now()) * FpsSmoothing) + (float64(lf.fps) * (1 - FpsSmoothing)))
 	lf.lastTime = time.Now()
