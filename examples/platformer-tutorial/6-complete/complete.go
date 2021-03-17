@@ -38,7 +38,7 @@ func main() {
 
 		fallSpeed := .2
 
-		char.Bind(func(id int, nothing interface{}) int {
+		char.Bind(event.Enter, func(id event.CID, nothing interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 
 			// Move left and right with A and D
@@ -119,7 +119,7 @@ func main() {
 			}
 
 			return 0
-		}, event.Enter)
+		})
 
 		platforms := []floatgeom.Rect2{
 			floatgeom.NewRect2WH(0, 400, 300, 20),

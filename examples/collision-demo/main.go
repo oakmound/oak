@@ -24,9 +24,9 @@ func main() {
 		act := &AttachCollisionTest{}
 		act.Solid = entities.NewSolid(50, 50, 50, 50, render.NewColorBox(50, 50, color.RGBA{0, 0, 0, 255}), nil, act.Init())
 
-		collision.Attach(act.Vector, act.Space, 0, 0)
+		collision.Attach(act.Vector, act.Space, nil, 0, 0)
 
-		act.Bind(func(int, interface{}) int {
+		act.Bind(event.Enter, func(event.CID, interface{}) int {
 			if act.ShouldUpdate {
 				act.ShouldUpdate = false
 				act.R.Undraw()
@@ -34,7 +34,7 @@ func main() {
 				render.Draw(act.R, 0)
 			}
 			if oak.IsDown("A") {
-				// We could use attachement here to not have to shift both
+				// We could use attachment here to not have to shift both
 				// R and act but that is made more difficult by constantly
 				// changing the act's R
 				act.ShiftX(-3)
@@ -51,13 +51,13 @@ func main() {
 				act.R.ShiftY(3)
 			}
 			return 0
-		}, "EnterFrame")
+		})
 
 		render.Draw(act.R, 0)
 		act.R.SetLayer(1)
 
-		collision.PhaseCollision(act.Space)
-		act.Bind(func(id int, label interface{}) int {
+		collision.PhaseCollision(act.Space, nil)
+		act.Bind(collision.Start, func(id event.CID, label interface{}) int {
 			l := label.(collision.Label)
 			switch l {
 			case RED:
@@ -75,8 +75,8 @@ func main() {
 				act.UpdateR()
 			}
 			return 0
-		}, "CollisionStart")
-		act.Bind(func(id int, label interface{}) int {
+		})
+		act.Bind(collision.Stop, func(id event.CID, label interface{}) int {
 			l := label.(collision.Label)
 			switch l {
 			case RED:
@@ -94,7 +94,7 @@ func main() {
 				act.UpdateR()
 			}
 			return 0
-		}, "CollisionStop")
+		})
 
 		upleft := entities.NewSolid(0, 0, 320, 240, render.NewColorBox(320, 240, color.RGBA{100, 0, 0, 100}), nil, 0)
 		upleft.Space.UpdateLabel(RED)

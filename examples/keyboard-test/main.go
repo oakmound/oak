@@ -23,7 +23,7 @@ func main() {
 	oak.Add("keyboard-test", func(*scene.Context) {
 		kRenderable := render.NewStrText("", 40, 40)
 		render.Draw(kRenderable, 0)
-		event.GlobalBind(func(_ int, k interface{}) int {
+		event.GlobalBind(key.Down, func(_ event.CID, k interface{}) int {
 			kValue := k.(string)
 			keyLock.Lock()
 			keys[kValue] = struct{}{}
@@ -34,8 +34,8 @@ func main() {
 			kRenderable.SetText(stringStringer(txt))
 			keyLock.Unlock()
 			return 0
-		}, key.Down)
-		event.GlobalBind(func(_ int, k interface{}) int {
+		})
+		event.GlobalBind(key.Up, func(_ event.CID, k interface{}) int {
 			kValue := k.(string)
 			keyLock.Lock()
 			delete(keys, kValue)
@@ -46,7 +46,7 @@ func main() {
 			kRenderable.SetText(stringStringer(txt))
 			keyLock.Unlock()
 			return 0
-		}, key.Up)
+		})
 	}, func() bool {
 		return true
 	}, func() (string, *scene.Result) {

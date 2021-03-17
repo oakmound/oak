@@ -132,7 +132,7 @@ func newRenderer(joy *joystick.Joystick) {
 		"RightShoulder",
 	}
 
-	rend.Bind(func(id int, _ interface{}) int {
+	rend.Bind(joystick.Disconnected, func(id event.CID, _ interface{}) int {
 		rend, ok := event.GetEntity(id).(*renderer)
 		if !ok {
 			return 0
@@ -141,9 +141,9 @@ func newRenderer(joy *joystick.Joystick) {
 			r.Undraw()
 		}
 		return 0
-	}, joystick.Disconnected)
+	})
 
-	rend.Bind(func(id int, _ interface{}) int {
+	rend.Bind(key.Down+key.Spacebar, func(id event.CID, _ interface{}) int {
 		rend, ok := event.GetEntity(id).(*renderer)
 		if !ok {
 			return 0
@@ -155,9 +155,9 @@ func newRenderer(joy *joystick.Joystick) {
 			rend.joy.Vibrate(0, 0)
 		}()
 		return 0
-	}, key.Down+key.Spacebar)
+	})
 
-	rend.Bind(func(id int, state interface{}) int {
+	rend.Bind(joystick.Change, func(id event.CID, state interface{}) int {
 		rend, ok := event.GetEntity(id).(*renderer)
 		if !ok {
 			return 0
@@ -199,7 +199,7 @@ func newRenderer(joy *joystick.Joystick) {
 		rend.rs["RtStick"].SetPos(pos.X(), pos.Y())
 
 		return 0
-	}, joystick.Change)
+	})
 }
 
 func main() {

@@ -25,7 +25,7 @@ func main() {
 
 		char.Speed = physics.NewVector(3, 3)
 
-		char.Bind(func(id int, nothing interface{}) int {
+		char.Bind(event.Enter, func(id event.CID, nothing interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			// Move left and right with A and D
 			if oak.IsDown(key.A) {
@@ -35,7 +35,7 @@ func main() {
 				char.ShiftX(char.Speed.X())
 			}
 			return 0
-		}, event.Enter)
+		})
 
 	}, func() bool {
 		return true

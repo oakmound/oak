@@ -65,7 +65,7 @@ func (d *Doodad) Destroy() {
 		d.R.Undraw()
 	}
 	d.CID.UnbindAll()
-	event.DestroyEntity(int(d.CID))
+	event.DestroyEntity(d.CID)
 }
 
 // Overwrites

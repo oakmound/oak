@@ -34,12 +34,12 @@ func main() {
 		oak.SetViewportBounds(0, 0, xLimit, yLimit)
 		moveRect := floatgeom.NewRect2(0, 0, xLimit, yLimit)
 
-		char.Bind(func(int, interface{}) int {
+		char.Bind(event.Enter, func(event.CID, interface{}) int {
 			move.WASD(char)
 			move.Limit(char, moveRect)
 			move.CenterScreenOn(char)
 			return 0
-		}, "EnterFrame")
+		})
 		render.Draw(char.R, 1, 2)
 
 		// Create the Radar
@@ -53,7 +53,7 @@ func main() {
 		for i := 0; i < 5; i++ {
 			x, y := rand.Float64()*400, rand.Float64()*400
 			enemy := newEnemyOnRadar(x, y)
-			enemy.CID.Bind(standardEnemyMove, "EnterFrame")
+			enemy.CID.Bind(event.Enter, standardEnemyMove)
 			render.Draw(enemy.R, 1, 1)
 			r.AddPoint(radar.Point{X: enemy.Xp(), Y: enemy.Yp()}, color.RGBA{255, 255, 0, 255})
 		}
@@ -98,7 +98,7 @@ func newEnemyOnRadar(x, y float64) *enemyOnRadar {
 	return eor
 }
 
-func standardEnemyMove(id int, nothing interface{}) int {
+func standardEnemyMove(id event.CID, nothing interface{}) int {
 	eor := event.GetEntity(id).(*enemyOnRadar)
 	if eor.X() < 0 {
 		eor.Delta.SetPos(math.Abs(eor.Speed.X()), (eor.Speed.Y()))

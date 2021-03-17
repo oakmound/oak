@@ -33,13 +33,13 @@ func main() {
 			render.Draw(layerTxt, 0)
 			NewGopher(layer)
 			layer++
-			event.GlobalBind(func(int, interface{}) int {
+			event.GlobalBind(event.Enter, func(event.CID, interface{}) int {
 				if oak.IsDown("K") {
 					NewGopher(layer)
 					layer++
 				}
 				return 0
-			}, "EnterFrame")
+			})
 			// Generate a rotation cache for comparison
 			// Compare the use of the cache against the use of a reverting type below
 			cache = render.NewSwitch("0", make(map[string]render.Modifiable))
@@ -96,14 +96,14 @@ func NewGopher(layer int) {
 		//render.NewReverting(render.LoadSprite(filepath.Join("raw", "gopher11.png"))),
 		goph.Init())
 	goph.R.SetLayer(layer)
-	goph.Bind(gophEnter, "EnterFrame")
+	goph.Bind("EnterFrame", gophEnter)
 	goph.deltaX = 4 * float64(rand.Intn(2)*2-1)
 	goph.deltaY = 4 * float64(rand.Intn(2)*2-1)
 	goph.rotation = rand.Intn(360)
 	render.Draw(goph.R, 0)
 }
 
-func gophEnter(cid int, nothing interface{}) int {
+func gophEnter(cid event.CID, nothing interface{}) int {
 	goph := event.GetEntity(cid).(*Gopher)
 
 	// Compare against this version of rotation

@@ -40,7 +40,7 @@ func main() {
 func newBall(x, y float64) {
 	b := entities.NewMoving(x, y, 10, 10, render.NewColorBox(10, 10, color.RGBA{0, 255, 0, 255}), nil, 0, 0)
 	render.Draw(b.R, 2)
-	b.Bind(func(id int, nothing interface{}) int {
+	b.Bind(event.Enter, func(id event.CID, nothing interface{}) int {
 		if b.Delta.X() == 0 && b.Delta.Y() == 0 {
 			b.Delta.SetY((rand.Float64() - 0.5) * 4)
 			b.Delta.SetX((rand.Float64() - 0.5) * 16)
@@ -66,7 +66,7 @@ func newBall(x, y float64) {
 			b.Delta.SetY(-1 * b.Delta.Y())
 		}
 		return 0
-	}, event.Enter)
+	})
 }
 
 func newPaddle(x, y float64, player int) {
@@ -75,15 +75,15 @@ func newPaddle(x, y float64, player int) {
 	render.Draw(p.R, 1)
 	p.Space.UpdateLabel(paddle)
 	if player == 1 {
-		p.Bind(enterPaddle("UpArrow", "DownArrow"), event.Enter)
+		p.Bind(event.Enter, enterPaddle("UpArrow", "DownArrow"))
 	} else {
-		p.Bind(enterPaddle("W", "S"), event.Enter)
+		p.Bind(event.Enter, enterPaddle("W", "S"))
 	}
 	p.SetPos(x, y)
 }
 
-func enterPaddle(up, down string) func(int, interface{}) int {
-	return func(id int, nothing interface{}) int {
+func enterPaddle(up, down string) func(event.CID, interface{}) int {
+	return func(id event.CID, nothing interface{}) int {
 		p := event.GetEntity(id).(*entities.Moving)
 		p.Delta.SetY(0)
 		if oak.IsDown(up) {

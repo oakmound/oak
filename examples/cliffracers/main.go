@@ -57,15 +57,15 @@ func NewCliffRacer(y float64) *CliffRacer {
 	render.Draw(cr.R, 100)
 	cr.Space = collision.NewLabeledSpace(cr.X(), cr.Y(), 80, 80, CLIFFRACER)
 	collision.Add(cr.Space)
-	cr.CID.Bind(moveCliffRacer, "EnterFrame")
-	cr.CID.Bind(func(id int, nothing interface{}) int {
+	cr.CID.Bind(event.Enter, moveCliffRacer)
+	cr.CID.Bind("PlayerHit", func(id event.CID, nothing interface{}) int {
 		event.GetEntity(id).(*CliffRacer).Destroy()
 		return 0
-	}, "PlayerHit")
+	})
 	return cr
 }
 
-func moveCliffRacer(id int, nothing interface{}) int {
+func moveCliffRacer(id event.CID, nothing interface{}) int {
 	cr := event.GetEntity(id).(*CliffRacer)
 	cr.ShiftX(-cr.Speed.X())
 	cr.ShiftY(cr.Speed.Y())
@@ -91,10 +91,10 @@ func NewPlayer() {
 	p.Solid = entities.NewSolid(50, 100, 10, 10, render.NewColorBox(10, 10, color.RGBA{255, 0, 0, 255}), nil, p.Init())
 	render.Draw(p.R, 80)
 	collision.Add(p.Space)
-	p.CID.Bind(playerEnter, "EnterFrame")
+	p.CID.Bind(event.Enter, playerEnter)
 }
 
-func playerEnter(id int, nothing interface{}) int {
+func playerEnter(id event.CID, nothing interface{}) int {
 	p := event.GetEntity(id).(*Player)
 	if oak.IsDown("W") {
 		p.ShiftY(-5)

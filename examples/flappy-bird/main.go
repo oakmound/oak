@@ -88,7 +88,7 @@ func newFlappy(x, y float64) *Flappy {
 	f.R.SetLayer(1)
 	render.Draw(f.R, 0)
 
-	f.Bind(func(int, interface{}) int {
+	f.Bind(event.Enter, func(event.CID, interface{}) int {
 		f.ShiftPos(f.Delta.X(), f.Delta.Y())
 		f.Add(f.Delta)
 		if f.Delta.Y() > 10 {
@@ -112,11 +112,11 @@ func newFlappy(x, y float64) *Flappy {
 			f.Delta.SetY(0)
 		}
 		return 0
-	}, event.Enter)
-	f.Bind(func(int, interface{}) int {
+	})
+	f.Bind(key.Down+key.W, func(event.CID, interface{}) int {
 		f.Delta.ShiftY(-4)
 		return 0
-	}, key.Down+key.W)
+	})
 	return f
 }
 
@@ -136,7 +136,7 @@ func newPillar(x, y, h float64, isAbove bool) {
 	p.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), nil, p.Init())
 	p.Space.Label = pillar
 	collision.Add(p.Space)
-	p.Bind(enterPillar, event.Enter)
+	p.Bind(event.Enter, enterPillar)
 	p.R.SetLayer(1)
 	render.Draw(p.R, 0)
 	// Don't score one out of each two pillars
@@ -159,7 +159,7 @@ func newPillarPair() {
 	newPillar(641, pos+span, 480-(pos+span), false)
 }
 
-func enterPillar(id int, nothing interface{}) int {
+func enterPillar(id event.CID, nothing interface{}) int {
 	p := event.GetEntity(id).(*Pillar)
 	p.ShiftX(-2)
 	if p.X()+p.W < 0 {

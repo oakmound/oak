@@ -33,7 +33,7 @@ func main() {
 		char.Speed = physics.NewVector(5, 5)
 		render.Draw(char.R)
 
-		char.Bind(func(id int, _ interface{}) int {
+		char.Bind(event.Enter, func(id event.CID, _ interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			char.Delta.Zero()
 			if oak.IsDown(key.W) {
@@ -55,7 +55,7 @@ func main() {
 			}
 
 			return 0
-		}, event.Enter)
+		})
 
 	}, func() bool {
 		return playerAlive

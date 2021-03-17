@@ -18,7 +18,7 @@ func main() {
 		borderless := oak.SetupBorderless
 		fullscreen := oak.SetupFullscreen
 
-		event.GlobalBind(func(int, interface{}) int {
+		event.GlobalBind(key.Down+key.F, func(event.CID, interface{}) int {
 			fullscreen = !fullscreen
 			err := oak.SetFullScreen(fullscreen)
 			if err != nil {
@@ -26,8 +26,8 @@ func main() {
 				fmt.Println(err)
 			}
 			return 0
-		}, key.Down+key.F)
-		event.GlobalBind(func(int, interface{}) int {
+		})
+		event.GlobalBind(key.Down+key.B, func(event.CID, interface{}) int {
 			borderless = !borderless
 			err := oak.SetBorderless(borderless)
 			if err != nil {
@@ -35,7 +35,7 @@ func main() {
 				fmt.Println(err)
 			}
 			return 0
-		}, key.Down+key.B)
+		})
 
 	}, func() bool {
 		return true

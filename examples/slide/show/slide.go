@@ -102,10 +102,10 @@ func Start(slides ...Slide) {
 						float64(oak.ScreenHeight-50),
 					),
 				)
-				event.GlobalBind(func(int, interface{}) int {
+				event.GlobalBind("KeyDownSpacebar", func(event.CID, interface{}) int {
 					reset = true
 					return 0
-				}, "KeyDownSpacebar")
+				})
 			},
 			Loop: func() bool {
 				return !reset

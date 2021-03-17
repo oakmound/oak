@@ -8,6 +8,7 @@ import (
 	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/entities"
 	"github.com/oakmound/oak/v2/entities/x/move"
+	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/physics"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/scene"
@@ -48,7 +49,7 @@ func main() {
 		var transitioning bool
 		var totalTransitionDelta intgeom.Point2
 		var transitionDelta intgeom.Point2
-		char.Bind(func(int, interface{}) int {
+		char.Bind(event.Enter, func(event.CID, interface{}) int {
 			dir, ok := isOffScreen(char)
 			if !transitioning && ok {
 				transitioning = true
@@ -69,7 +70,7 @@ func main() {
 			}
 
 			return 0
-		}, "EnterFrame")
+		})
 		render.Draw(char.R, 1, 2)
 
 		for x := 0; x < 2000; x += 64 {

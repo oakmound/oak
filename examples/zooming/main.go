@@ -36,7 +36,7 @@ func main() {
 		render.Draw(zoomer)
 
 		// To illustrate zooming allow for arrow keys to control the main zoomable renderable.
-		event.GlobalBind(func(i int, _ interface{}) int {
+		event.GlobalBind(event.Enter, func(i event.CID, _ interface{}) int {
 			if oak.IsDown(key.UpArrow) {
 				zoomOutFactorY -= .10
 			}
@@ -50,7 +50,7 @@ func main() {
 				zoomOutFactorX -= .10
 			}
 			return 0
-		}, event.Enter)
+		})
 
 	}, func() bool {
 		return true

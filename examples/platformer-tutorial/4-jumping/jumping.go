@@ -36,7 +36,7 @@ func main() {
 
 		fallSpeed := .1
 
-		char.Bind(func(id int, nothing interface{}) int {
+		char.Bind(event.Enter, func(id event.CID, nothing interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			// Move left and right with A and D
 			if oak.IsDown(key.A) {
@@ -58,7 +58,7 @@ func main() {
 			}
 			char.ShiftY(char.Delta.Y())
 			return 0
-		}, event.Enter)
+		})
 
 		ground := entities.NewSolid(0, 400, 500, 20,
 			render.NewColorBox(500, 20, color.RGBA{0, 0, 255, 255}),

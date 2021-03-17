@@ -184,8 +184,8 @@ func (g Generator) generate(parent *Generator) Btn {
 			filteredK := "Filtered" + k
 			g.Bindings[filteredK] = g.Bindings[k]
 			g.Bindings[k] = []event.Bindable{
-				func(id int, button interface{}) int {
-					btn := event.GetEntity(id).(Btn)
+				func(id event.CID, button interface{}) int {
+					btn := id.E().(Btn)
 					mEvent, ok := button.(mouse.Event)
 					// If the passed event is not a mouse event dont filter on location.
 					// Main current use case is for nil events passed via simulated clicks.
@@ -204,7 +204,7 @@ func (g Generator) generate(parent *Generator) Btn {
 
 	for k, v := range g.Bindings {
 		for _, b := range v {
-			btn.Bind(b, k)
+			btn.Bind(k, b)
 		}
 	}
 
@@ -239,8 +239,8 @@ type switcher interface {
 }
 
 // toggleFxn sets up the mouseclick binding for toggle buttons created for goreport cyclo decrease
-func toggleFxn(g Generator) func(id int, nothing interface{}) int {
-	return func(id int, nothing interface{}) int {
+func toggleFxn(g Generator) func(id event.CID, nothing interface{}) int {
+	return func(id event.CID, nothing interface{}) int {
 		btn := event.GetEntity(id).(Btn)
 		if btn.GetRenderable().(switcher).Get() == "on" {
 			if g.Group != nil && g.Group.active == btn {
@@ -266,20 +266,20 @@ func toggleFxn(g Generator) func(id int, nothing interface{}) int {
 	}
 }
 
-// listFxn sets up the mouseclick binding for list buttons created for goreport cyclo decrease
-func listFxn(g Generator) func(id int, button interface{}) int {
-	return func(id int, button interface{}) int {
+// listFxn sets up the mouseclick binding for list buttons created for goreport cyclo reduction
+func listFxn(g Generator) func(id event.CID, button interface{}) int {
+	return func(id event.CID, button interface{}) int {
 		btn := event.GetEntity(id).(Btn)
 		i := *g.ListChoice
 		mEvent := button.(mouse.Event)
 
-		if mEvent.Button == "LeftMouse" {
+		if mEvent.Button == mouse.ButtonLeft {
 			i++
 			if i == len(g.RS) {
 				i = 0
 			}
 
-		} else if mEvent.Button == "RightMouse" {
+		} else if mEvent.Button == mouse.ButtonRight {
 			i--
 			if i < 0 {
 				i += len(g.RS)

@@ -59,11 +59,11 @@ func main() {
 	}
 
 	oak.AddCommand("followMouse", func(args []string) {
-		event.GlobalBind(func(int, interface{}) int {
+		event.GlobalBind(event.Enter, func(event.CID, interface{}) int {
 			// It'd be interesting to attach to the mouse position
 			src.SetPos(float64(mouse.LastEvent.X()), float64(mouse.LastEvent.Y()))
 			return 0
-		}, "EnterFrame")
+		})
 	})
 
 	oak.AddCommand("shape", func(args []string) {
