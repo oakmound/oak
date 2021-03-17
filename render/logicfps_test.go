@@ -21,5 +21,5 @@ func TestLogicFPS(t *testing.T) {
 	assert.NotNil(t, lfps.Copy())
 	lfps.draw(image.NewRGBA(image.Rect(0, 0, 100, 100)), image.Point{0, 0}, 10, 10)
 
-	logicFPSBind(int(lfps.CID), nil)
+	logicFPSBind(lfps.CID, nil)
 }

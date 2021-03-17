@@ -26,7 +26,7 @@ func TestSequenceTrigger(t *testing.T) {
 	cid := Dummy{}.Init()
 	sq.SetTriggerID(cid)
 	triggerCh := make(chan bool)
-	cid.Bind(func(int, interface{}) int {
+	cid.Bind("AnimationEnd", func(event.CID, interface{}) int {
 		// This is a bad idea in real code, this will lock up
 		// unbindings because the function that triggered this owns
 		// the lock on the event bus until this function exits.
@@ -39,7 +39,7 @@ func TestSequenceTrigger(t *testing.T) {
 		// For this test this is the easiest way to do this though
 		triggerCh <- true
 		return 0
-	}, "AnimationEnd")
+	})
 	// We sleep to trigger the sequence to want to animate to the next frame
 	time.Sleep(1 * time.Second)
 	// Normally update is only called inside of Draw, so this is a pretend draw
