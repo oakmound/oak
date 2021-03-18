@@ -1,7 +1,6 @@
 package render
 
 import (
-	"github.com/akavel/polyclip-go"
 	"github.com/oakmound/oak/v2/alg"
 	"github.com/oakmound/oak/v2/alg/floatgeom"
 )
@@ -13,20 +12,6 @@ type DrawPolygon struct {
 	drawPolygon      []floatgeom.Point2
 	dims             floatgeom.Rect2
 	rectangular      bool
-}
-
-// SetDrawPolygon sets the draw polygon and flags that draw functions
-// should check for containment in the polygon before drawing elements
-// Deprecated: use SetPolygon instead
-func (dp *DrawPolygon) SetDrawPolygon(p polyclip.Polygon) {
-	// get []floatgeom.Point2
-	poly := make([]floatgeom.Point2, 0, len(p))
-	for _, c := range p {
-		for _, pt := range c {
-			poly = append(poly, floatgeom.Point2{pt.X, pt.Y})
-		}
-	}
-	dp.SetPolygon(poly)
 }
 
 // SetPolygon sets the draw polygon and flags that draw functions
@@ -67,7 +52,7 @@ func (dp *DrawPolygon) DrawPolygonDim() floatgeom.Rect2 {
 }
 
 // DrawPolygonBounds returns the dimensions of this draw polygon, or (0,0)->(0,0)
-// if there is no draw polygon in use. 
+// if there is no draw polygon in use.
 func (dp *DrawPolygon) DrawPolygonBounds() floatgeom.Rect2 {
 	return dp.dims
 }

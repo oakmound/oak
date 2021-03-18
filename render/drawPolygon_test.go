@@ -3,7 +3,7 @@ package render
 import (
 	"testing"
 
-	"github.com/akavel/polyclip-go"
+	"github.com/oakmound/oak/v2/alg/floatgeom"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,8 +21,8 @@ func TestDrawPolygon(t *testing.T) {
 	x2 := 20.0
 	y2 := 20.0
 
-	pgn := polyclip.Polygon{{{X: x, Y: y}, {X: x, Y: y2}, {X: x2, Y: y2}, {X: x2, Y: y}}}
-	rh.SetDrawPolygon(pgn)
+	pgn := []floatgeom.Point2{{x, y}, {x, y2}, {x2, y2}, {x2, y}}
+	rh.SetPolygon(pgn)
 
 	r = rh.DrawPolygonDim()
 	assert.Equal(t, x, r.Min.X())
