@@ -32,23 +32,10 @@ func TestDrawHeapLoop(t *testing.T) {
 			NewColorBox(6, 6, color.RGBA{20, 0, 0, 255}),
 			NewColorBox(7, 7, color.RGBA{40, 0, 0, 255}),
 			NewColorBox(8, 9, color.RGBA{60, 0, 0, 255})), 3},
-		{NewScrollBox(
-			[]Renderable{
-				NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}),
-				DefFont().NewStrText("test", 11, 11),
-			},
-			50,
-			50,
-			20,
-			20,
-		), 4},
 		{DefFont().NewStrText("fire", 15, 15), 5},
 		{DefFont().NewIntText(&n, 15, 15), 6},
 		{DefFont().NewText(collision.NewUnassignedSpace(0, 0, 10, 10), 15, 15), 7},
 	}
-	// Scrollbox test that shouldn't really be here
-	toAdds[4].r.(*ScrollBox).AddRenderable(DefFont().NewStrText("test", 14, 14))
-
 	for _, a := range toAdds {
 		h.Add(a.r, a.layer)
 		h2.Add(a.r, a.layer)
