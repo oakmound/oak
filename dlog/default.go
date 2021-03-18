@@ -131,15 +131,8 @@ func (l *logger) SetDebugLevel(dL Level) {
 // CreateLogFile creates a file in the 'logs' directory
 // of the starting point of this program to write logs to
 func (l *logger) CreateLogFile() {
-	file := "logs/dlog"
-	file += time.Now().Format("_Jan_2_15-04-05_2006")
-	file += ".txt"
-	fHandle, err := os.Create(file)
+	fHandle, err := os.Create("logs/dlog" + time.Now().Format("_Jan_2_15-04-05_2006") + ".txt")
 	if err != nil {
-		// We can't log an error that comes from
-		// our error logging functions
-		//panic(err)
-		// But this is also not an error we want to panic on!
 		fmt.Println("[oak]-------- No logs directory found. No logs will be written to file.")
 		return
 	}
