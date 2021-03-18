@@ -119,7 +119,7 @@ func Init(firstScene string) {
 	}
 	// END of loading variables from configuration
 
-	SeedRNG(DefaultSeed)
+	seedRNG()
 
 	imageDir := filepath.Join(wd,
 		conf.Assets.AssetPath,

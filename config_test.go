@@ -2,19 +2,26 @@ package oak
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDefaultConfig(t *testing.T) {
-	err := LoadConf("default.config")
-	assert.Nil(t, err)
-	assert.Equal(t, conf, SetupConfig)
-	f, err := os.Open("default.config")
-	assert.Nil(t, err)
+	err := LoadConf(filepath.Join("testdata", "default.config"))
+	if err != nil {
+		t.Fatalf("failed to load deafult.config (1): %v", err)
+	}
+	if conf != SetupConfig {
+		t.Fatalf("load conf did not match default config (1)")
+	}
+	f, err := os.Open(filepath.Join("testdata", "default.config"))
+	if err != nil {
+		t.Fatalf("failed to load deafult.config (1)")
+	}
 	err = LoadConfData(f)
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatalf("failed to load config data from file")
+	}
 	SetupConfig = Config{
 		Assets:              Assets{"a/", "a/", "i/", "f/"},
 		Debug:               Debug{"FILTER", "INFO"},
@@ -29,8 +36,12 @@ func TestDefaultConfig(t *testing.T) {
 		LoadBuiltinCommands: true,
 	}
 	initConf()
-	assert.Equal(t, SetupConfig, conf)
+	if conf != SetupConfig {
+		t.Fatalf("load conf did not match default config (2)")
+	}
 	// Failure to load
 	err = LoadConf("nota.config")
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("loading bad config file did not fail")
+	}
 }

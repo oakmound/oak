@@ -8,7 +8,6 @@ import (
 	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/mouse"
 	"github.com/oakmound/oak/v2/render"
-	"github.com/stretchr/testify/assert"
 )
 
 type ent struct{}
@@ -19,9 +18,12 @@ func (e ent) Init() event.CID {
 
 func TestDebugConsole(t *testing.T) {
 	triggered := false
-	assert.Nil(t, AddCommand("test", func([]string) {
+	err := AddCommand("test", func([]string) {
 		triggered = true
-	}))
+	})
+	if err != nil {
+		t.Fatalf("failed to add test command")
+	}
 
 	render.UpdateDebugMap("r", render.EmptyRenderable())
 
@@ -53,7 +55,9 @@ func TestDebugConsole(t *testing.T) {
 	rCh <- true
 	sleep()
 	sleep()
-	assert.True(t, triggered)
+	if !triggered {
+		t.Fatalf("debug console did not trigger test command")
+	}
 	<-sCh
 }
 
@@ -69,5 +73,4 @@ func TestMouseDetails(t *testing.T) {
 	s = collision.NewSpace(-1, -1, 2, 2, id)
 	mouseDetails(0, mouse.NewZeroEvent(0, 0))
 	collision.Remove(s)
-
 }

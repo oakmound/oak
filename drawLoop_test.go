@@ -18,7 +18,7 @@ func BenchmarkDrawLoop(b *testing.B) {
 		}
 		Add("draw",
 			// Initialization function
-			func(prevScene string, inData interface{}) {},
+			func(*scene.Context) {},
 			// Loop to continue or stop current scene
 			func() bool { return true },
 			// Exit to transition to next scene

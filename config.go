@@ -58,21 +58,22 @@ var (
 
 // Config stores initialization settings for oak.
 type Config struct {
-	Assets              Assets           `json:"assets"`
-	Debug               Debug            `json:"debug"`
-	Screen              Screen           `json:"screen"`
-	Font                Font             `json:"font"`
-	BatchLoadOptions    BatchLoadOptions `json:"batchLoadOptions"`
-	FrameRate           int              `json:"frameRate"`
-	DrawFrameRate       int              `json:"drawFrameRate"`
-	Language            string           `json:"language"`
-	Title               string           `json:"title"`
-	EventRefreshRate    time.Duration    `json:"refreshRate"`
-	BatchLoad           bool             `json:"batchLoad"`
-	GestureSupport      bool             `json:"gestureSupport"`
-	LoadBuiltinCommands bool             `json:"loadBuiltinCommands"`
-	TrackInputChanges   bool             `json:"trackInputChanges"`
-	DisableDebugConsole bool             `json:"disableDebugConsole"`
+	Assets           Assets           `json:"assets"`
+	Debug            Debug            `json:"debug"`
+	Screen           Screen           `json:"screen"`
+	Font             Font             `json:"font"`
+	BatchLoadOptions BatchLoadOptions `json:"batchLoadOptions"`
+	FrameRate        int              `json:"frameRate"`
+	DrawFrameRate    int              `json:"drawFrameRate"`
+	Language         string           `json:"language"`
+	Title            string           `json:"title"`
+	// TODO V3: this can't be unmarshalled to directly
+	EventRefreshRate    time.Duration `json:"refreshRate"`
+	BatchLoad           bool          `json:"batchLoad"`
+	GestureSupport      bool          `json:"gestureSupport"`
+	LoadBuiltinCommands bool          `json:"loadBuiltinCommands"`
+	TrackInputChanges   bool          `json:"trackInputChanges"`
+	DisableDebugConsole bool          `json:"disableDebugConsole"`
 }
 
 // Assets is a json type storing paths to different asset folders

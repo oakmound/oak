@@ -3,8 +3,6 @@ package oak
 import (
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestKeyStore(t *testing.T) {
@@ -17,21 +15,37 @@ func TestKeyStore(t *testing.T) {
 	// Pros: Uses less space, probably less time as well
 	// Cons: Requires import, key.A instead of "A", keybinds require an extended const block
 	SetDown("Test")
-	assert.True(t, IsDown("Test"))
+	if !IsDown("Test") {
+		t.Fatalf("test was not set down")
+	}
 	SetUp("Test")
-	assert.False(t, IsDown("Test"))
+	if IsDown("Test") {
+		t.Fatalf("test was not set up")
+	}
 	SetDown("Test")
 	time.Sleep(2 * time.Second)
 	ok, d := IsHeld("Test")
-	assert.True(t, ok)
-	assert.True(t, d > 1950*time.Millisecond)
+	if !ok {
+		t.Fatalf("test was not held down")
+	}
+	if d < 2000*time.Millisecond {
+		t.Fatalf("test was not held down for sleep length")
+	}
 	SetUp("Test")
 	ok, d = IsHeld("Test")
-	assert.False(t, ok)
-	assert.True(t, d == 0)
+	if ok {
+		t.Fatalf("test was not released")
+	}
+	if d != 0 {
+		t.Fatalf("test hold was not reset")
+	}
 
 	// KeyBind
-	assert.Equal(t, "Test", GetKeyBind("Test"))
+	if GetKeyBind("Test") != "Test" {
+		t.Fatalf("getKeyBind did not return identiy for non-bound key")
+	}
 	BindKey("Test", "Bound")
-	assert.Equal(t, "Bound", GetKeyBind("Test"))
+	if GetKeyBind("Test") != "Bound" {
+		t.Fatalf("getKeyBind did not return bound value for bound key")
+	}
 }

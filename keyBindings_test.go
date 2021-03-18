@@ -2,9 +2,8 @@ package oak
 
 import (
 	"bytes"
+	"strconv"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestLoadKeyBindings(t *testing.T) {
@@ -26,13 +25,20 @@ func TestLoadKeyBindings(t *testing.T) {
 		},
 	}
 
-	for _, cas := range cases {
-		r := bytes.NewReader([]byte(cas.input))
-		_, err := LoadKeyBindings(r)
-		if cas.shouldSucceed {
-			assert.Nil(t, err)
-		} else {
-			assert.NotNil(t, err)
-		}
+	for i, cas := range cases {
+		cas := cas
+		t.Run("case"+strconv.Itoa(i), func(t *testing.T) {
+			r := bytes.NewReader([]byte(cas.input))
+			_, err := LoadKeyBindings(r)
+			if cas.shouldSucceed {
+				if err != nil {
+					t.Fatalf("case failed: %v", err)
+				}
+			} else {
+				if err == nil {
+					t.Fatalf("case should have failed")
+				}
+			}
+		})
 	}
 }
