@@ -167,7 +167,7 @@ func TestRegexLogger_FileWrite(t *testing.T) {
 	cl.file = buff
 	cl.FileWrite("test")
 	bs := buff.String()
-	if !strings.Contains(bs, "whoops") {
+	if strings.Contains(bs, "whoops") {
 		t.Fatalf("expected buffer not to contain %v, was %v", "whoops", bs)
 	}
 	if !strings.Contains(bs, "test") {
