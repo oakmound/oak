@@ -133,7 +133,7 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 			if rp != nil {
 				r := rp.(Renderable)
 				if r.GetLayer() != Undraw {
-					r.Draw(world)
+					r.Draw(world, 0, 0)
 					heap.Push(newRh, r)
 				}
 			}
@@ -154,7 +154,7 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 					if x > viewPos.X && y > viewPos.Y &&
 						x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
 						if rh.InDrawPolygon(x, y, x2, y2) {
-							r.DrawOffset(world, vx, vy)
+							r.Draw(world, vx, vy)
 						}
 					}
 					heap.Push(newRh, r)

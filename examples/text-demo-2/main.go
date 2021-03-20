@@ -42,6 +42,8 @@ func main() {
 	oak.Add("demo",
 		// Init
 		func(*scene.Context) {
+			render.Draw(render.NewDrawFPS(1, nil, 10, 10))
+
 			r = 255
 			// By not specifying "File", we use the default
 			// font built into the engine
@@ -86,7 +88,6 @@ func main() {
 	)
 	render.SetDrawStack(
 		render.NewHeap(false),
-		render.NewDrawFPS(),
 	)
 	oak.Init("demo")
 }

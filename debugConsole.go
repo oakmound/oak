@@ -178,8 +178,8 @@ func fadeCommands(tokenString []string) {
 		return
 	}
 	toFade, ok := render.GetDebugRenderable(tokenString[0])
-	fadeVal := parseTokenAsInt(tokenString, 1, 255)
 	if ok {
+		fadeVal := parseTokenAsInt(tokenString, 1, 255)
 		toFade.(render.Modifiable).Filter(mod.Fade(fadeVal))
 	} else {
 		fmt.Println("Could not fade input")

@@ -128,17 +128,10 @@ func (c *Switch) Filter(fs ...mod.Filter) {
 	c.lock.RUnlock()
 }
 
-//DrawOffset draws the Switch at an offset from its logical location
-func (c *Switch) DrawOffset(buff draw.Image, xOff float64, yOff float64) {
+//Draw draws the Switch at an offset from its logical location
+func (c *Switch) Draw(buff draw.Image, xOff float64, yOff float64) {
 	c.lock.RLock()
-	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X()+xOff, c.Y()+yOff)
-	c.lock.RUnlock()
-}
-
-//Draw draws the Switch at its logical location
-func (c *Switch) Draw(buff draw.Image) {
-	c.lock.RLock()
-	c.subRenderables[c.curRenderable].DrawOffset(buff, c.X(), c.Y())
+	c.subRenderables[c.curRenderable].Draw(buff, c.X()+xOff, c.Y()+yOff)
 	c.lock.RUnlock()
 }
 

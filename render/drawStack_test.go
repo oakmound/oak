@@ -2,22 +2,23 @@ package render
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDrawStack(t *testing.T) {
-	resetDraw = true
-	PreDraw()
-	resetDraw = false
-	PreDraw()
-	assert.Equal(t, 1, len(GlobalDrawStack.as))
+	GlobalDrawStack.PreDraw()
+	if len(GlobalDrawStack.as) != 1 {
+		t.Fatalf("global draw stack did not have one length initially")
+	}
 	SetDrawStack(
 		NewHeap(false),
-		NewDrawFPS(),
+		NewStaticHeap(),
 	)
-	assert.Equal(t, 2, len(GlobalDrawStack.as))
+	if len(GlobalDrawStack.as) != 2 {
+		t.Fatalf("global draw stack did not have two length after reset")
+	}
 	GlobalDrawStack.Pop()
-	PreDraw()
-	assert.Equal(t, 1, len(GlobalDrawStack.as))
+	GlobalDrawStack.PreDraw()
+	if len(GlobalDrawStack.as) != 1 {
+		t.Fatalf("global draw stack did not have one length after pop")
+	}
 }

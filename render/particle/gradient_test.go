@@ -40,7 +40,7 @@ func TestGradientParticle(t *testing.T) {
 
 	p := src.particles[0].(*GradientParticle)
 
-	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
+	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)), 0, 0)
 	if p.GetLayer() != 0 {
 		t.Fatalf("expected 0 layer, got %v", p.GetLayer())
 	}
@@ -50,7 +50,7 @@ func TestGradientParticle(t *testing.T) {
 	if sz != int(p.endSize) {
 		t.Fatalf("expected size %v at end of particle's life, got %v", p.endSize, sz)
 	}
-	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
+	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)), 0, 0)
 
 	_, _, ok := g.GetParticleSize()
 	if !ok {

@@ -64,14 +64,10 @@ type zoomR struct {
 	SetFn func(buff draw.Image, x, y int, c color.Color)
 }
 
-func (z *zoomR) Draw(buff draw.Image) {
-	z.DrawOffset(buff, 0, 0)
-}
-
-// DrawOffset to draw the zoomR by creating a customImage and applying the set funcitonality.
-func (z *zoomR) DrawOffset(buff draw.Image, xOff, yOff float64) {
+// Draw to draw the zoomR by creating a customImage and applying the set funcitonality.
+func (z *zoomR) Draw(buff draw.Image, xOff, yOff float64) {
 	img := &customImage{buff, z.SetFn}
-	z.Renderable.DrawOffset(img, xOff, yOff)
+	z.Renderable.Draw(img, xOff, yOff)
 }
 
 type customImage struct {

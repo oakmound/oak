@@ -1,9 +1,9 @@
 package main
 
 import (
+	"image"
 	"math/rand"
 	"path/filepath"
-	"strconv"
 
 	oak "github.com/oakmound/oak/v2"
 	"github.com/oakmound/oak/v2/dlog"
@@ -21,12 +21,15 @@ const (
 	maxY = 416
 )
 
-var cache *render.Switch
+var cache = [360]*image.RGBA{}
 
 func main() {
 	oak.Add(
 		"demo",
 		func(*scene.Context) {
+			render.Draw(render.NewDrawFPS(1, nil, 10, 10))
+			render.Draw(render.NewLogicFPS(1, nil, 10, 20))
+
 			layer := 0
 			layerTxt := render.DefFont().NewIntText(&layer, 30, 20)
 			layerTxt.SetLayer(100000000)
@@ -42,7 +45,6 @@ func main() {
 			})
 			// Generate a rotation cache for comparison
 			// Compare the use of the cache against the use of a reverting type below
-			cache = render.NewSwitch("0", make(map[string]render.Modifiable))
 			for i := 0; i < 360; i++ {
 				s, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "gopher11.png"))
 				if err != nil {
@@ -50,7 +52,7 @@ func main() {
 					return
 				}
 				s.Modify(mod.Rotate(float32(i)))
-				cache.Add(strconv.Itoa(i), s)
+				cache[i] = s.GetRGBA()
 			}
 		},
 		func() bool {
@@ -63,8 +65,6 @@ func main() {
 
 	render.SetDrawStack(
 		render.NewCompositeR(),
-		render.NewDrawFPS(),
-		render.NewLogicFPS(),
 	)
 
 	oak.SetupConfig.Screen.X = 1
@@ -109,7 +109,7 @@ func gophEnter(cid event.CID, nothing interface{}) int {
 	// Compare against this version of rotation
 	// (also swap the comments on lines in goph.Doodad's renderable)
 	//goph.R.(*render.Reverting).RevertAndModify(1, render.Rotate(goph.rotation))
-	goph.R.(*render.Switch).Add("goph", render.NewSprite(0, 0, cache.GetSub(strconv.Itoa(goph.rotation)).GetRGBA()))
+	goph.R.(*render.Switch).Add("goph", render.NewSprite(0, 0, cache[goph.rotation]))
 	if goph.X() < minX || goph.X() > maxX {
 		goph.deltaX *= -1
 	}

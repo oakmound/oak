@@ -22,7 +22,7 @@ func TestCollisionParticle(t *testing.T) {
 	if h != 1 {
 		t.Fatalf("expected 1 height, got %v", h)
 	}
-	cp.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
+	cp.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)), 0, 0)
 	cp.Cycle(g)
 	collision.Add(collision.NewLabeledSpace(-20, -20, 40, 40, 1))
 	cp.Cycle(g)

@@ -44,20 +44,19 @@ func TestSwitchPositioning(t *testing.T) {
 	})
 	rgba := image.NewRGBA(image.Rect(0, 0, 10, 10))
 
-	cmp.Draw(rgba)
+	cmp.Draw(rgba, 0, 0)
 	assert.Equal(t, red, rgba.At(0, 0))
 	assert.NotEqual(t, red, rgba.At(10, 0))
 
 	rgba = image.NewRGBA(image.Rect(0, 0, 10, 10))
 	assert.Nil(t, cmp.Set("blue"))
 	cmp.ShiftPos(1, 1)
-	cmp.DrawOffset(rgba, 0, 0)
 	assert.Equal(t, blue, rgba.At(1, 1))
 	assert.NotEqual(t, blue, rgba.At(0, 0))
 	rgba = image.NewRGBA(image.Rect(0, 0, 10, 10))
 	cmp.SetOffsets("red", physics.NewVector(5, 5))
 	assert.Nil(t, cmp.Set("red"))
-	cmp.Draw(rgba)
+	cmp.Draw(rgba, 0, 0)
 	assert.Equal(t, red, rgba.At(8, 8))
 	assert.NotEqual(t, red, rgba.At(1, 1))
 

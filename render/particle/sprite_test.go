@@ -22,7 +22,7 @@ func TestSpriteParticle(t *testing.T) {
 
 	p := src.particles[0].(*SpriteParticle)
 
-	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
+	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)), 0, 0)
 
 	w, h, ok := g.GetParticleSize()
 	if w != 10 {

@@ -33,19 +33,20 @@ const (
 
 func main() {
 	oak.Add("bounce", func(*scene.Context) {
+		render.Draw(render.NewDrawFPS(1, nil, 10, 10))
+
 		score = 0
 		// 1. Make Player
 		newFlappy(90, 140)
-		// 2. Make Scrolling background
-		// 3. Make scrolling repeating pillars
-		go func() {
-			for {
-				timing.DoAfter(time.Duration(pillarFreq.Poll()*float64(time.Second)), func() {
-					newPillarPair()
-				})
-			}
-		}()
-		// 4. Make Score
+		// 2. Make scrolling repeating pillars
+		var pillarLoop func()
+		pillarLoop = func() {
+			newPillarPair()
+			timing.DoAfter(time.Duration(pillarFreq.Poll()*float64(time.Second)), pillarLoop)
+		}
+		go timing.DoAfter(time.Duration(pillarFreq.Poll()*float64(time.Second)), pillarLoop)
+
+		// 3. Make Score
 		t := render.DefFont().NewIntText(&score, 200, 30)
 		render.Draw(t, 0)
 	}, func() bool {
@@ -59,7 +60,6 @@ func main() {
 	})
 	render.SetDrawStack(
 		render.NewHeap(false),
-		render.NewDrawFPS(),
 	)
 	oak.Init("bounce")
 }
@@ -84,7 +84,6 @@ func newFlappy(x, y float64) *Flappy {
 	f.RSpace.Space.Label = player
 	collision.Add(f.RSpace.Space)
 
-	//f.Vector = f.Vector.Attach(f.R)
 	f.R.SetLayer(1)
 	render.Draw(f.R, 0)
 
@@ -100,9 +99,6 @@ func newFlappy(x, y float64) *Flappy {
 		// Gravity
 		f.Delta.ShiftY(.15)
 
-		// Todo: attachment as above with f.R for f.Space
-		// ShiftPos does this for us right now
-		// collision.UpdateSpace(f.X(), f.Y(), f.W, f.H, f.RSpace.Space)
 		<-f.RSpace.CallOnHits()
 		if f.Y()+f.H > 480 {
 			playerHitPillar = true

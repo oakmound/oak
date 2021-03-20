@@ -1,7 +1,6 @@
 package render
 
 import (
-	"image"
 	"image/draw"
 	"time"
 
@@ -9,56 +8,38 @@ import (
 )
 
 const (
-	// FpsSmoothing is how much of the fps of the upcoming frame is used
-	// relative to the previous fps total when calculating draw/logic fps at a given
-	// frame
-	FpsSmoothing = .25
+	defaultFpsSmoothing = .25
 )
 
-// DrawFPS is a Stackable that will draw the fps onto the screen when a part of the
-// draw stack.
+// DrawFPS is a Renderable that will display how fast it is rendered.
 type DrawFPS struct {
-	fps      int
-	lastTime time.Time
-	txt      *Text
+	*Text
+	fps       int
+	lastTime  time.Time
+	Smoothing float64
 }
 
-// NewDrawFPS returns a zero-initialized DrawFPS.
-func NewDrawFPS() *DrawFPS {
-	df := new(DrawFPS)
-	df.lastTime = time.Now()
-	df.fps = 0
+// NewDrawFPS returns a DrawFPS, which will render a counter of how fast it is being drawn.
+// If font is not provided, DefFont is used. If smoothing is
+func NewDrawFPS(smoothing float64, font *Font, x, y float64) *DrawFPS {
+	if smoothing == 0.0 {
+		smoothing = defaultFpsSmoothing
+	}
+	if font == nil {
+		font = DefFont().Copy()
+	}
+	df := &DrawFPS{
+		Smoothing: smoothing,
+		lastTime:  time.Now(),
+	}
+	df.Text = font.NewIntText(&df.fps, x, y)
+
 	return df
 }
 
-// PreDraw does nothing for a drawFPS
-func (df *DrawFPS) PreDraw() {
-	//NOP
-	// This is not done in NewDrawFPS because at the time when
-	// NewDrawFPS is called, DefFont() does not exist.
-	if df.txt == nil {
-		df.txt = DefFont().NewIntText(&df.fps, 10, 20)
-	}
-}
-
-// Add does nothing for a drawFPS
-func (df *DrawFPS) Add(Renderable, ...int) Renderable {
-	//NOP
-	return nil
-}
-
-// Replace does nothing for a drawFPS
-func (df *DrawFPS) Replace(Renderable, Renderable, int) {
-	//NOP
-}
-
-// Copy does effectively nothing for a drawFPS
-func (df *DrawFPS) Copy() Stackable {
-	return NewDrawFPS()
-}
-
-func (df *DrawFPS) draw(world draw.Image, view image.Point, w, h int) {
-	df.fps = int((timing.FPS(df.lastTime, time.Now()) * FpsSmoothing) + (float64(df.fps) * (1 - FpsSmoothing)))
-	df.txt.Draw(world)
-	df.lastTime = time.Now()
+func (df *DrawFPS) Draw(buff draw.Image, xOff, yOff float64) {
+	t := time.Now()
+	df.fps = int((timing.FPS(df.lastTime, t) * df.Smoothing) + (float64(df.fps) * (1 - df.Smoothing)))
+	df.lastTime = t
+	df.Text.Draw(buff, xOff, yOff)
 }

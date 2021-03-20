@@ -14,13 +14,8 @@ type GradientParticle struct {
 	endColor2   color.Color
 }
 
-// Draw redirects to DrawOffset
-func (gp *GradientParticle) Draw(buff draw.Image) {
-	gp.DrawOffset(buff, 0, 0)
-}
-
-// DrawOffset redirects to DrawOffsetGen
-func (gp *GradientParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
+// Draw redirects to DrawOffsetGen
+func (gp *GradientParticle) Draw(buff draw.Image, xOff, yOff float64) {
 	gp.DrawOffsetGen(gp.GetBaseParticle().Src.Generator, buff, xOff, yOff)
 }
 
@@ -44,7 +39,7 @@ func (gp *GradientParticle) DrawOffsetGen(generator Generator, buff draw.Image, 
 			if gen.Shape.In(i, j, size) {
 				progress := gen.ProgressFunction(i, j, size, size)
 				c := render.GradientColorAt(c1, c2, progress)
-				render.ShinySet(buff, c, xOffi+i, yOffi+j)
+				buff.Set(xOffi+i, yOffi+j, c)
 			}
 		}
 	}

@@ -126,6 +126,7 @@ func (fg *FontGenerator) Generate() *Font {
 				Hinting: parseFontHinting(fg.Hinting),
 			}),
 		},
+		ttfnt:  fnt,
 		bounds: intBds,
 	}
 
@@ -143,6 +144,7 @@ func (fg *FontGenerator) Copy() *FontGenerator {
 type Font struct {
 	FontGenerator
 	font.Drawer
+	ttfnt  *truetype.Font
 	bounds intgeom.Rect2
 }
 
@@ -153,6 +155,13 @@ func (f *Font) Refresh() {
 
 // Copy returns a copy of this font
 func (f *Font) Copy() *Font {
+	f2 := &Font{}
+	*f2 = *f
+	f2.Drawer.Face = truetype.NewFace(f.ttfnt, &truetype.Options{
+		Size:    f.FontGenerator.Size,
+		DPI:     f.FontGenerator.DPI,
+		Hinting: parseFontHinting(f.FontGenerator.Hinting),
+	})
 	return f.Generate()
 }
 

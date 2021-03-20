@@ -4,17 +4,15 @@ import (
 	"testing"
 
 	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDrawPolygon(t *testing.T) {
 	rh := RenderableHeap{}
 
 	r := rh.DrawPolygonDim()
-	assert.Equal(t, 0.0, r.Min.X())
-	assert.Equal(t, 0.0, r.Min.Y())
-	assert.Equal(t, 0.0, r.Max.X())
-	assert.Equal(t, 0.0, r.Max.Y())
+	if r != (floatgeom.Rect2{floatgeom.Point2{0, 0}, floatgeom.Point2{0, 0}}) {
+		t.Fatalf("draw polygon was not a zero to zero rectangle")
+	}
 
 	x := 10.0
 	y := 10.0
@@ -25,10 +23,9 @@ func TestDrawPolygon(t *testing.T) {
 	rh.SetPolygon(pgn)
 
 	r = rh.DrawPolygonDim()
-	assert.Equal(t, x, r.Min.X())
-	assert.Equal(t, y, r.Min.Y())
-	assert.Equal(t, x2, r.Max.X())
-	assert.Equal(t, y2, r.Max.Y())
+	if r != (floatgeom.Rect2{floatgeom.Point2{x, y}, floatgeom.Point2{x2, y2}}) {
+		t.Fatalf("draw polygon was not a x,y to x2,y2 rectangle")
+	}
 
 	type testcase struct {
 		elems         [4]int
@@ -42,13 +39,16 @@ func TestDrawPolygon(t *testing.T) {
 	}
 
 	for _, cas := range tests {
-		assert.Equal(t, cas.shouldSucceed, rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]))
+		if cas.shouldSucceed != rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]) {
+			t.Fatalf("inDrawPolygon failed")
+		}
 	}
 
 	rh.ClearDrawPolygon()
 
 	for _, cas := range tests {
-		assert.Equal(t, true, rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]))
-
+		if !rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]) {
+			t.Fatalf("inDrawPolygon with a cleared polygon failed")
+		}
 	}
 }

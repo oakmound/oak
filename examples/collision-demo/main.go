@@ -21,6 +21,8 @@ const (
 
 func main() {
 	oak.Add("demo", func(*scene.Context) {
+		render.Draw(render.NewDrawFPS(0.25, nil, 10, 10))
+
 		act := &AttachCollisionTest{}
 		act.Solid = entities.NewSolid(50, 50, 50, 50, render.NewColorBox(50, 50, color.RGBA{0, 0, 0, 255}), nil, act.Init())
 
@@ -123,7 +125,6 @@ func main() {
 	})
 	render.SetDrawStack(
 		render.NewHeap(false),
-		render.NewDrawFPS(),
 	)
 	oak.Init("demo")
 }

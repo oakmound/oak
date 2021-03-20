@@ -73,14 +73,9 @@ func (s *Sprite) Set(x, y int, c color.Color) {
 	s.r.Set(x, y, c)
 }
 
-// DrawOffset draws this sprite at +xOff, +yOff
-func (s *Sprite) DrawOffset(buff draw.Image, xOff, yOff float64) {
-	ShinyDraw(buff, s.r, int(s.X()+xOff), int(s.Y()+yOff))
-}
-
-// Draw draws this sprite onto the input buffer
-func (s *Sprite) Draw(buff draw.Image) {
-	ShinyDraw(buff, s.r, int(s.X()), int(s.Y()))
+// Draw draws this sprite at +xOff, +yOff
+func (s *Sprite) Draw(buff draw.Image, xOff, yOff float64) {
+	DrawImage(buff, s.r, int(s.X()+xOff), int(s.Y()+yOff))
 }
 
 // Copy returns a copy of this Sprite

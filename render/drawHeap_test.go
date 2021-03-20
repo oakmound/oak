@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/oakmound/oak/v2/collision"
-	"github.com/stretchr/testify/assert"
 )
 
 const heapLoops = 2000
@@ -55,10 +54,14 @@ func TestDrawHeapLoop(t *testing.T) {
 func TestDrawHeapFns(t *testing.T) {
 	h := NewHeap(false)
 	h.Push(nil)
-	assert.Empty(t, h.rs)
+	if len(h.rs) != 0 {
+		t.Fatalf("expected zero renderables in heap")
+	}
 	h.Push(EmptyRenderable())
 	h = h.Copy().(*RenderableHeap)
-	assert.Empty(t, h.rs)
+	if len(h.rs) != 0 {
+		t.Fatalf("expected zero renderables in copied heap")
+	}
 
 	h.Replace(EmptyRenderable(), NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}), 10)
 }

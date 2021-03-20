@@ -78,7 +78,7 @@ func drawLoop() {
 				<-DrawTicker.C
 				draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), bkgFn(), zeroPoint, draw.Src)
 				if LoadingR != nil {
-					LoadingR.Draw(winBuffer.RGBA())
+					LoadingR.Draw(winBuffer.RGBA(), 0, 0)
 				}
 				drawLoopPublish(tx)
 
@@ -106,7 +106,7 @@ func drawLoop() {
 			shiftViewPort(viewPoint[0], viewPoint[1])
 		case <-DrawTicker.C:
 			draw.Draw(winBuffer.RGBA(), winBuffer.Bounds(), bkgFn(), zeroPoint, draw.Src)
-			render.PreDraw()
+			render.GlobalDrawStack.PreDraw()
 			render.GlobalDrawStack.Draw(winBuffer.RGBA(), ViewPos, ScreenWidth, ScreenHeight)
 			drawLoopPublish(tx)
 		}

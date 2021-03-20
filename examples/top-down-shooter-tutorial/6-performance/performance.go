@@ -46,6 +46,9 @@ const (
 func main() {
 
 	oak.Add("tds", func(*scene.Context) {
+		render.Draw(render.NewDrawFPS(1, nil, 10, 10))
+		render.Draw(render.NewLogicFPS(1, nil, 10, 20))
+
 		// Initialization
 		playerAlive = true
 		var err error
@@ -177,8 +180,6 @@ func main() {
 	render.SetDrawStack(
 		render.NewCompositeR(),
 		render.NewHeap(false),
-		render.NewDrawFPS(),
-		render.NewLogicFPS(),
 	)
 
 	oak.Init("tds")

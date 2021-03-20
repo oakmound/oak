@@ -170,13 +170,3 @@ func (ds *DrawStack) Copy() *DrawStack {
 	ds2.toPush = ds.toPush
 	return ds2
 }
-
-// PreDraw tries to reset the GlobalDrawStack or performs the GlobalDrawStack's predraw functions
-func PreDraw() {
-	if resetDraw {
-		ResetDrawStack()
-		resetDraw = false
-	} else {
-		GlobalDrawStack.PreDraw()
-	}
-}

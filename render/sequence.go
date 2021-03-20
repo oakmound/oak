@@ -93,16 +93,10 @@ func (sq *Sequence) Get(i int) Modifiable {
 	return sq.rs[i]
 }
 
-// DrawOffset draws this sequence at +xOff, +yOff
-func (sq *Sequence) DrawOffset(buff draw.Image, xOff, yOff float64) {
+// Draw draws this sequence at +xOff, +yOff
+func (sq *Sequence) Draw(buff draw.Image, xOff, yOff float64) {
 	sq.update()
-	sq.rs[sq.sheetPos].DrawOffset(buff, sq.X()+xOff, sq.Y()+yOff)
-}
-
-// Draw draws this sequence to the input buffer
-func (sq *Sequence) Draw(buff draw.Image) {
-	sq.update()
-	sq.rs[sq.sheetPos].DrawOffset(buff, sq.X(), sq.Y())
+	sq.rs[sq.sheetPos].Draw(buff, sq.X()+xOff, sq.Y()+yOff)
 }
 
 // GetRGBA returns the RGBA of the currently showing frame of this sequence

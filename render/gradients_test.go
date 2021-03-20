@@ -3,8 +3,6 @@ package render
 import (
 	"image/color"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestGradient(t *testing.T) {
@@ -15,6 +13,8 @@ func TestGradient(t *testing.T) {
 		gc := GradientColorAt(a, b, progress)
 		v := (i * 257)
 		diff := v - gc.R
-		assert.True(t, diff < 2)
+		if !(diff < 2) {
+			t.Fatalf("gradient did not fall under expected precision")
+		}
 	}
 }

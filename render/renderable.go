@@ -12,8 +12,7 @@ import (
 //
 // Basic Implementing struct: Sprite
 type Renderable interface {
-	Draw(buff draw.Image)
-	DrawOffset(buff draw.Image, xOff, yOff float64)
+	Draw(buff draw.Image, xOff, yOff float64)
 	GetDims() (int, int)
 
 	Positional

@@ -71,17 +71,10 @@ func (cs *CompositeR) SetOffsets(ps ...floatgeom.Point2) {
 	}
 }
 
-// DrawOffset Draws the CompositeR with an offset from its logical location.
-func (cs *CompositeR) DrawOffset(buff draw.Image, xOff, yOff float64) {
+// Draw Draws the CompositeR with an offset from its logical location.
+func (cs *CompositeR) Draw(buff draw.Image, xOff, yOff float64) {
 	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X()+xOff, cs.Y()+yOff)
-	}
-}
-
-// Draw draws the CompositeR at its logical location and therefore its consituent renderables as well
-func (cs *CompositeR) Draw(buff draw.Image) {
-	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X(), cs.Y())
+		c.Draw(buff, cs.X()+xOff, cs.Y()+yOff)
 	}
 }
 
@@ -166,7 +159,7 @@ func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, scree
 			x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
 
 			if cs.InDrawPolygon(x, y, x2, y2) {
-				r.DrawOffset(world, float64(-viewPos.X), float64(-viewPos.Y))
+				r.Draw(world, float64(-viewPos.X), float64(-viewPos.Y))
 			}
 		}
 	}

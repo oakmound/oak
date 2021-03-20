@@ -28,6 +28,8 @@ const (
 
 func main() {
 	oak.Add("demo", func(*scene.Context) {
+		render.Draw(render.NewDrawFPS(1, nil, 10, 10))
+
 		char := entities.NewMoving(200, 200, 50, 50, render.NewColorBox(50, 50, color.RGBA{125, 125, 0, 255}), nil, 0, 1)
 		char.Speed = physics.NewVector(3, 3)
 
@@ -78,7 +80,6 @@ func main() {
 		render.NewCompositeR(),
 		render.NewHeap(false),
 		render.NewHeap(true),
-		render.NewDrawFPS(),
 	)
 	oak.Init("demo")
 }

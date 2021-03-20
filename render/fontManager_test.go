@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/oakmound/oak/v2/oakerr"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestFontManager(t *testing.T) {
@@ -19,7 +18,9 @@ func TestFontManager(t *testing.T) {
 	// or not. Todo: fiddle with fonts and fix it
 	//assert.NotNil(t, f)
 	f := fm.Get("other")
-	assert.Nil(t, f)
+	if f != nil {
+		t.Fatalf("other should not be a defined font")
+	}
 
 	fg := FontGenerator{
 		RawFile: luxisrTTF,
@@ -27,14 +28,22 @@ func TestFontManager(t *testing.T) {
 	}
 
 	err := fm.NewFont("other", fg)
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatalf("new font should not have failed")
+	}
 
 	f = fm.Get("other")
-	assert.NotNil(t, f)
+	if f == nil {
+		t.Fatalf("other should be a defined font after it was set")
+	}
 
 	err = fm.NewFont("def", fg)
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("new font under def name should have errored`")
+	}
 	if exists, ok := err.(oakerr.ExistingElement); ok {
-		assert.True(t, exists.Overwritten)
+		if !exists.Overwritten {
+			t.Fatalf("def should have been overwritten")
+		}
 	}
 }

@@ -134,7 +134,7 @@ func sceneLoop(first string, trackingInputs bool, debugConsoleDisabled bool) {
 		mouse.Clear()
 		event.ResetEntities()
 		render.ResetDrawStack()
-		render.PreDraw()
+		render.GlobalDrawStack.PreDraw()
 		dlog.Verb("Engine Reset")
 
 		// Todo: Add in customizable loading scene between regular scenes,

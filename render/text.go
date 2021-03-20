@@ -22,7 +22,7 @@ func (f *Font) NewText(str fmt.Stringer, x, y float64) *Text {
 	return &Text{
 		LayeredPoint: NewLayeredPoint(x, y, 0),
 		text:         str,
-		d:            f,
+		d:            f.Copy(),
 	}
 }
 
@@ -63,11 +63,6 @@ func (f *Font) NewStrPtrText(str *string, x, y float64) *Text {
 	return f.NewText(stringPtrStringer{str}, x, y)
 }
 
-// DrawOffset for a text object draws the text at t.(X,Y) + (xOff,yOff)
-func (t *Text) DrawOffset(buff draw.Image, xOff, yOff float64) {
-	t.drawWithFont(buff, xOff, yOff, t.d)
-}
-
 func (t *Text) drawWithFont(buff draw.Image, xOff, yOff float64, fnt *Font) {
 	fnt.Drawer.Dst = buff
 	fnt.Drawer.Dot = fixed.P(int(t.X()+xOff), int(t.Y()+yOff))
@@ -75,8 +70,8 @@ func (t *Text) drawWithFont(buff draw.Image, xOff, yOff float64, fnt *Font) {
 }
 
 // Draw for a text draws the text at its layeredPoint position
-func (t *Text) Draw(buff draw.Image) {
-	t.drawWithFont(buff, 0, 0, t.d)
+func (t *Text) Draw(buff draw.Image, xOff, yOff float64) {
+	t.drawWithFont(buff, xOff, yOff, t.d)
 }
 
 // SetFont sets the drawer which renders the text each frame
