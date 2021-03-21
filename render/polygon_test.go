@@ -34,4 +34,12 @@ func TestPolygonFns(t *testing.T) {
 	if len(cmp.rs) != 4 {
 		t.Fatalf("composite did not contain four lines")
 	}
+	cmp = p.GetThickOutline(color.RGBA{255, 0, 0, 255}, 1)
+	if len(cmp.rs) != 4 {
+		t.Fatalf("composite did not contain four lines")
+	}
+	cmp = p.GetGradientOutline(color.RGBA{255, 0, 0, 255}, color.RGBA{0, 255, 0, 255}, 1)
+	if len(cmp.rs) != 4 {
+		t.Fatalf("composite did not contain four lines")
+	}
 }

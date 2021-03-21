@@ -13,4 +13,8 @@ func TestLayeredNils(t *testing.T) {
 	if ldp.GetLayer() != Undraw {
 		t.Fatalf("nil layered point should be undrawn")
 	}
+	w, h := ldp.GetDims()
+	if w != 1 || h != 1 {
+		t.Fatalf("GetDims faailed")
+	}
 }

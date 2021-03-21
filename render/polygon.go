@@ -36,12 +36,14 @@ func (pg *Polygon) GetOutline(c color.Color) *CompositeM {
 	return pg.GetColoredOutline(IdentityColorer(c), 0)
 }
 
-// GetThickOutline returns a set of lines of the given color along this polygon's outline
+// GetThickOutline returns a set of lines of the given color along this polygon's outline,
+// at the given thickness
 func (pg *Polygon) GetThickOutline(c color.Color, thickness int) *CompositeM {
 	return pg.GetColoredOutline(IdentityColorer(c), thickness)
 }
 
-// GetGradientOutline returns a set of lines of the given color along this polygon's outline
+// GetGradientOutline returns a set of lines of the given color along this polygon's outline,
+// at the given thickness, ranging from c1 to c2 in color
 func (pg *Polygon) GetGradientOutline(c1, c2 color.Color, thickness int) *CompositeM {
 	return pg.GetColoredOutline(colorrange.NewLinear(c1, c2).Percentile, thickness)
 }

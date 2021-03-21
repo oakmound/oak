@@ -55,7 +55,7 @@ func (s *Sprite) Bounds() image.Rectangle {
 }
 
 // ColorModel allows sprites to satisfy draw.Image. Returns
-// color.RGBA.
+// color.RGBAModel.
 func (s *Sprite) ColorModel() color.Model {
 	return s.r.ColorModel()
 }

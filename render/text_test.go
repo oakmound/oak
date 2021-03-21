@@ -2,6 +2,7 @@ package render
 
 import (
 	"image"
+	"sync"
 	"testing"
 )
 
@@ -43,7 +44,7 @@ func TestTextFns(t *testing.T) {
 		t.Fatalf("text SetInt failed")
 	}
 
-	txt.SetText(dummyStringer{})
+	txt.SetStringer(dummyStringer{})
 	if txt.text.String() != "Dummy" {
 		t.Fatalf("text SetText failed")
 	}
@@ -75,7 +76,24 @@ func TestTextFns(t *testing.T) {
 	if txt.X() != float64(-2) {
 		t.Fatalf("center did not move text's x value")
 	}
+}
 
+func TestText_StringPtr(t *testing.T) {
+	initTestFont()
+	s := new(string)
+	*s = "hello"
+	txt := NewStrPtrText(s, 0, 0)
+	if txt.StringLiteral() != "hello" {
+		t.Fatalf("str ptr text not set on creation")
+	}
+	*s = "goodbye"
+	if txt.StringLiteral() != "goodbye" {
+		t.Fatalf("str ptr text not set by pointer manipulation")
+	}
+	txt.SetStringPtr(nil)
+	if txt.StringLiteral() != "nil" {
+		t.Fatalf("nil str ptr text failed")
+	}
 }
 
 type dummyStringer struct{}
@@ -84,8 +102,12 @@ func (d dummyStringer) String() string {
 	return "Dummy"
 }
 
+var initTestFontOnce sync.Once
+
 // Todo: move this to font_test.go, once we have font_test.go
 func initTestFont() {
-	DefFontGenerator = FontGenerator{RawFile: luxisrTTF}
-	SetFontDefaults("", "", "", "", "white", "", 10, 10)
+	initTestFontOnce.Do(func() {
+		DefFontGenerator = FontGenerator{RawFile: luxisrTTF}
+		SetFontDefaults("", "", "", "", "white", "", 10, 10)
+	})
 }

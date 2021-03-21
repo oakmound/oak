@@ -71,3 +71,21 @@ func TestComposite(t *testing.T) {
 		t.Fatalf("composite did not combine 0,0,0,0 3 times into 0,0,0,0")
 	}
 }
+
+func TestCompositeM_Slice(t *testing.T) {
+	cmp := NewCompositeM(
+		EmptyRenderable(),
+		EmptyRenderable(),
+		EmptyRenderable(),
+		EmptyRenderable(),
+		EmptyRenderable(),
+	)
+	cmp2 := cmp.Slice(0, 2)
+	if len(cmp2.rs) != 2 {
+		t.Fatalf("composite slice did not reduce rs count")
+	}
+	cmp2 = cmp.Slice(-1, 1000)
+	if len(cmp2.rs) != 5 {
+		t.Fatalf("composite slice did not adjust when given invalid input")
+	}
+}

@@ -28,11 +28,6 @@ type Layer struct {
 	layer int
 }
 
-// NewLayer returns a wrapper around a draw layer integer
-func NewLayer(layer int) Layer {
-	return Layer{layer}
-}
-
 // GetLayer returns the layer of an object if it has one or else returns that the object needs to be undrawn
 func (ld *Layer) GetLayer() int {
 	if ld == nil {

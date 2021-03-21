@@ -31,7 +31,7 @@ func main() {
 			for k := range keys {
 				txt += k + "\n"
 			}
-			kRenderable.SetText(stringStringer(txt))
+			kRenderable.SetStringer(stringStringer(txt))
 			keyLock.Unlock()
 			return 0
 		})
@@ -43,7 +43,7 @@ func main() {
 			for k := range keys {
 				txt += k + " "
 			}
-			kRenderable.SetText(stringStringer(txt))
+			kRenderable.SetStringer(stringStringer(txt))
 			keyLock.Unlock()
 			return 0
 		})

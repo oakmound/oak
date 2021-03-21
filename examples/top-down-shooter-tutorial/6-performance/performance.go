@@ -179,7 +179,7 @@ func main() {
 
 	render.SetDrawStack(
 		render.NewCompositeR(),
-		render.NewHeap(false),
+		render.NewDynamicHeap(),
 	)
 
 	oak.Init("tds")

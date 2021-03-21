@@ -9,8 +9,8 @@ import (
 func TestDrawPolygon(t *testing.T) {
 	rh := RenderableHeap{}
 
-	r := rh.DrawPolygonDim()
-	if r != (floatgeom.Rect2{floatgeom.Point2{0, 0}, floatgeom.Point2{0, 0}}) {
+	r := rh.DrawPolygonBounds()
+	if r != (floatgeom.Rect2{Min: floatgeom.Point2{0, 0}, Max: floatgeom.Point2{0, 0}}) {
 		t.Fatalf("draw polygon was not a zero to zero rectangle")
 	}
 
@@ -22,8 +22,8 @@ func TestDrawPolygon(t *testing.T) {
 	pgn := []floatgeom.Point2{{x, y}, {x, y2}, {x2, y2}, {x2, y}}
 	rh.SetPolygon(pgn)
 
-	r = rh.DrawPolygonDim()
-	if r != (floatgeom.Rect2{floatgeom.Point2{x, y}, floatgeom.Point2{x2, y2}}) {
+	r = rh.DrawPolygonBounds()
+	if r != (floatgeom.Rect2{Min: floatgeom.Point2{x, y}, Max: floatgeom.Point2{x2, y2}}) {
 		t.Fatalf("draw polygon was not a x,y to x2,y2 rectangle")
 	}
 
@@ -49,6 +49,28 @@ func TestDrawPolygon(t *testing.T) {
 	for _, cas := range tests {
 		if !rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]) {
 			t.Fatalf("inDrawPolygon with a cleared polygon failed")
+		}
+	}
+
+	rh.SetPolygon([]floatgeom.Point2{{
+		0, 0,
+	}, {
+		10, 10,
+	}, {
+		0, 10,
+	}})
+
+	tests = []testcase{
+		{[4]int{0, 0, 0, 0}, false},
+		{[4]int{0, 0, 30, 30}, true},
+		{[4]int{15, 15, 17, 17}, false},
+		{[4]int{4, 0, 8, 3}, false},
+		{[4]int{4, 0, 8, 4}, true},
+	}
+
+	for _, cas := range tests {
+		if cas.shouldSucceed != rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]) {
+			t.Fatalf("inDrawPolygon failed")
 		}
 	}
 }

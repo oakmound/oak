@@ -37,9 +37,8 @@ func loadSprite(directory, fileName string, maxFileSize int64) (*image.RGBA, err
 
 	cfgDecoder, ok := cfgDecoders[ext]
 	if maxFileSize != 0 && ok {
-		info, err := os.Lstat(fullPath)
 		// This can't reasonably error as we already loaded the file above
-		dlog.ErrorCheck(err)
+		info, _ := os.Lstat(fullPath)
 		if info.Size() > maxFileSize {
 			// construct a blank image of the correct dimensions
 			cfg, err := cfgDecoder(imgFile)

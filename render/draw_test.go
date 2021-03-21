@@ -59,4 +59,9 @@ func TestDrawHelpers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("draw time should not have failed")
 	}
+
+	_, err = DrawPoint(color.RGBA{100, 100, 100, 255}, 0, 0, 0)
+	if err != nil {
+		t.Fatalf("draw color should not have failed")
+	}
 }

@@ -99,6 +99,9 @@ func TestRevertingFilters(t *testing.T) {
 	if len(rv.rs) != 2 {
 		t.Fatalf("expected 2 renderables in reverting stack, got %v", len(rv.rs))
 	}
+
+	rv.RevertAndFilter(math.MaxInt32)
+	rv.RevertAndFilter(-math.MaxInt32)
 }
 func TestRevertingCascadeFns(t *testing.T) {
 	cb := NewColorBox(5, 5, color.RGBA{200, 0, 0, 255})
@@ -114,6 +117,9 @@ func TestRevertingCascadeFns(t *testing.T) {
 	}
 	if rv.Set("Foo") != nil {
 		t.Fatalf("colorbox.Set(foo) should return nil")
+	}
+	if rv.Get() != "" {
+		t.Fatalf("get on a nil reverting should return an empty string")
 	}
 	rv.Pause()
 	rv.Unpause()
@@ -161,6 +167,10 @@ func TestRevertingCascadeFns(t *testing.T) {
 	}
 	if rv.Set("notincompound") == nil {
 		t.Fatalf("switch.Set(notincompound) should return an error")
+	}
+
+	if rv.Get() != "other" {
+		t.Fatalf("set did not set key to other")
 	}
 
 	rv.Pause()

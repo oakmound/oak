@@ -124,7 +124,7 @@ func main() {
 		return "demo", nil
 	})
 	render.SetDrawStack(
-		render.NewHeap(false),
+		render.NewDynamicHeap(),
 	)
 	oak.Init("demo")
 }

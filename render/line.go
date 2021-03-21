@@ -45,11 +45,6 @@ func NewColoredLine(x1, y1, x2, y2 float64, colorer Colorer, thickness int) *Spr
 	return NewSprite(minX-float64(thickness), minY-float64(thickness), rgba)
 }
 
-// NewLineColored is an alias for NewColoredLine. Deprecated: use NewColoredLine instead.
-func NewLineColored(x1, y1, x2, y2 float64, colorer Colorer, thickness int) *Sprite {
-	return NewColoredLine(x1, y1, x2, y2, colorer, thickness)
-}
-
 // DrawLine draws a line onto an image rgba from one point to another
 func DrawLine(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color) {
 	DrawThickLine(rgba, x1, y1, x2, y2, c, 0)

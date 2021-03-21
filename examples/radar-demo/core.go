@@ -78,8 +78,8 @@ func main() {
 
 	render.SetDrawStack(
 		render.NewCompositeR(),
-		render.NewHeap(false),
-		render.NewHeap(true),
+		render.NewDynamicHeap(),
+		render.NewStaticHeap(),
 	)
 	oak.Init("demo")
 }

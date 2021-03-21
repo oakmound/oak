@@ -12,7 +12,7 @@ import (
 var (
 	// GlobalDrawStack is the stack that all draw calls are parsed through.
 	GlobalDrawStack = &DrawStack{
-		as: []Stackable{NewHeap(false)},
+		as: []Stackable{NewDynamicHeap()},
 	}
 	initialDrawStack = GlobalDrawStack
 )
@@ -85,48 +85,6 @@ func Draw(r Renderable, layers ...int) (Renderable, error) {
 		return GlobalDrawStack.as[stackLayer].Add(r, layers[1:]...), nil
 	}
 	return GlobalDrawStack.as[0].Add(r), nil
-}
-
-// Replace replaces 'old' with 'new', undrawing old and drawing new simultaneously.
-// It does no position manipulation of either renderable. It follows the same rules
-// for layer arguments as Draw.
-//
-// Example:
-// With a single stackable in the draw stack:
-// render.Replace(r, r2, 0)
-// replaces r with r2, setting r2's layer to 0.
-//
-// With multiple stackables in the draw stack:
-// render.Replace(r, r2, 1, 5)
-// replaces r (on stackable 1) with r2, setting r2's layer to 5.
-func Replace(old, new Renderable, layers ...int) error {
-	if old == nil {
-		dlog.Error("Tried to replace a nil renderable")
-		return oakerr.NilInput{InputName: "old"}
-	}
-	if new == nil {
-		dlog.Error("Tried to insert a nil renderable")
-		return oakerr.NilInput{InputName: "new"}
-	}
-	if len(layers) == 0 {
-		return oakerr.InsufficientInputs{InputName: "layers"}
-	}
-	if len(GlobalDrawStack.as) == 1 {
-		GlobalDrawStack.as[0].Replace(old, new, layers[0])
-		return nil
-	}
-	if len(layers) > 1 {
-		stackLayer := layers[0]
-		if stackLayer < 0 || stackLayer >= len(GlobalDrawStack.as) {
-			dlog.Error("Layer", stackLayer, "does not exist on global draw stack")
-			return oakerr.InvalidInput{InputName: "layers"}
-		}
-		GlobalDrawStack.as[stackLayer].Replace(old, new, layers[1])
-		return nil
-	}
-
-	GlobalDrawStack.as[0].Replace(old, new, layers[0])
-	return nil
 }
 
 // Push appends a Stackable to the draw stack during the next PreDraw.

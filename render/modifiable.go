@@ -4,7 +4,6 @@ import (
 	"image"
 
 	"github.com/oakmound/oak/v2/render/mod"
-	//"image/draw"
 )
 
 // A Modifiable is a Renderable that has functions to change its

@@ -10,7 +10,7 @@ func TestDrawStack(t *testing.T) {
 		t.Fatalf("global draw stack did not have one length initially")
 	}
 	SetDrawStack(
-		NewHeap(false),
+		NewDynamicHeap(),
 		NewStaticHeap(),
 	)
 	if len(GlobalDrawStack.as) != 2 {

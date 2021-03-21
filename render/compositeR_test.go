@@ -41,6 +41,7 @@ func TestCompositeR(t *testing.T) {
 	}
 
 	cmp.Replace(cmp.Get(0), NewColorBox(1, 1, color.RGBA{0, 0, 128, 255}), 0)
+	cmp.PreDraw()
 
 	cmp2 := cmp.Copy().(*CompositeR)
 
@@ -53,5 +54,13 @@ func TestCompositeR(t *testing.T) {
 	cmp2.Prepend(nil)
 	if cmp2.Len() != 1 {
 		t.Fatalf("composite length was not increased by prepend")
+	}
+}
+
+func TestCompositeR_Add(t *testing.T) {
+	cmp := &CompositeR{}
+	cmp.Add(EmptyRenderable())
+	if len(cmp.toPush) != 1 {
+		t.Fatalf("add did not add to composite r's toPush: %v", len(cmp.toPush))
 	}
 }

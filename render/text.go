@@ -55,6 +55,9 @@ type stringPtrStringer struct {
 }
 
 func (sp stringPtrStringer) String() string {
+	if sp.s == nil {
+		return "nil"
+	}
 	return string(*sp.s)
 }
 
@@ -93,11 +96,6 @@ func (t *Text) GetDims() (int, int) {
 func (t *Text) Center() {
 	textWidth := t.d.MeasureString(t.text.String()).Round()
 	t.ShiftX(float64(-textWidth / 2))
-}
-
-// SetText sets the string to be written to a new stringer
-func (t *Text) SetText(str fmt.Stringer) {
-	t.text = str
 }
 
 // SetString accepts a string itself as the stringer to be written

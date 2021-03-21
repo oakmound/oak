@@ -264,3 +264,10 @@ func TestModifySprite(t *testing.T) {
 		t.Fatalf("get dims failed")
 	}
 }
+
+func TestSprite_ColorModel(t *testing.T) {
+	s := NewEmptySprite(0, 0, 1, 1)
+	if s.ColorModel() != color.RGBAModel {
+		t.Fatalf("color model did not match expected")
+	}
+}

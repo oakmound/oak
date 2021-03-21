@@ -59,7 +59,7 @@ func main() {
 		return "bounce", nil
 	})
 	render.SetDrawStack(
-		render.NewHeap(false),
+		render.NewDynamicHeap(),
 	)
 	oak.Init("bounce")
 }

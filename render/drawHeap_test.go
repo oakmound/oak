@@ -12,8 +12,8 @@ const heapLoops = 2000
 
 func TestDrawHeapLoop(t *testing.T) {
 	initTestFont()
-	h := NewHeap(false)
-	h2 := NewHeap(true)
+	h := NewDynamicHeap()
+	h2 := NewStaticHeap()
 
 	type toAdd struct {
 		r     Renderable
@@ -52,7 +52,7 @@ func TestDrawHeapLoop(t *testing.T) {
 }
 
 func TestDrawHeapFns(t *testing.T) {
-	h := NewHeap(false)
+	h := NewDynamicHeap()
 	h.Push(nil)
 	if len(h.rs) != 0 {
 		t.Fatalf("expected zero renderables in heap")
@@ -64,4 +64,5 @@ func TestDrawHeapFns(t *testing.T) {
 	}
 
 	h.Replace(EmptyRenderable(), NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}), 10)
+	h.PreDraw()
 }
