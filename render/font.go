@@ -118,10 +118,14 @@ type Font struct {
 	font.Drawer
 	ttfnt  *truetype.Font
 	bounds intgeom.Rect2
+	Unsafe bool
 }
 
 // Copy returns a copy of this font
 func (f *Font) Copy() *Font {
+	if f.Unsafe {
+		return f
+	}
 	f2 := &Font{}
 	*f2 = *f
 	f2.Drawer.Face = truetype.NewFace(f.ttfnt, &truetype.Options{

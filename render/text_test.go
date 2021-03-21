@@ -2,7 +2,6 @@ package render
 
 import (
 	"image"
-	"sync"
 	"testing"
 )
 
@@ -100,14 +99,4 @@ type dummyStringer struct{}
 
 func (d dummyStringer) String() string {
 	return "Dummy"
-}
-
-var initTestFontOnce sync.Once
-
-// Todo: move this to font_test.go, once we have font_test.go
-func initTestFont() {
-	initTestFontOnce.Do(func() {
-		DefFontGenerator = FontGenerator{RawFile: luxisrTTF}
-		SetFontDefaults("", "", "", "", "white", "", 10, 10)
-	})
 }

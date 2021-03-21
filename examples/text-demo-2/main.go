@@ -2,9 +2,9 @@ package main
 
 import (
 	"image/color"
+	"math/rand"
 
 	"github.com/200sc/go-dist/floatrange"
-	"github.com/200sc/go-dist/intrange"
 
 	"image"
 
@@ -31,9 +31,8 @@ var (
 func randomStr(chars int) string {
 	str := make([]rune, chars)
 	// ascii
-	strRange := intrange.NewLinear(0, strRangeTop)
 	for i := 0; i < chars; i++ {
-		str[i] = rune(strRange.Poll())
+		str[i] = rune(rand.Intn(strRangeTop))
 	}
 	return string(str)
 }
@@ -42,7 +41,7 @@ func main() {
 	oak.Add("demo",
 		// Init
 		func(*scene.Context) {
-			render.Draw(render.NewDrawFPS(1, nil, 10, 10))
+			render.Draw(render.NewDrawFPS(.25, nil, 10, 10))
 
 			r = 255
 			// By not specifying "File", we use the default
@@ -53,6 +52,7 @@ func main() {
 				Hinting: "",
 			}
 			font, _ = fg.Generate()
+			font.Unsafe = true
 
 			for y := 0.0; y <= 480; y += strSize {
 				str := randomStr(strlen)
