@@ -35,12 +35,9 @@ func (s *Sprite) GetRGBA() *image.RGBA {
 
 // GetDims returns the dimensions of this sprite, or if this sprite has no
 // defined RGBA returns default values.
-// BUG: The reason the default values of 6,6 are returned is to cover a bug
-// in the library we are using for polygon intersection. Too small objects
-// will always be considered to intersect a draw polygon.
 func (s *Sprite) GetDims() (int, int) {
 	if s.r == nil {
-		return 6, 6
+		return 1, 1
 	}
 	bds := s.r.Bounds()
 	return bds.Max.X, bds.Max.Y
@@ -97,11 +94,6 @@ func rgbaCopy(r *image.RGBA) *image.RGBA {
 	return newRgba
 }
 
-// IsNil returns whether or not this sprite's rgba is nil.
-func (s *Sprite) IsNil() bool {
-	return s.r == nil
-}
-
 // Modify takes in modifications (modify.go) and alters this sprite accordingly
 func (s *Sprite) Modify(ms ...mod.Mod) Modifiable {
 	for _, m := range ms {
@@ -118,7 +110,7 @@ func (s *Sprite) Filter(fs ...mod.Filter) {
 }
 
 // OverlaySprites combines sprites together through masking to form a single sprite
-func OverlaySprites(sps []Sprite) *Sprite {
+func OverlaySprites(sps []*Sprite) *Sprite {
 	tmpSprite := sps[len(sps)-1].Copy().(*Sprite)
 	for i := len(sps) - 1; i > 0; i-- {
 		mod.FillMask(*sps[i-1].GetRGBA())(tmpSprite.GetRGBA())

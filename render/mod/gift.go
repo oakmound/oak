@@ -60,6 +60,8 @@ var FlipX = GiftTransform(gift.FlipHorizontal())
 // over the vertical axis.
 var FlipY = GiftTransform(gift.FlipVertical())
 
+// todo: alias gift types to this package
+
 // Resize will transform images to match the input dimensions. See gift.Resize.
 func Resize(width, height int, resampling gift.Resampling) Mod {
 	return GiftTransform(gift.Resize(width, height, resampling))

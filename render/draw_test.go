@@ -56,7 +56,7 @@ func TestDrawHelpers(t *testing.T) {
 	}
 
 	err = DrawForTime(NewColorBox(5, 5, color.RGBA{255, 255, 255, 255}), 0, 0)
-	if err == nil {
+	if err != nil {
 		t.Fatalf("draw time should not have failed")
 	}
 }

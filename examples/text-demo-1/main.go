@@ -32,6 +32,7 @@ func main() {
 	oak.Add("demo",
 		// Init
 		func(*scene.Context) {
+			render.Draw(render.NewDrawFPS(0.25, nil, 10, 10))
 			// We use the font at ./assets/font/luxisbi.ttf
 			// The /assets/font structure is determined by
 			// oak.SetupConfig.Assets
@@ -44,10 +45,16 @@ func main() {
 			}
 			r = 255
 			font = fg.Generate()
-			render.Draw(font.NewStrText("Rainbow", 200, 200), 0)
-			render.Draw(font.NewText(floatStringer{&r}, 200, 250), 0)
-			render.Draw(font.NewText(floatStringer{&g}, 320, 250), 0)
-			render.Draw(font.NewText(floatStringer{&b}, 440, 250), 0)
+			txts := []*render.Text{
+				font.NewStrText("Rainbow", 200, 200),
+				font.NewText(floatStringer{&r}, 200, 250),
+				font.NewText(floatStringer{&g}, 320, 250),
+				font.NewText(floatStringer{&b}, 440, 250),
+			}
+			for _, txt := range txts {
+				txt.SetFont(font)
+				render.Draw(txt, 0)
+			}
 			font2 := font.Copy()
 			font2.Color = image.NewUniform(color.RGBA{255, 255, 255, 255})
 			font2.Refresh()
@@ -81,7 +88,6 @@ func main() {
 	)
 	render.SetDrawStack(
 		render.NewHeap(false),
-		render.NewDrawFPS(),
 	)
 	oak.Init("demo")
 }

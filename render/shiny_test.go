@@ -4,21 +4,20 @@ import (
 	"image"
 	"image/color"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestShinyDrawFns(t *testing.T) {
-
-	// todo: test ShinySet on the actual game window
 	world := image.NewRGBA(image.Rect(0, 0, 20, 20))
-	ShinySet(world, color.RGBA{255, 0, 0, 255}, -10, -10)
-	assert.Equal(t, color.RGBA{255, 0, 0, 255}, world.At(10, 10))
-
 	rgba := image.NewRGBA(image.Rect(0, 0, 20, 20))
 
+	world.SetRGBA(10, 10, color.RGBA{255, 0, 0, 255})
+
 	DrawImage(world, rgba, 0, 0)
-	assert.Equal(t, color.RGBA{255, 0, 0, 255}, world.At(10, 10))
+	if world.At(10, 10) != (color.RGBA{255, 0, 0, 255}) {
+		t.Fatalf("draw image overwrote rgba")
+	}
 	OverwriteImage(world, rgba, 0, 0)
-	assert.Equal(t, color.RGBA{0, 0, 0, 0}, world.At(10, 10))
+	if world.At(10, 10) != (color.RGBA{0, 0, 0, 0}) {
+		t.Fatalf("overwrite image did not overwrite rgba")
+	}
 }

@@ -3,12 +3,12 @@ package render
 import (
 	"image"
 	"image/color"
+	"reflect"
 	"testing"
 
 	"github.com/200sc/go-dist/colorrange"
 	"github.com/200sc/go-dist/intrange"
 	"github.com/oakmound/oak/v2/render/mod"
-	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -38,10 +38,18 @@ func TestColorBoxFuzz(t *testing.T) {
 			for y := 0; y < h; y++ {
 				c2 := rgba.At(x, y)
 				r2, g2, b2, a2 := c2.RGBA()
-				assert.Equal(t, r, r2)
-				assert.Equal(t, g, g2)
-				assert.Equal(t, b, b2)
-				assert.Equal(t, a, a2)
+				if r != r2 {
+					t.Fatalf("reds did not match")
+				}
+				if g != g2 {
+					t.Fatalf("greens did not match")
+				}
+				if b != b2 {
+					t.Fatalf("blues did not match")
+				}
+				if a != a2 {
+					t.Fatalf("alphas did not match")
+				}
 			}
 		}
 	}
@@ -70,10 +78,18 @@ func TestGradientBoxFuzz(t *testing.T) {
 				uint8(uint16OnScale(a, a2, progress) / 256),
 			}
 			r4, g4, b4, a4 := c4.RGBA()
-			assert.Equal(t, r3, r4)
-			assert.Equal(t, g3, g4)
-			assert.Equal(t, b3, b4)
-			assert.Equal(t, a3, a4)
+			if r3 != r4 {
+				t.Fatalf("reds did not match")
+			}
+			if g3 != g4 {
+				t.Fatalf("greens did not match")
+			}
+			if b3 != b4 {
+				t.Fatalf("blues did not match")
+			}
+			if a3 != a4 {
+				t.Fatalf("alphas did not match")
+			}
 		}
 		cb = NewVerticalGradientBox(w, h, c1, c2)
 		rgba = cb.GetRGBA()
@@ -89,10 +105,18 @@ func TestGradientBoxFuzz(t *testing.T) {
 				uint8(uint16OnScale(a, a2, progress) / 256),
 			}
 			r4, g4, b4, a4 := c4.RGBA()
-			assert.Equal(t, r3, r4)
-			assert.Equal(t, g3, g4)
-			assert.Equal(t, b3, b4)
-			assert.Equal(t, a3, a4)
+			if r3 != r4 {
+				t.Fatalf("reds did not match")
+			}
+			if g3 != g4 {
+				t.Fatalf("greens did not match")
+			}
+			if b3 != b4 {
+				t.Fatalf("blues did not match")
+			}
+			if a3 != a4 {
+				t.Fatalf("alphas did not match")
+			}
 		}
 		cb = NewCircularGradientBox(w, h, c1, c2)
 		rgba = cb.GetRGBA()
@@ -109,10 +133,18 @@ func TestGradientBoxFuzz(t *testing.T) {
 					uint8(uint16OnScale(a, a2, progress) / 256),
 				}
 				r4, g4, b4, a4 := c4.RGBA()
-				assert.Equal(t, r3, r4)
-				assert.Equal(t, g3, g4)
-				assert.Equal(t, b3, b4)
-				assert.Equal(t, a3, a4)
+				if r3 != r4 {
+					t.Fatalf("reds did not match")
+				}
+				if g3 != g4 {
+					t.Fatalf("greens did not match")
+				}
+				if b3 != b4 {
+					t.Fatalf("blues did not match")
+				}
+				if a3 != a4 {
+					t.Fatalf("alphas did not match")
+				}
 			}
 		}
 	}
@@ -129,10 +161,18 @@ func TestEmptySpriteFuzz(t *testing.T) {
 			for y := 0; y < h; y++ {
 				c := rgba.At(x, y)
 				r, g, b, a := c.RGBA()
-				assert.Equal(t, r, zero)
-				assert.Equal(t, g, zero)
-				assert.Equal(t, b, zero)
-				assert.Equal(t, a, zero)
+				if r != zero {
+					t.Fatalf("reds did not match")
+				}
+				if g != zero {
+					t.Fatalf("greens did not match")
+				}
+				if b != zero {
+					t.Fatalf("blues did not match")
+				}
+				if a != zero {
+					t.Fatalf("alphas did not match")
+				}
 			}
 		}
 	}
@@ -146,46 +186,47 @@ func TestSpriteFuncs(t *testing.T) {
 	// Dims
 
 	w, h := s.GetDims()
-	assert.Equal(t, w, 1)
-	assert.Equal(t, h, 1)
+	if w != 1 || h != 1 {
+		t.Fatalf("get dims failed")
+	}
 
 	w, h = s2.GetDims()
-	assert.Equal(t, w, 6)
-	assert.Equal(t, h, 6)
+	if w != 1 || h != 1 {
+		t.Fatalf("get dims failed")
+	}
 
 	w, h = s3.GetDims()
-	assert.Equal(t, w, 1)
-	assert.Equal(t, h, 1)
-
-	// IsNil
-
-	assert.Equal(t, false, s.IsNil())
-	assert.Equal(t, true, s2.IsNil())
-	assert.Equal(t, false, s3.(*Sprite).IsNil())
+	if w != 1 || h != 1 {
+		t.Fatalf("get dims failed")
+	}
 
 	// Set/GetRGBA
 
 	rgba := image.NewRGBA(image.Rect(0, 0, 4, 4))
 	s.SetRGBA(rgba)
 	rgba2 := s.GetRGBA()
-	assert.Equal(t, rgba, rgba2)
+	if !reflect.DeepEqual(rgba, rgba2) {
+		t.Fatalf("sprite set rgba failed")
+	}
 }
 
 func TestOverlaySprites(t *testing.T) {
 	// This makes me wonder if overlay is easy enough to use
 	rgba := image.NewRGBA(image.Rect(0, 0, 2, 2))
 	rgba.Set(0, 0, color.RGBA{255, 0, 0, 255})
-	// It should probably take in pointers
-	sprites := []Sprite{
-		*NewColorBox(2, 2, color.RGBA{0, 255, 0, 255}),
-		*NewSprite(0, 0, rgba),
-	}
-	overlay := OverlaySprites(sprites)
+	overlay := OverlaySprites([]*Sprite{
+		NewColorBox(2, 2, color.RGBA{0, 255, 0, 255}),
+		NewSprite(0, 0, rgba),
+	})
 	rgba = overlay.GetRGBA()
 	shouldRed := rgba.At(0, 0)
 	shouldGreen := rgba.At(0, 1)
-	assert.Equal(t, shouldRed, color.RGBA{255, 0, 0, 255})
-	assert.Equal(t, shouldGreen, color.RGBA{0, 255, 0, 255})
+	if shouldRed != (color.RGBA{255, 0, 0, 255}) {
+		t.Fatalf("red was not red")
+	}
+	if shouldGreen != (color.RGBA{0, 255, 0, 255}) {
+		t.Fatalf("tgreen was not green")
+	}
 }
 
 // Can't test ParseSubSprite without loading in something for it to return,
@@ -198,10 +239,18 @@ func TestParseSubSprite(t *testing.T) {
 		for y := 0; y < 25; y++ {
 			c := rgba.At(x, y)
 			r, g, b, a := c.RGBA()
-			assert.Equal(t, r, uint32(65535))
-			assert.Equal(t, g, uint32(0))
-			assert.Equal(t, b, uint32(0))
-			assert.Equal(t, a, uint32(65535))
+			if r != uint32(65535) {
+				t.Fatalf("reds did not match")
+			}
+			if g != uint32(0) {
+				t.Fatalf("greens did not match")
+			}
+			if b != uint32(0) {
+				t.Fatalf("blues did not match")
+			}
+			if a != uint32(65535) {
+				t.Fatalf("alphas did not match")
+			}
 		}
 	}
 
@@ -211,8 +260,7 @@ func TestModifySprite(t *testing.T) {
 	s := NewColorBox(10, 10, color.RGBA{255, 0, 0, 255})
 	s2 := s.Modify(mod.Cut(5, 5))
 	w, h := s2.GetDims()
-	assert.Equal(t, 5, w)
-	assert.Equal(t, 5, h)
+	if w != 5 || h != 5 {
+		t.Fatalf("get dims failed")
+	}
 }
-
-// We'll cover drawing elsewhere

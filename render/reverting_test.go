@@ -3,11 +3,10 @@ package render
 import (
 	"image/color"
 	"math"
+	"reflect"
 	"testing"
 
-	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/render/mod"
-	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -27,55 +26,79 @@ var (
 func TestRevertingMods(t *testing.T) {
 	cb := NewColorBox(5, 5, color.RGBA{200, 0, 0, 255})
 	rv := NewReverting(cb)
-	assert.Equal(t, rv.GetRGBA(), cb.GetRGBA())
+	if rv.GetRGBA() != cb.GetRGBA() {
+		t.Fatalf("reverting did not call underlying GetRGBA")
+	}
 	for _, mod := range neqmods {
 		rv.Modify(mod)
-		assert.NotEqual(t, rv.GetRGBA(), cb.GetRGBA())
+		if reflect.DeepEqual(rv.GetRGBA(), cb.GetRGBA()) {
+			t.Fatalf("neq mod did not change rgba")
+		}
 		rv.Revert(1)
-		assert.Equal(t, rv.GetRGBA(), cb.GetRGBA())
+		if !reflect.DeepEqual(rv.GetRGBA(), cb.GetRGBA()) {
+			t.Fatalf("revert did not match rgba")
+		}
 	}
 	rv = NewReverting(cb)
 	for _, mod := range eqmods {
 		rv.Modify(mod)
-		assert.Equal(t, rv.GetRGBA(), cb.GetRGBA())
+		if !reflect.DeepEqual(rv.GetRGBA(), cb.GetRGBA()) {
+			t.Fatalf("eq mods did not match rgba")
+		}
 	}
 	rv.RevertAll()
-	assert.Equal(t, rv.GetRGBA(), cb.GetRGBA())
+	if !reflect.DeepEqual(rv.GetRGBA(), cb.GetRGBA()) {
+		t.Fatalf("revert-all did not match rgba")
+	}
 
 	rv.Modify(mod.Scale(2, 2))
 	rgba1 := rv.GetRGBA()
 	rv = rv.Copy().(*Reverting)
-	assert.Equal(t, rv.GetRGBA(), rgba1)
+	if !reflect.DeepEqual(rv.GetRGBA(), rgba1) {
+		t.Fatalf("copied rgba did not match")
+	}
 	rv.RevertAndModify(1, mod.Scale(2, 2))
-	assert.Equal(t, rv.GetRGBA(), rgba1)
+	if !reflect.DeepEqual(rv.GetRGBA(), rgba1) {
+		t.Fatalf("revert and scaled rgba did not match")
+	}
 
 	rv.Revert(math.MaxInt32)
 	rv.Revert(-math.MaxInt32)
 	rv.RevertAndModify(math.MaxInt32)
 	rv.RevertAndModify(-math.MaxInt32)
-	// Assert nothing went wrong with ^^
+	// Assert nothing crashed
 }
 
 func TestRevertingFilters(t *testing.T) {
 	cb := NewColorBox(5, 5, color.RGBA{200, 0, 0, 255})
 	rv := NewReverting(cb)
-	assert.Equal(t, rv.GetRGBA(), cb.GetRGBA())
 	for _, f := range neqfilters {
 		rv.Filter(f)
-		assert.NotEqual(t, rv.GetRGBA(), cb.GetRGBA())
+		if reflect.DeepEqual(rv.GetRGBA(), cb.GetRGBA()) {
+			t.Fatalf("neq filter did not change rgba")
+		}
 		rv.Revert(1)
-		assert.Equal(t, rv.GetRGBA(), cb.GetRGBA())
+		if !reflect.DeepEqual(rv.GetRGBA(), cb.GetRGBA()) {
+			t.Fatalf("revert did not match rgba")
+		}
 	}
 	rv.Filter(mod.Brighten(-100))
 	rgba1 := rv.GetRGBA()
 	rv = rv.Copy().(*Reverting)
-	assert.Equal(t, rgba1, rv.GetRGBA())
-	assert.Equal(t, 2, len(rv.rs))
+	if !reflect.DeepEqual(rv.GetRGBA(), rgba1) {
+		t.Fatalf("copied rgba did not match")
+	}
+	if len(rv.rs) != 2 {
+		t.Fatalf("expected 2 renderables in reverting stack, got %v", len(rv.rs))
+	}
 	rv2 := rv.RevertAndFilter(1, mod.Brighten(-100))
 	rv = rv2.Copy().(*Reverting)
-	assert.Equal(t, 2, len(rv.rs))
-	assert.Equal(t, rv.GetRGBA(), rgba1)
-
+	if !reflect.DeepEqual(rv.GetRGBA(), rgba1) {
+		t.Fatalf("copied rgba did not match")
+	}
+	if len(rv.rs) != 2 {
+		t.Fatalf("expected 2 renderables in reverting stack, got %v", len(rv.rs))
+	}
 }
 func TestRevertingCascadeFns(t *testing.T) {
 	cb := NewColorBox(5, 5, color.RGBA{200, 0, 0, 255})
@@ -83,9 +106,15 @@ func TestRevertingCascadeFns(t *testing.T) {
 
 	// NOP
 	// (color box does not have these functions)
-	assert.True(t, rv.IsInterruptable())
-	assert.True(t, rv.IsStatic())
-	assert.Nil(t, rv.Set("Foo"))
+	if !rv.IsInterruptable() {
+		t.Fatalf("colorbox is interruptable")
+	}
+	if !rv.IsStatic() {
+		t.Fatalf("colorbox is static")
+	}
+	if rv.Set("Foo") != nil {
+		t.Fatalf("colorbox.Set(foo) should return nil")
+	}
 	rv.Pause()
 	rv.Unpause()
 	rv.SetTriggerID(0)
@@ -102,25 +131,45 @@ func TestRevertingCascadeFns(t *testing.T) {
 
 	rv = NewReverting(cmpd)
 
-	assert.Equal(t, sq.IsInterruptable(), rv.IsInterruptable())
+	if sq.IsInterruptable() != rv.IsInterruptable() {
+		t.Fatalf("sequence interruptable did not match reverting")
+	}
 	sq.Interruptable = !sq.Interruptable
-	assert.Equal(t, sq.IsInterruptable(), rv.IsInterruptable())
-	assert.Equal(t, sq.IsStatic(), rv.IsStatic())
+	if sq.IsInterruptable() != rv.IsInterruptable() {
+		t.Fatalf("sequence interruptable did not match reverting")
+	}
+	if sq.IsStatic() != rv.IsStatic() {
+		t.Fatalf("sequence static did not match reverting")
+	}
 
 	rv.Pause()
-	assert.Equal(t, sq.playing, false)
+	if sq.playing {
+		t.Fatalf("reverting pause did not pause underlying sequence")
+	}
 	rv.Unpause()
-	assert.Equal(t, sq.playing, true)
+	if !sq.playing {
+		t.Fatalf("reverting unpause did not resume underlying sequence")
+	}
 	rv.SetTriggerID(1)
-	assert.Equal(t, sq.cID, event.CID(1))
+	if sq.cID != 1 {
+		t.Fatalf("reverting cID did not set underlying squence cID")
+	}
 	rv.update()
 
-	assert.Nil(t, rv.Set("other"))
-	assert.NotNil(t, rv.Set("notincompound"))
+	if rv.Set("other") != nil {
+		t.Fatalf("switch.Set(foo) should return nil")
+	}
+	if rv.Set("notincompound") == nil {
+		t.Fatalf("switch.Set(notincompound) should return an error")
+	}
 
 	rv.Pause()
-	assert.Equal(t, sq.playing, true)
+	if !sq.playing {
+		t.Fatalf("reverting pause should not pause underlying sequence when switch is set to other")
+	}
 	rv.Unpause()
-	assert.Equal(t, sq.playing, true)
+	if !sq.playing {
+		t.Fatalf("reverting pause should not pause underlying sequence when switch is set to other")
+	}
 	rv.update()
 }
