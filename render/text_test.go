@@ -16,7 +16,7 @@ func TestTextFns(t *testing.T) {
 		Color:   image.Black,
 	}
 
-	f := fg.Generate()
+	f, _ := fg.Generate()
 
 	txt.SetFont(f)
 	if f != txt.d {

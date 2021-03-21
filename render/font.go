@@ -1,7 +1,6 @@
 package render
 
 import (
-	"fmt"
 	"image"
 	"path/filepath"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/fileutil"
+	"github.com/oakmound/oak/v2/oakerr"
 )
 
 var (
@@ -41,32 +41,15 @@ type FontGenerator struct {
 	DPI     float64
 }
 
-func (fg FontGenerator) String() string {
-	// Don't expose raw file content, it floods outputs
-	type cleanFontGenerator struct {
-		File    string
-		Color   image.Image
-		Size    float64
-		Hinting string
-		DPI     float64
-	}
-	clg := cleanFontGenerator{
-		File:    fg.File,
-		Size:    fg.Size,
-		Hinting: fg.Hinting,
-		DPI:     fg.DPI,
-	}
-	return fmt.Sprint(clg)
-}
-
 // DefFont returns a font built of the parameters set by SetFontDefaults.
 func DefFont() *Font {
-	return DefFontGenerator.Generate()
+	fnt, _ := DefFontGenerator.Generate()
+	return fnt
 }
 
 // Generate creates a font from the FontGenerator. Any parameters not supplied
 // will be filled in with defaults set through SetFontDefaults.
-func (fg *FontGenerator) Generate() *Font {
+func (fg *FontGenerator) Generate() (*Font, error) {
 
 	dir := fontdir
 	// Replace zero values with defaults
@@ -82,15 +65,12 @@ func (fg *FontGenerator) Generate() *Font {
 		var err error
 		fnt, err = truetype.Parse(fg.RawFile)
 		if err != nil {
-			// Todo: expose error here
-			dlog.Error(err)
-			return nil
+			return nil, err
 		}
 	} else {
 		fnt = LoadFont(dir, fg.File)
 		if fnt == nil {
-			// Todo: expose error here
-			return nil
+			return nil, oakerr.InvalidInput{InputName: "fg.File"}
 		}
 	}
 	if fg.Size == 0 {
@@ -128,15 +108,7 @@ func (fg *FontGenerator) Generate() *Font {
 		},
 		ttfnt:  fnt,
 		bounds: intBds,
-	}
-
-}
-
-// Copy creates a copy of this FontGenerator
-func (fg *FontGenerator) Copy() *FontGenerator {
-	newFg := new(FontGenerator)
-	*newFg = *fg
-	return newFg
+	}, nil
 }
 
 // A Font is obtained as the result of FontGenerator.Generate(). It's used to
@@ -148,11 +120,6 @@ type Font struct {
 	bounds intgeom.Rect2
 }
 
-// Refresh regenerates this font
-func (f *Font) Refresh() {
-	*f = *f.Generate()
-}
-
 // Copy returns a copy of this font
 func (f *Font) Copy() *Font {
 	f2 := &Font{}
@@ -162,14 +129,7 @@ func (f *Font) Copy() *Font {
 		DPI:     f.FontGenerator.DPI,
 		Hinting: parseFontHinting(f.FontGenerator.Hinting),
 	})
-	return f.Generate()
-}
-
-// Reset sets the font to being a default font
-func (f *Font) Reset() {
-	// Generate will return all defaults with no args
-	f.FontGenerator = FontGenerator{}
-	*f = *f.Generate()
+	return f2
 }
 
 // SetFontDefaults updates the default font parameters with the passed in arguments

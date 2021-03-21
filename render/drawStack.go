@@ -70,7 +70,6 @@ func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
 // give nothing to the stackable's argument.
 func Draw(r Renderable, layers ...int) (Renderable, error) {
 	if r == nil {
-		dlog.Error("Tried to draw nil")
 		return nil, oakerr.NilInput{InputName: "r"}
 	}
 	if len(GlobalDrawStack.as) == 1 {

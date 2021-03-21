@@ -8,7 +8,7 @@ type FontManager map[string]*Font
 // NewFontManager returns a FontManager where 'def' is the default font
 func NewFontManager() *FontManager {
 	fm := &FontManager{}
-	(*fm)["def"] = (&FontGenerator{}).Generate()
+	(*fm)["def"], _ = (&FontGenerator{}).Generate()
 	return fm
 }
 
@@ -24,7 +24,11 @@ func (fm *FontManager) NewFont(name string, fg FontGenerator) error {
 			Overwritten: true,
 		}
 	}
-	manager[name] = (&fg).Generate()
+	fnt, genErr := (&fg).Generate()
+	if genErr != nil {
+		return genErr
+	}
+	manager[name] = fnt
 	return err
 
 }
