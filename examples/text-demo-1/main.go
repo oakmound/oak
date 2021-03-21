@@ -44,7 +44,7 @@ func main() {
 				DPI:     10,
 			}
 			r = 255
-			font = fg.Generate()
+			font, _ = fg.Generate()
 			txts := []*render.Text{
 				font.NewStrText("Rainbow", 200, 200),
 				font.NewText(floatStringer{&r}, 200, 250),
@@ -57,7 +57,7 @@ func main() {
 			}
 			font2 := font.Copy()
 			font2.Color = image.NewUniform(color.RGBA{255, 255, 255, 255})
-			font2.Refresh()
+			font2, _ = font2.Generate()
 			// Could give each r,g,b a color which is just the r,g,b value
 			render.Draw(font2.NewStrText("r", 170, 250), 0)
 			render.Draw(font2.NewStrText("g", 290, 250), 0)

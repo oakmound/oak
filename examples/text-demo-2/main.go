@@ -52,7 +52,7 @@ func main() {
 				Size:    strSize,
 				Hinting: "",
 			}
-			font = fg.Generate()
+			font, _ = fg.Generate()
 
 			for y := 0.0; y <= 480; y += strSize {
 				str := randomStr(strlen)
