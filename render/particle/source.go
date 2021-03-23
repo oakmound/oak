@@ -31,6 +31,8 @@ type Source struct {
 	stackLevel int
 	EndFunc    func()
 	paused     bool
+	started    bool
+	stopped    bool
 }
 
 // NewSource creates a new source
@@ -49,13 +51,6 @@ func (ps *Source) Init() event.CID {
 	CID.Bind(event.Enter, rotateParticles)
 	ps.CID = CID
 	ps.pIDBlock = ps.Allocate(ps.CID)
-	if ps.Generator.GetBaseGenerator().Duration != Inf {
-		go func(ps *Source, duration intrange.Range) {
-			timing.DoAfter(time.Duration(duration.Poll())*time.Millisecond, func() {
-				ps.Stop()
-			})
-		}(ps, ps.Generator.GetBaseGenerator().Duration)
-	}
 	return CID
 }
 
@@ -186,6 +181,16 @@ func (ps *Source) addParticles() {
 // as a Source is active.
 func rotateParticles(id event.CID, nothing interface{}) int {
 	ps := id.E().(*Source)
+	if !ps.started {
+		if ps.Generator.GetBaseGenerator().Duration != Inf {
+			go func(ps *Source, duration intrange.Range) {
+				timing.DoAfter(time.Duration(duration.Poll())*time.Millisecond, func() {
+					ps.Stop()
+				})
+			}(ps, ps.Generator.GetBaseGenerator().Duration)
+		}
+		ps.started = true
+	}
 	if !ps.paused {
 		ps.cycleParticles()
 		ps.addParticles()
@@ -220,6 +225,7 @@ func (ps *Source) Stop() {
 	if ps == nil {
 		return
 	}
+	ps.stopped = true
 	ps.CID.UnbindAllAndRebind([]event.Bindable{clearParticles}, []string{event.Enter})
 }
 
