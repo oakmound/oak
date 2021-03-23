@@ -1,42 +1,40 @@
 package oak
 
 import (
+	"fmt"
 	"image"
 
-	"github.com/oakmound/oak/v2/collision"
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/scene"
 	"github.com/oakmound/oak/v2/timing"
 )
 
-var (
-	loadingScene = scene.Scene{
+func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDisabled bool) {
+	err := c.SceneMap.AddScene("loading", scene.Scene{
 		Start: func(*scene.Context) {
 			// TODO: language
 			dlog.Info("Loading Scene Init")
 		},
 		Loop: func() bool {
 			select {
-			case <-startupLoadCh:
+			case <-c.startupLoadCh:
 				// TODO: language
 				dlog.Info("Load Complete")
 				return false
 			default:
+				fmt.Println("loading still")
 				return true
 			}
 		},
 		End: func() (string, *scene.Result) {
-			return firstScene, nil
+			return c.firstScene, nil
 		},
+	})
+	if err != nil {
+		// ???
 	}
-)
 
-var firstScene string
-
-func sceneLoop(first string, trackingInputs bool, debugConsoleDisabled bool) {
 	var prevScene string
 
 	result := new(scene.Result)
@@ -44,71 +42,75 @@ func sceneLoop(first string, trackingInputs bool, debugConsoleDisabled bool) {
 	// TODO: language
 	dlog.Info("First Scene Start")
 
-	drawCh <- true
-	drawCh <- true
+	c.drawCh <- true
+	c.drawCh <- true
 
 	// TODO: language
 	dlog.Verb("Draw Channel Activated")
 
-	firstScene = first
+	c.firstScene = first
 
-	SceneMap.CurrentScene = "loading"
+	c.SceneMap.CurrentScene = "loading"
 
 	for {
-		ViewPos = image.Point{0, 0}
-		updateScreen(0, 0)
-		useViewBounds = false
+		c.ViewPos = image.Point{0, 0}
+		c.updateScreen(0, 0)
+		c.useViewBounds = false
 
-		dlog.Info("Scene Start", SceneMap.CurrentScene)
-		scen, ok := SceneMap.GetCurrent()
+		dlog.Info("Scene Start", c.SceneMap.CurrentScene)
+		scen, ok := c.SceneMap.GetCurrent()
 		if !ok {
-			dlog.Error("Unknown scene", SceneMap.CurrentScene)
-			panic("Unknown scene " + SceneMap.CurrentScene)
+			dlog.Error("Unknown scene", c.SceneMap.CurrentScene)
+			panic("Unknown scene " + c.SceneMap.CurrentScene)
 		}
 		if trackingInputs {
 			trackInputChanges()
 		}
 		go func() {
-			dlog.Info("Starting scene in goroutine", SceneMap.CurrentScene)
+			dlog.Info("Starting scene in goroutine", c.SceneMap.CurrentScene)
 			scen.Start(&scene.Context{
 				PreviousScene: prevScene,
 				SceneInput:    result.NextSceneInput,
+				DrawStack:     c.DrawStack,
+				EventHandler:  c.logicHandler,
+				MouseTree:     c.MouseTree,
+				CollisionTree: c.CollisionTree,
 			})
-			transitionCh <- true
+			c.transitionCh <- true
 		}()
 
-		sceneTransition(result)
+		c.sceneTransition(result)
 
 		// Post transition, begin loading animation
 		dlog.Info("Starting load animation")
-		drawCh <- true
+		c.drawCh <- true
 		dlog.Info("Getting Transition Signal")
-		<-transitionCh
+		<-c.transitionCh
 		dlog.Info("Resume Drawing")
 		// Send a signal to resume (or begin) drawing
-		drawCh <- true
+		c.drawCh <- true
 
 		dlog.Info("Looping Scene")
 		cont := true
 
-		dlog.ErrorCheck(logicHandler.UpdateLoop(FrameRate, sceneCh))
+		dlog.ErrorCheck(c.logicHandler.UpdateLoop(c.FrameRate, c.sceneCh))
 
 		for cont {
 			select {
-			case <-sceneCh:
+			case <-c.sceneCh:
 				cont = scen.Loop()
-			case <-skipSceneCh:
+			case <-c.skipSceneCh:
 				cont = false
 			}
 		}
-		dlog.Info("Scene End", SceneMap.CurrentScene)
+		dlog.Info("Scene End", c.SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
-		dlog.ErrorCheck(logicHandler.Stop())
-		prevScene = SceneMap.CurrentScene
+		dlog.ErrorCheck(c.logicHandler.Stop())
+		prevScene = c.SceneMap.CurrentScene
 
 		// Send a signal to stop drawing
-		drawCh <- true
+		c.drawCh <- true
 
 		// Reset any ongoing delays
 	delayLabel:
@@ -124,34 +126,34 @@ func sceneLoop(first string, trackingInputs bool, debugConsoleDisabled bool) {
 		// Reset transient portions of the engine
 		// We start by clearing the event bus to
 		// remove most ongoing code
-		logicHandler.Reset()
+		c.logicHandler.Reset()
 		// We follow by clearing collision areas
 		// because otherwise collision function calls
 		// on non-entities (i.e. particles) can still
 		// be triggered and attempt to access an entity
 		dlog.Verb("Event Bus Reset")
-		collision.Clear()
-		mouse.Clear()
+		c.CollisionTree.Clear()
+		c.MouseTree.Clear()
 		event.ResetEntities()
-		render.ResetDrawStack()
-		render.GlobalDrawStack.PreDraw()
+		c.DrawStack = c.InitialDrawStack.Copy()
+		c.DrawStack.PreDraw()
 		dlog.Verb("Engine Reset")
 
 		// Todo: Add in customizable loading scene between regular scenes,
 		// In addition to the existing customizable loading renderable?
 
-		SceneMap.CurrentScene, result = scen.End()
+		c.SceneMap.CurrentScene, result = scen.End()
 		// For convenience, we allow the user to return nil
 		// but it gets translated to an empty result
 		if result == nil {
 			result = new(scene.Result)
 		}
 
-		if !debugConsoleDisabled && !debugResetInProgress {
-			debugResetInProgress = true
+		if !debugConsoleDisabled && !c.debugResetInProgress {
+			c.debugResetInProgress = true
 			go func() {
-				debugResetCh <- true
-				debugResetInProgress = false
+				c.debugResetCh <- true
+				c.debugResetInProgress = false
 			}()
 		}
 	}

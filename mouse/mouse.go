@@ -1,57 +1,8 @@
 package mouse
 
 import (
-	"github.com/oakmound/oak/v2/event"
 	"golang.org/x/mobile/event/mouse"
 )
-
-var (
-	//TrackMouseClicks enables the propagation of MouseClickOn during MouseRelease events
-	TrackMouseClicks = true
-)
-
-var lastRelativePress Event
-
-// Propagate triggers direct mouse events on entities which are clicked
-func Propagate(eventName string, me Event) {
-	LastEvent = me
-
-	hits := DefTree.SearchIntersect(me.ToSpace().Bounds())
-	for _, sp := range hits {
-		sp.CID.Trigger(eventName, me)
-	}
-
-	if TrackMouseClicks {
-		if eventName == PressOn+"Relative" {
-			lastRelativePress = me
-		} else if eventName == PressOn {
-			LastPress = me
-		} else if eventName == ReleaseOn {
-			if me.Button == LastPress.Button {
-				pressHits := DefTree.SearchIntersect(LastPress.ToSpace().Bounds())
-				for _, sp1 := range pressHits {
-					for _, sp2 := range hits {
-						if sp1.CID == sp2.CID {
-							event.Trigger(Click, me)
-							sp1.CID.Trigger(ClickOn, me)
-						}
-					}
-				}
-			}
-		} else if eventName == ReleaseOn+"Relative" {
-			if me.Button == LastPress.Button {
-				pressHits := DefTree.SearchIntersect(lastRelativePress.ToSpace().Bounds())
-				for _, sp1 := range pressHits {
-					for _, sp2 := range hits {
-						if sp1.CID == sp2.CID {
-							sp1.CID.Trigger(ClickOn+"Relative", me)
-						}
-					}
-				}
-			}
-		}
-	}
-}
 
 type Button = mouse.Button
 

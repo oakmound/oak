@@ -1,15 +1,7 @@
 package oak
 
 import (
-	"sync"
 	"time"
-)
-
-var (
-	keyState     = make(map[string]bool)
-	keyDurations = make(map[string]time.Time)
-	keyLock      = sync.RWMutex{}
-	durationLock = sync.RWMutex{}
 )
 
 // SetUp, SetDown, and IsDown all
@@ -22,13 +14,13 @@ var (
 // events are sent from the real keyboard and mouse.
 // Calling this can interrupt real input or cause
 // unintended behavior and should be done cautiously.
-func SetUp(key string) {
-	keyLock.Lock()
-	durationLock.Lock()
-	delete(keyState, key)
-	delete(keyDurations, key)
-	durationLock.Unlock()
-	keyLock.Unlock()
+func (c *Controller) SetUp(key string) {
+	c.keyLock.Lock()
+	c.durationLock.Lock()
+	delete(c.keyState, key)
+	delete(c.keyDurations, key)
+	c.durationLock.Unlock()
+	c.keyLock.Unlock()
 }
 
 // SetDown will cause later IsDown calls to report true
@@ -36,31 +28,31 @@ func SetUp(key string) {
 // events are sent from the real keyboard and mouse.
 // Calling this can interrupt real input or cause
 // unintended behavior and should be done cautiously.
-func SetDown(key string) {
-	keyLock.Lock()
-	keyState[key] = true
-	keyDurations[key] = time.Now()
-	keyLock.Unlock()
+func (c *Controller) SetDown(key string) {
+	c.keyLock.Lock()
+	c.keyState[key] = true
+	c.keyDurations[key] = time.Now()
+	c.keyLock.Unlock()
 }
 
 // IsDown returns whether a key is held down
-func IsDown(key string) (k bool) {
-	keyLock.RLock()
-	k = keyState[key]
-	keyLock.RUnlock()
+func (c *Controller) IsDown(key string) (k bool) {
+	c.keyLock.RLock()
+	k = c.keyState[key]
+	c.keyLock.RUnlock()
 	return
 }
 
 // IsHeld returns whether a key is held down, and for how long
 // it has been held.
-func IsHeld(key string) (k bool, d time.Duration) {
-	keyLock.RLock()
-	k = keyState[key]
-	keyLock.RUnlock()
+func (c *Controller) IsHeld(key string) (k bool, d time.Duration) {
+	c.keyLock.RLock()
+	k = c.keyState[key]
+	c.keyLock.RUnlock()
 	if k {
-		durationLock.RLock()
-		d = time.Since(keyDurations[key])
-		durationLock.RUnlock()
+		c.durationLock.RLock()
+		d = time.Since(c.keyDurations[key])
+		c.durationLock.RUnlock()
 	}
 	return
 }

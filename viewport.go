@@ -2,20 +2,9 @@ package oak
 
 import (
 	"image"
-	"sync"
 
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/physics"
-)
-
-var (
-	// ViewPos represents the point in the world which the viewport is anchored at.
-	ViewPos = image.Point{}
-	// ViewPosMutex is used to grant extra saftey in viewpos operations
-	ViewPosMutex  = sync.Mutex{}
-	useViewBounds = false
-	viewBounds    rect
 )
 
 type rect struct {
@@ -23,84 +12,84 @@ type rect struct {
 }
 
 // SetScreen sends a signal to the draw loop to set the viewport to be at x,y
-func SetScreen(x, y int) {
+func (c *Controller) SetScreen(x, y int) {
 	dlog.Verb("Requesting ViewPoint ", x, y)
-	viewportCh <- [2]int{x, y}
+	c.viewportCh <- [2]int{x, y}
 }
 
 // ShiftScreen sends a signal to the draw loop to shift the viewport by x,y
-func ShiftScreen(x, y int) {
+func (c *Controller) ShiftScreen(x, y int) {
 	dlog.Verb("Requesting shift of ViewPoint by ", x, y)
-	viewportShiftCh <- [2]int{x, y}
+	c.viewportShiftCh <- [2]int{x, y}
 }
 
-func updateScreen(x, y int) {
-	ViewPosMutex.Lock()
-	setViewport(x, y)
-	ViewPosMutex.Unlock()
+func (c *Controller) updateScreen(x, y int) {
+	c.viewPosMutex.Lock()
+	c.setViewport(x, y)
+	c.viewPosMutex.Unlock()
 }
 
-func shiftViewPort(x, y int) {
-	ViewPosMutex.Lock()
-	setViewport(ViewPos.X+x, ViewPos.Y+y)
-	ViewPosMutex.Unlock()
+func (c *Controller) shiftViewPort(x, y int) {
+	c.viewPosMutex.Lock()
+	c.setViewport(c.ViewPos.X+x, c.ViewPos.Y+y)
+	c.viewPosMutex.Unlock()
 }
-func setViewport(x, y int) {
-	if useViewBounds {
-		if viewBounds.minX <= x && viewBounds.maxX >= x+ScreenWidth {
+func (c *Controller) setViewport(x, y int) {
+	if c.useViewBounds {
+		if c.viewBounds.minX <= x && c.viewBounds.maxX >= x+c.ScreenWidth {
 			dlog.Verb("Set ViewX to ", x)
-			ViewPos.X = x
-		} else if viewBounds.minX > x {
-			ViewPos.X = viewBounds.minX
-		} else if viewBounds.maxX < x+ScreenWidth {
-			ViewPos.X = viewBounds.maxX - ScreenWidth
+			c.ViewPos.X = x
+		} else if c.viewBounds.minX > x {
+			c.ViewPos.X = c.viewBounds.minX
+		} else if c.viewBounds.maxX < x+c.ScreenWidth {
+			c.ViewPos.X = c.viewBounds.maxX - c.ScreenWidth
 		}
-		if viewBounds.minY <= y && viewBounds.maxY >= y+ScreenHeight {
+		if c.viewBounds.minY <= y && c.viewBounds.maxY >= y+c.ScreenHeight {
 			dlog.Verb("Set ViewY to ", y)
-			ViewPos.Y = y
-		} else if viewBounds.minY > y {
-			ViewPos.Y = viewBounds.minY
-		} else if viewBounds.maxY < y+ScreenHeight {
-			ViewPos.Y = viewBounds.maxY - ScreenHeight
+			c.ViewPos.Y = y
+		} else if c.viewBounds.minY > y {
+			c.ViewPos.Y = c.viewBounds.minY
+		} else if c.viewBounds.maxY < y+c.ScreenHeight {
+			c.ViewPos.Y = c.viewBounds.maxY - c.ScreenHeight
 		}
 	} else {
 		dlog.Verb("Set ViewXY to ", x, " ", y)
-		ViewPos = image.Point{x, y}
+		c.ViewPos = image.Point{x, y}
 	}
-	logicHandler.Trigger(event.ViewportUpdate, []float64{float64(ViewPos.X), float64(ViewPos.Y)})
-	dlog.Verb("ViewX, Y: ", ViewPos.X, " ", ViewPos.Y)
+	c.logicHandler.Trigger(event.ViewportUpdate, []float64{float64(c.ViewPos.X), float64(c.ViewPos.Y)})
+	dlog.Verb("ViewX, Y: ", c.ViewPos.X, " ", c.ViewPos.Y)
 }
 
 // GetViewportBounds reports what bounds the viewport has been set to, if any.
-func GetViewportBounds() (x1, y1, x2, y2 int, ok bool) {
-	if useViewBounds {
-		return viewBounds.minX, viewBounds.minY, viewBounds.maxX, viewBounds.maxY, true
+func (c *Controller) GetViewportBounds() (x1, y1, x2, y2 int, ok bool) {
+	if c.useViewBounds {
+		return c.viewBounds.minX, c.viewBounds.minY, c.viewBounds.maxX, c.viewBounds.maxY, true
 	}
 	return 0, 0, 0, 0, false
 }
 
 // RemoveViewportBounds removes restrictions on the viewport's movement. It will not
 // cause ViewPos to update immediately.
-func RemoveViewportBounds() {
-	useViewBounds = false
+func (c *Controller) RemoveViewportBounds() {
+	c.useViewBounds = false
 }
 
 // SetViewportBounds sets the minimum and maximum position of the viewport, including
 // screen dimensions
-func SetViewportBounds(x1, y1, x2, y2 int) {
-	if x2 < ScreenWidth {
-		x2 = ScreenWidth
+func (c *Controller) SetViewportBounds(x1, y1, x2, y2 int) {
+	if x2 < c.ScreenWidth {
+		x2 = c.ScreenWidth
 	}
-	if y2 < ScreenHeight {
-		y2 = ScreenHeight
+	if y2 < c.ScreenHeight {
+		y2 = c.ScreenHeight
 	}
-	useViewBounds = true
-	viewBounds = rect{x1, y1, x2, y2}
+	c.useViewBounds = true
+	c.viewBounds = rect{x1, y1, x2, y2}
 
 	dlog.Info("Viewport bounds set to, ", x1, y1, x2, y2)
 
-	newViewX := ViewPos.X
-	newViewY := ViewPos.Y
+	newViewX := c.ViewPos.X
+	newViewY := c.ViewPos.Y
 	if newViewX < x1 {
 		newViewX = x1
 	} else if newViewX > x2 {
@@ -112,37 +101,32 @@ func SetViewportBounds(x1, y1, x2, y2 int) {
 		newViewY = y2
 	}
 
-	if newViewX != ViewPos.X || newViewY != ViewPos.Y {
-		viewportCh <- [2]int{newViewX, newViewY}
+	if newViewX != c.ViewPos.X || newViewY != c.ViewPos.Y {
+		c.viewportCh <- [2]int{newViewX, newViewY}
 	}
 }
 
-func moveViewportBinding(speed int) func(event.CID, interface{}) int {
+func (c *Controller) moveViewportBinding(speed int) func(event.CID, interface{}) int {
 	return func(cID event.CID, n interface{}) int {
 		dX := 0
 		dY := 0
-		if IsDown("UpArrow") {
+		if c.IsDown("UpArrow") {
 			dY--
 		}
-		if IsDown("DownArrow") {
+		if c.IsDown("DownArrow") {
 			dY++
 		}
-		if IsDown("LeftArrow") {
+		if c.IsDown("LeftArrow") {
 			dX--
 		}
-		if IsDown("RightArrow") {
+		if c.IsDown("RightArrow") {
 			dX++
 		}
-		ViewPos.X += dX * speed
-		ViewPos.Y += dY * speed
+		c.ViewPos.X += dX * speed
+		c.ViewPos.Y += dY * speed
 		if viewportLocked {
 			return event.UnbindSingle
 		}
 		return 0
 	}
-}
-
-// ViewVector returns ViewPos as a Vector
-func ViewVector() physics.Vector {
-	return physics.NewVector(float64(ViewPos.X), float64(ViewPos.Y))
 }

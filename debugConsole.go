@@ -27,48 +27,44 @@ var (
 // AddCommand adds a console command to call fn when
 // '<s> <args>' is input to the console. fn will be called
 // with args split on whitespace.
-func AddCommand(s string, fn func([]string)) error {
-	if _, ok := commands[s]; ok {
-		return oakerr.ExistingElement{
-			InputName:   "s",
-			InputType:   "string",
-			Overwritten: false,
-		}
-	}
-	dlog.Info("Adding command", s)
-	commands[s] = fn
-	return nil
+func (c *Controller) AddCommand(s string, fn func([]string)) error {
+	return c.addCommand(s, fn, false)
 }
 
 // ForceAddCommand adds or overwrites a console command to call fn when
 // '<s> <args>' is input to the console. fn will be called
-// with args split on whitespace. If a command is overwritten
-// the overwritten command will be returned.
-func ForceAddCommand(s string, fn func([]string)) func([]string) {
+// with args split on whitespace.
+func (c *Controller) ForceAddCommand(s string, fn func([]string)) {
+	c.addCommand(s, fn, true)
+}
 
-	existing, overwritten := commands[s]
-	if overwritten {
-		dlog.Info("Overwriting command", s)
-	} else {
-		dlog.Info("Adding command", s)
+func (c *Controller) addCommand(s string, fn func([]string), force bool) error {
+	if _, ok := commands[s]; ok {
+		if !force {
+			return oakerr.ExistingElement{
+				InputName:   "s",
+				InputType:   "string",
+				Overwritten: false,
+			}
+		}
 	}
 	commands[s] = fn
-	return existing
+	return nil
 }
 
 // ClearCommand clears an existing debug command by key: <s>
-func ClearCommand(s string) {
+func (c *Controller) ClearCommand(s string) {
 	delete(commands, s)
 }
 
 // ResetCommands will throw out all existing debug commands from the
 // debug console.
-func ResetCommands() {
+func (c *Controller) ResetCommands() {
 	commands = map[string]func([]string){}
 }
 
 // GetDebugKeys returns the current debug console commands as a string array
-func GetDebugKeys() []string {
+func (c *Controller) GetDebugKeys() []string {
 	dkeys := make([]string, len(commands))
 	i := 0
 	for k := range commands {
@@ -78,20 +74,20 @@ func GetDebugKeys() []string {
 	return dkeys
 }
 
-func debugConsole(resetCh, skipScene chan bool, input io.Reader) {
+func (c *Controller) debugConsole(resetCh, skipScene chan bool, input io.Reader) {
 	scanner := bufio.NewScanner(input)
 
 	// built in commands
 	if conf.LoadBuiltinCommands {
-		dlog.ErrorCheck(AddCommand("viewport", viewportCommands))
-		dlog.ErrorCheck(AddCommand("fade", fadeCommands))
-		dlog.ErrorCheck(AddCommand("skip", skipCommands(skipScene)))
-		dlog.ErrorCheck(AddCommand("print", printCommands))
-		dlog.ErrorCheck(AddCommand("mouse", mouseCommands))
-		dlog.ErrorCheck(AddCommand("move", moveWindow))
-		dlog.ErrorCheck(AddCommand("fullscreen", fullScreen))
-		dlog.ErrorCheck(AddCommand("help", printDebugCommands))
-		dlog.ErrorCheck(AddCommand("quit", func([]string) { Quit() }))
+		dlog.ErrorCheck(c.AddCommand("viewport", c.viewportCommands))
+		dlog.ErrorCheck(c.AddCommand("fade", c.fadeCommands))
+		dlog.ErrorCheck(c.AddCommand("skip", c.skipCommands(skipScene)))
+		dlog.ErrorCheck(c.AddCommand("print", c.printCommands))
+		dlog.ErrorCheck(c.AddCommand("mouse", c.mouseCommands))
+		dlog.ErrorCheck(c.AddCommand("move", c.moveWindow))
+		dlog.ErrorCheck(c.AddCommand("fullscreen", c.fullScreen))
+		dlog.ErrorCheck(c.AddCommand("help", c.printDebugCommands))
+		dlog.ErrorCheck(c.AddCommand("quit", func([]string) { c.Quit() }))
 	}
 
 	for {
@@ -124,10 +120,10 @@ func parseTokenAsInt(tokenString []string, arrIndex int, defaultVal int) int {
 	return defaultVal
 }
 
-func mouseDetails(nothing event.CID, mevent interface{}) int {
+func (c *Controller) mouseDetails(nothing event.CID, mevent interface{}) int {
 	me := mevent.(mouse.Event)
-	x := int(me.X()) + ViewPos.X
-	y := int(me.Y()) + ViewPos.Y
+	x := int(me.X()) + c.ViewPos.X
+	y := int(me.Y()) + c.ViewPos.Y
 	loc := collision.NewUnassignedSpace(float64(x), float64(y), 16, 16)
 	results := collision.Hits(loc)
 	fmt.Println("Mouse at:", x, y, "rel:", me.X(), me.Y())
@@ -147,7 +143,7 @@ func mouseDetails(nothing event.CID, mevent interface{}) int {
 	return 0
 }
 
-func viewportCommands(tokenString []string) {
+func (c *Controller) viewportCommands(tokenString []string) {
 	if len(tokenString) > 0 {
 		fmt.Println("Input must start with the name of the viewport operation to perform.")
 		return
@@ -157,7 +153,7 @@ func viewportCommands(tokenString []string) {
 		if viewportLocked {
 			speed := parseTokenAsInt(tokenString, 1, 5)
 			viewportLocked = false
-			event.GlobalBind(event.Enter, moveViewportBinding(speed))
+			event.GlobalBind(event.Enter, c.moveViewportBinding(speed))
 		} else {
 			fmt.Println("Viewport is already unbound")
 		}
@@ -172,7 +168,7 @@ func viewportCommands(tokenString []string) {
 	}
 }
 
-func fadeCommands(tokenString []string) {
+func (c *Controller) fadeCommands(tokenString []string) {
 	if len(tokenString) > 0 {
 		fmt.Println("Input must start with the name of the renderable to fade")
 		return
@@ -186,7 +182,7 @@ func fadeCommands(tokenString []string) {
 	}
 }
 
-func skipCommands(skipScene chan bool) func(tokenString []string) {
+func (c *Controller) skipCommands(skipScene chan bool) func(tokenString []string) {
 	return func(tokenString []string) {
 		if len(tokenString) != 1 {
 			fmt.Println("Input must be a single string from the following (\"scene\"). ")
@@ -201,7 +197,7 @@ func skipCommands(skipScene chan bool) func(tokenString []string) {
 	}
 }
 
-func printCommands(tokenString []string) {
+func (c *Controller) printCommands(tokenString []string) {
 	if len(tokenString) != 1 {
 		fmt.Println("Input must be a single number that corresponds to an entity.")
 		return
@@ -220,26 +216,26 @@ func printCommands(tokenString []string) {
 
 }
 
-func mouseCommands(tokenString []string) {
+func (c *Controller) mouseCommands(tokenString []string) {
 	if len(tokenString) != 1 {
 		fmt.Println("Input must be a single string from the following (\"details\") ")
 		return
 	}
 	switch tokenString[0] {
 	case "details":
-		event.GlobalBind("MouseRelease", mouseDetails)
+		event.GlobalBind("MouseRelease", c.mouseDetails)
 	default:
 		fmt.Println("Bad Mouse Input")
 	}
 }
 
-func printDebugCommands(tokenString []string) {
-	dbgKeys := GetDebugKeys()
+func (c *Controller) printDebugCommands(tokenString []string) {
+	dbgKeys := c.GetDebugKeys()
 	sort.Strings(dbgKeys)
 	fmt.Printf("Commands: %s\n", strings.Join(dbgKeys, ", "))
 }
 
-func moveWindow(in []string) {
+func (c *Controller) moveWindow(in []string) {
 	if len(in) < 4 {
 		dlog.Error("Insufficient integer arguments for moving window")
 		return
@@ -253,26 +249,26 @@ func moveWindow(in []string) {
 			return
 		}
 	}
-	err = MoveWindow(ints[0], ints[1], ints[2], ints[3])
+	//err = c.MoveWindow(ints[0], ints[1], ints[2], ints[3])
 	dlog.ErrorCheck(err)
 }
 
-func fullScreen(sub []string) {
-	on := true
-	if len(sub) > 0 {
-		if sub[0] == "off" {
-			on = false
-		}
-	}
-	err := SetFullScreen(on)
-	dlog.ErrorCheck(err)
+func (c *Controller) fullScreen(sub []string) {
+	// on := true
+	// if len(sub) > 0 {
+	// 	if sub[0] == "off" {
+	// 		on = false
+	// 	}
+	// }
+	//err := c.SetFullScreen(on)
+	//dlog.ErrorCheck(err)
 }
 
 // RunCommand runs a command added with AddCommand.
 // It's intended use is making it easier to
 // alias commands/subcommands.
 // It returns an error if the command doesn't exist.
-func RunCommand(cmd string, args ...string) error {
+func (c *Controller) RunCommand(cmd string, args ...string) error {
 	fn, ok := commands[cmd]
 	if ok == false {
 		return fmt.Errorf("Unknown command %s", cmd)
