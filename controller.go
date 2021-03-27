@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"image/draw"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/oakmound/oak/v2/alg/intgeom"
@@ -165,7 +166,13 @@ type Controller struct {
 
 	viewportLocked bool
 	commands       map[string]func([]string)
+
+	ControllerID int32
 }
+
+var (
+	nextControllerID = new(int32)
+)
 
 func NewController() *Controller {
 	c := &Controller{}
@@ -204,6 +211,7 @@ func NewController() *Controller {
 	c.TrackMouseClicks = true
 	c.viewportLocked = true
 	c.commands = make(map[string]func([]string))
+	c.ControllerID = atomic.AddInt32(nextControllerID, 1)
 	return c
 }
 

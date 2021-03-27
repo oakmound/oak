@@ -19,18 +19,8 @@ var (
 )
 
 func (c *Controller) inputLoop() {
-	// Obtain input events in a manner dependant on config settings
-	if conf.GestureSupport {
-		eFilter = gesture.EventFilter{EventDeque: c.windowControl}
-		eventFn = func() interface{} {
-			return eFilter.Filter(eFilter.EventDeque.NextEvent())
-		}
-	} else {
-		// Standard input
-		eventFn = c.windowControl.NextEvent
-	}
 	for {
-		switch e := eventFn().(type) {
+		switch e := c.windowControl.NextEvent().(type) {
 		// We only currently respond to death lifecycle events.
 		case lifecycle.Event:
 			if e.To == lifecycle.StageDead {
@@ -97,11 +87,6 @@ func (c *Controller) inputLoop() {
 				eventName,
 			)
 			c.TriggerMouseEvent(mevent)
-
-		case gesture.Event:
-			eventName := "Gesture" + e.Type.String()
-			dlog.Verb(eventName)
-			c.logicHandler.Trigger(eventName, omouse.FromShinyGesture(e))
 
 		// There's something called a paint event that we don't respond to
 

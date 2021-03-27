@@ -1,7 +1,6 @@
 package oak
 
 import (
-	"fmt"
 	"image"
 	"os"
 	"path/filepath"
@@ -21,7 +20,6 @@ var (
 // It spawns off an event loop of several goroutines
 // and loops through scenes after initialization.
 func (c *Controller) Init(firstScene string) {
-	fmt.Println("controller init")
 	dlog.SetLogger(dlog.NewLogger())
 	dlog.CreateLogFile()
 
