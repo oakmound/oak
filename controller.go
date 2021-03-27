@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/collision"
 	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/mouse"
@@ -109,7 +110,7 @@ type Controller struct {
 	// ViewPosMutex is used to grant extra saftey in viewpos operations
 	viewPosMutex  sync.Mutex
 	useViewBounds bool
-	viewBounds    rect
+	viewBounds    intgeom.Rect2
 
 	// ColorPalette is the current color palette oak is set to conform to. Modification of this
 	// value directly will not effect oak's palette, use SetPalette instead. If SetPallete is never called,
