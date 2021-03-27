@@ -161,6 +161,9 @@ type Controller struct {
 	LastMousePress mouse.Event
 
 	FirstSceneInput interface{}
+
+	viewportLocked bool
+	commands       map[string]func([]string)
 }
 
 func NewController() *Controller {
@@ -198,6 +201,8 @@ func NewController() *Controller {
 		render.NewDynamicHeap(),
 	)
 	c.TrackMouseClicks = true
+	c.viewportLocked = true
+	c.commands = make(map[string]func([]string))
 	return c
 }
 

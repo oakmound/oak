@@ -19,11 +19,6 @@ import (
 	"github.com/oakmound/oak/v2/render/mod"
 )
 
-var (
-	viewportLocked = true
-	commands       = make(map[string]func([]string))
-)
-
 // AddCommand adds a console command to call fn when
 // '<s> <args>' is input to the console. fn will be called
 // with args split on whitespace.
@@ -39,7 +34,7 @@ func (c *Controller) ForceAddCommand(s string, fn func([]string)) {
 }
 
 func (c *Controller) addCommand(s string, fn func([]string), force bool) error {
-	if _, ok := commands[s]; ok {
+	if _, ok := c.commands[s]; ok {
 		if !force {
 			return oakerr.ExistingElement{
 				InputName:   "s",
@@ -48,26 +43,26 @@ func (c *Controller) addCommand(s string, fn func([]string), force bool) error {
 			}
 		}
 	}
-	commands[s] = fn
+	c.commands[s] = fn
 	return nil
 }
 
 // ClearCommand clears an existing debug command by key: <s>
 func (c *Controller) ClearCommand(s string) {
-	delete(commands, s)
+	delete(c.commands, s)
 }
 
 // ResetCommands will throw out all existing debug commands from the
 // debug console.
 func (c *Controller) ResetCommands() {
-	commands = map[string]func([]string){}
+	c.commands = map[string]func([]string){}
 }
 
 // GetDebugKeys returns the current debug console commands as a string array
 func (c *Controller) GetDebugKeys() []string {
-	dkeys := make([]string, len(commands))
+	dkeys := make([]string, len(c.commands))
 	i := 0
-	for k := range commands {
+	for k := range c.commands {
 		dkeys[i] = k
 		i++
 	}
@@ -93,7 +88,7 @@ func (c *Controller) debugConsole(resetCh, skipScene chan bool, input io.Reader)
 	for {
 		select {
 		case <-resetCh: //reset all vars in debug console that save state
-			viewportLocked = true
+			c.viewportLocked = true
 		default:
 		}
 		for scanner.Scan() {
@@ -101,7 +96,7 @@ func (c *Controller) debugConsole(resetCh, skipScene chan bool, input io.Reader)
 			if len(tokenString) == 0 {
 				continue
 			}
-			if fn, ok := commands[tokenString[0]]; ok {
+			if fn, ok := c.commands[tokenString[0]]; ok {
 				fn(tokenString[1:])
 			} else {
 				fmt.Println("Unknown command", tokenString[0])
@@ -150,18 +145,18 @@ func (c *Controller) viewportCommands(tokenString []string) {
 	}
 	switch tokenString[0] {
 	case "unlock":
-		if viewportLocked {
+		if c.viewportLocked {
 			speed := parseTokenAsInt(tokenString, 1, 5)
-			viewportLocked = false
+			c.viewportLocked = false
 			event.GlobalBind(event.Enter, c.moveViewportBinding(speed))
 		} else {
 			fmt.Println("Viewport is already unbound")
 		}
 	case "lock":
-		if viewportLocked {
+		if c.viewportLocked {
 			fmt.Println("Viewport is already locked")
 		} else {
-			viewportLocked = true
+			c.viewportLocked = true
 		}
 	default:
 		fmt.Println("Unrecognized command for viewport")
@@ -269,7 +264,7 @@ func (c *Controller) fullScreen(sub []string) {
 // alias commands/subcommands.
 // It returns an error if the command doesn't exist.
 func (c *Controller) RunCommand(cmd string, args ...string) error {
-	fn, ok := commands[cmd]
+	fn, ok := c.commands[cmd]
 	if ok == false {
 		return fmt.Errorf("Unknown command %s", cmd)
 	}

@@ -124,7 +124,7 @@ func (c *Controller) moveViewportBinding(speed int) func(event.CID, interface{})
 		}
 		c.ViewPos.X += dX * speed
 		c.ViewPos.Y += dY * speed
-		if viewportLocked {
+		if c.viewportLocked {
 			return event.UnbindSingle
 		}
 		return 0
