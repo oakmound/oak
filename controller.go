@@ -57,11 +57,11 @@ type Controller struct {
 
 	// The viewport channel controls when new
 	// viewport positions should be drawn
-	viewportCh chan [2]int
+	viewportCh chan intgeom.Point2
 
 	// The viewport shift channel controls when new
 	// viewport positions should be shifted to and drawn
-	viewportShiftCh chan [2]int
+	viewportShiftCh chan intgeom.Point2
 
 	debugResetInProgress bool
 
@@ -106,7 +106,7 @@ type Controller struct {
 	SceneMap *scene.Map
 
 	// ViewPos represents the point in the world which the viewport is anchored at.
-	ViewPos image.Point
+	ViewPos intgeom.Point2
 	// ViewPosMutex is used to grant extra saftey in viewpos operations
 	viewPosMutex  sync.Mutex
 	useViewBounds bool
@@ -175,8 +175,8 @@ func NewController() *Controller {
 	c.quitCh = make(chan bool)
 	c.drawCh = make(chan bool)
 	c.debugResetCh = make(chan bool)
-	c.viewportCh = make(chan [2]int)
-	c.viewportShiftCh = make(chan [2]int)
+	c.viewportCh = make(chan intgeom.Point2)
+	c.viewportShiftCh = make(chan intgeom.Point2)
 	c.windowUpdateCh = make(chan bool)
 	c.SceneMap = scene.NewMap()
 	c.BackgroundColor = image.Black

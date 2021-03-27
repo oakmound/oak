@@ -153,7 +153,7 @@ func (c *Controller) TriggerMouseEvent(mevent omouse.Event) {
 	c.Propagate(mevent.Event+"On", mevent)
 	c.logicHandler.Trigger(mevent.Event, mevent)
 
-	mevent.Point2[0] += float64(c.ViewPos.X)
-	mevent.Point2[1] += float64(c.ViewPos.Y)
+	mevent.Point2[0] += float64(c.ViewPos[0])
+	mevent.Point2[1] += float64(c.ViewPos[1])
 	c.Propagate(mevent.Event+"OnRelative", mevent)
 }

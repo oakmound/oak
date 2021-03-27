@@ -2,8 +2,8 @@ package oak
 
 import (
 	"fmt"
-	"image"
 
+	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/scene"
@@ -55,8 +55,8 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 	c.SceneMap.CurrentScene = "loading"
 
 	for {
-		c.ViewPos = image.Point{0, 0}
-		c.updateScreen(0, 0)
+		c.ViewPos = intgeom.Point2{0, 0}
+		c.updateScreen(c.ViewPos)
 		c.useViewBounds = false
 
 		dlog.Info("Scene Start", c.SceneMap.CurrentScene)

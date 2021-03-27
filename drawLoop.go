@@ -4,7 +4,6 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/timing"
 )
 
@@ -42,16 +41,13 @@ func (c *Controller) drawLoop() {
 	c.DrawTicker = timing.NewDynamicTicker()
 	c.DrawTicker.SetTick(timing.FPSToDuration(c.DrawFrameRate))
 
-	dlog.Verb("Draw Loop Start")
 	for {
 	drawSelect:
 		select {
 		case <-c.windowUpdateCh:
 			<-c.windowUpdateCh
 		case <-c.drawCh:
-			dlog.Verb("Got something from draw channel")
 			<-c.drawCh
-			dlog.Verb("Starting loading")
 			for {
 				<-c.DrawTicker.C
 				draw.Draw(c.winBuffer.RGBA(), c.winBuffer.Bounds(), c.bkgFn(), zeroPoint, draw.Src)
@@ -64,20 +60,16 @@ func (c *Controller) drawLoop() {
 				case <-c.drawCh:
 					break drawSelect
 				case viewPoint := <-c.viewportCh:
-					dlog.Verb("Got something from viewport channel (waiting on draw)")
-					c.updateScreen(viewPoint[0], viewPoint[1])
+					c.updateScreen(viewPoint)
 				case viewPoint := <-c.viewportShiftCh:
-					dlog.Verb("Got something from viewport shift channel (waiting on draw)")
-					c.shiftViewPort(viewPoint[0], viewPoint[1])
+					c.shiftViewPort(viewPoint)
 				default:
 				}
 			}
 		case viewPoint := <-c.viewportCh:
-			dlog.Verb("Got something from viewport channel")
-			c.updateScreen(viewPoint[0], viewPoint[1])
+			c.updateScreen(viewPoint)
 		case viewPoint := <-c.viewportShiftCh:
-			dlog.Verb("Got something from viewport shift channel")
-			c.shiftViewPort(viewPoint[0], viewPoint[1])
+			c.shiftViewPort(viewPoint)
 		case <-c.DrawTicker.C:
 			draw.Draw(c.winBuffer.RGBA(), c.winBuffer.Bounds(), c.bkgFn(), zeroPoint, draw.Src)
 			c.DrawStack.PreDraw()

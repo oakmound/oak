@@ -26,7 +26,7 @@ const (
 	// Payload: nil
 	AnimationEnd = "AnimationEnd"
 	// ViewportUpdate: Triggered when the position of of the viewport changes
-	// Payload: []float64{viewportX, viewportY}
+	// Payload: intgeom.Point2
 	ViewportUpdate = "ViewportUpdate"
 	// OnStop: Triggered when the engine is stopped.
 	// Payload: nil

@@ -1,9 +1,9 @@
 package render
 
 import (
-	"image"
 	"image/draw"
 
+	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/oakerr"
 
 	"github.com/oakmound/oak/v2/dlog"
@@ -28,7 +28,7 @@ type Stackable interface {
 	Add(Renderable, ...int) Renderable
 	Replace(Renderable, Renderable, int)
 	Copy() Stackable
-	draw(draw.Image, image.Point, int, int)
+	DrawToScreen(draw.Image, intgeom.Point2, int, int)
 }
 
 func NewDrawStack(stack ...Stackable) *DrawStack {
@@ -54,12 +54,13 @@ func ResetDrawStack() {
 
 // DrawToScreen on a stack will render its contents to the input buffer, for a screen
 // of w,h dimensions, from a view point of view.
-func (ds *DrawStack) DrawToScreen(world draw.Image, view image.Point, w, h int) {
+func (ds *DrawStack) DrawToScreen(world draw.Image, view intgeom.Point2, w, h int) {
 	for _, a := range ds.as {
 		// If we had concurrent operations, we'd do it here
 		// in that case each draw call would return to us something
 		// to composite onto the window / world
-		a.draw(world, view, w, h)
+		// TODO v3: add 'DrawConcurrency'? Bake in the background drawing? Benchmark if done
+		a.DrawToScreen(world, view, w, h)
 	}
 }
 

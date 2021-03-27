@@ -2,9 +2,10 @@ package render
 
 import (
 	"container/heap"
-	"image"
 	"image/draw"
 	"sync"
+
+	"github.com/oakmound/oak/v2/alg/intgeom"
 )
 
 // A RenderableHeap manages a set of renderables to be drawn in explicit layered
@@ -119,7 +120,7 @@ func (rh *RenderableHeap) Copy() Stackable {
 	return newHeap(rh.static)
 }
 
-func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, screenH int) {
+func (rh *RenderableHeap) DrawToScreen(world draw.Image, viewPos intgeom.Point2, screenW, screenH int) {
 	newRh := &RenderableHeap{}
 	if rh.static {
 		for rh.Len() > 0 {
@@ -133,8 +134,8 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 			}
 		}
 	} else {
-		vx := float64(-viewPos.X)
-		vy := float64(-viewPos.Y)
+		vx := float64(-viewPos[0])
+		vy := float64(-viewPos[1])
 		for rh.Len() > 0 {
 			intf := heap.Pop(rh)
 			if intf != nil {
@@ -145,8 +146,8 @@ func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, s
 					w, h := r.GetDims()
 					x := w + x2
 					y := h + y2
-					if x > viewPos.X && y > viewPos.Y &&
-						x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
+					if x > viewPos[0] && y > viewPos[1] &&
+						x2 < viewPos[0]+screenW && y2 < viewPos[1]+screenH {
 						if rh.InDrawPolygon(x, y, x2, y2) {
 							r.Draw(world, vx, vy)
 						}
