@@ -159,6 +159,8 @@ type Controller struct {
 	// where the mouse event was a press.
 	// If TrackMouseClicks is set to false then this will not be tracked
 	LastMousePress mouse.Event
+
+	FirstSceneInput interface{}
 }
 
 func NewController() *Controller {

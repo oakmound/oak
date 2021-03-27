@@ -28,7 +28,9 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 			}
 		},
 		End: func() (string, *scene.Result) {
-			return c.firstScene, nil
+			return c.firstScene, &scene.Result{
+				NextSceneInput: c.FirstSceneInput,
+			}
 		},
 	})
 	if err != nil {

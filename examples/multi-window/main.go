@@ -17,10 +17,11 @@ func main() {
 	c1.InitialDrawStack = render.NewDrawStack(render.NewStaticHeap())
 	// Two windows cannot share the same logic handler
 	c1.SetLogicHandler(event.NewBus())
+	c1.FirstSceneInput = color.RGBA{255, 0, 0, 255}
 	c1.AddScene("scene1", scene.Scene{
 		Start: func(ctx *scene.Context) {
 			fmt.Println("Start scene 1")
-			cb := render.NewColorBox(50, 50, color.RGBA{255, 0, 0, 255})
+			cb := render.NewColorBox(50, 50, ctx.SceneInput.(color.RGBA))
 			cb.SetPos(50, 50)
 			ctx.DrawStack.Draw(cb, 0)
 		},
@@ -30,10 +31,11 @@ func main() {
 	c2 := oak.NewController()
 	c2.InitialDrawStack = render.NewDrawStack(render.NewStaticHeap())
 	c2.SetLogicHandler(event.NewBus())
+	c2.FirstSceneInput = color.RGBA{0, 255, 0, 255}
 	c2.AddScene("scene2", scene.Scene{
 		Start: func(ctx *scene.Context) {
 			fmt.Println("Start scene 2")
-			cb := render.NewColorBox(50, 50, color.RGBA{0, 255, 0, 255})
+			cb := render.NewColorBox(50, 50, ctx.SceneInput.(color.RGBA))
 			cb.SetPos(50, 50)
 			ctx.DrawStack.Draw(cb, 0)
 		},
