@@ -17,8 +17,10 @@ func (e ent) Init() event.CID {
 }
 
 func TestDebugConsole(t *testing.T) {
+	c1 := NewController()
+	conf.LoadBuiltinCommands = true
 	triggered := false
-	err := AddCommand("test", func([]string) {
+	err := c1.AddCommand("test", func([]string) {
 		triggered = true
 	})
 	if err != nil {
@@ -51,7 +53,7 @@ func TestDebugConsole(t *testing.T) {
 			"garbage input\n" +
 			"\n" +
 			"skip scene\n")
-	go debugConsole(rCh, sCh, r)
+	go c1.debugConsole(rCh, sCh, r)
 	rCh <- true
 	sleep()
 	sleep()
@@ -62,15 +64,17 @@ func TestDebugConsole(t *testing.T) {
 }
 
 func TestMouseDetails(t *testing.T) {
-	mouseDetails(0, mouse.NewZeroEvent(0, 0))
+	c1 := NewController()
+
+	c1.mouseDetails(0, mouse.NewZeroEvent(0, 0))
 	s := collision.NewUnassignedSpace(-1, -1, 2, 2)
 	collision.Add(s)
-	mouseDetails(0, mouse.NewZeroEvent(0, 0))
+	c1.mouseDetails(0, mouse.NewZeroEvent(0, 0))
 	collision.Remove(s)
 
 	// This should spew this nothing entity, but it doesn't.
 	id := event.NextID(ent{})
 	s = collision.NewSpace(-1, -1, 2, 2, id)
-	mouseDetails(0, mouse.NewZeroEvent(0, 0))
+	c1.mouseDetails(0, mouse.NewZeroEvent(0, 0))
 	collision.Remove(s)
 }

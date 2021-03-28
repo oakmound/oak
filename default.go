@@ -2,6 +2,7 @@ package oak
 
 import (
 	"image"
+	"time"
 
 	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/event"
@@ -35,6 +36,18 @@ func AddScene(name string, sc scene.Scene) error {
 
 func IsDown(key string) bool {
 	return defaultController.IsDown(key)
+}
+
+func IsHeld(key string) (bool, time.Duration) {
+	return defaultController.IsHeld(key)
+}
+
+func SetUp(key string) {
+	defaultController.SetUp(key)
+}
+
+func SetDown(key string) {
+	defaultController.SetDown(key)
 }
 
 func SetViewportBounds(rect intgeom.Rect2) {

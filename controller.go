@@ -250,7 +250,7 @@ func (c *Controller) Propagate(eventName string, me mouse.Event) {
 				}
 			}
 		} else if eventName == mouse.ReleaseOn+"Relative" {
-			if me.Button == c.LastMousePress.Button {
+			if me.Button == c.lastRelativePress.Button {
 				pressHits := c.MouseTree.SearchIntersect(c.lastRelativePress.ToSpace().Bounds())
 				for _, sp1 := range pressHits {
 					for _, sp2 := range hits {
