@@ -4,19 +4,16 @@ import (
 	"image"
 
 	"github.com/oakmound/oak/v2/alg/intgeom"
+	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/scene"
-	"github.com/oakmound/oak/v2/event"
 )
 
 var defaultController = NewController()
 
-func init() {
+func Init(scene string) {
 	defaultController.DrawStack = render.GlobalDrawStack
 	defaultController.logicHandler = event.DefaultBus
-} 
-
-func Init(scene string) {
 	defaultController.Init(scene)
 }
 
