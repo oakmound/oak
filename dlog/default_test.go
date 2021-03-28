@@ -38,10 +38,10 @@ func TestLogger(t *testing.T) {
 	}
 	callLogger()
 
-	expectedOut := `[default_test:39]  VERBOSE:fileWrite 
-[default_test:39]  VERBOSE:error 
-[default_test:39]  VERBOSE:warn 
-[default_test:39]  VERBOSE:info 
+	expectedOut := `[default_test:39]  INFO:fileWrite 
+[default_test:39]  ERROR:error 
+[default_test:39]  WARN:warn 
+[default_test:39]  INFO:info 
 [default_test:39]  VERBOSE:verb 
 [default_test:39]  VERBOSE:foo 
 `
