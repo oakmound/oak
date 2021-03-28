@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/oakerr"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/shiny/driver"
@@ -62,9 +61,7 @@ func (c *Controller) Init(firstScene string) {
 		trackJoystickChanges()
 	}
 	if conf.EventRefreshRate != 0 {
-		if cfgHandler, ok := c.logicHandler.(event.ConfigHandler); ok {
-			cfgHandler.SetRefreshRate(conf.EventRefreshRate)
-		}
+		c.logicHandler.SetRefreshRate(conf.EventRefreshRate)
 	}
 	// END of loading variables from configuration
 

@@ -27,10 +27,8 @@ func (c *Controller) inputLoop() {
 				dlog.Info("Window closed.")
 				// OnStop needs to be sent through TriggerBack, otherwise the
 				// program will close before the stop events get propagated.
-				if fh, ok := c.logicHandler.(event.FullHandler); ok {
-					dlog.Verb("Triggering OnStop.")
-					<-fh.TriggerBack(event.OnStop, nil)
-				}
+				dlog.Verb("Triggering OnStop.")
+				<-c.logicHandler.TriggerBack(event.OnStop, nil)
 				c.quitCh <- true
 				return
 			}

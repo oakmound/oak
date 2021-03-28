@@ -31,6 +31,7 @@ func (c *Controller) windowController(s screen.Screen, x, y int32, width, height
 }
 
 type Controller struct {
+	// TODO: most of these channels should take struct{}s and be closed sometime
 	transitionCh chan bool
 
 	// The Scene channel receives a signal

@@ -19,10 +19,6 @@ func main() {
 	c1 := oak.NewController()
 	c1.InitialDrawStack = render.NewDrawStack(render.NewDynamicHeap())
 
-	type GlobalBinder interface {
-		GlobalBind(string, event.Bindable)
-	}
-
 	// Two windows cannot share the same logic handler
 	b1 := event.NewBus()
 	c1.SetLogicHandler(b1)
@@ -35,13 +31,16 @@ func main() {
 			ctx.DrawStack.Draw(cb, 0)
 			dFPS := render.NewDrawFPS(0.1, nil, 600, 10)
 			ctx.DrawStack.Draw(dFPS, 1)
-			ctx.EventHandler.(GlobalBinder).GlobalBind(mouse.Press, mouse.Binding(func(_ event.CID, me mouse.Event) int {
+			ctx.EventHandler.GlobalBind(mouse.Press, mouse.Binding(func(_ event.CID, me mouse.Event) int {
 				cb.SetPos(me.X(), me.Y())
 				return 0
 			}))
 		},
 	})
-	go c1.Init("scene1")
+	go func() {
+		c1.Init("scene1")
+		fmt.Println("scene 1 exited")
+	}()
 
 	c2 := oak.NewController()
 	c2.InitialDrawStack = render.NewDrawStack(render.NewDynamicHeap())
@@ -56,13 +55,14 @@ func main() {
 			ctx.DrawStack.Draw(cb, 0)
 			dFPS := render.NewDrawFPS(0.1, nil, 600, 10)
 			ctx.DrawStack.Draw(dFPS, 1)
-			ctx.EventHandler.(GlobalBinder).GlobalBind(mouse.Press, mouse.Binding(func(_ event.CID, me mouse.Event) int {
+			ctx.EventHandler.GlobalBind(mouse.Press, mouse.Binding(func(_ event.CID, me mouse.Event) int {
 				cb.SetPos(me.X(), me.Y())
 				return 0
 			}))
 		},
 	})
 	c2.Init("scene2")
+	fmt.Println("scene 2 exited")
 
 	//oak.Init() => oak.NewController(render.GlobalDrawStack, dlog.DefaultLogger ...).Init()
 }
