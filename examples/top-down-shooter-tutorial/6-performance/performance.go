@@ -47,12 +47,11 @@ const (
 func main() {
 
 	oak.Add("tds", func(ctx *scene.Context) {
-		render.Draw(render.NewDrawFPS(1, nil, 10, 10))
-		render.Draw(render.NewLogicFPS(1, nil, 10, 20))
+		render.Draw(render.NewDrawFPS(1, nil, 10, 10), 2, 0)
+		render.Draw(render.NewLogicFPS(1, nil, 10, 20), 2, 0)
 
 		// Initialization
 		playerAlive = true
-		var err error
 		sprites, err := render.GetSheet(filepath.Join("16x16", "sheet.png"))
 		dlog.ErrorCheck(err)
 		sheet = sprites.ToSprites()
@@ -61,15 +60,13 @@ func main() {
 
 		// Player setup
 		eggplant, err := render.GetSprite(filepath.Join("character", "eggplant-fish.png"))
+		dlog.ErrorCheck(err)
 		playerR := render.NewSwitch("left", map[string]render.Modifiable{
 			"left": eggplant,
 			// We must copy the sprite before we modify it, or "left"
 			// will also be flipped.
 			"right": eggplant.Copy().Modify(mod.FlipX),
 		})
-		if err != nil {
-			dlog.Error(err)
-		}
 		char := entities.NewMoving(100, 100, 32, 32,
 			playerR,
 			nil, 0, 0)
@@ -182,6 +179,7 @@ func main() {
 	render.SetDrawStack(
 		render.NewCompositeR(),
 		render.NewDynamicHeap(),
+		render.NewStaticHeap(),
 	)
 
 	oak.Init("tds")
