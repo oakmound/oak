@@ -72,3 +72,11 @@ func GetBackgroundColor() image.Image {
 func SetBackgroundColor(img image.Image) {
 	defaultController.SetBackgroundColor(img)
 }
+
+func Width() int {
+	return defaultController.Width()
+}
+
+func Height() int {
+	return defaultController.Height()
+}
