@@ -1,16 +1,16 @@
 package render
 
 import (
-	"container/heap"
-	"image"
 	"image/draw"
 	"sync"
+
+	"github.com/oakmound/oak/v2/alg/intgeom"
 )
 
 // A RenderableHeap manages a set of renderables to be drawn in explicit layered
 // order, using an internal heap to manage that order. It implements Stackable.
 type RenderableHeap struct {
-	rs       []Renderable
+	layerHeap
 	toPush   []Renderable
 	toUndraw []Renderable
 	static   bool
@@ -69,39 +69,13 @@ func (rh *RenderableHeap) Replace(old, new Renderable, layer int) {
 	rh.addLock.Unlock()
 }
 
-// Satisfying the Heap interface
-//Len gets the length of the current heap
-func (rh *RenderableHeap) Len() int { return len(rh.rs) }
-
-//Less returns whether a renderable at index i is at a lower layer than the one at index j
-func (rh *RenderableHeap) Less(i, j int) bool { return rh.rs[i].GetLayer() < rh.rs[j].GetLayer() }
-
-//Swap moves two locations
-func (rh *RenderableHeap) Swap(i, j int) { rh.rs[i], rh.rs[j] = rh.rs[j], rh.rs[i] }
-
-//Push adds to the renderable heap
-func (rh *RenderableHeap) Push(r interface{}) {
-	if r == nil {
-		return
-	}
-	rh.rs = append(rh.rs, r.(Renderable))
-}
-
-//Pop pops from the heap
-func (rh *RenderableHeap) Pop() interface{} {
-	n := len(rh.rs)
-	x := rh.rs[n-1]
-	rh.rs = rh.rs[0 : n-1]
-	return x
-}
-
 // PreDraw parses through renderables to be pushed
 // and adds them to the drawheap.
 func (rh *RenderableHeap) PreDraw() {
 	rh.addLock.Lock()
 	for _, r := range rh.toPush {
 		if r != nil {
-			heap.Push(rh, r)
+			rh.heapPush(r)
 		}
 	}
 	for _, r := range rh.toUndraw {
@@ -119,42 +93,106 @@ func (rh *RenderableHeap) Copy() Stackable {
 	return newHeap(rh.static)
 }
 
-func (rh *RenderableHeap) draw(world draw.Image, viewPos image.Point, screenW, screenH int) {
+func (rh *RenderableHeap) DrawToScreen(world draw.Image, viewPos intgeom.Point2, screenW, screenH int) {
 	newRh := &RenderableHeap{}
 	if rh.static {
-		for rh.Len() > 0 {
-			rp := heap.Pop(rh)
-			if rp != nil {
-				r := rp.(Renderable)
-				if r.GetLayer() != Undraw {
-					r.Draw(world, 0, 0)
-					heap.Push(newRh, r)
-				}
+		for len(rh.rs) > 0 {
+			r := rh.heapPop()
+			if r.GetLayer() != Undraw {
+				r.Draw(world, 0, 0)
+				newRh.heapPush(r)
+				// TODO: at this point we know r.GetLayer cannot be Undraw
+				// (because undraws will all come first)
+				// can we use a smarter data structure that could do:
+				// 1. pop all undraws and remove them
+				// 2. iterate through remaining elements in order, drawing
+				// 3. re-init the tree for layer changes
 			}
 		}
 	} else {
-		vx := float64(-viewPos.X)
-		vy := float64(-viewPos.Y)
-		for rh.Len() > 0 {
-			intf := heap.Pop(rh)
-			if intf != nil {
-				r := intf.(Renderable)
-				if r.GetLayer() != Undraw {
-					x2 := int(r.X())
-					y2 := int(r.Y())
-					w, h := r.GetDims()
-					x := w + x2
-					y := h + y2
-					if x > viewPos.X && y > viewPos.Y &&
-						x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
-						if rh.InDrawPolygon(x, y, x2, y2) {
-							r.Draw(world, vx, vy)
-						}
+		// TODO: test if we can remove these bounds checks (because draw.Draw already does them)
+		vx := float64(-viewPos[0])
+		vy := float64(-viewPos[1])
+		for len(rh.rs) > 0 {
+			r := rh.heapPop()
+			if r.GetLayer() != Undraw {
+				x2 := int(r.X())
+				y2 := int(r.Y())
+				w, h := r.GetDims()
+				x := w + x2
+				y := h + y2
+				if x > viewPos[0] && y > viewPos[1] &&
+					x2 < viewPos[0]+screenW && y2 < viewPos[1]+screenH {
+					// TODO v3: consider removing DrawPolygon or moving to oak grove
+					if rh.InDrawPolygon(x, y, x2, y2) {
+						r.Draw(world, vx, vy)
 					}
-					heap.Push(newRh, r)
 				}
+				newRh.heapPush(r)
 			}
 		}
 	}
 	rh.rs = newRh.rs
+}
+
+type layerHeap struct {
+	rs []Renderable
+}
+
+// Push pushes the element x onto the heap.
+// The complexity is O(log n) where n = h.Len().
+func (h *layerHeap) heapPush(r Renderable) {
+	if r == nil {
+		return
+	}
+	h.rs = append(h.rs, r)
+	h.up(len(h.rs) - 1)
+}
+
+// Pop removes and returns the minimum element (according to Less) from the heap.
+// The complexity is O(log n) where n = h.Len().
+// Pop is equivalent to Remove(h, 0).
+func (h *layerHeap) heapPop() Renderable {
+	n := len(h.rs) - 1
+	h.rs[0], h.rs[n] = h.rs[n], h.rs[0]
+	h.down(0, n)
+	r := h.rs[len(h.rs)-1]
+	h.rs = h.rs[0 : len(h.rs)-1]
+	return r
+}
+
+func (h *layerHeap) up(j int) {
+	for {
+		i := (j - 1) / 2 // parent
+		if i == j || !h.less(j, i) {
+			break
+		}
+		h.rs[i], h.rs[j] = h.rs[j], h.rs[i]
+		j = i
+	}
+}
+
+func (h *layerHeap) down(i0, n int) bool {
+	i := i0
+	for {
+		j1 := 2*i + 1
+		if j1 >= n || j1 < 0 { // j1 < 0 after int overflow
+			break
+		}
+		j := j1 // left child
+		if j2 := j1 + 1; j2 < n && h.less(j2, j1) {
+			j = j2 // = 2*i + 2  // right child
+		}
+		if !h.less(j, i) {
+			break
+		}
+		h.rs[i], h.rs[j] = h.rs[j], h.rs[i]
+		i = j
+	}
+	return i > i0
+}
+
+//Less returns whether a renderable at index i is at a lower layer than the one at index j
+func (h *layerHeap) less(i, j int) bool {
+	return h.rs[i].GetLayer() < h.rs[j].GetLayer()
 }

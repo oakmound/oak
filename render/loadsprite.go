@@ -45,11 +45,7 @@ func loadSprite(directory, fileName string, maxFileSize int64) (*image.RGBA, err
 			if err != nil {
 				return nil, err
 			}
-			bounds := image.Rectangle{
-				Min: image.Point{0, 0},
-				Max: image.Point{cfg.Width, cfg.Height},
-			}
-			rgba := image.NewRGBA(bounds)
+			rgba := image.NewRGBA(image.Rect(0, 0, cfg.Width, cfg.Height))
 			imageLock.Lock()
 			loadedImages[fileName] = rgba
 			imageLock.Unlock()

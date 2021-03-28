@@ -6,71 +6,19 @@ import (
 	"path/filepath"
 
 	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/oakerr"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/shiny/driver"
 )
 
 var (
-	//
-	transitionCh = make(chan bool)
-
-	// The Scene channel receives a signal
-	// when a scene's .loop() function should
-	// be called.
-	sceneCh = make(chan bool)
-
-	// The skip scene channel receives a debug
-	// signal to forcibly go to the next
-	// scene.
-	skipSceneCh = make(chan bool)
-
-	// The quit channel receives a signal when
-	// the program should stop.
-	quitCh = make(chan bool)
-
-	// The draw channel receives a signal when
-	// drawing should cease (or resume)
-	drawCh = make(chan bool)
-
-	// The debug reset channel represents
-	// when the debug console should forget the
-	// commands that have been sent to it.
-	debugResetCh = make(chan bool)
-
-	// The viewport channel controls when new
-	// viewport positions should be drawn
-	viewportCh = make(chan [2]int)
-
-	// The viewport shift channel controls when new
-	// viewport positions should be shifted to and drawn
-	viewportShiftCh = make(chan [2]int)
-
-	debugResetInProgress bool
-
-	// ScreenWidth is the width of the screen
-	ScreenWidth int
-	// ScreenHeight is the height of the screen
-	ScreenHeight int
-
-	// FrameRate is the current logical frame rate.
-	// Changing this won't directly effect frame rate, that
-	// requires changing the LogicTicker, but it will take
-	// effect next scene
-	FrameRate int
-
-	// DrawFrameRate is the equivalent to FrameRate for
-	// the rate at which the screen is drawn.
-	DrawFrameRate int
-
 	zeroPoint = image.Point{0, 0}
 )
 
 // Init initializes the oak engine.
 // It spawns off an event loop of several goroutines
 // and loops through scenes after initialization.
-func Init(firstScene string) {
+func (c *Controller) Init(firstScene string) {
 	dlog.SetLogger(dlog.NewLogger())
 	dlog.CreateLogFile()
 
@@ -98,10 +46,10 @@ func Init(firstScene string) {
 	// TODO: languages
 	dlog.Info("Oak Init Start")
 
-	ScreenWidth = conf.Screen.Width
-	ScreenHeight = conf.Screen.Height
-	FrameRate = conf.FrameRate
-	DrawFrameRate = conf.DrawFrameRate
+	c.ScreenWidth = conf.Screen.Width
+	c.ScreenHeight = conf.Screen.Height
+	c.FrameRate = conf.FrameRate
+	c.DrawFrameRate = conf.DrawFrameRate
 
 	wd, _ := os.Getwd()
 
@@ -113,9 +61,7 @@ func Init(firstScene string) {
 		trackJoystickChanges()
 	}
 	if conf.EventRefreshRate != 0 {
-		if cfgHandler, ok := logicHandler.(event.ConfigHandler); ok {
-			cfgHandler.SetRefreshRate(conf.EventRefreshRate)
-		}
+		c.logicHandler.SetRefreshRate(conf.EventRefreshRate)
 	}
 	// END of loading variables from configuration
 
@@ -130,14 +76,14 @@ func Init(firstScene string) {
 
 	// TODO: languages
 	dlog.Info("Init Scene Loop")
-	go sceneLoop(firstScene, conf.TrackInputChanges, conf.DisableDebugConsole)
+	go c.sceneLoop(firstScene, conf.TrackInputChanges, conf.DisableDebugConsole)
 	dlog.Info("Init asset load")
 	render.SetAssetPaths(imageDir)
-	go loadAssets(imageDir, audioDir)
+	go c.loadAssets(imageDir, audioDir)
 	if !conf.DisableDebugConsole {
 		dlog.Info("Init Console")
-		go debugConsole(debugResetCh, skipSceneCh, os.Stdin)
+		go c.debugConsole(c.debugResetCh, c.skipSceneCh, os.Stdin)
 	}
 	dlog.Info("Init Main Driver")
-	InitDriver(lifecycleLoop)
+	c.Driver(c.lifecycleLoop)
 }

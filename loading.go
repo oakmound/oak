@@ -8,13 +8,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	startupLoadCh = make(chan bool)
-	// LoadingR is a renderable that is displayed during loading screens.
-	LoadingR render.Renderable
-)
-
-func loadAssets(imageDir, audioDir string) {
+func (c *Controller) loadAssets(imageDir, audioDir string) {
 	if conf.BatchLoad {
 		dlog.Info("Loading Images")
 		var eg errgroup.Group
@@ -41,13 +35,13 @@ func loadAssets(imageDir, audioDir string) {
 		})
 		dlog.ErrorCheck(eg.Wait())
 	}
-	endLoad()
+	c.endLoad()
 }
 
-func endLoad() {
+func (c *Controller) endLoad() {
 	dlog.Info("Done Loading")
-	startupLoadCh <- true
-	dlog.Info("Startup load signal sent")
+	close(c.startupLoadCh)
+	dlog.Info("Startup load closed")
 }
 
 // SetBinaryPayload just sets some public fields on packages that require access to binary functions

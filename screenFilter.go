@@ -8,30 +8,23 @@ import (
 	"github.com/oakmound/oak/v2/render/mod"
 )
 
-var (
-	// ColorPalette is the current color palette oak is set to conform to. Modification of this
-	// value directly will not effect oak's palette, use SetPalette instead. If SetPallete is never called,
-	// this is the zero value ([]Color of length 0).
-	ColorPalette color.Palette
-)
-
 // SetPalette tells oak to conform the screen to the input color palette before drawing.
-func SetPalette(palette color.Palette) {
-	ColorPalette = palette
-	SetScreenFilter(mod.ConformToPallete(ColorPalette))
+func (c *Controller) SetPalette(palette color.Palette) {
+	c.ColorPalette = palette
+	c.SetScreenFilter(mod.ConformToPallete(c.ColorPalette))
 }
 
 // SetScreenFilter will filter the screen by the given modification function prior
 // to publishing the screen's rgba to be displayed.
-func SetScreenFilter(screenFilter mod.Filter) {
-	drawLoopPublish = func(tx screen.Texture) {
-		screenFilter(winBuffer.RGBA())
-		drawLoopPublishDef(tx)
+func (c *Controller) SetScreenFilter(screenFilter mod.Filter) {
+	c.drawLoopPublish = func(c *Controller, tx screen.Texture) {
+		screenFilter(c.winBuffer.RGBA())
+		c.drawLoopPublishDef(c, tx)
 	}
 }
 
 // ClearScreenFilter resets the draw function to no longer filter the screen before
 // publishing it to the window.
-func ClearScreenFilter() {
-	drawLoopPublish = drawLoopPublishDef
+func (c *Controller) ClearScreenFilter() {
+	c.drawLoopPublish = c.drawLoopPublishDef
 }

@@ -10,6 +10,7 @@ import (
 
 	oak "github.com/oakmound/oak/v2"
 	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/collision"
 	"github.com/oakmound/oak/v2/collision/ray"
 	"github.com/oakmound/oak/v2/dlog"
@@ -45,30 +46,27 @@ const (
 
 func main() {
 
-	oak.Add("tds", func(*scene.Context) {
-		render.Draw(render.NewDrawFPS(1, nil, 10, 10))
-		render.Draw(render.NewLogicFPS(1, nil, 10, 20))
+	oak.Add("tds", func(ctx *scene.Context) {
+		render.Draw(render.NewDrawFPS(1, nil, 10, 10), 2, 0)
+		render.Draw(render.NewLogicFPS(1, nil, 10, 20), 2, 0)
 
 		// Initialization
 		playerAlive = true
-		var err error
 		sprites, err := render.GetSheet(filepath.Join("16x16", "sheet.png"))
 		dlog.ErrorCheck(err)
 		sheet = sprites.ToSprites()
 
-		oak.SetViewportBounds(0, 0, fieldWidth, fieldHeight)
+		oak.SetViewportBounds(intgeom.NewRect2(0, 0, fieldWidth, fieldHeight))
 
 		// Player setup
 		eggplant, err := render.GetSprite(filepath.Join("character", "eggplant-fish.png"))
+		dlog.ErrorCheck(err)
 		playerR := render.NewSwitch("left", map[string]render.Modifiable{
 			"left": eggplant,
 			// We must copy the sprite before we modify it, or "left"
 			// will also be flipped.
 			"right": eggplant.Copy().Modify(mod.FlipX),
 		})
-		if err != nil {
-			dlog.Error(err)
-		}
 		char := entities.NewMoving(100, 100, 32, 32,
 			playerR,
 			nil, 0, 0)
@@ -105,8 +103,8 @@ func main() {
 				char.SetY(fieldHeight - char.H)
 			}
 			oak.SetScreen(
-				int(char.R.X())-oak.ScreenWidth/2,
-				int(char.R.Y())-oak.ScreenHeight/2,
+				int(char.R.X())-ctx.Window.Width()/2,
+				int(char.R.Y())-ctx.Window.Height()/2,
 			)
 			hit := char.HitLabel(Enemy)
 			if hit != nil {
@@ -133,8 +131,9 @@ func main() {
 			mevent := me.(mouse.Event)
 			x := char.X() + char.W/2
 			y := char.Y() + char.H/2
-			mx := mevent.X() + float64(oak.ViewPos.X)
-			my := mevent.Y() + float64(oak.ViewPos.Y)
+			vp := ctx.Window.Viewport()
+			mx := mevent.X() + float64(vp.X())
+			my := mevent.Y() + float64(vp.Y())
 			ray.DefaultCaster.CastDistance = floatgeom.Point2{x, y}.Sub(floatgeom.Point2{mx, my}).Magnitude()
 			hits := ray.CastTo(floatgeom.Point2{x, y}, floatgeom.Point2{mx, my})
 			for _, hit := range hits {
@@ -180,6 +179,7 @@ func main() {
 	render.SetDrawStack(
 		render.NewCompositeR(),
 		render.NewDynamicHeap(),
+		render.NewStaticHeap(),
 	)
 
 	oak.Init("tds")

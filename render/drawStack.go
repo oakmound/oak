@@ -1,9 +1,9 @@
 package render
 
 import (
-	"image"
 	"image/draw"
 
+	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/oakerr"
 
 	"github.com/oakmound/oak/v2/dlog"
@@ -11,9 +11,7 @@ import (
 
 var (
 	// GlobalDrawStack is the stack that all draw calls are parsed through.
-	GlobalDrawStack = &DrawStack{
-		as: []Stackable{NewDynamicHeap()},
-	}
+	GlobalDrawStack  = NewDrawStack(NewDynamicHeap())
 	initialDrawStack = GlobalDrawStack
 )
 
@@ -30,17 +28,21 @@ type Stackable interface {
 	Add(Renderable, ...int) Renderable
 	Replace(Renderable, Renderable, int)
 	Copy() Stackable
-	draw(draw.Image, image.Point, int, int)
+	DrawToScreen(draw.Image, intgeom.Point2, int, int)
 }
 
-// SetDrawStack takes in a set of Stackable which act as the set of Drawstacks available
+func NewDrawStack(stack ...Stackable) *DrawStack {
+	return &DrawStack{
+		as: stack,
+	}
+}
+
+// SetDrawStack takes in a set of Stackables which act as the Drawstack available
 // and resets how calls to Draw will act. If this is called mid scene,
 // all elements on the existing draw stack will be lost.
 func SetDrawStack(stackLayers ...Stackable) {
-	GlobalDrawStack = &DrawStack{as: stackLayers}
+	GlobalDrawStack = NewDrawStack(stackLayers...)
 	initialDrawStack = GlobalDrawStack.Copy()
-	dlog.Info("Global draw stack", GlobalDrawStack)
-	dlog.Info("Initial draw stack", initialDrawStack)
 }
 
 //ResetDrawStack resets the Global stack back to the initial stack
@@ -48,14 +50,15 @@ func ResetDrawStack() {
 	GlobalDrawStack = initialDrawStack.Copy()
 }
 
-// Draw on a stack will render its contents to the input buffer, for a screen
+// DrawToScreen on a stack will render its contents to the input buffer, for a screen
 // of w,h dimensions, from a view point of view.
-func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
+func (ds *DrawStack) DrawToScreen(world draw.Image, view intgeom.Point2, w, h int) {
 	for _, a := range ds.as {
 		// If we had concurrent operations, we'd do it here
 		// in that case each draw call would return to us something
 		// to composite onto the window / world
-		a.draw(world, view, w, h)
+		// TODO v3: add 'DrawConcurrency'? Bake in the background drawing? Benchmark if done
+		a.DrawToScreen(world, view, w, h)
 	}
 }
 
@@ -69,21 +72,25 @@ func (ds *DrawStack) Draw(world draw.Image, view image.Point, w, h int) {
 // If zero layers are provided, it will add to the zeroth stack layer and
 // give nothing to the stackable's argument.
 func Draw(r Renderable, layers ...int) (Renderable, error) {
+	return GlobalDrawStack.Draw(r, layers...)
+}
+
+func (d *DrawStack) Draw(r Renderable, layers ...int) (Renderable, error) {
 	if r == nil {
 		return nil, oakerr.NilInput{InputName: "r"}
 	}
-	if len(GlobalDrawStack.as) == 1 {
-		return GlobalDrawStack.as[0].Add(r, layers...), nil
+	if len(d.as) == 1 {
+		return d.as[0].Add(r, layers...), nil
 	}
 	if len(layers) > 0 {
 		stackLayer := layers[0]
-		if stackLayer < 0 || stackLayer >= len(GlobalDrawStack.as) {
+		if stackLayer < 0 || stackLayer >= len(d.as) {
 			dlog.Error("Layer", stackLayer, "does not exist on global draw stack")
 			return nil, oakerr.InvalidInput{InputName: "layers"}
 		}
-		return GlobalDrawStack.as[stackLayer].Add(r, layers[1:]...), nil
+		return d.as[stackLayer].Add(r, layers[1:]...), nil
 	}
-	return GlobalDrawStack.as[0].Add(r), nil
+	return d.as[0].Add(r), nil
 }
 
 // Push appends a Stackable to the draw stack during the next PreDraw.

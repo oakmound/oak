@@ -18,30 +18,18 @@ var (
 	eventFn func() interface{}
 )
 
-func inputLoop() {
-	// Obtain input events in a manner dependant on config settings
-	if conf.GestureSupport {
-		eFilter = gesture.EventFilter{EventDeque: windowControl}
-		eventFn = func() interface{} {
-			return eFilter.Filter(eFilter.EventDeque.NextEvent())
-		}
-	} else {
-		// Standard input
-		eventFn = windowControl.NextEvent
-	}
+func (c *Controller) inputLoop() {
 	for {
-		switch e := eventFn().(type) {
+		switch e := c.windowControl.NextEvent().(type) {
 		// We only currently respond to death lifecycle events.
 		case lifecycle.Event:
 			if e.To == lifecycle.StageDead {
 				dlog.Info("Window closed.")
 				// OnStop needs to be sent through TriggerBack, otherwise the
 				// program will close before the stop events get propagated.
-				if fh, ok := logicHandler.(event.FullHandler); ok {
-					dlog.Verb("Triggering OnStop.")
-					<-fh.TriggerBack(event.OnStop, nil)
-				}
-				quitCh <- true
+				dlog.Verb("Triggering OnStop.")
+				<-c.logicHandler.TriggerBack(event.OnStop, nil)
+				c.quitCh <- true
 				return
 			}
 			// ... this is where we would respond to window focus events
@@ -60,11 +48,11 @@ func inputLoop() {
 			// TODO v3: reevaluate key bindings-- we need the rune this event has
 			switch e.Direction {
 			case key.DirPress:
-				TriggerKeyDown(okey.Event(e))
+				c.TriggerKeyDown(okey.Event(e))
 			case key.DirRelease:
-				TriggerKeyUp(okey.Event(e))
+				c.TriggerKeyUp(okey.Event(e))
 			default:
-				TriggerKeyHeld(okey.Event(e))
+				c.TriggerKeyHeld(okey.Event(e))
 			}
 
 		// Send mouse events
@@ -91,24 +79,19 @@ func inputLoop() {
 			// workaround needed in mouseDetails, and how mouse events might not
 			// propagate to their expected position.
 			mevent := omouse.NewEvent(
-				float64((((e.X - float32(windowRect.Min.X)) / float32(windowRect.Max.X-windowRect.Min.X)) * float32(ScreenWidth))),
-				float64((((e.Y - float32(windowRect.Min.Y)) / float32(windowRect.Max.Y-windowRect.Min.Y)) * float32(ScreenHeight))),
+				float64((((e.X - float32(c.windowRect.Min.X)) / float32(c.windowRect.Max.X-c.windowRect.Min.X)) * float32(c.ScreenWidth))),
+				float64((((e.Y - float32(c.windowRect.Min.Y)) / float32(c.windowRect.Max.Y-c.windowRect.Min.Y)) * float32(c.ScreenHeight))),
 				button,
 				eventName,
 			)
-			TriggerMouseEvent(mevent)
-
-		case gesture.Event:
-			eventName := "Gesture" + e.Type.String()
-			dlog.Verb(eventName)
-			logicHandler.Trigger(eventName, omouse.FromShinyGesture(e))
+			c.TriggerMouseEvent(mevent)
 
 		// There's something called a paint event that we don't respond to
 
 		// Size events update what we scale the screen to
 		case size.Event:
 			//dlog.Verb("Got size event", e)
-			ChangeWindow(e.WidthPx, e.HeightPx)
+			c.ChangeWindow(e.WidthPx, e.HeightPx)
 		}
 	}
 }
@@ -117,43 +100,43 @@ func inputLoop() {
 // This should be used cautiously when the keyboard is in use.
 // From the perspective of the event handler this is indistinguishable
 // from a real keypress.
-func TriggerKeyDown(e okey.Event) {
+func (c *Controller) TriggerKeyDown(e okey.Event) {
 	k := e.Code.String()[4:]
-	SetDown(k)
-	logicHandler.Trigger(okey.Down, e)
-	logicHandler.Trigger(okey.Down+k, e)
+	c.SetDown(k)
+	c.logicHandler.Trigger(okey.Down, e)
+	c.logicHandler.Trigger(okey.Down+k, e)
 }
 
 // TriggerKeyUp triggers a software-emulated key release.
 // This should be used cautiously when the keyboard is in use.
 // From the perspective of the event handler this is indistinguishable
 // from a real key release.
-func TriggerKeyUp(e okey.Event) {
+func (c *Controller) TriggerKeyUp(e okey.Event) {
 	k := e.Code.String()[4:]
-	SetUp(k)
-	logicHandler.Trigger(okey.Up, e)
-	logicHandler.Trigger(okey.Up+k, e)
+	c.SetUp(k)
+	c.logicHandler.Trigger(okey.Up, e)
+	c.logicHandler.Trigger(okey.Up+k, e)
 }
 
 // TriggerKeyHeld triggers a software-emulated key hold signal.
 // This should be used cautiously when the keyboard is in use.
 // From the perspective of the event handler this is indistinguishable
 // from a real key hold signal.
-func TriggerKeyHeld(e okey.Event) {
+func (c *Controller) TriggerKeyHeld(e okey.Event) {
 	k := e.Code.String()[4:]
-	logicHandler.Trigger(okey.Held, e)
-	logicHandler.Trigger(okey.Held+k, e)
+	c.logicHandler.Trigger(okey.Held, e)
+	c.logicHandler.Trigger(okey.Held+k, e)
 }
 
 // TriggerMouseEvent triggers a software-emulated mouse event.
 // This should be used cautiously when the mouse is in use.
 // From the perspective of the event handler this is indistinguishable
 // from a real key mouse press or movement.
-func TriggerMouseEvent(mevent omouse.Event) {
-	omouse.Propagate(mevent.Event+"On", mevent)
-	logicHandler.Trigger(mevent.Event, mevent)
+func (c *Controller) TriggerMouseEvent(mevent omouse.Event) {
+	c.Propagate(mevent.Event+"On", mevent)
+	c.logicHandler.Trigger(mevent.Event, mevent)
 
-	mevent.Point2[0] += float64(ViewPos.X)
-	mevent.Point2[1] += float64(ViewPos.Y)
-	omouse.Propagate(mevent.Event+"OnRelative", mevent)
+	mevent.Point2[0] += float64(c.ViewPos[0])
+	mevent.Point2[1] += float64(c.ViewPos[1])
+	c.Propagate(mevent.Event+"OnRelative", mevent)
 }

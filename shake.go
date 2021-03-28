@@ -4,8 +4,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/alg/intgeom"
 )
 
 // A ScreenShaker knows how to shake a screen by a (or up to a) given magnitude.
@@ -19,17 +19,17 @@ type ScreenShaker struct {
 
 var (
 	// DefShaker is the global default shaker, used when oak.ShakeScreen is called.
-	DefShaker = ScreenShaker{false, floatgeom.Point2{1.0, 1.0}}
+	DefShaker = &ScreenShaker{false, floatgeom.Point2{1.0, 1.0}}
 )
 
 // ShakeScreen will Shake using the package global DefShaker
-func ShakeScreen(dur time.Duration) {
-	DefShaker.Shake(dur)
+func (c *Controller) ShakeScreen(dur time.Duration) {
+	c.Shake(DefShaker, dur)
 }
 
 // Shake shakes the screen based on this ScreenShaker's attributes.
 // See DefShaker for an example shaker setup
-func (ss *ScreenShaker) Shake(dur time.Duration) {
+func (c *Controller) Shake(ss *ScreenShaker, dur time.Duration) {
 	doneTime := time.Now().Add(dur)
 	mag := ss.Magnitude
 	delta := intgeom.Point2{}
@@ -41,12 +41,12 @@ func (ss *ScreenShaker) Shake(dur time.Duration) {
 			for time.Now().Before(doneTime) {
 				xDelta := int(randOff.X())
 				yDelta := int(randOff.Y())
-				ShiftScreen(xDelta-delta.X(), yDelta-delta.Y())
+				c.ShiftScreen(xDelta-delta.X(), yDelta-delta.Y())
 				delta = intgeom.Point2{xDelta, yDelta}
 				mag = mag.MulConst(-1)
 				randOff = mag.MulConst(rand.Float64())
 			}
-			ShiftScreen(-delta.X(), -delta.Y())
+			c.ShiftScreen(-delta.X(), -delta.Y())
 		}()
 	} else {
 		go func() {
@@ -55,11 +55,11 @@ func (ss *ScreenShaker) Shake(dur time.Duration) {
 				xDelta := int(mag.X())
 				yDelta := int(mag.Y())
 
-				ShiftScreen(xDelta, yDelta)
+				c.ShiftScreen(xDelta, yDelta)
 				delta = delta.Add(intgeom.Point2{xDelta, yDelta})
 				mag = mag.MulConst(-1)
 			}
-			ShiftScreen(-delta.X(), -delta.Y())
+			c.ShiftScreen(-delta.X(), -delta.Y())
 		}()
 	}
 }

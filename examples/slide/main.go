@@ -71,7 +71,7 @@ func main() {
 		render.BezierThickLine(bz4, colornames.White, 1),
 	)
 
-	oak.LoadingR = bkg
+	oak.SetLoadingRenderable(bkg)
 
 	setups := []slideSetup{
 		intro,

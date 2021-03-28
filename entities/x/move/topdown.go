@@ -47,8 +47,8 @@ func TopDown(mvr Mover, up, down, left, right string) {
 func CenterScreenOn(mvr Mover) {
 	vec := mvr.Vec()
 	oak.SetScreen(
-		int(vec.X())-oak.ScreenWidth/2,
-		int(vec.Y())-oak.ScreenHeight/2,
+		int(vec.X())-oak.Width()/2,
+		int(vec.Y())-oak.Height()/2,
 	)
 }
 

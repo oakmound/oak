@@ -14,7 +14,10 @@ var (
 // Handler represents the necessary exported functions from an event.Bus
 // for use in oak internally, and thus the functions that need to be replaced
 // by alternative event handlers.
+// TODO V3: consider breaking down the bus into smaller components
+// for easier composition for external handler implementations
 type Handler interface {
+	// <Handler>
 	UpdateLoop(framerate int, updateCh chan bool) error
 	FramesElapsed() int
 	SetTick(framerate int) error
@@ -22,29 +25,19 @@ type Handler interface {
 	Flush() error
 	Stop() error
 	Reset()
-	Trigger(event string, data interface{})
-}
-
-// A FullHandler will receive TriggerBack events from the engine
-// when sent (currently only OnStop, when the engine closes)
-type FullHandler interface {
-	Handler
-	TriggerBack(event string, data interface{}) chan bool
-}
-
-// ConfigHandler contains methods for configuring a running handler.
-// ConfigHandler is a new interface for backwards compatability.
-// TODO: v3: compress this interface into the main handler
-type ConfigHandler interface {
-	// SetRefreshRate configures how often a running handler will check
-	// for new binding and unbinding requests.
 	SetRefreshRate(time.Duration)
-}
-
-// A Pauser is a handler that can be paused.
-type Pauser interface {
+	// <Triggerer>
+	Trigger(event string, data interface{})
+	TriggerBack(event string, data interface{}) chan struct{}
+	// <Pauser>
 	Pause()
 	Resume()
+	// <Binder>
+	Bind(string, CID, Bindable)
+	GlobalBind(string, Bindable)
+	UnbindAll(Event)
+	UnbindAllAndRebind(Event, []Bindable, CID, []string)
+	UnbindBindable(UnbindOption)
 }
 
 // UpdateLoop is expected to internally call Update()

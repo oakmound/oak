@@ -57,7 +57,7 @@ var initialOffsets = map[string]floatgeom.Point2{
 	"RtTrigger":     {240, 6},
 }
 
-func newRenderer(joy *joystick.Joystick) {
+func newRenderer(ctx *scene.Context, joy *joystick.Joystick) {
 	outline, err := render.LoadSprite("", "controllerOutline.png")
 	if err != nil {
 		dlog.Error(err)
@@ -94,12 +94,12 @@ func newRenderer(joy *joystick.Joystick) {
 		switch joy.ID() {
 		case 0:
 		case 1:
-			r.ShiftX(float64(oak.ScreenWidth / 2))
+			r.ShiftX(float64(ctx.Window.Width() / 2))
 		case 2:
-			r.ShiftY(float64(oak.ScreenHeight / 2))
+			r.ShiftY(float64(ctx.Window.Height() / 2))
 		case 3:
-			r.ShiftX(float64(oak.ScreenWidth / 2))
-			r.ShiftY(float64(oak.ScreenHeight / 2))
+			r.ShiftX(float64(ctx.Window.Width() / 2))
+			r.ShiftY(float64(ctx.Window.Height() / 2))
 		}
 		if k == "LtTrigger" || k == "RtTrigger" {
 			render.Draw(r, 0)
@@ -203,7 +203,7 @@ func newRenderer(joy *joystick.Joystick) {
 }
 
 func main() {
-	oak.Add("viz", func(*scene.Context) {
+	oak.Add("viz", func(ctx *scene.Context) {
 		joystick.Init()
 		go func() {
 			jCh, cancel := joystick.WaitForJoysticks(1 * time.Second)
@@ -211,7 +211,7 @@ func main() {
 			for {
 				select {
 				case joy := <-jCh:
-					newRenderer(joy)
+					newRenderer(ctx, joy)
 				}
 			}
 		}()

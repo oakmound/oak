@@ -18,19 +18,19 @@ import (
 // moving the camera to center on even-sized rooms arranged in a grid
 // once the player enters them.
 
-func isOffScreen(char *entities.Moving) (intgeom.Dir2, bool) {
+func isOffScreen(ctx *scene.Context, char *entities.Moving) (intgeom.Dir2, bool) {
 	x := int(char.X())
 	y := int(char.Y())
-	if x > oak.ViewPos.X+oak.ScreenWidth {
+	if x > ctx.Window.Viewport().X()+ctx.Window.Width() {
 		return intgeom.Right, true
 	}
-	if y > oak.ViewPos.Y+oak.ScreenHeight {
+	if y > ctx.Window.Viewport().Y()+ctx.Window.Height() {
 		return intgeom.Down, true
 	}
-	if x+int(char.W) < oak.ViewPos.X {
+	if x+int(char.W) < ctx.Window.Viewport().X() {
 		return intgeom.Left, true
 	}
-	if y+int(char.H) < oak.ViewPos.Y {
+	if y+int(char.H) < ctx.Window.Viewport().Y() {
 		return intgeom.Up, true
 	}
 	return intgeom.Dir2{}, false
@@ -42,7 +42,7 @@ const (
 
 func main() {
 
-	oak.Add("rooms", func(*scene.Context) {
+	oak.Add("rooms", func(ctx *scene.Context) {
 		char := entities.NewMoving(200, 200, 50, 50, render.NewColorBox(50, 50, color.RGBA{125, 125, 0, 255}), nil, 0, 1)
 		char.Speed = physics.NewVector(3, 3)
 
@@ -50,10 +50,10 @@ func main() {
 		var totalTransitionDelta intgeom.Point2
 		var transitionDelta intgeom.Point2
 		char.Bind(event.Enter, func(event.CID, interface{}) int {
-			dir, ok := isOffScreen(char)
+			dir, ok := isOffScreen(ctx, char)
 			if !transitioning && ok {
 				transitioning = true
-				totalTransitionDelta = intgeom.Point2{oak.ScreenWidth, oak.ScreenHeight}.Mul(intgeom.Point2{dir.X(), dir.Y()})
+				totalTransitionDelta = intgeom.Point2{ctx.Window.Width(), ctx.Window.Height()}.Mul(intgeom.Point2{dir.X(), dir.Y()})
 				transitionDelta = totalTransitionDelta.DivConst(transitionFrameCount)
 			}
 			if transitioning {

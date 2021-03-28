@@ -1,8 +1,9 @@
 package render
 
 import (
-	"image"
 	"image/draw"
+
+	"github.com/oakmound/oak/v2/alg/intgeom"
 )
 
 // NoopStackable is a Stackable element where all methods are no-ops.
@@ -25,5 +26,4 @@ func (ns NoopStackable) Copy() Stackable {
 	return ns
 }
 
-// Todo (3.0): export draw method in interface
-func (ns NoopStackable) draw(draw.Image, image.Point, int, int) {}
+func (ns NoopStackable) DrawToScreen(draw.Image, intgeom.Point2, int, int) {}

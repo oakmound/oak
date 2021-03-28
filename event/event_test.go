@@ -145,7 +145,7 @@ func TestCID(t *testing.T) {
 	})
 
 	// ResetEntities, etc
-	ResetEntities()
+	ResetCallerMap()
 
 	cid.Trigger("T", nil)
 	sleep()

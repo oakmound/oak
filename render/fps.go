@@ -8,10 +8,17 @@ import (
 )
 
 const (
+	// FPS smoothing will include a portion of the last fps count in new fps counts,
+	// turning what could be a spiky display to a more smooth gradient. This can hide
+	// issues-- if the fps being reported is spiking between 0 and 1000, fps smoothing
+	// can make it look like a fps of 100.
 	defaultFpsSmoothing = .25
 )
 
-// DrawFPS is a Renderable that will display how fast it is rendered.
+// DrawFPS is a Renderable that will display how fast it is rendered. If it is a part of
+// a dynamically ordered stackable, like a Heap, how fast it will be rendered can change
+// in each iteration of the stackable's draw. For this reason, its recommended to isolate
+// a DrawFPS to its own stack layer or layer within a heap.
 type DrawFPS struct {
 	*Text
 	fps       int
@@ -20,7 +27,8 @@ type DrawFPS struct {
 }
 
 // NewDrawFPS returns a DrawFPS, which will render a counter of how fast it is being drawn.
-// If font is not provided, DefFont is used. If smoothing is
+// If font is not provided, DefFont is used. If smoothing is 0, a reasonable
+// default will be used.
 func NewDrawFPS(smoothing float64, font *Font, x, y float64) *DrawFPS {
 	if smoothing == 0.0 {
 		smoothing = defaultFpsSmoothing

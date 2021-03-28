@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"testing"
 
+	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/collision"
 )
 
@@ -41,23 +42,23 @@ func TestDrawHeapLoop(t *testing.T) {
 	}
 
 	world := image.NewRGBA(image.Rect(0, 0, 2000, 2000))
-	viewPos := image.Point{0, 0}
+	viewPos := intgeom.Point2{0, 0}
 
 	for i := 0; i < heapLoops; i++ {
 		h.PreDraw()
 		h2.PreDraw()
-		h.draw(world, viewPos, 640, 480)
-		h2.draw(world, viewPos, 640, 480)
+		h.DrawToScreen(world, viewPos, 640, 480)
+		h2.DrawToScreen(world, viewPos, 640, 480)
 	}
 }
 
 func TestDrawHeapFns(t *testing.T) {
 	h := NewDynamicHeap()
-	h.Push(nil)
+	h.heapPush(nil)
 	if len(h.rs) != 0 {
 		t.Fatalf("expected zero renderables in heap")
 	}
-	h.Push(EmptyRenderable())
+	h.heapPush(EmptyRenderable())
 	h = h.Copy().(*RenderableHeap)
 	if len(h.rs) != 0 {
 		t.Fatalf("expected zero renderables in copied heap")

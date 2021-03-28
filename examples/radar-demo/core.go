@@ -6,6 +6,7 @@ import (
 	"math/rand"
 
 	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/alg/intgeom"
 
 	oak "github.com/oakmound/oak/v2"
 	"github.com/oakmound/oak/v2/entities"
@@ -27,13 +28,13 @@ const (
 // around a player character.
 
 func main() {
-	oak.Add("demo", func(*scene.Context) {
+	oak.Add("demo", func(ctx *scene.Context) {
 		render.Draw(render.NewDrawFPS(1, nil, 10, 10))
 
 		char := entities.NewMoving(200, 200, 50, 50, render.NewColorBox(50, 50, color.RGBA{125, 125, 0, 255}), nil, 0, 1)
 		char.Speed = physics.NewVector(3, 3)
 
-		oak.SetViewportBounds(0, 0, xLimit, yLimit)
+		oak.SetViewportBounds(intgeom.NewRect2(0, 0, xLimit, yLimit))
 		moveRect := floatgeom.NewRect2(0, 0, xLimit, yLimit)
 
 		char.Bind(event.Enter, func(event.CID, interface{}) int {
@@ -50,7 +51,7 @@ func main() {
 		w := 100
 		h := 100
 		r := radar.NewRadar(w, h, points, center, 10)
-		r.SetPos(float64(oak.ScreenWidth-w), 0)
+		r.SetPos(float64(ctx.Window.Width()-w), 0)
 
 		for i := 0; i < 5; i++ {
 			x, y := rand.Float64()*400, rand.Float64()*400

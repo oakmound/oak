@@ -19,12 +19,12 @@ import (
 //
 // TriggerBack is right now used by the primary logic loop to dictate logical
 // framerate, so EnterFrame events are called through TriggerBack.
-func (eb *Bus) TriggerBack(eventName string, data interface{}) chan bool {
+func (eb *Bus) TriggerBack(eventName string, data interface{}) chan struct{} {
 
-	ch := make(chan bool)
-	go func(ch chan bool, eb *Bus, eventName string, data interface{}) {
+	ch := make(chan struct{})
+	go func(ch chan struct{}, eb *Bus, eventName string, data interface{}) {
 		eb.trigger(eventName, data)
-		ch <- true
+		close(ch)
 	}(ch, eb, eventName, data)
 
 	return ch

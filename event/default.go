@@ -50,7 +50,7 @@ func Trigger(eventName string, data interface{}) {
 }
 
 // TriggerBack calls TriggerBack on the DefaultBus
-func TriggerBack(eventName string, data interface{}) chan bool {
+func TriggerBack(eventName string, data interface{}) chan struct{} {
 	return DefaultBus.TriggerBack(eventName, data)
 }
 
