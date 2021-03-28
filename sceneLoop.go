@@ -64,7 +64,15 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 		scen, ok := c.SceneMap.GetCurrent()
 		if !ok {
 			dlog.Error("Unknown scene", c.SceneMap.CurrentScene)
-			panic("Unknown scene " + c.SceneMap.CurrentScene)
+			if c.ErrorScene != "" {
+				c.SceneMap.CurrentScene = c.ErrorScene
+				scen, ok = c.SceneMap.GetCurrent()
+				if !ok {
+					panic("error scene not defined in scene map")
+				}
+			} else {
+				panic("Unknown scene " + c.SceneMap.CurrentScene)
+			}
 		}
 		if trackingInputs {
 			trackInputChanges()

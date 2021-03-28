@@ -140,6 +140,11 @@ type Controller struct {
 	LoadingR render.Renderable
 
 	firstScene string
+	// ErrorScene is a scene string that will be entered if the scene handler
+	// fails to enter some other scene, for example, because it's name was
+	// undefined in the scene map. If the scene map does not have ErrorScene
+	// as well, it will fall back to panicking.
+	ErrorScene string
 
 	logicHandler event.Handler
 	CallerMap    *event.CallerMap
