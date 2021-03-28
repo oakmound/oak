@@ -256,3 +256,27 @@ func (c *Controller) Propagate(eventName string, me mouse.Event) {
 		}
 	}
 }
+
+func (c *Controller) Width() int {
+	return c.ScreenWidth
+}
+
+func (c *Controller) Height() int {
+	return c.ScreenHeight
+}
+
+func (c *Controller) Viewport() intgeom.Point2 {
+	return c.ViewPos
+}
+
+func (c *Controller) SetLoadingRenderable(r render.Renderable) {
+	c.LoadingR = r
+}
+
+func (c *Controller) GetBackgroundColor() image.Image {
+	return c.BackgroundColor
+}
+
+func (c *Controller) SetBackgroundColor(img image.Image) {
+	c.BackgroundColor = img
+}

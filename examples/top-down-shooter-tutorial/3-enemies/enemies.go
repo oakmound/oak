@@ -35,7 +35,7 @@ var (
 )
 
 func main() {
-	oak.Add("tds", func(*scene.Context) {
+	oak.Add("tds", func(ctx *scene.Context) {
 		playerAlive = true
 		char := entities.NewMoving(100, 100, 32, 32,
 			render.NewColorBox(32, 32, color.RGBA{0, 255, 0, 255}),
@@ -89,7 +89,7 @@ func main() {
 		event.GlobalBind(event.Enter, func(_ event.CID, frames interface{}) int {
 			f := frames.(int)
 			if f%EnemyRefresh == 0 {
-				NewEnemy()
+				NewEnemy(ctx)
 			}
 			return 0
 		})
@@ -109,8 +109,8 @@ const (
 )
 
 // NewEnemy creates an enemy for a top down shooter
-func NewEnemy() {
-	x, y := enemyPos()
+func NewEnemy(ctx *scene.Context) {
+	x, y := enemyPos(ctx)
 
 	enemy := entities.NewSolid(x, y, 16, 16,
 		render.NewColorBox(16, 16, color.RGBA{200, 0, 0, 200}),
@@ -138,25 +138,27 @@ func NewEnemy() {
 	})
 }
 
-func enemyPos() (float64, float64) {
+func enemyPos(ctx *scene.Context) (float64, float64) {
+	w := ctx.Window.Width()
+	h := ctx.Window.Height()
 	// Spawn on the edge of the screen
-	perimeter := oak.ScreenWidth*2 + oak.ScreenHeight*2
+	perimeter := w*2 + h*2
 	pos := int(rand.Float64() * float64(perimeter))
 	// Top
-	if pos < oak.ScreenWidth {
+	if pos < w {
 		return float64(pos), 0
 	}
-	pos -= oak.ScreenWidth
+	pos -= w
 	// Right
-	if pos < oak.ScreenHeight {
-		return float64(oak.ScreenWidth), float64(pos)
+	if pos < h {
+		return float64(w), float64(pos)
 	}
 	// Bottom
-	pos -= oak.ScreenHeight
-	if pos < oak.ScreenWidth {
-		return float64(pos), float64(oak.ScreenHeight)
+	pos -= h
+	if pos < w {
+		return float64(pos), float64(h)
 	}
-	pos -= oak.ScreenWidth
+	pos -= w
 	// Left
 	return 0, float64(pos)
 }

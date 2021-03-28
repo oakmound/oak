@@ -21,37 +21,37 @@ const (
 	Both
 )
 
-func center(obj render.Renderable, ax Axes) {
+func center(ctx *scene.Context, obj render.Renderable, ax Axes) {
 	objWidth, objHeight := obj.GetDims()
 
 	switch ax {
 	case Both:
-		obj.SetPos(float64(oak.ScreenWidth/2-objWidth/2),
-			float64(oak.ScreenHeight-objHeight)/2) //distributive property
+		obj.SetPos(float64(ctx.Window.Width()/2-objWidth/2),
+			float64(ctx.Window.Height()-objHeight)/2) //distributive property
 	case X:
-		obj.SetPos(float64(oak.ScreenWidth-objWidth)/2, obj.Y())
+		obj.SetPos(float64(ctx.Window.Width()-objWidth)/2, obj.Y())
 	case Y:
-		obj.SetPos(obj.X(), float64(oak.ScreenHeight-objHeight)/2)
+		obj.SetPos(obj.X(), float64(ctx.Window.Height()-objHeight)/2)
 	}
 }
 
 func main() {
 	//make the scene for the titlescreen
-	oak.Add("titlescreen", func(*scene.Context) { //scene start
+	oak.Add("titlescreen", func(ctx *scene.Context) { //scene start
 
 		//create text saying titlescreen in placeholder position
 		titleText := render.NewStrText("titlescreen", 0, 0)
 
 		//center text along both axes
-		center(titleText, Both)
+		center(ctx, titleText, Both)
 
 		//tell the draw loop to draw titleText
 		render.Draw(titleText)
 
 		//do the same for the text with button instuctions, but this time Y position is not a placeholder (X still is)
-		instructionText := render.NewStrText("press Enter to start, or press Q to quit", 0, float64(oak.ScreenHeight*3/4))
+		instructionText := render.NewStrText("press Enter to start, or press Q to quit", 0, float64(ctx.Window.Height()*3/4))
 		//this time we only center the X axis, otherwise it would overlap titleText
-		center(instructionText, X)
+		center(ctx, instructionText, X)
 		render.Draw(instructionText)
 	}, func() bool { //scene loop
 		//if the enter key is pressed, go to the next scene

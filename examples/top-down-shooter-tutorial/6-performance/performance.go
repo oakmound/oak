@@ -10,6 +10,7 @@ import (
 
 	oak "github.com/oakmound/oak/v2"
 	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/collision"
 	"github.com/oakmound/oak/v2/collision/ray"
 	"github.com/oakmound/oak/v2/dlog"
@@ -45,7 +46,7 @@ const (
 
 func main() {
 
-	oak.Add("tds", func(*scene.Context) {
+	oak.Add("tds", func(ctx *scene.Context) {
 		render.Draw(render.NewDrawFPS(1, nil, 10, 10))
 		render.Draw(render.NewLogicFPS(1, nil, 10, 20))
 
@@ -56,7 +57,7 @@ func main() {
 		dlog.ErrorCheck(err)
 		sheet = sprites.ToSprites()
 
-		oak.SetViewportBounds(0, 0, fieldWidth, fieldHeight)
+		oak.SetViewportBounds(intgeom.NewRect2(0, 0, fieldWidth, fieldHeight))
 
 		// Player setup
 		eggplant, err := render.GetSprite(filepath.Join("character", "eggplant-fish.png"))
@@ -105,8 +106,8 @@ func main() {
 				char.SetY(fieldHeight - char.H)
 			}
 			oak.SetScreen(
-				int(char.R.X())-oak.ScreenWidth/2,
-				int(char.R.Y())-oak.ScreenHeight/2,
+				int(char.R.X())-ctx.Window.Width()/2,
+				int(char.R.Y())-ctx.Window.Height()/2,
 			)
 			hit := char.HitLabel(Enemy)
 			if hit != nil {
@@ -133,8 +134,9 @@ func main() {
 			mevent := me.(mouse.Event)
 			x := char.X() + char.W/2
 			y := char.Y() + char.H/2
-			mx := mevent.X() + float64(oak.ViewPos.X)
-			my := mevent.Y() + float64(oak.ViewPos.Y)
+			vp := ctx.Window.Viewport()
+			mx := mevent.X() + float64(vp.X())
+			my := mevent.Y() + float64(vp.Y())
 			ray.DefaultCaster.CastDistance = floatgeom.Point2{x, y}.Sub(floatgeom.Point2{mx, my}).Magnitude()
 			hits := ray.CastTo(floatgeom.Point2{x, y}, floatgeom.Point2{mx, my})
 			for _, hit := range hits {

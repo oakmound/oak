@@ -86,48 +86,50 @@ func (p *Player) Init() event.CID {
 }
 
 // NewPlayer creates a new player
-func NewPlayer() {
+func NewPlayer(ctx *scene.Context) {
 	p := new(Player)
 	p.Solid = entities.NewSolid(50, 100, 10, 10, render.NewColorBox(10, 10, color.RGBA{255, 0, 0, 255}), nil, p.Init())
 	render.Draw(p.R, 80)
 	collision.Add(p.Space)
-	p.CID.Bind(event.Enter, playerEnter)
+	p.CID.Bind(event.Enter, playerEnter(ctx))
 }
 
-func playerEnter(id event.CID, nothing interface{}) int {
-	p := event.GetEntity(id).(*Player)
-	if oak.IsDown("W") {
-		p.ShiftY(-5)
-	} else if oak.IsDown("S") {
-		p.ShiftY(5)
-	}
-	if oak.IsDown("A") {
-		p.ShiftX(-5)
-	} else if oak.IsDown("D") {
-		p.ShiftX(5)
-	}
-	if p.X() < 0 {
-		p.ShiftX(-1 * p.X())
-	} else if p.X() > float64(oak.ScreenWidth-10) {
-		p.ShiftX(-1 * (p.X() - float64(oak.ScreenWidth-10)))
-	}
-	if p.Y() < 0 {
-		p.ShiftY(-1 * p.Y())
-	} else if p.Y() > float64(oak.ScreenHeight-10) {
-		p.ShiftY(-1 * (p.Y() - float64(oak.ScreenHeight-10)))
-	}
+func playerEnter(ctx *scene.Context) func(id event.CID, nothing interface{}) int {
+	return func(id event.CID, nothing interface{}) int {
+		p := event.GetEntity(id).(*Player)
+		if oak.IsDown("W") {
+			p.ShiftY(-5)
+		} else if oak.IsDown("S") {
+			p.ShiftY(5)
+		}
+		if oak.IsDown("A") {
+			p.ShiftX(-5)
+		} else if oak.IsDown("D") {
+			p.ShiftX(5)
+		}
+		if p.X() < 0 {
+			p.ShiftX(-1 * p.X())
+		} else if p.X() > float64(ctx.Window.Width()-10) {
+			p.ShiftX(-1 * (p.X() - float64(ctx.Window.Width()-10)))
+		}
+		if p.Y() < 0 {
+			p.ShiftY(-1 * p.Y())
+		} else if p.Y() > float64(ctx.Window.Height()-10) {
+			p.ShiftY(-1 * (p.Y() - float64(ctx.Window.Height()-10)))
+		}
 
-	if collision.HitLabel(p.Space, CLIFFRACER) != nil {
-		playerAlive = false
+		if collision.HitLabel(p.Space, CLIFFRACER) != nil {
+			playerAlive = false
+		}
+		return 0
 	}
-	return 0
 }
 
 func main() {
 	oak.LoadConf("oak.config")
 
 	oak.Add("cliffRacers",
-		func(*scene.Context) {
+		func(ctx *scene.Context) {
 			playerAlive = true
 			bkg, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "background.png"))
 			if err != nil {
@@ -137,7 +139,7 @@ func main() {
 			render.Draw(bkg, 1)
 			text = render.DefFont().NewStrText("Dodge the Cliff Racers!", 70.0, 70.0)
 			render.Draw(text, 60000)
-			NewPlayer()
+			NewPlayer(ctx)
 			waitrand = 5000.0
 			i = 1
 			exclamationPoints = ""

@@ -6,6 +6,7 @@ import (
 	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/scene"
 	"github.com/oakmound/oak/v2/timing"
 )
@@ -77,6 +78,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 				EventHandler:  c.logicHandler,
 				MouseTree:     c.MouseTree,
 				CollisionTree: c.CollisionTree,
+				Window:        c,
 			})
 			c.transitionCh <- true
 		}()
@@ -137,7 +139,12 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 		c.CollisionTree.Clear()
 		c.MouseTree.Clear()
 		event.ResetEntities()
-		c.DrawStack = c.InitialDrawStack.Copy()
+		if c.DrawStack == render.GlobalDrawStack {
+			render.ResetDrawStack()
+			c.DrawStack = render.GlobalDrawStack
+		} else {
+			c.DrawStack = c.InitialDrawStack.Copy()
+		}
 		c.DrawStack.PreDraw()
 		dlog.Verb("Engine Reset")
 
