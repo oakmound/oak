@@ -20,6 +20,8 @@ var (
 
 func main() {
 	oak.Add("demo", func(*scene.Context) {
+		render.Draw(render.NewStrText("Controls: Arrow keys", 500, 440))
+
 		// Get an image that we will illustrate zooming with later
 		s, err := render.LoadSprite("assets", filepath.Join("raw", "mona-lisa.jpg"))
 		dlog.ErrorCheck(err)
