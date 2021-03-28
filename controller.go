@@ -142,6 +142,7 @@ type Controller struct {
 	firstScene string
 
 	logicHandler event.Handler
+	CallerMap    *event.CallerMap
 
 	MouseTree     *collision.Tree
 	CollisionTree *collision.Tree
@@ -205,6 +206,7 @@ func NewController() *Controller {
 	c.logicHandler = event.DefaultBus
 	c.MouseTree = mouse.DefTree
 	c.CollisionTree = collision.DefTree
+	c.CallerMap = event.DefaultCallerMap
 	c.DrawStack = render.GlobalDrawStack
 	c.InitialDrawStack = render.NewDrawStack(
 		render.NewDynamicHeap(),

@@ -37,14 +37,12 @@ func NewDrawStack(stack ...Stackable) *DrawStack {
 	}
 }
 
-// SetDrawStack takes in a set of Stackable which act as the set of Drawstacks available
+// SetDrawStack takes in a set of Stackables which act as the Drawstack available
 // and resets how calls to Draw will act. If this is called mid scene,
 // all elements on the existing draw stack will be lost.
 func SetDrawStack(stackLayers ...Stackable) {
-	GlobalDrawStack = &DrawStack{as: stackLayers}
+	GlobalDrawStack = NewDrawStack(stackLayers...)
 	initialDrawStack = GlobalDrawStack.Copy()
-	dlog.Info("Global draw stack", GlobalDrawStack)
-	dlog.Info("Initial draw stack", initialDrawStack)
 }
 
 //ResetDrawStack resets the Global stack back to the initial stack

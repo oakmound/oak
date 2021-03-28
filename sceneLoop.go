@@ -76,6 +76,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 				SceneInput:    result.NextSceneInput,
 				DrawStack:     c.DrawStack,
 				EventHandler:  c.logicHandler,
+				CallerMap:     c.CallerMap,
 				MouseTree:     c.MouseTree,
 				CollisionTree: c.CollisionTree,
 				Window:        c,
@@ -138,7 +139,12 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 		dlog.Verb("Event Bus Reset")
 		c.CollisionTree.Clear()
 		c.MouseTree.Clear()
-		event.ResetEntities()
+		if c.CallerMap == event.DefaultCallerMap {
+			event.ResetCallerMap()
+			c.CallerMap = event.DefaultCallerMap
+		} else {
+			c.CallerMap = event.NewCallerMap()
+		}
 		if c.DrawStack == render.GlobalDrawStack {
 			render.ResetDrawStack()
 			c.DrawStack = render.GlobalDrawStack

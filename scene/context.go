@@ -14,6 +14,7 @@ type Context struct {
 
 	DrawStack     *render.DrawStack
 	EventHandler  event.Handler
+	CallerMap     *event.CallerMap
 	MouseTree     *collision.Tree
 	CollisionTree *collision.Tree
 	// todo: ...
