@@ -37,7 +37,7 @@ func center(ctx *scene.Context, obj render.Renderable, ax Axes) {
 
 func main() {
 	//make the scene for the titlescreen
-	oak.Add("titlescreen", func(ctx *scene.Context) { //scene start
+	oak.AddScene("titlescreen", scene.Scene{Start: func(ctx *scene.Context) {
 
 		//create text saying titlescreen in placeholder position
 		titleText := render.NewStrText("titlescreen", 0, 0)
@@ -53,7 +53,7 @@ func main() {
 		//this time we only center the X axis, otherwise it would overlap titleText
 		center(ctx, instructionText, X)
 		render.Draw(instructionText)
-	}, func() bool { //scene loop
+	}, Loop: func() bool {
 		//if the enter key is pressed, go to the next scene
 		if oak.IsDown(key.Enter) {
 			return false
@@ -63,15 +63,15 @@ func main() {
 			os.Exit(0)
 		}
 		return true
-	}, func() (string, *scene.Result) { //scene end
+	}, End: func() (string, *scene.Result) {
 		return "game", nil //set the next scene to "game"
-	})
+	}})
 
 	//we declare this here so it can be accesed by the scene start and scene loop
 	var player *entities.Moving
 
 	//define the "game" (it's just a square that can be moved with WASD)
-	oak.Add("game", func(*scene.Context) {
+	oak.AddScene("game", scene.Scene{Start: func(*scene.Context) {
 		//create the player, a blue 32x32 square at 100,100
 		player = entities.NewMoving(100, 100, 32, 32,
 			render.NewColorBox(32, 32, color.RGBA{0, 0, 255, 255}),
@@ -84,7 +84,7 @@ func main() {
 		//we draw the text on layer 1 (instead of the default layer 0)
 		//because we want it to show up above the player
 		render.Draw(controlsText, 1)
-	}, func() bool {
+	}, Loop: func() bool {
 		//if escape is pressed, go to the next scene (titlescreen)
 		if oak.IsDown(key.Escape) {
 			return false
@@ -111,9 +111,9 @@ func main() {
 		//apply the player's speed to their position
 		player.ShiftPos(player.Delta.X(), player.Delta.Y())
 		return true
-	}, func() (string, *scene.Result) {
+	}, End: func() (string, *scene.Result) {
 		return "titlescreen", nil //set the next scene to be titlescreen
-	})
+	}})
 	//start the game on the titlescreen
 	oak.Init("titlescreen")
 }

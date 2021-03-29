@@ -247,7 +247,7 @@ func main() {
 		}
 	})
 
-	oak.Add("demo", func(*scene.Context) {
+	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
 		fmt.Println("Demo start")
 		x := 320.0
 		y := 240.0
@@ -275,11 +275,7 @@ func main() {
 			pt.Size(size),
 			pt.Color(startColor, startColorRand, endColor, endColorRand),
 			pt.NewPerFrame(newPf)).Generate(0)
-	}, func() bool {
-		return true
-	}, func() (string, *scene.Result) {
-		return "demo", nil
-	})
+	}})
 
 	render.SetDrawStack(
 		render.NewCompositeR(),

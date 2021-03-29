@@ -22,14 +22,6 @@ func AddCommand(command string, fn func([]string)) error {
 	return defaultController.AddCommand(command, fn)
 }
 
-func Add(name string,
-	start func(context *scene.Context),
-	loop func() (cont bool),
-	end func() (nextScene string, result *scene.Result)) error {
-
-	return defaultController.Add(name, start, loop, end)
-}
-
 func AddScene(name string, sc scene.Scene) error {
 	return defaultController.AddScene(name, sc)
 }

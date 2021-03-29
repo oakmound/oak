@@ -1,6 +1,7 @@
 package oak
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/oakmound/oak/v2/alg/intgeom"
@@ -77,9 +78,12 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 		if trackingInputs {
 			trackInputChanges()
 		}
+		gctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 		go func() {
 			dlog.Info("Starting scene in goroutine", c.SceneMap.CurrentScene)
 			scen.Start(&scene.Context{
+				Context:       gctx,
 				PreviousScene: prevScene,
 				SceneInput:    result.NextSceneInput,
 				DrawStack:     c.DrawStack,
@@ -116,6 +120,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 				cont = false
 			}
 		}
+		cancel()
 		dlog.Info("Scene End", c.SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes

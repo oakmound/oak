@@ -46,9 +46,9 @@ const (
 
 func main() {
 
-	oak.Add("tds", func(ctx *scene.Context) {
-		render.Draw(render.NewDrawFPS(1, nil, 10, 10), 2, 0)
-		render.Draw(render.NewLogicFPS(1, nil, 10, 20), 2, 0)
+	oak.AddScene("tds", scene.Scene{Start: func(ctx *scene.Context) {
+		render.Draw(render.NewDrawFPS(0.03, nil, 10, 10), 2, 0)
+		render.Draw(render.NewLogicFPS(0.03, nil, 10, 20), 2, 0)
 
 		// Initialization
 		playerAlive = true
@@ -166,11 +166,9 @@ func main() {
 			}
 		}
 
-	}, func() bool {
+	}, Loop: func() bool {
 		return playerAlive
-	}, func() (string, *scene.Result) {
-		return "tds", nil
-	})
+	}})
 
 	// This indicates to oak to automatically open and load image and audio
 	// files local to the project before starting any scene.

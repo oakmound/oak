@@ -29,9 +29,9 @@ func (fs floatStringer) String() string {
 }
 
 func main() {
-	oak.Add("demo",
+	oak.AddScene("demo",
 		// Init
-		func(*scene.Context) {
+		scene.Scene{Start: func(*scene.Context) {
 			render.Draw(render.NewDrawFPS(0.25, nil, 10, 10))
 			// We use the font at ./assets/font/luxisbi.ttf
 			// The /assets/font structure is determined by
@@ -63,29 +63,23 @@ func main() {
 			render.Draw(font2.NewStrText("g", 290, 250), 0)
 			render.Draw(font2.NewStrText("b", 410, 250), 0)
 		},
-		// Loop
-		func() bool {
-			r = limit.EnforceRange(r + diff.Poll())
-			g = limit.EnforceRange(g + diff.Poll())
-			b = limit.EnforceRange(b + diff.Poll())
-			// This should be a function in oak to just set color source
-			// (or texture source)
-			font.Drawer.Src = image.NewUniform(
-				color.RGBA{
-					uint8(r),
-					uint8(g),
-					uint8(b),
-					255,
-				},
-			)
-			return true
-		},
-
-		// End
-		func() (string, *scene.Result) {
-			return "demo", nil
-		},
-	)
+			Loop: func() bool {
+				r = limit.EnforceRange(r + diff.Poll())
+				g = limit.EnforceRange(g + diff.Poll())
+				b = limit.EnforceRange(b + diff.Poll())
+				// This should be a function in oak to just set color source
+				// (or texture source)
+				font.Drawer.Src = image.NewUniform(
+					color.RGBA{
+						uint8(r),
+						uint8(g),
+						uint8(b),
+						255,
+					},
+				)
+				return true
+			},
+		})
 	render.SetDrawStack(
 		render.NewDynamicHeap(),
 	)

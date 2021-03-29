@@ -37,16 +37,6 @@ func (m *Map) GetCurrent() (Scene, bool) {
 	return m.Get(m.CurrentScene)
 }
 
-// Add adds a scene with the given name and functions to the scene map.
-// It serves as a helper for not constructing a scene directly.
-func (m *Map) Add(name string,
-	start func(context *Context),
-	loop func() (cont bool),
-	end func() (nextScene string, result *Result)) error {
-
-	return m.AddScene(name, Scene{start, loop, end})
-}
-
 // AddScene takes a scene struct, checks that its assigned name does not
 // conflict with an existing name in the map, and then adds it to the map.
 // If a conflict occurs, the scene will not be overwritten.

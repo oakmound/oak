@@ -203,7 +203,7 @@ func newRenderer(ctx *scene.Context, joy *joystick.Joystick) {
 }
 
 func main() {
-	oak.Add("viz", func(ctx *scene.Context) {
+	oak.AddScene("viz", scene.Scene{Start: func(ctx *scene.Context) {
 		joystick.Init()
 		go func() {
 			jCh, cancel := joystick.WaitForJoysticks(1 * time.Second)
@@ -215,11 +215,7 @@ func main() {
 				}
 			}
 		}()
-	}, func() bool {
-		return true
-	}, func() (string, *scene.Result) {
-		return "viz", nil
-	})
+	}})
 	oak.SetupConfig.Assets.ImagePath = "."
 	oak.SetupConfig.Assets.AssetPath = "."
 	oak.Init("viz")

@@ -24,7 +24,7 @@ var (
 )
 
 func main() {
-	oak.Add("tds", func(*scene.Context) {
+	oak.AddScene("tds", scene.Scene{Start: func(*scene.Context) {
 		playerAlive = true
 		char := entities.NewMoving(100, 100, 32, 32,
 			render.NewColorBox(32, 32, color.RGBA{0, 255, 0, 255}),
@@ -57,10 +57,6 @@ func main() {
 			return 0
 		})
 
-	}, func() bool {
-		return playerAlive
-	}, func() (string, *scene.Result) {
-		return "tds", nil
-	})
+	}})
 	oak.Init("tds")
 }

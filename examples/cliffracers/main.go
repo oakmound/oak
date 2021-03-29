@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image"
 	"image/color"
 	"math/rand"
 	"path/filepath"
@@ -17,29 +18,18 @@ import (
 	oak "github.com/oakmound/oak/v2"
 )
 
-// Cliffracer globals... If this was more complex we wouldnt have these
 var (
-	Font              *render.Font
-	text              *render.Text
-	playerAlive       bool
-	waitrand          float64
-	i                 int
-	exclamationPoints string
-	end               = make(chan bool)
+	playerAlive = new(bool)
 )
 
-// Cliffracing labels
 const (
-	NONE = iota
-	CLIFFRACER
+	LabelCliffracer = 1
 )
 
-// CliffRacer just implements moving
 type CliffRacer struct {
 	*entities.Moving
 }
 
-//Init sets up the cliffracer
 func (cr *CliffRacer) Init() event.CID {
 	return event.NextID(cr)
 }
@@ -55,7 +45,7 @@ func NewCliffRacer(y float64) *CliffRacer {
 	cr.Moving = entities.NewMoving(640, y, 80, 80, sp, nil, cr.Init(), 0)
 	cr.Speed = physics.NewVector(rand.Float64()*10+3, rand.Float64()*4-2)
 	render.Draw(cr.R, 100)
-	cr.Space = collision.NewLabeledSpace(cr.X(), cr.Y(), 80, 80, CLIFFRACER)
+	cr.Space = collision.NewLabeledSpace(cr.X(), cr.Y(), 80, 80, LabelCliffracer)
 	collision.Add(cr.Space)
 	cr.CID.Bind(event.Enter, moveCliffRacer)
 	cr.CID.Bind("PlayerHit", func(id event.CID, nothing interface{}) int {
@@ -118,8 +108,8 @@ func playerEnter(ctx *scene.Context) func(id event.CID, nothing interface{}) int
 			p.ShiftY(-1 * (p.Y() - float64(ctx.Window.Height()-10)))
 		}
 
-		if collision.HitLabel(p.Space, CLIFFRACER) != nil {
-			playerAlive = false
+		if collision.HitLabel(p.Space, LabelCliffracer) != nil {
+			*playerAlive = false
 		}
 		return 0
 	}
@@ -128,42 +118,41 @@ func playerEnter(ctx *scene.Context) func(id event.CID, nothing interface{}) int
 func main() {
 	oak.LoadConf("oak.config")
 
-	oak.Add("cliffRacers",
-		func(ctx *scene.Context) {
-			playerAlive = true
-			bkg, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "background.png"))
-			if err != nil {
-				dlog.Error(err)
-				return
-			}
-			render.Draw(bkg, 1)
-			text = render.DefFont().NewStrText("Dodge the Cliff Racers!", 70.0, 70.0)
-			render.Draw(text, 60000)
-			NewPlayer(ctx)
-			waitrand = 5000.0
-			i = 1
-			exclamationPoints = ""
-			go func() {
-				for {
-					select {
-					case <-time.After(((time.Duration(rand.Intn(int(waitrand)))) * time.Millisecond) + 50*time.Millisecond):
-						NewCliffRacer(float64(rand.Intn(200) + 50))
-						i++
-						if i%10 == 0 && waitrand > 400 {
-							exclamationPoints += "!"
-							text.SetString("Next Level" + exclamationPoints)
-							waitrand *= .7
-						}
-					case <-end:
-						return
+	oak.AddScene("cliffRacers", scene.Scene{Start: func(ctx *scene.Context) {
+		*playerAlive = true
+		bkg, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "background.png"))
+		if err != nil {
+			dlog.Error(err)
+			return
+		}
+		render.Draw(bkg, 1)
+		fnt := render.DefFont()
+		fnt.Color = image.Black
+		fnt.Size = 22
+		fnt, _ = fnt.Generate()
+		text := fnt.NewStrText("Dodge the Cliff Racers!", 70.0, 70.0)
+		render.Draw(text, 60000)
+		NewPlayer(ctx)
+		waitrand := 5000.0
+		iteration := 1
+		exclamationPoints := ""
+		go func() {
+			for {
+				select {
+				case <-time.After(((time.Duration(rand.Intn(int(waitrand)))) * time.Millisecond) + 50*time.Millisecond):
+					NewCliffRacer(float64(rand.Intn(200) + 50))
+					iteration++
+					if iteration%10 == 0 && waitrand > 400 {
+						exclamationPoints += "!"
+						text.SetString("Next Level" + exclamationPoints)
+						waitrand *= .7
 					}
+				case <-ctx.Done():
+					return
 				}
-			}()
-		}, func() bool {
-			return playerAlive
-		}, func() (string, *scene.Result) {
-			end <- true
-			return "cliffRacers", nil
-		})
+			}
+		}()
+	}, Loop: scene.BooleanLoop(playerAlive),
+	})
 	oak.Init("cliffRacers")
 }

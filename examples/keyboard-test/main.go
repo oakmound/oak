@@ -13,14 +13,8 @@ import (
 var keyLock sync.Mutex
 var keys = map[string]struct{}{}
 
-type stringStringer string
-
-func (ss stringStringer) String() string {
-	return string(ss)
-}
-
 func main() {
-	oak.Add("keyboard-test", func(*scene.Context) {
+	oak.AddScene("keyboard-test", scene.Scene{Start: func(*scene.Context) {
 		kRenderable := render.NewStrText("", 40, 40)
 		render.Draw(kRenderable, 0)
 		event.GlobalBind(key.Down, func(_ event.CID, k interface{}) int {
@@ -31,7 +25,7 @@ func main() {
 			for k := range keys {
 				txt += k + "\n"
 			}
-			kRenderable.SetStringer(stringStringer(txt))
+			kRenderable.SetString(txt)
 			keyLock.Unlock()
 			return 0
 		})
@@ -43,14 +37,10 @@ func main() {
 			for k := range keys {
 				txt += k + " "
 			}
-			kRenderable.SetStringer(stringStringer(txt))
+			kRenderable.SetString(txt)
 			keyLock.Unlock()
 			return 0
 		})
-	}, func() bool {
-		return true
-	}, func() (string, *scene.Result) {
-		return "keyboard-test", nil
-	})
+	}})
 	oak.Init("keyboard-test")
 }

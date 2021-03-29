@@ -47,7 +47,7 @@ const (
 
 func main() {
 
-	oak.Add("tds", func(ctx *scene.Context) {
+	oak.AddScene("tds", scene.Scene{Start: func(ctx *scene.Context) {
 		// Initialization
 		playerAlive = true
 		sprites, err := render.GetSheet(filepath.Join("16x16", "sheet.png"))
@@ -166,11 +166,9 @@ func main() {
 			}
 		}
 
-	}, func() bool {
+	}, Loop: func() bool {
 		return playerAlive
-	}, func() (string, *scene.Result) {
-		return "tds", nil
-	})
+	}})
 
 	// This indicates to oak to automatically open and load image and audio
 	// files local to the project before starting any scene.

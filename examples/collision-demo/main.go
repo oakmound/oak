@@ -20,8 +20,8 @@ const (
 )
 
 func main() {
-	oak.Add("demo", func(*scene.Context) {
-		render.Draw(render.NewDrawFPS(0.25, nil, 10, 10))
+	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
+		render.Draw(render.NewDrawFPS(0.02, nil, 10, 10), 1, 0)
 
 		act := &AttachCollisionTest{}
 		act.Solid = entities.NewSolid(50, 50, 50, 50, render.NewColorBox(50, 50, color.RGBA{0, 0, 0, 255}), nil, act.Init())
@@ -33,7 +33,7 @@ func main() {
 				act.ShouldUpdate = false
 				act.R.Undraw()
 				act.R = act.nextR
-				render.Draw(act.R, 0)
+				render.Draw(act.R, 0, 1)
 			}
 			if oak.IsDown("A") {
 				// We could use attachment here to not have to shift both
@@ -55,8 +55,7 @@ func main() {
 			return 0
 		})
 
-		render.Draw(act.R, 0)
-		act.R.SetLayer(1)
+		render.Draw(act.R, 0, 1)
 
 		collision.PhaseCollision(act.Space, nil)
 		act.Bind(collision.Start, func(id event.CID, label interface{}) int {
@@ -101,30 +100,26 @@ func main() {
 		upleft := entities.NewSolid(0, 0, 320, 240, render.NewColorBox(320, 240, color.RGBA{100, 0, 0, 100}), nil, 0)
 		upleft.Space.UpdateLabel(RED)
 		upleft.R.SetLayer(0)
-		render.Draw(upleft.R, 0)
+		render.Draw(upleft.R, 0, 0)
 
 		upright := entities.NewSolid(320, 0, 320, 240, render.NewColorBox(320, 240, color.RGBA{0, 100, 0, 100}), nil, 0)
 		upright.Space.UpdateLabel(GREEN)
 		upright.R.SetLayer(0)
-		render.Draw(upright.R, 0)
+		render.Draw(upright.R, 0, 0)
 
 		botleft := entities.NewSolid(0, 240, 320, 240, render.NewColorBox(320, 240, color.RGBA{0, 0, 100, 100}), nil, 0)
 		botleft.Space.UpdateLabel(BLUE)
 		botleft.R.SetLayer(0)
-		render.Draw(botleft.R, 0)
+		render.Draw(botleft.R, 0, 0)
 
 		botright := entities.NewSolid(320, 240, 320, 240, render.NewColorBox(320, 240, color.RGBA{0, 100, 100, 100}), nil, 0)
 		botright.Space.UpdateLabel(TEAL)
 		botright.R.SetLayer(0)
-		render.Draw(botright.R, 0)
-
-	}, func() bool {
-		return true
-	}, func() (string, *scene.Result) {
-		return "demo", nil
-	})
+		render.Draw(botright.R, 0, 0)
+	}})
 	render.SetDrawStack(
 		render.NewDynamicHeap(),
+		render.NewStaticHeap(),
 	)
 	oak.Init("demo")
 }

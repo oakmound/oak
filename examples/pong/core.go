@@ -22,15 +22,14 @@ const (
 )
 
 func main() {
-	oak.Add("pong",
-		func(*scene.Context) {
+	oak.AddScene("pong",
+		scene.Scene{Start: func(*scene.Context) {
 			newPaddle(20, 200, 1)
 			newPaddle(590, 200, 2)
 			newBall(320, 240)
 			render.Draw(render.DefFont().NewIntText(&score2, 200, 20), 3)
 			render.Draw(render.DefFont().NewIntText(&score1, 400, 20), 3)
-		}, func() bool { return true },
-		func() (string, *scene.Result) { return "pong", nil })
+		}})
 	oak.Init("pong")
 }
 

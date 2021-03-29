@@ -1,6 +1,8 @@
 package scene
 
 import (
+	"context"
+
 	"github.com/oakmound/oak/v2/collision"
 	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/render"
@@ -8,6 +10,9 @@ import (
 )
 
 type Context struct {
+	// This context will be canceled when the scene ends
+	context.Context
+
 	PreviousScene string
 	SceneInput    interface{}
 	Window        window.Window

@@ -14,11 +14,11 @@ func TestMap(t *testing.T) {
 	if ok {
 		t.Fatalf("get on an undefined scene should fail")
 	}
-	if err := m.Add("test", nil, nil, nil); err != nil {
+	if err := m.AddScene("test", Scene{}); err != nil {
 		t.Fatalf("scene add should succeed, got %v", err)
 	}
 
-	err := m.Add("test", nil, nil, nil)
+	err := m.AddScene("test", Scene{})
 	if err == nil {
 		t.Fatalf("duplicate scene add should fail")
 	}

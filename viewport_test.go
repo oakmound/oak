@@ -15,13 +15,7 @@ func sleep() {
 
 func TestViewport(t *testing.T) {
 	c1 := NewController()
-	err := c1.SceneMap.Add("blank",
-		// Initialization function
-		func(*scene.Context) {},
-		// Loop to continue or stop current scene
-		func() bool { return true },
-		// Exit to transition to next scene
-		func() (nextScene string, result *scene.Result) { return "blank", nil })
+	err := c1.SceneMap.AddScene("blank", scene.Scene{})
 	if err != nil {
 		t.Fatalf("Scene Add failed: %v", err)
 	}

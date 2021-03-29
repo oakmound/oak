@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	oak.Add("demo", func(*scene.Context) {
+	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
 		txt := render.NewStrText("Press F to toggle fullscreen. Press B to toggle borderless.", 50, 50)
 		render.Draw(txt)
 
@@ -37,9 +37,7 @@ func main() {
 			return 0
 		})
 
-	}, func() bool {
-		return true
-	}, scene.GoTo("demo"))
+	}})
 
 	// Try uncommenting these
 	// Both cannot be true at once!

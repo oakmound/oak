@@ -51,7 +51,7 @@ func main() {
 		renderCurve(floats)
 	})
 
-	oak.Add("bezier", func(*scene.Context) {
+	oak.AddScene("bezier", scene.Scene{Start: func(*scene.Context) {
 		mouseFloats := []float64{}
 		event.GlobalBind(mouse.Press, func(_ event.CID, mouseEvent interface{}) int {
 			me := mouseEvent.(mouse.Event)
@@ -66,11 +66,7 @@ func main() {
 			}
 			return 0
 		})
-	}, func() bool {
-		return true
-	}, func() (string, *scene.Result) {
-		return "bezier", nil
-	})
+	}})
 	oak.Init("bezier")
 }
 

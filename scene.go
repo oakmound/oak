@@ -12,15 +12,6 @@ func (c *Controller) AddScene(name string, s scene.Scene) error {
 	return c.SceneMap.AddScene(name, s)
 }
 
-// Add is shorthand for oak.SceneMap.Add
-func (c *Controller) Add(name string,
-	start func(context *scene.Context),
-	loop func() (cont bool),
-	end func() (nextScene string, result *scene.Result)) error {
-
-	return c.AddScene(name, scene.Scene{Start: start, Loop: loop, End: end})
-}
-
 func (c *Controller) sceneTransition(result *scene.Result) {
 	if result.Transition != nil {
 		i := 0

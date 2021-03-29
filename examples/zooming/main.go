@@ -19,7 +19,7 @@ var (
 )
 
 func main() {
-	oak.Add("demo", func(*scene.Context) {
+	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
 		render.Draw(render.NewStrText("Controls: Arrow keys", 500, 440))
 
 		// Get an image that we will illustrate zooming with later
@@ -54,9 +54,7 @@ func main() {
 			return 0
 		})
 
-	}, func() bool {
-		return true
-	}, scene.GoTo("demo"))
+	}})
 	oak.Init("demo")
 }
 

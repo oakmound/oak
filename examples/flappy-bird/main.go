@@ -32,8 +32,8 @@ const (
 )
 
 func main() {
-	oak.Add("bounce", func(*scene.Context) {
-		render.Draw(render.NewDrawFPS(1, nil, 10, 10))
+	oak.AddScene("bounce", scene.Scene{Start: func(*scene.Context) {
+		render.Draw(render.NewDrawFPS(0.03, nil, 10, 10))
 
 		score = 0
 		// 1. Make Player
@@ -49,15 +49,15 @@ func main() {
 		// 3. Make Score
 		t := render.DefFont().NewIntText(&score, 200, 30)
 		render.Draw(t, 0)
-	}, func() bool {
+	}, Loop: func() bool {
 		if playerHitPillar {
 			playerHitPillar = false
 			return false
 		}
 		return true
-	}, func() (string, *scene.Result) {
+	}, End: func() (string, *scene.Result) {
 		return "bounce", nil
-	})
+	}})
 	render.SetDrawStack(
 		render.NewDynamicHeap(),
 	)

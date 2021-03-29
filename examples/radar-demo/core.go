@@ -28,8 +28,8 @@ const (
 // around a player character.
 
 func main() {
-	oak.Add("demo", func(ctx *scene.Context) {
-		render.Draw(render.NewDrawFPS(1, nil, 10, 10))
+	oak.AddScene("demo", scene.Scene{Start: func(ctx *scene.Context) {
+		render.Draw(render.NewDrawFPS(0.03, nil, 10, 10))
 
 		char := entities.NewMoving(200, 200, 50, 50, render.NewColorBox(50, 50, color.RGBA{125, 125, 0, 255}), nil, 0, 1)
 		char.Speed = physics.NewVector(3, 3)
@@ -73,9 +73,7 @@ func main() {
 			}
 		}
 
-	}, func() bool {
-		return true
-	}, scene.GoTo("demo"))
+	}})
 
 	render.SetDrawStack(
 		render.NewCompositeR(),

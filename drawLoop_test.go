@@ -16,15 +16,7 @@ func BenchmarkDrawLoop(b *testing.B) {
 		"",
 	}
 	c1 := NewController()
-	c1.Add("draw",
-		// Initialization function
-		func(*scene.Context) {},
-		// Loop to continue or stop current scene
-		func() bool { return true },
-		// Exit to transition to next scene
-		func() (nextScene string, result *scene.Result) {
-			return "draw", nil
-		})
+	c1.AddScene("draw", scene.Scene{})
 	go c1.Init("draw")
 	// give the engine some time to start
 	time.Sleep(5 * time.Second)

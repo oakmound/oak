@@ -24,11 +24,11 @@ const (
 var cache = [360]*image.RGBA{}
 
 func main() {
-	oak.Add(
+	oak.AddScene(
 		"demo",
-		func(*scene.Context) {
-			render.Draw(render.NewDrawFPS(1, nil, 10, 10))
-			render.Draw(render.NewLogicFPS(1, nil, 10, 20))
+		scene.Scene{Start: func(*scene.Context) {
+			render.Draw(render.NewDrawFPS(0.03, nil, 10, 10))
+			render.Draw(render.NewLogicFPS(0.03, nil, 10, 20))
 
 			layer := 0
 			layerTxt := render.DefFont().NewIntText(&layer, 30, 20)
@@ -55,13 +55,7 @@ func main() {
 				cache[i] = s.GetRGBA()
 			}
 		},
-		func() bool {
-			return true
-		},
-		func() (string, *scene.Result) {
-			return "demo", nil
-		},
-	)
+		})
 
 	render.SetDrawStack(
 		render.NewCompositeR(),
