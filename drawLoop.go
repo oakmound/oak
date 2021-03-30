@@ -44,6 +44,10 @@ func (c *Controller) drawLoop() {
 	for {
 	drawSelect:
 		select {
+		case bkg := <-c.setBackgroundCh:
+			c.bkgFn = func() image.Image {
+				return bkg.GetRGBA()
+			}
 		case <-c.windowUpdateCh:
 			<-c.windowUpdateCh
 		case <-c.drawCh:
