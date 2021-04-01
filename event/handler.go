@@ -18,7 +18,7 @@ var (
 // for easier composition for external handler implementations
 type Handler interface {
 	// <Handler>
-	UpdateLoop(framerate int, updateCh chan bool) error
+	UpdateLoop(framerate int, updateCh chan struct{}) error
 	FramesElapsed() int
 	SetTick(framerate int) error
 	Update() error
@@ -50,18 +50,18 @@ type Handler interface {
 // Flush() because it will be more efficient for a Logical
 // System to perform its own Updates outside of it’s exposed
 // interface.
-func (eb *Bus) UpdateLoop(framerate int, updateCh chan bool) error {
+func (eb *Bus) UpdateLoop(framerate int, updateCh chan struct{}) error {
 	// The logical loop.
 	// In order, it waits on receiving a signal to begin a logical frame.
 	// It then runs any functions bound to when a frame begins.
 	// It then allows a scene to perform it's loop operation.
-	ch := make(chan bool)
+	ch := make(chan struct{})
 	eb.framesElapsed = 0
 	eb.doneCh = ch
 	eb.updateCh = updateCh
 	eb.framerate = framerate
 	go eb.ResolvePending()
-	go func(doneCh chan bool) {
+	go func(doneCh chan struct{}) {
 		eb.Ticker = timing.NewDynamicTicker()
 		eb.Ticker.SetTick(timing.FPSToDuration(framerate))
 		for {
@@ -69,10 +69,10 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan bool) error {
 			case <-eb.Ticker.C:
 				<-eb.TriggerBack(Enter, eb.framesElapsed)
 				eb.framesElapsed++
-				eb.updateCh <- true
+				eb.updateCh <- struct{}{}
 			case <-doneCh:
 				eb.Ticker.Stop()
-				doneCh <- true
+				doneCh <- struct{}{}
 				return
 			}
 		}
@@ -117,9 +117,9 @@ func (eb *Bus) Flush() error {
 func (eb *Bus) Stop() error {
 	eb.Ticker.SetTick(math.MaxInt32 * time.Second)
 	select {
-	case eb.doneCh <- true:
+	case eb.doneCh <- struct{}{}:
 	case <-eb.updateCh:
-		eb.doneCh <- true
+		eb.doneCh <- struct{}{}
 	}
 	<-eb.doneCh
 	return nil

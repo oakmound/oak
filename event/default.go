@@ -115,6 +115,6 @@ func Update() error {
 }
 
 // UpdateLoop calls UpdateLoop on the DefaultBus
-func UpdateLoop(framerate int, updateCh chan bool) error {
+func UpdateLoop(framerate int, updateCh chan struct{}) error {
 	return DefaultBus.UpdateLoop(framerate, updateCh)
 }

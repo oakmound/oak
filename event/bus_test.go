@@ -17,9 +17,9 @@ func TestBusStop(t *testing.T) {
 		}
 		wait <- struct{}{}
 	}()
-	b.updateCh <- true
+	b.updateCh <- struct{}{}
 	<-b.doneCh
 	phase = 1
-	b.doneCh <- true
+	b.doneCh <- struct{}{}
 	<-wait
 }

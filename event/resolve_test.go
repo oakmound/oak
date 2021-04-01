@@ -14,7 +14,7 @@ func TestResolvePendingWithRefreshRate(t *testing.T) {
 		failed = true
 		return 0
 	})
-	ch := make(chan bool, 1000)
+	ch := make(chan struct{}, 1000)
 	b.UpdateLoop(60, ch)
 	time.Sleep(3 * time.Second)
 	if failed {

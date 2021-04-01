@@ -6,7 +6,7 @@ import (
 )
 
 func TestHandler(t *testing.T) {
-	updateCh := make(chan bool)
+	updateCh := make(chan struct{})
 	if UpdateLoop(60, updateCh) != nil {
 		t.Fatalf("UpdateLoop failed")
 	}
@@ -87,7 +87,7 @@ func TestPauseAndResume(t *testing.T) {
 		triggerCt++
 		return 0
 	})
-	ch := make(chan bool, 1000)
+	ch := make(chan struct{}, 1000)
 	b.UpdateLoop(60, ch)
 	time.Sleep(1 * time.Second)
 	b.Pause()

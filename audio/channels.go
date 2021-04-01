@@ -28,7 +28,7 @@ func GetActiveChannel(f *font.Font, freq intrange.Range, fileNames ...string) (c
 	return getActiveChannel(f, freq, timing.ClearDelayCh, fileNames...)
 }
 
-func getActiveChannel(f *font.Font, freq intrange.Range, quitCh chan bool,
+func getActiveChannel(f *font.Font, freq intrange.Range, quitCh chan struct{},
 	fileNames ...string) (chan ChannelSignal, error) {
 
 	datas, err := GetSounds(fileNames...)
@@ -91,7 +91,7 @@ func GetChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan Ch
 	return getChannel(f, freq, timing.ClearDelayCh, fileNames...)
 }
 
-func getChannel(f *font.Font, freq intrange.Range, quitCh chan bool, fileNames ...string) (chan ChannelSignal, error) {
+func getChannel(f *font.Font, freq intrange.Range, quitCh chan struct{}, fileNames ...string) (chan ChannelSignal, error) {
 	soundCh, err := getActiveChannel(f, freq, quitCh, fileNames...)
 	if err != nil {
 		return nil, err

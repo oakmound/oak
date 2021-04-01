@@ -29,7 +29,7 @@ func (c *Controller) inputLoop() {
 				// program will close before the stop events get propagated.
 				dlog.Verb("Triggering OnStop.")
 				<-c.logicHandler.TriggerBack(event.OnStop, nil)
-				c.quitCh <- true
+				c.quitCh <- struct{}{}
 				return
 			}
 			// ... this is where we would respond to window focus events

@@ -31,8 +31,8 @@ func TestDebugConsole(t *testing.T) {
 
 	event.NextID(ent{})
 
-	rCh := make(chan bool)
-	sCh := make(chan bool)
+	rCh := make(chan struct{})
+	sCh := make(chan struct{})
 	r := bytes.NewBufferString(
 		"test\n" +
 			"nothing\n" +
@@ -54,7 +54,7 @@ func TestDebugConsole(t *testing.T) {
 			"\n" +
 			"skip scene\n")
 	go c1.debugConsole(rCh, sCh, r)
-	rCh <- true
+	rCh <- struct{}{}
 	sleep()
 	sleep()
 	if !triggered {

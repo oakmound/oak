@@ -31,31 +31,31 @@ func (c *Controller) windowController(s screen.Screen, x, y int32, width, height
 }
 
 type Controller struct {
-	// TODO: most of these channels should take struct{}s and be closed sometime
-	transitionCh chan bool
+	// TODO: most of these channels are not closed cleanly
+	transitionCh chan struct{}
 
 	// The Scene channel receives a signal
 	// when a scene's .loop() function should
 	// be called.
-	sceneCh chan bool
+	sceneCh chan struct{}
 
 	// The skip scene channel receives a debug
 	// signal to forcibly go to the next
 	// scene.
-	skipSceneCh chan bool
+	skipSceneCh chan struct{}
 
 	// The quit channel receives a signal when
 	// the program should stop.
-	quitCh chan bool
+	quitCh chan struct{}
 
 	// The draw channel receives a signal when
 	// drawing should cease (or resume)
-	drawCh chan bool
+	drawCh chan struct{}
 
 	// The debug reset channel represents
 	// when the debug console should forget the
 	// commands that have been sent to it.
-	debugResetCh chan bool
+	debugResetCh chan struct{}
 
 	// The viewport channel controls when new
 	// viewport positions should be drawn
@@ -183,12 +183,12 @@ var (
 
 func NewController() *Controller {
 	c := &Controller{}
-	c.transitionCh = make(chan bool)
-	c.sceneCh = make(chan bool)
-	c.skipSceneCh = make(chan bool)
-	c.quitCh = make(chan bool)
-	c.drawCh = make(chan bool)
-	c.debugResetCh = make(chan bool)
+	c.transitionCh = make(chan struct{})
+	c.sceneCh = make(chan struct{})
+	c.skipSceneCh = make(chan struct{})
+	c.quitCh = make(chan struct{})
+	c.drawCh = make(chan struct{})
+	c.debugResetCh = make(chan struct{})
 	c.viewportCh = make(chan intgeom.Point2)
 	c.viewportShiftCh = make(chan intgeom.Point2)
 	c.windowUpdateCh = make(chan bool)

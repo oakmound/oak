@@ -25,7 +25,7 @@ func TestSequenceTrigger(t *testing.T) {
 	go event.ResolvePending()
 	cid := Dummy{}.Init()
 	sq.SetTriggerID(cid)
-	triggerCh := make(chan bool)
+	triggerCh := make(chan struct{})
 	cid.Bind(event.AnimationEnd, func(event.CID, interface{}) int {
 		// This is a bad idea in real code, this will lock up
 		// unbindings because the function that triggered this owns
@@ -37,7 +37,7 @@ func TestSequenceTrigger(t *testing.T) {
 		// function, causing a deadlock.
 		//
 		// For this test this is the easiest way to do this though
-		triggerCh <- true
+		triggerCh <- struct{}{}
 		return 0
 	})
 	// We sleep to trigger the sequence to want to animate to the next frame

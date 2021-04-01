@@ -31,8 +31,8 @@ type bindableList struct {
 // A Bus stores bindables to be triggered by events
 type Bus struct {
 	bindingMap          map[string]map[CID]*bindableList
-	doneCh              chan bool
-	updateCh            chan bool
+	doneCh              chan struct{}
+	updateCh            chan struct{}
 	framesElapsed       int
 	Ticker              *timing.DynamicTicker
 	binds               []UnbindOption
@@ -54,8 +54,8 @@ func NewBus() *Bus {
 	return &Bus{
 		Ticker:              timing.NewDynamicTicker(),
 		bindingMap:          make(map[string]map[CID]*bindableList),
-		updateCh:            make(chan bool),
-		doneCh:              make(chan bool),
+		updateCh:            make(chan struct{}),
+		doneCh:              make(chan struct{}),
 		binds:               make([]UnbindOption, 0),
 		partUnbinds:         make([]Event, 0),
 		fullUnbinds:         make([]UnbindOption, 0),

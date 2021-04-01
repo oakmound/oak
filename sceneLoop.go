@@ -46,8 +46,8 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 	// TODO: language
 	dlog.Info("First Scene Start")
 
-	c.drawCh <- true
-	c.drawCh <- true
+	c.drawCh <- struct{}{}
+	c.drawCh <- struct{}{}
 
 	// TODO: language
 	dlog.Verb("Draw Channel Activated")
@@ -93,19 +93,19 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 				CollisionTree: c.CollisionTree,
 				Window:        c,
 			})
-			c.transitionCh <- true
+			c.transitionCh <- struct{}{}
 		}()
 
 		c.sceneTransition(result)
 
 		// Post transition, begin loading animation
 		dlog.Info("Starting load animation")
-		c.drawCh <- true
+		c.drawCh <- struct{}{}
 		dlog.Info("Getting Transition Signal")
 		<-c.transitionCh
 		dlog.Info("Resume Drawing")
 		// Send a signal to resume (or begin) drawing
-		c.drawCh <- true
+		c.drawCh <- struct{}{}
 
 		dlog.Info("Looping Scene")
 		cont := true
@@ -128,13 +128,13 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 		prevScene = c.SceneMap.CurrentScene
 
 		// Send a signal to stop drawing
-		c.drawCh <- true
+		c.drawCh <- struct{}{}
 
 		// Reset any ongoing delays
 	delayLabel:
 		for {
 			select {
-			case timing.ClearDelayCh <- true:
+			case timing.ClearDelayCh <- struct{}{}:
 			default:
 				break delayLabel
 			}
@@ -180,7 +180,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 		if !debugConsoleDisabled && !c.debugResetInProgress {
 			c.debugResetInProgress = true
 			go func() {
-				c.debugResetCh <- true
+				c.debugResetCh <- struct{}{}
 				c.debugResetInProgress = false
 			}()
 		}

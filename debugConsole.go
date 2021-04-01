@@ -69,7 +69,7 @@ func (c *Controller) GetDebugKeys() []string {
 	return dkeys
 }
 
-func (c *Controller) debugConsole(resetCh, skipScene chan bool, input io.Reader) {
+func (c *Controller) debugConsole(resetCh, skipScene chan struct{}, input io.Reader) {
 	scanner := bufio.NewScanner(input)
 
 	// built in commands
@@ -177,7 +177,7 @@ func (c *Controller) fadeCommands(tokenString []string) {
 	}
 }
 
-func (c *Controller) skipCommands(skipScene chan bool) func(tokenString []string) {
+func (c *Controller) skipCommands(skipScene chan struct{}) func(tokenString []string) {
 	return func(tokenString []string) {
 		if len(tokenString) != 1 {
 			fmt.Println("Input must be a single string from the following (\"scene\"). ")
@@ -185,7 +185,7 @@ func (c *Controller) skipCommands(skipScene chan bool) func(tokenString []string
 		}
 		switch tokenString[0] {
 		case "scene":
-			skipScene <- true
+			skipScene <- struct{}{}
 		default:
 			fmt.Println("Bad Skip Input")
 		}
