@@ -53,16 +53,16 @@ func TestTreeScene(t *testing.T) {
 	}
 
 	// Filters
-	if len(tree.Hit(NewSpace(0, 0, 100, 100, 0), WithoutLabels(2))) == 0 {
+	if len(tree.Hit(NewSpace(0, 0, 100, 100, 0), WithoutLabels(2))) != 1 {
 		t.Fatalf("Filtered Hits (1) did not collide with s1")
 	}
-	if len(tree.Hit(NewSpace(0, 0, 100, 100, 0), WithLabels(2))) == 0 {
+	if len(tree.Hit(NewSpace(0, 0, 100, 100, 0), WithLabels(2))) != 1 {
 		t.Fatalf("Filtered Hits (2) did not collide with s2")
 	}
-	if len(tree.Hit(NewSpace(0, 0, 100, 100, 0), WithoutCIDs(3))) == 0 {
+	if len(tree.Hit(NewSpace(0, 0, 100, 100, 0), WithoutCIDs(3))) != 1 {
 		t.Fatalf("Filtered Hits (3) did not collide with s2")
 	}
-	if len(tree.Hit(NewSpace(0, 0, 100, 100, 0), FirstLabel(1))) == 0 {
+	if len(tree.Hit(NewSpace(0, 0, 100, 100, 0), FirstLabel(1))) != 1 {
 		t.Fatalf("Filtered Hits (4) did not collide with s1")
 	}
 	if len(tree.Hit(NewSpace(0, 0, 100, 100, 0), FirstLabel(5))) != 0 {

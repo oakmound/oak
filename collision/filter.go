@@ -24,15 +24,13 @@ func FirstLabel(ls ...Label) Filter {
 // from the input keepFn will be in the output
 func With(keepFn func(*Space) bool) Filter {
 	return func(sps []*Space) []*Space {
-		out := make([]*Space, len(sps))
-		i := 0
+		out := make([]*Space, 0, len(sps))
 		for _, s := range sps {
 			if keepFn(s) {
-				out[i] = s
-				i++
+				out = append(out, s)
 			}
 		}
-		return out[:i+1]
+		return out
 	}
 }
 
