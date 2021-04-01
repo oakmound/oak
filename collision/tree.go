@@ -135,16 +135,6 @@ func (t *Tree) ShiftSpace(x, y float64, s *Space) error {
 func (t *Tree) Hits(sp *Space) []*Space {
 	results := t.SearchIntersect(sp.Bounds())
 	hitSelf := -1
-	i := 0
-	for i < len(results) {
-		// Todo: replicate getting nils again, its not happening anymore
-		// without unexported field modification
-		if results[i] == nil {
-			results = append(results[:i], results[i+1:]...)
-		} else {
-			i++
-		}
-	}
 	out := make([]*Space, len(results))
 	for i, v := range results {
 		if v == sp {

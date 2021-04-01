@@ -143,16 +143,3 @@ func TestTreeStress(t *testing.T) {
 		tree.Delete(randomSpace())
 	}
 }
-
-func TestDoesntHitNils(t *testing.T) {
-	tree, _ := NewTree(2, 20)
-	tree.root = new(node)
-	tree.root.entries = append(tree.root.entries, entry{
-		bb:  floatgeom.NewRect3WH(0, 0, 0, 10, 10, 10),
-		obj: nil,
-	})
-	tree.root.leaf = true
-	if len(tree.Hits(NewSpace(0, 0, 10, 10, 0))) != 0 {
-		t.Fatalf("tree should not have hit nil object")
-	}
-}
