@@ -69,8 +69,6 @@ func loadSprite(directory, fileName string, maxFileSize int64) (*image.RGBA, err
 	// of image encoding was arbitrary. If using the image.Image
 	// interface would not hurt performance considerably, we should
 	// just use that.
-	//
-	// This converts the
 	bounds := img.Bounds()
 	rgba := image.NewRGBA(bounds)
 	for x := 0; x < bounds.Max.X; x++ {
