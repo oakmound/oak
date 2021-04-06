@@ -15,4 +15,6 @@ type Window interface {
 	Width() int
 	Height() int
 	Viewport() intgeom.Point2
+	Quit()
+	SetViewportBounds(intgeom.Rect2)
 }
