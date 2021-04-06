@@ -3,6 +3,7 @@ package oak
 import (
 	"image"
 	"image/color/palette"
+	"image/draw"
 	"image/gif"
 	"time"
 
@@ -46,11 +47,7 @@ func (c *Controller) gifShot() *image.Paletted {
 		rgba := c.winBuffer.RGBA()
 		bds := rgba.Bounds()
 		copy := image.NewPaletted(bds, palette.Plan9)
-		for x := bds.Min.X; x < bds.Max.X; x++ {
-			for y := bds.Min.Y; y < bds.Max.Y; y++ {
-				copy.Set(x, y, rgba.At(x, y))
-			}
-		}
+		draw.Draw(copy, bds, rgba, zeroPoint, draw.Src)
 		shotCh <- copy
 		oldPublish(c, tx)
 	}
