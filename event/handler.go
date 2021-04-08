@@ -60,9 +60,9 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan struct{}) error {
 	eb.doneCh = ch
 	eb.updateCh = updateCh
 	eb.framerate = framerate
+	eb.Ticker = timing.NewDynamicTicker()
 	go eb.ResolvePending()
 	go func(doneCh chan struct{}) {
-		eb.Ticker = timing.NewDynamicTicker()
 		eb.Ticker.SetTick(timing.FPSToDuration(framerate))
 		for {
 			select {
