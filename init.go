@@ -82,7 +82,7 @@ func (c *Controller) Init(firstScene string) {
 	go c.loadAssets(imageDir, audioDir)
 	if !conf.DisableDebugConsole {
 		dlog.Info("Init Console")
-		go c.debugConsole(c.debugResetCh, c.skipSceneCh, os.Stdin)
+		go c.debugConsole(c.debugResetCh, os.Stdin)
 	}
 	dlog.Info("Init Main Driver")
 	c.Driver(c.lifecycleLoop)

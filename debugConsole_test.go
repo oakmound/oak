@@ -32,7 +32,6 @@ func TestDebugConsole(t *testing.T) {
 	event.NextID(ent{})
 
 	rCh := make(chan struct{})
-	sCh := make(chan struct{})
 	r := bytes.NewBufferString(
 		"test\n" +
 			"nothing\n" +
@@ -53,14 +52,14 @@ func TestDebugConsole(t *testing.T) {
 			"garbage input\n" +
 			"\n" +
 			"skip scene\n")
-	go c1.debugConsole(rCh, sCh, r)
+	go c1.debugConsole(rCh, r)
 	rCh <- struct{}{}
 	sleep()
 	sleep()
 	if !triggered {
 		t.Fatalf("debug console did not trigger test command")
 	}
-	<-sCh
+	<-c.skipSceneCh
 }
 
 func TestMouseDetails(t *testing.T) {

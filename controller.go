@@ -287,3 +287,7 @@ func (c *Controller) GetBackgroundColor() image.Image {
 func (c *Controller) SetBackgroundColor(img image.Image) {
 	c.BackgroundColor = img
 }
+
+func (c *Controller) NextScene() {
+	c.skipSceneCh <- struct{}{}
+}

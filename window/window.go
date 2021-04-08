@@ -17,4 +17,5 @@ type Window interface {
 	Viewport() intgeom.Point2
 	Quit()
 	SetViewportBounds(intgeom.Rect2)
+	NextScene()
 }
