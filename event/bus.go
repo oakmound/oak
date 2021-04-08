@@ -138,15 +138,13 @@ func (bl *bindableList) storeBindable(fn Bindable) int {
 // returning UnbindSingle from the function
 // itself is much safer!
 func (bl *bindableList) removeBindable(fn Bindable) {
-	i := 0
 	v := reflect.ValueOf(fn)
-	for {
+	for i := 0; i < len(bl.sl); i++ {
 		v2 := reflect.ValueOf(bl.sl[i])
 		if v2 == v {
 			bl.removeIndex(i)
 			return
 		}
-		i++
 	}
 }
 
