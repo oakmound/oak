@@ -226,6 +226,7 @@ func NewController() *Controller {
 // Propagate triggers direct mouse events on entities which are clicked
 func (c *Controller) Propagate(eventName string, me mouse.Event) {
 	c.LastMouseEvent = me
+	mouse.LastEvent = me
 
 	hits := c.MouseTree.SearchIntersect(me.ToSpace().Bounds())
 	for _, sp := range hits {

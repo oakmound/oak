@@ -11,6 +11,7 @@ import (
 // enable PhaseCollision on the struct. See PhaseCollision.
 type CollisionPhase struct {
 	OnCollisionS *collision.Space
+	LastEvent    *Event
 
 	wasTouching bool
 }
@@ -48,14 +49,20 @@ func phaseCollisionEnter(id event.CID, nothing interface{}) int {
 	e := id.E().(collisionPhase)
 	oc := e.getCollisionPhase()
 
-	if oc.OnCollisionS.Contains(LastEvent.ToSpace()) {
+	// TODO: think about how this can more cleanly work with multiple controllers
+	ev := oc.LastEvent
+	if ev == nil {
+		ev = &LastEvent
+	}
+
+	if oc.OnCollisionS.Contains(ev.ToSpace()) {
 		if !oc.wasTouching {
-			id.Trigger(Start, LastEvent)
+			id.Trigger(Start, *ev)
 			oc.wasTouching = true
 		}
 	} else {
 		if oc.wasTouching {
-			id.Trigger(Stop, LastEvent)
+			id.Trigger(Stop, *ev)
 			oc.wasTouching = false
 		}
 	}
