@@ -87,7 +87,7 @@ type Controller struct {
 	windowControl screen.Window
 
 	windowRect     image.Rectangle
-	windowUpdateCh chan bool
+	windowUpdateCh chan struct{}
 
 	// TODO V3: cleanup this interface
 	// BackgroundColor is the starting background color for the draw loop. BackgroundImage or SetBackground will overwrite it.
@@ -191,7 +191,7 @@ func NewController() *Controller {
 	c.debugResetCh = make(chan struct{})
 	c.viewportCh = make(chan intgeom.Point2)
 	c.viewportShiftCh = make(chan intgeom.Point2)
-	c.windowUpdateCh = make(chan bool)
+	c.windowUpdateCh = make(chan struct{})
 	c.SceneMap = scene.NewMap()
 	c.BackgroundColor = image.Black
 	c.setBackgroundCh = make(chan Background)

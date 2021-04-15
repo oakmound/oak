@@ -5,6 +5,7 @@ import (
 	"image/draw"
 
 	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v2/dlog"
 )
 
 type Background interface {
@@ -50,6 +51,10 @@ func (c *Controller) drawLoop() {
 			}
 		case <-c.windowUpdateCh:
 			<-c.windowUpdateCh
+			tx, err = c.screenControl.NewTexture(c.winBuffer.Bounds().Max)
+			if err != nil {
+				dlog.Error(err)
+			}
 		case <-c.drawCh:
 			<-c.drawCh
 			for {
@@ -61,6 +66,12 @@ func (c *Controller) drawLoop() {
 				c.drawLoopPublish(c, tx)
 
 				select {
+				case <-c.windowUpdateCh:
+					<-c.windowUpdateCh
+					tx, err = c.screenControl.NewTexture(c.winBuffer.Bounds().Max)
+					if err != nil {
+						dlog.Error(err)
+					}
 				case <-c.drawCh:
 					break drawSelect
 				case viewPoint := <-c.viewportCh:

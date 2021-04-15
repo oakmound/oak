@@ -18,7 +18,7 @@ func (c *Controller) lifecycleLoop(s screen.Screen) {
 	var err error
 
 	// The window buffer represents the subsection of the world which is available to
-	// be shown in a window.
+	// be shown in a window. 
 	dlog.Info("Creating window buffer")
 	c.winBuffer, err = c.screenControl.NewImage(image.Point{c.ScreenWidth, c.ScreenHeight})
 	if err != nil {
@@ -95,6 +95,16 @@ func (c *Controller) ChangeWindow(width, height int) {
 		}
 	}
 	c.windowRect = image.Rect(-x, -y, width, height)
+}
+
+func (c *Controller) UpdateViewSize(width, height int) error {
+	c.windowUpdateCh <- struct{}{}
+	var err error
+	c.ScreenWidth = width 
+	c.ScreenHeight = height
+	c.winBuffer, err = c.screenControl.NewImage(image.Point{width, height})
+	c.windowUpdateCh <- struct{}{}
+	return err
 }
 
 // GetScreen returns the current screen as an rgba buffer
