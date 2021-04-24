@@ -8,37 +8,29 @@ import (
 	"github.com/oakmound/oak/v2/oakerr"
 )
 
-var (
-	// DefaultMaxChildren is the maximum number of children allowed
-	// on a node in the collision tree when NewTree is called without
-	// a maximum number of children.
-	DefaultMaxChildren = 40
-	// DefaultMinChildren is the minimum number of children allowed
-	// on a node in the collision tree when NewTree is called without
-	// a minimum number of children.
-	DefaultMinChildren = 20
-)
-
 // A Tree provides a space for managing collisions between rectangles
 type Tree struct {
 	*Rtree
 	sync.Mutex
 }
 
-// NewTree returns a new collision Tree. The first argument will be used
-// as the minimum children per tree node. The second will be the maximum
-// children per tree node. Further arguments are ignored. If less than two
-// arguments are given, DefaultMinChildren and DefaultMaxChildren will be
-// used.
-func NewTree(children ...int) (*Tree, error) {
-	minChildren := DefaultMinChildren
-	maxChildren := DefaultMaxChildren
-	if len(children) > 0 {
-		minChildren = children[0]
-		if len(children) > 1 {
-			maxChildren = children[1]
-		}
+const (
+	defaultMinChildren = 20
+	defaultMaxChildren = 40
+)
+
+// NewTree returns a new collision Tree. defaultMinChildren and defaultMaxChildren
+// are used for node sizing.
+func NewTree() *Tree {
+	return &Tree{
+		Rtree: newTree(defaultMinChildren, defaultMaxChildren),
+		Mutex: sync.Mutex{},
 	}
+}
+
+// NewCustomTree returns a new collision Tree with custom node sizes.
+// minChildren must be less than maxChildren.
+func NewCustomTree(minChildren, maxChildren int) (*Tree, error) {
 	if minChildren > maxChildren {
 		return nil, errors.New("MaxChildren must exceed MinChildren")
 	}
@@ -88,7 +80,7 @@ func (t *Tree) UpdateLabel(classtype Label, s *Space) {
 
 // ErrNotExist is returned by methods on spaces
 // when the space to update or act on did not exist
-var ErrNotExist = errors.New("Space did not exist to update")
+var ErrNotExist = oakerr.NotFound{InputName: "Space"}
 
 // UpdateSpace is not an operation on a space because
 // a space can exist in multiple trees.

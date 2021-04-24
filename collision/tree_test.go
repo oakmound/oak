@@ -4,11 +4,12 @@ import (
 	"math/rand"
 	"testing"
 
+	"github.com/200sc/go-dist/floatrange"
 	"github.com/oakmound/oak/v2/alg/floatgeom"
 )
 
 func TestNewTreeInvalidChildren(t *testing.T) {
-	tree, err := NewTree(20, 10)
+	tree, err := NewCustomTree(20, 10)
 	if err == nil {
 		t.Fatalf("new tree with min children > max should have failed")
 	}
@@ -18,7 +19,7 @@ func TestNewTreeInvalidChildren(t *testing.T) {
 }
 
 func TestTreeScene(t *testing.T) {
-	tree, err := NewTree(10, 20)
+	tree, err := NewCustomTree(10, 20)
 	if err != nil {
 		t.Fatalf("unexpected error creating tree: %v", err)
 	}
@@ -105,19 +106,19 @@ func TestTreeScene(t *testing.T) {
 }
 
 func TestUpdateSpaceNilSpace(t *testing.T) {
-	if DefTree.ShiftSpace(0, 0, nil) == nil {
+	if DefaultTree.ShiftSpace(0, 0, nil) == nil {
 		t.Fatalf("shift space with nil space should have failed")
 	}
-	if DefTree.UpdateSpace(0, 0, 0, 0, nil) == nil {
+	if DefaultTree.UpdateSpace(0, 0, 0, 0, nil) == nil {
 		t.Fatalf("update space with nil space should have failed")
 	}
-	if DefTree.UpdateSpaceRect(floatgeom.NewRect3(0, 0, 0, 0, 0, 0), nil) == nil {
+	if DefaultTree.UpdateSpaceRect(floatgeom.NewRect3(0, 0, 0, 0, 0, 0), nil) == nil {
 		t.Fatalf("update space rect with nil space should have failed")
 	}
 }
 
 func TestUpdateSpaceNotExists(t *testing.T) {
-	tree, _ := NewTree(2, 20)
+	tree := NewTree()
 	s := NewSpace(0, 0, 100, 100, 0)
 	if tree.UpdateSpace(4, 4, 100, 100, s) == nil {
 		t.Fatalf("update space should have not existed")
@@ -126,7 +127,7 @@ func TestUpdateSpaceNotExists(t *testing.T) {
 
 func TestTreeStress(t *testing.T) {
 	spaces := 100000
-	tree, _ := NewTree(3, 6)
+	tree, _ := NewCustomTree(3, 6)
 	for i := 0; i < spaces; i++ {
 		tree.Add(randomSpace())
 	}
@@ -143,3 +144,14 @@ func TestTreeStress(t *testing.T) {
 		tree.Delete(randomSpace())
 	}
 }
+
+func randomSpace() *Space {
+	return NewUnassignedSpace(xRange.Poll(), yRange.Poll(), wRange.Poll(), hRange.Poll())
+}
+
+var (
+	xRange = floatrange.NewLinear(0, 10000)
+	yRange = floatrange.NewLinear(0, 10000)
+	wRange = floatrange.NewLinear(1, 50)
+	hRange = floatrange.NewLinear(1, 50)
+)

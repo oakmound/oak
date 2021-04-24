@@ -59,7 +59,7 @@ func TestDebugConsole(t *testing.T) {
 	if !triggered {
 		t.Fatalf("debug console did not trigger test command")
 	}
-	<-c.skipSceneCh
+	<-c1.skipSceneCh
 }
 
 func TestMouseDetails(t *testing.T) {

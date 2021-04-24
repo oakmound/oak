@@ -13,7 +13,7 @@ func TestCasterScene(t *testing.T) {
 		PointSize:    floatgeom.Point2{.1, .1},
 		PointSpan:    1.0,
 		CastDistance: 200,
-		Tree:         collision.DefTree,
+		Tree:         collision.DefaultTree,
 	})
 	type testCase struct {
 		name           string
@@ -29,10 +29,7 @@ func TestCasterScene(t *testing.T) {
 		"101-201": collision.NewFullSpace(10, 10, 10, 10, 101, 201),
 		"102-202": collision.NewFullSpace(20, 20, 10, 10, 102, 202),
 	}
-	tree1, err := collision.NewTree(2, 20)
-	if err != nil {
-		t.Fatalf("NewTree failed: %v", err)
-	}
+	tree1 := collision.NewTree()
 	tcs := []testCase{
 		{
 			name: "Ignore Filters",
@@ -227,7 +224,7 @@ func TestCasterScene(t *testing.T) {
 func TestNewCasterDefaultTree(t *testing.T) {
 	DefaultCaster.Tree = nil
 	c := NewCaster()
-	DefaultCaster.Tree = collision.DefTree
+	DefaultCaster.Tree = collision.DefaultTree
 	if c.Tree == nil {
 		t.Fatal("nil caster tree should have been set to default tree")
 	}
