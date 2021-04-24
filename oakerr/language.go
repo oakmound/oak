@@ -35,6 +35,7 @@ func SetLanguageString(s string) {
 }
 
 // Valid languages
+// TODO: should we be using ISO 639 codes? If so, ISO 639-1? ISO 639-3?
 const (
 	English Language = iota
 	Deutsch
