@@ -39,13 +39,4 @@ func TestKeyStore(t *testing.T) {
 	if d != 0 {
 		t.Fatalf("test hold was not reset")
 	}
-
-	// KeyBind
-	if GetKeyBind("Test") != "Test" {
-		t.Fatalf("getKeyBind did not return identiy for non-bound key")
-	}
-	BindKey("Test", "Bound")
-	if GetKeyBind("Test") != "Bound" {
-		t.Fatalf("getKeyBind did not return bound value for bound key")
-	}
 }
