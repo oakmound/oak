@@ -57,14 +57,14 @@ func TestFPSToNano(t *testing.T) {
 	})
 }
 
-func TestFPSToDuration(t *testing.T) {
+func TestFPSToFrameDelay(t *testing.T) {
 	t.Parallel()
 	rand.Seed(time.Now().UnixNano())
 	t.Run("1-201", func(t *testing.T) {
 		t.Parallel()
 		for i := 0; i < randTestCt; i++ {
 			rate := rand.Intn(200) + 1
-			got := FPSToDuration(rate)
+			got := FPSToFrameDelay(rate)
 			expected := time.Second / time.Duration(int64(rate))
 			if got != expected {
 				t.Fatalf("got duration of %v, expected %v", got, expected)
@@ -73,7 +73,7 @@ func TestFPSToDuration(t *testing.T) {
 	})
 	t.Run("0", func(t *testing.T) {
 		t.Parallel()
-		got := FPSToDuration(0)
+		got := FPSToFrameDelay(0)
 		expected := time.Duration(math.MaxInt64)
 		if got != expected {
 			t.Fatalf("got duration of %v, expected %v", got, expected)

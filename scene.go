@@ -21,7 +21,7 @@ func (c *Controller) sceneTransition(result *scene.Result) {
 			cont = result.Transition(c.winBuffer.RGBA(), i)
 			c.drawLoopPublish(c, tx)
 			i++
-			time.Sleep(timing.FPSToDuration(c.FrameRate))
+			time.Sleep(timing.FPSToFrameDelay(c.FrameRate))
 		}
 	}
 }

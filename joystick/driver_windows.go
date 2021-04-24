@@ -11,7 +11,7 @@ import (
 func newJoystick(id uint32) *Joystick {
 	return &Joystick{
 		Handler:  event.DefaultBus,
-		PollRate: timing.FPSToDuration(60),
+		PollRate: timing.FPSToFrameDelay(60),
 		id:       id,
 		osJoystick: osJoystick{
 			wstate:    &w32.XInputState{},

@@ -4,8 +4,8 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/oakmound/oak/v2/timing"
 	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v2/timing"
 )
 
 type Background interface {
@@ -40,7 +40,7 @@ func (c *Controller) drawLoop() {
 	c.drawLoopPublish(c, tx)
 
 	c.DrawTicker = timing.NewDynamicTicker()
-	c.DrawTicker.SetTick(timing.FPSToDuration(c.DrawFrameRate))
+	c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
 
 	for {
 	drawSelect:

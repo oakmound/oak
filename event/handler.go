@@ -63,7 +63,7 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan struct{}) error {
 	eb.Ticker = timing.NewDynamicTicker()
 	go eb.ResolvePending()
 	go func(doneCh chan struct{}) {
-		eb.Ticker.SetTick(timing.FPSToDuration(framerate))
+		eb.Ticker.SetTick(timing.FPSToFrameDelay(framerate))
 		for {
 			select {
 			case <-eb.Ticker.C:
@@ -132,7 +132,7 @@ func (eb *Bus) Pause() {
 
 // Resume will resume emitting enter events
 func (eb *Bus) Resume() {
-	eb.Ticker.SetTick(timing.FPSToDuration(eb.framerate))
+	eb.Ticker.SetTick(timing.FPSToFrameDelay(eb.framerate))
 }
 
 // FramesElapsed returns how many frames have elapsed since UpdateLoop was last called.
@@ -144,6 +144,6 @@ func (eb *Bus) FramesElapsed() int {
 // (while it is looping) to be frameRate. If this operation is not
 // supported, it should return an error.
 func (eb *Bus) SetTick(framerate int) error {
-	eb.Ticker.SetTick(timing.FPSToDuration(framerate))
+	eb.Ticker.SetTick(timing.FPSToFrameDelay(framerate))
 	return nil
 }
