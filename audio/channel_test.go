@@ -8,7 +8,7 @@ import (
 )
 
 func TestChannels(t *testing.T) {
-	_, err := DefChannel(intrange.Constant(5))
+	_, err := DefaultChannel(intrange.Constant(5))
 	if err == nil {
 		t.Fatalf("expected error calling DefChannel without file names")
 	}
@@ -16,7 +16,7 @@ func TestChannels(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error loading test file")
 	}
-	ch, err := DefChannel(intrange.NewLinear(1, 100), "test.wav")
+	ch, err := DefaultChannel(intrange.NewLinear(1, 100), "test.wav")
 	if err != nil {
 		t.Fatalf("expected no error creating channel with test file")
 	}

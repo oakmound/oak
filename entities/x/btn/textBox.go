@@ -24,7 +24,7 @@ func NewTextBox(cid event.CID, x, y, w, h, txtX, txtY float64,
 	f *render.Font, r render.Renderable, layers ...int) *TextBox {
 
 	if f == nil {
-		f = render.DefFont()
+		f = render.DefaultFont()
 	}
 
 	b := new(TextBox)

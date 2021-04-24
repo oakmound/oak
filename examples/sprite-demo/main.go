@@ -31,7 +31,7 @@ func main() {
 			render.Draw(render.NewLogicFPS(0.03, nil, 10, 20))
 
 			layer := 0
-			layerTxt := render.DefFont().NewIntText(&layer, 30, 20)
+			layerTxt := render.DefaultFont().NewIntText(&layer, 30, 20)
 			layerTxt.SetLayer(100000000)
 			render.Draw(layerTxt, 0)
 			NewGopher(layer)

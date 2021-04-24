@@ -10,7 +10,7 @@ import (
 
 func TestEmptyRaycasts(t *testing.T) {
 	t.Skip()
-	collision.DefTree.Clear()
+	collision.DefaultTree.Clear()
 	vRange := floatrange.NewLinear(3, 359)
 	tests := 100
 	for i := 0; i < tests; i++ {

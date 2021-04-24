@@ -14,10 +14,10 @@ func TestPosFilter(t *testing.T) {
 		t.Fatalf("expected sin wave creation to succeed")
 	}
 	x, y := new(float64), new(float64)
-	a := New(DefFont, kla.(Data), x, y)
+	a := New(DefaultFont, kla.(Data), x, y)
 	x2 := 100.0
 	y2 := 100.0
-	DefFont.Filter(PosFilter(NewEars(&x2, &y2, 100, 300)))
+	DefaultFont.Filter(PosFilter(NewEars(&x2, &y2, 100, 300)))
 	err = <-a.Play()
 	if err != nil {
 		t.Fatalf("expected playing sin wave to succeed")
@@ -38,8 +38,8 @@ func TestPosFilter(t *testing.T) {
 	}
 	time.Sleep(a.PlayLength())
 	// Assert nothing is heard
-	*DefFont = *font.New()
-	DefFont.Filter(PosFilter(NewEars(&x2, &y2, 100, 2000)))
+	*DefaultFont = *font.New()
+	DefaultFont.Filter(PosFilter(NewEars(&x2, &y2, 100, 2000)))
 	x2 -= 200
 	err = <-a.Play()
 	if err != nil {

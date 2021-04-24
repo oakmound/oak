@@ -32,9 +32,9 @@ func TestDrawHeapLoop(t *testing.T) {
 			NewColorBox(6, 6, color.RGBA{20, 0, 0, 255}),
 			NewColorBox(7, 7, color.RGBA{40, 0, 0, 255}),
 			NewColorBox(8, 9, color.RGBA{60, 0, 0, 255})), 3},
-		{DefFont().NewStrText("fire", 15, 15), 5},
-		{DefFont().NewIntText(&n, 15, 15), 6},
-		{DefFont().NewText(collision.NewUnassignedSpace(0, 0, 10, 10), 15, 15), 7},
+		{DefaultFont().NewStrText("fire", 15, 15), 5},
+		{DefaultFont().NewIntText(&n, 15, 15), 6},
+		{DefaultFont().NewText(collision.NewUnassignedSpace(0, 0, 10, 10), 15, 15), 7},
 	}
 	for _, a := range toAdds {
 		h.Add(a.r, a.layer)

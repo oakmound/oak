@@ -8,7 +8,7 @@ import (
 func TestTextFns(t *testing.T) {
 	initTestFont()
 
-	txt := DefFont().NewStrText("Test", 0, 0)
+	txt := DefaultFont().NewStrText("Test", 0, 0)
 
 	fg := FontGenerator{
 		RawFile: luxisrTTF,

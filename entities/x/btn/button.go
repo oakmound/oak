@@ -135,7 +135,7 @@ func (g Generator) generate(parent *Generator) Btn {
 	}
 	font := g.Font
 	if font == nil {
-		font = render.DefFont()
+		font = render.DefaultFont()
 	}
 	var btn Btn
 	if g.Text != "" {

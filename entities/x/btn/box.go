@@ -18,7 +18,7 @@ type Box struct {
 func NewBox(cid event.CID, x, y, w, h float64, r render.Renderable, layers ...int) *Box {
 	b := Box{}
 	cid = cid.Parse(&b)
-	b.Solid = *entities.NewSolid(x, y, w, h, r, mouse.DefTree, cid)
+	b.Solid = *entities.NewSolid(x, y, w, h, r, mouse.DefaultTree, cid)
 	if b.R != nil && len(layers) > 0 {
 		render.Draw(b.R, layers...)
 	}

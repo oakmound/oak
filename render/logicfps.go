@@ -25,13 +25,13 @@ func (lf *LogicFPS) Init() event.CID {
 }
 
 // NewLogicFPS returns a LogicFPS, which will render a counter of how fast it receives event.Enter events.
-// If font is not provided, DefFont is used. If smoothing is 0, a reasonable default is used.
+// If font is not provided, DefaultFont is used. If smoothing is 0, a reasonable default is used.
 func NewLogicFPS(smoothing float64, font *Font, x, y float64) *LogicFPS {
 	if smoothing == 0.0 {
 		smoothing = defaultFpsSmoothing
 	}
 	if font == nil {
-		font = DefFont().Copy()
+		font = DefaultFont().Copy()
 	}
 	lf := &LogicFPS{
 		Smoothing: smoothing,

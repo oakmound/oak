@@ -37,7 +37,7 @@ func Attach(v physics.Vector, s *Space, tree *Tree, offsets ...float64) error {
 		as.follow = v
 		as.tree = tree
 		if as.tree == nil {
-			as.tree = DefTree
+			as.tree = DefaultTree
 		}
 		s.CID.Bind(event.Enter, attachSpaceEnter)
 		if len(offsets) > 0 {

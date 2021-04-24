@@ -8,9 +8,9 @@ import (
 	"github.com/oakmound/oak/v2/timing"
 )
 
-// DefActiveChannel acts like GetActiveChannel when fed DefFont
-func DefActiveChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
-	return GetActiveChannel(DefFont, freq, fileNames...)
+// DefaultActiveChannel acts like GetActiveChannel when fed DefaultFont
+func DefaultActiveChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+	return GetActiveChannel(DefaultFont, freq, fileNames...)
 }
 
 // GetActiveChannel returns a channel that will block until its frequency
@@ -71,9 +71,9 @@ func getActiveChannel(f *font.Font, freq intrange.Range, quitCh chan struct{},
 	return soundCh, nil
 }
 
-// DefChannel acts like GetChannel when given DefFont
-func DefChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
-	return getChannel(DefFont, freq, timing.ClearDelayCh, fileNames...)
+// DefaultChannel acts like GetChannel when given DefaultFont
+func DefaultChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+	return getChannel(DefaultFont, freq, timing.ClearDelayCh, fileNames...)
 }
 
 // GetChannel channels will attempt to steal most sends sent to the output

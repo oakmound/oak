@@ -13,7 +13,7 @@ func TestAudioFuncs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	a := New(DefFont, kla.(Data))
+	a := New(DefaultFont, kla.(Data))
 	err = <-a.Play()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

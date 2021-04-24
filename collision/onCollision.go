@@ -36,7 +36,7 @@ func PhaseCollision(s *Space, tree *Tree) error {
 		oc.OnCollisionS = s
 		oc.tree = tree
 		if oc.tree == nil {
-			oc.tree = DefTree
+			oc.tree = DefaultTree
 		}
 		s.CID.Bind(event.Enter, phaseCollisionEnter)
 		return nil

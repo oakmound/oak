@@ -126,7 +126,7 @@ func main() {
 			return
 		}
 		render.Draw(bkg, 1)
-		fnt := render.DefFont()
+		fnt := render.DefaultFont()
 		fnt.Color = image.Black
 		fnt.Size = 22
 		fnt, _ = fnt.Generate()

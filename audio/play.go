@@ -17,7 +17,7 @@ func Play(f *font.Font, filename string) error {
 	return err
 }
 
-// DefPlay acts like play when given DefFont
-func DefPlay(filename string) error {
-	return Play(DefFont, filename)
+// DefaultPlay acts like play when given DefaultFont
+func DefaultPlay(filename string) error {
+	return Play(DefaultFont, filename)
 }

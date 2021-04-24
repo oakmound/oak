@@ -18,12 +18,12 @@ func TestPlayAndLoad(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected loading non-wav file to fail")
 	}
-	err = Play(DefFont, "test.wav")
+	err = Play(DefaultFont, "test.wav")
 	if err != nil {
 		t.Fatalf("failed to play test.wav (1)")
 	}
 	time.Sleep(1 * time.Second)
-	err = DefPlay("test.wav")
+	err = DefaultPlay("test.wav")
 	if err != nil {
 		t.Fatalf("failed to play test.wav (2)")
 	}
@@ -38,7 +38,7 @@ func TestPlayAndLoad(t *testing.T) {
 		t.Fatalf("expected getting badfile to fail")
 	}
 	Unload("test.wav")
-	err = Play(DefFont, "test.wav")
+	err = Play(DefaultFont, "test.wav")
 	if err == nil {
 		t.Fatalf("expected playing unloaded test.wav to fail")
 	}

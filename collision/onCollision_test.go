@@ -59,7 +59,7 @@ func TestCollisionPhase(t *testing.T) {
 		t.Fatalf("phase collision should have failed")
 	}
 
-	err = PhaseCollision(s, DefTree)
+	err = PhaseCollision(s, DefaultTree)
 	if err != nil {
 		t.Fatalf("phase collision failed: %v", err)
 	}

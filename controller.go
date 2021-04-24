@@ -209,8 +209,8 @@ func NewController() *Controller {
 	c.keyDurations = make(map[string]time.Time)
 	c.startupLoadCh = make(chan bool)
 	c.logicHandler = event.DefaultBus
-	c.MouseTree = mouse.DefTree
-	c.CollisionTree = collision.DefTree
+	c.MouseTree = mouse.DefaultTree
+	c.CollisionTree = collision.DefaultTree
 	c.CallerMap = event.DefaultCallerMap
 	c.DrawStack = render.GlobalDrawStack
 	c.InitialDrawStack = render.NewDrawStack(

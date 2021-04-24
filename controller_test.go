@@ -18,7 +18,7 @@ func TestMouseClicks(t *testing.T) {
 		triggered = true
 		return 0
 	})
-	mouse.DefTree.Add(sp)
+	mouse.DefaultTree.Add(sp)
 	c1.Propagate(mouse.PressOn, mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.PressOn))
 	c1.Propagate(mouse.ReleaseOn, mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.ReleaseOn))
 	time.Sleep(2 * time.Second)

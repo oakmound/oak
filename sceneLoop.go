@@ -12,7 +12,7 @@ import (
 	"github.com/oakmound/oak/v2/timing"
 )
 
-func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDisabled bool) {
+func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleEnabled bool) {
 	err := c.SceneMap.AddScene("loading", scene.Scene{
 		Start: func(*scene.Context) {
 			// TODO: language
@@ -177,7 +177,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleDi
 			result = new(scene.Result)
 		}
 
-		if !debugConsoleDisabled && !c.debugResetInProgress {
+		if debugConsoleEnabled && !c.debugResetInProgress {
 			c.debugResetInProgress = true
 			go func() {
 				c.debugResetCh <- struct{}{}

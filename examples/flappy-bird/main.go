@@ -47,7 +47,7 @@ func main() {
 		go timing.DoAfter(time.Duration(pillarFreq.Poll()*float64(time.Second)), pillarLoop)
 
 		// 3. Make Score
-		t := render.DefFont().NewIntText(&score, 200, 30)
+		t := render.DefaultFont().NewIntText(&score, 200, 30)
 		render.Draw(t, 0)
 	}, Loop: func() bool {
 		if playerHitPillar {

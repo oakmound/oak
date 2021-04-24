@@ -17,7 +17,7 @@ var (
 		// there isn't a reasonable default.
 		// Consider: Cast() could take in distance as well.
 		CastDistance: 200,
-		Tree:         collision.DefTree,
+		Tree:         collision.DefaultTree,
 	}
 )
 
@@ -49,7 +49,7 @@ type CastOption func(*Caster)
 func NewCaster(opts ...CastOption) *Caster {
 	c := DefaultCaster.Copy()
 	if c.Tree == nil {
-		c.Tree = collision.DefTree
+		c.Tree = collision.DefaultTree
 	}
 	for _, opt := range opts {
 		opt(c)

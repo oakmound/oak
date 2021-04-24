@@ -27,14 +27,14 @@ type DrawFPS struct {
 }
 
 // NewDrawFPS returns a DrawFPS, which will render a counter of how fast it is being drawn.
-// If font is not provided, DefFont is used. If smoothing is 0, a reasonable
+// If font is not provided, DefaultFont is used. If smoothing is 0, a reasonable
 // default will be used.
 func NewDrawFPS(smoothing float64, font *Font, x, y float64) *DrawFPS {
 	if smoothing == 0.0 {
 		smoothing = defaultFpsSmoothing
 	}
 	if font == nil {
-		font = DefFont().Copy()
+		font = DefaultFont().Copy()
 	}
 	df := &DrawFPS{
 		Smoothing: smoothing,

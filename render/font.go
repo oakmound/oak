@@ -42,8 +42,8 @@ type FontGenerator struct {
 	DPI     float64
 }
 
-// DefFont returns a font built of the parameters set by SetFontDefaults.
-func DefFont() *Font {
+// DefaultFont returns a font built of the parameters set by SetFontDefaults.
+func DefaultFont() *Font {
 	fnt, _ := DefFontGenerator.Generate()
 	return fnt
 }

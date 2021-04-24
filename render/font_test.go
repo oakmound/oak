@@ -8,7 +8,7 @@ import (
 func TestFont_UnsafeCopy(t *testing.T) {
 	// Still thinking about if this behavior is correct
 	initTestFont()
-	f := DefFont()
+	f := DefaultFont()
 	f.Unsafe = true
 	f2 := f.Copy()
 	if f2 != f {
