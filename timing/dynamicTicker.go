@@ -12,7 +12,7 @@ import (
 type DynamicTicker struct {
 	ticker    *time.Ticker
 	C         chan time.Time
-	resetCh   chan *time.Ticker
+	resetCh   chan time.Duration
 	forceTick chan bool
 }
 
@@ -22,7 +22,7 @@ func NewDynamicTicker() *DynamicTicker {
 	dt := &DynamicTicker{
 		ticker:    time.NewTicker(1000 * time.Hour),
 		C:         make(chan time.Time),
-		resetCh:   make(chan *time.Ticker),
+		resetCh:   make(chan time.Duration),
 		forceTick: make(chan bool),
 	}
 	go func() {
@@ -34,13 +34,13 @@ func NewDynamicTicker() *DynamicTicker {
 
 func (dt *DynamicTicker) loop() bool {
 	select {
-	case v := <-dt.ticker.C:
-		return dt.send(v)
-	case ticker := <-dt.resetCh:
+	case at := <-dt.ticker.C:
+		return dt.send(at)
+	case tickDuration := <-dt.resetCh:
 		dt.ticker.Stop()
-		dt.ticker = ticker
-	case r := <-dt.forceTick:
-		if r == forceStop {
+		dt.ticker = time.NewTicker(tickDuration)
+	case code := <-dt.forceTick:
+		if code == forceStop {
 			dt.close()
 			return false
 		}
@@ -58,9 +58,9 @@ func (dt *DynamicTicker) send(v time.Time) bool {
 				return false
 			}
 			continue
-		case ticker := <-dt.resetCh:
+		case tickDuration := <-dt.resetCh:
 			dt.ticker.Stop()
-			dt.ticker = ticker
+			dt.ticker = time.NewTicker(tickDuration)
 			return true
 		case dt.C <- v:
 			return true
@@ -70,8 +70,8 @@ func (dt *DynamicTicker) send(v time.Time) bool {
 
 // SetTick changes the rate at which a dynamic ticker
 // ticks
-func (dt *DynamicTicker) SetTick(d time.Duration) {
-	dt.resetCh <- time.NewTicker(d)
+func (dt *DynamicTicker) SetTick(tickDuration time.Duration) {
+	dt.resetCh <- tickDuration
 }
 
 func (dt *DynamicTicker) close() {
