@@ -3,6 +3,7 @@ package oak
 import (
 	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/key"
 )
 
 // SetScreen sends a signal to the draw loop to set the viewport to be at x,y
@@ -94,16 +95,16 @@ func (c *Controller) moveViewportBinding(speed int) func(event.CID, interface{})
 	return func(cID event.CID, n interface{}) int {
 		dX := 0
 		dY := 0
-		if c.IsDown("UpArrow") {
+		if c.IsDown(key.UpArrow) {
 			dY--
 		}
-		if c.IsDown("DownArrow") {
+		if c.IsDown(key.DownArrow) {
 			dY++
 		}
-		if c.IsDown("LeftArrow") {
+		if c.IsDown(key.LeftArrow) {
 			dX--
 		}
-		if c.IsDown("RightArrow") {
+		if c.IsDown(key.RightArrow) {
 			dX++
 		}
 		c.ViewPos[0] += dX * speed
