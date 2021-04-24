@@ -76,11 +76,11 @@ func (c *Controller) Init(firstScene string) {
 
 	// TODO: languages
 	dlog.Info("Init Scene Loop")
-	go c.sceneLoop(firstScene, conf.TrackInputChanges, conf.DisableDebugConsole)
+	go c.sceneLoop(firstScene, conf.TrackInputChanges, conf.EnableDebugConsole)
 	dlog.Info("Init asset load")
 	render.SetAssetPaths(imageDir)
 	go c.loadAssets(imageDir, audioDir)
-	if !conf.DisableDebugConsole {
+	if conf.EnableDebugConsole {
 		dlog.Info("Init Console")
 		go c.debugConsole(c.debugResetCh, os.Stdin)
 	}
