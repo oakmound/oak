@@ -4,6 +4,7 @@ import (
 	"image"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/colornames"
@@ -119,6 +120,7 @@ type Font struct {
 	ttfnt  *truetype.Font
 	bounds intgeom.Rect2
 	Unsafe bool
+	mutex  sync.Mutex
 }
 
 // Copy returns a copy of this font
@@ -128,12 +130,25 @@ func (f *Font) Copy() *Font {
 	}
 	f2 := &Font{}
 	*f2 = *f
+	f2.mutex = sync.Mutex{}
 	f2.Drawer.Face = truetype.NewFace(f.ttfnt, &truetype.Options{
 		Size:    f.FontGenerator.Size,
 		DPI:     f.FontGenerator.DPI,
 		Hinting: parseFontHinting(f.FontGenerator.Hinting),
 	})
 	return f2
+}
+
+func (f *Font) MeasureString(s string) fixed.Int26_6 {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+	return f.Drawer.MeasureString(s)
+}
+
+func (f *Font) DrawString(s string) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+	f.Drawer.DrawString(s)
 }
 
 // SetFontDefaults updates the default font parameters with the passed in arguments
