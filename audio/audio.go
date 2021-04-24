@@ -1,11 +1,11 @@
 package audio
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/200sc/klangsynthese/audio"
 	"github.com/200sc/klangsynthese/font"
+	"github.com/oakmound/oak/v2/oakerr"
 )
 
 // Audio is a struct of some audio data and the variables
@@ -70,7 +70,7 @@ func errChannel(err error) <-chan error {
 // Stop stops an audio's playback
 func (a *Audio) Stop() error {
 	if a == nil || a.toStop == nil {
-		return errors.New("nil audio stopped")
+		return oakerr.NilInput{InputName: "Audio"}
 	}
 	return a.toStop.Stop()
 }
