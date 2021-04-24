@@ -167,7 +167,7 @@ func (j *Joystick) getState() (*State, error) {
 }
 
 func (j *Joystick) vibrate(left, right uint16) error {
-	return errors.New("Vibration not supported")
+	return oakerr.UnsupportedPlatform{Operation:"joystick-vibrate"}
 }
 
 func (j *Joystick) close() error {
