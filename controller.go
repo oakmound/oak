@@ -287,8 +287,10 @@ func (c *Controller) GetBackgroundColor() image.Image {
 	return c.BackgroundColor
 }
 
-func (c *Controller) SetBackgroundColor(img image.Image) {
-	c.BackgroundColor = img
+// SetLogicHandler swaps the logic system of the engine with some other
+// implementation. If this is never called, it will use event.DefaultBus
+func (c *Controller) SetLogicHandler(h event.Handler) {
+	c.logicHandler = h
 }
 
 func (c *Controller) NextScene() {
