@@ -49,6 +49,10 @@ func NewStaticHeap() *RenderableHeap {
 	return newHeap(true)
 }
 
+func (rh *RenderableHeap) Clear() {
+	*rh = *newHeap(rh.static)
+}
+
 //Add stages a new Renderable to add to the heap
 func (rh *RenderableHeap) Add(r Renderable, layers ...int) Renderable {
 	if len(layers) > 0 {

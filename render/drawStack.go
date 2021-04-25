@@ -10,9 +10,8 @@ import (
 )
 
 var (
-	// GlobalDrawStack is the stack that all draw calls are parsed through.
-	GlobalDrawStack  = NewDrawStack(NewDynamicHeap())
-	initialDrawStack = GlobalDrawStack
+	// GlobalDrawStack is the stack that all draw calls are sent through.
+	GlobalDrawStack = NewDrawStack(NewDynamicHeap())
 )
 
 //The DrawStack is a stack with a safe adding mechanism that creates isolation between draw steps via predraw
@@ -29,6 +28,7 @@ type Stackable interface {
 	Replace(Renderable, Renderable, int)
 	Copy() Stackable
 	DrawToScreen(draw.Image, intgeom.Point2, int, int)
+	Clear()
 }
 
 func NewDrawStack(stack ...Stackable) *DrawStack {
@@ -42,12 +42,12 @@ func NewDrawStack(stack ...Stackable) *DrawStack {
 // all elements on the existing draw stack will be lost.
 func SetDrawStack(stackLayers ...Stackable) {
 	GlobalDrawStack = NewDrawStack(stackLayers...)
-	initialDrawStack = GlobalDrawStack.Copy()
 }
 
-//ResetDrawStack resets the Global stack back to the initial stack
-func ResetDrawStack() {
-	GlobalDrawStack = initialDrawStack.Copy()
+func (ds *DrawStack) Clear() {
+	for _, stackable := range ds.as {
+		stackable.Clear()
+	}
 }
 
 // DrawToScreen on a stack will render its contents to the input buffer, for a screen

@@ -35,7 +35,7 @@ func TestDrawStack_Draw(t *testing.T) {
 	}
 	cb := NewColorBox(10, 10, color.RGBA{0, 0, 255, 255})
 	Draw(cb)
-	ResetDrawStack()
+	GlobalDrawStack.Clear()
 	SetDrawStack(
 		NewDynamicHeap(),
 		NewStaticHeap(),

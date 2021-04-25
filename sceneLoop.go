@@ -158,12 +158,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleEn
 		} else {
 			c.CallerMap = event.NewCallerMap()
 		}
-		if c.DrawStack == render.GlobalDrawStack {
-			render.ResetDrawStack()
-			c.DrawStack = render.GlobalDrawStack
-		} else {
-			c.DrawStack = c.InitialDrawStack.Copy()
-		}
+		c.DrawStack.Clear()
 		c.DrawStack.PreDraw()
 		dlog.Verb("Engine Reset")
 

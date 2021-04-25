@@ -27,3 +27,5 @@ func (ns NoopStackable) Copy() Stackable {
 }
 
 func (ns NoopStackable) DrawToScreen(draw.Image, intgeom.Point2, int, int) {}
+
+func (ns NoopStackable) Clear() {}

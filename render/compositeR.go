@@ -166,3 +166,7 @@ func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos intgeom.Point2, scr
 	}
 	cs.rs = cs.rs[0:realLength]
 }
+
+func (cs *CompositeR) Clear() {
+	*cs = *NewCompositeR()
+}
