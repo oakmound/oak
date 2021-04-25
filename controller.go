@@ -31,6 +31,8 @@ func (c *Controller) windowController(s screen.Screen, x, y int32, width, height
 }
 
 type Controller struct {
+	key.State
+
 	// TODO: most of these channels are not closed cleanly
 	transitionCh chan struct{}
 
