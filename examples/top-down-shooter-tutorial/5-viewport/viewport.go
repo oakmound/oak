@@ -170,11 +170,10 @@ func main() {
 		return playerAlive
 	}})
 
-	// This indicates to oak to automatically open and load image and audio
-	// files local to the project before starting any scene.
-	oak.SetupConfig.BatchLoad = true
-
-	oak.Init("tds")
+	oak.Init("tds", func(c oak.Config) (oak.Config, error) {
+		c.BatchLoad = true
+		return c, nil
+	})
 }
 
 const (

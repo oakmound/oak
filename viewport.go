@@ -6,48 +6,36 @@ import (
 	"github.com/oakmound/oak/v2/key"
 )
 
-// SetScreen sends a signal to the draw loop to set the viewport to be at x,y
+// SetScreen positions the viewport to be at x,y
 func (c *Controller) SetScreen(x, y int) {
-	c.viewportCh <- intgeom.Point2{x, y}
+	c.setViewport(intgeom.Point2{x, y})
 }
 
-// ShiftScreen sends a signal to the draw loop to shift the viewport by x,y
+// ShiftScreen shifts the viewport by x,y
 func (c *Controller) ShiftScreen(x, y int) {
-	c.viewportShiftCh <- intgeom.Point2{x, y}
+	c.setViewport(c.viewPos.Add(intgeom.Point2{x, y}))
 }
 
-func (c *Controller) updateScreen(pt intgeom.Point2) {
-	c.viewPosMutex.Lock()
-	c.setViewport(pt)
-	c.viewPosMutex.Unlock()
-}
-
-func (c *Controller) shiftViewPort(pt intgeom.Point2) {
-	c.viewPosMutex.Lock()
-	pt = pt.Add(c.ViewPos)
-	c.setViewport(pt)
-	c.viewPosMutex.Unlock()
-}
 func (c *Controller) setViewport(pt intgeom.Point2) {
 	if c.useViewBounds {
 		if c.viewBounds.Min.X() <= pt.X() && c.viewBounds.Max.X() >= pt.X()+c.ScreenWidth {
-			c.ViewPos[0] = pt.X()
+			c.viewPos[0] = pt.X()
 		} else if c.viewBounds.Min.X() > pt.X() {
-			c.ViewPos[0] = c.viewBounds.Min.X()
+			c.viewPos[0] = c.viewBounds.Min.X()
 		} else if c.viewBounds.Max.X() < pt.X()+c.ScreenWidth {
-			c.ViewPos[0] = c.viewBounds.Max.X() - c.ScreenWidth
+			c.viewPos[0] = c.viewBounds.Max.X() - c.ScreenWidth
 		}
 		if c.viewBounds.Min.Y() <= pt.Y() && c.viewBounds.Max.Y() >= pt.Y()+c.ScreenHeight {
-			c.ViewPos[1] = pt.Y()
+			c.viewPos[1] = pt.Y()
 		} else if c.viewBounds.Min.Y() > pt.Y() {
-			c.ViewPos[1] = c.viewBounds.Min.Y()
+			c.viewPos[1] = c.viewBounds.Min.Y()
 		} else if c.viewBounds.Max.Y() < pt.Y()+c.ScreenHeight {
-			c.ViewPos[1] = c.viewBounds.Max.Y() - c.ScreenHeight
+			c.viewPos[1] = c.viewBounds.Max.Y() - c.ScreenHeight
 		}
 	} else {
-		c.ViewPos = pt
+		c.viewPos = pt
 	}
-	c.logicHandler.Trigger(event.ViewportUpdate, c.ViewPos)
+	c.logicHandler.Trigger(event.ViewportUpdate, c.viewPos)
 }
 
 // GetViewportBounds reports what bounds the viewport has been set to, if any.
@@ -56,7 +44,7 @@ func (c *Controller) GetViewportBounds() (rect intgeom.Rect2, ok bool) {
 }
 
 // RemoveViewportBounds removes restrictions on the viewport's movement. It will not
-// cause ViewPos to update immediately.
+// cause the viewport to update immediately.
 func (c *Controller) RemoveViewportBounds() {
 	c.useViewBounds = false
 }
@@ -73,8 +61,8 @@ func (c *Controller) SetViewportBounds(rect intgeom.Rect2) {
 	c.useViewBounds = true
 	c.viewBounds = rect
 
-	newViewX := c.ViewPos.X()
-	newViewY := c.ViewPos.Y()
+	newViewX := c.viewPos.X()
+	newViewY := c.viewPos.Y()
 	if newViewX < rect.Min[0] {
 		newViewX = rect.Min[0]
 	} else if newViewX > rect.Max[0] {
@@ -86,8 +74,8 @@ func (c *Controller) SetViewportBounds(rect intgeom.Rect2) {
 		newViewY = rect.Max[1]
 	}
 
-	if newViewX != c.ViewPos.X() || newViewY != c.ViewPos.Y() {
-		c.viewportCh <- intgeom.Point2{newViewX, newViewY}
+	if newViewX != c.viewPos.X() || newViewY != c.viewPos.Y() {
+		c.setViewport(intgeom.Point2{newViewX, newViewY})
 	}
 }
 
@@ -107,11 +95,8 @@ func (c *Controller) moveViewportBinding(speed int) func(event.CID, interface{})
 		if c.IsDown(key.RightArrow) {
 			dX++
 		}
-		c.ViewPos[0] += dX * speed
-		c.ViewPos[1] += dY * speed
-		if c.viewportLocked {
-			return event.UnbindSingle
-		}
+		c.viewPos[0] += dX * speed
+		c.viewPos[1] += dY * speed
 		return 0
 	}
 }

@@ -32,8 +32,10 @@ func main() {
 			render.Draw(render.DefaultFont().NewIntText(&score2, 200, 20), 3)
 			render.Draw(render.DefaultFont().NewIntText(&score1, 400, 20), 3)
 		}})
-	oak.SetupConfig.DrawFrameRate = 120
-	oak.Init("pong")
+	oak.Init("pong", func(c oak.Config) (oak.Config, error) {
+		c.DrawFrameRate = 120
+		return c, nil
+	})
 }
 
 func newBall(x, y float64) {

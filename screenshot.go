@@ -17,8 +17,7 @@ func (c *Controller) ScreenShot() *image.RGBA {
 	shotCh := make(chan *image.RGBA)
 	// We need to take the shot when the screen is not being redrawn
 	// We know the screen has everything drawn on it when it is published
-	oldPublish := c.drawLoopPublish
-	c.drawLoopPublish = func(c *Controller, tx screen.Texture) {
+	c.prePublish = func(c *Controller, tx screen.Texture) {
 		// Copy the buffer
 		rgba := c.winBuffer.RGBA()
 		bds := rgba.Bounds()
@@ -29,10 +28,9 @@ func (c *Controller) ScreenShot() *image.RGBA {
 			}
 		}
 		shotCh <- copy
-		oldPublish(c, tx)
 	}
 	out := <-shotCh
-	c.drawLoopPublish = oldPublish
+	c.ClearScreenFilter()
 	return out
 }
 
@@ -41,18 +39,16 @@ func (c *Controller) gifShot() *image.Paletted {
 	shotCh := make(chan *image.Paletted)
 	// We need to take the shot when the screen is not being redrawn
 	// We know the screen has everything drawn on it when it is published
-	oldPublish := c.drawLoopPublish
-	c.drawLoopPublish = func(c *Controller, tx screen.Texture) {
+	c.prePublish = func(c *Controller, tx screen.Texture) {
 		// Copy the buffer
 		rgba := c.winBuffer.RGBA()
 		bds := rgba.Bounds()
 		copy := image.NewPaletted(bds, palette.Plan9)
 		draw.Draw(copy, bds, rgba, zeroPoint, draw.Src)
 		shotCh <- copy
-		oldPublish(c, tx)
 	}
 	out := <-shotCh
-	c.drawLoopPublish = oldPublish
+	c.ClearScreenFilter()
 	return out
 }
 

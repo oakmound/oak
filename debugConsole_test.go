@@ -18,7 +18,7 @@ func (e ent) Init() event.CID {
 
 func TestDebugConsole(t *testing.T) {
 	c1 := NewController()
-	conf.LoadBuiltinCommands = true
+	c1.config.LoadBuiltinCommands = true
 	triggered := false
 	err := c1.AddCommand("test", func([]string) {
 		triggered = true
@@ -31,15 +31,9 @@ func TestDebugConsole(t *testing.T) {
 
 	event.NextID(ent{})
 
-	rCh := make(chan struct{})
 	r := bytes.NewBufferString(
 		"test\n" +
 			"nothing\n" +
-			"viewport unlock\n" +
-			"viewport unlock\n" +
-			"viewport lock\n" +
-			"viewport lock\n" +
-			"viewport nothing\n" +
 			"fade nothing\n" +
 			"fade nothing 100\n" +
 			"fade r\n" +
@@ -52,8 +46,7 @@ func TestDebugConsole(t *testing.T) {
 			"garbage input\n" +
 			"\n" +
 			"skip scene\n")
-	go c1.debugConsole(rCh, r)
-	rCh <- struct{}{}
+	go c1.debugConsole(r)
 	sleep()
 	sleep()
 	if !triggered {

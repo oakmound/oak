@@ -12,16 +12,11 @@ import (
 )
 
 func main() {
-	// TODO: SetupConfig needs to be overhauled
-	oak.SetupConfig.Debug.Level = "VERBOSE"
-	oak.SetupConfig.DrawFrameRate = 1200
-	oak.SetupConfig.FrameRate = 60
 	c1 := oak.NewController()
-	c1.InitialDrawStack = render.NewDrawStack(render.NewDynamicHeap())
+	c1.DrawStack = render.NewDrawStack(render.NewDynamicHeap())
 
 	// Two windows cannot share the same logic handler
-	b1 := event.NewBus()
-	c1.SetLogicHandler(b1)
+	c1.SetLogicHandler(event.NewBus())
 	c1.FirstSceneInput = color.RGBA{255, 0, 0, 255}
 	c1.AddScene("scene1", scene.Scene{
 		Start: func(ctx *scene.Context) {
@@ -38,14 +33,18 @@ func main() {
 		},
 	})
 	go func() {
-		c1.Init("scene1")
+		c1.Init("scene1", func(c oak.Config) (oak.Config, error) {
+			c.Debug.Level = "VERBOSE"
+			c.DrawFrameRate = 1200
+			c.FrameRate = 60
+			return c, nil
+		})
 		fmt.Println("scene 1 exited")
 	}()
 
 	c2 := oak.NewController()
-	c2.InitialDrawStack = render.NewDrawStack(render.NewDynamicHeap())
-	b2 := event.NewBus()
-	c2.SetLogicHandler(b2)
+	c2.DrawStack = render.NewDrawStack(render.NewDynamicHeap())
+	c2.SetLogicHandler(event.NewBus())
 	c2.FirstSceneInput = color.RGBA{0, 255, 0, 255}
 	c2.AddScene("scene2", scene.Scene{
 		Start: func(ctx *scene.Context) {
@@ -61,7 +60,12 @@ func main() {
 			}))
 		},
 	})
-	c2.Init("scene2")
+	c2.Init("scene2", func(c oak.Config) (oak.Config, error) {
+		c.Debug.Level = "VERBOSE"
+		c.DrawFrameRate = 1200
+		c.FrameRate = 60
+		return c, nil
+	})
 	fmt.Println("scene 2 exited")
 
 	//oak.Init() => oak.NewController(render.GlobalDrawStack, dlog.DefaultLogger ...).Init()

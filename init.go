@@ -1,13 +1,16 @@
 package oak
 
 import (
+	"fmt"
 	"image"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/oakerr"
 	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/timing"
 	"github.com/oakmound/shiny/driver"
 )
 
@@ -18,72 +21,79 @@ var (
 // Init initializes the oak engine.
 // It spawns off an event loop of several goroutines
 // and loops through scenes after initialization.
-func (c *Controller) Init(firstScene string) {
+func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) error {
+
+	var err error
+	c.config, err = NewConfig(configOptions...)
+	if err != nil {
+		return fmt.Errorf("failed to create config: %w", err)
+	}
+
 	dlog.SetLogger(dlog.NewLogger())
 	dlog.CreateLogFile()
 
-	initConf()
-
-	if conf.Screen.TargetWidth != 0 && conf.Screen.TargetHeight != 0 {
+	if c.config.Screen.TargetWidth != 0 && c.config.Screen.TargetHeight != 0 {
 		w, h := driver.MonitorSize()
 		if w != 0 || h != 0 {
 			// Todo: Modify conf.Screen.Scale
 		}
 	}
 
-	// Set variables from conf file
-	lvl, err := dlog.ParseDebugLevel(conf.Debug.Level)
+	lvl, err := dlog.ParseDebugLevel(c.config.Debug.Level)
+	if err != nil {
+		return fmt.Errorf("failed to parse debug config: %w", err)
+	}
 	dlog.SetDebugLevel(lvl)
 	// We are intentionally using the lvl value before checking error,
 	// because we can only log errors through dlog itself anyway
-
-	// We do this knowing that the default debug level when SetDebugLevel fails
-	// is ERROR, so this will be recorded.
-	dlog.ErrorCheck(err)
-	dlog.SetDebugFilter(conf.Debug.Filter)
-	oakerr.SetLanguageString(conf.Language)
+	dlog.SetDebugFilter(c.config.Debug.Filter)
+	oakerr.SetLanguageString(c.config.Language)
 
 	// TODO: languages
 	dlog.Info("Oak Init Start")
 
-	c.ScreenWidth = conf.Screen.Width
-	c.ScreenHeight = conf.Screen.Height
-	c.FrameRate = conf.FrameRate
-	c.DrawFrameRate = conf.DrawFrameRate
+	c.ScreenWidth = c.config.Screen.Width
+	c.ScreenHeight = c.config.Screen.Height
+	c.FrameRate = c.config.FrameRate
+	c.DrawFrameRate = c.config.DrawFrameRate
+
+	c.DrawTicker = timing.NewDynamicTicker()
+	c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
 
 	wd, _ := os.Getwd()
 
-	render.SetFontDefaults(wd, conf.Assets.AssetPath, conf.Assets.FontPath,
-		conf.Font.Hinting, conf.Font.Color, conf.Font.File, conf.Font.Size,
-		conf.Font.DPI)
+	render.SetFontDefaults(wd, c.config.Assets.AssetPath, c.config.Assets.FontPath,
+		c.config.Font.Hinting, c.config.Font.Color, c.config.Font.File, c.config.Font.Size,
+		c.config.Font.DPI)
 
-	if conf.TrackInputChanges {
+	if c.config.TrackInputChanges {
 		trackJoystickChanges()
 	}
-	if conf.EventRefreshRate != 0 {
-		c.logicHandler.SetRefreshRate(conf.EventRefreshRate)
+	if c.config.EventRefreshRate != 0 {
+		c.logicHandler.SetRefreshRate(time.Duration(c.config.EventRefreshRate))
 	}
 	// END of loading variables from configuration
 
 	seedRNG()
 
 	imageDir := filepath.Join(wd,
-		conf.Assets.AssetPath,
-		conf.Assets.ImagePath)
+		c.config.Assets.AssetPath,
+		c.config.Assets.ImagePath)
 	audioDir := filepath.Join(wd,
-		conf.Assets.AssetPath,
-		conf.Assets.AudioPath)
+		c.config.Assets.AssetPath,
+		c.config.Assets.AudioPath)
 
 	// TODO: languages
 	dlog.Info("Init Scene Loop")
-	go c.sceneLoop(firstScene, conf.TrackInputChanges, conf.EnableDebugConsole)
+	go c.sceneLoop(firstScene, c.config.TrackInputChanges)
 	dlog.Info("Init asset load")
 	render.SetAssetPaths(imageDir)
 	go c.loadAssets(imageDir, audioDir)
-	if conf.EnableDebugConsole {
+	if c.config.EnableDebugConsole {
 		dlog.Info("Init Console")
-		go c.debugConsole(c.debugResetCh, os.Stdin)
+		go c.debugConsole(os.Stdin)
 	}
 	dlog.Info("Init Main Driver")
 	c.Driver(c.lifecycleLoop)
+	return nil
 }

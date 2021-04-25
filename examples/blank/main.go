@@ -6,7 +6,6 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/scene"
 )
@@ -21,6 +20,5 @@ func main() {
 			ctx.DrawStack.Draw(render.NewLogicFPS(0, nil, 10, 20))
 		},
 	})
-	oak.SetupConfig.Debug.Level = dlog.INFO.String()
 	oak.Init("blank")
 }

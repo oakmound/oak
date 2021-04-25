@@ -216,7 +216,9 @@ func main() {
 			}
 		}()
 	}})
-	oak.SetupConfig.Assets.ImagePath = "."
-	oak.SetupConfig.Assets.AssetPath = "."
-	oak.Init("viz")
+	oak.Init("viz", func(c oak.Config) (oak.Config, error) {
+		c.Assets.ImagePath = "."
+		c.Assets.AssetPath = "."
+		return c, nil
+	})
 }

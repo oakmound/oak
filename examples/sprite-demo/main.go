@@ -61,10 +61,6 @@ func main() {
 		render.NewCompositeR(),
 	)
 
-	oak.SetupConfig.Screen.X = 1
-	oak.SetupConfig.Screen.Y = 1
-	oak.SetupConfig.LoadBuiltinCommands = true
-
 	oak.Init("demo")
 }
 

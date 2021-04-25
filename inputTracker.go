@@ -23,6 +23,7 @@ const (
 var (
 	// MostRecentInput tracks what input type was most recently detected.
 	// This is only updated if TrackInputChanges is true in the config at startup
+	// TODO: scope this to controllers
 	MostRecentInput InputType
 )
 

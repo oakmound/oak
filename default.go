@@ -12,10 +12,10 @@ import (
 
 var defaultController = NewController()
 
-func Init(scene string) {
+func Init(scene string, configOptions ...ConfigOption) {
 	defaultController.DrawStack = render.GlobalDrawStack
 	defaultController.logicHandler = event.DefaultBus
-	defaultController.Init(scene)
+	defaultController.Init(scene, configOptions...)
 }
 
 func AddCommand(command string, fn func([]string)) error {
@@ -70,12 +70,16 @@ func SetLoadingRenderable(r render.Renderable) {
 	defaultController.SetLoadingRenderable(r)
 }
 
-func GetBackgroundColor() image.Image {
-	return defaultController.GetBackgroundColor()
+func SetBackground(b Background) {
+	defaultController.SetBackground(b)
 }
 
-func SetBackgroundColor(img image.Image) {
-	defaultController.SetBackgroundColor(img)
+func SetColorBackground(img image.Image) {
+	defaultController.SetColorBackground(img)
+}
+
+func GetBackgroundImage() image.Image {
+	return defaultController.GetBackgroundImage()
 }
 
 func Width() int {

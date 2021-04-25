@@ -15,31 +15,29 @@ func (c *Controller) lifecycleLoop(s screen.Screen) {
 	dlog.Info("Init Lifecycle")
 
 	c.screenControl = s
-	var err error
-
-	// The window buffer represents the subsection of the world which is available to
-	// be shown in a window. 
 	dlog.Info("Creating window buffer")
-	c.winBuffer, err = c.screenControl.NewImage(image.Point{c.ScreenWidth, c.ScreenHeight})
+	err := c.UpdateViewSize(c.ScreenWidth, c.ScreenHeight)
 	if err != nil {
 		dlog.Error(err)
 		return
 	}
 
-	// Next time:
 	// Right here, query the backing scale factor of the physical screen
 	// Apply that factor to the scale
 
 	dlog.Info("Creating window controller")
-	c.newWindow(int32(conf.Screen.X), int32(conf.Screen.Y), c.ScreenWidth*conf.Screen.Scale, c.ScreenHeight*conf.Screen.Scale)
+	c.newWindow(
+		int32(c.config.Screen.X),
+		int32(c.config.Screen.Y),
+		c.ScreenWidth*c.config.Screen.Scale,
+		c.ScreenHeight*c.config.Screen.Scale,
+	)
 
 	dlog.Info("Starting draw loop")
 	go c.drawLoop()
 	dlog.Info("Starting input loop")
 	go c.inputLoop()
 
-	// The quit channel represents a signal
-	// for the engine to stop.
 	<-c.quitCh
 }
 
@@ -98,13 +96,18 @@ func (c *Controller) ChangeWindow(width, height int) {
 }
 
 func (c *Controller) UpdateViewSize(width, height int) error {
-	c.windowUpdateCh <- struct{}{}
 	var err error
-	c.ScreenWidth = width 
+	c.ScreenWidth = width
 	c.ScreenHeight = height
 	c.winBuffer, err = c.screenControl.NewImage(image.Point{width, height})
-	c.windowUpdateCh <- struct{}{}
-	return err
+	if err != nil {
+		return err
+	}
+	c.windowTexture, err = c.screenControl.NewTexture(c.winBuffer.Bounds().Max)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetScreen returns the current screen as an rgba buffer

@@ -103,19 +103,12 @@ func main() {
 		nextStart += setup.len
 	}
 
-	oak.SetupConfig.Screen = oak.Screen{
-		Width:  width,
-		Height: height,
-	}
-	oak.SetupConfig.FrameRate = 30
-	oak.SetupConfig.DrawFrameRate = 30
-
 	slides := make([]show.Slide, len(sslides))
 	for i, s := range sslides {
 		slides[i] = s
 	}
 	show.AddNumberShortcuts(len(slides))
-	show.Start(slides...)
+	show.Start(width, height, slides...)
 }
 
 type slideSetup struct {

@@ -2,15 +2,12 @@ package oak
 
 import (
 	"image"
-	"image/color"
-	"image/draw"
-	"sync"
 	"sync/atomic"
-	"time"
 
 	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/collision"
 	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/key"
 	"github.com/oakmound/oak/v2/mouse"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/scene"
@@ -22,11 +19,11 @@ import (
 func (c *Controller) windowController(s screen.Screen, x, y int32, width, height int) (screen.Window, error) {
 	return s.NewWindow(screen.NewWindowGenerator(
 		screen.Dimensions(width, height),
-		screen.Title(conf.Title),
+		screen.Title(c.config.Title),
 		screen.Position(x, y),
-		screen.Fullscreen(SetupFullscreen),
-		screen.Borderless(SetupBorderless),
-		screen.TopMost(SetupTopMost),
+		screen.Fullscreen(c.config.Fullscreen),
+		screen.Borderless(c.config.Borderless),
+		screen.TopMost(c.config.TopMost),
 	))
 }
 
@@ -47,27 +44,12 @@ type Controller struct {
 	skipSceneCh chan struct{}
 
 	// The quit channel receives a signal when
-	// the program should stop.
+	// oak should stop active workers and return from Init.
 	quitCh chan struct{}
 
 	// The draw channel receives a signal when
 	// drawing should cease (or resume)
 	drawCh chan struct{}
-
-	// The debug reset channel represents
-	// when the debug console should forget the
-	// commands that have been sent to it.
-	debugResetCh chan struct{}
-
-	// The viewport channel controls when new
-	// viewport positions should be drawn
-	viewportCh chan intgeom.Point2
-
-	// The viewport shift channel controls when new
-	// viewport positions should be shifted to and drawn
-	viewportShiftCh chan intgeom.Point2
-
-	debugResetInProgress bool
 
 	// ScreenWidth is the width of the screen
 	ScreenWidth int
@@ -84,22 +66,16 @@ type Controller struct {
 	// the rate at which the screen is drawn.
 	DrawFrameRate int
 
+	// The window buffer represents the subsection of the world which is available to
+	// be shown in a window.
 	winBuffer     screen.Image
 	screenControl screen.Screen
 	windowControl screen.Window
 
-	windowRect     image.Rectangle
-	windowUpdateCh chan struct{}
+	windowRect image.Rectangle
 
-	// TODO V3: cleanup this interface
-	// BackgroundColor is the starting background color for the draw loop. BackgroundImage or SetBackground will overwrite it.
-	BackgroundColor image.Image
-	// BackgroundImage is the starting custom background for the draw loop. SetBackground will overwrite it.
-	BackgroundImage Background
 	// DrawTicker is the parallel to LogicTicker to set the draw framerate
 	DrawTicker *timing.DynamicTicker
-
-	setBackgroundCh chan Background
 
 	bkgFn func() image.Image
 
@@ -109,35 +85,18 @@ type Controller struct {
 	// during a scene or before the controller has started.
 	SceneMap *scene.Map
 
-	// ViewPos represents the point in the world which the viewport is anchored at.
-	ViewPos intgeom.Point2
-	// ViewPosMutex is used to grant extra saftey in viewpos operations
-	viewPosMutex  sync.Mutex
-	useViewBounds bool
-	viewBounds    intgeom.Rect2
+	// viewPos represents the point in the world which the viewport is anchored at.
+	viewPos    intgeom.Point2
+	viewBounds intgeom.Rect2
 
-	// ColorPalette is the current color palette oak is set to conform to. Modification of this
-	// value directly will not effect oak's palette, use SetPalette instead. If SetPallete is never called,
-	// this is the zero value ([]Color of length 0).
-	ColorPalette color.Palette
-
-	// UseAspectRatio determines whether new window changes will distort or
-	// maintain the relative width to height ratio of the screen buffer.
-	UseAspectRatio bool
-	aspectRatio    float64
+	aspectRatio float64
 
 	// Driver is the driver oak will call during initialization
 	Driver Driver
 
-	drawLoopPublishDef func(c *Controller, tx screen.Texture)
-	drawLoopPublish    func(c *Controller, tx screen.Texture)
+	// prePublish is a function called each draw frame prior to
+	prePublish func(c *Controller, tx screen.Texture)
 
-	keyState     map[string]bool
-	keyDurations map[string]time.Time
-	keyLock      sync.RWMutex
-	durationLock sync.RWMutex
-
-	startupLoadCh chan bool
 	// LoadingR is a renderable that is displayed during loading screens.
 	LoadingR render.Renderable
 
@@ -148,24 +107,17 @@ type Controller struct {
 	// as well, it will fall back to panicking.
 	ErrorScene string
 
-	logicHandler event.Handler
-	CallerMap    *event.CallerMap
-
+	logicHandler  event.Handler
+	CallerMap     *event.CallerMap
 	MouseTree     *collision.Tree
 	CollisionTree *collision.Tree
-	// TODO: separate initial configuration from controller
-	DrawStack        *render.DrawStack
-	InitialDrawStack *render.DrawStack
-
-	lastRelativePress mouse.Event
+	DrawStack     *render.DrawStack
 
 	// LastMouseEvent is the last triggered mouse event,
 	// tracked for continuous mouse responsiveness on events
 	// that don't take in a mouse event
-	LastMouseEvent mouse.Event
-
-	TrackMouseClicks bool
-
+	LastMouseEvent    mouse.Event
+	lastRelativePress mouse.Event
 	// LastPress is the last triggered mouse event,
 	// where the mouse event was a press.
 	// If TrackMouseClicks is set to false then this will not be tracked
@@ -173,10 +125,20 @@ type Controller struct {
 
 	FirstSceneInput interface{}
 
-	viewportLocked bool
-	commands       map[string]func([]string)
+	commands map[string]func([]string)
 
 	ControllerID int32
+
+	windowTexture screen.Texture
+
+	TrackMouseClicks bool
+	startupLoading   bool
+	useViewBounds    bool
+	// UseAspectRatio determines whether new window changes will distort or
+	// maintain the relative width to height ratio of the screen buffer.
+	UseAspectRatio bool
+
+	config Config
 }
 
 var (
@@ -184,42 +146,28 @@ var (
 )
 
 func NewController() *Controller {
-	c := &Controller{}
-	c.transitionCh = make(chan struct{})
-	c.sceneCh = make(chan struct{})
-	c.skipSceneCh = make(chan struct{})
-	c.quitCh = make(chan struct{})
-	c.drawCh = make(chan struct{})
-	c.debugResetCh = make(chan struct{})
-	c.viewportCh = make(chan intgeom.Point2)
-	c.viewportShiftCh = make(chan intgeom.Point2)
-	c.windowUpdateCh = make(chan struct{})
+	c := &Controller{
+		State:        key.NewState(),
+		transitionCh: make(chan struct{}),
+		sceneCh:      make(chan struct{}),
+		skipSceneCh:  make(chan struct{}),
+		quitCh:       make(chan struct{}),
+		drawCh:       make(chan struct{}),
+	}
+
 	c.SceneMap = scene.NewMap()
-	c.BackgroundColor = image.Black
-	c.setBackgroundCh = make(chan Background)
 	c.Driver = driver.Main
-	c.drawLoopPublishDef = func(c *Controller, tx screen.Texture) {
-		tx.Upload(zeroPoint, c.winBuffer, c.winBuffer.Bounds())
-		c.windowControl.Scale(c.windowRect, tx, tx.Bounds(), draw.Src)
-		c.windowControl.Publish()
-	}
-	c.drawLoopPublish = c.drawLoopPublishDef
+	c.prePublish = func(*Controller, screen.Texture) {}
 	c.bkgFn = func() image.Image {
-		return c.BackgroundColor
+		return image.Black
 	}
-	c.keyState = make(map[string]bool)
-	c.keyDurations = make(map[string]time.Time)
-	c.startupLoadCh = make(chan bool)
+	c.startupLoading = true
 	c.logicHandler = event.DefaultBus
 	c.MouseTree = mouse.DefaultTree
 	c.CollisionTree = collision.DefaultTree
 	c.CallerMap = event.DefaultCallerMap
 	c.DrawStack = render.GlobalDrawStack
-	c.InitialDrawStack = render.NewDrawStack(
-		render.NewDynamicHeap(),
-	)
 	c.TrackMouseClicks = true
-	c.viewportLocked = true
 	c.commands = make(map[string]func([]string))
 	c.ControllerID = atomic.AddInt32(nextControllerID, 1)
 	return c
@@ -276,15 +224,27 @@ func (c *Controller) Height() int {
 }
 
 func (c *Controller) Viewport() intgeom.Point2 {
-	return c.ViewPos
+	return c.viewPos
 }
 
 func (c *Controller) SetLoadingRenderable(r render.Renderable) {
 	c.LoadingR = r
 }
 
-func (c *Controller) GetBackgroundColor() image.Image {
-	return c.BackgroundColor
+func (c *Controller) SetBackground(b Background) {
+	c.bkgFn = func() image.Image {
+		return b.GetRGBA()
+	}
+}
+
+func (c *Controller) SetColorBackground(img image.Image) {
+	c.bkgFn = func() image.Image {
+		return img
+	}
+}
+
+func (c *Controller) GetBackgroundImage() image.Image {
+	return c.bkgFn()
 }
 
 // SetLogicHandler swaps the logic system of the engine with some other

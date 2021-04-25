@@ -3,17 +3,10 @@ package oak
 import (
 	"image"
 	"image/draw"
-
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/timing"
 )
 
 type Background interface {
 	GetRGBA() *image.RGBA
-}
-
-func (c *Controller) SetBackground(b Background) {
-	c.setBackgroundCh <- b
 }
 
 // DrawLoop
@@ -25,71 +18,38 @@ func (c *Controller) SetBackground(b Background) {
 func (c *Controller) drawLoop() {
 	<-c.drawCh
 
-	tx, err := c.screenControl.NewTexture(c.winBuffer.Bounds().Max)
-	if err != nil {
-		panic(err)
-	}
-
-	if c.BackgroundImage != nil {
-		c.bkgFn = func() image.Image {
-			return c.BackgroundImage.GetRGBA()
-		}
-	}
-
 	draw.Draw(c.winBuffer.RGBA(), c.winBuffer.Bounds(), c.bkgFn(), zeroPoint, draw.Src)
-	c.drawLoopPublish(c, tx)
-
-	c.DrawTicker = timing.NewDynamicTicker()
-	c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
+	c.publish()
 
 	for {
 	drawSelect:
 		select {
-		case bkg := <-c.setBackgroundCh:
-			c.bkgFn = func() image.Image {
-				return bkg.GetRGBA()
-			}
-		case <-c.windowUpdateCh:
-			<-c.windowUpdateCh
-			tx, err = c.screenControl.NewTexture(c.winBuffer.Bounds().Max)
-			if err != nil {
-				dlog.Error(err)
-			}
 		case <-c.drawCh:
 			<-c.drawCh
 			for {
-				<-c.DrawTicker.C
-				draw.Draw(c.winBuffer.RGBA(), c.winBuffer.Bounds(), c.bkgFn(), zeroPoint, draw.Src)
-				if c.LoadingR != nil {
-					c.LoadingR.Draw(c.winBuffer.RGBA(), 0, 0)
-				}
-				c.drawLoopPublish(c, tx)
-
 				select {
-				case <-c.windowUpdateCh:
-					<-c.windowUpdateCh
-					tx, err = c.screenControl.NewTexture(c.winBuffer.Bounds().Max)
-					if err != nil {
-						dlog.Error(err)
-					}
 				case <-c.drawCh:
 					break drawSelect
-				case viewPoint := <-c.viewportCh:
-					c.updateScreen(viewPoint)
-				case viewPoint := <-c.viewportShiftCh:
-					c.shiftViewPort(viewPoint)
-				default:
+				case <-c.DrawTicker.C:
+					draw.Draw(c.winBuffer.RGBA(), c.winBuffer.Bounds(), c.bkgFn(), zeroPoint, draw.Src)
+					if c.LoadingR != nil {
+						c.LoadingR.Draw(c.winBuffer.RGBA(), 0, 0)
+					}
+					c.publish()
 				}
 			}
-		case viewPoint := <-c.viewportCh:
-			c.updateScreen(viewPoint)
-		case viewPoint := <-c.viewportShiftCh:
-			c.shiftViewPort(viewPoint)
 		case <-c.DrawTicker.C:
 			draw.Draw(c.winBuffer.RGBA(), c.winBuffer.Bounds(), c.bkgFn(), zeroPoint, draw.Src)
 			c.DrawStack.PreDraw()
-			c.DrawStack.DrawToScreen(c.winBuffer.RGBA(), c.ViewPos, c.ScreenWidth, c.ScreenHeight)
-			c.drawLoopPublish(c, tx)
+			c.DrawStack.DrawToScreen(c.winBuffer.RGBA(), c.viewPos, c.ScreenWidth, c.ScreenHeight)
+			c.publish()
 		}
 	}
+}
+
+func (c *Controller) publish() {
+	c.prePublish(c, c.windowTexture)
+	c.windowTexture.Upload(zeroPoint, c.winBuffer, c.winBuffer.Bounds())
+	c.windowControl.Scale(c.windowRect, c.windowTexture, c.windowTexture.Bounds(), draw.Src)
+	c.windowControl.Publish()
 }

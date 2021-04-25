@@ -69,12 +69,11 @@ func (c *Controller) GetDebugKeys() []string {
 	return dkeys
 }
 
-func (c *Controller) debugConsole(resetCh chan struct{}, input io.Reader) {
+func (c *Controller) debugConsole(input io.Reader) {
 	scanner := bufio.NewScanner(input)
 
 	// built in commands
-	if conf.LoadBuiltinCommands {
-		dlog.ErrorCheck(c.AddCommand("viewport", c.viewportCommands))
+	if c.config.LoadBuiltinCommands {
 		dlog.ErrorCheck(c.AddCommand("fade", c.fadeCommands))
 		dlog.ErrorCheck(c.AddCommand("skip", c.skipCommands))
 		dlog.ErrorCheck(c.AddCommand("print", c.printCommands))
@@ -86,11 +85,6 @@ func (c *Controller) debugConsole(resetCh chan struct{}, input io.Reader) {
 	}
 
 	for {
-		select {
-		case <-resetCh: //reset all vars in debug console that save state
-			c.viewportLocked = true
-		default:
-		}
 		for scanner.Scan() {
 			tokenString := strings.Fields(scanner.Text())
 			if len(tokenString) == 0 {
@@ -117,8 +111,8 @@ func parseTokenAsInt(tokenString []string, arrIndex int, defaultVal int) int {
 
 func (c *Controller) mouseDetails(nothing event.CID, mevent interface{}) int {
 	me := mevent.(mouse.Event)
-	x := int(me.X()) + c.ViewPos[0]
-	y := int(me.Y()) + c.ViewPos[1]
+	x := int(me.X()) + c.viewPos[0]
+	y := int(me.Y()) + c.viewPos[1]
 	loc := collision.NewUnassignedSpace(float64(x), float64(y), 16, 16)
 	results := collision.Hits(loc)
 	fmt.Println("Mouse at:", x, y, "rel:", me.X(), me.Y())
@@ -136,31 +130,6 @@ func (c *Controller) mouseDetails(nothing event.CID, mevent interface{}) int {
 	}
 
 	return 0
-}
-
-func (c *Controller) viewportCommands(tokenString []string) {
-	if len(tokenString) > 0 {
-		fmt.Println("Input must start with the name of the viewport operation to perform.")
-		return
-	}
-	switch tokenString[0] {
-	case "unlock":
-		if c.viewportLocked {
-			speed := parseTokenAsInt(tokenString, 1, 5)
-			c.viewportLocked = false
-			event.GlobalBind(event.Enter, c.moveViewportBinding(speed))
-		} else {
-			fmt.Println("Viewport is already unbound")
-		}
-	case "lock":
-		if c.viewportLocked {
-			fmt.Println("Viewport is already locked")
-		} else {
-			c.viewportLocked = true
-		}
-	default:
-		fmt.Println("Unrecognized command for viewport")
-	}
 }
 
 func (c *Controller) fadeCommands(tokenString []string) {

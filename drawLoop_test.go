@@ -11,10 +11,6 @@ import (
 var once sync.Once
 
 func BenchmarkDrawLoop(b *testing.B) {
-	SetupConfig.Debug = Debug{
-		"VERBOSE",
-		"",
-	}
 	c1 := NewController()
 	c1.AddScene("draw", scene.Scene{})
 	go c1.Init("draw")

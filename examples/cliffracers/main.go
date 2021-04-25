@@ -116,8 +116,6 @@ func playerEnter(ctx *scene.Context) func(id event.CID, nothing interface{}) int
 }
 
 func main() {
-	oak.LoadConf("oak.config")
-
 	oak.AddScene("cliffRacers", scene.Scene{Start: func(ctx *scene.Context) {
 		*playerAlive = true
 		bkg, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "background.png"))
@@ -154,5 +152,5 @@ func main() {
 		}()
 	}, Loop: scene.BooleanLoop(playerAlive),
 	})
-	oak.Init("cliffRacers")
+	oak.Init("cliffRacers", oak.FileConfig("oak.config"))
 }

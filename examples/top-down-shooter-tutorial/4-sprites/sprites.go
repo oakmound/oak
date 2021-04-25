@@ -144,12 +144,13 @@ func main() {
 		return playerAlive
 	}})
 
-	// This indicates to oak to automatically open and load image and audio
-	// files local to the project before starting any scene.
-	oak.SetupConfig.BatchLoad = true
-	oak.SetupConfig.Debug.Level = "Verbose"
-
-	oak.Init("tds")
+	oak.Init("tds", func(c oak.Config) (oak.Config, error) {
+		// This indicates to oak to automatically open and load image and audio
+		// files local to the project before starting any scene.
+		c.BatchLoad = true
+		c.Debug.Level = "Verbose"
+		return c, nil
+	})
 }
 
 // Top down shooter constsv

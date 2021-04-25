@@ -2,34 +2,25 @@ package oak
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/oakmound/oak/v2/alg/intgeom"
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/scene"
 	"github.com/oakmound/oak/v2/timing"
 )
 
-func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleEnabled bool) {
+func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 	err := c.SceneMap.AddScene("loading", scene.Scene{
 		Start: func(*scene.Context) {
 			// TODO: language
 			dlog.Info("Loading Scene Init")
 		},
 		Loop: func() bool {
-			select {
-			case <-c.startupLoadCh:
-				// TODO: language
-				dlog.Info("Load Complete")
-				return false
-			default:
-				fmt.Println("loading still")
-				return true
-			}
+			return c.startupLoading
 		},
 		End: func() (string, *scene.Result) {
+			dlog.Info("Load Complete")
 			return c.firstScene, &scene.Result{
 				NextSceneInput: c.FirstSceneInput,
 			}
@@ -57,8 +48,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleEn
 	c.SceneMap.CurrentScene = "loading"
 
 	for {
-		c.ViewPos = intgeom.Point2{0, 0}
-		c.updateScreen(c.ViewPos)
+		c.setViewport(intgeom.Point2{0, 0})
 		c.useViewBounds = false
 
 		dlog.Info("Scene Start", c.SceneMap.CurrentScene)
@@ -170,14 +160,6 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool, debugConsoleEn
 		// but it gets translated to an empty result
 		if result == nil {
 			result = new(scene.Result)
-		}
-
-		if debugConsoleEnabled && !c.debugResetInProgress {
-			c.debugResetInProgress = true
-			go func() {
-				c.debugResetCh <- struct{}{}
-				c.debugResetInProgress = false
-			}()
 		}
 	}
 }

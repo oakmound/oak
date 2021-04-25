@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"image/color"
-	"log"
 	"strconv"
 
 	"github.com/200sc/go-dist/floatrange"
@@ -52,11 +51,6 @@ func parseShape(args []string) shape.Shape {
 }
 
 func main() {
-
-	err := oak.LoadConf("oak.config")
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	oak.AddCommand("followMouse", func(args []string) {
 		event.GlobalBind(event.Enter, func(event.CID, interface{}) int {
@@ -281,7 +275,7 @@ func main() {
 		render.NewCompositeR(),
 	)
 
-	oak.Init("demo")
+	oak.Init("demo", oak.FileConfig("oak.config"))
 }
 
 func parseRGBA(args []string) (r, g, b, a int, err error) {

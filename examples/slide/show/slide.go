@@ -54,7 +54,7 @@ func AddNumberShortcuts(max int) {
 	})
 }
 
-func Start(slides ...Slide) {
+func Start(width, height int, slides ...Slide) {
 	for i, sl := range slides {
 		i := i
 		sl := sl
@@ -93,8 +93,8 @@ func Start(slides ...Slide) {
 	oak.AddScene("slide"+strconv.Itoa(len(slides)),
 		scene.Scene{
 			Start: func(ctx *scene.Context) {
-				oldBackground = oak.GetBackgroundColor()
-				oak.SetBackgroundColor(image.NewUniform(color.RGBA{0, 0, 0, 255}))
+				oldBackground = oak.GetBackgroundImage()
+				oak.SetColorBackground(image.NewUniform(color.RGBA{0, 0, 0, 255}))
 				render.Draw(
 					Express.NewStrText(
 						"Spacebar to restart show ...",
@@ -111,12 +111,20 @@ func Start(slides ...Slide) {
 				return !reset
 			},
 			End: func() (string, *scene.Result) {
-				oak.SetBackgroundColor(oldBackground)
+				oak.SetColorBackground(oldBackground)
 				reset = false
 				skip = false
 				return "slide0", nil
 			},
 		},
 	)
-	oak.Init("slide0")
+	oak.Init("slide0", func(c oak.Config) (oak.Config, error) {
+		c.Screen = oak.Screen{
+			Width:  width,
+			Height: height,
+		}
+		c.FrameRate = 30
+		c.DrawFrameRate = 30
+		return c, nil
+	})
 }
