@@ -2,6 +2,7 @@ package render
 
 import (
 	"image"
+	"image/draw"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -34,12 +35,13 @@ var (
 
 // A FontGenerator stores information that can be used to create a font
 type FontGenerator struct {
-	File    string
-	RawFile []byte
-	Color   image.Image
-	Size    float64
-	Hinting string
-	DPI     float64
+	File     string
+	RawFile  []byte
+	Color    image.Image
+	Size     float64
+	Hinting  string
+	DPI      float64
+	Absolute bool
 }
 
 // DefaultFont returns a font built of the parameters set by SetFontDefaults.
@@ -52,7 +54,6 @@ func DefaultFont() *Font {
 // will be filled in with defaults set through SetFontDefaults.
 func (fg *FontGenerator) Generate() (*Font, error) {
 
-	dir := fontdir
 	// Replace zero values with defaults
 	var fnt *truetype.Font
 	if fg.File == "" && len(fg.RawFile) == 0 {
@@ -69,6 +70,10 @@ func (fg *FontGenerator) Generate() (*Font, error) {
 			return nil, err
 		}
 	} else {
+		dir := fontdir
+		if fg.Absolute {
+			dir = ""
+		}
 		fnt = LoadFont(dir, fg.File)
 		if fnt == nil {
 			return nil, oakerr.InvalidInput{InputName: "fg.File"}
@@ -121,6 +126,8 @@ type Font struct {
 	bounds intgeom.Rect2
 	Unsafe bool
 	mutex  sync.Mutex
+
+	Fallbacks []*Font
 }
 
 // Copy returns a copy of this font
@@ -139,16 +146,64 @@ func (f *Font) Copy() *Font {
 	return f2
 }
 
+// TODO: Implement the below functions manually with font fallback
+
 func (f *Font) MeasureString(s string) fixed.Int26_6 {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 	return f.Drawer.MeasureString(s)
 }
 
+var (
+	// In testing, these are the locations where Glyph will return it found a glyph,
+	// but return an empty box.
+	// TODO: more research--
+	// 1. why do the fonts say these characters exist when they don't
+	// 2. can we just say < 100 = undefined?
+	emptyboxYValues = map[int]struct{}{
+		0:  {},
+		20: {},
+		23: {},
+		40: {},
+		60: {},
+		69: {},
+		81: {},
+		75: {},
+		46: {},
+		54: {},
+		50: {},
+		27: {},
+		25: {},
+	}
+)
+
 func (f *Font) DrawString(s string) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
-	f.Drawer.DrawString(s)
+	prevC := rune(-1)
+	for _, c := range s {
+		if prevC >= 0 {
+			f.Drawer.Dot.X += f.Drawer.Face.Kern(prevC, c)
+		}
+		dr, mask, maskp, advance, ok := f.Drawer.Face.Glyph(f.Drawer.Dot, c)
+		if _, empty := emptyboxYValues[maskp.Y]; !ok || empty {
+			for _, fallback := range f.Fallbacks {
+				dr, mask, maskp, advance, ok = fallback.Drawer.Face.Glyph(f.Drawer.Dot, c)
+				if _, empty := emptyboxYValues[maskp.Y]; !empty && ok {
+					break
+				}
+			}
+			if _, empty := emptyboxYValues[maskp.Y]; !ok || empty {
+				// TODO: is falling back on the U+FFFD glyph the responsibility of
+				// the Drawer or the Face?
+				// TODO: set prevC = '\ufffd'?
+				continue
+			}
+		}
+		draw.DrawMask(f.Drawer.Dst, dr, f.Drawer.Src, image.Point{}, mask, maskp, draw.Over)
+		f.Drawer.Dot.X += advance
+		prevC = c
+	}
 }
 
 // SetFontDefaults updates the default font parameters with the passed in arguments
@@ -195,7 +250,7 @@ func FontColor(s string) image.Image {
 // LoadFont loads in a font file and stores it with the given fontFile name.
 // This is necessary before using that file in a generator, otherwise the default
 // directory will be tried at generation time.
-func LoadFont(dir string, fontFile string) *truetype.Font {
+func LoadFont(dir, fontFile string) *truetype.Font {
 	if _, ok := loadedFonts[fontFile]; !ok {
 		fontBytes, err := fileutil.ReadFile(filepath.Join(dir, fontFile))
 		if err != nil {
