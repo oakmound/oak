@@ -169,7 +169,7 @@ func (t *Text) ToSprite() *Sprite {
 	tmpFnt := t.d.Copy()
 	width := tmpFnt.MeasureString(t.text.String()).Round()
 	height := tmpFnt.bounds.Max.Y()
-	s := NewEmptySprite(t.X(), t.Y()-float64(height), width, height+5)
-	t.drawWithFont(s.GetRGBA(), -t.X(), -t.Y()+float64(height), tmpFnt)
+	s := NewEmptySprite(t.X(), t.Y(), width, height+5)
+	t.drawWithFont(s.GetRGBA(), -t.X(), -t.Y(), tmpFnt)
 	return s
 }
