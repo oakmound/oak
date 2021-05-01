@@ -2,6 +2,7 @@ package oak
 
 import (
 	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v2/timing"
 
 	"github.com/oakmound/oak/v2/dlog"
 	okey "github.com/oakmound/oak/v2/key"
@@ -23,18 +24,33 @@ func (c *Controller) inputLoop() {
 		switch e := c.windowControl.NextEvent().(type) {
 		// We only currently respond to death lifecycle events.
 		case lifecycle.Event:
-			if e.To == lifecycle.StageDead {
+			switch e.To {
+			case lifecycle.StageDead:
 				dlog.Info("Window closed.")
 				// OnStop needs to be sent through TriggerBack, otherwise the
 				// program will close before the stop events get propagated.
 				dlog.Verb("Triggering OnStop.")
 				<-c.logicHandler.TriggerBack(event.OnStop, nil)
-				c.quitCh <- struct{}{}
+				close(c.quitCh)
 				return
+			case lifecycle.StageFocused:
+				c.inFocus = true 
+				// If you are in focused state, we don't care how you got there
+				c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
+				c.logicHandler.Trigger(event.FocusGain, nil)
+			case lifecycle.StageVisible:
+				// If the last state was focused, this means the app is out of focus
+				// otherwise, we're visible for the first time
+				if e.From > e.To {
+					c.inFocus = false 
+					c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.IdleDrawFrameRate))
+					c.logicHandler.Trigger(event.FocusLoss, nil)
+				} else {
+					c.inFocus = true 
+					c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
+					c.logicHandler.Trigger(event.FocusGain, nil)
+				}
 			}
-			// ... this is where we would respond to window focus events
-			// TODO v3: window focus?? should be easy?
-
 		// Send key events
 		//
 		// Key events have two varieties:
@@ -43,8 +59,6 @@ func (c *Controller) inputLoop() {
 		// The specific key that is pressed is passed as the data interface for
 		// the former events, but not for the latter.
 		case key.Event:
-			// key.Code strings all begin with "Code". This strips that off.
-			//k := GetKeyBind()
 			// TODO v3: reevaluate key bindings-- we need the rune this event has
 			switch e.Direction {
 			case key.DirPress:

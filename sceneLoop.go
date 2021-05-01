@@ -102,11 +102,13 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 
 		dlog.ErrorCheck(c.logicHandler.UpdateLoop(c.FrameRate, c.sceneCh))
 
+		nextSceneOverride := ""
+
 		for cont {
 			select {
 			case <-c.sceneCh:
 				cont = scen.Loop()
-			case <-c.skipSceneCh:
+			case nextSceneOverride = <-c.skipSceneCh:
 				cont = false
 			}
 		}
@@ -156,6 +158,9 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 		// In addition to the existing customizable loading renderable?
 
 		c.SceneMap.CurrentScene, result = scen.End()
+		if nextSceneOverride != "" {
+			c.SceneMap.CurrentScene = nextSceneOverride
+		}
 		// For convenience, we allow the user to return nil
 		// but it gets translated to an empty result
 		if result == nil {

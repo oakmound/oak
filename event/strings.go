@@ -31,6 +31,12 @@ const (
 	// OnStop: Triggered when the engine is stopped.
 	// Payload: nil
 	OnStop = "OnStop"
+	// FocusGain: Triggered when the window gains focus 
+	// Payload: nil
+	FocusGain = "FocusGain"
+	// FocusLoss: Triggered when the window loses focus 
+	// Payload: nil
+	FocusLoss = "FocusLoss"
 )
 
 //

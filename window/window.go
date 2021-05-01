@@ -18,4 +18,6 @@ type Window interface {
 	Quit()
 	SetViewportBounds(intgeom.Rect2)
 	NextScene()
+	GoToScene(string)
+	InFocus() bool
 }

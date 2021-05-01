@@ -41,7 +41,7 @@ type Controller struct {
 	// The skip scene channel receives a debug
 	// signal to forcibly go to the next
 	// scene.
-	skipSceneCh chan struct{}
+	skipSceneCh chan string
 
 	// The quit channel receives a signal when
 	// oak should stop active workers and return from Init.
@@ -65,6 +65,10 @@ type Controller struct {
 	// DrawFrameRate is the equivalent to FrameRate for
 	// the rate at which the screen is drawn.
 	DrawFrameRate int
+
+	// IdleDrawFrameRate is how often the screen will be redrawn
+	// when the window is out of focus.
+	IdleDrawFrameRate int
 
 	// The window buffer represents the subsection of the world which is available to
 	// be shown in a window.
@@ -131,6 +135,8 @@ type Controller struct {
 
 	windowTexture screen.Texture
 
+	config Config
+
 	TrackMouseClicks bool
 	startupLoading   bool
 	useViewBounds    bool
@@ -138,7 +144,7 @@ type Controller struct {
 	// maintain the relative width to height ratio of the screen buffer.
 	UseAspectRatio bool
 
-	config Config
+	inFocus bool
 }
 
 var (
@@ -150,7 +156,7 @@ func NewController() *Controller {
 		State:        key.NewState(),
 		transitionCh: make(chan struct{}),
 		sceneCh:      make(chan struct{}),
-		skipSceneCh:  make(chan struct{}),
+		skipSceneCh:  make(chan string),
 		quitCh:       make(chan struct{}),
 		drawCh:       make(chan struct{}),
 	}
@@ -254,5 +260,13 @@ func (c *Controller) SetLogicHandler(h event.Handler) {
 }
 
 func (c *Controller) NextScene() {
-	c.skipSceneCh <- struct{}{}
+	c.skipSceneCh <- ""
+}
+
+func (c *Controller) GoToScene(nextScene string) {
+	c.skipSceneCh <- nextScene
+}
+
+func (c *Controller) InFocus() bool {
+	return c.inFocus
 }

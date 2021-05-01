@@ -18,6 +18,7 @@ type Config struct {
 	BatchLoadOptions    BatchLoadOptions `json:"batchLoadOptions"`
 	FrameRate           int              `json:"frameRate"`
 	DrawFrameRate       int              `json:"drawFrameRate"`
+	IdleDrawFrameRate   int              `json:"idleDrawFrameRate"`
 	Language            string           `json:"language"`
 	Title               string           `json:"title"`
 	EventRefreshRate    Duration         `json:"refreshRate"`
@@ -96,6 +97,7 @@ func (c Config) setDefaults() Config {
 	}
 	c.FrameRate = 60
 	c.DrawFrameRate = 60
+	c.IdleDrawFrameRate = 60
 	c.Language = "English"
 	c.Title = "Oak Window"
 	c.EventRefreshRate = Duration(50 * time.Millisecond)
@@ -242,6 +244,9 @@ func (c Config) overwriteFrom(c2 Config) Config {
 	}
 	if c2.DrawFrameRate != 0 {
 		c.DrawFrameRate = c2.DrawFrameRate
+	}
+	if c2.IdleDrawFrameRate != 0 {
+		c.IdleDrawFrameRate = c2.IdleDrawFrameRate
 	}
 	if c2.Language != "" {
 		c.Language = c2.Language

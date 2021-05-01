@@ -96,17 +96,18 @@ func (c *Controller) ChangeWindow(width, height int) {
 }
 
 func (c *Controller) UpdateViewSize(width, height int) error {
-	var err error
 	c.ScreenWidth = width
 	c.ScreenHeight = height
-	c.winBuffer, err = c.screenControl.NewImage(image.Point{width, height})
+	newBuffer, err := c.screenControl.NewImage(image.Point{width, height})
 	if err != nil {
 		return err
 	}
-	c.windowTexture, err = c.screenControl.NewTexture(c.winBuffer.Bounds().Max)
+	c.winBuffer = newBuffer
+	newTexture, err := c.screenControl.NewTexture(c.winBuffer.Bounds().Max)
 	if err != nil {
 		return err
 	}
+	c.windowTexture = newTexture
 	return nil
 }
 

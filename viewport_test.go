@@ -63,7 +63,7 @@ func TestViewport(t *testing.T) {
 		t.Fatalf("expected %v got %v", c1.viewPos, intgeom.Point2{900 - c1.Width(), 900 - c1.Height()})
 	}
 
-	c1.skipSceneCh <- struct{}{}
+	c1.skipSceneCh <- ""
 
 	sleep()
 

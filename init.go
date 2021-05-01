@@ -56,6 +56,9 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 	c.ScreenHeight = c.config.Screen.Height
 	c.FrameRate = c.config.FrameRate
 	c.DrawFrameRate = c.config.DrawFrameRate
+	c.IdleDrawFrameRate = c.config.IdleDrawFrameRate
+	// assume we are in focus on window creation
+	c.inFocus = true 
 
 	c.DrawTicker = timing.NewDynamicTicker()
 	c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
