@@ -60,20 +60,35 @@ var FlipX = GiftTransform(gift.FlipHorizontal())
 // over the vertical axis.
 var FlipY = GiftTransform(gift.FlipVertical())
 
-// todo: alias gift types to this package
+type Resampling = gift.Resampling
+
+// NearestNeighborResampling is a nearest neighbor resampling filter.
+var NearestNeighborResampling Resampling = gift.NearestNeighborResampling
+
+// BoxResampling is a box resampling filter (average of surrounding pixels).
+var BoxResampling Resampling = gift.BoxResampling
+
+// LinearResampling is a bilinear resampling filter.
+var LinearResampling Resampling = gift.LinearResampling
+
+// CubicResampling is a bicubic resampling filter (Catmull-Rom).
+var CubicResampling Resampling = gift.CubicResampling
+
+// LanczosResampling is a Lanczos resampling filter (3 lobes).
+var LanczosResampling Resampling = gift.LanczosResampling
 
 // Resize will transform images to match the input dimensions. See gift.Resize.
-func Resize(width, height int, resampling gift.Resampling) Mod {
+func Resize(width, height int, resampling Resampling) Mod {
 	return GiftTransform(gift.Resize(width, height, resampling))
 }
 
 // ResizeToFill will resize to fit and then crop using the given anchor. See gift.ResizeToFill.
-func ResizeToFill(width, height int, resampling gift.Resampling, anchor gift.Anchor) Mod {
+func ResizeToFill(width, height int, resampling Resampling, anchor gift.Anchor) Mod {
 	return GiftTransform(gift.ResizeToFill(width, height, resampling, anchor))
 }
 
 // ResizeToFit will resize while preserving aspect ratio. See gift.ResizeToFit.
-func ResizeToFit(width, height int, resampling gift.Resampling) Mod {
+func ResizeToFit(width, height int, resampling Resampling) Mod {
 	return GiftTransform(gift.ResizeToFit(width, height, resampling))
 }
 
