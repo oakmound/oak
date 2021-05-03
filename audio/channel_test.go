@@ -8,7 +8,7 @@ import (
 )
 
 func TestChannels(t *testing.T) {
-	_, err := DefaultChannel(intrange.Constant(5))
+	_, err := DefaultChannel(intrange.NewConstant(5))
 	if err == nil {
 		t.Fatalf("expected error calling DefChannel without file names")
 	}
