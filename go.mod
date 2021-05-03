@@ -1,5 +1,7 @@
 module github.com/oakmound/oak/v2
 
+go 1.16
+
 require (
 	github.com/200sc/klangsynthese v0.2.2-0.20201022002431-a0e14a8c862b
 	github.com/BurntSushi/xgbutil v0.0.0-20190907113008-ad855c713046 // indirect
@@ -17,9 +19,3 @@ require (
 	golang.org/x/mobile v0.0.0-20190415191353-3e0bab5405d6
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
 )
-
-go 1.16
-
-replace github.com/oakmound/shiny => ../shiny
-
-replace github.com/oakmound/w32 => ../w32
