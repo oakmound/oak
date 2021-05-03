@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/v2/alg/range/intrange"
 )
 
 func TestChannels(t *testing.T) {

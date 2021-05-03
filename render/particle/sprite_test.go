@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/200sc/go-dist/floatrange"
+	"github.com/oakmound/oak/v2/alg/range/floatrange"
 
 	"github.com/oakmound/oak/v2/render"
 )

@@ -5,8 +5,8 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/200sc/go-dist/colorrange"
 	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/alg/range/colorrange"
 )
 
 // A Polygon is a renderable that is represented by a set of in order points

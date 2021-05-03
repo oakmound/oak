@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"strconv"
 
-	"github.com/200sc/go-dist/floatrange"
+	"github.com/oakmound/oak/v2/alg/range/floatrange"
 
 	"image"
 

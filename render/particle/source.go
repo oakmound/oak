@@ -4,7 +4,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/v2/alg/range/intrange"
 
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/event"

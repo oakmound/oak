@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/200sc/go-dist/colorrange"
+	"github.com/oakmound/oak/v2/alg/range/colorrange"
 )
 
 // Todo:

@@ -6,7 +6,7 @@ import (
 	"github.com/oakmound/oak/v2/alg"
 	"github.com/oakmound/oak/v2/shape"
 
-	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/v2/alg/range/intrange"
 )
 
 // A ColorGenerator generates ColorParticles

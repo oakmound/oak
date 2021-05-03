@@ -5,8 +5,8 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/200sc/go-dist/floatrange"
-	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/v2/alg/range/floatrange"
+	"github.com/oakmound/oak/v2/alg/range/intrange"
 	"github.com/oakmound/oak/v2/physics"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/shape"

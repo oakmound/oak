@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/200sc/go-dist/colorrange"
-	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/v2/alg/range/colorrange"
+	"github.com/oakmound/oak/v2/alg/range/intrange"
 	"github.com/oakmound/oak/v2/render/mod"
 )
 

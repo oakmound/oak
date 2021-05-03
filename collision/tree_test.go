@@ -4,8 +4,8 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/200sc/go-dist/floatrange"
 	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v2/alg/range/floatrange"
 )
 
 func TestNewTreeInvalidChildren(t *testing.T) {

@@ -6,9 +6,9 @@ import (
 	"image/color"
 	"strconv"
 
-	"github.com/200sc/go-dist/floatrange"
-	"github.com/200sc/go-dist/intrange"
 	oak "github.com/oakmound/oak/v2"
+	"github.com/oakmound/oak/v2/alg/range/floatrange"
+	"github.com/oakmound/oak/v2/alg/range/intrange"
 	"github.com/oakmound/oak/v2/event"
 	"github.com/oakmound/oak/v2/mouse"
 	"github.com/oakmound/oak/v2/physics"

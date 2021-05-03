@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"time"
 
-	"github.com/200sc/go-dist/floatrange"
+	"github.com/oakmound/oak/v2/alg/range/floatrange"
 
 	oak "github.com/oakmound/oak/v2"
 	"github.com/oakmound/oak/v2/collision"
