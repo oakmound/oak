@@ -402,8 +402,8 @@ func addParticles(i int, sslides []*static.Slide) {
 	sslides[i].Append(show.Title("Particles"))
 	sslides[i].OnClick = func() {
 		go particle.NewColorGenerator(
-			particle.Size(intrange.Constant(4)),
-			particle.EndSize(intrange.Constant(7)),
+			particle.Size(intrange.NewConstant(4)),
+			particle.EndSize(intrange.NewConstant(7)),
 			particle.Angle(floatrange.NewLinear(0, 359)),
 			particle.Pos(width/2, height/2),
 			particle.Speed(floatrange.NewSpread(5, 2)),

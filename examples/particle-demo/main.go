@@ -249,7 +249,7 @@ func main() {
 		life := floatrange.NewLinear(100, 120)
 		angle := floatrange.NewLinear(0, 360)
 		speed := floatrange.NewLinear(1, 5)
-		size := intrange.Constant(1)
+		size := intrange.NewConstant(1)
 		layerFn := func(v physics.Vector) int {
 			return 1
 		}
