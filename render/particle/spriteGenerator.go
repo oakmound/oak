@@ -28,7 +28,7 @@ func NewSpriteGenerator(options ...func(Generator)) Generator {
 
 func (sg *SpriteGenerator) setDefaults() {
 	sg.BaseGenerator.setDefaults()
-	sg.SpriteRotation = floatrange.Constant(0)
+	sg.SpriteRotation = floatrange.NewConstant(0)
 }
 
 // Generate creates a source using this generator

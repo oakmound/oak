@@ -40,8 +40,8 @@ func (cg *ColorGenerator) setDefaults() {
 	cg.StartColorRand = color.RGBA{0, 0, 0, 0}
 	cg.EndColor = color.RGBA{0, 0, 0, 0}
 	cg.EndColorRand = color.RGBA{0, 0, 0, 0}
-	cg.Size = intrange.Constant(1)
-	cg.EndSize = intrange.Constant(1)
+	cg.Size = intrange.NewConstant(1)
+	cg.EndSize = intrange.NewConstant(1)
 	cg.Shape = shape.Square
 }
 

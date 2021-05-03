@@ -13,10 +13,10 @@ import (
 
 func TestColorParticle(t *testing.T) {
 	g := NewColorGenerator(
-		Rotation(floatrange.Constant(1)),
+		Rotation(floatrange.NewConstant(1)),
 		Color(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
-		Size(intrange.Constant(5)),
-		EndSize(intrange.Constant(10)),
+		Size(intrange.NewConstant(5)),
+		EndSize(intrange.NewConstant(10)),
 		Shape(shape.Heart),
 	)
 	src := g.Generate(0)

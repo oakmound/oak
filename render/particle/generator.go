@@ -67,10 +67,10 @@ func (bg *BaseGenerator) GetBaseGenerator() *BaseGenerator {
 func (bg *BaseGenerator) setDefaults() {
 	*bg = BaseGenerator{
 		Vector:      physics.NewVector(0, 0),
-		NewPerFrame: floatrange.Constant(1),
-		LifeSpan:    floatrange.Constant(60),
-		Angle:       floatrange.Constant(0),
-		Speed:       floatrange.Constant(1),
+		NewPerFrame: floatrange.NewConstant(1),
+		LifeSpan:    floatrange.NewConstant(60),
+		Angle:       floatrange.NewConstant(0),
+		Speed:       floatrange.NewConstant(1),
 		Spread:      physics.NewVector(0, 0),
 		Duration:    Inf,
 		Rotation:    nil,

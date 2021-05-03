@@ -14,8 +14,8 @@ func TestSpriteParticle(t *testing.T) {
 	s := render.NewColorBox(10, 10, color.RGBA{255, 0, 0, 255})
 	g := NewSpriteGenerator(
 		Sprite(s),
-		Rotation(floatrange.Constant(1)),
-		SpriteRotation(floatrange.Constant(1)),
+		Rotation(floatrange.NewConstant(1)),
+		SpriteRotation(floatrange.NewConstant(1)),
 	)
 	src := g.Generate(0)
 	src.addParticles()
