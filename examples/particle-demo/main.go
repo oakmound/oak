@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"image/color"
 	"strconv"
 
@@ -242,7 +241,6 @@ func main() {
 	})
 
 	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
-		fmt.Println("Demo start")
 		x := 320.0
 		y := 240.0
 		newPf := floatrange.NewLinear(1, 2)

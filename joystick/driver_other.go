@@ -2,7 +2,7 @@
 
 package joystick
 
-import "github.com/oakmound/oak/oakerr"
+import "github.com/oakmound/oak/v2/oakerr" 
 
 func newOsJoystick() osJoystick {
 	return osJoystick{}

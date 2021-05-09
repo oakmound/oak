@@ -32,7 +32,6 @@ var (
 
 func AddNumberShortcuts(max int) {
 	oak.AddCommand("slide", func(args []string) {
-		fmt.Println(args)
 		if len(args) < 2 {
 			return
 		}
@@ -42,7 +41,6 @@ func AddNumberShortcuts(max int) {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(i)
 		if i < 0 {
 			skipTo = "0"
 		} else if i <= max {

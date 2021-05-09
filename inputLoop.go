@@ -7,7 +7,7 @@ import (
 	"github.com/oakmound/oak/v2/dlog"
 	okey "github.com/oakmound/oak/v2/key"
 	omouse "github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/shiny/gesture"
+	"github.com/oakmound/oak/v2/shiny/gesture"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
 	"golang.org/x/mobile/event/mouse"
@@ -34,7 +34,7 @@ func (c *Controller) inputLoop() {
 				close(c.quitCh)
 				return
 			case lifecycle.StageFocused:
-				c.inFocus = true 
+				c.inFocus = true
 				// If you are in focused state, we don't care how you got there
 				c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
 				c.logicHandler.Trigger(event.FocusGain, nil)
@@ -42,11 +42,11 @@ func (c *Controller) inputLoop() {
 				// If the last state was focused, this means the app is out of focus
 				// otherwise, we're visible for the first time
 				if e.From > e.To {
-					c.inFocus = false 
+					c.inFocus = false
 					c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.IdleDrawFrameRate))
 					c.logicHandler.Trigger(event.FocusLoss, nil)
 				} else {
-					c.inFocus = true 
+					c.inFocus = true
 					c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
 					c.logicHandler.Trigger(event.FocusGain, nil)
 				}

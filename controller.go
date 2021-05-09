@@ -11,9 +11,9 @@ import (
 	"github.com/oakmound/oak/v2/mouse"
 	"github.com/oakmound/oak/v2/render"
 	"github.com/oakmound/oak/v2/scene"
+	"github.com/oakmound/oak/v2/shiny/driver"
+	"github.com/oakmound/oak/v2/shiny/screen"
 	"github.com/oakmound/oak/v2/timing"
-	"github.com/oakmound/shiny/driver"
-	"github.com/oakmound/shiny/screen"
 )
 
 func (c *Controller) windowController(s screen.Screen, x, y int32, width, height int) (screen.Window, error) {
@@ -231,6 +231,10 @@ func (c *Controller) Height() int {
 
 func (c *Controller) Viewport() intgeom.Point2 {
 	return c.viewPos
+}
+
+func (c *Controller) ViewportBounds() intgeom.Rect2 {
+	return c.viewBounds
 }
 
 func (c *Controller) SetLoadingRenderable(r render.Renderable) {

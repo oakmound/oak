@@ -6,7 +6,7 @@ import (
 
 	"github.com/oakmound/oak/v2/physics"
 
-	"github.com/oakmound/shiny/gesture"
+	"github.com/oakmound/oak/v2/shiny/gesture"
 )
 
 func TestGestureIdentity(t *testing.T) {

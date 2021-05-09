@@ -8,7 +8,7 @@ import (
 	"github.com/oakmound/oak/v2/dlog"
 	"golang.org/x/mobile/event/lifecycle"
 
-	"github.com/oakmound/shiny/screen"
+	"github.com/oakmound/oak/v2/shiny/screen"
 )
 
 func (c *Controller) lifecycleLoop(s screen.Screen) {

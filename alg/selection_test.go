@@ -27,7 +27,6 @@ func TestUniqueChooseXSuccess(t *testing.T) {
 		expected[i] = 1
 	}
 	if !reflect.DeepEqual(expected, chosenCts) {
-		fmt.Println(expected, chosenCts)
 		t.Fatalf("UniqueChooseX did not choose every index once")
 	}
 }

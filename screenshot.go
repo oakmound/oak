@@ -7,7 +7,7 @@ import (
 	"image/gif"
 	"time"
 
-	"github.com/oakmound/shiny/screen"
+	"github.com/oakmound/oak/v2/shiny/screen"
 )
 
 // ScreenShot takes a snap shot of the window's image content.

@@ -1,7 +1,6 @@
 package ray
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 	"reflect"
@@ -134,7 +133,6 @@ func TestConeCasterScene(t *testing.T) {
 			}
 			SetDefaultCaster(NewCaster(tc.opts...))
 			out := NewConeCaster(tc.coneOpts...).CastTo(tc.origin, tc.target)
-			fmt.Println(out)
 			if len(out) != len(tc.expected) {
 				t.Fatalf("expected length not matched: %v vs %v", len(out), len(tc.expected))
 			}

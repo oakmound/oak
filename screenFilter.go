@@ -3,7 +3,7 @@ package oak
 import (
 	"image/color"
 
-	"github.com/oakmound/shiny/screen"
+	"github.com/oakmound/oak/v2/shiny/screen"
 
 	"github.com/oakmound/oak/v2/render/mod"
 )

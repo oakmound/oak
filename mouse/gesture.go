@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/shiny/gesture"
+	"github.com/oakmound/oak/v2/shiny/gesture"
 )
 
 // A GestureEvent is a conversion of a shiny Gesture to our local type so we

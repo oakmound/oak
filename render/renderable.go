@@ -13,7 +13,7 @@ import (
 // Basic Implementing struct: Sprite
 type Renderable interface {
 	Draw(buff draw.Image, xOff, yOff float64)
-	GetDims() (int, int)
+	GetDims() (width int, height int)
 
 	Positional
 	Layered

@@ -10,8 +10,8 @@ import (
 	"github.com/oakmound/oak/v2/dlog"
 	"github.com/oakmound/oak/v2/oakerr"
 	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v2/shiny/driver"
 	"github.com/oakmound/oak/v2/timing"
-	"github.com/oakmound/shiny/driver"
 )
 
 var (
@@ -58,7 +58,7 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 	c.DrawFrameRate = c.config.DrawFrameRate
 	c.IdleDrawFrameRate = c.config.IdleDrawFrameRate
 	// assume we are in focus on window creation
-	c.inFocus = true 
+	c.inFocus = true
 
 	c.DrawTicker = timing.NewDynamicTicker()
 	c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
