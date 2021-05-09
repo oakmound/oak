@@ -22,14 +22,18 @@ import (
 	"golang.org/x/mobile/gl"
 )
 
-// TODO: change this to true, after manual testing on Win32.
 const useLifecycler = true
-
-// TODO: change this to true, after manual testing on Win32.
 const handleSizeEventsAtChannelReceive = true
 
+var screenHWND win32.HWND
+
 func main(f func(screen.Screen)) error {
-	return win32.Main(func() { f(theScreen) })
+	var err error
+	screenHWND, err = win32.NewScreen()
+	if err != nil {
+		return err
+	}
+	return win32.Main(screenHWND, func() { f(theScreen) })
 }
 
 var (
@@ -68,7 +72,7 @@ type ctxWin32 struct {
 }
 
 func newWindow(opts screen.WindowGenerator) (uintptr, error) {
-	w, err := win32.NewWindow(opts)
+	w, err := win32.NewWindow(screenHWND, opts)
 	if err != nil {
 		return 0, err
 	}
