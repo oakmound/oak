@@ -1,7 +1,6 @@
 package alg
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 	"reflect"
