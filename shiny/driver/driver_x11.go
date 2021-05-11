@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // +build linux,!android dragonfly openbsd
+// +build !noop
 
 package driver
 
