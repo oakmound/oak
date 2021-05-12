@@ -14,7 +14,6 @@
 package mtldriver
 
 import (
-	"fmt"
 	"runtime"
 	"unsafe"
 
@@ -67,6 +66,7 @@ func main(f func(screen.Screen)) error {
 		done            = make(chan struct{})
 		newWindowCh     = make(chan newWindowReq, 1)
 		releaseWindowCh = make(chan releaseWindowReq, 1)
+		moveWindowCh    = make(chan moveWindowReq, 1)
 	)
 	go func() {
 		f(&screenImpl{
@@ -80,11 +80,14 @@ func main(f func(screen.Screen)) error {
 		case <-done:
 			return nil
 		case req := <-newWindowCh:
-			w, err := newWindow(device, releaseWindowCh, req.opts)
+			w, err := newWindow(device, releaseWindowCh, moveWindowCh, req.opts)
 			req.respCh <- newWindowResp{w, err}
 		case req := <-releaseWindowCh:
 			req.window.Destroy()
 			req.respCh <- struct{}{}
+		case req := <-moveWindowCh:
+			req.window.SetPos(int(req.x), int(req.y))
+			req.window.SetSize(int(req.width), int(req.height))
 		default:
 			glfw.WaitEvents()
 		}
@@ -100,6 +103,10 @@ type newWindowResp struct {
 	w   screen.Window
 	err error
 }
+type moveWindowReq struct {
+	window              *glfw.Window
+	x, y, width, height int
+}
 
 type releaseWindowReq struct {
 	window *glfw.Window
@@ -108,7 +115,7 @@ type releaseWindowReq struct {
 
 // newWindow creates a new GLFW window.
 // It must be called on the main thread.
-func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, opts screen.WindowGenerator) (screen.Window, error) {
+func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, moveWindowCh chan moveWindowReq, opts screen.WindowGenerator) (screen.Window, error) {
 	width, height := optsSize(opts)
 	window, err := glfw.CreateWindow(width, height, opts.Title, nil, nil)
 	if err != nil {
@@ -128,6 +135,7 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, opts sc
 		device:          device,
 		window:          window,
 		releaseWindowCh: releaseWindowCh,
+		moveWindowCh:    moveWindowCh,
 		ml:              ml,
 		cq:              device.MakeCommandQueue(),
 	}
@@ -174,7 +182,6 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, opts sc
 		})
 	})
 	window.SetKeyCallback(func(_ *glfw.Window, k glfw.Key, _ int, a glfw.Action, mods glfw.ModifierKey) {
-		fmt.Println("key callback", k)
 		code := glfwKeyCode(k)
 		if code == key.CodeUnknown {
 			return

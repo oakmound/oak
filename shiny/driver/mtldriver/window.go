@@ -29,6 +29,7 @@ type windowImpl struct {
 	device          mtl.Device
 	window          *glfw.Window
 	releaseWindowCh chan releaseWindowReq
+	moveWindowCh    chan moveWindowReq
 	ml              coreanim.MetalLayer
 	cq              mtl.CommandQueue
 
@@ -37,6 +38,17 @@ type windowImpl struct {
 
 	rgba    *image.RGBA
 	texture mtl.Texture // Used in Publish.
+}
+
+func (w *windowImpl) MoveWindow(x, y, width, height int32) error {
+	w.moveWindowCh <- moveWindowReq{
+		window: w.window,
+		x:      int(x),
+		y:      int(y),
+		width:  int(width),
+		height: int(height),
+	}
+	return nil
 }
 
 func (w *windowImpl) Release() {
