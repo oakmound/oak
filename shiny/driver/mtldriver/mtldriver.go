@@ -14,6 +14,7 @@
 package mtldriver
 
 import (
+	"fmt"
 	"runtime"
 	"unsafe"
 
@@ -145,6 +146,19 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, opts sc
 		const scale = 2 // TODO(dmitshur): compute dynamically
 		w.Send(mouse.Event{X: float32(x * scale), Y: float32(y * scale)})
 	})
+	window.SetScrollCallback(func(_ *glfw.Window, xoff float64, yoff float64) {
+		// TODO horizontal scrolling
+		var btn mouse.Button
+		if yoff < 0 {
+			btn = mouse.ButtonWheelDown
+		} else {
+			btn = mouse.ButtonWheelUp
+		}
+		w.Send(mouse.Event{
+			Button:    btn,
+			Direction: mouse.DirNone,
+		})
+	})
 	window.SetMouseButtonCallback(func(_ *glfw.Window, b glfw.MouseButton, a glfw.Action, mods glfw.ModifierKey) {
 		btn := glfwMouseButton(b)
 		if btn == mouse.ButtonNone {
@@ -160,6 +174,7 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, opts sc
 		})
 	})
 	window.SetKeyCallback(func(_ *glfw.Window, k glfw.Key, _ int, a glfw.Action, mods glfw.ModifierKey) {
+		fmt.Println("key callback", k)
 		code := glfwKeyCode(k)
 		if code == key.CodeUnknown {
 			return
