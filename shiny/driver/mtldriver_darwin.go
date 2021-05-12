@@ -1,9 +1,8 @@
-// Copyright 2015 The Go Authors. All rights reserved.
+// Copyright 2019 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 // +build darwin
-// +build darwingl
 // +build !noop
 
 package driver
@@ -15,12 +14,12 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/oakmound/oak/v2/shiny/driver/gldriver"
+	"github.com/oakmound/oak/v2/shiny/driver/mtldriver"
 	"github.com/oakmound/oak/v2/shiny/screen"
 )
 
 func main(f func(screen.Screen)) {
-	gldriver.Main(f)
+	mtldriver.Main(f)
 }
 
 var (
