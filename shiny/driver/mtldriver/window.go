@@ -85,7 +85,11 @@ func (w *windowImpl) Publish() screen.PublishResult {
 	// Copy the texture into the drawable.
 	bce := cb.MakeBlitCommandEncoder()
 	bce.CopyFromTexture(
-		w.texture, 0, 0, mtl.Origin{}, mtl.Size{w.texture.Width, w.texture.Height, 1},
+		w.texture, 0, 0, mtl.Origin{}, mtl.Size{
+			Width:  w.texture.Width,
+			Height: w.texture.Height,
+			Depth:  1,
+		},
 		drawable.Texture(), 0, 0, mtl.Origin{})
 	bce.EndEncoding()
 
@@ -96,6 +100,7 @@ func (w *windowImpl) Publish() screen.PublishResult {
 }
 
 func (w *windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
+	// This panics
 	//draw.Draw(w.rgba, sr.Sub(sr.Min).Add(dp), src.RGBA(), sr.Min, draw.Src)
 }
 

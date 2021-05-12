@@ -170,6 +170,12 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, opts sc
 			// TODO(dmitshur): set Modifiers
 		})
 	})
+	window.SetCharCallback(func(_ *glfw.Window, char rune) {
+		w.Send(key.Event{
+			Direction: key.DirPress,
+			Rune:      char,
+		})
+	})
 	// TODO(dmitshur): set CharModsCallback to catch text (runes) that are typed,
 	//                 and perhaps try to unify key pressed + character typed into single event
 	window.SetCloseCallback(func(*glfw.Window) {
@@ -232,6 +238,10 @@ func glfwKeyCode(k glfw.Key) key.Code {
 		return key.CodeReturnEnter
 	case glfw.KeyEscape:
 		return key.CodeEscape
+	case glfw.KeyBackspace:
+		return key.CodeDeleteBackspace
+	case glfw.KeyTab:
+		return key.CodeTab
 	default:
 		return key.CodeUnknown
 	}
