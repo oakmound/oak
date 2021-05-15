@@ -117,10 +117,8 @@ func Start(width, height int, slides ...Slide) {
 		},
 	)
 	oak.Init("slide0", func(c oak.Config) (oak.Config, error) {
-		c.Screen = oak.Screen{
-			Width:  width,
-			Height: height,
-		}
+		c.Screen.Width = width
+		c.Screen.Height = height
 		c.FrameRate = 30
 		c.DrawFrameRate = 30
 		return c, nil
