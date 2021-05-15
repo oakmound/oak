@@ -7,6 +7,7 @@
 // +build !windows
 // +build !dragonfly
 // +build !openbsd
+// +build !noop
 
 package driver
 
