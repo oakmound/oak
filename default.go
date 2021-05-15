@@ -89,3 +89,7 @@ func Width() int {
 func Height() int {
 	return defaultController.Height()
 }
+
+func HideCursor() error {
+	return defaultController.HideCursor()
+}

@@ -10,6 +10,7 @@ type Window interface {
 	SetTrayIcon(string) error
 	ShowNotification(title, msg string, icon bool) error
 	MoveWindow(x, y, w, h int) error
+	HideCursor() error
 	//GetMonitorSize() (int, int)
 	//Close() error
 	Width() int

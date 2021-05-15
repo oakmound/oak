@@ -231,6 +231,16 @@ func (w *windowImpl) SetFullScreen(fullscreen bool) error {
 	return nil
 }
 
+// HideCursor turns the OS cursor into a 1x1 transparent image.
+func (w *windowImpl) HideCursor() error {
+	emptyCursor := win32.GetEmptyCursor()
+	success := win32.SetClassLongPtr(w.hwnd, win32.GCLP_HCURSOR, uintptr(emptyCursor))
+	if !success {
+		return fmt.Errorf("setClassLongPtr failed")
+	}
+	return nil
+}
+
 func (w *windowImpl) SetTrayIcon(iconPath string) error {
 	if w.trayGUID == nil {
 		if err := w.createTrayItem(); err != nil {

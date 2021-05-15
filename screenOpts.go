@@ -100,3 +100,16 @@ func (c *Controller) ShowNotification(title, msg string, icon bool) error {
 		Operation: "ShowNotification",
 	}
 }
+
+type cursorHider interface {
+	HideCursor() error
+}
+
+func (c *Controller) HideCursor() error {
+	if t, ok := c.windowControl.(cursorHider); ok {
+		return t.HideCursor()
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "HideCursor",
+	}
+}

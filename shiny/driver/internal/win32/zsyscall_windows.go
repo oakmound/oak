@@ -1,6 +1,7 @@
 package win32
 
 import (
+	"reflect"
 	"syscall"
 	"unsafe"
 
@@ -43,36 +44,39 @@ var (
 var (
 	procShell_NotifyIconW = modshell32.NewProc("Shell_NotifyIconW")
 
-	procRegisterClass     = moduser32.NewProc("RegisterClassW")
-	procIsZoomed          = moduser32.NewProc("IsZoomed")
-	procLoadIcon          = moduser32.NewProc("LoadIconW")
-	procLoadImageW        = moduser32.NewProc("LoadImageW")
-	procLoadCursor        = moduser32.NewProc("LoadCursorW")
-	procShowWindow        = moduser32.NewProc("ShowWindow")
-	procCreateWindowEx    = moduser32.NewProc("CreateWindowExW")
-	procDestroyWindow     = moduser32.NewProc("DestroyWindow")
-	procDefWindowProc     = moduser32.NewProc("DefWindowProcW")
-	procPostQuitMessage   = moduser32.NewProc("PostQuitMessage")
-	procGetMessage        = moduser32.NewProc("GetMessageW")
-	procTranslateMessage  = moduser32.NewProc("TranslateMessage")
-	procDispatchMessage   = moduser32.NewProc("DispatchMessageW")
-	procSendMessage       = moduser32.NewProc("SendMessageW")
-	procPostMessage       = moduser32.NewProc("PostMessageW")
-	procSetWindowText     = moduser32.NewProc("SetWindowTextW")
-	procGetWindowRect     = moduser32.NewProc("GetWindowRect")
-	procMoveWindow        = moduser32.NewProc("MoveWindow")
-	procScreenToClient    = moduser32.NewProc("ScreenToClient")
-	procSetWindowLong     = moduser32.NewProc("SetWindowLongW")
-	procGetClientRect     = moduser32.NewProc("GetClientRect")
-	procGetDC             = moduser32.NewProc("GetDC")
-	procReleaseDC         = moduser32.NewProc("ReleaseDC")
-	procSetWindowPos      = moduser32.NewProc("SetWindowPos")
-	procGetKeyboardLayout = moduser32.NewProc("GetKeyboardLayout")
-	procGetKeyboardState  = moduser32.NewProc("GetKeyboardState")
-	procMonitorFromWindow = moduser32.NewProc("MonitorFromWindow")
-	procGetMonitorInfo    = moduser32.NewProc("GetMonitorInfoW")
-	procGetKeyState       = moduser32.NewProc("GetKeyState")
-	procToUnicodeEx       = moduser32.NewProc("ToUnicodeEx")
+	procRegisterClass      = moduser32.NewProc("RegisterClassW")
+	procIsZoomed           = moduser32.NewProc("IsZoomed")
+	procLoadIcon           = moduser32.NewProc("LoadIconW")
+	procLoadImageW         = moduser32.NewProc("LoadImageW")
+	procLoadCursor         = moduser32.NewProc("LoadCursorW")
+	procShowWindow         = moduser32.NewProc("ShowWindow")
+	procCreateWindowEx     = moduser32.NewProc("CreateWindowExW")
+	procDestroyWindow      = moduser32.NewProc("DestroyWindow")
+	procDefWindowProc      = moduser32.NewProc("DefWindowProcW")
+	procPostQuitMessage    = moduser32.NewProc("PostQuitMessage")
+	procGetMessage         = moduser32.NewProc("GetMessageW")
+	procTranslateMessage   = moduser32.NewProc("TranslateMessage")
+	procDispatchMessage    = moduser32.NewProc("DispatchMessageW")
+	procSendMessage        = moduser32.NewProc("SendMessageW")
+	procPostMessage        = moduser32.NewProc("PostMessageW")
+	procSetWindowText      = moduser32.NewProc("SetWindowTextW")
+	procGetWindowRect      = moduser32.NewProc("GetWindowRect")
+	procMoveWindow         = moduser32.NewProc("MoveWindow")
+	procScreenToClient     = moduser32.NewProc("ScreenToClient")
+	procSetWindowLong      = moduser32.NewProc("SetWindowLongW")
+	procGetClientRect      = moduser32.NewProc("GetClientRect")
+	procGetDC              = moduser32.NewProc("GetDC")
+	procReleaseDC          = moduser32.NewProc("ReleaseDC")
+	procSetWindowPos       = moduser32.NewProc("SetWindowPos")
+	procGetKeyboardLayout  = moduser32.NewProc("GetKeyboardLayout")
+	procGetKeyboardState   = moduser32.NewProc("GetKeyboardState")
+	procMonitorFromWindow  = moduser32.NewProc("MonitorFromWindow")
+	procGetMonitorInfo     = moduser32.NewProc("GetMonitorInfoW")
+	procGetKeyState        = moduser32.NewProc("GetKeyState")
+	procToUnicodeEx        = moduser32.NewProc("ToUnicodeEx")
+	procLoadCursorFromFile = moduser32.NewProc("LoadCursorFromFileW")
+	procCreateCursor       = moduser32.NewProc("CreateCursor")
+	procSetClassLongPtr    = moduser32.NewProc("SetClassLongPtrW")
 )
 
 func _GetKeyboardLayout(threadID uint32) (locale syscall.Handle) {
@@ -363,3 +367,52 @@ func GetMonitorInfo(hMonitor HMONITOR, lmpi *MONITORINFO) bool {
 	)
 	return ret != 0
 }
+
+func CreateCursor(hinst HINSTANCE, x, y, w, h int32, andMask, xorMask []byte) HCURSOR {
+	and := (*reflect.SliceHeader)(unsafe.Pointer(&andMask))
+	xor := (*reflect.SliceHeader)(unsafe.Pointer(&xorMask))
+	ret, _, _ := procCreateCursor.Call(
+		uintptr(hinst),
+		uintptr(x),
+		uintptr(y),
+		uintptr(w),
+		uintptr(h),
+		and.Data,
+		xor.Data,
+	)
+	return HCURSOR(ret)
+}
+
+func SetClassLongPtr(hwnd HWND, param ClassLongParam, val uintptr) bool {
+	ret, _, _ := procSetClassLongPtr.Call(
+		uintptr(hwnd),
+		uintptr(param),
+		val,
+	)
+	return ret != 0
+}
+
+type ClassLongParam int32
+
+const (
+	// Sets the size, in bytes, of the extra memory associated with the class. Setting this value does not change the number of extra bytes already allocated.
+	GCL_CBCLSEXTRA ClassLongParam = -20
+	// Sets the size, in bytes, of the extra window memory associated with each window in the class. Setting this value does not change the number of extra bytes already allocated. For information on how to access this memory, see SetWindowLongPtr.
+	GCL_CBWNDEXTRA ClassLongParam = -18
+	// Replaces a handle to the background brush associated with the class.
+	GCLP_HBRBACKGROUND ClassLongParam = -10
+	// Replaces a handle to the cursor associated with the class.
+	GCLP_HCURSOR ClassLongParam = -12
+	// Replaces a handle to the icon associated with the class.
+	GCLP_HICON ClassLongParam = -14
+	// Retrieves a handle to the small icon associated with the class.
+	GCLP_HICONSM ClassLongParam = -34
+	// Replaces a handle to the module that registered the class.
+	GCLP_HMODULE ClassLongParam = -16
+	// Replaces the pointer to the menu name string. The string identifies the menu resource associated with the class.
+	GCLP_MENUNAME ClassLongParam = -8
+	// Replaces the window-class style bits.
+	GCL_STYLE ClassLongParam = -26
+	// Replaces the pointer to the window procedure associated with the class.
+	GCLP_WNDPROC ClassLongParam = -24
+)
