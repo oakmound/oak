@@ -12,10 +12,10 @@ import (
 
 var defaultController = NewController()
 
-func Init(scene string, configOptions ...ConfigOption) {
+func Init(scene string, configOptions ...ConfigOption) error {
 	defaultController.DrawStack = render.GlobalDrawStack
 	defaultController.logicHandler = event.DefaultBus
-	defaultController.Init(scene, configOptions...)
+	return defaultController.Init(scene, configOptions...)
 }
 
 func AddCommand(command string, fn func([]string)) error {

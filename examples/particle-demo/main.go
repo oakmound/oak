@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"image/color"
+	"log"
 	"strconv"
 
 	oak "github.com/oakmound/oak/v2"
@@ -273,7 +274,10 @@ func main() {
 		render.NewCompositeR(),
 	)
 
-	oak.Init("demo", oak.FileConfig("oak.config"))
+	err := oak.Init("demo", oak.FileConfig("oak.config"))
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func parseRGBA(args []string) (r, g, b, a int, err error) {
