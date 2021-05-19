@@ -18,7 +18,7 @@
 
 1. [Quick Start](#quick-start)
 
-1. [Implementation and Examples](#)
+1. [Implementation and Examples](#examples)
 
 1. [Finished Games](#finished-games)
 
@@ -31,9 +31,9 @@
 ## Motivation <a name="motivation"/>
 
 The initial version of oak was made to support Oakmound Studio's game,
-[Agent Blue](https://github.com/OakmoundStudio/AgentRelease), and was developed in parallel.
+[Agent Blue](https://github.com/oakmound/AgentRelease), and was developed in parallel.
 
-Because Oak wants to have as few non-Go dependencies as possible, Oak does not by default use OpenGL or [GLFW](https://github.com/go-gl/glfw).
+Because Oak wants to have as few non-Go dependencies as possible, on as many platforms as possible, Oak does not by default use bindings involving CGo like OpenGL or GLFW.
 
 ### On Pure Go
 
@@ -41,14 +41,14 @@ Oak has recently brought in dependencies that include C code, but we still descr
 
 We anticipate in the immediate future needing to introduce alternate drivers that include C dependencies for performance improvements in some scenarios, and currently we have no OSX solution that lacks objective C code.
 
-## Features <a name="features"></a>
+## Features and Systems <a name="features"></a>
 
-1. Window Rendering
-    - Windows and key events forked from [shiny](https://github.com/oakmound/oak/v2/shiny)
+1. Window Management
+    - Windows and key events forked from [shiny](https://pkg.go.dev/golang.org/x/exp/shiny)
     - Logical frame rate distinct from Draw rate
-    - Fullscreen, Window Positioning support
-    - Auto-scaling for screen size changes
-1. [Image Management](https://godoc.org/github.com/oakmound/oak/render)
+    - Fullscreen, Window Positioning support, etc
+    - Auto-scaling for screen size changes (or dynamic content sizing)
+1. [Image Rendering](https://pkg.go.dev/github.com/oakmound/oak/v2/render)
     - `render.Renderable` interface
     - Sprite Sheet Batch Loading at startup
     - Manipulation
@@ -61,51 +61,32 @@ We anticipate in the immediate future needing to introduce alternate drivers tha
         - Primitive builders, `ColorBox`, `Line`, `Bezier`
         - History-tracking `Reverting`
     - Primarily 2D
-1. [Particle System](https://godoc.org/github.com/oakmound/oak/render/particle)
-    - <details>
-      <summary>Click to see gif captured in examples/particle-demo</summary>
-
-        ![particles!](examples\particle-demo\overviewExample.gif)
-    </details>
-1. [Mouse Handling](https://godoc.org/github.com/oakmound/oak/mouse)
-    - Click Collision
-    - MouseEnter / MouseExit reaction events
-    - Drag Handling
-1. [Joystick Support](https://godoc.org/github.com/oakmound/oak/joystick)
-    - <details>
-      <summary>Click to see gif captured in examples/joystick-viz</summary>
-
-        ![joysticks!](examples\joystick-viz\example.gif)
-    </details>
-1. [Audio Support](https://godoc.org/github.com/oakmound/oak/audio)
+1. [Particle System](https://pkg.go.dev/github.com/oakmound/oak/v2/render/particle)
+1. [Mouse Handling](https://pkg.go.dev/github.com/oakmound/oak/v2/mouse)
+1. [Joystick Support](https://pkg.go.dev/github.com/oakmound/oak/v2/joystick)
+1. [Audio Support](https://pkg.go.dev/github.com/oakmound/oak/v2/audio)
     - Positional filters to pan and scale audio based on a listening position
-1. [Collision](https://godoc.org/github.com/oakmound/oak/collision)
+1. [Collision](https://pkg.go.dev/github.com/oakmound/oak/v2/collision)
     - Collision R-Tree forked from [rtreego](https://github.com/dhconnelly/rtreego)
-    - [2D Raycasting](https://godoc.org/github.com/oakmound/oak/collision/ray)
+    - [2D Raycasting](https://pkg.go.dev/github.com/oakmound/oak/v2/collision/ray)
     - Collision Spaces
         - Attachable to Objects
         - Auto React to collisions through events
         - OnHit bindings `func(s1,s2 *collision.Space)`
         - Start/Stop collision with targeted objects
-1. [2D Physics System](https://godoc.org/github.com/oakmound/oak/physics)
-    - Vectors
-        - Attachable to Objects / Renderables
-        - Friction
-1. [Event Handler, Bus](https://godoc.org/github.com/oakmound/oak/event)
-    - PubSub system: `event.CID` can `Bind(fn,eventName)` and `Trigger(eventName)` events
-1. [Shaping](https://godoc.org/github.com/oakmound/oak/shape)
+1. [2D Physics System](https://pkg.go.dev/github.com/oakmound/oak/v2/physics)
+1. [Event Handler](https://pkg.go.dev/github.com/oakmound/oak/v2/event)
+    - PubSub system: `event.CID` can `Bind(eventName,fn)` and `Trigger(eventName,payload)` events
+1. [Shaping](https://pkg.go.dev/github.com/oakmound/oak/v2/shape)
     - Convert shapes into:
         - Containment checks
         - Outlines
         - 2D arrays
 1. [Custom Console Commands](debugConsole.go)
-1. [Logging](https://godoc.org/github.com/oakmound/oak/dlog)
-    - Swappable with custom implementations
-    - Default Implementation: 4 log levels, writes to file and stdout
 
 ## Support <a name="support"></a>
 
-For discussions not significant enough to be an Issue or PR, see the #oak channel on the [gophers slack](https://invite.slack.golangbridge.org/).
+For discussions not significant enough to be an Issue or PR, feel free to ping us in the #oak channel on the [gophers slack](https://invite.slack.golangbridge.org/).
 
 ## Quick Start <a name="quick-start"></a>
 
@@ -129,67 +110,21 @@ func main() {
 }
 ```
 
-See the [examples](examples) folder for longer demos, [godoc](https://godoc.org/github.com/oakmound/oak) for reference documentation, and the [wiki](https://github.com/oakmound/oak/wiki) for more guided feature sets, tutorials and walkthroughs.
+See below or the [examples](examples) folder for longer demos, [godoc](https://pkg.go.dev/github.com/oakmound/oak/v2) for reference documentation, and the [wiki](https://github.com/oakmound/oak/wiki) for more guided feature sets, tutorials and walkthroughs.
 
 ## Implementation and Examples <a name="examples"></a>
 
-### Platformer
+| | | |
+|:-------------------------:|:-------------------------:|:-------------------------:|
+|<img width="1400"  src="examples/platformer-tutorial/6-complete/example.gif" a=examples/platformer-tutorial>  [Platformer](examples/platformer) |  <img width="1400"  src="examples/top-down-shooter-tutorial/6-performance/example.gif"> [Top down shooter](examples/top-down-shooter-tutorial)|<img width="1400"  src="examples/radar-demo/example.gif"> [Radar](examples/radar-demo) |
+|<img width="1400"  src="examples/slide/example.gif"> [Slideshow](examples/slide) |  <img width="1400"  src="examples/bezier/example.PNG"> [Bezier Curves](examples/bezier) |<img width="1400"  src="examples/joystick-viz/example.gif"> [Joysticks](examples/joystick-viz)|
+|<img width="1400"  src="examples/collision-demo/example.PNG"> [Collision Demo](examples/collision-demo)  |  <img width="1400"  src="examples/custom-cursor/example.PNG"> [Custom Mouse Cursor](examples/custom-cursor) |<img width="1400"  src="examples/fallback-font/example.PNG"> [Fallback Fonts](examples/fallback-font)| 
+|<img width="1400"  src="examples/screenopts/example.PNG"> [Screen Options](examples/screenopts)  |  <img width="1400"  src="examples/multi-window/example.PNG"> [Multi Window](examples/multi-window) |<img width="1400"  src="examples/particle-demo/overviewExample.gif"> [Particle Demo](examples/particle-demo)| 
 
-![Platformer](examples/platformer-tutorial/6-complete/example.gif)
+## Games using Oak <a name="finished-games"/>
 
-Build up to a simple platforming game step by step in the guided walkthrough. // TODO Link wiki
-
-```go
-char := entities.NewMoving(100, 100, 16, 32,
-    render.NewColorBox(16, 32, color.RGBA{255, 0, 0, 255}),
-nil, 0, 0)
-
-char.Bind(func(id event.CID, nothing interface{}) int {
-    char := ie.E().(*entities.Moving)
-
-    // Move left and right with A and D
-    if oak.IsDown(key.A) {
-        char.Delta.SetX(-char.Speed.X())
-    } else if oak.IsDown(key.D) {
-        char.Delta.SetX(char.Speed.X())
-    } else {
-        char.Delta.SetX(0)
-    }
-    char.ShiftPos(char.Delta.X(), char.Delta.Y())
-    return 0
-}, event.Enter)
-```
-
-### Top Down Shooter
-
-Learn to use the collision library and move the viewport as characters move in the guided walkthrough. // TODO link wiki  
-
-![Shoota](examples/top-down-shooter-tutorial/6-performance/example.gif)
-
-### Radar
-
-Often times you might want to create a minimap or a radar for a game, check out this example for a barebones implementation
-
-![Radar](examples/radar-demo/example.gif)
-
-### Slideshow
-
-A different way to use the oak engine.
-
-![Slideshow](examples/slide/example.gif)
-
-## Examples of Finished Games <a name="finished-games"/>
-
-[Agent Blue](https://oakmound.itch.io/agent-blue)
-
-![AgentBlue](https://img.itch.zone/aW1hZ2UvMTk4MjIxLzkyNzUyOC5wbmc=/original/aRusLc.png)
-
-[Fantastic Doctor](https://github.com/oakmound/lowrez17)
-
-![Fantastic Overview](https://img.itch.zone/aW1hZ2UvMTY4NDk1Lzc4MDk1Mi5wbmc=/original/hIjzFm.png)
-
-![Fantastic Overview 2](https://img.itch.zone/aW1hZ2UvMTY4NDk1LzI0MjMxNTEuZ2lm/original/1zpD6g.gif)
-
-[Jeremy The Clam](https://github.com/200sc/jeremy)
-
-![Clammy](https://img.itch.zone/aW1hZ2UvMTYzNjgyLzc1NDkxOS5wbmc=/original/%2BwvZ7j.png)
+| | |
+|:-------------------------:|:-------------------------:|
+|<img width="1400"  src="https://img.itch.zone/aW1hZ2UvMTk4MjIxLzkyNzUyOC5wbmc=/original/aRusLc.png" a=examples/platformer-tutorial>  [Agent Blue](https://oakmound.itch.io/agent-blue) |  <img width="1400"  src="https://img.itch.zone/aW1hZ2UvMTY4NDk1Lzc4MDk1Mi5wbmc=/original/hIjzFm.png"> [Fantastic Doctor](https://github.com/oakmound/lowrez17)
+|<img width="1400"  src="https://img.itch.zone/aW1hZ2UvMzkwNjM5LzI2NzU0ODMucG5n/original/eaoFrd.png">  [Hiring Now: Looters](https://oakmound.itch.io/cheststacker) |  <img width="1400"  src="https://img.itch.zone/aW1hZ2UvMTYzNjgyLzc1NDkxOS5wbmc=/original/%2BwvZ7j.png"> [Jeremy The Clam](https://github.com/200sc/jeremy)
+|<img width="1400"  src="https://img.itch.zone/aW1hZ2UvOTE0MjYzLzUxNjg3NDEucG5n/original/5btfEr.png">  [Diamond Deck Championship](https://oakmound.itch.io/diamond-deck-championship) |  
