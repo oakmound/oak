@@ -5,10 +5,10 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/oakmound/oak/v2/alg/range/floatrange"
-	"github.com/oakmound/oak/v2/alg/range/intrange"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/shape"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/shape"
 )
 
 func TestColorParticle(t *testing.T) {

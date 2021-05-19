@@ -3,7 +3,7 @@ package physics
 import (
 	"testing"
 
-	"github.com/oakmound/oak/v2/alg"
+	"github.com/oakmound/oak/v3/alg"
 )
 
 func TestVectorFuncs(t *testing.T) {

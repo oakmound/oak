@@ -3,10 +3,10 @@ package scene
 import (
 	"context"
 
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/window"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/window"
 )
 
 type Context struct {

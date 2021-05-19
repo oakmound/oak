@@ -1,10 +1,10 @@
 package entities
 
 import (
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render"
 )
 
 // Interactive parallels Moving, but for Reactive instead of Solid

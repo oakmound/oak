@@ -6,16 +6,16 @@ import (
 	"log"
 	"strconv"
 
-	oak "github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/alg/range/floatrange"
-	"github.com/oakmound/oak/v2/alg/range/intrange"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render"
-	pt "github.com/oakmound/oak/v2/render/particle"
-	"github.com/oakmound/oak/v2/scene"
-	"github.com/oakmound/oak/v2/shape"
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render"
+	pt "github.com/oakmound/oak/v3/render/particle"
+	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v3/shape"
 )
 
 var (

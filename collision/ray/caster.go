@@ -3,8 +3,8 @@ package ray
 import (
 	"math"
 
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/collision"
 )
 
 var (

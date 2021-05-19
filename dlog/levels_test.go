@@ -2,7 +2,7 @@ package dlog_test
 
 import (
 	"testing"
-	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v3/dlog"
 )
 
 

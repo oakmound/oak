@@ -1,6 +1,6 @@
 package particle
 
-import "github.com/oakmound/oak/v2/event"
+import "github.com/oakmound/oak/v3/event"
 
 const (
 	blockSize = 2048

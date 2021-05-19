@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
+	"github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
 )
 
 func main() {

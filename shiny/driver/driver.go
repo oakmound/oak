@@ -11,7 +11,7 @@ package driver
 // or OpenGL library.
 
 import (
-	"github.com/oakmound/oak/v2/shiny/screen"
+	"github.com/oakmound/oak/v3/shiny/screen"
 )
 
 // Main is called by the program's main function to run the graphical

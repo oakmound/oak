@@ -1,6 +1,6 @@
 package stat
 
-import "github.com/oakmound/oak/v2/event"
+import "github.com/oakmound/oak/v3/event"
 
 type timedStat struct {
 	name string

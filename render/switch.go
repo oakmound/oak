@@ -5,20 +5,17 @@ import (
 	"image/draw"
 	"sync"
 
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/oakerr"
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 // The Switch type is intended for use to easily swap between multiple
 // renderables that are drawn at the same position on the same layer.
 // A common use case for this would be a character entitiy who switches
-// their animation based on how they are moving or what they are doing.
-//
-// The Switch type removes the need to repeatedly draw and undraw elements
-// of a character, which has a tendency to leave nothing drawn for a draw frame
-// as the switch happens.
+// their animation based on how they are moving or what they are doing,
+// or a button that has changes state when selected or hovered over.
 type Switch struct {
 	LayeredPoint
 	subRenderables map[string]Modifiable

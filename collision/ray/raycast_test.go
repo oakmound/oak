@@ -3,9 +3,9 @@ package ray
 import (
 	"testing"
 
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/alg/range/floatrange"
-	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/collision"
 )
 
 func TestEmptyRaycasts(t *testing.T) {

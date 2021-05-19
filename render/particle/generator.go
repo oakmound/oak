@@ -1,9 +1,9 @@
 package particle
 
 import (
-	"github.com/oakmound/oak/v2/alg/range/floatrange"
-	"github.com/oakmound/oak/v2/alg/range/intrange"
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 var (

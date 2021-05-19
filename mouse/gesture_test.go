@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/physics"
 
-	"github.com/oakmound/oak/v2/shiny/gesture"
+	"github.com/oakmound/oak/v3/shiny/gesture"
 )
 
 func TestGestureIdentity(t *testing.T) {

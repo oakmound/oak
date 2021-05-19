@@ -3,7 +3,7 @@ package shape
 import (
 	"testing"
 
-	"github.com/oakmound/oak/v2/alg/intgeom"
+	"github.com/oakmound/oak/v3/alg/intgeom"
 )
 
 var (

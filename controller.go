@@ -4,16 +4,16 @@ import (
 	"image"
 	"sync/atomic"
 
-	"github.com/oakmound/oak/v2/alg/intgeom"
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/key"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
-	"github.com/oakmound/oak/v2/shiny/driver"
-	"github.com/oakmound/oak/v2/shiny/screen"
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v3/shiny/driver"
+	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 func (c *Controller) windowController(s screen.Screen, x, y int32, width, height int) (screen.Window, error) {

@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/oakmound/oak/v2/shiny/driver/internal/win32"
+	"github.com/oakmound/oak/v3/shiny/driver/internal/win32"
 )
 
 func mkbitmap(size image.Point) (syscall.Handle, *byte, error) {

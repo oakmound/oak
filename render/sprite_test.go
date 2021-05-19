@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/oakmound/oak/v2/alg/range/colorrange"
-	"github.com/oakmound/oak/v2/alg/range/intrange"
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/alg/range/colorrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 var (

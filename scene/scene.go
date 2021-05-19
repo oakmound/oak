@@ -1,8 +1,8 @@
 package scene
 
 import (
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
 // A Scene is a set of functions defining what needs to happen when a scene

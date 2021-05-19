@@ -4,13 +4,13 @@ import (
 	"math"
 	"time"
 
-	"github.com/oakmound/oak/v2/alg/range/intrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 const (

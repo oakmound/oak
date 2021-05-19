@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/oakmound/oak/v2/dlog" 
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/timing"
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/dlog" 
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/timing"
+	"github.com/oakmound/oak/v3/oakerr"
 
 	"encoding/binary"
 	"fmt"

@@ -1,7 +1,7 @@
 package oak
 
 import (
-	"github.com/oakmound/oak/v2/shiny/screen"
+	"github.com/oakmound/oak/v3/shiny/screen"
 )
 
 // A Driver is a function which can take in our lifecycle function

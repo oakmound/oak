@@ -1,6 +1,6 @@
 package window
 
-import "github.com/oakmound/oak/v2/alg/intgeom"
+import "github.com/oakmound/oak/v3/alg/intgeom"
 
 type Window interface {
 	SetFullScreen(bool) error

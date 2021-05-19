@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/disintegration/gift"
-	"github.com/oakmound/oak/v2/shape"
+	"github.com/oakmound/oak/v3/shape"
 )
 
 func TestComposedModifications(t *testing.T) {

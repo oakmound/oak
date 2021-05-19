@@ -4,7 +4,7 @@ import (
 	"image/draw"
 	"sync"
 
-	"github.com/oakmound/oak/v2/alg/intgeom"
+	"github.com/oakmound/oak/v3/alg/intgeom"
 )
 
 // A RenderableHeap manages a set of renderables to be drawn in explicit layered

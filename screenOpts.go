@@ -1,6 +1,6 @@
 package oak
 
-import "github.com/oakmound/oak/v2/oakerr"
+import "github.com/oakmound/oak/v3/oakerr"
 
 type fullScreenable interface {
 	SetFullScreen(bool) error

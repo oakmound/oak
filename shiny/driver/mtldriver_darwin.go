@@ -14,8 +14,8 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/oakmound/oak/v2/shiny/driver/mtldriver"
-	"github.com/oakmound/oak/v2/shiny/screen"
+	"github.com/oakmound/oak/v3/shiny/driver/mtldriver"
+	"github.com/oakmound/oak/v3/shiny/screen"
 )
 
 func main(f func(screen.Screen)) {

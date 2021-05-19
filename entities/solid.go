@@ -3,9 +3,9 @@ package entities
 import (
 	"strconv"
 
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/render"
 )
 
 // A Solid is a Doodad with a width, height, and collision space.

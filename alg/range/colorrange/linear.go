@@ -3,7 +3,7 @@ package colorrange
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/v2/alg/range/intrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
 )
 
 // linear color ranges return colors on a linear distribution

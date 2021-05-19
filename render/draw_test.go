@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/oakmound/oak/v2/fileutil"
+	"github.com/oakmound/oak/v3/fileutil"
 )
 
 func ExampleDraw() {

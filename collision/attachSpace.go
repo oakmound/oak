@@ -3,8 +3,8 @@ package collision
 import (
 	"errors"
 
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 // An AttachSpace is a composable struct that provides attachment

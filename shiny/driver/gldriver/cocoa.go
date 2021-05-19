@@ -36,8 +36,8 @@ import (
 	"runtime"
 	"unsafe"
 
-	"github.com/oakmound/oak/v2/shiny/driver/internal/lifecycler"
-	"github.com/oakmound/oak/v2/shiny/screen"
+	"github.com/oakmound/oak/v3/shiny/driver/internal/lifecycler"
+	"github.com/oakmound/oak/v3/shiny/screen"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/mouse"
 	"golang.org/x/mobile/event/paint"

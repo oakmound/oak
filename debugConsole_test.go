@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/render"
 )
 
 type ent struct{}

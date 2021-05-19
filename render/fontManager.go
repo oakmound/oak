@@ -1,6 +1,6 @@
 package render
 
-import "github.com/oakmound/oak/v2/oakerr"
+import "github.com/oakmound/oak/v3/oakerr"
 
 // A FontManager is just a map for fonts that contains a default font
 type FontManager map[string]*Font

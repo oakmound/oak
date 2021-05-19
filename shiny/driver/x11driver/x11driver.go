@@ -18,8 +18,8 @@ import (
 	"github.com/BurntSushi/xgbutil"
 	"github.com/BurntSushi/xgbutil/xevent"
 
-	"github.com/oakmound/oak/v2/shiny/driver/internal/errscreen"
-	"github.com/oakmound/oak/v2/shiny/screen"
+	"github.com/oakmound/oak/v3/shiny/driver/internal/errscreen"
+	"github.com/oakmound/oak/v3/shiny/screen"
 )
 
 // Main is called by the program's main function to run the graphical

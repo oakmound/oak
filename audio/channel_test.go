@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v2/alg/range/intrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
 )
 
 func TestChannels(t *testing.T) {

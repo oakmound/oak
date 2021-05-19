@@ -1,6 +1,6 @@
 package event
 
-import "github.com/oakmound/oak/v2/dlog"
+import "github.com/oakmound/oak/v3/dlog"
 
 // Bind adds a function to the event bus tied to the given callerID
 // to be called when the event name is triggered. It is equivalent to

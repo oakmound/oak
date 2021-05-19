@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/oakerr"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/shiny/driver"
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/shiny/driver"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 var (

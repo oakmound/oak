@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v2/alg"
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/collision"
 )
 
 func TestConeCasterSettings(t *testing.T) {

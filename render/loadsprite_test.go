@@ -3,7 +3,7 @@ package render
 import (
 	"testing"
 
-	"github.com/oakmound/oak/v2/fileutil"
+	"github.com/oakmound/oak/v3/fileutil"
 )
 
 func Test_loadSprite(t *testing.T) {

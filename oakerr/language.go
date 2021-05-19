@@ -3,7 +3,7 @@ package oakerr
 import (
 	"strings"
 
-	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v3/dlog"
 )
 
 // Language configures the language of returned error strings

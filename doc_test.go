@@ -3,9 +3,9 @@ package oak
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/v2/entities"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
+	"github.com/oakmound/oak/v3/entities"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
 )
 
 // Use oak to display a scene with a single movable character

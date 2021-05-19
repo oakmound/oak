@@ -1,10 +1,10 @@
 package btn
 
 import (
-	"github.com/oakmound/oak/v2/entities"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/entities"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/render"
 )
 
 // Box is a basic implementation of btn

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v3/event"
 )
 
 type cphase struct {

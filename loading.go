@@ -1,10 +1,10 @@
 package oak
 
 import (
-	"github.com/oakmound/oak/v2/audio"
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/fileutil"
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/audio"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/fileutil"
+	"github.com/oakmound/oak/v3/render"
 	"golang.org/x/sync/errgroup"
 )
 

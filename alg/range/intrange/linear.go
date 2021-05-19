@@ -3,7 +3,7 @@ package intrange
 import (
 	"math/rand"
 
-	"github.com/oakmound/oak/v2/alg/range/internal/random"
+	"github.com/oakmound/oak/v3/alg/range/internal/random"
 )
 
 // NewLinear returns a linear range between min and max

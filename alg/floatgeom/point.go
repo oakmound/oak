@@ -3,7 +3,7 @@ package floatgeom
 import (
 	"math"
 
-	"github.com/oakmound/oak/v2/alg"
+	"github.com/oakmound/oak/v3/alg"
 )
 
 // Point2 represents a 2D point on a plane.
@@ -17,7 +17,7 @@ type Point4 [4]float64
 
 // AnglePoint creates a unit vector from the given angle in degrees as a Point2.
 func AnglePoint(angle float64) Point2 {
-	return RadianPoint(angle * math.Pi / 180)
+	return RadianPoint(angle * alg.DegToRad)
 }
 
 // RadianPoint creates a unit vector from the given angle in radians as a Point2.

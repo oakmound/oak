@@ -21,8 +21,8 @@ import (
 	"github.com/BurntSushi/xgb/shm"
 	"github.com/BurntSushi/xgb/xproto"
 
-	"github.com/oakmound/oak/v2/shiny/driver/internal/x11key"
-	"github.com/oakmound/oak/v2/shiny/screen"
+	"github.com/oakmound/oak/v3/shiny/driver/internal/x11key"
+	"github.com/oakmound/oak/v3/shiny/screen"
 	"golang.org/x/image/math/f64"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/mouse"

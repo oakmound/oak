@@ -1,6 +1,6 @@
 package collision
 
-import "github.com/oakmound/oak/v2/alg/floatgeom"
+import "github.com/oakmound/oak/v3/alg/floatgeom"
 
 // A Point is a specific point where
 // collision occurred and a zone to identify

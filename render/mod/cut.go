@@ -4,9 +4,9 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/oakmound/oak/v2/alg"
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/shape"
+	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/shape"
 )
 
 // CutRound rounds the edges of the Modifiable with Bezier curves.

@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/oakmound/oak/v2/shape"
+	"github.com/oakmound/oak/v3/shape"
 )
 
 func TestSimpleBezierLine(t *testing.T) {

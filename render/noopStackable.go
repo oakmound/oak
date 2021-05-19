@@ -3,7 +3,7 @@ package render
 import (
 	"image/draw"
 
-	"github.com/oakmound/oak/v2/alg/intgeom"
+	"github.com/oakmound/oak/v3/alg/intgeom"
 )
 
 // NoopStackable is a Stackable element where all methods are no-ops.

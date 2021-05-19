@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/oakmound/oak/v2/fileutil"
+	"github.com/oakmound/oak/v3/fileutil"
 )
 
 // Config stores initialization settings for oak.

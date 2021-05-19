@@ -5,8 +5,8 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/oakmound/oak/v2/alg/intgeom"
-	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v3/collision"
 )
 
 const heapLoops = 2000

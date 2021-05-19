@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/render"
 )
 
 // Point is a utility function for location

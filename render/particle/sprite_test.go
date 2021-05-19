@@ -5,9 +5,9 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/oakmound/oak/v2/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
 
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/render"
 )
 
 func TestSpriteParticle(t *testing.T) {

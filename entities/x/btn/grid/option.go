@@ -1,8 +1,8 @@
 package grid
 
 import (
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/entities/x/btn"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/entities/x/btn"
 )
 
 // An Option modifies a generator prior to grid generation

@@ -1,10 +1,10 @@
 package move
 
 import (
-	oak "github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/key"
-	"github.com/oakmound/oak/v2/physics"
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 // WASD moves the given mover based on its speed as W,A,S, and D are pressed

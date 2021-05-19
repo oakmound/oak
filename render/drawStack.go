@@ -3,10 +3,10 @@ package render
 import (
 	"image/draw"
 
-	"github.com/oakmound/oak/v2/alg/intgeom"
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v3/oakerr"
 
-	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v3/dlog"
 )
 
 var (

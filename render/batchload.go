@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/fileutil"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/fileutil"
 )
 
 var (

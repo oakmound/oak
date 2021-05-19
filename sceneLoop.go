@@ -3,11 +3,11 @@ package oak
 import (
 	"context"
 
-	"github.com/oakmound/oak/v2/alg/intgeom"
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/scene"
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 func (c *Controller) sceneLoop(first string, trackingInputs bool) {

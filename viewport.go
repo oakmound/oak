@@ -1,9 +1,9 @@
 package oak
 
 import (
-	"github.com/oakmound/oak/v2/alg/intgeom"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/key"
+	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
 )
 
 // SetScreen positions the viewport to be at x,y

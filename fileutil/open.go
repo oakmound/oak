@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v3/dlog"
 )
 
 var (

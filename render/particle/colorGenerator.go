@@ -3,10 +3,10 @@ package particle
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/v2/alg"
-	"github.com/oakmound/oak/v2/shape"
+	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v3/shape"
 
-	"github.com/oakmound/oak/v2/alg/range/intrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
 )
 
 // A ColorGenerator generates ColorParticles

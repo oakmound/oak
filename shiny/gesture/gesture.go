@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/oakmound/oak/v2/shiny/screen"
+	"github.com/oakmound/oak/v3/shiny/screen"
 	"golang.org/x/mobile/event/mouse"
 )
 

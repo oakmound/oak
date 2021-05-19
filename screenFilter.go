@@ -3,9 +3,9 @@ package oak
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/v2/shiny/screen"
+	"github.com/oakmound/oak/v3/shiny/screen"
 
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 // SetPalette tells oak to conform the screen to the input color palette before drawing.

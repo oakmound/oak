@@ -3,7 +3,7 @@ package render
 import (
 	"image"
 
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 // A Modifiable is a Renderable that has functions to change its

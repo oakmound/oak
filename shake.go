@@ -4,8 +4,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/alg/intgeom"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/alg/intgeom"
 )
 
 // TODO: Shakers don't need to be screen-dependant-- they just need something with

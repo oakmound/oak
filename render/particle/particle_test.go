@@ -3,7 +3,7 @@ package particle
 import (
 	"testing"
 
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/render"
 )
 
 func TestParticle(t *testing.T) {

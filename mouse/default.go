@@ -1,6 +1,6 @@
 package mouse
 
-import "github.com/oakmound/oak/v2/collision"
+import "github.com/oakmound/oak/v3/collision"
 
 // DefaultTree is a collision tree intended to be used by default if no other
 // is instantiated. Methods on a collision tree are duplicated as functions

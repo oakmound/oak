@@ -3,7 +3,7 @@ package audio
 import (
 	"testing"
 
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
 func TestErrorChannel(t *testing.T) {

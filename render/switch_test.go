@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 func TestCompoundFuncs(t *testing.T) {

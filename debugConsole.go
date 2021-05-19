@@ -9,14 +9,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/oakerr"
 
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 // AddCommand adds a console command to call fn when

@@ -1,10 +1,10 @@
 package particle
 
 import (
-	"github.com/oakmound/oak/v2/alg"
-	"github.com/oakmound/oak/v2/alg/range/floatrange"
-	"github.com/oakmound/oak/v2/alg/range/intrange"
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 // And chains together particle options into a single option

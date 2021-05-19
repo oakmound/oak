@@ -5,17 +5,17 @@ import (
 	"math/rand"
 	"time"
 
-	oak "github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/collision/ray"
-	"github.com/oakmound/oak/v2/entities"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/key"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/collision/ray"
+	"github.com/oakmound/oak/v3/entities"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
 )
 
 // Collision labels

@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 type Dummy struct{}

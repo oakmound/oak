@@ -4,8 +4,8 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 // CompositeM Types display all of their parts at the same time,

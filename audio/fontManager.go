@@ -2,7 +2,7 @@ package audio
 
 import (
 	"github.com/200sc/klangsynthese/font"
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
 const defaultFontKey = "def"

@@ -4,13 +4,13 @@ import (
 	"image/color"
 	"math/rand"
 
-	"github.com/oakmound/oak/v2/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
 
 	"image"
 
-	oak "github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
 )
 
 // ~60 fps draw rate with these examples in testing
