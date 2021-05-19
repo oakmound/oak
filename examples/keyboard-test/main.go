@@ -11,31 +11,31 @@ import (
 )
 
 var keyLock sync.Mutex
-var keys = map[string]struct{}{}
+var keys = map[rune]struct{}{}
 
 func main() {
 	oak.AddScene("keyboard-test", scene.Scene{Start: func(*scene.Context) {
 		kRenderable := render.NewStrText("", 40, 40)
 		render.Draw(kRenderable, 0)
 		event.GlobalBind(key.Down, func(_ event.CID, k interface{}) int {
-			kValue := k.(string)
+			kValue := k.(key.Event)
 			keyLock.Lock()
-			keys[kValue] = struct{}{}
+			keys[kValue.Rune] = struct{}{}
 			txt := ""
 			for k := range keys {
-				txt += k + "\n"
+				txt += string(k) + " "
 			}
 			kRenderable.SetString(txt)
 			keyLock.Unlock()
 			return 0
 		})
 		event.GlobalBind(key.Up, func(_ event.CID, k interface{}) int {
-			kValue := k.(string)
+			kValue := k.(key.Event)
 			keyLock.Lock()
-			delete(keys, kValue)
+			delete(keys, kValue.Rune)
 			txt := ""
 			for k := range keys {
-				txt += k + " "
+				txt += string(k) + " "
 			}
 			kRenderable.SetString(txt)
 			keyLock.Unlock()

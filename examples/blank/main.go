@@ -10,6 +10,9 @@ import (
 	"github.com/oakmound/oak/v2/scene"
 )
 
+// This example is a blank, default scene with a pprof server. Useful for
+// benchmarks and as a base to copy a starting point from.
+
 func main() {
 	go func() {
 		log.Println(http.ListenAndServe("localhost:6060", nil))

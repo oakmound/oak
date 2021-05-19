@@ -43,7 +43,7 @@ const (
 func main() {
 
 	oak.AddScene("rooms", scene.Scene{Start: func(ctx *scene.Context) {
-		char := entities.NewMoving(200, 200, 50, 50, render.NewColorBox(50, 50, color.RGBA{125, 125, 0, 255}), nil, 0, 1)
+		char := entities.NewMoving(200, 200, 50, 50, render.NewColorBox(50, 50, color.RGBA{255, 255, 255, 255}), nil, 0, 1)
 		char.Speed = physics.NewVector(3, 3)
 
 		var transitioning bool
@@ -73,11 +73,11 @@ func main() {
 		})
 		render.Draw(char.R, 1, 2)
 
-		for x := 0; x < 2000; x += 64 {
-			for y := 0; y < 2000; y += 64 {
+		for x := 0; x < 2000; x += 12 {
+			for y := 0; y < 2000; y += 12 {
 				r := uint8(rand.Intn(120))
-				b := uint8(rand.Intn(120))
-				cb := render.NewColorBox(64, 64, color.RGBA{r, 0, b, 255})
+				g := uint8(rand.Intn(120) + 40)
+				cb := render.NewColorBox(12, 12, color.RGBA{r, g, 0, 255})
 				cb.SetPos(float64(x), float64(y))
 				render.Draw(cb, 0)
 			}

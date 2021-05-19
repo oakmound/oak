@@ -152,5 +152,5 @@ func main() {
 		}()
 	}, Loop: scene.BooleanLoop(playerAlive),
 	})
-	oak.Init("cliffRacers", oak.FileConfig("oak.config"))
+	oak.Init("cliffRacers")
 }
