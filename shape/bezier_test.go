@@ -56,12 +56,12 @@ func TestBezierCurve(t *testing.T) {
 			}
 			bn, ok := b.(BezierNode)
 			if !ok {
-				t.Fatalf("expected BezierNode, got %+t", b)
+				t.Fatalf("expected BezierNode, got %+T", b)
 			}
 			expectedLeft := BezierPoint{x1, y1}
 			left, ok := bn.Left.(BezierPoint)
 			if !ok {
-				t.Fatalf("expected left of bezier to be BezierNode, got %+t", bn.Left)
+				t.Fatalf("expected left of bezier to be BezierNode, got %+T", bn.Left)
 			}
 			if left != expectedLeft {
 				t.Fatalf("expected left point %+v, got %+v", expectedLeft, left)
@@ -163,7 +163,7 @@ func TestBezierCurveErrors(t *testing.T) {
 		}
 		insufficient := &oakerr.InsufficientInputs{}
 		if !errors.As(err, insufficient) {
-			t.Fatalf("expected insufficent error, got %+t", err)
+			t.Fatalf("expected insufficient error, got %+t", err)
 		}
 		if insufficient.AtLeast != 2 {
 			t.Fatalf("expected at least to be '2', got %v", insufficient.AtLeast)

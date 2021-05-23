@@ -101,7 +101,6 @@ func _GetKeyState(virtkey int32) (keystatus int16) {
 
 func _PostQuitMessage(exitCode int32) {
 	syscall.Syscall(procPostQuitMessage.Addr(), 1, uintptr(exitCode), 0, 0)
-	return
 }
 
 func _ToUnicodeEx(wVirtKey uint32, wScanCode uint32, lpKeyState *byte, pwszBuff *uint16, cchBuff int32, wFlags uint32, dwhkl syscall.Handle) (ret int32) {

@@ -80,7 +80,7 @@ func (g Generator) Generate() Btn {
 
 func (g Generator) generate(parent *Generator) Btn {
 	var box render.Modifiable
-	// handle differnt renderable options that could be passed to the generator
+	// handle different renderable options that could be passed to the generator
 	switch {
 	case g.Toggle != nil:
 		//Handles checks and other toggle situations

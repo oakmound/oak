@@ -46,7 +46,7 @@ type Entity interface {
 // So to effectively do this you would need something like:
 // func DefaultEntity(parent interface{}) *DefaultEntity {}
 // ... where the structure would store and pass down the parent.
-// This introduces empty interfaces, would make initalization
+// This introduces empty interfaces, would make initialization
 // more difficult, and would use slightly more memory.
 //
 // Feel free to use this idea in your own implementations, but

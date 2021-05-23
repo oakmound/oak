@@ -5,7 +5,7 @@ import (
 )
 
 // NewInfinite returns a range which will always return math.MaxInt32 and
-// is unchangable.
+// is unchangeable.
 func NewInfinite() Range {
 	return Infinite{}
 }

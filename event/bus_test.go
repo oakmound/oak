@@ -1,6 +1,7 @@
 package event
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -8,12 +9,13 @@ func TestBusStop(t *testing.T) {
 	b := NewBus()
 	phase := 0
 	wait := make(chan struct{})
+	var topErr error
 	go func() {
 		if err := b.Stop(); err != nil {
-			t.Fatalf("stop errored: %v", err)
+			topErr = fmt.Errorf("stop errored: %v", err)
 		}
 		if phase != 1 {
-			t.Fatalf("expected phase %v, got %v", 1, phase)
+			topErr = fmt.Errorf("expected phase %v, got %v", 1, phase)
 		}
 		wait <- struct{}{}
 	}()
@@ -22,4 +24,7 @@ func TestBusStop(t *testing.T) {
 	phase = 1
 	b.doneCh <- struct{}{}
 	<-wait
+	if topErr != nil {
+		t.Fatal(topErr)
+	}
 }

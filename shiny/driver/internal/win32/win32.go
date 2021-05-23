@@ -478,7 +478,7 @@ var (
 )
 
 // initCommon attempts to set up some standard icons.
-// TODO: Consider running this only once if succesful.
+// TODO: Consider running this only once if successful.
 func initCommon() (err error) {
 	hDefaultIcon, err = LoadIcon(0, IDI_APPLICATION)
 	if err != nil {

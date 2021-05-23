@@ -15,7 +15,7 @@ func TestFontManager(t *testing.T) {
 		t.Fatalf("expected duplicate font to fail")
 	}
 	if fm.Get("notafont") != nil {
-		t.Fatalf("expected non existant get font to fail")
+		t.Fatalf("expected non existent get font to fail")
 	}
 	if fm.GetDefault() == nil {
 		t.Fatalf("expected def get font to succeed")

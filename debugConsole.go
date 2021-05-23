@@ -232,7 +232,7 @@ func (c *Controller) fullScreen(sub []string) {
 // It returns an error if the command doesn't exist.
 func (c *Controller) RunCommand(cmd string, args ...string) error {
 	fn, ok := c.commands[cmd]
-	if ok == false {
+	if !ok {
 		return fmt.Errorf("Unknown command %s", cmd)
 	}
 	fn(args)

@@ -3,7 +3,6 @@ package oak
 import (
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
 )
 
 // SetScreen positions the viewport to be at x,y
@@ -76,27 +75,5 @@ func (c *Controller) SetViewportBounds(rect intgeom.Rect2) {
 
 	if newViewX != c.viewPos.X() || newViewY != c.viewPos.Y() {
 		c.setViewport(intgeom.Point2{newViewX, newViewY})
-	}
-}
-
-func (c *Controller) moveViewportBinding(speed int) func(event.CID, interface{}) int {
-	return func(cID event.CID, n interface{}) int {
-		dX := 0
-		dY := 0
-		if c.IsDown(key.UpArrow) {
-			dY--
-		}
-		if c.IsDown(key.DownArrow) {
-			dY++
-		}
-		if c.IsDown(key.LeftArrow) {
-			dX--
-		}
-		if c.IsDown(key.RightArrow) {
-			dX++
-		}
-		c.viewPos[0] += dX * speed
-		c.viewPos[1] += dY * speed
-		return 0
 	}
 }

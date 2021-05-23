@@ -178,17 +178,17 @@ func trifanPoints(src2dst *f64.Aff3, sr image.Rectangle) [4]render.Pointfix {
 	minY := float64(sr.Min.Y)
 	maxY := float64(sr.Max.Y)
 	return [4]render.Pointfix{{
-		f64ToFixed(src2dst[0]*minX + src2dst[1]*minY + src2dst[2]),
-		f64ToFixed(src2dst[3]*minX + src2dst[4]*minY + src2dst[5]),
+		X: f64ToFixed(src2dst[0]*minX + src2dst[1]*minY + src2dst[2]),
+		Y: f64ToFixed(src2dst[3]*minX + src2dst[4]*minY + src2dst[5]),
 	}, {
-		f64ToFixed(src2dst[0]*maxX + src2dst[1]*minY + src2dst[2]),
-		f64ToFixed(src2dst[3]*maxX + src2dst[4]*minY + src2dst[5]),
+		X: f64ToFixed(src2dst[0]*maxX + src2dst[1]*minY + src2dst[2]),
+		Y: f64ToFixed(src2dst[3]*maxX + src2dst[4]*minY + src2dst[5]),
 	}, {
-		f64ToFixed(src2dst[0]*maxX + src2dst[1]*maxY + src2dst[2]),
-		f64ToFixed(src2dst[3]*maxX + src2dst[4]*maxY + src2dst[5]),
+		X: f64ToFixed(src2dst[0]*maxX + src2dst[1]*maxY + src2dst[2]),
+		Y: f64ToFixed(src2dst[3]*maxX + src2dst[4]*maxY + src2dst[5]),
 	}, {
-		f64ToFixed(src2dst[0]*minX + src2dst[1]*maxY + src2dst[2]),
-		f64ToFixed(src2dst[3]*minX + src2dst[4]*maxY + src2dst[5]),
+		X: f64ToFixed(src2dst[0]*minX + src2dst[1]*maxY + src2dst[2]),
+		Y: f64ToFixed(src2dst[3]*minX + src2dst[4]*maxY + src2dst[5]),
 	}}
 }
 

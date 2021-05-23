@@ -32,7 +32,7 @@ type Config struct {
 	Fullscreen          bool             `json:"fullscreen"`
 }
 
-// A Duration is a wrapper arouind time.Duration that allows for easier json formatting.
+// A Duration is a wrapper around time.Duration that allows for easier json formatting.
 type Duration time.Duration
 
 func (d Duration) MarshalJSON() ([]byte, error) {

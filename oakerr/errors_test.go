@@ -8,8 +8,7 @@ func TestErrorsAreErrors(t *testing.T) {
 	languages := []Language{English, Deutsch}
 	for _, lang := range languages {
 		SetLanguage(lang)
-		var err error
-		err = NotFound{}
+		var err error = NotFound{}
 		if err.Error() == "" {
 			t.Fatalf("NotFound error was empty")
 		}

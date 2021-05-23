@@ -19,7 +19,7 @@ const (
 func errorString(code errCode, inputs ...interface{}) string {
 	format, ok := errFmtStrings[currentLanguage][code]
 	if !ok {
-		format, _ = errFmtStrings[English][code]
+		format = errFmtStrings[English][code]
 	}
 	return fmt.Sprintf(format, inputs...)
 }

@@ -15,7 +15,7 @@ func TestRegisterDecoder(t *testing.T) {
 	}
 	err = RegisterDecoder(".new", nil)
 	if err != nil {
-		t.Fatalf("expected registering .new to suceed: %v", err)
+		t.Fatalf("expected registering .new to succeed: %v", err)
 	}
 }
 
@@ -26,6 +26,6 @@ func TestRegisterCfgDecoder(t *testing.T) {
 	}
 	err = RegisterCfgDecoder(".new", nil)
 	if err != nil {
-		t.Fatalf("expected registering .new to suceed: %v", err)
+		t.Fatalf("expected registering .new to succeed: %v", err)
 	}
 }
