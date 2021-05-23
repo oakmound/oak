@@ -10,5 +10,5 @@ import (
 // The file is called luxisr.ttf.
 // Todo: consider shipping with a smaller-sized font (would be a breaking change)
 
-//go:embed testdata/luxisr.ttf
+//go:embed luxisr.ttf
 var luxisrTTF []byte
