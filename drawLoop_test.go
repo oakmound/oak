@@ -1,14 +1,11 @@
 package oak
 
 import (
-	"sync"
 	"testing"
 	"time"
 
 	"github.com/oakmound/oak/v3/scene"
 )
-
-var once sync.Once
 
 func BenchmarkDrawLoop(b *testing.B) {
 	c1 := NewController()

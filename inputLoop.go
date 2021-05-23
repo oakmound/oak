@@ -7,16 +7,10 @@ import (
 	"github.com/oakmound/oak/v3/dlog"
 	okey "github.com/oakmound/oak/v3/key"
 	omouse "github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/shiny/gesture"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
 	"golang.org/x/mobile/event/mouse"
 	"golang.org/x/mobile/event/size"
-)
-
-var (
-	eFilter gesture.EventFilter
-	eventFn func() interface{}
 )
 
 func (c *Controller) inputLoop() {

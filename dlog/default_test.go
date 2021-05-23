@@ -46,7 +46,7 @@ func TestLogger(t *testing.T) {
 [default_test:39]  VERBOSE:foo 
 `
 
-	out := string(buff.Bytes())
+	out := buff.String()
 
 	if out != expectedOut {
 		t.Fatalf("logged output did not match: got %q expected %q", out, expectedOut)
