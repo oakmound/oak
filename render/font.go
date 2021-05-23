@@ -135,9 +135,15 @@ func (f *Font) Copy() *Font {
 	if f.Unsafe {
 		return f
 	}
-	f2 := &Font{}
-	*f2 = *f
-	f2.mutex = sync.Mutex{}
+	f2 := &Font{
+		FontGenerator: f.FontGenerator,
+		Drawer:        f.Drawer,
+		ttfnt:         f.ttfnt,
+		bounds:        f.bounds,
+		Unsafe:        f.Unsafe,
+		mutex:         sync.Mutex{},
+		Fallbacks:     f.Fallbacks,
+	}
 	f2.Drawer.Face = truetype.NewFace(f.ttfnt, &truetype.Options{
 		Size:    f.FontGenerator.Size,
 		DPI:     f.FontGenerator.DPI,

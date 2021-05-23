@@ -35,7 +35,7 @@ func TestBezierCurve(t *testing.T) {
 			}
 			bp, ok := b.(BezierPoint)
 			if !ok {
-				t.Fatalf("expected BezierPoint, got %+t", b)
+				t.Fatalf("expected BezierPoint, got %T", b)
 			}
 			expectedBP := BezierPoint{x, y}
 			if bp != expectedBP {
@@ -56,12 +56,12 @@ func TestBezierCurve(t *testing.T) {
 			}
 			bn, ok := b.(BezierNode)
 			if !ok {
-				t.Fatalf("expected BezierNode, got %+T", b)
+				t.Fatalf("expected BezierNode, got %T", b)
 			}
 			expectedLeft := BezierPoint{x1, y1}
 			left, ok := bn.Left.(BezierPoint)
 			if !ok {
-				t.Fatalf("expected left of bezier to be BezierNode, got %+T", bn.Left)
+				t.Fatalf("expected left of bezier to be BezierNode, got %T", bn.Left)
 			}
 			if left != expectedLeft {
 				t.Fatalf("expected left point %+v, got %+v", expectedLeft, left)
@@ -69,7 +69,7 @@ func TestBezierCurve(t *testing.T) {
 			expectedRight := BezierPoint{x2, y2}
 			right, ok := bn.Right.(BezierPoint)
 			if !ok {
-				t.Fatalf("expected right of bezier to be BezierNode, got %+t", bn.Right)
+				t.Fatalf("expected right of bezier to be BezierNode, got %T", bn.Right)
 			}
 			if right != expectedRight {
 				t.Fatalf("expected right point %+v, got %+v", expectedRight, right)
@@ -163,7 +163,7 @@ func TestBezierCurveErrors(t *testing.T) {
 		}
 		insufficient := &oakerr.InsufficientInputs{}
 		if !errors.As(err, insufficient) {
-			t.Fatalf("expected insufficient error, got %+t", err)
+			t.Fatalf("expected insufficient error, got %T", err)
 		}
 		if insufficient.AtLeast != 2 {
 			t.Fatalf("expected at least to be '2', got %v", insufficient.AtLeast)
@@ -180,7 +180,7 @@ func TestBezierCurveErrors(t *testing.T) {
 			_, err := BezierCurve(floats...)
 			indivisible := &oakerr.IndivisibleInput{}
 			if !errors.As(err, indivisible) {
-				t.Fatalf("expected indivisible error, got %+t", err)
+				t.Fatalf("expected indivisible error, got %T", err)
 			}
 			if indivisible.MustDivideBy != 2 {
 				t.Fatalf("expected must divide by to be '2', got %v", indivisible.MustDivideBy)

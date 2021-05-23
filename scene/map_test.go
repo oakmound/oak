@@ -24,7 +24,7 @@ func TestMap(t *testing.T) {
 	}
 	exists := &oakerr.ExistingElement{}
 	if !errors.As(err, exists) {
-		t.Fatalf("expected ExistingElement error type, got %+T", err)
+		t.Fatalf("expected ExistingElement error type, got %T", err)
 	}
 	if exists.InputName != "test" {
 		t.Fatalf("expected error input 'test', got %q", exists.InputName)
