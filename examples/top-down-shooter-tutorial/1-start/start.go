@@ -3,14 +3,14 @@ package main
 import (
 	"image/color"
 
-	oak "github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/entities"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/key"
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/entities"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
 )
 
 // Collision labels
@@ -24,7 +24,7 @@ var (
 )
 
 func main() {
-	oak.Add("tds", func(string, interface{}) {
+	oak.AddScene("tds", scene.Scene{Start: func(*scene.Context) {
 		playerAlive = true
 		char := entities.NewMoving(100, 100, 32, 32,
 			render.NewColorBox(32, 32, color.RGBA{0, 255, 0, 255}),
@@ -33,7 +33,7 @@ func main() {
 		char.Speed = physics.NewVector(5, 5)
 		render.Draw(char.R)
 
-		char.Bind(func(id int, _ interface{}) int {
+		char.Bind(event.Enter, func(id event.CID, _ interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			char.Delta.Zero()
 			if oak.IsDown(key.W) {
@@ -55,12 +55,8 @@ func main() {
 			}
 
 			return 0
-		}, event.Enter)
+		})
 
-	}, func() bool {
-		return playerAlive
-	}, func() (string, *scene.Result) {
-		return "tds", nil
-	})
+	}})
 	oak.Init("tds")
 }

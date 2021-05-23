@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/render"
 )
 
 // Point is a utility function for location
@@ -55,13 +55,8 @@ func (r *Radar) GetRGBA() *image.RGBA {
 	return r.r
 }
 
-// Draw draws the radar, satisfying render.Renderable
-func (r *Radar) Draw(buff draw.Image) {
-	r.DrawOffset(buff, 0, 0)
-}
-
-// DrawOffset draws the radar at a given offset
-func (r *Radar) DrawOffset(buff draw.Image, xOff, yOff float64) {
+// Draw draws the radar at a given offset
+func (r *Radar) Draw(buff draw.Image, xOff, yOff float64) {
 	// Draw each point p in r.points
 	// at r.X() + center.X() - p.X(), r.Y() + center.Y() - p.Y()
 	// IF that value is < r.width/2, > -r.width/2, < r.height/2, > -r.height/2
@@ -75,8 +70,8 @@ func (r *Radar) DrawOffset(buff draw.Image, xOff, yOff float64) {
 		}
 	}
 	r.r.Set(r.width/2, r.height/2, centerColor)
-	render.ShinyDraw(buff, r.r, int(xOff+r.X()), int(yOff+r.Y()))
-	r.outline.DrawOffset(buff, xOff, yOff)
+	render.DrawImage(buff, r.r, int(xOff+r.X()), int(yOff+r.Y()))
+	r.outline.Draw(buff, xOff, yOff)
 	r.r = image.NewRGBA(image.Rect(0, 0, r.width, r.height))
 }
 

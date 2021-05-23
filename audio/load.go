@@ -9,9 +9,9 @@ import (
 	"github.com/200sc/klangsynthese/wav"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/fileutil"
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/fileutil"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
 // Data is an alias for an interface supporting the built in filters in our
@@ -167,6 +167,7 @@ func blankLoad(filename string) error {
 	buffer, err := audio.EncodeBytes(
 		audio.Encoding{
 			Format: mformat,
+			Data:   []byte{0, 0, 0, 0},
 		})
 	if err != nil {
 		return err

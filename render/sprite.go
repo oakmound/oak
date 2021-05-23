@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 // A Sprite is a basic wrapper around image data and a point. The most basic Renderable.
@@ -35,12 +35,9 @@ func (s *Sprite) GetRGBA() *image.RGBA {
 
 // GetDims returns the dimensions of this sprite, or if this sprite has no
 // defined RGBA returns default values.
-// BUG: The reason the default values of 6,6 are returned is to cover a bug
-// in the library we are using for polygon intersection. Too small objects
-// will always be considered to intersect a draw polygon.
 func (s *Sprite) GetDims() (int, int) {
 	if s.r == nil {
-		return 6, 6
+		return 1, 1
 	}
 	bds := s.r.Bounds()
 	return bds.Max.X, bds.Max.Y
@@ -58,7 +55,7 @@ func (s *Sprite) Bounds() image.Rectangle {
 }
 
 // ColorModel allows sprites to satisfy draw.Image. Returns
-// color.RGBA.
+// color.RGBAModel.
 func (s *Sprite) ColorModel() color.Model {
 	return s.r.ColorModel()
 }
@@ -73,14 +70,9 @@ func (s *Sprite) Set(x, y int, c color.Color) {
 	s.r.Set(x, y, c)
 }
 
-// DrawOffset draws this sprite at +xOff, +yOff
-func (s *Sprite) DrawOffset(buff draw.Image, xOff, yOff float64) {
-	ShinyDraw(buff, s.r, int(s.X()+xOff), int(s.Y()+yOff))
-}
-
-// Draw draws this sprite onto the input buffer
-func (s *Sprite) Draw(buff draw.Image) {
-	ShinyDraw(buff, s.r, int(s.X()), int(s.Y()))
+// Draw draws this sprite at +xOff, +yOff
+func (s *Sprite) Draw(buff draw.Image, xOff, yOff float64) {
+	DrawImage(buff, s.r, int(s.X()+xOff), int(s.Y()+yOff))
 }
 
 // Copy returns a copy of this Sprite
@@ -102,11 +94,6 @@ func rgbaCopy(r *image.RGBA) *image.RGBA {
 	return newRgba
 }
 
-// IsNil returns whether or not this sprite's rgba is nil.
-func (s *Sprite) IsNil() bool {
-	return s.r == nil
-}
-
 // Modify takes in modifications (modify.go) and alters this sprite accordingly
 func (s *Sprite) Modify(ms ...mod.Mod) Modifiable {
 	for _, m := range ms {
@@ -123,7 +110,7 @@ func (s *Sprite) Filter(fs ...mod.Filter) {
 }
 
 // OverlaySprites combines sprites together through masking to form a single sprite
-func OverlaySprites(sps []Sprite) *Sprite {
+func OverlaySprites(sps []*Sprite) *Sprite {
 	tmpSprite := sps[len(sps)-1].Copy().(*Sprite)
 	for i := len(sps) - 1; i > 0; i-- {
 		mod.FillMask(*sps[i-1].GetRGBA())(tmpSprite.GetRGBA())

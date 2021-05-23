@@ -3,32 +3,29 @@ package render
 import (
 	"testing"
 
-	"github.com/akavel/polyclip-go"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
 )
 
 func TestDrawPolygon(t *testing.T) {
 	rh := RenderableHeap{}
 
-	r := rh.DrawPolygonDim()
-	assert.Equal(t, 0.0, r.Min.X())
-	assert.Equal(t, 0.0, r.Min.Y())
-	assert.Equal(t, 0.0, r.Max.X())
-	assert.Equal(t, 0.0, r.Max.Y())
+	r := rh.DrawPolygonBounds()
+	if r != (floatgeom.Rect2{Min: floatgeom.Point2{0, 0}, Max: floatgeom.Point2{0, 0}}) {
+		t.Fatalf("draw polygon was not a zero to zero rectangle")
+	}
 
 	x := 10.0
 	y := 10.0
 	x2 := 20.0
 	y2 := 20.0
 
-	pgn := polyclip.Polygon{{{X: x, Y: y}, {X: x, Y: y2}, {X: x2, Y: y2}, {X: x2, Y: y}}}
-	rh.SetDrawPolygon(pgn)
+	pgn := []floatgeom.Point2{{x, y}, {x, y2}, {x2, y2}, {x2, y}}
+	rh.SetPolygon(pgn)
 
-	r = rh.DrawPolygonDim()
-	assert.Equal(t, x, r.Min.X())
-	assert.Equal(t, y, r.Min.Y())
-	assert.Equal(t, x2, r.Max.X())
-	assert.Equal(t, y2, r.Max.Y())
+	r = rh.DrawPolygonBounds()
+	if r != (floatgeom.Rect2{Min: floatgeom.Point2{x, y}, Max: floatgeom.Point2{x2, y2}}) {
+		t.Fatalf("draw polygon was not a x,y to x2,y2 rectangle")
+	}
 
 	type testcase struct {
 		elems         [4]int
@@ -42,13 +39,38 @@ func TestDrawPolygon(t *testing.T) {
 	}
 
 	for _, cas := range tests {
-		assert.Equal(t, cas.shouldSucceed, rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]))
+		if cas.shouldSucceed != rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]) {
+			t.Fatalf("inDrawPolygon failed")
+		}
 	}
 
 	rh.ClearDrawPolygon()
 
 	for _, cas := range tests {
-		assert.Equal(t, true, rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]))
+		if !rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]) {
+			t.Fatalf("inDrawPolygon with a cleared polygon failed")
+		}
+	}
 
+	rh.SetPolygon([]floatgeom.Point2{{
+		0, 0,
+	}, {
+		10, 10,
+	}, {
+		0, 10,
+	}})
+
+	tests = []testcase{
+		{[4]int{0, 0, 0, 0}, false},
+		{[4]int{0, 0, 30, 30}, true},
+		{[4]int{15, 15, 17, 17}, false},
+		{[4]int{4, 0, 8, 3}, false},
+		{[4]int{4, 0, 8, 4}, true},
+	}
+
+	for _, cas := range tests {
+		if cas.shouldSucceed != rh.InDrawPolygon(cas.elems[0], cas.elems[1], cas.elems[2], cas.elems[3]) {
+			t.Fatalf("inDrawPolygon failed")
+		}
 	}
 }

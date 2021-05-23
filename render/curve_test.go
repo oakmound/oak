@@ -4,8 +4,6 @@ import (
 	"image"
 	"image/color"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSimpleCircle(t *testing.T) {
@@ -29,6 +27,8 @@ func circleRGBACheck(t *testing.T, rgba *image.RGBA) {
 	// . . x x       x x .
 	// . . . x x x x x . .
 	// This should change in the future, probably leaning towards using Beziers.
+	// 3 years later thoughts: Circle using a circle algorithm and bezier using a
+	// bezier algorithm is perfectly fine, the generated circle is fine
 	boolExpected := [][]int{
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 1, 1, 1, 1, 1, 0, 0},
@@ -44,9 +44,13 @@ func circleRGBACheck(t *testing.T, rgba *image.RGBA) {
 	for x, col := range boolExpected {
 		for y, b := range col {
 			if b == 0 {
-				assert.Equal(t, color.RGBA{0, 0, 0, 0}, rgba.At(x, y))
+				if (color.RGBA{0, 0, 0, 0}) != rgba.At(x, y) {
+					t.Fatalf("circle not unset where expected")
+				}
 			} else {
-				assert.Equal(t, color.RGBA{255, 255, 255, 255}, rgba.At(x, y))
+				if (color.RGBA{255, 255, 255, 255}) != rgba.At(x, y) {
+					t.Fatalf("circle not set where expected")
+				}
 			}
 		}
 	}

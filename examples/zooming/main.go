@@ -5,12 +5,12 @@ import (
 	"image/draw"
 	"path/filepath"
 
-	oak "github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/key"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
 )
 
 var (
@@ -19,7 +19,9 @@ var (
 )
 
 func main() {
-	oak.Add("demo", func(string, interface{}) {
+	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
+		render.Draw(render.NewStrText("Controls: Arrow keys", 500, 440))
+
 		// Get an image that we will illustrate zooming with later
 		s, err := render.LoadSprite("assets", filepath.Join("raw", "mona-lisa.jpg"))
 		dlog.ErrorCheck(err)
@@ -36,7 +38,7 @@ func main() {
 		render.Draw(zoomer)
 
 		// To illustrate zooming allow for arrow keys to control the main zoomable renderable.
-		event.GlobalBind(func(i int, _ interface{}) int {
+		event.GlobalBind(event.Enter, func(i event.CID, _ interface{}) int {
 			if oak.IsDown(key.UpArrow) {
 				zoomOutFactorY -= .10
 			}
@@ -50,11 +52,9 @@ func main() {
 				zoomOutFactorX -= .10
 			}
 			return 0
-		}, event.Enter)
+		})
 
-	}, func() bool {
-		return true
-	}, scene.GoTo("demo"))
+	}})
 	oak.Init("demo")
 }
 
@@ -64,14 +64,10 @@ type zoomR struct {
 	SetFn func(buff draw.Image, x, y int, c color.Color)
 }
 
-func (z *zoomR) Draw(buff draw.Image) {
-	z.DrawOffset(buff, 0, 0)
-}
-
-// DrawOffset to draw the zoomR by creating a customImage and applying the set funcitonality.
-func (z *zoomR) DrawOffset(buff draw.Image, xOff, yOff float64) {
+// Draw to draw the zoomR by creating a customImage and applying the set funcitonality.
+func (z *zoomR) Draw(buff draw.Image, xOff, yOff float64) {
 	img := &customImage{buff, z.SetFn}
-	z.Renderable.DrawOffset(img, xOff, yOff)
+	z.Renderable.Draw(img, xOff, yOff)
 }
 
 type customImage struct {

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v3/dlog"
 )
 
 var (
@@ -27,8 +27,8 @@ func (nopCloser) Close() error {
 	return nil
 }
 
-// Open is a wrapper around os.Open that will also check a function to access
-// byte data. The intended use is to use the go-bindata library to create an
+// Open is a wrapper around os.Open that will also check BindataFn to access
+// embedded data. The intended use is to use the an embedding library to create an
 // Asset function that matches this signature.
 func Open(file string) (io.ReadCloser, error) {
 	var err error
@@ -40,7 +40,6 @@ func Open(file string) (io.ReadCloser, error) {
 		// we get capitalization where we don't want it occasionally?
 		rel, err = filepath.Rel(wd, file)
 		if err != nil {
-			dlog.Warn(err)
 			// Just try the relative path by itself if we can't form
 			// an absolute path.
 			rel = file

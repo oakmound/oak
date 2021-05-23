@@ -2,58 +2,11 @@ package oak
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"time"
 
-	"github.com/oakmound/oak/v2/fileutil"
-
-	"github.com/oakmound/oak/v2/dlog"
-)
-
-var (
-	// SetupConfig is the config struct read from at initialization time
-	// when oak starts. When oak.Init() is called, the variables behind
-	// SetupConfig are passed to their appropriate places in the engine, and
-	// afterword the variable is unused.
-	SetupConfig Config
-
-	// SetupFullscreen defines whether the initial screen will start as a fullscreen
-	// window. This variable will go away when oak reaches 3.0, and it will be folded
-	// into the config struct.
-	SetupFullscreen bool
-
-	// SetupBorderless defines whether the initial screen will start as a borderless
-	// window. This variable will go away when oak reaches 3.0, and it will be folded
-	// into the config struct.
-	SetupBorderless bool
-
-	// SetupTopMost defines whether the initial screen will start on top of other
-	// windows (even when out of focus). This variable will go away when oak reaches
-	// 3.0, and it will be folded into the config struct.
-	SetupTopMost bool
-
-	// These are the default settings of a project. Anything within SetupConfig
-	// that is set to its zero value will not overwrite these settings.
-	conf = Config{
-		Assets: Assets{"assets/", "audio/", "images/", "font/"},
-		Debug:  Debug{"", "ERROR"},
-		Screen: Screen{0, 0, 480, 640, 1, 0, 0},
-		Font:   Font{"none", 12.0, 72.0, "", "white"},
-		BatchLoadOptions: BatchLoadOptions{
-			BlankOutAudio:    false,
-			MaxImageFileSize: 0,
-		},
-		FrameRate:           60,
-		DrawFrameRate:       60,
-		Language:            "English",
-		Title:               "Oak Window",
-		BatchLoad:           false,
-		GestureSupport:      false,
-		LoadBuiltinCommands: false,
-		TrackInputChanges:   false,
-		EventRefreshRate:    0 * time.Second,
-		DisableDebugConsole: false,
-	}
+	"github.com/oakmound/oak/v3/fileutil"
 )
 
 // Config stores initialization settings for oak.
@@ -65,14 +18,90 @@ type Config struct {
 	BatchLoadOptions    BatchLoadOptions `json:"batchLoadOptions"`
 	FrameRate           int              `json:"frameRate"`
 	DrawFrameRate       int              `json:"drawFrameRate"`
+	IdleDrawFrameRate   int              `json:"idleDrawFrameRate"`
 	Language            string           `json:"language"`
 	Title               string           `json:"title"`
-	EventRefreshRate    time.Duration    `json:"refreshRate"`
+	EventRefreshRate    Duration         `json:"refreshRate"`
 	BatchLoad           bool             `json:"batchLoad"`
 	GestureSupport      bool             `json:"gestureSupport"`
 	LoadBuiltinCommands bool             `json:"loadBuiltinCommands"`
 	TrackInputChanges   bool             `json:"trackInputChanges"`
-	DisableDebugConsole bool             `json:"disableDebugConsole"`
+	EnableDebugConsole  bool             `json:"enableDebugConsole"`
+	TopMost             bool             `json:"topmost"`
+	Borderless          bool             `json:"borderless"`
+	Fullscreen          bool             `json:"fullscreen"`
+}
+
+// A Duration is a wrapper around time.Duration that allows for easier json formatting.
+type Duration time.Duration
+
+func (d Duration) MarshalJSON() ([]byte, error) {
+	return json.Marshal(time.Duration(d).String())
+}
+
+func (d *Duration) UnmarshalJSON(b []byte) error {
+	var v interface{}
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	switch value := v.(type) {
+	case float64:
+		*d = Duration(time.Duration(value))
+		return nil
+	case string:
+		tmp, err := time.ParseDuration(value)
+		if err != nil {
+			return err
+		}
+		*d = Duration(tmp)
+		return nil
+	default:
+		return errors.New("invalid duration type")
+	}
+}
+
+func NewConfig(opts ...ConfigOption) (Config, error) {
+	c := Config{}
+	c = c.setDefaults()
+	var err error
+	for _, o := range opts {
+		c, err = o(c)
+		if err != nil {
+			return c, err
+		}
+	}
+	return c, nil
+}
+
+func (c Config) setDefaults() Config {
+	c.Assets = Assets{
+		AssetPath: "assets/",
+		AudioPath: "audio/",
+		ImagePath: "images/",
+		FontPath:  "font/",
+	}
+	c.Debug = Debug{
+		Level: "ERROR",
+	}
+	c.Screen = Screen{
+		Height: 480,
+		Width:  640,
+		Scale:  1,
+	}
+	c.Font = Font{
+		Hinting: "none",
+		Size:    12.0,
+		DPI:     72.0,
+		File:    "",
+		Color:   "white",
+	}
+	c.FrameRate = 60
+	c.DrawFrameRate = 60
+	c.IdleDrawFrameRate = 60
+	c.Language = "English"
+	c.Title = "Oak Window"
+	c.EventRefreshRate = Duration(50 * time.Millisecond)
+	return c
 }
 
 // Assets is a json type storing paths to different asset folders
@@ -122,131 +151,121 @@ type BatchLoadOptions struct {
 
 // LoadConf loads a config file, that could exist inside
 // oak's binary data storage (see fileutil), to SetupConfig
-func LoadConf(filePath string) error {
-	r, err := fileutil.Open(filePath)
-	if err != nil {
-		dlog.Warn(err)
-		return err
-	}
-	defer r.Close()
-	err = LoadConfData(r)
-	dlog.Info(SetupConfig)
-	return err
-}
-
-// LoadConfData takes in an io.Reader and decodes it to SetupConfig
-func LoadConfData(r io.Reader) error {
-	return json.NewDecoder(r).Decode(&SetupConfig)
-}
-
-func initConfAssets() {
-	if SetupConfig.Assets.AssetPath != "" {
-		conf.Assets.AssetPath = SetupConfig.Assets.AssetPath
-	}
-	if SetupConfig.Assets.ImagePath != "" {
-		conf.Assets.ImagePath = SetupConfig.Assets.ImagePath
-	}
-	if SetupConfig.Assets.AudioPath != "" {
-		conf.Assets.AudioPath = SetupConfig.Assets.AudioPath
-	}
-	if SetupConfig.Assets.FontPath != "" {
-		conf.Assets.FontPath = SetupConfig.Assets.FontPath
+func FileConfig(filePath string) ConfigOption {
+	return func(c Config) (Config, error) {
+		r, err := fileutil.Open(filePath)
+		if err != nil {
+			return c, err
+		}
+		defer r.Close()
+		return ReaderConfig(r)(c)
 	}
 }
 
-func initConfDebug() {
-	if SetupConfig.Debug.Filter != "" {
-		conf.Debug.Filter = SetupConfig.Debug.Filter
-	}
-	if SetupConfig.Debug.Level != "" {
-		conf.Debug.Level = SetupConfig.Debug.Level
+type ConfigOption func(Config) (Config, error)
+
+func ReaderConfig(r io.Reader) ConfigOption {
+	return func(c Config) (Config, error) {
+		c2 := Config{}
+		decoder := json.NewDecoder(r)
+		decoder.DisallowUnknownFields()
+		err := decoder.Decode(&c2)
+		if err != nil {
+			return c, err
+		}
+		c2 = c.overwriteFrom(c2)
+		return c2, nil
 	}
 }
 
-func initConfScreen() {
-	// we have no check here, because if X or Y is 0, they are ignored.
-	conf.Screen.X = SetupConfig.Screen.X
-	conf.Screen.Y = SetupConfig.Screen.Y
-	if SetupConfig.Screen.Width != 0 {
-		conf.Screen.Width = SetupConfig.Screen.Width
+func (c Config) overwriteFrom(c2 Config) Config {
+	// TODO: is this the right place for these configuration pieces?
+	// TODO: is there other configuration that should go here?
+	if c2.Assets.AssetPath != "" {
+		c.Assets.AssetPath = c2.Assets.AssetPath
 	}
-	if SetupConfig.Screen.Height != 0 {
-		conf.Screen.Height = SetupConfig.Screen.Height
+	if c2.Assets.AudioPath != "" {
+		c.Assets.AudioPath = c2.Assets.AudioPath
 	}
-	if SetupConfig.Screen.Scale != 0 {
-		conf.Screen.Scale = SetupConfig.Screen.Scale
+	if c2.Assets.ImagePath != "" {
+		c.Assets.ImagePath = c2.Assets.ImagePath
 	}
-	if SetupConfig.Screen.TargetWidth != 0 {
-		conf.Screen.TargetWidth = SetupConfig.Screen.TargetWidth
+	if c2.Assets.FontPath != "" {
+		c.Assets.FontPath = c2.Assets.FontPath
 	}
-	if SetupConfig.Screen.TargetHeight != 0 {
-		conf.Screen.TargetHeight = SetupConfig.Screen.TargetHeight
+	if c2.Debug.Filter != "" {
+		c.Debug.Filter = c2.Debug.Filter
 	}
-}
-
-func initConfFont() {
-	if SetupConfig.Font.Hinting != "" {
-		conf.Font.Hinting = SetupConfig.Font.Hinting
+	if c2.Debug.Level != "" {
+		c.Debug.Level = c2.Debug.Level
 	}
-	if SetupConfig.Font.Size != 0 {
-		conf.Font.Size = SetupConfig.Font.Size
+	if c2.Screen.X != 0 {
+		c.Screen.X = c2.Screen.X
 	}
-	if SetupConfig.Font.DPI != 0 {
-		conf.Font.DPI = SetupConfig.Font.DPI
+	if c2.Screen.Y != 0 {
+		c.Screen.Y = c2.Screen.Y
 	}
-	if SetupConfig.Font.File != "" {
-		conf.Font.File = SetupConfig.Font.File
+	if c2.Screen.Height != 0 {
+		c.Screen.Height = c2.Screen.Height
 	}
-	if SetupConfig.Font.Color != "" {
-		conf.Font.Color = SetupConfig.Font.Color
+	if c2.Screen.Width != 0 {
+		c.Screen.Width = c2.Screen.Width
 	}
-}
-
-func initConfBatchLoad() {
-	conf.BatchLoadOptions.BlankOutAudio = SetupConfig.BatchLoadOptions.BlankOutAudio
-
-	if SetupConfig.BatchLoadOptions.MaxImageFileSize != 0 {
-		conf.BatchLoadOptions.MaxImageFileSize = SetupConfig.BatchLoadOptions.MaxImageFileSize
+	if c2.Screen.Scale != 0 {
+		c.Screen.Scale = c2.Screen.Scale
 	}
-}
-
-func initConf() {
-
-	initConfAssets()
-
-	initConfDebug()
-
-	initConfScreen()
-
-	initConfFont()
-
-	initConfBatchLoad()
-
-	if SetupConfig.FrameRate != 0 {
-		conf.FrameRate = SetupConfig.FrameRate
+	if c2.Screen.TargetWidth != 0 {
+		c.Screen.TargetWidth = c2.Screen.TargetWidth
 	}
-
-	if SetupConfig.DrawFrameRate != 0 {
-		conf.DrawFrameRate = SetupConfig.DrawFrameRate
+	if c2.Screen.TargetHeight != 0 {
+		c.Screen.TargetHeight = c2.Screen.TargetHeight
 	}
-
-	if SetupConfig.Language != "" {
-		conf.Language = SetupConfig.Language
+	if c2.Font.Hinting != "" {
+		c.Font.Hinting = c2.Font.Hinting
 	}
-
-	if SetupConfig.Title != "" {
-		conf.Title = SetupConfig.Title
+	if c2.Font.Size != 0 {
+		c.Font.Size = c2.Font.Size
 	}
-
-	if SetupConfig.EventRefreshRate != 0 {
-		conf.EventRefreshRate = SetupConfig.EventRefreshRate
+	if c2.Font.DPI != 0 {
+		c.Font.DPI = c2.Font.DPI
 	}
-
-	conf.BatchLoad = SetupConfig.BatchLoad
-	conf.GestureSupport = SetupConfig.GestureSupport
-	conf.LoadBuiltinCommands = SetupConfig.LoadBuiltinCommands
-	conf.TrackInputChanges = SetupConfig.TrackInputChanges
-	conf.DisableDebugConsole = SetupConfig.DisableDebugConsole
-
-	dlog.Error(conf)
+	if c2.Font.File != "" {
+		c.Font.File = c2.Font.File
+	}
+	if c2.Font.Color != "" {
+		c.Font.Color = c2.Font.Color
+	}
+	c.BatchLoadOptions.BlankOutAudio = c2.BatchLoadOptions.BlankOutAudio
+	if c2.BatchLoadOptions.MaxImageFileSize != 0 {
+		c.BatchLoadOptions.MaxImageFileSize = c2.BatchLoadOptions.MaxImageFileSize
+	}
+	if c2.FrameRate != 0 {
+		c.FrameRate = c2.FrameRate
+	}
+	if c2.DrawFrameRate != 0 {
+		c.DrawFrameRate = c2.DrawFrameRate
+	}
+	if c2.IdleDrawFrameRate != 0 {
+		c.IdleDrawFrameRate = c2.IdleDrawFrameRate
+	}
+	if c2.Language != "" {
+		c.Language = c2.Language
+	}
+	if c2.Title != "" {
+		c.Title = c2.Title
+	}
+	if c2.EventRefreshRate != 0 {
+		c.EventRefreshRate = c2.EventRefreshRate
+	}
+	// Booleans can be directly overwritten-- all booleans in a Config
+	// default to false, if they were unset they will stay false.
+	c.BatchLoad = c2.BatchLoad
+	c.GestureSupport = c2.GestureSupport
+	c.LoadBuiltinCommands = c2.LoadBuiltinCommands
+	c.TrackInputChanges = c2.TrackInputChanges
+	c.EnableDebugConsole = c2.EnableDebugConsole
+	c.TopMost = c2.TopMost
+	c.Borderless = c2.Borderless
+	c.Fullscreen = c2.Fullscreen
+	return c
 }

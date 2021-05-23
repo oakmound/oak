@@ -1,23 +1,20 @@
 package render
 
 import (
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 const (
-	// Undraw is a constant used to represent the layer of elements
-	// to be undrawn. This is exported in the rare case that there is
+	// Undraw is a layer representing elements that should be undrawn, or removed
+	// from the draw stack. This is exported in the rare case that there is
 	// a need to use the default value for something else.
 	Undraw = -1000
 )
 
 // Layered types know the order they should be drawn in relative to
 // other layered types. Higher layers are drawn after lower layers,
-// and so will appear on top of them. Layers are anticipated to be
-// all positive, and if this is not true the Undraw constant should
-// be changed. Failing to change the Undraw constant to something outside
-// of the range of the set of valid layers could result in unanticipated
-// undrawn renderables.
+// and so will appear on top of them. Drawn layers are anticipated to
+// be all positive.
 //
 // Basic Implementing struct: Layer
 type Layered interface {
@@ -26,17 +23,12 @@ type Layered interface {
 	Undraw()
 }
 
-//A Layer object has a draw layer
+// A Layer object has a draw layer
 type Layer struct {
 	layer int
 }
 
-// NewLayer returns a wrapper around a draw layer integer
-func NewLayer(layer int) Layer {
-	return Layer{layer}
-}
-
-//GetLayer returns the layer of an object if it has one or else returns that the object needs to be undrawn
+// GetLayer returns the layer of an object if it has one or else returns that the object needs to be undrawn
 func (ld *Layer) GetLayer() int {
 	if ld == nil {
 		return Undraw
@@ -44,23 +36,23 @@ func (ld *Layer) GetLayer() int {
 	return ld.layer
 }
 
-//SetLayer sets an object that has a layer to the given layer
+// SetLayer sets an object's layer
 func (ld *Layer) SetLayer(l int) {
 	ld.layer = l
 }
 
-//Undraw sets that a Layer object should be undrawn
+// Undraw sets that a Layer object should be undrawn
 func (ld *Layer) Undraw() {
 	ld.layer = Undraw
 }
 
-//A LayeredPoint is an object with a position Vector and a layer
+// A LayeredPoint is an object with a position Vector and a layer
 type LayeredPoint struct {
 	physics.Vector
 	Layer
 }
 
-//NewLayeredPoint creates a new LayeredPoint at a given location and layer
+// NewLayeredPoint creates a new LayeredPoint at a given location and layer
 func NewLayeredPoint(x, y float64, l int) LayeredPoint {
 	return LayeredPoint{
 		Vector: physics.NewVector(x, y),
@@ -93,21 +85,18 @@ func (ldp *LayeredPoint) ShiftX(x float64) {
 	ldp.Vector.ShiftX(x)
 }
 
-//ShiftY moves the LayeredPoint by the given y
+// ShiftY moves the LayeredPoint by the given y
 func (ldp *LayeredPoint) ShiftY(y float64) {
 	ldp.Vector.ShiftY(y)
 }
 
-//SetPos sets the LayeredPoint's position to the given x, y
+// SetPos sets the LayeredPoint's position to the given x, y
 func (ldp *LayeredPoint) SetPos(x, y float64) {
 	ldp.Vector.SetPos(x, y)
 }
 
-//GetDims returns a static small amount so that polygon containment does not throw errors
+// GetDims returns the dimensions of this object. As a single point, LayeredPoint
+// returns (1,1).
 func (ldp *LayeredPoint) GetDims() (int, int) {
-	// We use 6,6 here because our polygon containment library has a bug where it
-	// will misreport artificially small dimensions. This function is expected to
-	// only be used to determine whether something is onscreen to be drawn.
-	// Todo: write own polygon containment library
-	return 6, 6
+	return 1, 1
 }

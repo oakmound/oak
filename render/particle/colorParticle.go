@@ -4,8 +4,8 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render"
 )
 
 // A ColorParticle is a particle with a defined color and size
@@ -17,13 +17,8 @@ type ColorParticle struct {
 	endSize    float64
 }
 
-// Draw redirects to DrawOffset
-func (cp *ColorParticle) Draw(buff draw.Image) {
-	cp.DrawOffset(buff, 0, 0)
-}
-
-// DrawOffset redirects to DrawOffsetGen
-func (cp *ColorParticle) DrawOffset(buff draw.Image, xOff, yOff float64) {
+// Draw redirects to DrawOffsetGen
+func (cp *ColorParticle) Draw(buff draw.Image, xOff, yOff float64) {
 	cp.DrawOffsetGen(cp.GetBaseParticle().Src.Generator, buff, xOff, yOff)
 }
 
@@ -67,14 +62,10 @@ func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOf
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
 			if gen.Shape.In(i, j, size) {
-				//fmt.Println("In", i, j)
-				//render.ShinySet(buff, c, xOffi+i, yOffi+j)
 				buff.Set(xOffi+i, yOffi+j, c)
 			}
 		}
 	}
-
-	//fmt.Println("Drawing particle", size, xOffi, yOffi)
 }
 
 // GetLayer returns baseParticle GetLayer. This is a safety check against auto-generated
@@ -99,6 +90,5 @@ func (cp *ColorParticle) GetDims() (int, int) {
 	}
 
 	size := int(((progress) * cp.size) + ((1 - progress) * cp.endSize))
-	//fmt.Println("Dim size", size)
 	return size, size
 }

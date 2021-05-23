@@ -6,10 +6,11 @@ import (
 	"image/color"
 	"os"
 	"path/filepath"
+	"strings"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/fileutil"
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/fileutil"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
 func loadSprite(directory, fileName string, maxFileSize int64) (*image.RGBA, error) {
@@ -32,23 +33,19 @@ func loadSprite(directory, fileName string, maxFileSize int64) (*image.RGBA, err
 	}()
 
 	ext := filepath.Ext(fileName)
+	ext = strings.ToLower(ext)
 
 	cfgDecoder, ok := cfgDecoders[ext]
 	if maxFileSize != 0 && ok {
-		info, err := os.Lstat(fullPath)
 		// This can't reasonably error as we already loaded the file above
-		dlog.ErrorCheck(err)
+		info, _ := os.Lstat(fullPath)
 		if info.Size() > maxFileSize {
 			// construct a blank image of the correct dimensions
 			cfg, err := cfgDecoder(imgFile)
 			if err != nil {
 				return nil, err
 			}
-			bounds := image.Rectangle{
-				Min: image.Point{0, 0},
-				Max: image.Point{cfg.Width, cfg.Height},
-			}
-			rgba := image.NewRGBA(bounds)
+			rgba := image.NewRGBA(image.Rect(0, 0, cfg.Width, cfg.Height))
 			imageLock.Lock()
 			loadedImages[fileName] = rgba
 			imageLock.Unlock()
@@ -72,8 +69,6 @@ func loadSprite(directory, fileName string, maxFileSize int64) (*image.RGBA, err
 	// of image encoding was arbitrary. If using the image.Image
 	// interface would not hurt performance considerably, we should
 	// just use that.
-	//
-	// This converts the
 	bounds := img.Bounds()
 	rgba := image.NewRGBA(bounds)
 	for x := 0; x < bounds.Max.X; x++ {

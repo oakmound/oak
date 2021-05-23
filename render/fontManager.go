@@ -1,6 +1,6 @@
 package render
 
-import "github.com/oakmound/oak/v2/oakerr"
+import "github.com/oakmound/oak/v3/oakerr"
 
 // A FontManager is just a map for fonts that contains a default font
 type FontManager map[string]*Font
@@ -8,7 +8,7 @@ type FontManager map[string]*Font
 // NewFontManager returns a FontManager where 'def' is the default font
 func NewFontManager() *FontManager {
 	fm := &FontManager{}
-	(*fm)["def"] = (&FontGenerator{}).Generate()
+	(*fm)["def"], _ = (&FontGenerator{}).Generate()
 	return fm
 }
 
@@ -24,7 +24,11 @@ func (fm *FontManager) NewFont(name string, fg FontGenerator) error {
 			Overwritten: true,
 		}
 	}
-	manager[name] = (&fg).Generate()
+	fnt, genErr := (&fg).Generate()
+	if genErr != nil {
+		return genErr
+	}
+	manager[name] = fnt
 	return err
 
 }

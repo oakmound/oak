@@ -3,14 +3,14 @@ package audio
 import (
 	"time"
 
-	"github.com/200sc/go-dist/intrange"
 	"github.com/200sc/klangsynthese/font"
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/timing"
 )
 
-// DefActiveChannel acts like GetActiveChannel when fed DefFont
-func DefActiveChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
-	return GetActiveChannel(DefFont, freq, fileNames...)
+// DefaultActiveChannel acts like GetActiveChannel when fed DefaultFont
+func DefaultActiveChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+	return GetActiveChannel(DefaultFont, freq, fileNames...)
 }
 
 // GetActiveChannel returns a channel that will block until its frequency
@@ -28,7 +28,7 @@ func GetActiveChannel(f *font.Font, freq intrange.Range, fileNames ...string) (c
 	return getActiveChannel(f, freq, timing.ClearDelayCh, fileNames...)
 }
 
-func getActiveChannel(f *font.Font, freq intrange.Range, quitCh chan bool,
+func getActiveChannel(f *font.Font, freq intrange.Range, quitCh chan struct{},
 	fileNames ...string) (chan ChannelSignal, error) {
 
 	datas, err := GetSounds(fileNames...)
@@ -71,9 +71,9 @@ func getActiveChannel(f *font.Font, freq intrange.Range, quitCh chan bool,
 	return soundCh, nil
 }
 
-// DefChannel acts like GetChannel when given DefFont
-func DefChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
-	return getChannel(DefFont, freq, timing.ClearDelayCh, fileNames...)
+// DefaultChannel acts like GetChannel when given DefaultFont
+func DefaultChannel(freq intrange.Range, fileNames ...string) (chan ChannelSignal, error) {
+	return getChannel(DefaultFont, freq, timing.ClearDelayCh, fileNames...)
 }
 
 // GetChannel channels will attempt to steal most sends sent to the output
@@ -91,7 +91,7 @@ func GetChannel(f *font.Font, freq intrange.Range, fileNames ...string) (chan Ch
 	return getChannel(f, freq, timing.ClearDelayCh, fileNames...)
 }
 
-func getChannel(f *font.Font, freq intrange.Range, quitCh chan bool, fileNames ...string) (chan ChannelSignal, error) {
+func getChannel(f *font.Font, freq intrange.Range, quitCh chan struct{}, fileNames ...string) (chan ChannelSignal, error) {
 	soundCh, err := getActiveChannel(f, freq, quitCh, fileNames...)
 	if err != nil {
 		return nil, err

@@ -3,8 +3,6 @@ package render
 import (
 	"image/color"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestTween(t *testing.T) {
@@ -19,9 +17,9 @@ func TestTween(t *testing.T) {
 		// I had to just jump around to actually find 257 (and I've
 		// had to do this before, and remember this same experience)
 		v := uint32(257 * i)
-		assert.Equal(t, r, v)
-		assert.Equal(t, g, v)
-		assert.Equal(t, b, v)
-		assert.Equal(t, a, v)
+
+		if r != v || g != v || b != v || a != v {
+			t.Fatalf("tween color mismatch")
+		}
 	}
 }

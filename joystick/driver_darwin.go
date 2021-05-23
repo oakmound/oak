@@ -1,6 +1,6 @@
 package joystick
 
-import "errors"
+import  "github.com/oakmound/oak/v3/oakerr"
 
 func osinit() error {
 	return nil
@@ -14,19 +14,19 @@ type osJoystick struct {
 }
 
 func (j *Joystick) prepare() error {
-	return errors.New("OS not supported")
+	return oakerr.UnsupportedPlatform{Operation:"joystick"}
 }
 
 func (j *Joystick) getState() (*State, error) {
-	return nil, errors.New("OS not supported")
+	return nil, oakerr.UnsupportedPlatform{Operation:"joystick"}
 }
 
 func (j *Joystick) vibrate(left, right uint16) error {
-	return errors.New("OS not supported")
+	return oakerr.UnsupportedPlatform{Operation:"joystick"}
 }
 
 func (j *Joystick) close() error {
-	return errors.New("OS not supported")
+	return oakerr.UnsupportedPlatform{Operation:"joystick"}
 }
 
 func getJoysticks() []*Joystick {

@@ -4,13 +4,20 @@ import (
 	"testing"
 
 	"github.com/200sc/klangsynthese/font"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestFontManager(t *testing.T) {
 	fm := NewFontManager()
-	assert.Nil(t, fm.NewFont("unused", font.New()))
-	assert.NotNil(t, fm.NewFont("unused", font.New()))
-	assert.Nil(t, fm.Get("notafont"))
-	assert.NotNil(t, fm.Get("def"))
+	if fm.NewFont("unused", font.New()) != nil {
+		t.Fatalf("expected new font to succeed")
+	}
+	if fm.NewFont("unused", font.New()) == nil {
+		t.Fatalf("expected duplicate font to fail")
+	}
+	if fm.Get("notafont") != nil {
+		t.Fatalf("expected non existent get font to fail")
+	}
+	if fm.GetDefault() == nil {
+		t.Fatalf("expected def get font to succeed")
+	}
 }

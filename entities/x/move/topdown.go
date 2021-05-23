@@ -1,10 +1,10 @@
 package move
 
 import (
-	oak "github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/key"
-	"github.com/oakmound/oak/v2/physics"
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 // WASD moves the given mover based on its speed as W,A,S, and D are pressed
@@ -47,8 +47,8 @@ func TopDown(mvr Mover, up, down, left, right string) {
 func CenterScreenOn(mvr Mover) {
 	vec := mvr.Vec()
 	oak.SetScreen(
-		int(vec.X())-oak.ScreenWidth/2,
-		int(vec.Y())-oak.ScreenHeight/2,
+		int(vec.X())-oak.Width()/2,
+		int(vec.Y())-oak.Height()/2,
 	)
 }
 

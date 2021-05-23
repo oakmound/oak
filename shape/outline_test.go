@@ -1,16 +1,16 @@
 package shape
 
 import (
+	"fmt"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestRectangleOutline(t *testing.T) {
+	t.Parallel()
 	type testCase struct {
 		w, h           int
 		expectedLength int
-		expectedErr    error
+		shouldErr      bool
 	}
 	tcs := []testCase{
 		{
@@ -30,47 +30,67 @@ func TestRectangleOutline(t *testing.T) {
 		},
 	}
 	for _, tc := range tcs {
-		out, err := Rectangle.Outline(tc.w, tc.h)
-		if tc.expectedErr == nil {
-			require.Nil(t, err)
-		} else {
-			require.Contains(t, tc.expectedErr.Error(), err.Error())
-		}
-		require.Equal(t, tc.expectedLength, len(out))
+		tc := tc
+		t.Run(fmt.Sprintf("%dx%d", tc.w, tc.h), func(t *testing.T) {
+			t.Parallel()
+			out, err := Rectangle.Outline(tc.w, tc.h)
+			if !tc.shouldErr {
+				if err != nil {
+					t.Fatalf("expected nil error, got %v", err)
+				}
+			} else {
+				if err == nil {
+					t.Fatalf("expected non-nil error, got nil")
+				}
+			}
+			if tc.expectedLength != len(out) {
+				t.Fatalf("expected length of output %v, got %v", tc.expectedLength, len(out))
+			}
+		})
 	}
 }
 
 func TestToOutline4(t *testing.T) {
+	t.Parallel()
 	type testCase struct {
-		w, h        int
-		shape       Shape
-		outlineLen  int
-		outline4Len int
+		w, h           int
+		shape          Shape
+		outlineLength  int
+		outline4Length int
 	}
 	tcs := []testCase{
 		{
-			w:           10,
-			h:           10,
-			shape:       Heart,
-			outlineLen:  24,
-			outline4Len: 32,
+			w:              10,
+			h:              10,
+			shape:          Heart,
+			outlineLength:  24,
+			outline4Length: 32,
 		},
 	}
 	for _, tc := range tcs {
-		out, _ := tc.shape.Outline(tc.w, tc.h)
-		require.Equal(t, tc.outlineLen, len(out))
+		tc := tc
+		t.Run(fmt.Sprintf("%dx%d", tc.w, tc.h), func(t *testing.T) {
+			t.Parallel()
+			out, _ := tc.shape.Outline(tc.w, tc.h)
+			if tc.outlineLength != len(out) {
+				t.Fatalf("expected length of output %v, got %v", tc.outlineLength, len(out))
+			}
 
-		out, _ = ToOutline4(tc.shape)(tc.w, tc.h)
-		require.Equal(t, tc.outline4Len, len(out))
+			out, _ = ToOutline4(tc.shape)(tc.w, tc.h)
+			if tc.outline4Length != len(out) {
+				t.Fatalf("expected length of output 4 %v, got %v", tc.outline4Length, len(out))
+			}
+		})
 	}
 }
 
 func TestJustInOutline(t *testing.T) {
+	t.Parallel()
 	type testCase struct {
-		w, h        int
-		in          func(int, int, ...int) bool
-		expectedLen int
-		shouldErr   bool
+		w, h           int
+		in             func(int, int, ...int) bool
+		expectedLength int
+		shouldErr      bool
 	}
 	tcs := []testCase{
 		{
@@ -79,7 +99,7 @@ func TestJustInOutline(t *testing.T) {
 			in: func(x, y int, sizes ...int) bool {
 				return x > 5
 			},
-			expectedLen: 10,
+			expectedLength: 10,
 		},
 		{
 			w: 3,
@@ -95,16 +115,26 @@ func TestJustInOutline(t *testing.T) {
 			in: func(x, y int, sizes ...int) bool {
 				return x == 0 && y == 0
 			},
-			expectedLen: 1,
+			expectedLength: 1,
 		},
 	}
 	for _, tc := range tcs {
-		out, err := JustIn(tc.in).Outline(tc.w, tc.h)
-		if tc.shouldErr {
-			require.NotNil(t, err)
-		} else {
-			require.Nil(t, err)
-		}
-		require.Equal(t, tc.expectedLen, len(out))
+		tc := tc
+		t.Run(fmt.Sprintf("%dx%d", tc.w, tc.h), func(t *testing.T) {
+			t.Parallel()
+			out, err := JustIn(tc.in).Outline(tc.w, tc.h)
+			if !tc.shouldErr {
+				if err != nil {
+					t.Fatalf("expected nil error, got %v", err)
+				}
+			} else {
+				if err == nil {
+					t.Fatalf("expected non-nil error, got nil")
+				}
+			}
+			if tc.expectedLength != len(out) {
+				t.Fatalf("expected length of output %v, got %v", tc.expectedLength, len(out))
+			}
+		})
 	}
 }

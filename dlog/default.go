@@ -48,7 +48,7 @@ func (l *logger) GetLogLevel() Level {
 // It only includes logs which pass the current filters.
 // Todo: use io.Multiwriter to simplify the writing to
 // both logfiles and stdout
-func (l *logger) dLog(console, override bool, in ...interface{}) {
+func (l *logger) dLog(level Level, console, override bool, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)
 	if strings.Contains(f, "dlog") {
@@ -68,7 +68,7 @@ func (l *logger) dLog(console, override bool, in ...interface{}) {
 		buffer.WriteRune(':')
 		buffer.WriteString(strconv.Itoa(line))
 		buffer.WriteString("]  ")
-		buffer.WriteString(logLevels[l.GetLogLevel()])
+		buffer.WriteString(logLevels[level])
 		buffer.WriteRune(':')
 		for _, elem := range in {
 			buffer.WriteString(fmt.Sprintf("%v ", elem))
@@ -92,7 +92,7 @@ func (l *logger) dLog(console, override bool, in ...interface{}) {
 // FileWrite runs dLog, but JUST writes to file instead
 // of also to stdout.
 func (l *logger) FileWrite(in ...interface{}) {
-	l.dLog(false, true, in...)
+	l.dLog(INFO, false, true, in...)
 }
 
 func truncateFileName(f string) string {
@@ -131,15 +131,8 @@ func (l *logger) SetDebugLevel(dL Level) {
 // CreateLogFile creates a file in the 'logs' directory
 // of the starting point of this program to write logs to
 func (l *logger) CreateLogFile() {
-	file := "logs/dlog"
-	file += time.Now().Format("_Jan_2_15-04-05_2006")
-	file += ".txt"
-	fHandle, err := os.Create(file)
+	fHandle, err := os.Create("logs/dlog" + time.Now().Format("_Jan_2_15-04-05_2006") + ".txt")
 	if err != nil {
-		// We can't log an error that comes from
-		// our error logging functions
-		//panic(err)
-		// But this is also not an error we want to panic on!
 		fmt.Println("[oak]-------- No logs directory found. No logs will be written to file.")
 		return
 	}
@@ -149,27 +142,27 @@ func (l *logger) CreateLogFile() {
 // Error will write a dlog if the debug level is not NONE
 func (l *logger) Error(in ...interface{}) {
 	if l.debugLevel > NONE {
-		l.dLog(true, true, in...)
+		l.dLog(ERROR, true, true, in...)
 	}
 }
 
 // Warn will write a dLog if the debug level is higher than ERROR
 func (l *logger) Warn(in ...interface{}) {
 	if l.debugLevel > ERROR {
-		l.dLog(true, true, in...)
+		l.dLog(WARN, true, true, in...)
 	}
 }
 
 // Info will write a dLog if the debug level is higher than WARN
 func (l *logger) Info(in ...interface{}) {
 	if l.debugLevel > WARN {
-		l.dLog(true, false, in...)
+		l.dLog(INFO, true, false, in...)
 	}
 }
 
 // Verb will write a dLog if the debug level is higher than INFO
 func (l *logger) Verb(in ...interface{}) {
 	if l.debugLevel > INFO {
-		l.dLog(true, false, in...)
+		l.dLog(VERBOSE, true, false, in...)
 	}
 }

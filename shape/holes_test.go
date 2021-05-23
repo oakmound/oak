@@ -3,40 +3,46 @@ package shape
 import (
 	"testing"
 
-	"github.com/oakmound/oak/v2/alg/intgeom"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/alg/intgeom"
 )
 
 func TestHoles(t *testing.T) {
+	t.Parallel()
 	shapes := []struct {
+		name string
 		sh   Shape
 		out  [][]intgeom.Point2
 		w, h int
 	}{
 		{
-			StrictRect([][]bool{
+			name: "3x3",
+			sh: StrictRect([][]bool{
 				{true, true, true},
 				{true, false, true},
 				{true, true, true},
 			}),
-			[][]intgeom.Point2{
+			out: [][]intgeom.Point2{
 				{intgeom.Point2{1, 1}},
 			},
-			3, 3,
+			w: 3,
+			h: 3,
 		}, {
-			StrictRect([][]bool{
+			name: "3x3 with extra border",
+			sh: StrictRect([][]bool{
 				{false, false, false, false, false},
 				{false, true, true, true, false},
 				{false, true, false, true, false},
 				{false, true, true, true, false},
 				{false, false, false, false, false},
 			}),
-			[][]intgeom.Point2{
+			out: [][]intgeom.Point2{
 				{intgeom.Point2{2, 2}},
 			},
-			5, 5,
+			w: 5,
+			h: 5,
 		}, {
-			StrictRect([][]bool{
+			name: "4x4 with extra border",
+			sh: StrictRect([][]bool{
 				{false, false, false, false, false, false},
 				{false, true, true, true, true, false},
 				{false, true, false, false, true, false},
@@ -44,97 +50,119 @@ func TestHoles(t *testing.T) {
 				{false, true, true, true, true, false},
 				{false, false, false, false, false, false},
 			}),
-			[][]intgeom.Point2{
+			out: [][]intgeom.Point2{
 				{
-					intgeom.Point2{2, 2},
-					intgeom.Point2{2, 3},
-					intgeom.Point2{3, 3},
-					intgeom.Point2{3, 2},
+					{2, 2},
+					{2, 3},
+					{3, 3},
+					{3, 2},
 				},
 			},
-			6, 6,
+			w: 6,
+			h: 6,
 		},
 	}
 	for _, sh := range shapes {
-		holes := GetHoles(sh.sh, sh.w, sh.h)
-		found := map[intgeom.Point2]bool{}
-		for _, group := range holes {
-			for _, p1 := range group {
-				found[p1] = true
+		sh := sh
+		t.Run(sh.name, func(t *testing.T) {
+			t.Parallel()
+			holes := GetHoles(sh.sh, sh.w, sh.h)
+			found := map[intgeom.Point2]bool{}
+			for _, group := range holes {
+				for _, p1 := range group {
+					found[p1] = true
+				}
 			}
-		}
-		for _, col := range sh.out {
-			for _, p := range col {
-				assert.True(t, found[p])
-				delete(found, p)
+			for _, col := range sh.out {
+				for _, p := range col {
+					if !found[p] {
+						t.Fatalf("unexpected point found at %v", p)
+					}
+					delete(found, p)
+				}
 			}
-		}
-		assert.Empty(t, found)
+			if len(found) != 0 {
+				t.Fatalf("not all points found")
+			}
+		})
 	}
 }
 
 func TestBorderHoles(t *testing.T) {
 	shapes := []struct {
+		name string
 		sh   Shape
 		out  [][]intgeom.Point2
 		w, h int
 	}{
 		{
-			StrictRect([][]bool{
+			name: "3x3",
+			sh: StrictRect([][]bool{
 				{true, true, true},
 				{true, false, true},
 				{true, true, true},
 			}),
-			[][]intgeom.Point2{
-				{intgeom.Point2{1, 1}},
+			out: [][]intgeom.Point2{
+				{{1, 1}},
 			},
-			3, 3,
+			w: 3,
+			h: 3,
 		}, {
-			StrictRect([][]bool{
+			name: "3x3 with extra border",
+			sh: StrictRect([][]bool{
 				{false, false, false, false, false},
 				{false, true, true, true, false},
 				{false, true, false, true, false},
 				{false, true, true, true, false},
 				{false, false, false, false, false},
 			}),
-			[][]intgeom.Point2{
+			out: [][]intgeom.Point2{
 				{
-					intgeom.Point2{2, 2},
-					intgeom.Point2{0, 0},
-					intgeom.Point2{0, 1},
-					intgeom.Point2{0, 2},
-					intgeom.Point2{0, 3},
-					intgeom.Point2{0, 4},
-					intgeom.Point2{1, 0},
-					intgeom.Point2{2, 0},
-					intgeom.Point2{3, 0},
-					intgeom.Point2{4, 0},
-					intgeom.Point2{1, 4},
-					intgeom.Point2{2, 4},
-					intgeom.Point2{3, 4},
-					intgeom.Point2{4, 4},
-					intgeom.Point2{4, 1},
-					intgeom.Point2{4, 2},
-					intgeom.Point2{4, 3},
+					{2, 2},
+					{0, 0},
+					{0, 1},
+					{0, 2},
+					{0, 3},
+					{0, 4},
+					{1, 0},
+					{2, 0},
+					{3, 0},
+					{4, 0},
+					{1, 4},
+					{2, 4},
+					{3, 4},
+					{4, 4},
+					{4, 1},
+					{4, 2},
+					{4, 3},
 				},
 			},
-			5, 5,
+			w: 5,
+			h: 5,
 		},
 	}
 	for _, sh := range shapes {
-		holes := GetBorderHoles(sh.sh, sh.w, sh.h)
-		found := map[intgeom.Point2]bool{}
-		for _, group := range holes {
-			for _, p1 := range group {
-				found[p1] = true
+		sh := sh
+		t.Run(sh.name, func(t *testing.T) {
+			t.Parallel()
+			holes := GetBorderHoles(sh.sh, sh.w, sh.h)
+			found := map[intgeom.Point2]bool{}
+			for _, group := range holes {
+				for _, p1 := range group {
+					found[p1] = true
+				}
 			}
-		}
-		for _, col := range sh.out {
-			for _, p := range col {
-				assert.True(t, found[p])
-				delete(found, p)
+			for _, col := range sh.out {
+				for _, p := range col {
+					if !found[p] {
+						t.Fatalf("unexpected point found at %v", p)
+					}
+					delete(found, p)
+				}
 			}
-		}
-		assert.Empty(t, found)
+			if len(found) != 0 {
+				t.Fatalf("not all points found")
+			}
+		})
 	}
 }

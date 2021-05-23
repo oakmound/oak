@@ -5,7 +5,7 @@ import (
 	"image/draw"
 	"strconv"
 
-	"github.com/oakmound/oak/v2/alg"
+	"github.com/oakmound/oak/v3/alg"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -22,7 +22,7 @@ func (f *Font) NewText(str fmt.Stringer, x, y float64) *Text {
 	return &Text{
 		LayeredPoint: NewLayeredPoint(x, y, 0),
 		text:         str,
-		d:            f,
+		d:            f.Copy(),
 	}
 }
 
@@ -55,6 +55,9 @@ type stringPtrStringer struct {
 }
 
 func (sp stringPtrStringer) String() string {
+	if sp.s == nil {
+		return "nil"
+	}
 	return string(*sp.s)
 }
 
@@ -63,20 +66,15 @@ func (f *Font) NewStrPtrText(str *string, x, y float64) *Text {
 	return f.NewText(stringPtrStringer{str}, x, y)
 }
 
-// DrawOffset for a text object draws the text at t.(X,Y) + (xOff,yOff)
-func (t *Text) DrawOffset(buff draw.Image, xOff, yOff float64) {
-	t.drawWithFont(buff, xOff, yOff, t.d)
-}
-
 func (t *Text) drawWithFont(buff draw.Image, xOff, yOff float64, fnt *Font) {
 	fnt.Drawer.Dst = buff
-	fnt.Drawer.Dot = fixed.P(int(t.X()+xOff), int(t.Y()+yOff))
+	fnt.Drawer.Dot = fixed.P(int(t.X()+xOff), int(t.Y()+yOff)+int(t.d.FontGenerator.Size))
 	fnt.DrawString(t.text.String())
 }
 
 // Draw for a text draws the text at its layeredPoint position
-func (t *Text) Draw(buff draw.Image) {
-	t.drawWithFont(buff, 0, 0, t.d)
+func (t *Text) Draw(buff draw.Image, xOff, yOff float64) {
+	t.drawWithFont(buff, xOff, yOff, t.d)
 }
 
 // SetFont sets the drawer which renders the text each frame
@@ -98,11 +96,6 @@ func (t *Text) GetDims() (int, int) {
 func (t *Text) Center() {
 	textWidth := t.d.MeasureString(t.text.String()).Round()
 	t.ShiftX(float64(-textWidth / 2))
-}
-
-// SetText sets the string to be written to a new stringer
-func (t *Text) SetText(str fmt.Stringer) {
-	t.text = str
 }
 
 // SetString accepts a string itself as the stringer to be written
@@ -176,7 +169,7 @@ func (t *Text) ToSprite() *Sprite {
 	tmpFnt := t.d.Copy()
 	width := tmpFnt.MeasureString(t.text.String()).Round()
 	height := tmpFnt.bounds.Max.Y()
-	s := NewEmptySprite(t.X(), t.Y()-float64(height), width, height+5)
-	t.drawWithFont(s.GetRGBA(), -t.X(), -t.Y()+float64(height), tmpFnt)
+	s := NewEmptySprite(t.X(), t.Y(), width, height+5)
+	t.drawWithFont(s.GetRGBA(), -t.X(), -t.Y(), tmpFnt)
 	return s
 }

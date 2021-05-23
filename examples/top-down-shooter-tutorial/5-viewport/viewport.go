@@ -6,20 +6,21 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/render/mod"
 
-	oak "github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/collision/ray"
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/entities"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/key"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/collision/ray"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/entities"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
 )
 
 // Collision labels
@@ -46,14 +47,14 @@ const (
 
 func main() {
 
-	oak.Add("tds", func(string, interface{}) {
+	oak.AddScene("tds", scene.Scene{Start: func(ctx *scene.Context) {
 		// Initialization
 		playerAlive = true
 		sprites, err := render.GetSheet(filepath.Join("16x16", "sheet.png"))
 		dlog.ErrorCheck(err)
 		sheet = sprites.ToSprites()
 
-		oak.SetViewportBounds(0, 0, fieldWidth, fieldHeight)
+		oak.SetViewportBounds(intgeom.NewRect2(0, 0, fieldWidth, fieldHeight))
 
 		// Player setup
 		eggplant, err := render.GetSprite(filepath.Join("character", "eggplant-fish.png"))
@@ -74,7 +75,7 @@ func main() {
 		playerPos = char.Point.Vector
 		render.Draw(char.R, 2)
 
-		char.Bind(func(id int, _ interface{}) int {
+		char.Bind(event.Enter, func(id event.CID, _ interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			char.Delta.Zero()
 			if oak.IsDown(key.W) {
@@ -102,8 +103,8 @@ func main() {
 				char.SetY(fieldHeight - char.H)
 			}
 			oak.SetScreen(
-				int(char.R.X())-oak.ScreenWidth/2,
-				int(char.R.Y())-oak.ScreenHeight/2,
+				int(char.R.X())-ctx.Window.Width()/2,
+				int(char.R.Y())-ctx.Window.Height()/2,
 			)
 			hit := char.HitLabel(Enemy)
 			if hit != nil {
@@ -123,15 +124,16 @@ func main() {
 			}
 
 			return 0
-		}, event.Enter)
+		})
 
-		char.Bind(func(id int, me interface{}) int {
+		char.Bind(mouse.Press, func(id event.CID, me interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			mevent := me.(mouse.Event)
 			x := char.X() + char.W/2
 			y := char.Y() + char.H/2
-			mx := mevent.X() + float64(oak.ViewPos.X)
-			my := mevent.Y() + float64(oak.ViewPos.Y)
+			vp := ctx.Window.Viewport()
+			mx := mevent.X() + float64(vp.X())
+			my := mevent.Y() + float64(vp.Y())
 			ray.DefaultCaster.CastDistance = floatgeom.Point2{x, y}.Sub(floatgeom.Point2{mx, my}).Magnitude()
 			hits := ray.CastTo(floatgeom.Point2{x, y}, floatgeom.Point2{mx, my})
 			for _, hit := range hits {
@@ -142,16 +144,16 @@ func main() {
 				time.Millisecond*50,
 				2)
 			return 0
-		}, mouse.Press)
+		})
 
 		// Create enemies periodically
-		event.GlobalBind(func(_ int, frames interface{}) int {
+		event.GlobalBind(event.Enter, func(_ event.CID, frames interface{}) int {
 			f := frames.(int)
 			if f%EnemyRefresh == 0 {
 				NewEnemy()
 			}
 			return 0
-		}, event.Enter)
+		})
 
 		// Draw the background
 		for x := 0; x < fieldWidth; x += 16 {
@@ -164,17 +166,14 @@ func main() {
 			}
 		}
 
-	}, func() bool {
+	}, Loop: func() bool {
 		return playerAlive
-	}, func() (string, *scene.Result) {
-		return "tds", nil
+	}})
+
+	oak.Init("tds", func(c oak.Config) (oak.Config, error) {
+		c.BatchLoad = true
+		return c, nil
 	})
-
-	// This indicates to oak to automatically open and load image and audio
-	// files local to the project before starting any scene.
-	oak.SetupConfig.BatchLoad = true
-
-	oak.Init("tds")
 }
 
 const (
@@ -199,7 +198,7 @@ func NewEnemy() {
 
 	enemy.UpdateLabel(Enemy)
 
-	enemy.Bind(func(id int, _ interface{}) int {
+	enemy.Bind(event.Enter, func(id event.CID, _ interface{}) int {
 		enemy := event.GetEntity(id).(*entities.Solid)
 		// move towards the player
 		x, y := enemy.GetPos()
@@ -220,13 +219,13 @@ func NewEnemy() {
 			}
 		}
 		return 0
-	}, event.Enter)
+	})
 
-	enemy.Bind(func(id int, _ interface{}) int {
+	enemy.Bind("Destroy", func(id event.CID, _ interface{}) int {
 		enemy := event.GetEntity(id).(*entities.Solid)
 		enemy.Destroy()
 		return 0
-	}, "Destroy")
+	})
 }
 
 func enemyPos() (float64, float64) {

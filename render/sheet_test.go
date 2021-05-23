@@ -4,8 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/oakmound/oak/v2/fileutil"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/fileutil"
 )
 
 func TestSheetSequence(t *testing.T) {
@@ -14,20 +13,26 @@ func TestSheetSequence(t *testing.T) {
 	fileutil.BindataFn = Asset
 
 	_, err := NewSheetSequence(nil, 10, 0)
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("new sheet sequence with no sheet should fail")
+	}
 
 	sheet, err := LoadSheet(dir, filepath.Join("16", "jeremy.png"), 16, 16, 0)
-	assert.Nil(t, err)
-	sq, err := NewSheetSequence(sheet, 10, 0, 1, 0, 2)
-	assert.Nil(t, err)
-	assert.NotNil(t, sq)
+	if err != nil {
+		t.Fatalf("loading jeremy sheet should not fail")
+	}
+	_, err = NewSheetSequence(sheet, 10, 0, 1, 0, 2)
+	if err != nil {
+		t.Fatalf("creating jeremy sheet sequence should not fail")
+	}
 
-	sq, err = NewSheetSequence(sheet, 10, 100, 1, 0, 2)
-	assert.NotNil(t, err)
-	assert.Nil(t, sq)
+	_, err = NewSheetSequence(sheet, 10, 100, 1, 0, 2)
+	if err == nil {
+		t.Fatalf("creating jeremy sheet sequence with invalid frames should fail")
+	}
 
-	sq, err = NewSheetSequence(sheet, 10, 1, 100)
-	assert.NotNil(t, err)
-	assert.Nil(t, sq)
-
+	_, err = NewSheetSequence(sheet, 10, 1, 100)
+	if err == nil {
+		t.Fatalf("creating jeremy sheet sequence with invalid frames should fail")
+	}
 }

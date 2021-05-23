@@ -5,11 +5,10 @@
 package collision
 
 import (
-	"fmt"
 	"math"
 	"sort"
 
-	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
 )
 
 // Rtree represents an R-tree, a balanced search tree for storing and querying
@@ -359,12 +358,12 @@ func (tree *Rtree) condenseTree(n *node) error {
 					entries = append(entries, e)
 				}
 			}
-			if len(n.parent.entries) == len(entries) {
-				// This suggests the tree is malformed, as the child has a
-				// reference to a parent that is not aware of them as a child
-				// in our experience we've never seen this error occur.
-				return fmt.Errorf("Failed to remove entry from parent")
-			}
+			// if len(n.parent.entries) == len(entries) {
+			// 	// This suggests the tree is malformed, as the child has a
+			// 	// reference to a parent that is not aware of them as a child.
+			// 	// in practice we've never seen this error occur.
+			// 	return fmt.Errorf("Failed to remove entry from parent")
+			// }
 			n.parent.entries = entries
 
 			// only add n to deleted if it still has children

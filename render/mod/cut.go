@@ -4,9 +4,9 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/oakmound/oak/v2/alg"
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/shape"
+	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/shape"
 )
 
 // CutRound rounds the edges of the Modifiable with Bezier curves.
@@ -110,7 +110,7 @@ func CutFn(xMod, yMod, wMod, hMod func(int) int) Mod {
 	}
 }
 
-// CutFromLeft acts like cut but removes from the left hand side rather than the right
+// CutFromLeft acts like cut but removes from the left and top rather than the right and bottom
 func CutFromLeft(newWidth, newHeight int) Mod {
 	return CutFn(func(w int) int {
 		out := w - newWidth
@@ -139,9 +139,7 @@ func CutRel(relWidth, relHeight float64) Mod {
 
 // Cut reduces (or increases, adding nothing)
 // the dimensions of the input image, setting them to newWidth and
-// newHeight. (Consider: use generic int modifiers here so we
-// don't need CutRel and Cut? i.e a function header like
-// Cut(wMod, hMod func(int) int)? )
+// newHeight.
 func Cut(newWidth, newHeight int) Mod {
 	return CutFn(func(int) int { return 0 },
 		func(int) int { return 0 },

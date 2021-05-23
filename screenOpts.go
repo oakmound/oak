@@ -1,18 +1,15 @@
 package oak
 
-import (
-	"github.com/oakmound/oak/v2/oakerr"
-)
+import "github.com/oakmound/oak/v3/oakerr"
 
-// FullScreenable defines windows that can be set to full screen.
-type FullScreenable interface {
+type fullScreenable interface {
 	SetFullScreen(bool) error
 }
 
 // SetFullScreen attempts to set the local oak window to be full screen.
 // If the window does not support this functionality, it will report as such.
-func SetFullScreen(on bool) error {
-	if fs, ok := windowControl.(FullScreenable); ok {
+func (c *Controller) SetFullScreen(on bool) error {
+	if fs, ok := c.windowControl.(fullScreenable); ok {
 		return fs.SetFullScreen(on)
 	}
 	return oakerr.UnsupportedPlatform{
@@ -20,15 +17,14 @@ func SetFullScreen(on bool) error {
 	}
 }
 
-// MovableWindow defines windows that can have their position set
-type MovableWindow interface {
+type movableWindow interface {
 	MoveWindow(x, y, w, h int32) error
 }
 
 // MoveWindow sets the position of a window to be x,y and it's dimensions to w,h
 // If the window does not support being positioned, it will report as such.
-func MoveWindow(x, y, w, h int) error {
-	if mw, ok := windowControl.(MovableWindow); ok {
+func (c *Controller) MoveWindow(x, y, w, h int) error {
+	if mw, ok := c.windowControl.(movableWindow); ok {
 		return mw.MoveWindow(int32(x), int32(y), int32(w), int32(h))
 	}
 	return oakerr.UnsupportedPlatform{
@@ -36,16 +32,14 @@ func MoveWindow(x, y, w, h int) error {
 	}
 }
 
-// A Borderlesser is a window that can have its border removed or replaced after
-// removal.
-type Borderlesser interface {
+type borderlesser interface {
 	SetBorderless(bool) error
 }
 
 // SetBorderless attempts to set the local oak window to have no border.
 // If the window does not support this functionaltiy, it will report as such.
-func SetBorderless(on bool) error {
-	if bs, ok := windowControl.(Borderlesser); ok {
+func (c *Controller) SetBorderless(on bool) error {
+	if bs, ok := c.windowControl.(borderlesser); ok {
 		return bs.SetBorderless(on)
 	}
 	return oakerr.UnsupportedPlatform{
@@ -53,15 +47,14 @@ func SetBorderless(on bool) error {
 	}
 }
 
-// A TopMoster is a window that can be configured to stay on top of other windows.
-type TopMoster interface {
+type topMoster interface {
 	SetTopMost(bool) error
 }
 
 // SetTopMost attempts to set the local oak window to stay on top of other windows.
 // If the window does not support this functionality, it will report as such.
-func SetTopMost(on bool) error {
-	if tm, ok := windowControl.(TopMoster); ok {
+func (c *Controller) SetTopMost(on bool) error {
+	if tm, ok := c.windowControl.(topMoster); ok {
 		return tm.SetTopMost(on)
 	}
 	return oakerr.UnsupportedPlatform{
@@ -69,17 +62,54 @@ func SetTopMost(on bool) error {
 	}
 }
 
-type Titler interface {
+type titler interface {
 	SetTitle(string) error
 }
 
-// SetTopMost attempts to set the local oak window to stay on top of other windows.
-// If the window does not support this functionality, it will report as such.
-func SetTitle(title string) error {
-	if t, ok := windowControl.(Titler); ok {
+func (c *Controller) SetTitle(title string) error {
+	if t, ok := c.windowControl.(titler); ok {
 		return t.SetTitle(title)
 	}
 	return oakerr.UnsupportedPlatform{
 		Operation: "SetTitle",
+	}
+}
+
+type trayIconer interface {
+	SetTrayIcon(string) error
+}
+
+func (c *Controller) SetTrayIcon(icon string) error {
+	if t, ok := c.windowControl.(trayIconer); ok {
+		return t.SetTrayIcon(icon)
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "SetTrayIcon",
+	}
+}
+
+type trayNotifier interface {
+	ShowNotification(title, msg string, icon bool) error
+}
+
+func (c *Controller) ShowNotification(title, msg string, icon bool) error {
+	if t, ok := c.windowControl.(trayNotifier); ok {
+		return t.ShowNotification(title, msg, icon)
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "ShowNotification",
+	}
+}
+
+type cursorHider interface {
+	HideCursor() error
+}
+
+func (c *Controller) HideCursor() error {
+	if t, ok := c.windowControl.(cursorHider); ok {
+		return t.HideCursor()
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "HideCursor",
 	}
 }

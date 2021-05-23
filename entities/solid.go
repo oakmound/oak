@@ -3,9 +3,9 @@ package entities
 import (
 	"strconv"
 
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/render"
 )
 
 // A Solid is a Doodad with a width, height, and collision space.
@@ -26,7 +26,7 @@ func NewSolid(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid
 	s.W = w
 	s.H = h
 	if tree == nil {
-		tree = collision.DefTree
+		tree = collision.DefaultTree
 	}
 	s.Tree = tree
 	s.Space = collision.NewSpace(x, y, w, h, cid)

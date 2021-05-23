@@ -6,10 +6,10 @@ import (
 	"image/color"
 	"strconv"
 
-	oak "github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
 )
 
 type Slide interface {
@@ -32,7 +32,6 @@ var (
 
 func AddNumberShortcuts(max int) {
 	oak.AddCommand("slide", func(args []string) {
-		fmt.Println(args)
 		if len(args) < 2 {
 			return
 		}
@@ -42,7 +41,6 @@ func AddNumberShortcuts(max int) {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(i)
 		if i < 0 {
 			skipTo = "0"
 		} else if i <= max {
@@ -54,17 +52,17 @@ func AddNumberShortcuts(max int) {
 	})
 }
 
-func Start(slides ...Slide) {
+func Start(width, height int, slides ...Slide) {
 	for i, sl := range slides {
 		i := i
 		sl := sl
 		oak.AddScene("slide"+strconv.Itoa(i), scene.Scene{
-			Start: func(string, interface{}) { sl.Init() },
+			Start: func(*scene.Context) { sl.Init() },
 			Loop: func() bool {
 				cont := sl.Continue() && !skip
 				// This should be disable-able
 				if !cont {
-					oak.LoadingR = render.NewSprite(0, 0, oak.ScreenShot())
+					oak.SetLoadingRenderable(render.NewSprite(0, 0, oak.ScreenShot()))
 				}
 				return cont
 			},
@@ -87,36 +85,42 @@ func Start(slides ...Slide) {
 
 	reset := false
 
-	var oldBackground *image.Uniform
+	var oldBackground image.Image
 
 	// Todo: customizable end slide
 	oak.AddScene("slide"+strconv.Itoa(len(slides)),
 		scene.Scene{
-			Start: func(string, interface{}) {
-				oldBackground = oak.Background
-				oak.Background = image.NewUniform(color.RGBA{0, 0, 0, 255})
+			Start: func(ctx *scene.Context) {
+				oldBackground = oak.GetBackgroundImage()
+				oak.SetColorBackground(image.NewUniform(color.RGBA{0, 0, 0, 255}))
 				render.Draw(
 					Express.NewStrText(
 						"Spacebar to restart show ...",
-						float64(oak.ScreenWidth/2),
-						float64(oak.ScreenHeight-50),
+						float64(ctx.Window.Width()/2),
+						float64(ctx.Window.Height()-50),
 					),
 				)
-				event.GlobalBind(func(int, interface{}) int {
+				event.GlobalBind("KeyDownSpacebar", func(event.CID, interface{}) int {
 					reset = true
 					return 0
-				}, "KeyDownSpacebar")
+				})
 			},
 			Loop: func() bool {
 				return !reset
 			},
 			End: func() (string, *scene.Result) {
-				oak.Background = oldBackground
+				oak.SetColorBackground(oldBackground)
 				reset = false
 				skip = false
 				return "slide0", nil
 			},
 		},
 	)
-	oak.Init("slide0")
+	oak.Init("slide0", func(c oak.Config) (oak.Config, error) {
+		c.Screen.Width = width
+		c.Screen.Height = height
+		c.FrameRate = 30
+		c.DrawFrameRate = 30
+		return c, nil
+	})
 }

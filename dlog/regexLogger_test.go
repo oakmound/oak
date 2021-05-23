@@ -2,22 +2,26 @@ package dlog
 
 import (
 	"bytes"
+	"strings"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestNewRegexLogger(t *testing.T) {
 	cl := NewRegexLogger(NONE)
-	require.NotNil(t, cl)
-	require.Equal(t, cl.debugLevel, NONE)
-	require.Equal(t, cl.FilterOverrideLevel, WARN)
+	if cl.debugLevel != NONE {
+		t.Fatalf("expected %v debug level, got %v", NONE, cl.debugLevel)
+	}
+	if cl.FilterOverrideLevel != WARN {
+		t.Fatalf("expected %v override level, got %v", WARN, cl.FilterOverrideLevel)
+	}
 }
 
 func TestRegexLogger_GetLogLevel(t *testing.T) {
 	cl := NewRegexLogger(NONE)
 	level := cl.GetLogLevel()
-	require.Equal(t, level, NONE)
+	if level != NONE {
+		t.Fatalf("expected %v debug level, got %v", NONE, level)
+	}
 }
 
 func testRegexLoggerContains(t *testing.T, f func(cl *RegexLogger, buff *bytes.Buffer), s string) {
@@ -26,9 +30,15 @@ func testRegexLoggerContains(t *testing.T, f func(cl *RegexLogger, buff *bytes.B
 	cl.SetWriter(buff)
 	f(cl, buff)
 	if len(s) == 0 {
-		require.Equal(t, "", buff.String())
+		bs := buff.String()
+		if bs != "" {
+			t.Fatalf("expected empty string, got %v", bs)
+		}
 	} else {
-		require.Contains(t, buff.String(), s)
+		bs := buff.String()
+		if !strings.Contains(bs, s) {
+			t.Fatalf("expected buffer to contain %v, got %v", s, bs)
+		}
 	}
 }
 
@@ -135,22 +145,34 @@ func TestRegexLogger_FilterOverrideLevel(t *testing.T) {
 func TestRegexLogger_SetDebugLevel(t *testing.T) {
 	cl := NewRegexLogger(NONE)
 	cl.SetDebugLevel(INFO)
-	require.Equal(t, cl.debugLevel, INFO)
+	if cl.debugLevel != INFO {
+		t.Fatalf("expected %v debug level, got %v", INFO, cl.debugLevel)
+	}
 
 	level := cl.GetLogLevel()
-	require.Equal(t, level, INFO)
+	if level != INFO {
+		t.Fatalf("expected %v debug level, got %v", INFO, level)
+	}
 }
 
 func TestRegexLogger_CreateLogFile(t *testing.T) {
-	t.Skip("not worth mocking os")
+	cl := NewRegexLogger(NONE)
+	cl.CreateLogFile()
 }
 
 func TestRegexLogger_FileWrite(t *testing.T) {
 	cl := NewRegexLogger(NONE)
 	buff := bytes.NewBuffer([]byte{})
+	cl.FileWrite("whoops")
 	cl.file = buff
 	cl.FileWrite("test")
-	require.Contains(t, buff.String(), "test")
+	bs := buff.String()
+	if strings.Contains(bs, "whoops") {
+		t.Fatalf("expected buffer not to contain %v, was %v", "whoops", bs)
+	}
+	if !strings.Contains(bs, "test") {
+		t.Fatalf("expected buffer to contain %v, was %v", "test", bs)
+	}
 }
 
 func TestRegexLogger_Error(t *testing.T) {
@@ -161,11 +183,19 @@ func TestRegexLogger_Error(t *testing.T) {
 	cl.Info("info")
 	cl.Warn("warn")
 	cl.Error("error")
-	logged := buff.String()
-	require.NotContains(t, logged, "verbose")
-	require.NotContains(t, logged, "info")
-	require.NotContains(t, logged, "warn")
-	require.Contains(t, logged, "error")
+	bs := buff.String()
+	if strings.Contains(bs, "verbose") {
+		t.Fatalf("expected buffer not to contain %v, was %v", "verbose", bs)
+	}
+	if strings.Contains(bs, "info") {
+		t.Fatalf("expected buffer not to contain %v, was %v", "info", bs)
+	}
+	if strings.Contains(bs, "warn") {
+		t.Fatalf("expected buffer not to contain %v, was %v", "warn", bs)
+	}
+	if !strings.Contains(bs, "error") {
+		t.Fatalf("expected buffer to contain %v, was %v", "error", bs)
+	}
 }
 
 func TestRegexLogger_Warn(t *testing.T) {
@@ -176,11 +206,19 @@ func TestRegexLogger_Warn(t *testing.T) {
 	cl.Info("info")
 	cl.Warn("warn")
 	cl.Error("error")
-	logged := buff.String()
-	require.NotContains(t, logged, "verbose")
-	require.NotContains(t, logged, "info")
-	require.Contains(t, logged, "warn")
-	require.Contains(t, logged, "error")
+	bs := buff.String()
+	if strings.Contains(bs, "verbose") {
+		t.Fatalf("expected buffer not to contain %v, was %v", "verbose", bs)
+	}
+	if strings.Contains(bs, "info") {
+		t.Fatalf("expected buffer not to contain %v, was %v", "info", bs)
+	}
+	if !strings.Contains(bs, "warn") {
+		t.Fatalf("expected buffer to contain %v, was %v", "warn", bs)
+	}
+	if !strings.Contains(bs, "error") {
+		t.Fatalf("expected buffer to contain %v, was %v", "error", bs)
+	}
 }
 
 func TestRegexLogger_Info(t *testing.T) {
@@ -191,11 +229,19 @@ func TestRegexLogger_Info(t *testing.T) {
 	cl.Info("info")
 	cl.Warn("warn")
 	cl.Error("error")
-	logged := buff.String()
-	require.NotContains(t, logged, "verbose")
-	require.Contains(t, logged, "info")
-	require.Contains(t, logged, "warn")
-	require.Contains(t, logged, "error")
+	bs := buff.String()
+	if strings.Contains(bs, "verbose") {
+		t.Fatalf("expected buffer not to contain %v, was %v", "verbose", bs)
+	}
+	if !strings.Contains(bs, "info") {
+		t.Fatalf("expected buffer to contain %v, was %v", "info", bs)
+	}
+	if !strings.Contains(bs, "warn") {
+		t.Fatalf("expected buffer to contain %v, was %v", "warn", bs)
+	}
+	if !strings.Contains(bs, "error") {
+		t.Fatalf("expected buffer to contain %v, was %v", "error", bs)
+	}
 }
 
 func TestRegexLogger_Verb(t *testing.T) {
@@ -206,17 +252,29 @@ func TestRegexLogger_Verb(t *testing.T) {
 	cl.Info("info")
 	cl.Warn("warn")
 	cl.Error("error")
-	logged := buff.String()
-	require.Contains(t, logged, "verbose")
-	require.Contains(t, logged, "info")
-	require.Contains(t, logged, "warn")
-	require.Contains(t, logged, "error")
+	bs := buff.String()
+	if !strings.Contains(bs, "verbose") {
+		t.Fatalf("expected buffer to contain %v, was %v", "verbose", bs)
+	}
+	if !strings.Contains(bs, "info") {
+		t.Fatalf("expected buffer to contain %v, was %v", "info", bs)
+	}
+	if !strings.Contains(bs, "warn") {
+		t.Fatalf("expected buffer to contain %v, was %v", "warn", bs)
+	}
+	if !strings.Contains(bs, "error") {
+		t.Fatalf("expected buffer to contain %v, was %v", "error", bs)
+	}
 }
 
 func TestRegexLogger_SetWriter(t *testing.T) {
 	cl := NewRegexLogger(VERBOSE)
 	err := cl.SetWriter(nil)
-	require.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("expected setWriter(nil) to error")
+	}
 	err = cl.SetWriter(bytes.NewBuffer([]byte{}))
-	require.Nil(t, err)
+	if err != nil {
+		t.Fatalf("expected setWriter([]byte) not to error: %v", err)
+	}
 }

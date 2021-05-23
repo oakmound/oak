@@ -3,8 +3,8 @@ package render
 import (
 	"image"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
 // LoadSprites calls LoadSheet and then Sheet.ToSprites.

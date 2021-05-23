@@ -1,19 +1,21 @@
 package render
 
 import (
-	"fmt"
 	"image"
+	"image/draw"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/colornames"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 
-	"github.com/oakmound/oak/v2/alg/intgeom"
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/fileutil"
+	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/fileutil"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
 var (
@@ -33,42 +35,25 @@ var (
 
 // A FontGenerator stores information that can be used to create a font
 type FontGenerator struct {
-	File    string
-	RawFile []byte
-	Color   image.Image
-	Size    float64
-	Hinting string
-	DPI     float64
+	File     string
+	RawFile  []byte
+	Color    image.Image
+	Size     float64
+	Hinting  string
+	DPI      float64
+	Absolute bool
 }
 
-func (fg FontGenerator) String() string {
-	// Don't expose raw file content, it floods outputs
-	type cleanFontGenerator struct {
-		File    string
-		Color   image.Image
-		Size    float64
-		Hinting string
-		DPI     float64
-	}
-	clg := cleanFontGenerator{
-		File:    fg.File,
-		Size:    fg.Size,
-		Hinting: fg.Hinting,
-		DPI:     fg.DPI,
-	}
-	return fmt.Sprint(clg)
-}
-
-// DefFont returns a font built of the parameters set by SetFontDefaults.
-func DefFont() *Font {
-	return DefFontGenerator.Generate()
+// DefaultFont returns a font built of the parameters set by SetFontDefaults.
+func DefaultFont() *Font {
+	fnt, _ := DefFontGenerator.Generate()
+	return fnt
 }
 
 // Generate creates a font from the FontGenerator. Any parameters not supplied
 // will be filled in with defaults set through SetFontDefaults.
-func (fg *FontGenerator) Generate() *Font {
+func (fg *FontGenerator) Generate() (*Font, error) {
 
-	dir := fontdir
 	// Replace zero values with defaults
 	var fnt *truetype.Font
 	if fg.File == "" && len(fg.RawFile) == 0 {
@@ -82,15 +67,16 @@ func (fg *FontGenerator) Generate() *Font {
 		var err error
 		fnt, err = truetype.Parse(fg.RawFile)
 		if err != nil {
-			// Todo: expose error here
-			dlog.Error(err)
-			return nil
+			return nil, err
 		}
 	} else {
+		dir := fontdir
+		if fg.Absolute {
+			dir = ""
+		}
 		fnt = LoadFont(dir, fg.File)
 		if fnt == nil {
-			// Todo: expose error here
-			return nil
+			return nil, oakerr.InvalidInput{InputName: "fg.File"}
 		}
 	}
 	if fg.Size == 0 {
@@ -126,16 +112,9 @@ func (fg *FontGenerator) Generate() *Font {
 				Hinting: parseFontHinting(fg.Hinting),
 			}),
 		},
+		ttfnt:  fnt,
 		bounds: intBds,
-	}
-
-}
-
-// Copy creates a copy of this FontGenerator
-func (fg *FontGenerator) Copy() *FontGenerator {
-	newFg := new(FontGenerator)
-	*newFg = *fg
-	return newFg
+	}, nil
 }
 
 // A Font is obtained as the result of FontGenerator.Generate(). It's used to
@@ -143,24 +122,88 @@ func (fg *FontGenerator) Copy() *FontGenerator {
 type Font struct {
 	FontGenerator
 	font.Drawer
+	ttfnt  *truetype.Font
 	bounds intgeom.Rect2
-}
+	Unsafe bool
+	mutex  sync.Mutex
 
-// Refresh regenerates this font
-func (f *Font) Refresh() {
-	*f = *f.Generate()
+	Fallbacks []*Font
 }
 
 // Copy returns a copy of this font
 func (f *Font) Copy() *Font {
-	return f.Generate()
+	if f.Unsafe {
+		return f
+	}
+	f2 := &Font{}
+	*f2 = *f
+	f2.mutex = sync.Mutex{}
+	f2.Drawer.Face = truetype.NewFace(f.ttfnt, &truetype.Options{
+		Size:    f.FontGenerator.Size,
+		DPI:     f.FontGenerator.DPI,
+		Hinting: parseFontHinting(f.FontGenerator.Hinting),
+	})
+	return f2
 }
 
-// Reset sets the font to being a default font
-func (f *Font) Reset() {
-	// Generate will return all defaults with no args
-	f.FontGenerator = FontGenerator{}
-	*f = *f.Generate()
+// TODO: Implement the below functions manually with font fallback
+
+func (f *Font) MeasureString(s string) fixed.Int26_6 {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+	return f.Drawer.MeasureString(s)
+}
+
+var (
+	// In testing, these are the locations where Glyph will return it found a glyph,
+	// but return an empty box.
+	// TODO: more research--
+	// 1. why do the fonts say these characters exist when they don't
+	// 2. can we just say < 100 = undefined?
+	emptyboxYValues = map[int]struct{}{
+		0:  {},
+		20: {},
+		23: {},
+		40: {},
+		60: {},
+		69: {},
+		81: {},
+		75: {},
+		46: {},
+		54: {},
+		50: {},
+		27: {},
+		25: {},
+	}
+)
+
+func (f *Font) DrawString(s string) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+	prevC := rune(-1)
+	for _, c := range s {
+		if prevC >= 0 {
+			f.Drawer.Dot.X += f.Drawer.Face.Kern(prevC, c)
+		}
+		dr, mask, maskp, advance, ok := f.Drawer.Face.Glyph(f.Drawer.Dot, c)
+		if _, empty := emptyboxYValues[maskp.Y]; !ok || empty {
+			for _, fallback := range f.Fallbacks {
+				dr, mask, maskp, advance, ok = fallback.Drawer.Face.Glyph(f.Drawer.Dot, c)
+				if _, empty := emptyboxYValues[maskp.Y]; !empty && ok {
+					break
+				}
+			}
+			if _, empty := emptyboxYValues[maskp.Y]; !ok || empty {
+				// TODO: is falling back on the U+FFFD glyph the responsibility of
+				// the Drawer or the Face?
+				// TODO: set prevC = '\ufffd'?
+				continue
+			}
+		}
+		draw.DrawMask(f.Drawer.Dst, dr, f.Drawer.Src, image.Point{}, mask, maskp, draw.Over)
+		f.Drawer.Dot.X += advance
+		prevC = c
+	}
 }
 
 // SetFontDefaults updates the default font parameters with the passed in arguments
@@ -207,7 +250,7 @@ func FontColor(s string) image.Image {
 // LoadFont loads in a font file and stores it with the given fontFile name.
 // This is necessary before using that file in a generator, otherwise the default
 // directory will be tried at generation time.
-func LoadFont(dir string, fontFile string) *truetype.Font {
+func LoadFont(dir, fontFile string) *truetype.Font {
 	if _, ok := loadedFonts[fontFile]; !ok {
 		fontBytes, err := fileutil.ReadFile(filepath.Join(dir, fontFile))
 		if err != nil {

@@ -6,12 +6,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/render/mod"
-	"github.com/oakmound/oak/v2/shape"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/render/mod"
+	"github.com/oakmound/oak/v3/shape"
 )
 
 // A Generator defines the variables used to create buttons from optional arguments
@@ -41,6 +42,7 @@ type Generator struct {
 	Group          *Group
 	DisallowRevert bool
 	Shape          shape.Shape
+	Label          collision.Label
 }
 
 func defGenerator() Generator {
@@ -78,7 +80,7 @@ func (g Generator) Generate() Btn {
 
 func (g Generator) generate(parent *Generator) Btn {
 	var box render.Modifiable
-	// handle differnt renderable options that could be passed to the generator
+	// handle different renderable options that could be passed to the generator
 	switch {
 	case g.Toggle != nil:
 		//Handles checks and other toggle situations
@@ -133,23 +135,28 @@ func (g Generator) generate(parent *Generator) Btn {
 	}
 	font := g.Font
 	if font == nil {
-		font = render.DefFont()
+		font = render.DefaultFont()
 	}
 	var btn Btn
 	if g.Text != "" {
 		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
 		txtbx.SetString(g.Text)
+		txtbx.Space.Label = g.Label
 		btn = txtbx
 	} else if g.TextPtr != nil {
 		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
 		txtbx.SetStringPtr(g.TextPtr)
+		txtbx.Space.Label = g.Label
 		btn = txtbx
 	} else if g.TextStringer != nil {
 		txtbx := NewTextBox(g.Cid, g.X, g.Y, g.W, g.H, g.TxtX, g.TxtY, font, box, g.Layers...)
 		txtbx.SetStringer(g.TextStringer)
+		txtbx.Space.Label = g.Label
 		btn = txtbx
 	} else {
-		btn = NewBox(g.Cid, g.X, g.Y, g.W, g.H, box, g.Layers...)
+		bx := NewBox(g.Cid, g.X, g.Y, g.W, g.H, box, g.Layers...)
+		bx.Space.Label = g.Label
+		btn = bx
 	}
 
 	// Update underlying mousecollision binding to only respect clicks in the shape.
@@ -177,8 +184,8 @@ func (g Generator) generate(parent *Generator) Btn {
 			filteredK := "Filtered" + k
 			g.Bindings[filteredK] = g.Bindings[k]
 			g.Bindings[k] = []event.Bindable{
-				func(id int, button interface{}) int {
-					btn := event.GetEntity(id).(Btn)
+				func(id event.CID, button interface{}) int {
+					btn := id.E().(Btn)
 					mEvent, ok := button.(mouse.Event)
 					// If the passed event is not a mouse event dont filter on location.
 					// Main current use case is for nil events passed via simulated clicks.
@@ -197,7 +204,7 @@ func (g Generator) generate(parent *Generator) Btn {
 
 	for k, v := range g.Bindings {
 		for _, b := range v {
-			btn.Bind(b, k)
+			btn.Bind(k, b)
 		}
 	}
 
@@ -232,8 +239,8 @@ type switcher interface {
 }
 
 // toggleFxn sets up the mouseclick binding for toggle buttons created for goreport cyclo decrease
-func toggleFxn(g Generator) func(id int, nothing interface{}) int {
-	return func(id int, nothing interface{}) int {
+func toggleFxn(g Generator) func(id event.CID, nothing interface{}) int {
+	return func(id event.CID, nothing interface{}) int {
 		btn := event.GetEntity(id).(Btn)
 		if btn.GetRenderable().(switcher).Get() == "on" {
 			if g.Group != nil && g.Group.active == btn {
@@ -259,20 +266,20 @@ func toggleFxn(g Generator) func(id int, nothing interface{}) int {
 	}
 }
 
-// listFxn sets up the mouseclick binding for list buttons created for goreport cyclo decrease
-func listFxn(g Generator) func(id int, button interface{}) int {
-	return func(id int, button interface{}) int {
+// listFxn sets up the mouseclick binding for list buttons created for goreport cyclo reduction
+func listFxn(g Generator) func(id event.CID, button interface{}) int {
+	return func(id event.CID, button interface{}) int {
 		btn := event.GetEntity(id).(Btn)
 		i := *g.ListChoice
 		mEvent := button.(mouse.Event)
 
-		if mEvent.Button == "LeftMouse" {
+		if mEvent.Button == mouse.ButtonLeft {
 			i++
 			if i == len(g.RS) {
 				i = 0
 			}
 
-		} else if mEvent.Button == "RightMouse" {
+		} else if mEvent.Button == mouse.ButtonRight {
 			i--
 			if i < 0 {
 				i += len(g.RS)

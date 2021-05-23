@@ -3,7 +3,7 @@ package intgeom
 import (
 	"math"
 
-	"github.com/oakmound/oak/v2/alg"
+	"github.com/oakmound/oak/v3/alg"
 )
 
 // Point2 represents a 2D point in space.
@@ -26,27 +26,27 @@ func (p Point3) Dim(i int) int {
 	return p[i]
 }
 
-// X returns p's value on the X axis.
+// X returns the point's value on the X axis.
 func (p Point2) X() int {
 	return p.Dim(0)
 }
 
-// Y returns p's value on the Y axis.
+// Y returns the point's value on the Y axis.
 func (p Point2) Y() int {
 	return p.Dim(1)
 }
 
-// X returns p's value on the X axis.
+// X returns the point's value on the X axis.
 func (p Point3) X() int {
 	return p.Dim(0)
 }
 
-// Y returns p's value on the Y axis.
+// Y returns the point's value on the Y axis.
 func (p Point3) Y() int {
 	return p.Dim(1)
 }
 
-// Z returns p's value on the Z axis.
+// Z returns the point's value on the Z axis.
 func (p Point3) Z() int {
 	return p.Dim(2)
 }

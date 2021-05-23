@@ -1,25 +1,19 @@
 package oak
 
 import (
-	"github.com/oakmound/oak/v2/audio"
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/fileutil"
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/audio"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/fileutil"
+	"github.com/oakmound/oak/v3/render"
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	startupLoadCh = make(chan bool)
-	// LoadingR is a renderable that is displayed during loading screens.
-	LoadingR render.Renderable
-)
-
-func loadAssets(imageDir, audioDir string) {
-	if conf.BatchLoad {
+func (c *Controller) loadAssets(imageDir, audioDir string) {
+	if c.config.BatchLoad {
 		dlog.Info("Loading Images")
 		var eg errgroup.Group
 		eg.Go(func() error {
-			err := render.BlankBatchLoad(imageDir, conf.BatchLoadOptions.MaxImageFileSize)
+			err := render.BlankBatchLoad(imageDir, c.config.BatchLoadOptions.MaxImageFileSize)
 			if err != nil {
 				return err
 			}
@@ -28,7 +22,7 @@ func loadAssets(imageDir, audioDir string) {
 		})
 		eg.Go(func() error {
 			var err error
-			if conf.BatchLoadOptions.BlankOutAudio {
+			if c.config.BatchLoadOptions.BlankOutAudio {
 				err = audio.BlankBatchLoad(audioDir)
 			} else {
 				err = audio.BatchLoad(audioDir)
@@ -41,18 +35,16 @@ func loadAssets(imageDir, audioDir string) {
 		})
 		dlog.ErrorCheck(eg.Wait())
 	}
-	endLoad()
+	c.endLoad()
 }
 
-func endLoad() {
+func (c *Controller) endLoad() {
 	dlog.Info("Done Loading")
-	startupLoadCh <- true
-	dlog.Info("Startup load signal sent")
+	c.startupLoading = false
 }
 
 // SetBinaryPayload just sets some public fields on packages that require access to binary functions
-// as alternatives to os file functions. This is no longer necessary, as a single package uses these
-// now.
+// as alternatives to os file functions.
 func SetBinaryPayload(payloadFn func(string) ([]byte, error), dirFn func(string) ([]string, error)) {
 	fileutil.BindataDir = dirFn
 	fileutil.BindataFn = payloadFn

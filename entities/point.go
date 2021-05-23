@@ -3,7 +3,7 @@ package entities
 import (
 	"strconv"
 
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 // A Point is a wrapper around a physics vector.

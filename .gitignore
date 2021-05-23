@@ -10,8 +10,7 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
-.glide/
+coverage.txt
 
 # As a library we can't commit our vendor directory if it ever accidentally kept
 # around after updating dependencies

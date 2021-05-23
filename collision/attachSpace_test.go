@@ -4,9 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 type aspace struct {
@@ -30,20 +29,40 @@ func TestAttachSpace(t *testing.T) {
 	v := physics.NewVector(0, 0)
 	s := NewSpace(100, 100, 10, 10, as.Init())
 	Add(s)
-	assert.Nil(t, Attach(v, s, 4, 4))
+	err := Attach(v, s, nil, 4, 4)
+	if err != nil {
+		t.Fatalf("attach failed: %v", err)
+	}
 	v.SetPos(5, 5)
 	time.Sleep(200 * time.Millisecond)
-	assert.Equal(t, s.X(), 9.0)
-	assert.Equal(t, s.Y(), 9.0)
+	if s.X() != 9 {
+		t.Fatalf("expected attached space to have x of 9, was %v", s.X())
+	}
+	if s.Y() != 9 {
+		t.Fatalf("expected attached space to have y of 9, was %v", s.Y())
+	}
 
-	assert.Nil(t, Detach(s))
+	err = Detach(s)
+	if err != nil {
+		t.Fatalf("detach failed: %v", err)
+	}
 	v.SetPos(4, 4)
 	time.Sleep(200 * time.Millisecond)
-	assert.Equal(t, s.X(), 9.0)
-	assert.Equal(t, s.Y(), 9.0)
+	if s.X() != 9 {
+		t.Fatalf("expected attached space to have x of 9, was %v", s.X())
+	}
+	if s.Y() != 9 {
+		t.Fatalf("expected attached space to have y of 9, was %v", s.Y())
+	}
 
 	// Failures
 	s = NewUnassignedSpace(0, 0, 1, 1)
-	assert.NotNil(t, Attach(v, s))
-	assert.NotNil(t, Detach(s))
+	err = Attach(v, s, nil)
+	if err == nil {
+		t.Fatalf("unassinged space attach should have failed: %v", err)
+	}
+	err = Detach(s)
+	if err == nil {
+		t.Fatalf("unassinged space detach should have failed: %v", err)
+	}
 }

@@ -2,13 +2,20 @@ package render
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestLegacyFont(t *testing.T) {
 	initTestFont()
-	assert.NotNil(t, NewText(dummyStringer{}, 0, 0))
-	assert.NotNil(t, NewStrText("text", 0, 0))
-	assert.NotNil(t, NewIntText(new(int), 0, 0))
+	if NewText(dummyStringer{}, 0, 0) == nil {
+		t.Fatalf("NewText failed")
+	}
+	if NewStrText("text", 0, 0) == nil {
+		t.Fatalf("NewStrText failed")
+	}
+	if NewIntText(new(int), 0, 0) == nil {
+		t.Fatalf("NewIntText failed")
+	}
+	if NewStrPtrText(new(string), 0, 0) == nil {
+		t.Fatalf("NewStrPtrText failed")
+	}
 }

@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"path/filepath"
 
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/render"
 )
 
 // Loaded Fonts
@@ -13,13 +13,13 @@ var (
 	// Default size 12
 	// Default color white
 
-	Express = (&render.FontGenerator{
+	Express, _ = (&render.FontGenerator{
 		File: fpFilter("expressway rg.ttf"),
 	}).Generate()
-	Gnuolane = (&render.FontGenerator{
+	Gnuolane, _ = (&render.FontGenerator{
 		File: fpFilter("gnuolane rg.ttf"),
 	}).Generate()
-	Libel = (&render.FontGenerator{
+	Libel, _ = (&render.FontGenerator{
 		File: fpFilter("libel-suit-rg.ttf"),
 	}).Generate()
 )
@@ -32,7 +32,8 @@ func FontSet(set func(*render.Font)) FontMod {
 	return func(f *render.Font) *render.Font {
 		f = f.Copy()
 		set(f)
-		return f.Generate()
+		f2, _ := f.Generate()
+		return f2
 	}
 }
 

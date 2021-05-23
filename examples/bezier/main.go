@@ -1,0 +1,96 @@
+package main
+
+import (
+	"fmt"
+	"image/color"
+	"strconv"
+
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v3/shape"
+)
+
+var (
+	cmp *render.CompositeM
+)
+
+func renderCurve(floats []float64) {
+	bz, err := shape.BezierCurve(floats...)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if cmp != nil {
+		cmp.Undraw()
+	}
+	cmp = bezierDraw(bz)
+	render.Draw(cmp, 0)
+}
+
+func main() {
+
+	// bezier X Y X Y X Y ...
+	// for defining custom points without using the mouse.
+	// does not interact with the mouse points tracked through left clicks.
+	oak.AddCommand("bezier", func(tokens []string) {
+		if len(tokens) < 4 {
+			return
+		}
+		tokens = tokens[1:]
+		var err error
+		floats := make([]float64, len(tokens))
+		for i, s := range tokens {
+			floats[i], err = strconv.ParseFloat(s, 64)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
+		renderCurve(floats)
+	})
+
+	oak.AddScene("bezier", scene.Scene{Start: func(*scene.Context) {
+		mouseFloats := []float64{}
+		event.GlobalBind(mouse.Press, func(_ event.CID, mouseEvent interface{}) int {
+			me := mouseEvent.(mouse.Event)
+			// Left click to add a point to the curve
+			if me.Button == mouse.ButtonLeft {
+				mouseFloats = append(mouseFloats, float64(me.X()), float64(me.Y()))
+				renderCurve(mouseFloats)
+				// Perform any other click to reset the drawn curve
+			} else {
+				mouseFloats = []float64{}
+				cmp.Undraw()
+			}
+			return 0
+		})
+	}})
+	oak.Init("bezier")
+}
+
+func bezierDraw(b shape.Bezier) *render.CompositeM {
+	list := render.NewCompositeM()
+	bezierDrawRec(b, list, 255)
+	return list
+}
+
+func bezierDrawRec(b shape.Bezier, list *render.CompositeM, alpha uint8) {
+	switch bzn := b.(type) {
+	case shape.BezierNode:
+		c := color.RGBA{0, alpha, 0, alpha}
+		if alpha == 255 {
+			c = color.RGBA{alpha, 0, 0, alpha}
+		}
+		sp := render.BezierLine(b, c)
+		list.Append(sp)
+
+		bezierDrawRec(bzn.Left, list, uint8(float64(alpha)*.5))
+		bezierDrawRec(bzn.Right, list, uint8(float64(alpha)*.5))
+	case shape.BezierPoint:
+		sp := render.NewColorBox(5, 5, color.RGBA{255, 255, 255, 255})
+		sp.SetPos(bzn.X()-2, bzn.Y()-2)
+		list.Append(sp)
+	}
+}

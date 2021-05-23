@@ -3,36 +3,59 @@ package render
 import (
 	"image"
 	"image/color"
+	"reflect"
 	"testing"
 
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render/mod"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 func TestCompoundFuncs(t *testing.T) {
-	cmp := NewSwitch("red", map[string]Modifiable{
+	swtch := NewSwitch("red", map[string]Modifiable{
 		"red":   NewColorBox(5, 5, color.RGBA{255, 0, 0, 255}),
 		"blue":  NewColorBox(5, 5, color.RGBA{0, 0, 255, 255}),
 		"green": NewColorBox(5, 5, color.RGBA{0, 255, 0, 255}),
 		"empty": NewColorBox(5, 5, color.RGBA{0, 0, 0, 0}),
 	})
-	assert.Equal(t, cmp.GetRGBA().At(0, 0), color.RGBA{255, 0, 0, 255})
-	assert.Equal(t, cmp.Get(), "red")
-	assert.Nil(t, cmp.Set("blue"))
-	assert.Equal(t, cmp.GetRGBA().At(0, 0), color.RGBA{0, 0, 255, 255})
-	assert.Equal(t, cmp.Get(), "blue")
-	assert.NotNil(t, cmp.Add("blue", NewColorBox(5, 5, color.RGBA{255, 255, 255, 255})))
-	assert.Equal(t, cmp.GetRGBA().At(0, 0), color.RGBA{255, 255, 255, 255})
-	assert.NotNil(t, cmp.Set("color5"))
-	assert.Equal(t, cmp.GetSub("empty"), NewColorBox(5, 5, color.RGBA{0, 0, 0, 0}))
+	if swtch.GetRGBA().At(0, 0) != (color.RGBA{255, 0, 0, 255}) {
+		t.Fatalf("red was not red")
+	}
+	if swtch.Get() != "red" {
+		t.Fatalf("switch did not begin in red state")
+	}
+	if swtch.Set("blue") != nil {
+		t.Fatalf("setting switch to blue should not fail")
+	}
+	if swtch.GetRGBA().At(0, 0) != (color.RGBA{0, 0, 255, 255}) {
+		t.Fatalf("blue was not blue")
+	}
+	if swtch.Get() != ("blue") {
+		t.Fatalf("set blue did not set key")
+	}
+	if swtch.Add("blue", NewColorBox(5, 5, color.RGBA{255, 255, 255, 255})) == nil {
+		t.Fatalf("switch should return erroron duplicate Add")
+	}
+	if swtch.GetRGBA().At(0, 0) != (color.RGBA{255, 255, 255, 255}) {
+		t.Fatalf("add blue did not also set blue on switch")
+	}
+	if swtch.Set("color5") == nil {
+		t.Fatalf("switch should error setting to unknown string key")
+	}
+	if !reflect.DeepEqual(swtch.GetSub("empty"), NewColorBox(5, 5, color.RGBA{0, 0, 0, 0})) {
+		t.Fatalf("empty renderable was not a 5x5 colorbox")
+	}
 
-	cmp2 := cmp.Copy().(*Switch)
-	w, h := cmp2.GetDims()
-	assert.Equal(t, w, 5)
-	assert.Equal(t, h, 5)
-	assert.True(t, cmp2.IsStatic())
-	assert.True(t, cmp2.IsInterruptable())
+	swtch2 := swtch.Copy().(*Switch)
+	w, h := swtch2.GetDims()
+	if w != 5 || h != 5 {
+		t.Fatalf("get dims failed")
+	}
+	if !swtch2.IsStatic() {
+		t.Fatalf("switch on colorbox should be static")
+	}
+	if !swtch2.IsInterruptable() {
+		t.Fatalf("switch on colorbox should be interruptable")
+	}
 }
 
 func TestSwitchPositioning(t *testing.T) {
@@ -44,22 +67,34 @@ func TestSwitchPositioning(t *testing.T) {
 	})
 	rgba := image.NewRGBA(image.Rect(0, 0, 10, 10))
 
-	cmp.Draw(rgba)
-	assert.Equal(t, red, rgba.At(0, 0))
-	assert.NotEqual(t, red, rgba.At(10, 0))
+	cmp.Draw(rgba, 0, 0)
+	if red != rgba.At(0, 0) {
+		t.Fatalf("rgba was not red at 0,0")
+	}
+	if red == rgba.At(10, 0) {
+		t.Fatalf("rgba was red at 10,0")
+	}
 
 	rgba = image.NewRGBA(image.Rect(0, 0, 10, 10))
-	assert.Nil(t, cmp.Set("blue"))
+	cmp.Set("blue")
 	cmp.ShiftPos(1, 1)
-	cmp.DrawOffset(rgba, 0, 0)
-	assert.Equal(t, blue, rgba.At(1, 1))
-	assert.NotEqual(t, blue, rgba.At(0, 0))
+	cmp.Draw(rgba, 0, 0)
+	if blue != rgba.At(1, 1) {
+		t.Fatalf("rgba was not blue at 1,1")
+	}
+	if blue == rgba.At(0, 0) {
+		t.Fatalf("shifting rgba should not have drawn at 0,0")
+	}
 	rgba = image.NewRGBA(image.Rect(0, 0, 10, 10))
 	cmp.SetOffsets("red", physics.NewVector(5, 5))
-	assert.Nil(t, cmp.Set("red"))
-	cmp.Draw(rgba)
-	assert.Equal(t, red, rgba.At(8, 8))
-	assert.NotEqual(t, red, rgba.At(1, 1))
+	cmp.Set("red")
+	cmp.Draw(rgba, 0, 0)
+	if red != rgba.At(8, 8) {
+		t.Fatalf("red should be set at 8,8 with SetOffsets")
+	}
+	if red == rgba.At(1, 1) {
+		t.Fatalf("set offsets should have unset 1,1")
+	}
 
 }
 
@@ -70,23 +105,37 @@ func TestSwitchModifiability(t *testing.T) {
 		"blue": NewReverting(NewColorBox(5, 5, color.RGBA{0, 0, 255, 255})),
 	})
 
-	assert.Equal(t, cb.GetRGBA(), cmp.GetRGBA())
+	if !reflect.DeepEqual(cb.GetRGBA(), cmp.GetRGBA()) {
+		t.Fatalf("rgba mismatch")
+	}
 	for _, mod := range neqmods {
 		cmp.Modify(mod)
-		assert.NotEqual(t, cb.GetRGBA(), cmp.GetRGBA())
+		if reflect.DeepEqual(cb.GetRGBA(), cmp.GetRGBA()) {
+			t.Fatalf("neq mod should result in changed rgba")
+		}
 		cmp.Revert(1)
-		assert.Equal(t, cb.GetRGBA(), cmp.GetRGBA())
+		if !reflect.DeepEqual(cb.GetRGBA(), cmp.GetRGBA()) {
+			t.Fatalf("rgba mismatch")
+		}
 	}
 	for _, mod := range eqmods {
 		cmp.Modify(mod)
-		assert.Equal(t, cb.GetRGBA(), cmp.GetRGBA())
+		if !reflect.DeepEqual(cb.GetRGBA(), cmp.GetRGBA()) {
+			t.Fatalf("rgba mismatch")
+		}
 	}
 	cmp.RevertAll()
-	assert.Equal(t, cb.GetRGBA(), cmp.GetRGBA())
+	if !reflect.DeepEqual(cb.GetRGBA(), cmp.GetRGBA()) {
+		t.Fatalf("rgba mismatch")
+	}
 
 	cmp.Filter(mod.Brighten(-100))
-	assert.NotEqual(t, cb.GetRGBA(), cmp.GetRGBA())
+	if reflect.DeepEqual(cb.GetRGBA(), cmp.GetRGBA()) {
+		t.Fatalf("brighten filter should result in changed rgba")
+	}
 	cmp.RevertAll()
-	assert.Equal(t, cb.GetRGBA(), cmp.GetRGBA())
+	if !reflect.DeepEqual(cb.GetRGBA(), cmp.GetRGBA()) {
+		t.Fatalf("rgba mismatch")
+	}
 
 }

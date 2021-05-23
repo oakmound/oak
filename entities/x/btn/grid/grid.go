@@ -1,6 +1,6 @@
 package grid
 
-import "github.com/oakmound/oak/v2/entities/x/btn"
+import "github.com/oakmound/oak/v3/entities/x/btn"
 
 // A Grid is a 2D slice of buttons
 type Grid [][]btn.Btn

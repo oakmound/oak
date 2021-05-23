@@ -1,14 +1,14 @@
 package audio
 
 import (
-	"github.com/200sc/go-dist/intrange"
 	"github.com/200sc/klangsynthese/font"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
 )
 
 // A ChannelManager can create audio channels that won't be stopped at scene end,
 // but can be stopped at any time by calling Close on the manager.
 type ChannelManager struct {
-	quitCh chan bool
+	quitCh chan struct{}
 	Font   *font.Font
 }
 
@@ -16,7 +16,7 @@ type ChannelManager struct {
 // given font.
 func NewChannelManager(f *font.Font) *ChannelManager {
 	return &ChannelManager{
-		quitCh: make(chan bool),
+		quitCh: make(chan struct{}),
 		Font:   f,
 	}
 }

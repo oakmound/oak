@@ -4,16 +4,26 @@ import (
 	"os"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDummyFileInfo(t *testing.T) {
 	dfi := dummyfileinfo{"file", false}
-	assert.Equal(t, dfi.Name(), "file")
-	assert.Equal(t, dfi.Size(), int64(0))
-	assert.Equal(t, dfi.Mode(), os.ModeTemporary)
-	assert.Equal(t, dfi.ModTime(), time.Time{})
-	assert.Equal(t, dfi.IsDir(), false)
-	assert.Equal(t, dfi.Sys(), nil)
+	if dfi.Name() != "file" {
+		t.Fatalf("name mismatch")
+	}
+	if dfi.Size() != 0 {
+		t.Fatalf("size mismatch")
+	}
+	if dfi.Mode() != os.ModeTemporary {
+		t.Fatalf("mode mismatch")
+	}
+	if dfi.ModTime() != (time.Time{}) {
+		t.Fatalf("modTime mismatch")
+	}
+	if dfi.IsDir() != false {
+		t.Fatalf("isDir mismatch")
+	}
+	if dfi.Sys() != nil {
+		t.Fatalf("sys mismatch")
+	}
 }

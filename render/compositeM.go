@@ -4,8 +4,8 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 // CompositeM Types display all of their parts at the same time,
@@ -87,18 +87,11 @@ func (cs *CompositeM) Get(i int) Modifiable {
 	return cs.rs[i]
 }
 
-// DrawOffset draws the CompositeM with some offset from its logical position
+// Draw draws the CompositeM with some offset from its logical position
 // (and therefore sub renderables logical positions).
-func (cs *CompositeM) DrawOffset(buff draw.Image, xOff, yOff float64) {
+func (cs *CompositeM) Draw(buff draw.Image, xOff, yOff float64) {
 	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X()+xOff, cs.Y()+yOff)
-	}
-}
-
-// Draw draws the CompositeM at its logical position
-func (cs *CompositeM) Draw(buff draw.Image) {
-	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X(), cs.Y())
+		c.Draw(buff, cs.X()+xOff, cs.Y()+yOff)
 	}
 }
 
@@ -146,7 +139,7 @@ func (cs *CompositeM) ToSprite() *Sprite {
 	}
 	sp := NewEmptySprite(cs.X(), cs.Y(), maxW, maxH)
 	for _, r := range cs.rs {
-		r.Draw(sp)
+		r.Draw(sp, 0, 0)
 	}
 	return sp
 }

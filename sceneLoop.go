@@ -1,113 +1,132 @@
 package oak
 
 import (
-	"image"
+	"context"
 
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v3/timing"
 )
 
-var (
-	loadingScene = scene.Scene{
-		Start: func(prevScene string, data interface{}) {
+func (c *Controller) sceneLoop(first string, trackingInputs bool) {
+	err := c.SceneMap.AddScene("loading", scene.Scene{
+		Start: func(*scene.Context) {
+			// TODO: language
 			dlog.Info("Loading Scene Init")
 		},
 		Loop: func() bool {
-			select {
-			case <-startupLoadCh:
-				dlog.Info("Load Complete")
-				return false
-			default:
-				return true
-			}
+			return c.startupLoading
 		},
 		End: func() (string, *scene.Result) {
-			return firstScene, nil
+			dlog.Info("Load Complete")
+			return c.firstScene, &scene.Result{
+				NextSceneInput: c.FirstSceneInput,
+			}
 		},
+	})
+	if err != nil {
+		// ???
 	}
-)
 
-var firstScene string
-
-func sceneLoop(first string, trackingInputs bool, debugConsoleDisabled bool) {
 	var prevScene string
 
 	result := new(scene.Result)
 
+	// TODO: language
 	dlog.Info("First Scene Start")
 
-	drawCh <- true
-	drawCh <- true
+	c.drawCh <- struct{}{}
+	c.drawCh <- struct{}{}
 
+	// TODO: language
 	dlog.Verb("Draw Channel Activated")
 
-	firstScene = first
+	c.firstScene = first
 
-	SceneMap.CurrentScene = "loading"
+	c.SceneMap.CurrentScene = "loading"
 
 	for {
-		ViewPos = image.Point{0, 0}
-		updateScreen(0, 0)
-		useViewBounds = false
+		c.setViewport(intgeom.Point2{0, 0})
+		c.useViewBounds = false
 
-		dlog.Info("Scene Start", SceneMap.CurrentScene)
-		scen, ok := SceneMap.GetCurrent()
+		dlog.Info("Scene Start", c.SceneMap.CurrentScene)
+		scen, ok := c.SceneMap.GetCurrent()
 		if !ok {
-			dlog.Error("Unknown scene", SceneMap.CurrentScene)
-			panic("Unknown scene " + SceneMap.CurrentScene)
+			dlog.Error("Unknown scene", c.SceneMap.CurrentScene)
+			if c.ErrorScene != "" {
+				c.SceneMap.CurrentScene = c.ErrorScene
+				scen, ok = c.SceneMap.GetCurrent()
+				if !ok {
+					panic("error scene not defined in scene map")
+				}
+			} else {
+				panic("Unknown scene " + c.SceneMap.CurrentScene)
+			}
 		}
 		if trackingInputs {
 			trackInputChanges()
 		}
+		gctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 		go func() {
-			dlog.Info("Starting scene in goroutine", SceneMap.CurrentScene)
-			scen.Start(prevScene, result.NextSceneInput)
-			transitionCh <- true
+			dlog.Info("Starting scene in goroutine", c.SceneMap.CurrentScene)
+			scen.Start(&scene.Context{
+				Context:       gctx,
+				PreviousScene: prevScene,
+				SceneInput:    result.NextSceneInput,
+				DrawStack:     c.DrawStack,
+				EventHandler:  c.logicHandler,
+				CallerMap:     c.CallerMap,
+				MouseTree:     c.MouseTree,
+				CollisionTree: c.CollisionTree,
+				Window:        c,
+			})
+			c.transitionCh <- struct{}{}
 		}()
 
-		sceneTransition(result)
+		c.sceneTransition(result)
 
 		// Post transition, begin loading animation
 		dlog.Info("Starting load animation")
-		drawCh <- true
+		c.drawCh <- struct{}{}
 		dlog.Info("Getting Transition Signal")
-		<-transitionCh
+		<-c.transitionCh
 		dlog.Info("Resume Drawing")
 		// Send a signal to resume (or begin) drawing
-		drawCh <- true
+		c.drawCh <- struct{}{}
 
 		dlog.Info("Looping Scene")
 		cont := true
 
-		dlog.ErrorCheck(logicHandler.UpdateLoop(FrameRate, sceneCh))
+		dlog.ErrorCheck(c.logicHandler.UpdateLoop(c.FrameRate, c.sceneCh))
+
+		nextSceneOverride := ""
 
 		for cont {
 			select {
-			case <-sceneCh:
+			case <-c.sceneCh:
 				cont = scen.Loop()
-			case <-skipSceneCh:
+			case nextSceneOverride = <-c.skipSceneCh:
 				cont = false
 			}
 		}
-		dlog.Info("Scene End", SceneMap.CurrentScene)
+		cancel()
+		dlog.Info("Scene End", c.SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
-		dlog.ErrorCheck(logicHandler.Stop())
-		prevScene = SceneMap.CurrentScene
+		dlog.ErrorCheck(c.logicHandler.Stop())
+		prevScene = c.SceneMap.CurrentScene
 
 		// Send a signal to stop drawing
-		drawCh <- true
+		c.drawCh <- struct{}{}
 
 		// Reset any ongoing delays
 	delayLabel:
 		for {
 			select {
-			case timing.ClearDelayCh <- true:
+			case timing.ClearDelayCh <- struct{}{}:
 			default:
 				break delayLabel
 			}
@@ -117,35 +136,35 @@ func sceneLoop(first string, trackingInputs bool, debugConsoleDisabled bool) {
 		// Reset transient portions of the engine
 		// We start by clearing the event bus to
 		// remove most ongoing code
-		logicHandler.Reset()
+		c.logicHandler.Reset()
 		// We follow by clearing collision areas
 		// because otherwise collision function calls
 		// on non-entities (i.e. particles) can still
 		// be triggered and attempt to access an entity
 		dlog.Verb("Event Bus Reset")
-		collision.Clear()
-		mouse.Clear()
-		event.ResetEntities()
-		render.ResetDrawStack()
-		render.PreDraw()
+		c.CollisionTree.Clear()
+		c.MouseTree.Clear()
+		if c.CallerMap == event.DefaultCallerMap {
+			event.ResetCallerMap()
+			c.CallerMap = event.DefaultCallerMap
+		} else {
+			c.CallerMap = event.NewCallerMap()
+		}
+		c.DrawStack.Clear()
+		c.DrawStack.PreDraw()
 		dlog.Verb("Engine Reset")
 
 		// Todo: Add in customizable loading scene between regular scenes,
 		// In addition to the existing customizable loading renderable?
 
-		SceneMap.CurrentScene, result = scen.End()
+		c.SceneMap.CurrentScene, result = scen.End()
+		if nextSceneOverride != "" {
+			c.SceneMap.CurrentScene = nextSceneOverride
+		}
 		// For convenience, we allow the user to return nil
 		// but it gets translated to an empty result
 		if result == nil {
 			result = new(scene.Result)
-		}
-
-		if !debugConsoleDisabled && !debugResetInProgress {
-			debugResetInProgress = true
-			go func() {
-				debugResetCh <- true
-				debugResetInProgress = false
-			}()
 		}
 	}
 }

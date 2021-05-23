@@ -1,36 +1,55 @@
 package oak
 
 import (
+	"bytes"
 	"os"
+	"path/filepath"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-func TestDefaultConfig(t *testing.T) {
-	err := LoadConf("default.config")
-	assert.Nil(t, err)
-	assert.Equal(t, conf, SetupConfig)
-	f, err := os.Open("default.config")
-	assert.Nil(t, err)
-	err = LoadConfData(f)
-	assert.Nil(t, err)
-	SetupConfig = Config{
-		Assets:              Assets{"a/", "a/", "i/", "f/"},
-		Debug:               Debug{"FILTER", "INFO"},
-		Screen:              Screen{0, 0, 240, 320, 2, 0, 0},
-		Font:                Font{"hint", 20.0, 36.0, "luxisr.ttf", "green"},
-		FrameRate:           30,
-		DrawFrameRate:       30,
-		Language:            "German",
-		Title:               "Some Window",
-		BatchLoad:           true,
-		GestureSupport:      true,
-		LoadBuiltinCommands: true,
+func TestDefaultConfigFileMatchesEmptyConfig(t *testing.T) {
+	c1, err := NewConfig(func(c Config) (Config, error) {
+		// clear out defaults
+		return Config{}, nil
+	}, FileConfig(filepath.Join("testdata", "default.config")))
+	if err != nil {
+		t.Fatalf("failed to load default.config (1): %v", err)
 	}
-	initConf()
-	assert.Equal(t, SetupConfig, conf)
-	// Failure to load
-	err = LoadConf("nota.config")
-	assert.NotNil(t, err)
+	c2, _ := NewConfig()
+	if c1 != c2 {
+		t.Fatalf("config from file did not match default config (1)")
+	}
+	f, err := os.Open(filepath.Join("testdata", "default.config"))
+	if err != nil {
+		t.Fatalf("failed to load deafult.config (1)")
+	}
+	c3, err := NewConfig(func(c Config) (Config, error) {
+		// clear out defaults
+		return Config{}, nil
+	}, ReaderConfig(f))
+	if err != nil {
+		t.Fatalf("failed to load config data from reader")
+	}
+	if c2 != c3 {
+		t.Fatalf("config from reader did not match default config (1)")
+	}
+}
+
+func TestFileConfigBadFile(t *testing.T) {
+	_, err := NewConfig(FileConfig("badpath"))
+	if err == nil {
+		t.Fatalf("expected error loading bad file")
+	}
+	// This error is an stdlib error, not ours, so we don't care
+	// about its type
+}
+
+func TestReaderConfigBadJSON(t *testing.T) {
+	b := bytes.NewBuffer([]byte("this isn't json"))
+	_, err := NewConfig(ReaderConfig(b))
+	if err == nil {
+		t.Fatalf("expected error loading bad file")
+	}
+	// This error is an stdlib error, not ours, so we don't care
+	// about its type
 }

@@ -4,7 +4,7 @@ import (
 	"github.com/200sc/klangsynthese/audio"
 	"github.com/200sc/klangsynthese/audio/filter"
 	"github.com/200sc/klangsynthese/audio/filter/supports"
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 // SupportsPos is a type used by filters to check that the audio they are given

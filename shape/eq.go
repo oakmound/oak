@@ -3,10 +3,9 @@ package shape
 import "math"
 
 // Eq represents a basic equation-- a mapping of x values to
-// y values. Specifically, this equation is expected to be significant
-// to represent some part or all of a shape from -1 to 1. This range
-// is chosen because it's often easier to write shape equations around
-// the center of a graph.
+// y values. This equation is expected to represent some part or all
+// of a shape from -1 to 1. This range is chosen because it's often
+// easier to write shape equations around the center of a graph.
 type Eq func(x float64) (y float64)
 
 // Below returns an In which reports true for all x,y coordinates below

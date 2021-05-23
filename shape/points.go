@@ -1,7 +1,7 @@
 package shape
 
 import (
-	"github.com/oakmound/oak/v2/alg/intgeom"
+	"github.com/oakmound/oak/v3/alg/intgeom"
 )
 
 // Points is a shape defined by a set of points.
@@ -29,7 +29,7 @@ func (p Points) Outline(sizes ...int) ([]intgeom.Point2, error) {
 	return ToOutline(p)(sizes...)
 }
 
-// Rect returns a double slice of booleans representing the output of the In function in that rectangle
+// Rect returns a 2D slice of booleans representing the output of the In function in that rectangle
 func (p Points) Rect(sizes ...int) [][]bool {
 	return InToRect(p.In)(sizes...)
 }

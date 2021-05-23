@@ -2,35 +2,56 @@ package oakerr
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestErrorsAreErrors(t *testing.T) {
-
-	var err error = NotFound{}
-	assert.NotEmpty(t, err.Error())
-	err = ExistingElement{}
-	assert.NotEmpty(t, err.Error())
-	err = ExistingElement{Overwritten: true}
-	assert.NotEmpty(t, err.Error())
-	err = InsufficientInputs{}
-	assert.NotEmpty(t, err.Error())
-	err = InvalidInput{}
-	assert.NotEmpty(t, err.Error())
-	err = NilInput{}
-	assert.NotEmpty(t, err.Error())
-	err = IndivisibleInput{}
-	assert.NotEmpty(t, err.Error())
-	err = IndivisibleInput{IsList: true}
-	assert.NotEmpty(t, err.Error())
-	err = ConsError{ExistingElement{}, ExistingElement{}}
-	assert.NotEmpty(t, err.Error())
-	err = UnsupportedFormat{}
-	assert.NotEmpty(t, err.Error())
-	err = InvalidLength{}
-	assert.NotEmpty(t, err.Error())
-	err = UnsupportedPlatform{}
-	assert.NotEmpty(t, err.Error())
+	languages := []Language{English, Deutsch}
+	for _, lang := range languages {
+		SetLanguage(lang)
+		var err error = NotFound{}
+		if err.Error() == "" {
+			t.Fatalf("NotFound error was empty")
+		}
+		err = ExistingElement{}
+		if err.Error() == "" {
+			t.Fatalf("ExistingElement error was empty")
+		}
+		err = ExistingElement{Overwritten: true}
+		if err.Error() == "" {
+			t.Fatalf("ExistingElement error was empty")
+		}
+		err = InsufficientInputs{}
+		if err.Error() == "" {
+			t.Fatalf("InsufficientInputs error was empty")
+		}
+		err = InvalidInput{}
+		if err.Error() == "" {
+			t.Fatalf("InvalidInput error was empty")
+		}
+		err = NilInput{}
+		if err.Error() == "" {
+			t.Fatalf("NilInput error was empty")
+		}
+		err = IndivisibleInput{}
+		if err.Error() == "" {
+			t.Fatalf("IndivisibleInput error was empty")
+		}
+		err = UnsupportedFormat{}
+		if err.Error() == "" {
+			t.Fatalf("UnsupportedFormat error was empty")
+		}
+		err = UnsupportedPlatform{}
+		if err.Error() == "" {
+			t.Fatalf("UnsupportedPlatform error was empty")
+		}
+	}
 	// Assert nothing crashed
+}
+
+func TestErrorFallback(t *testing.T) {
+	SetLanguage(日本語)
+	s := errorString(codeIndivisibleInput, "a", "b")
+	if s != "a was not divisible by b" {
+		t.Fatalf("language fallback to english failed")
+	}
 }

@@ -1,21 +1,20 @@
 package render
 
 import (
-	"image"
-	"image/draw"
 	"time"
 
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 // LogicFPS is a Stackable that will draw the logical fps onto the screen when a part
 // of the draw stack.
 type LogicFPS struct {
 	event.CID
-	fps      int
-	lastTime time.Time
-	txt      *Text
+	*Text
+	fps       int
+	lastTime  time.Time
+	Smoothing float64
 }
 
 // Init satisfies event.Entity
@@ -25,49 +24,30 @@ func (lf *LogicFPS) Init() event.CID {
 	return id
 }
 
-// NewLogicFPS returns a zero-initialized LogicFPS
-func NewLogicFPS() *LogicFPS {
-	lf := new(LogicFPS)
-	lf.lastTime = time.Now()
-	lf.fps = 0
+// NewLogicFPS returns a LogicFPS, which will render a counter of how fast it receives event.Enter events.
+// If font is not provided, DefaultFont is used. If smoothing is 0, a reasonable default is used.
+func NewLogicFPS(smoothing float64, font *Font, x, y float64) *LogicFPS {
+	if smoothing == 0.0 {
+		smoothing = defaultFpsSmoothing
+	}
+	if font == nil {
+		font = DefaultFont().Copy()
+	}
+	lf := &LogicFPS{
+		Smoothing: smoothing,
+		lastTime:  time.Now(),
+	}
+	lf.Text = font.NewIntText(&lf.fps, x, y)
+	lf.Init()
+	lf.Bind(event.Enter, logicFPSBind)
+
 	return lf
 }
 
-// PreDraw does nothing for a drawFPS
-func (lf *LogicFPS) PreDraw() {
-	//NOP
-	// This is not done in NewDrawFPS because at the time when
-	// NewDrawFPS is called, DefFont() does not exist.
-	if lf.txt == nil {
-		lf.Init()
-		lf.Bind(logicFPSBind, event.Enter)
-		lf.txt = DefFont().NewIntText(&lf.fps, 10, 30)
-	}
-}
-
-// Add does nothing for a drawFPS
-func (lf *LogicFPS) Add(Renderable, ...int) Renderable {
-	//NOP
-	return nil
-}
-
-// Replace does nothing for a drawFPS
-func (lf *LogicFPS) Replace(Renderable, Renderable, int) {
-	//NOP
-}
-
-// Copy does effectively nothing for a drawFPS
-func (lf *LogicFPS) Copy() Stackable {
-	return new(LogicFPS)
-}
-
-func (lf *LogicFPS) draw(world draw.Image, view image.Point, w, h int) {
-	lf.txt.Draw(world)
-}
-
-func logicFPSBind(id int, nothing interface{}) int {
+func logicFPSBind(id event.CID, nothing interface{}) int {
 	lf := event.GetEntity(id).(*LogicFPS)
-	lf.fps = int((timing.FPS(lf.lastTime, time.Now()) * FpsSmoothing) + (float64(lf.fps) * (1 - FpsSmoothing)))
-	lf.lastTime = time.Now()
+	t := time.Now()
+	lf.fps = int((timing.FPS(lf.lastTime, t) * lf.Smoothing) + (float64(lf.fps) * (1 - lf.Smoothing)))
+	lf.lastTime = t
 	return 0
 }

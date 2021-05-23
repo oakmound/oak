@@ -4,8 +4,8 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/oakmound/oak/v2/alg/intgeom"
-	"github.com/oakmound/oak/v2/render/mod"
+	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v3/render/mod"
 )
 
 func HighlightOff(c color.Color, thickness, xOff, yOff int) mod.Mod {

@@ -5,8 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/oakmound/oak/v2/fileutil"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/fileutil"
 )
 
 func ExampleDraw() {
@@ -19,28 +18,50 @@ func ExampleDraw() {
 
 func TestDrawHelpers(t *testing.T) {
 	r, err := LoadSpriteAndDraw("Not a sprite", 0)
-	assert.Nil(t, r)
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("load sprite should have failed")
+	}
+	if r != nil {
+		t.Fatalf("failed load sprite should give nil renderable")
+	}
 
 	fileutil.BindataDir = AssetDir
 	fileutil.BindataFn = Asset
 	r, err = LoadSpriteAndDraw(filepath.Join("16", "jeremy.png"), 0)
-	assert.NotNil(t, r)
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatalf("load sprite should not have failed")
+	}
+	if r == nil {
+		t.Fatalf("load sprite should not give nil renderable")
+	}
 
 	r, err = DrawColor(color.RGBA{255, 255, 255, 255}, 0, 0, 10, 10, 0, 0)
-	assert.NotNil(t, r)
-	assert.Nil(t, err)
-
+	if err != nil {
+		t.Fatalf("draw color should not have failed")
+	}
+	if r == nil {
+		t.Fatalf("draw color should not give nil renderable")
+	}
 	GlobalDrawStack.Push(&CompositeR{})
 	GlobalDrawStack.PreDraw()
 
 	_, err = DrawColor(color.RGBA{255, 255, 255, 255}, 0, 0, 10, 10, 3, 0)
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("draw color to invalid layer should fail")
+	}
 
 	err = DrawForTime(NewColorBox(5, 5, color.RGBA{255, 255, 255, 255}), 0, 4)
-	assert.NotNil(t, err)
+	if err == nil {
+		t.Fatalf("draw time to invalid layer should fail")
+	}
 
 	err = DrawForTime(NewColorBox(5, 5, color.RGBA{255, 255, 255, 255}), 0, 0)
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatalf("draw time should not have failed")
+	}
+
+	_, err = DrawPoint(color.RGBA{100, 100, 100, 255}, 0, 0, 0)
+	if err != nil {
+		t.Fatalf("draw color should not have failed")
+	}
 }

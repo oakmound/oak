@@ -2,13 +2,19 @@ package render
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestLayeredNils(t *testing.T) {
 	var ld *Layer
-	assert.Equal(t, Undraw, ld.GetLayer())
+	if ld.GetLayer() != Undraw {
+		t.Fatalf("nil layer should be undrawn")
+	}
 	var ldp *LayeredPoint
-	assert.Equal(t, Undraw, ldp.GetLayer())
+	if ldp.GetLayer() != Undraw {
+		t.Fatalf("nil layered point should be undrawn")
+	}
+	w, h := ldp.GetDims()
+	if w != 1 || h != 1 {
+		t.Fatalf("GetDims faailed")
+	}
 }

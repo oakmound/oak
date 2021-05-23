@@ -1,9 +1,8 @@
 package render
 
 import (
-	"github.com/akavel/polyclip-go"
-	"github.com/oakmound/oak/v2/alg"
-	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
 )
 
 // A DrawPolygon is used to determine whether elements should be drawn, defining
@@ -13,20 +12,6 @@ type DrawPolygon struct {
 	drawPolygon      []floatgeom.Point2
 	dims             floatgeom.Rect2
 	rectangular      bool
-}
-
-// SetDrawPolygon sets the draw polygon and flags that draw functions
-// should check for containment in the polygon before drawing elements
-// Deprecated: use SetPolygon instead
-func (dp *DrawPolygon) SetDrawPolygon(p polyclip.Polygon) {
-	// get []floatgeom.Point2
-	poly := make([]floatgeom.Point2, 0, len(p))
-	for _, c := range p {
-		for _, pt := range c {
-			poly = append(poly, floatgeom.Point2{pt.X, pt.Y})
-		}
-	}
-	dp.SetPolygon(poly)
 }
 
 // SetPolygon sets the draw polygon and flags that draw functions
@@ -60,19 +45,13 @@ func (dp *DrawPolygon) ClearDrawPolygon() {
 	dp.rectangular = false
 }
 
-// DrawPolygonDim returns the dimensions of this draw polygon, or (0,0)->(0,0)
-// if there is no draw polygon in use. Deprecated: Use DrawPolygonBounds instead
-func (dp *DrawPolygon) DrawPolygonDim() floatgeom.Rect2 {
-	return dp.dims
-}
-
 // DrawPolygonBounds returns the dimensions of this draw polygon, or (0,0)->(0,0)
-// if there is no draw polygon in use. 
+// if there is no draw polygon in use.
 func (dp *DrawPolygon) DrawPolygonBounds() floatgeom.Rect2 {
 	return dp.dims
 }
 
-// InDrawPolygon returns whehter a coordinate and dimension set should be drawn
+// InDrawPolygon returns whether a coordinate and dimension set should be drawn
 // given the draw polygon
 func (dp *DrawPolygon) InDrawPolygon(xi, yi, x2i, y2i int) bool {
 	if dp.usingDrawPolygon {
@@ -123,6 +102,9 @@ func (dp *DrawPolygon) InDrawPolygon(xi, yi, x2i, y2i int) bool {
 		}
 		last := dp.drawPolygon[len(dp.drawPolygon)-1]
 		for i := 0; i < len(dp.drawPolygon); i++ {
+			// Either 1. This point is contained in the renderable box or
+			// 2. The line segment connecting this point to the last point intersects
+			// one diagonal of the renderable box.
 			next := dp.drawPolygon[i]
 			if r.Contains(next) {
 				return true

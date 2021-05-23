@@ -1,76 +1,53 @@
 package event
 
-import (
-	"sync"
-)
-
-var (
-	highestID CID
-	callers   = make([]Entity, 0)
-	idMutex   = sync.Mutex{}
-)
-
-// Todo: callers having assigned buses?
-
 // An Entity is an element which can be bound to,
 // in that it has a CID. All Entities need to implement
 // is an Init function which should call NextID(e) and
-// return that id.
+// return that id:
+// 		func (f *Foo) Init() event.CID {
+//			f.CID = event.NextID(f)
+//          return f.CID
+// 		}
+// In a multi-window setup each window may have its own
+// callerMap, in which case event.NextID should be replaced
+// with a NextID call on the appropriate callerMap.
 type Entity interface {
 	Init() CID
 }
 
-// NextID finds the next available caller id (always incrementing)
-// and returns it, after adding the given entity to
-// the slice of callers at the returned index.
-func NextID(e Entity) CID {
-	idMutex.Lock()
-	highestID++
-	callers = append(callers, e)
-	id := highestID
-	idMutex.Unlock()
-	return id
-}
-
-// GetEntity either returns callers[i-1]
-// or nil, if there is nothing at that index.
-func GetEntity(i int) interface{} {
-	if HasEntity(i) {
-		return callers[i-1]
-	}
-	return nil
-}
-
-// ScanForEntity returns the first created entity that returns true for the given
-// comparator function. If no entity satisfying the condition is found, this
-// returns (-1, nil).
-func ScanForEntity(by func(interface{}) bool) (int, interface{}) {
-	for i, e := range callers {
-		if by(e) {
-			return i + 1, e
-		}
-	}
-	return -1, nil
-}
-
-// HasEntity returns whether the given caller id is an initialized entity
-func HasEntity(i int) bool {
-	return len(callers) >= i && i != 0
-}
-
-// DestroyEntity sets the index within the caller list to nil. Note that this
-// does not reduce the size of the caller list, a potential change in the
-// future would be to A) use a map or B) reassign caller ids to not directly
-// correspond to indices within callers
-func DestroyEntity(i int) {
-	callers[i-1] = nil
-}
-
-// ResetEntities resets callers and highestID, effectively dropping the
-// remaining entities from accessible memory.
-func ResetEntities() {
-	idMutex.Lock()
-	highestID = 0
-	callers = []Entity{}
-	idMutex.Unlock()
-}
+// Q: Why does every entity need its own implementation
+// of Init()? Why can't it get that method definition
+// from struct embedding?
+//
+// A: Because the CallerMap will store whatever struct is
+// passed in to NextID. In a naive implementation:
+// type A struct {
+//     DefaultEntity
+// }
+//
+// type DefaultEntity struct {
+//     event.CID
+// }
+//
+// func (de *DefaultEntity) Init() event.CID {
+//     de.CID = event.NextID(de)
+//     return de.CID
+// }
+//
+// func main() {
+//     ...
+//     a := &A{}
+//     cid := a.Init()
+//     ent := event.GetEntity(cid)
+//     _, ok := ent.(*A)
+//     // ok is false, ent is type *DefaultEntity
+// }
+//
+// So to effectively do this you would need something like:
+// func DefaultEntity(parent interface{}) *DefaultEntity {}
+// ... where the structure would store and pass down the parent.
+// This introduces empty interfaces, would make initialization
+// more difficult, and would use slightly more memory.
+//
+// Feel free to use this idea in your own implementations, but
+// this package will not provide this structure at this time.

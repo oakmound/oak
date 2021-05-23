@@ -3,7 +3,7 @@ package btn
 import (
 	"fmt"
 
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/render"
 )
 
 //Text sets the text of the button to be generated

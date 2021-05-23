@@ -1,6 +1,6 @@
 package stat
 
-import "github.com/oakmound/oak/v2/event"
+import "github.com/oakmound/oak/v3/event"
 
 type timedStat struct {
 	name string
@@ -23,7 +23,7 @@ func TimedOff(eventName string) event.Bindable {
 
 // TimedBind returns a binding that will trigger toggling on or off the given event
 func TimedBind(eventName string, on bool) event.Bindable {
-	return func(int, interface{}) int {
+	return func(event.CID, interface{}) int {
 		event.Trigger(eventName, timedStat{eventName, on})
 		return 0
 	}
@@ -31,7 +31,7 @@ func TimedBind(eventName string, on bool) event.Bindable {
 
 // Bind returns a binding that will increment the given event by 'inc'
 func Bind(eventName string, inc int) event.Bindable {
-	return func(int, interface{}) int {
+	return func(event.CID, interface{}) int {
 		event.Trigger(eventName, stat{eventName, inc})
 		return 0
 	}

@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v3/dlog"
 )
 
 // A Filter modifies an input image in place. This is useful notably for modifying

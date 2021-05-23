@@ -5,7 +5,8 @@ import (
 	"image/draw"
 	"sync"
 
-	"github.com/oakmound/oak/v2/alg/floatgeom"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/alg/intgeom"
 )
 
 // A CompositeR is equivalent to a CompositeM for Renderables instead of
@@ -71,17 +72,10 @@ func (cs *CompositeR) SetOffsets(ps ...floatgeom.Point2) {
 	}
 }
 
-// DrawOffset Draws the CompositeR with an offset from its logical location.
-func (cs *CompositeR) DrawOffset(buff draw.Image, xOff, yOff float64) {
+// Draw Draws the CompositeR with an offset from its logical location.
+func (cs *CompositeR) Draw(buff draw.Image, xOff, yOff float64) {
 	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X()+xOff, cs.Y()+yOff)
-	}
-}
-
-// Draw draws the CompositeR at its logical location and therefore its consituent renderables as well
-func (cs *CompositeR) Draw(buff draw.Image) {
-	for _, c := range cs.rs {
-		c.DrawOffset(buff, cs.X(), cs.Y())
+		c.Draw(buff, cs.X()+xOff, cs.Y()+yOff)
 	}
 }
 
@@ -143,7 +137,7 @@ func (cs *CompositeR) Copy() Stackable {
 	return cs2
 }
 
-func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, screenH int) {
+func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos intgeom.Point2, screenW, screenH int) {
 	realLength := len(cs.rs)
 	for i := 0; i < realLength; i++ {
 		r := cs.rs[i]
@@ -162,13 +156,17 @@ func (cs *CompositeR) draw(world draw.Image, viewPos image.Point, screenW, scree
 		w, h := r.GetDims()
 		x += w
 		y += h
-		if x > viewPos.X && y > viewPos.Y &&
-			x2 < viewPos.X+screenW && y2 < viewPos.Y+screenH {
+		if x > viewPos[0] && y > viewPos[1] &&
+			x2 < viewPos[0]+screenW && y2 < viewPos[1]+screenH {
 
 			if cs.InDrawPolygon(x, y, x2, y2) {
-				r.DrawOffset(world, float64(-viewPos.X), float64(-viewPos.Y))
+				r.Draw(world, float64(-viewPos[0]), float64(-viewPos[1]))
 			}
 		}
 	}
 	cs.rs = cs.rs[0:realLength]
+}
+
+func (cs *CompositeR) Clear() {
+	*cs = *NewCompositeR()
 }

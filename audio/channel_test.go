@@ -4,18 +4,25 @@ import (
 	"testing"
 	"time"
 
-	"github.com/200sc/go-dist/intrange"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
 )
 
 func TestChannels(t *testing.T) {
-	_, err := DefChannel(intrange.Constant(5))
-	assert.NotNil(t, err)
-	_, err = Load(".", "test.wav")
-	assert.Nil(t, err)
-	ch, err := DefChannel(intrange.NewLinear(1, 100), "test.wav")
-	assert.Nil(t, err)
-	assert.NotNil(t, ch)
+	_, err := DefaultChannel(intrange.NewConstant(5))
+	if err == nil {
+		t.Fatalf("expected error calling DefChannel without file names")
+	}
+	_, err = Load("testdata", "test.wav")
+	if err != nil {
+		t.Fatalf("expected no error loading test file")
+	}
+	ch, err := DefaultChannel(intrange.NewLinear(1, 100), "test.wav")
+	if err != nil {
+		t.Fatalf("expected no error creating channel with test file")
+	}
+	if ch == nil {
+		t.Fatalf("expected channel to be not-nil post create")
+	}
 	go func() {
 		tm := time.Now().Add(2 * time.Second)
 		// This only matters when running a suite of tests

@@ -4,13 +4,13 @@ import (
 	"math"
 	"time"
 
-	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 const (
@@ -21,14 +21,18 @@ const (
 // A Source is used to store and control a set of particles.
 type Source struct {
 	render.Layered
-	Generator  Generator
+	Generator Generator
+	*Allocator
+
 	particles  [blockSize]Particle
 	nextPID    int
 	CID        event.CID
 	pIDBlock   int
 	stackLevel int
-	paused     bool
 	EndFunc    func()
+	paused     bool
+	started    bool
+	stopped    bool
 }
 
 // NewSource creates a new source
@@ -36,6 +40,7 @@ func NewSource(g Generator, stackLevel int) *Source {
 	ps := new(Source)
 	ps.Generator = g
 	ps.stackLevel = stackLevel
+	ps.Allocator = DefaultAllocator
 	ps.Init()
 	return ps
 }
@@ -43,16 +48,9 @@ func NewSource(g Generator, stackLevel int) *Source {
 // Init allows a source to be considered as an entity, and initializes it
 func (ps *Source) Init() event.CID {
 	CID := event.NextID(ps)
-	CID.Bind(rotateParticles, event.Enter)
+	CID.Bind(event.Enter, rotateParticles)
 	ps.CID = CID
-	ps.pIDBlock = Allocate(ps.CID)
-	if ps.Generator.GetBaseGenerator().Duration != Inf {
-		go func(ps *Source, duration intrange.Range) {
-			timing.DoAfter(time.Duration(duration.Poll())*time.Millisecond, func() {
-				ps.Stop()
-			})
-		}(ps, ps.Generator.GetBaseGenerator().Duration)
-	}
+	ps.pIDBlock = ps.Allocate(ps.CID)
 	return CID
 }
 
@@ -181,8 +179,18 @@ func (ps *Source) addParticles() {
 
 // rotateParticles updates particles over time as long
 // as a Source is active.
-func rotateParticles(id int, nothing interface{}) int {
-	ps := event.GetEntity(id).(*Source)
+func rotateParticles(id event.CID, nothing interface{}) int {
+	ps := id.E().(*Source)
+	if !ps.started {
+		if ps.Generator.GetBaseGenerator().Duration != Inf {
+			go func(ps *Source, duration intrange.Range) {
+				timing.DoAfter(time.Duration(duration.Poll())*time.Millisecond, func() {
+					ps.Stop()
+				})
+			}(ps, ps.Generator.GetBaseGenerator().Duration)
+		}
+		ps.started = true
+	}
 	if !ps.paused {
 		ps.cycleParticles()
 		ps.addParticles()
@@ -192,8 +200,8 @@ func rotateParticles(id int, nothing interface{}) int {
 
 // clearParticles is used after a Source has been stopped
 // to continue moving old particles for as long as they exist.
-func clearParticles(id int, nothing interface{}) int {
-	if ps, ok := event.GetEntity(id).(*Source); ok {
+func clearParticles(id event.CID, nothing interface{}) int {
+	if ps, ok := id.E().(*Source); ok {
 		if !ps.paused {
 			if ps.cycleParticles() {
 			} else {
@@ -201,7 +209,7 @@ func clearParticles(id int, nothing interface{}) int {
 					ps.EndFunc()
 				}
 				event.DestroyEntity(id)
-				Deallocate(ps.pIDBlock)
+				ps.Deallocate(ps.pIDBlock)
 				return event.UnbindEvent
 			}
 		}
@@ -217,6 +225,7 @@ func (ps *Source) Stop() {
 	if ps == nil {
 		return
 	}
+	ps.stopped = true
 	ps.CID.UnbindAllAndRebind([]event.Bindable{clearParticles}, []string{event.Enter})
 }
 

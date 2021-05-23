@@ -4,24 +4,31 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/oakmound/oak/v2/shape"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/shape"
 )
 
 func TestSimpleBezierLine(t *testing.T) {
 	bz, err := shape.BezierCurve(0, 0, 10, 10)
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatalf("failed to create bezier curve: %v", err)
+	}
 	sp := BezierLine(bz, color.RGBA{255, 255, 255, 255})
 	rgba := sp.GetRGBA()
 	for i := 0; i < 10; i++ {
-		assert.Equal(t, color.RGBA{255, 255, 255, 255}, rgba.At(i, i))
+		if rgba.At(i, i) != (color.RGBA{255, 255, 255, 255}) {
+			t.Fatalf("rgba not set at %v", i)
+		}
 	}
 
 	bz, err = shape.BezierCurve(10, 10, 0, 0)
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatalf("failed to create bezier curve: %v", err)
+	}
 	sp = BezierLine(bz, color.RGBA{255, 255, 255, 255})
 	rgba = sp.GetRGBA()
 	for i := 0; i < 10; i++ {
-		assert.Equal(t, color.RGBA{255, 255, 255, 255}, rgba.At(i, i))
+		if rgba.At(i, i) != (color.RGBA{255, 255, 255, 255}) {
+			t.Fatalf("rgba not set at %v", i)
+		}
 	}
 }

@@ -3,17 +3,21 @@ package scene
 import (
 	"math/rand"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestBooleanLoop(t *testing.T) {
 	v := true
 	l := BooleanLoop(&v)
-	require.True(t, l())
+	if !l() {
+		t.Fatalf("boolean loop should loop when true")
+	}
 	v = false
-	require.False(t, l())
-	require.True(t, l())
+	if l() {
+		t.Fatalf("boolean loop should not loop when false")
+	}
+	if !l() {
+		t.Fatalf("boolean loop should resume looping after returning false")
+	}
 }
 
 func randString() string {
@@ -31,8 +35,12 @@ func TestGoTo(t *testing.T) {
 		s := randString()
 		gt := GoTo(s)
 		s2, result := gt()
-		require.Equal(t, s, s2)
-		require.Nil(t, result)
+		if s != s2 {
+			t.Fatalf("expected goto to return %v, got %v", s, s2)
+		}
+		if result != nil {
+			t.Fatalf("expected goto to return nil result, got %v", result)
+		}
 	}
 }
 
@@ -43,12 +51,18 @@ func TestGoToPtr(t *testing.T) {
 	for i := 0; i < tests; i++ {
 		*s = randString()
 		s2, result := gt()
-		require.Equal(t, *s, s2)
-		require.Nil(t, result)
+		if *s != s2 {
+			t.Fatalf("expected gotoptr to return %v, got %v", *s, s2)
+		}
+		if result != nil {
+			t.Fatalf("expected gotoptr to return nil result, got %v", result)
+		}
 	}
 }
 
 func TestGoToPtrNil(t *testing.T) {
 	s, _ := GoToPtr(nil)()
-	require.Equal(t, "", s)
+	if s != "" {
+		t.Fatalf("expected nil gotoptr to return empty string, got %v", s)
+	}
 }

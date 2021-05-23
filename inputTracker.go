@@ -1,19 +1,18 @@
 package oak
 
 import (
-	"sync"
+	"sync/atomic"
 	"time"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/joystick"
-	"github.com/oakmound/oak/v2/key"
-	"github.com/oakmound/oak/v2/mouse"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/joystick"
+	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v3/mouse"
 )
 
 // InputType expresses some form of input to the engine to represent a player
-// Todo v3: convert into int32 for use with atomic.SwapInt32
-type InputType int
+type InputType = int32
 
 // Supported Input Types
 const (
@@ -24,30 +23,24 @@ const (
 var (
 	// MostRecentInput tracks what input type was most recently detected.
 	// This is only updated if TrackInputChanges is true in the config at startup
+	// TODO: scope this to controllers
 	MostRecentInput InputType
-	recentInputLock sync.Mutex
 )
 
 func trackInputChanges() {
-	event.GlobalBind(func(int, interface{}) int {
-		recentInputLock.Lock()
-		MostRecentInput = KeyboardMouse
-		// Trigger that the most recent input changed?
-		recentInputLock.Unlock()
+	event.GlobalBind(key.Down, func(event.CID, interface{}) int {
+		atomic.SwapInt32(&MostRecentInput, KeyboardMouse)
+		// TODO: Trigger that the most recent input changed?
 		return 0
-	}, key.Down)
-	event.GlobalBind(func(int, interface{}) int {
-		recentInputLock.Lock()
-		MostRecentInput = KeyboardMouse
-		recentInputLock.Unlock()
+	})
+	event.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
+		atomic.SwapInt32(&MostRecentInput, KeyboardMouse)
 		return 0
-	}, mouse.Press)
-	event.GlobalBind(func(int, interface{}) int {
-		recentInputLock.Lock()
-		MostRecentInput = Joystick
-		recentInputLock.Unlock()
+	})
+	event.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
+		atomic.SwapInt32(&MostRecentInput, Joystick)
 		return 0
-	}, "Tracking"+joystick.Change)
+	})
 }
 
 type joyHandler struct{}

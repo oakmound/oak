@@ -16,7 +16,7 @@ func TestDoAfterCancels(t *testing.T) {
 outer:
 	for {
 		select {
-		case ClearDelayCh <- true:
+		case ClearDelayCh <- struct{}{}:
 		default:
 			break outer
 		}
@@ -50,7 +50,7 @@ func TestDoAfterContextCancels(t *testing.T) {
 outer:
 	for {
 		select {
-		case ClearDelayCh <- true:
+		case ClearDelayCh <- struct{}{}:
 		default:
 			break outer
 		}

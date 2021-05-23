@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/render"
 )
 
 type ent struct{}
@@ -18,25 +17,23 @@ func (e ent) Init() event.CID {
 }
 
 func TestDebugConsole(t *testing.T) {
+	c1 := NewController()
+	c1.config.LoadBuiltinCommands = true
 	triggered := false
-	assert.Nil(t, AddCommand("test", func([]string) {
+	err := c1.AddCommand("test", func([]string) {
 		triggered = true
-	}))
+	})
+	if err != nil {
+		t.Fatalf("failed to add test command")
+	}
 
 	render.UpdateDebugMap("r", render.EmptyRenderable())
 
 	event.NextID(ent{})
 
-	rCh := make(chan bool)
-	sCh := make(chan bool)
 	r := bytes.NewBufferString(
 		"test\n" +
 			"nothing\n" +
-			"viewport unlock\n" +
-			"viewport unlock\n" +
-			"viewport lock\n" +
-			"viewport lock\n" +
-			"viewport nothing\n" +
 			"fade nothing\n" +
 			"fade nothing 100\n" +
 			"fade r\n" +
@@ -49,25 +46,27 @@ func TestDebugConsole(t *testing.T) {
 			"garbage input\n" +
 			"\n" +
 			"skip scene\n")
-	go debugConsole(rCh, sCh, r)
-	rCh <- true
+	go c1.debugConsole(r)
 	sleep()
 	sleep()
-	assert.True(t, triggered)
-	<-sCh
+	if !triggered {
+		t.Fatalf("debug console did not trigger test command")
+	}
+	<-c1.skipSceneCh
 }
 
 func TestMouseDetails(t *testing.T) {
-	mouseDetails(0, mouse.NewZeroEvent(0, 0))
+	c1 := NewController()
+
+	c1.mouseDetails(0, mouse.NewZeroEvent(0, 0))
 	s := collision.NewUnassignedSpace(-1, -1, 2, 2)
 	collision.Add(s)
-	mouseDetails(0, mouse.NewZeroEvent(0, 0))
+	c1.mouseDetails(0, mouse.NewZeroEvent(0, 0))
 	collision.Remove(s)
 
 	// This should spew this nothing entity, but it doesn't.
 	id := event.NextID(ent{})
 	s = collision.NewSpace(-1, -1, 2, 2, id)
-	mouseDetails(0, mouse.NewZeroEvent(0, 0))
+	c1.mouseDetails(0, mouse.NewZeroEvent(0, 0))
 	collision.Remove(s)
-
 }

@@ -1,10 +1,10 @@
 package btn
 
 import (
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/mouse"
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/render"
 )
 
 // TextBox is a Box with an associated text element
@@ -24,7 +24,7 @@ func NewTextBox(cid event.CID, x, y, w, h, txtX, txtY float64,
 	f *render.Font, r render.Renderable, layers ...int) *TextBox {
 
 	if f == nil {
-		f = render.DefFont()
+		f = render.DefaultFont()
 	}
 
 	b := new(TextBox)
@@ -33,7 +33,7 @@ func NewTextBox(cid event.CID, x, y, w, h, txtX, txtY float64,
 
 	b.Box = *NewBox(cid, x, y, w, h, r, layers...)
 	b.Text = f.NewStrText("Init", 0, 0)
-	b.Text.Vector = b.Text.Attach(b.Box.Vector, txtX, (-txtY)+b.H)
+	b.Text.Vector = b.Text.Attach(b.Box.Vector, txtX, txtY)
 
 	// We dont want to modify the input's layers but we do want the text to show up on top of the base renderable.
 	txtLayers := make([]int, len(layers))

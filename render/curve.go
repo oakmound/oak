@@ -5,8 +5,8 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/oakmound/oak/v2/alg"
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
 )
 
 // NewCircle creates a sprite and draws a circle onto it
@@ -33,18 +33,17 @@ func DrawCurve(rgba *image.RGBA, c color.Color, radius, thickness,
 			offY = offsets[1]
 		}
 	}
-	// Todo: use floatgeom not vectors
-	rVec := physics.NewVector(radius+offX, radius+offY)
-	delta := physics.AngleVector(initialAngle)
+	rVec := floatgeom.Point2{radius + offX, radius + offY}
+	delta := floatgeom.AnglePoint(initialAngle)
 	circum := 2 * radius * math.Pi
 	rotation := 180 / circum
 	for j := 0.0; j < circum*2*circlePercentage; j++ {
-		delta.Rotate(rotation)
+		delta = delta.Rotate(rotation)
 		// We add rVec to move from -1->1 to 0->2 in terms of radius scale
-		start := delta.Copy().Scale(radius).Add(rVec)
+		start := delta.MulConst(radius).Add(rVec)
 		for i := 0.0; i <= thickness; i++ {
 			// this pixel is radius minus the delta, to move inward
-			cur := start.Add(delta.Copy().Scale(-1))
+			cur := start.Add(delta.MulConst(-1))
 			rgba.Set(alg.RoundF64(cur.X()), alg.RoundF64(cur.Y()), c)
 		}
 	}

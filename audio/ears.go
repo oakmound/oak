@@ -1,8 +1,8 @@
 package audio
 
 import (
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 // ScaleType should be moved to a different package that handles global

@@ -71,7 +71,7 @@ func (eb *Bus) resolveUnbinds() {
 	eb.mutex.Lock()
 	eb.pendingMutex.Lock()
 	for _, bnd := range eb.unbinds {
-		eb.getBindableList(bnd.BindingOption).removeBinding(bnd)
+		eb.getBindableList(bnd.Event).removeBinding(bnd)
 	}
 	eb.unbinds = []binding{}
 	eb.pendingMutex.Unlock()
@@ -82,7 +82,7 @@ func (eb *Bus) resolveFullUnbinds() {
 	eb.mutex.Lock()
 	eb.pendingMutex.Lock()
 	for _, opt := range eb.fullUnbinds {
-		eb.getBindableList(opt.BindingOption).removeBindable(opt.Fn)
+		eb.getBindableList(opt.Event).removeBindable(opt.Fn)
 	}
 	eb.fullUnbinds = []UnbindOption{}
 	eb.pendingMutex.Unlock()
@@ -117,7 +117,7 @@ func (eb *Bus) resolvePartialUnbinds() {
 			}
 		}
 	}
-	eb.partUnbinds = []BindingOption{}
+	eb.partUnbinds = []Event{}
 	eb.pendingMutex.Unlock()
 	eb.mutex.Unlock()
 }
@@ -126,7 +126,7 @@ func (eb *Bus) resolveBindings() {
 	eb.mutex.Lock()
 	eb.pendingMutex.Lock()
 	for _, bindSet := range eb.binds {
-		list := eb.getBindableList(bindSet.BindingOption)
+		list := eb.getBindableList(bindSet.Event)
 		list.storeBindable(bindSet.Fn)
 	}
 	eb.binds = []UnbindOption{}

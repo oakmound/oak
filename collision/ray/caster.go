@@ -3,8 +3,8 @@ package ray
 import (
 	"math"
 
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/collision"
 )
 
 var (
@@ -17,7 +17,7 @@ var (
 		// there isn't a reasonable default.
 		// Consider: Cast() could take in distance as well.
 		CastDistance: 200,
-		Tree:         collision.DefTree,
+		Tree:         collision.DefaultTree,
 	}
 )
 
@@ -49,7 +49,7 @@ type CastOption func(*Caster)
 func NewCaster(opts ...CastOption) *Caster {
 	c := DefaultCaster.Copy()
 	if c.Tree == nil {
-		c.Tree = collision.DefTree
+		c.Tree = collision.DefaultTree
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -77,7 +77,6 @@ func (c *Caster) Cast(origin, angle floatgeom.Point2) []collision.Point {
 	cos := math.Cos(degrees)
 
 	for i := 0.0; i < c.CastDistance; i += c.PointSpan {
-
 		hits := c.Tree.SearchIntersect(
 			collision.NewRect(x, y, c.PointSize.X(), c.PointSize.Y()),
 		)

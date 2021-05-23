@@ -1,140 +1,102 @@
 package oak
 
 import (
+	"fmt"
 	"image"
 	"os"
 	"path/filepath"
+	"time"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/shiny/driver"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/shiny/driver"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 var (
-	//
-	transitionCh = make(chan bool)
-
-	// The Scene channel receives a signal
-	// when a scene's .loop() function should
-	// be called.
-	sceneCh = make(chan bool)
-
-	// The skip scene channel receives a debug
-	// signal to forcibly go to the next
-	// scene.
-	skipSceneCh = make(chan bool)
-
-	// The quit channel receives a signal when
-	// the program should stop.
-	quitCh = make(chan bool)
-
-	// The draw channel receives a signal when
-	// drawing should cease (or resume)
-	drawCh = make(chan bool)
-
-	// The debug reset channel represents
-	// when the debug console should forget the
-	// commands that have been sent to it.
-	debugResetCh = make(chan bool)
-
-	// The viewport channel controls when new
-	// viewport positions should be drawn
-	viewportCh = make(chan [2]int)
-
-	// The viewport shift channel controls when new
-	// viewport positions should be shifted to and drawn
-	viewportShiftCh = make(chan [2]int)
-
-	debugResetInProgress bool
-
-	// ScreenWidth is the width of the screen
-	ScreenWidth int
-	// ScreenHeight is the height of the screen
-	ScreenHeight int
-
-	// FrameRate is the current logical frame rate.
-	// Changing this won't directly effect frame rate, that
-	// requires changing the LogicTicker, but it will take
-	// effect next scene
-	FrameRate int
-
-	// DrawFrameRate is the equivalent to FrameRate for
-	// the rate at which the screen is drawn.
-	DrawFrameRate int
-
 	zeroPoint = image.Point{0, 0}
 )
 
 // Init initializes the oak engine.
 // It spawns off an event loop of several goroutines
 // and loops through scenes after initialization.
-func Init(firstScene string) {
+func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) error {
+
+	var err error
+	c.config, err = NewConfig(configOptions...)
+	if err != nil {
+		return fmt.Errorf("failed to create config: %w", err)
+	}
+
 	dlog.SetLogger(dlog.NewLogger())
 	dlog.CreateLogFile()
 
-	initConf()
-
-	if conf.Screen.TargetWidth != 0 && conf.Screen.TargetHeight != 0 {
+	if c.config.Screen.TargetWidth != 0 && c.config.Screen.TargetHeight != 0 {
 		w, h := driver.MonitorSize()
 		if w != 0 || h != 0 {
 			// Todo: Modify conf.Screen.Scale
 		}
 	}
 
-	// Set variables from conf file
-	lvl, err := dlog.ParseDebugLevel(conf.Debug.Level)
+	lvl, err := dlog.ParseDebugLevel(c.config.Debug.Level)
+	if err != nil {
+		return fmt.Errorf("failed to parse debug config: %w", err)
+	}
 	dlog.SetDebugLevel(lvl)
 	// We are intentionally using the lvl value before checking error,
 	// because we can only log errors through dlog itself anyway
+	dlog.SetDebugFilter(c.config.Debug.Filter)
+	oakerr.SetLanguageString(c.config.Language)
 
-	// We do this knowing that the default debug level when SetDebugLevel fails
-	// is ERROR, so this will be recorded.
-	dlog.ErrorCheck(err)
-	dlog.SetDebugFilter(conf.Debug.Filter)
-
+	// TODO: languages
 	dlog.Info("Oak Init Start")
 
-	ScreenWidth = conf.Screen.Width
-	ScreenHeight = conf.Screen.Height
-	FrameRate = conf.FrameRate
-	DrawFrameRate = conf.DrawFrameRate
-	SetLang(conf.Language)
+	c.ScreenWidth = c.config.Screen.Width
+	c.ScreenHeight = c.config.Screen.Height
+	c.FrameRate = c.config.FrameRate
+	c.DrawFrameRate = c.config.DrawFrameRate
+	c.IdleDrawFrameRate = c.config.IdleDrawFrameRate
+	// assume we are in focus on window creation
+	c.inFocus = true
+
+	c.DrawTicker = timing.NewDynamicTicker()
+	c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
 
 	wd, _ := os.Getwd()
 
-	render.SetFontDefaults(wd, conf.Assets.AssetPath, conf.Assets.FontPath,
-		conf.Font.Hinting, conf.Font.Color, conf.Font.File, conf.Font.Size,
-		conf.Font.DPI)
+	render.SetFontDefaults(wd, c.config.Assets.AssetPath, c.config.Assets.FontPath,
+		c.config.Font.Hinting, c.config.Font.Color, c.config.Font.File, c.config.Font.Size,
+		c.config.Font.DPI)
 
-	if conf.TrackInputChanges {
+	if c.config.TrackInputChanges {
 		trackJoystickChanges()
 	}
-	if conf.EventRefreshRate != 0 {
-		if cfgHandler, ok := logicHandler.(event.ConfigHandler); ok {
-			cfgHandler.SetRefreshRate(conf.EventRefreshRate)
-		}
+	if c.config.EventRefreshRate != 0 {
+		c.logicHandler.SetRefreshRate(time.Duration(c.config.EventRefreshRate))
 	}
 	// END of loading variables from configuration
 
-	SeedRNG(DefaultSeed)
+	seedRNG()
 
 	imageDir := filepath.Join(wd,
-		conf.Assets.AssetPath,
-		conf.Assets.ImagePath)
+		c.config.Assets.AssetPath,
+		c.config.Assets.ImagePath)
 	audioDir := filepath.Join(wd,
-		conf.Assets.AssetPath,
-		conf.Assets.AudioPath)
+		c.config.Assets.AssetPath,
+		c.config.Assets.AudioPath)
 
+	// TODO: languages
 	dlog.Info("Init Scene Loop")
-	go sceneLoop(firstScene, conf.TrackInputChanges, conf.DisableDebugConsole)
+	go c.sceneLoop(firstScene, c.config.TrackInputChanges)
 	dlog.Info("Init asset load")
 	render.SetAssetPaths(imageDir)
-	go loadAssets(imageDir, audioDir)
-	if !conf.DisableDebugConsole {
+	go c.loadAssets(imageDir, audioDir)
+	if c.config.EnableDebugConsole {
 		dlog.Info("Init Console")
-		go debugConsole(debugResetCh, skipSceneCh, os.Stdin)
+		go c.debugConsole(os.Stdin)
 	}
 	dlog.Info("Init Main Driver")
-	InitDriver(lifecycleLoop)
+	c.Driver(c.lifecycleLoop)
+	return nil
 }

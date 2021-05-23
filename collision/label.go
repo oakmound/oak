@@ -3,6 +3,7 @@ package collision
 const (
 	// NilLabel is used internally for spaces that are otherwise not
 	// given labels.
+	// TODO V3: why is this exported
 	NilLabel Label = -1
 )
 

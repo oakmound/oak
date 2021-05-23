@@ -3,13 +3,13 @@ package scene_test
 import (
 	"fmt"
 
-	"github.com/oakmound/oak/v2/scene"
+	"github.com/oakmound/oak/v3/scene"
 )
 
 func ExampleMap_GetCurrent() {
 	m := scene.NewMap()
 	sc := scene.Scene{
-		Start: func(prevScene string, data interface{}) {
+		Start: func(*scene.Context) {
 			fmt.Println("Starting screen one")
 		},
 	}
@@ -24,7 +24,9 @@ func ExampleMap_GetCurrent() {
 	if !ok {
 		fmt.Println("Screen one did not exist")
 	} else {
-		sc.Start("screen0", nil)
+		sc.Start(&scene.Context{
+			PreviousScene: "scene0",
+		})
 	}
 	// Output: Screen two did not exist
 	// Starting screen one

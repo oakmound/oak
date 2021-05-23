@@ -3,17 +3,17 @@ package main
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v3/collision"
 
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/physics"
 
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/key"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
 
-	oak "github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/entities"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/entities"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
 )
 
 // Collision labels
@@ -24,7 +24,7 @@ const (
 )
 
 func main() {
-	oak.Add("platformer", func(string, interface{}) {
+	oak.AddScene("platformer", scene.Scene{Start: func(*scene.Context) {
 
 		char := entities.NewMoving(100, 100, 16, 32,
 			render.NewColorBox(16, 32, color.RGBA{255, 0, 0, 255}),
@@ -36,7 +36,7 @@ func main() {
 
 		fallSpeed := .1
 
-		char.Bind(func(id int, nothing interface{}) int {
+		char.Bind(event.Enter, func(id event.CID, nothing interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			// Move left and right with A and D
 			if oak.IsDown(key.A) {
@@ -54,7 +54,7 @@ func main() {
 			}
 			char.ShiftY(char.Delta.Y())
 			return 0
-		}, event.Enter)
+		})
 
 		ground := entities.NewSolid(0, 400, 500, 20,
 			render.NewColorBox(500, 20, color.RGBA{0, 0, 255, 255}),
@@ -63,10 +63,6 @@ func main() {
 
 		render.Draw(ground.R)
 
-	}, func() bool {
-		return true
-	}, func() (string, *scene.Result) {
-		return "platformer", nil
-	})
+	}})
 	oak.Init("platformer")
 }

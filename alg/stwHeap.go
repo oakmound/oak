@@ -1,9 +1,5 @@
 package alg
 
-import (
-	"github.com/oakmound/oak/v2/dlog"
-)
-
 type stwHeap struct {
 	bh           []float64
 	weightsBelow []float64
@@ -29,7 +25,6 @@ func newSTWHeap(f []float64) *stwHeap {
 
 func (stwh *stwHeap) Pop(rng float64) int {
 	if stwh.weightsBelow[1] <= ε {
-		dlog.Warn("Pop on stwHeap with no remaining elements")
 		return -1
 	}
 	w := stwh.weightsBelow[1] * rng

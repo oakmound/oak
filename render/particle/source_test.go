@@ -4,35 +4,35 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/200sc/go-dist/floatrange"
-	"github.com/200sc/go-dist/intrange"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/physics"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/shape"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/shape"
 )
 
 func TestSource(t *testing.T) {
 	g := NewGradientGenerator(
-		Rotation(floatrange.Constant(1)),
+		Rotation(floatrange.NewConstant(1)),
 		Color(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255},
 			color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
 		Color2(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255},
 			color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
-		Size(intrange.Constant(5)),
-		EndSize(intrange.Constant(10)),
+		Size(intrange.NewConstant(5)),
+		EndSize(intrange.NewConstant(10)),
 		Shape(shape.Heart),
 		Progress(render.HorizontalProgress),
 		And(
-			NewPerFrame(floatrange.Constant(200)),
+			NewPerFrame(floatrange.NewConstant(200)),
 		),
 		Pos(20, 20),
-		LifeSpan(floatrange.Constant(10)),
-		Angle(floatrange.Constant(0)),
-		Speed(floatrange.Constant(0)),
+		LifeSpan(floatrange.NewConstant(10)),
+		Limit(2047),
+		Angle(floatrange.NewConstant(0)),
+		Speed(floatrange.NewConstant(0)),
 		Spread(10, 10),
-		Duration(intrange.Constant(10)),
+		Duration(intrange.NewConstant(10)),
 		Gravity(10, 10),
 		SpeedDecay(1, 1),
 		End(func(_ Particle) {}),
@@ -48,28 +48,53 @@ func TestSource(t *testing.T) {
 	}
 
 	for i := 0; i < 1000; i++ {
-		rotateParticles(int(src.CID), nil)
+		rotateParticles(src.CID, nil)
 	}
-	for clearParticles(int(src.CID), nil) != event.UnbindEvent {
+	for clearParticles(src.CID, nil) != event.UnbindEvent {
 	}
 
-	assert.True(t, ended)
+	if !ended {
+		t.Fatalf("source did not stop after duration was exceeded")
+	}
 
 	src.Pause()
-	assert.True(t, src.paused)
+	if !src.IsPaused() {
+		t.Fatalf("Pause did not pause source")
+	}
 	src.UnPause()
-	assert.False(t, src.paused)
+	if src.IsPaused() {
+		t.Fatalf("Unpause did not unpause source")
+	}
 	x, y := src.Generator.GetPos()
 	src.ShiftX(10)
 	src.ShiftY(10)
 	x2, y2 := src.Generator.GetPos()
-	assert.Equal(t, x+10, x2)
-	assert.Equal(t, y+10, y2)
+	if x2 != x+10 {
+		t.Fatalf("x post shift expected %v, got %v", x+10, x2)
+	}
+	if y2 != y+10 {
+		t.Fatalf("y post shift expected %v, got %v", y+10, y2)
+	}
 	src.SetPos(-20, -30)
 	x2, y2 = src.Generator.GetPos()
-	assert.Equal(t, -20.0, x2)
-	assert.Equal(t, -30.0, y2)
+	if x2 != -20.0 {
+		t.Fatalf("setpos did not set x, expected %v got %v", -20, x2)
+	}
+	if y2 != -30.0 {
+		t.Fatalf("setpos did not set y, expected %v got %v", -30, y2)
+	}
 
 	var src2 *Source
 	src2.Stop()
+}
+
+func TestClearParticles(t *testing.T) {
+	t.Parallel()
+	t.Run("BadTypeBinding", func(t *testing.T) {
+		t.Parallel()
+		result := clearParticles(10000, nil)
+		if result != event.UnbindEvent {
+			t.Fatalf("expected UnbindEvent result, got %v", result)
+		}
+	})
 }

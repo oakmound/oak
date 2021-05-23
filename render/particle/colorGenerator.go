@@ -3,10 +3,10 @@ package particle
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/v2/alg"
-	"github.com/oakmound/oak/v2/shape"
+	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v3/shape"
 
-	"github.com/200sc/go-dist/intrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
 )
 
 // A ColorGenerator generates ColorParticles
@@ -40,8 +40,8 @@ func (cg *ColorGenerator) setDefaults() {
 	cg.StartColorRand = color.RGBA{0, 0, 0, 0}
 	cg.EndColor = color.RGBA{0, 0, 0, 0}
 	cg.EndColorRand = color.RGBA{0, 0, 0, 0}
-	cg.Size = intrange.Constant(1)
-	cg.EndSize = intrange.Constant(1)
+	cg.Size = intrange.NewConstant(1)
+	cg.EndSize = intrange.NewConstant(1)
 	cg.Shape = shape.Square
 }
 
@@ -67,7 +67,7 @@ func (cg *ColorGenerator) GenerateParticle(bp *baseParticle) Particle {
 
 // GetParticleSize on a color generator returns that the particles
 // are per-particle specificially sized
-func (cg *ColorGenerator) GetParticleSize() (float64, float64, bool) {
+func (cg *ColorGenerator) GetParticleSize() (w float64, h float64, perParticle bool) {
 	return 0, 0, true
 }
 

@@ -3,11 +3,10 @@ package timing
 import (
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDynamicTickerFns(t *testing.T) {
+	t.Parallel()
 	dt := NewDynamicTicker()
 	time.Sleep(10 * time.Second)
 	select {
@@ -21,7 +20,11 @@ func TestDynamicTickerFns(t *testing.T) {
 	now := time.Now()
 	dt.SetTick(1 * time.Second)
 	nextTime = <-dt.C
-	assert.True(t, nextTime.Sub(now) < 1100*time.Millisecond)
+	got := nextTime.Sub(now)
+	expectedLessThan := 1100 * time.Millisecond
+	if got >= expectedLessThan {
+		t.Fatalf("expected less than %v, got %v", expectedLessThan, got)
+	}
 	dt.Stop()
 	select {
 	case _, ok := <-dt.C:
@@ -40,26 +43,25 @@ func TestDynamicTickerFns(t *testing.T) {
 }
 
 func TestDynamicTickerStop(t *testing.T) {
+	t.Parallel()
+
 	dt := NewDynamicTicker()
 	dt.Stop()
 
+	// Successive stops
 	dt = NewDynamicTicker()
 	dt.Step()
 	dt.Stop()
 	dt.Stop()
 
-	dt = NewDynamicTicker()
-	go func() {
-		<-dt.C
-	}()
-	dt.Stop()
-
+	// Unconsumed tick -> stop
 	dt = NewDynamicTicker()
 	time.Sleep(1 * time.Second)
 	dt.SetTick(1 * time.Millisecond)
 	time.Sleep(2 * time.Second)
 	dt.Stop()
 
+	// Unconsumed step -> stop
 	dt = NewDynamicTicker()
 	dt.SetTick(1 * time.Millisecond)
 	time.Sleep(1 * time.Second)
@@ -67,6 +69,7 @@ func TestDynamicTickerStop(t *testing.T) {
 	dt.Step()
 	dt.Stop()
 
+	// Successive steps
 	dt = NewDynamicTicker()
 	time.Sleep(1 * time.Second)
 	for i := 0; i < 20; i++ {
@@ -75,6 +78,7 @@ func TestDynamicTickerStop(t *testing.T) {
 	}
 	dt.Stop()
 
+	// Unconsumed step -> Set Tick
 	dt = NewDynamicTicker()
 	time.Sleep(1 * time.Second)
 	dt.Step()

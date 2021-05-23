@@ -3,7 +3,7 @@ package physics
 import (
 	"math"
 
-	"github.com/oakmound/oak/v2/alg"
+	"github.com/oakmound/oak/v3/alg"
 )
 
 // A Vector is a two-dimensional point or vector used throughout oak

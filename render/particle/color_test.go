@@ -5,19 +5,18 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/200sc/go-dist/floatrange"
-	"github.com/200sc/go-dist/intrange"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/shape"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/shape"
 )
 
 func TestColorParticle(t *testing.T) {
 	g := NewColorGenerator(
-		Rotation(floatrange.Constant(1)),
+		Rotation(floatrange.NewConstant(1)),
 		Color(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
-		Size(intrange.Constant(5)),
-		EndSize(intrange.Constant(10)),
+		Size(intrange.NewConstant(5)),
+		EndSize(intrange.NewConstant(10)),
 		Shape(shape.Heart),
 	)
 	src := g.Generate(0)
@@ -25,17 +24,25 @@ func TestColorParticle(t *testing.T) {
 
 	p := src.particles[0].(*ColorParticle)
 
-	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
-	assert.Equal(t, 0, p.GetLayer())
+	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)), 0, 0)
+	if p.GetLayer() != 0 {
+		t.Fatalf("expected 0 layer, got %v", p.GetLayer())
+	}
 
 	p.Life = -1
 	sz, _ := p.GetDims()
-	assert.Equal(t, float64(sz), p.endSize)
-	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
+	if sz != int(p.endSize) {
+		t.Fatalf("expected size %v at end of particle's life, got %v", p.endSize, sz)
+	}
+	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)), 0, 0)
 
 	var cp2 *ColorParticle
-	assert.Equal(t, render.Undraw, cp2.GetLayer())
+	if cp2.GetLayer() != render.Undraw {
+		t.Fatalf("uninitialized particle was not set to the undraw layer")
+	}
 
 	_, _, ok := g.GetParticleSize()
-	assert.True(t, ok)
+	if !ok {
+		t.Fatalf("get particle size not particle-specified")
+	}
 }

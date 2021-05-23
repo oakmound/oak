@@ -3,8 +3,7 @@ package scene
 import (
 	"sync"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
 // A Map lets scenes be accessed via associated names.
@@ -38,26 +37,16 @@ func (m *Map) GetCurrent() (Scene, bool) {
 	return m.Get(m.CurrentScene)
 }
 
-// Add adds a scene with the given name and functions to the scene map.
-// It serves as a helper for not constructing a scene directly.
-func (m *Map) Add(name string, start Start, loop Loop, end End) error {
-	return m.AddScene(name, Scene{start, loop, end})
-}
-
 // AddScene takes a scene struct, checks that its assigned name does not
 // conflict with an existing name in the map, and then adds it to the map.
 // If a conflict occurs, the scene will not be overwritten.
 // Checks if the Scene's start is nil, sets to noop if so.
 // Checks if the Scene's loop is nil, sets to infinite if so.
 // Checks if the Scene's end is nil, sets to loop to this scene if so.
-// Todo: this could change, with a function argument specifying whether or not the scene should
-// overwrite.
 func (m *Map) AddScene(name string, s Scene) error {
-	dlog.Info("[oak]-------- Adding", name)
-	var err error
 
 	if s.Start == nil {
-		s.Start = func(prevScene string, data interface{}) {}
+		s.Start = func(*Context) {}
 	}
 	if s.Loop == nil {
 		s.Loop = func() bool { return true }
@@ -66,6 +55,7 @@ func (m *Map) AddScene(name string, s Scene) error {
 		s.End = GoTo(name)
 	}
 
+	var err error
 	m.lock.Lock()
 	if _, ok := m.scenes[name]; ok {
 		err = oakerr.ExistingElement{

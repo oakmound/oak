@@ -1,30 +1,28 @@
 package mouse
 
-import "github.com/oakmound/oak/v2/collision"
+import "github.com/oakmound/oak/v3/collision"
 
-// There's a default collision tree you can access via collision.func
-// as opposed to tree.func
+// DefaultTree is a collision tree intended to be used by default if no other
+// is instantiated. Methods on a collision tree are duplicated as functions
+// in this package, so `tree.Add(...)` can instead be `mouse.Add(...)` if
+// the codebase is coordinated to just use the default tree.
 var (
-	DefTree *collision.Tree
+	DefaultTree = collision.NewTree()
 )
-
-func init() {
-	DefTree, _ = collision.NewTree()
-}
 
 // Clear resets the default collision tree
 func Clear() {
-	DefTree.Clear()
+	DefaultTree.Clear()
 }
 
 // Add adds a set of spaces to the rtree
 func Add(sps ...*collision.Space) {
-	DefTree.Add(sps...)
+	DefaultTree.Add(sps...)
 }
 
 // Remove removes a space from the rtree
 func Remove(sps ...*collision.Space) {
-	DefTree.Remove(sps...)
+	DefaultTree.Remove(sps...)
 }
 
 // UpdateSpace resets a space's location to a given
@@ -32,23 +30,23 @@ func Remove(sps ...*collision.Space) {
 // This is not an operation on a space because
 // a space can exist in multiple rtrees.
 func UpdateSpace(x, y, w, h float64, s *collision.Space) error {
-	return DefTree.UpdateSpace(x, y, w, h, s)
+	return DefaultTree.UpdateSpace(x, y, w, h, s)
 }
 
 // ShiftSpace adds x and y to a space and updates its position
 // in the collision rtree that should not be a package global
 func ShiftSpace(x, y float64, s *collision.Space) error {
-	return DefTree.ShiftSpace(x, y, s)
+	return DefaultTree.ShiftSpace(x, y, s)
 }
 
 // Hits returns the set of spaces which are colliding
 // with the passed in space.
 func Hits(sp *collision.Space) []*collision.Space {
-	return DefTree.Hits(sp)
+	return DefaultTree.Hits(sp)
 }
 
 // HitLabel acts like hits, but reutrns the first space within hits
 // that matches one of the input labels
 func HitLabel(sp *collision.Space, labels ...collision.Label) *collision.Space {
-	return DefTree.HitLabel(sp, labels...)
+	return DefaultTree.HitLabel(sp, labels...)
 }

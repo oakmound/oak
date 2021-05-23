@@ -1,24 +1,30 @@
 package event
 
 import (
+	"fmt"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestBusStop(t *testing.T) {
 	b := NewBus()
 	phase := 0
 	wait := make(chan struct{})
+	var topErr error
 	go func() {
-		assert.Nil(t, b.Stop())
-		require.Equal(t, phase, 1)
+		if err := b.Stop(); err != nil {
+			topErr = fmt.Errorf("stop errored: %v", err)
+		}
+		if phase != 1 {
+			topErr = fmt.Errorf("expected phase %v, got %v", 1, phase)
+		}
 		wait <- struct{}{}
 	}()
-	b.updateCh <- true
+	b.updateCh <- struct{}{}
 	<-b.doneCh
 	phase = 1
-	b.doneCh <- true
+	b.doneCh <- struct{}{}
 	<-wait
+	if topErr != nil {
+		t.Fatal(topErr)
+	}
 }

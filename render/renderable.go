@@ -3,7 +3,7 @@ package render
 import (
 	"image/draw"
 
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 // A Renderable is anything which can
@@ -12,9 +12,8 @@ import (
 //
 // Basic Implementing struct: Sprite
 type Renderable interface {
-	Draw(buff draw.Image)
-	DrawOffset(buff draw.Image, xOff, yOff float64)
-	GetDims() (int, int)
+	Draw(buff draw.Image, xOff, yOff float64)
+	GetDims() (width int, height int)
 
 	Positional
 	Layered

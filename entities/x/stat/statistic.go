@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
 )
 
 // Statistics stores the ongoing results of TrackStats and TrackTimeStats

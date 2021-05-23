@@ -1,64 +1,23 @@
 package mouse
 
 import (
-	"github.com/oakmound/oak/v2/event"
 	"golang.org/x/mobile/event/mouse"
 )
 
-var (
-	//TrackMouseClicks enables the propagation of MouseClickOn during MouseRelease events
-	TrackMouseClicks = true
+type Button = mouse.Button
+
+const (
+	ButtonLeft       = mouse.ButtonLeft
+	ButtonMiddle     = mouse.ButtonMiddle
+	ButtonRight      = mouse.ButtonRight
+	ButtonWheelDown  = mouse.ButtonWheelDown
+	ButtonWheelUp    = mouse.ButtonWheelUp
+	ButtonWheelLeft  = mouse.ButtonWheelLeft
+	ButtonWheelRight = mouse.ButtonWheelRight
+	ButtonNone       = mouse.ButtonNone
 )
 
-// Propagate triggers direct mouse events on entities which are clicked
-func Propagate(eventName string, me Event) {
-	LastEvent = me
-
-	hits := DefTree.SearchIntersect(me.ToSpace().Bounds())
-	for _, sp := range hits {
-		sp.CID.Trigger(eventName, me)
-	}
-
-	if TrackMouseClicks {
-		if eventName == PressOn {
-			LastPress = me
-		} else if eventName == ReleaseOn {
-			if me.Button == LastPress.Button {
-				pressHits := DefTree.SearchIntersect(LastPress.ToSpace().Bounds())
-				for _, sp1 := range pressHits {
-					for _, sp2 := range hits {
-						if sp1.CID == sp2.CID {
-							event.Trigger(Click, me)
-							sp1.CID.Trigger(ClickOn, me)
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-// GetMouseButton is a utitilty function which translates
-// integer values of mouse keys from golang's event/mouse library
-// into strings.
-// Intended for internal use.
-func GetMouseButton(b mouse.Button) (s string) {
-	switch b {
-	case mouse.ButtonLeft:
-		s = ButtonLeft
-	case mouse.ButtonMiddle:
-		s = ButtonMiddle
-	case mouse.ButtonRight:
-		s = ButtonRight
-	case mouse.ButtonWheelUp:
-		s = ButtonWheelUp
-	case mouse.ButtonWheelDown:
-		s = ButtonWheelDown
-	default:
-		s = ""
-	}
-	return
-}
+//TODO V3: should event names be strings?
 
 // GetEventName returns a string event name given some mobile/mouse information
 func GetEventName(d mouse.Direction, b mouse.Button) string {

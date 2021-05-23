@@ -1,8 +1,8 @@
 package ray
 
 import (
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/event"
 )
 
 // A CastLimit is a function that can be applied to
@@ -36,9 +36,6 @@ func LimitResults(limit int) CastOption {
 func StopAtLabel(ls ...collision.Label) CastOption {
 	return AddLimit(func(ps []collision.Point) bool {
 		z := ps[len(ps)-1].Zone
-		if z == nil {
-			return true
-		}
 		for _, l := range ls {
 			if z.Label == l {
 				return false
@@ -53,9 +50,6 @@ func StopAtLabel(ls ...collision.Label) CastOption {
 func StopAtID(ids ...event.CID) CastOption {
 	return AddLimit(func(ps []collision.Point) bool {
 		z := ps[len(ps)-1].Zone
-		if z == nil {
-			return true
-		}
 		for _, id := range ids {
 			if z.CID == id {
 				return false

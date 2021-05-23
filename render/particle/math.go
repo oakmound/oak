@@ -4,21 +4,14 @@ import (
 	"image/color"
 	"math"
 	"math/rand"
+
+	"github.com/oakmound/oak/v3/alg"
 )
 
 // floatFromSpread returns a random value between
 // 0 and a given float64 f
 func floatFromSpread(f float64) float64 {
 	return (f * 2 * rand.Float64()) - f
-}
-
-// roundFloat returns a properly rounded
-// integer of a given float64
-func roundFloat(f float64) int {
-	if f < 0 {
-		return int(math.Ceil(f - 0.5))
-	}
-	return int(math.Floor(f + 0.5))
 }
 
 // randColor returns a random color from two arguments:
@@ -38,7 +31,7 @@ func randColor(c, ra color.Color) color.Color {
 // uint16Spread returns a random uint16 between
 // n-r/2 and n+r/2, not higher than 2^16-1
 func uint16Spread(n, r uint32) uint16 {
-	return uint16(math.Min(float64(int(n)+roundFloat(floatFromSpread(float64(r)))), 65535.0))
+	return uint16(math.Min(float64(int(n)+alg.RoundF64(floatFromSpread(float64(r)))), 65535.0))
 }
 
 // uint16OnScale returns a uint16, progress % between n and endN.

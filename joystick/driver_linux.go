@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/dlog" 
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/timing"
+	"github.com/oakmound/oak/v3/oakerr"
 
 	"encoding/binary"
 	"fmt"
@@ -26,7 +27,7 @@ import (
 func newJoystick(devName string, id uint32) *Joystick {
 	return &Joystick{
 		Handler:  event.DefaultBus,
-		PollRate: timing.FPSToDuration(60),
+		PollRate: timing.FPSToFrameDelay(60),
 		id:       id,
 		osJoystick: osJoystick{
 			cache: State{
@@ -167,7 +168,7 @@ func (j *Joystick) getState() (*State, error) {
 }
 
 func (j *Joystick) vibrate(left, right uint16) error {
-	return errors.New("Vibration not supported")
+	return oakerr.UnsupportedPlatform{Operation:"joystick-vibrate"}
 }
 
 func (j *Joystick) close() error {

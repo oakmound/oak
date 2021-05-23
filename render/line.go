@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/200sc/go-dist/colorrange"
+	"github.com/oakmound/oak/v3/alg/range/colorrange"
 )
 
 // Todo:
@@ -43,11 +43,6 @@ func NewColoredLine(x1, y1, x2, y2 float64, colorer Colorer, thickness int) *Spr
 	minY := math.Min(y1, y2)
 	rgba = drawLineBetween(int(x1-minX), int(y1-minY), int(x2-minX), int(y2-minY), colorer, thickness)
 	return NewSprite(minX-float64(thickness), minY-float64(thickness), rgba)
-}
-
-// NewLineColored is an alias for NewColoredLine. Deprecated: use NewColoredLine instead.
-func NewLineColored(x1, y1, x2, y2 float64, colorer Colorer, thickness int) *Sprite {
-	return NewColoredLine(x1, y1, x2, y2, colorer, thickness)
 }
 
 // DrawLine draws a line onto an image rgba from one point to another

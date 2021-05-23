@@ -5,13 +5,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 // Bindable is a way of saying "Any function
 // that takes a generic struct of data
 // and returns an error can be bound".
-type Bindable func(int, interface{}) int
+type Bindable func(CID, interface{}) int
 
 // BindableList just stores other relevant data
 // that a list of bindables needs to
@@ -28,33 +28,15 @@ type bindableList struct {
 	nextEmpty int
 }
 
-type bindableStore struct {
-	// Priorities can be in a range
-	// from -32 to 32. Below 0,
-	// goes into lowPriority.
-	// Above 0, goes into highPriority.
-	// No priority makes it default to
-	// take place between high and low.
-	lowPriority     [32]*bindableList
-	defaultPriority *bindableList
-	highPriority    [32]*bindableList
-
-	// These internally keep track
-	// where we start / stop checking
-	// our non-default binding lists.
-	lowIndex  int
-	highIndex int
-}
-
 // A Bus stores bindables to be triggered by events
 type Bus struct {
-	bindingMap          map[string]map[int]*bindableStore
-	doneCh              chan bool
-	updateCh            chan bool
+	bindingMap          map[string]map[CID]*bindableList
+	doneCh              chan struct{}
+	updateCh            chan struct{}
 	framesElapsed       int
 	Ticker              *timing.DynamicTicker
 	binds               []UnbindOption
-	partUnbinds         []BindingOption
+	partUnbinds         []Event
 	fullUnbinds         []UnbindOption
 	unbinds             []binding
 	unbindAllAndRebinds []UnbindAllOption
@@ -71,11 +53,11 @@ type Bus struct {
 func NewBus() *Bus {
 	return &Bus{
 		Ticker:              timing.NewDynamicTicker(),
-		bindingMap:          make(map[string]map[int]*bindableStore),
-		updateCh:            make(chan bool),
-		doneCh:              make(chan bool),
+		bindingMap:          make(map[string]map[CID]*bindableList),
+		updateCh:            make(chan struct{}),
+		doneCh:              make(chan struct{}),
 		binds:               make([]UnbindOption, 0),
-		partUnbinds:         make([]BindingOption, 0),
+		partUnbinds:         make([]Event, 0),
 		fullUnbinds:         make([]UnbindOption, 0),
 		unbinds:             make([]binding, 0),
 		unbindAllAndRebinds: make([]UnbindAllOption, 0),
@@ -88,21 +70,13 @@ func NewBus() *Bus {
 // An Event is an event name and an associated caller id
 type Event struct {
 	Name     string
-	CallerID int
-}
-
-// BindingOption is all the information required
-// to bind something. Priority must be between -32
-// and 32, inclusive.
-type BindingOption struct {
-	Event
-	Priority int
+	CallerID CID
 }
 
 // UnbindOption stores information necessary
 // to unbind a bindable
 type UnbindOption struct {
-	BindingOption
+	Event
 	Fn Bindable
 }
 
@@ -110,7 +84,7 @@ type UnbindOption struct {
 // to trace back to a bindable function
 // and remove it from a Bus.
 type binding struct {
-	BindingOption
+	Event
 	index int
 }
 
@@ -119,9 +93,9 @@ type binding struct {
 func (eb *Bus) Reset() {
 	eb.mutex.Lock()
 	eb.pendingMutex.Lock()
-	eb.bindingMap = make(map[string]map[int]*bindableStore)
+	eb.bindingMap = make(map[string]map[CID]*bindableList)
 	eb.binds = []UnbindOption{}
-	eb.partUnbinds = []BindingOption{}
+	eb.partUnbinds = []Event{}
 	eb.fullUnbinds = []UnbindOption{}
 	eb.unbinds = []binding{}
 	eb.unbindAllAndRebinds = []UnbindAllOption{}
@@ -131,8 +105,8 @@ func (eb *Bus) Reset() {
 
 // UnbindAllOption stores information needed to unbind and rebind
 type UnbindAllOption struct {
-	ub   BindingOption
-	bs   []BindingOption
+	ub   Event
+	bs   []Event
 	bnds []Bindable
 }
 
@@ -164,15 +138,13 @@ func (bl *bindableList) storeBindable(fn Bindable) int {
 // returning UnbindSingle from the function
 // itself is much safer!
 func (bl *bindableList) removeBindable(fn Bindable) {
-	i := 0
 	v := reflect.ValueOf(fn)
-	for {
+	for i := 0; i < len(bl.sl); i++ {
 		v2 := reflect.ValueOf(bl.sl[i])
 		if v2 == v {
 			bl.removeIndex(i)
 			return
 		}
-		i++
 	}
 }
 
@@ -193,47 +165,12 @@ func (bl *bindableList) removeIndex(i int) {
 	}
 }
 
-func (eb *Bus) getBindableList(opt BindingOption) *bindableList {
-
+func (eb *Bus) getBindableList(opt Event) *bindableList {
 	if m := eb.bindingMap[opt.Name]; m == nil {
-		eb.bindingMap[opt.Name] = make(map[int]*bindableStore)
+		eb.bindingMap[opt.Name] = make(map[CID]*bindableList)
 	}
-
 	if m := eb.bindingMap[opt.Name][opt.CallerID]; m == nil {
-		eb.bindingMap[opt.Name][opt.CallerID] = new(bindableStore)
-		eb.bindingMap[opt.Name][opt.CallerID].defaultPriority = (new(bindableList))
+		eb.bindingMap[opt.Name][opt.CallerID] = new(bindableList)
 	}
-
-	store := eb.bindingMap[opt.Name][opt.CallerID]
-
-	var prio *bindableList
-	// Default priority
-	if opt.Priority == 0 {
-		prio = store.defaultPriority
-
-		// High priority
-	} else if opt.Priority > 0 {
-		if store.highPriority[opt.Priority-1] == nil {
-			store.highPriority[opt.Priority-1] = (new(bindableList))
-		}
-
-		if store.highIndex < opt.Priority {
-			store.highIndex = opt.Priority
-		}
-
-		prio = store.highPriority[opt.Priority-1]
-
-		// Low priority
-	} else {
-		if store.lowPriority[(opt.Priority*-1)-1] == nil {
-			store.lowPriority[(opt.Priority*-1)-1] = (new(bindableList))
-		}
-
-		if (store.lowIndex * -1) > opt.Priority {
-			store.lowIndex = (-1 * opt.Priority)
-		}
-
-		prio = store.lowPriority[(opt.Priority*-1)-1]
-	}
-	return prio
+	return eb.bindingMap[opt.Name][opt.CallerID]
 }

@@ -4,9 +4,7 @@ import (
 	"image"
 	"testing"
 
-	"github.com/oakmound/oak/v2/collision"
-
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/collision"
 )
 
 func TestCollisionParticle(t *testing.T) {
@@ -18,13 +16,19 @@ func TestCollisionParticle(t *testing.T) {
 	src.addParticles()
 	cp := src.particles[0].(*CollisionParticle)
 	w, h := cp.GetDims()
-	assert.Equal(t, 1, w)
-	assert.Equal(t, 1, h)
-	cp.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
+	if w != 1 {
+		t.Fatalf("expected 1 width, got %v", w)
+	}
+	if h != 1 {
+		t.Fatalf("expected 1 height, got %v", h)
+	}
+	cp.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)), 0, 0)
 	cp.Cycle(g)
 	collision.Add(collision.NewLabeledSpace(-20, -20, 40, 40, 1))
 	cp.Cycle(g)
 
 	_, _, ok := g.GetParticleSize()
-	assert.True(t, ok)
+	if !ok {
+		t.Fatalf("get particle size not particle-specified")
+	}
 }

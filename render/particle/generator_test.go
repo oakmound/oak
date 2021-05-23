@@ -2,8 +2,6 @@ package particle
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestBaseGenerator(t *testing.T) {
@@ -11,6 +9,10 @@ func TestBaseGenerator(t *testing.T) {
 	bg.setDefaults()
 	bg.ShiftX(10)
 	bg.ShiftY(10)
-	assert.Equal(t, bg.X(), 10.0)
-	assert.Equal(t, bg.X(), 10.0)
+	if bg.X() != 10 {
+		t.Fatalf("expected 10 x, got %v", bg.X())
+	}
+	if bg.Y() != 10 {
+		t.Fatalf("expected 10 y, got %v", bg.Y())
+	}
 }

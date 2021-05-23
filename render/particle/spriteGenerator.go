@@ -1,10 +1,10 @@
 package particle
 
 import (
-	"github.com/200sc/go-dist/floatrange"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
 
-	"github.com/oakmound/oak/v2/alg"
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v3/render"
 )
 
 // A SpriteGenerator generate SpriteParticles
@@ -28,7 +28,7 @@ func NewSpriteGenerator(options ...func(Generator)) Generator {
 
 func (sg *SpriteGenerator) setDefaults() {
 	sg.BaseGenerator.setDefaults()
-	sg.SpriteRotation = floatrange.Constant(0)
+	sg.SpriteRotation = floatrange.NewConstant(0)
 }
 
 // Generate creates a source using this generator
@@ -80,7 +80,7 @@ func (sg *SpriteGenerator) SetSpriteRotation(f floatrange.Range) {
 }
 
 // GetParticleSize returns the size of the sprite that the generator generates
-func (sg *SpriteGenerator) GetParticleSize() (float64, float64, bool) {
+func (sg *SpriteGenerator) GetParticleSize() (w float64, h float64, perParticle bool) {
 	bounds := sg.Base.GetRGBA().Rect.Max
 	return float64(bounds.X), float64(bounds.Y), false
 }

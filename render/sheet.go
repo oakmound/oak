@@ -3,8 +3,8 @@ package render
 import (
 	"image"
 
-	"github.com/oakmound/oak/v2/dlog"
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
 // Sheet is a 2D array of image rgbas
@@ -34,7 +34,6 @@ func NewSheetSequence(sheet *Sheet, fps float64, frames ...int) (*Sequence, erro
 	if len(frames)%2 != 0 {
 		return nil, oakerr.IndivisibleInput{
 			InputName:    "frames",
-			IsList:       true,
 			MustDivideBy: 2,
 		}
 	}

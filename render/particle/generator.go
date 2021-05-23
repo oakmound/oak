@@ -1,9 +1,9 @@
 package particle
 
 import (
-	"github.com/200sc/go-dist/floatrange"
-	"github.com/200sc/go-dist/intrange"
-	"github.com/oakmound/oak/v2/physics"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/physics"
 )
 
 var (
@@ -67,10 +67,10 @@ func (bg *BaseGenerator) GetBaseGenerator() *BaseGenerator {
 func (bg *BaseGenerator) setDefaults() {
 	*bg = BaseGenerator{
 		Vector:      physics.NewVector(0, 0),
-		NewPerFrame: floatrange.Constant(1),
-		LifeSpan:    floatrange.Constant(60),
-		Angle:       floatrange.Constant(0),
-		Speed:       floatrange.Constant(1),
+		NewPerFrame: floatrange.NewConstant(1),
+		LifeSpan:    floatrange.NewConstant(60),
+		Angle:       floatrange.NewConstant(0),
+		Speed:       floatrange.NewConstant(1),
 		Spread:      physics.NewVector(0, 0),
 		Duration:    Inf,
 		Rotation:    nil,

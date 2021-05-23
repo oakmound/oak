@@ -1,8 +1,8 @@
 package mouse
 
 import (
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/collision"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/collision"
 )
 
 var (
@@ -21,12 +21,12 @@ var (
 // and which mouse button it concerns.
 type Event struct {
 	floatgeom.Point2
-	Button string
-	Event  string
+	Button
+	Event string
 }
 
-// NewEvent creates and returns an Event
-func NewEvent(x, y float64, button, event string) Event {
+// NewEvent creates an event.
+func NewEvent(x, y float64, button Button, event string) Event {
 	return Event{
 		Point2: floatgeom.Point2{x, y},
 		Button: button,
@@ -34,9 +34,9 @@ func NewEvent(x, y float64, button, event string) Event {
 	}
 }
 
-// NewZeroEvent creates an event with no button or event string.
+// NewZeroEvent creates an event with no button or event.
 func NewZeroEvent(x, y float64) Event {
-	return NewEvent(x, y, "", "")
+	return NewEvent(x, y, ButtonNone, "")
 }
 
 // ToSpace converts a mouse event into a collision space

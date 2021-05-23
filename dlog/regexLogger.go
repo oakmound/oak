@@ -53,18 +53,18 @@ func (l *RegexLogger) GetLogLevel() Level {
 // prepended with file and line information.
 // It only includes logs which pass the current filters.
 func (l *RegexLogger) dLog(w io.Writer, override bool, in ...interface{}) {
-	//(pc uintptr, file string, line int, ok bool)
-	_, f, line, ok := runtime.Caller(2)
-	if strings.Contains(f, "dlog") {
-		_, f, line, ok = runtime.Caller(3)
+	_, file, line, ok := runtime.Caller(2)
+	// TODO oak v3: more precise ruintime caller counting
+	if strings.Contains(file, "dlog") {
+		_, file, line, ok = runtime.Caller(3)
 	}
 	if ok {
 		var bldr strings.Builder
-		f = truncateFileName(f)
+		file = truncateFileName(file)
 		// Note on errors: these functions all return
 		// errors, but they are always nil.
 		bldr.WriteRune('[')
-		bldr.WriteString(f)
+		bldr.WriteString(file)
 		bldr.WriteRune(':')
 		bldr.WriteString(strconv.Itoa(line))
 		bldr.WriteString("]  ")
@@ -123,11 +123,8 @@ func (l *RegexLogger) SetDebugLevel(dL Level) {
 // CreateLogFile creates a file in the 'logs' directory
 // of the starting point of this program to write logs to
 func (l *RegexLogger) CreateLogFile() {
-	file := "logs/dlog"
-	file += time.Now().Format("_Jan_2_15-04-05_2006")
-	file += ".txt"
 	var err error
-	l.file, err = os.Create(file)
+	l.file, err = os.Create("logs/dlog" + time.Now().Format("_Jan_2_15-04-05_2006") + ".txt")
 	if err != nil {
 		fmt.Println("[oak]-------- No logs directory found. No logs will be written to file.")
 		return

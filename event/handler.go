@@ -4,7 +4,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 var (
@@ -14,37 +14,30 @@ var (
 // Handler represents the necessary exported functions from an event.Bus
 // for use in oak internally, and thus the functions that need to be replaced
 // by alternative event handlers.
+// TODO V3: consider breaking down the bus into smaller components
+// for easier composition for external handler implementations
 type Handler interface {
-	UpdateLoop(framerate int, updateCh chan bool) error
+	// <Handler>
+	UpdateLoop(framerate int, updateCh chan struct{}) error
 	FramesElapsed() int
 	SetTick(framerate int) error
 	Update() error
 	Flush() error
 	Stop() error
 	Reset()
-	Trigger(event string, data interface{})
-}
-
-// A FullHandler will receive TriggerBack events from the engine
-// when sent (currently only OnStop, when the engine closes)
-type FullHandler interface {
-	Handler
-	TriggerBack(event string, data interface{}) chan bool
-}
-
-// ConfigHandler contains methods for configuring a running handler.
-// ConfigHandler is a new interface for backwards compatability.
-// TODO: v3: compress this interface into the main handler
-type ConfigHandler interface {
-	// SetRefreshRate configures how often a running handler will check
-	// for new binding and unbinding requests.
 	SetRefreshRate(time.Duration)
-}
-
-// A Pauser is a handler that can be paused.
-type Pauser interface {
+	// <Triggerer>
+	Trigger(event string, data interface{})
+	TriggerBack(event string, data interface{}) chan struct{}
+	// <Pauser>
 	Pause()
 	Resume()
+	// <Binder>
+	Bind(string, CID, Bindable)
+	GlobalBind(string, Bindable)
+	UnbindAll(Event)
+	UnbindAllAndRebind(Event, []Bindable, CID, []string)
+	UnbindBindable(UnbindOption)
 }
 
 // UpdateLoop is expected to internally call Update()
@@ -57,29 +50,29 @@ type Pauser interface {
 // Flush() because it will be more efficient for a Logical
 // System to perform its own Updates outside of it’s exposed
 // interface.
-func (eb *Bus) UpdateLoop(framerate int, updateCh chan bool) error {
+func (eb *Bus) UpdateLoop(framerate int, updateCh chan struct{}) error {
 	// The logical loop.
 	// In order, it waits on receiving a signal to begin a logical frame.
 	// It then runs any functions bound to when a frame begins.
 	// It then allows a scene to perform it's loop operation.
-	ch := make(chan bool)
+	ch := make(chan struct{})
 	eb.framesElapsed = 0
 	eb.doneCh = ch
 	eb.updateCh = updateCh
 	eb.framerate = framerate
+	eb.Ticker = timing.NewDynamicTicker()
 	go eb.ResolvePending()
-	go func(doneCh chan bool) {
-		eb.Ticker = timing.NewDynamicTicker()
-		eb.Ticker.SetTick(timing.FPSToDuration(framerate))
+	go func(doneCh chan struct{}) {
+		eb.Ticker.SetTick(timing.FPSToFrameDelay(framerate))
 		for {
 			select {
 			case <-eb.Ticker.C:
 				<-eb.TriggerBack(Enter, eb.framesElapsed)
 				eb.framesElapsed++
-				eb.updateCh <- true
+				eb.updateCh <- struct{}{}
 			case <-doneCh:
 				eb.Ticker.Stop()
-				doneCh <- true
+				doneCh <- struct{}{}
 				return
 			}
 		}
@@ -124,9 +117,9 @@ func (eb *Bus) Flush() error {
 func (eb *Bus) Stop() error {
 	eb.Ticker.SetTick(math.MaxInt32 * time.Second)
 	select {
-	case eb.doneCh <- true:
+	case eb.doneCh <- struct{}{}:
 	case <-eb.updateCh:
-		eb.doneCh <- true
+		eb.doneCh <- struct{}{}
 	}
 	<-eb.doneCh
 	return nil
@@ -139,7 +132,7 @@ func (eb *Bus) Pause() {
 
 // Resume will resume emitting enter events
 func (eb *Bus) Resume() {
-	eb.Ticker.SetTick(timing.FPSToDuration(eb.framerate))
+	eb.Ticker.SetTick(timing.FPSToFrameDelay(eb.framerate))
 }
 
 // FramesElapsed returns how many frames have elapsed since UpdateLoop was last called.
@@ -151,6 +144,6 @@ func (eb *Bus) FramesElapsed() int {
 // (while it is looping) to be frameRate. If this operation is not
 // supported, it should return an error.
 func (eb *Bus) SetTick(framerate int) error {
-	eb.Ticker.SetTick(timing.FPSToDuration(framerate))
+	eb.Ticker.SetTick(timing.FPSToFrameDelay(framerate))
 	return nil
 }

@@ -5,12 +5,11 @@ import (
 
 	"time"
 
-	"github.com/oakmound/oak/v2/timing"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 var (
-	resetDraw bool
-	// EmptyRenderable is a simple renderable that can be used
+	// emptyRenderable is a simple renderable that can be used
 	// for pseudo-nil renderables that need to be something
 	emptyRenderable = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
 )

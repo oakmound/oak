@@ -1,9 +1,9 @@
 package physics
 
 import (
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/oakerr"
 
-	"github.com/oakmound/oak/v2/dlog"
+	"github.com/oakmound/oak/v3/dlog"
 )
 
 const frozen = -64
@@ -89,9 +89,3 @@ func Push(a Pushes, b Pushable) error {
 	dlog.Verb("Total Force was ", totalF, " fdirection ", fdirection.X(), fdirection.Y())
 	return nil
 }
-
-// NOTE
-// IMPORTANT
-// NEVER CALL A RANDOM FUNCTION TO RESOLVE PHYSICS
-// PHYSICS MUST BE DETERMINISTIC
-// OTHERWISE BAD RATS HAPPENS

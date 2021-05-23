@@ -3,9 +3,11 @@ package mod
 import (
 	"image"
 	"image/color"
+	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/disintegration/gift"
+	"github.com/oakmound/oak/v3/shape"
 )
 
 func TestComposedModifications(t *testing.T) {
@@ -18,10 +20,14 @@ func TestComposedModifications(t *testing.T) {
 	base = modList[1](base)
 	chained := setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
 
-	assert.NotEqual(t, base, chained)
+	if reflect.DeepEqual(base, chained) {
+		t.Fatalf("expected base and chained rgbas to differ")
+	}
 	mCombined := And(modList[0], modList[1])
 	chained = mCombined(chained)
-	assert.Equal(t, base, chained)
+	if !reflect.DeepEqual(base, chained) {
+		t.Fatalf("expected base and chained rgbas to equal after modifications")
+	}
 }
 
 func TestSafeCompose(t *testing.T) {
@@ -36,10 +42,14 @@ func TestSafeCompose(t *testing.T) {
 	base = modList[2](base)
 	chained := setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
 
-	assert.NotEqual(t, base, chained)
+	if reflect.DeepEqual(base, chained) {
+		t.Fatalf("expected base and chained rgbas to differ")
+	}
 	mCombined := SafeAnd(modList...)
 	chained = mCombined(chained)
-	assert.Equal(t, base, chained)
+	if !reflect.DeepEqual(base, chained) {
+		t.Fatalf("expected base and chained rgbas to equal after modifications")
+	}
 
 	base = setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})
 	modList = []Mod{
@@ -47,7 +57,9 @@ func TestSafeCompose(t *testing.T) {
 		nil,
 	}
 	mCombined = SafeAnd(modList...)
-	assert.Equal(t, base, mCombined(base))
+	if !reflect.DeepEqual(base, mCombined(base)) {
+		t.Fatalf("expected base and nil modified base to equal")
+	}
 
 }
 
@@ -111,7 +123,9 @@ func TestAllModifications(t *testing.T) {
 	for _, f := range filterList {
 		in2 := copyrgba(in)
 		f.Filter(in2)
-		assert.Equal(t, in2, f.RGBA)
+		if !reflect.DeepEqual(in2, f.RGBA) {
+			t.Fatalf("filtered did not match expected")
+		}
 	}
 	type modCase struct {
 		Mod
@@ -144,10 +158,21 @@ func TestAllModifications(t *testing.T) {
 			color.RGBA{0, 0, 0, 0}, 2, 0),
 			color.RGBA{0, 0, 0, 0}, 0, 1),
 			color.RGBA{0, 0, 0, 0}, 0, 2),
+	}, {
+		Crop(image.Rect(0, 0, 1, 1)),
+		setAll(newrgba(1, 1), color.RGBA{255, 0, 0, 255}),
+	}, {
+		CropToSize(1, 1, gift.TopLeftAnchor),
+		setAll(newrgba(1, 1), color.RGBA{255, 0, 0, 255}),
+	}, {
+		CutShape(shape.Checkered),
+		checker(setAll(newrgba(3, 3), color.RGBA{255, 0, 0, 255})),
 	}}
 
 	for _, m := range modList {
-		assert.Equal(t, m.Mod(in), m.RGBA)
+		if !reflect.DeepEqual(m.Mod(in), m.RGBA) {
+			t.Fatalf("modified did not match expected")
+		}
 	}
 }
 
@@ -180,5 +205,17 @@ func setAll(rgba *image.RGBA, c color.Color) *image.RGBA {
 
 func setOne(rgba *image.RGBA, c color.Color, x, y int) *image.RGBA {
 	rgba.Set(x, y, c)
+	return rgba
+}
+
+func checker(rgba *image.RGBA) *image.RGBA {
+	bounds := rgba.Bounds()
+	for x := bounds.Min.X; x < bounds.Max.X; x++ {
+		for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+			if (x+y)%2 == 1 {
+				rgba.Set(x, y, color.RGBA{0, 0, 0, 0})
+			}
+		}
+	}
 	return rgba
 }

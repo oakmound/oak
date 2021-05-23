@@ -3,8 +3,8 @@ package particle
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/v2/alg"
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v3/render"
 )
 
 // A GradientGenerator is a ColorGenerator with a patterned gradient

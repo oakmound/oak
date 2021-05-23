@@ -5,77 +5,30 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/200sc/go-dist/colorrange"
-	"github.com/oakmound/oak/v2/alg/floatgeom"
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/alg/range/colorrange"
 )
 
 // A Polygon is a renderable that is represented by a set of in order points
 // on a plane.
 type Polygon struct {
 	*Sprite
-	Rect2  floatgeom.Rect2
-	points []floatgeom.Point2
+	floatgeom.Polygon2
 }
 
-// NewStrictPolygon will draw a polygon of points within a given rectangle,
-// and if the input points lie outside of that rectangle the polygon will clip
-// into and not be drawn outside of that border.
-func NewStrictPolygon(bounds floatgeom.Rect2, points ...floatgeom.Point2) (*Polygon, error) {
-	if len(points) < 3 {
-		return nil, oakerr.InsufficientInputs{AtLeast: 3, InputName: "points"}
-	}
+// NewPointsPolygon is a helper function for `NewPolygon(floatgeom.NewPolygon2(p1, p2, p3, pn...))`
+func NewPointsPolygon(p1, p2, p3 floatgeom.Point2, pn ...floatgeom.Point2) *Polygon {
+	return NewPolygon(floatgeom.NewPolygon2(p1, p2, p3, pn...))
+}
+
+// NewPolygon constructs a renderable polygon. It will display nothing until
+// Fill or FillInverse is called on it.
+func NewPolygon(poly floatgeom.Polygon2) *Polygon {
 	return &Polygon{
-		Sprite: NewSprite(bounds.Min.X(), bounds.Min.Y(),
-			image.NewRGBA(image.Rect(0, 0, int(bounds.W()), int(bounds.H())))),
-		Rect2:  bounds,
-		points: points,
-	}, nil
-}
-
-// Todo oak 3.0
-// NewPolygon(pt1, pt2, pt3 floatgeom.Point2, more ...floatgeom.Point2) (*Polygon)
-// ?
-
-// NewPolygon takes in a set of points and returns a polygon. At least three points
-// must be provided.
-func NewPolygon(points ...floatgeom.Point2) (*Polygon, error) {
-
-	if len(points) < 3 {
-		return nil, oakerr.InsufficientInputs{AtLeast: 3, InputName: "points"}
+		Sprite: NewSprite(poly.Bounding.Min.X(), poly.Bounding.Min.Y(),
+			image.NewRGBA(image.Rect(0, 0, int(poly.Bounding.W()), int(poly.Bounding.H())))),
+		Polygon2: poly,
 	}
-
-	// Calculate the bounding rectangle of the polygon by
-	// finding the maximum and minimum x and y values of the given points
-	return NewStrictPolygon(floatgeom.NewBoundingRect2(points...), points...)
-}
-
-// UpdatePoints resets the points of this polygon to be the passed in points
-func (pg *Polygon) UpdatePoints(points ...floatgeom.Point2) error {
-	if len(points) < 3 {
-		return oakerr.InsufficientInputs{AtLeast: 3, InputName: "points"}
-	}
-	pg.points = points
-	pg.Rect2 = floatgeom.NewBoundingRect2(points...)
-	return nil
-}
-
-// Fill fills the inside of this polygon with the input color
-func (pg *Polygon) Fill(c color.Color) {
-	// Reset the rgba of the polygon
-	bounds := pg.r.Bounds()
-	rect := image.Rect(0, 0, bounds.Max.X, bounds.Max.Y)
-	rgba := image.NewRGBA(rect)
-	minx := pg.Rect2.Min.X()
-	miny := pg.Rect2.Min.Y()
-	for x := 0; x < bounds.Max.X; x++ {
-		for y := 0; y < bounds.Max.Y; y++ {
-			if pg.Contains(float64(x)+minx, float64(y)+miny) {
-				rgba.Set(x, y, c)
-			}
-		}
-	}
-	pg.r = rgba
 }
 
 // GetOutline returns a set of lines of the given color along this polygon's outline
@@ -83,12 +36,14 @@ func (pg *Polygon) GetOutline(c color.Color) *CompositeM {
 	return pg.GetColoredOutline(IdentityColorer(c), 0)
 }
 
-// GetThickOutline returns a set of lines of the given color along this polygon's outline
+// GetThickOutline returns a set of lines of the given color along this polygon's outline,
+// at the given thickness
 func (pg *Polygon) GetThickOutline(c color.Color, thickness int) *CompositeM {
 	return pg.GetColoredOutline(IdentityColorer(c), thickness)
 }
 
-// GetGradientOutline returns a set of lines of the given color along this polygon's outline
+// GetGradientOutline returns a set of lines of the given color along this polygon's outline,
+// at the given thickness, ranging from c1 to c2 in color
 func (pg *Polygon) GetGradientOutline(c1, c2 color.Color, thickness int) *CompositeM {
 	return pg.GetColoredOutline(colorrange.NewLinear(c1, c2).Percentile, thickness)
 }
@@ -96,9 +51,9 @@ func (pg *Polygon) GetGradientOutline(c1, c2 color.Color, thickness int) *Compos
 // GetColoredOutline returns a set of lines of the given color along this polygon's outline
 func (pg *Polygon) GetColoredOutline(colorer Colorer, thickness int) *CompositeM {
 	sl := NewCompositeM()
-	j := len(pg.points) - 1
-	for i, p2 := range pg.points {
-		p1 := pg.points[j]
+	j := len(pg.Points) - 1
+	for i, p2 := range pg.Points {
+		p1 := pg.Points[j]
 		MinX := math.Min(p1.X(), p2.X())
 		MinY := math.Min(p1.Y(), p2.Y())
 		sl.AppendOffset(
@@ -124,65 +79,20 @@ func (pg *Polygon) FillInverse(c color.Color) {
 	pg.r = rgba
 }
 
-// Todo: almost all of this junk below should be in alg, under floatgeom or something.
-
-// Contains returns whether or not the current Polygon contains the passed in Point.
-// It is the default containment function, versus wrapping and convex.
-func (pg *Polygon) Contains(x, y float64) (contains bool) {
-
-	if !pg.Rect2.Contains(floatgeom.Point2{x, y}) {
-		return
-	}
-
-	j := len(pg.points) - 1
-	for i := 0; i < len(pg.points); i++ {
-		tp1 := pg.points[i]
-		tp2 := pg.points[j]
-		if (tp1.Y() > y) != (tp2.Y() > y) { // Three comparisons
-			if x < (tp2.X()-tp1.X())*(y-tp1.Y())/(tp2.Y()-tp1.Y())+tp1.X() { // One Comparison, Four add/sub, Two mult/div
-				contains = !contains
+// Fill fills the inside of this polygon with the input color
+func (pg *Polygon) Fill(c color.Color) {
+	// Reset the rgba of the polygon
+	bounds := pg.r.Bounds()
+	rect := image.Rect(0, 0, bounds.Max.X, bounds.Max.Y)
+	rgba := image.NewRGBA(rect)
+	minx := pg.Bounding.Min.X()
+	miny := pg.Bounding.Min.Y()
+	for x := 0; x < bounds.Max.X; x++ {
+		for y := 0; y < bounds.Max.Y; y++ {
+			if pg.Contains(float64(x)+minx, float64(y)+miny) {
+				rgba.Set(x, y, c)
 			}
 		}
-		j = i
 	}
-	return
-}
-
-// ConvexContains returns whether the given point is contained by the input polygon.
-// It assumes the polygon is convex. It outperforms the alternatives.
-func (pg *Polygon) ConvexContains(x, y float64) bool {
-
-	p := floatgeom.Point2{x, y}
-
-	if !pg.Rect2.Contains(p) {
-		return false
-	}
-
-	prev := 0
-	for i := 0; i < len(pg.points); i++ {
-		tp1 := pg.points[i]
-		tp2 := pg.points[(i+1)%len(pg.points)]
-		tp3 := tp2.Sub(tp1)
-		tp4 := p.Sub(tp1)
-		cur := getSide(tp3, tp4)
-		if cur == 0 {
-			return false
-		} else if prev == 0 {
-		} else if prev != cur {
-			return false
-		}
-		prev = cur
-	}
-	return true
-}
-
-func getSide(a, b floatgeom.Point2) int {
-	x := a.X()*b.Y() - a.Y()*b.X()
-	if x == 0 {
-		return 0
-	} else if x < 1 {
-		return -1
-	} else {
-		return 1
-	}
+	pg.r = rgba
 }

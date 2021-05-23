@@ -2,8 +2,10 @@ package audio
 
 import (
 	"github.com/200sc/klangsynthese/font"
-	"github.com/oakmound/oak/v2/oakerr"
+	"github.com/oakmound/oak/v3/oakerr"
 )
+
+const defaultFontKey = "def"
 
 // A FontManager is a map of names to Fonts that has a built in
 // default font at name 'def'.
@@ -12,7 +14,7 @@ type FontManager map[string]*font.Font
 // NewFontManager returns a manager with a single 'def' font
 func NewFontManager() *FontManager {
 	fm := &FontManager{}
-	(*fm)["def"] = &font.Font{}
+	(*fm)[defaultFontKey] = &font.Font{}
 	return fm
 }
 
@@ -39,4 +41,8 @@ func (fm *FontManager) Get(name string) *font.Font {
 	manager := (*fm)
 	font := manager[name]
 	return font
+}
+
+func (fm *FontManager) GetDefault() *font.Font {
+	return fm.Get(defaultFontKey)
 }

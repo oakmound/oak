@@ -5,24 +5,33 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/200sc/go-dist/floatrange"
-	"github.com/stretchr/testify/assert"
+	"github.com/oakmound/oak/v3/alg/range/floatrange"
 
-	"github.com/oakmound/oak/v2/render"
+	"github.com/oakmound/oak/v3/render"
 )
 
 func TestSpriteParticle(t *testing.T) {
 	s := render.NewColorBox(10, 10, color.RGBA{255, 0, 0, 255})
-	g := NewSpriteGenerator(Sprite(s), Rotation(floatrange.Constant(1)), SpriteRotation(floatrange.Constant(1)))
+	g := NewSpriteGenerator(
+		Sprite(s),
+		Rotation(floatrange.NewConstant(1)),
+		SpriteRotation(floatrange.NewConstant(1)),
+	)
 	src := g.Generate(0)
 	src.addParticles()
 
 	p := src.particles[0].(*SpriteParticle)
 
-	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)))
+	p.Draw(image.NewRGBA(image.Rect(0, 0, 20, 20)), 0, 0)
 
 	w, h, ok := g.GetParticleSize()
-	assert.Equal(t, 10.0, w)
-	assert.Equal(t, 10.0, h)
-	assert.False(t, ok)
+	if w != 10 {
+		t.Fatalf("expected 10 x, got %v", w)
+	}
+	if h != 10 {
+		t.Fatalf("expected 10 y, got %v", h)
+	}
+	if ok {
+		t.Fatalf("sprite particle generator should not have particle-specific sizes")
+	}
 }

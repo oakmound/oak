@@ -1,8 +1,8 @@
 package particle
 
 import (
-	"github.com/oakmound/oak/v2/collision"
-	"github.com/oakmound/oak/v2/event"
+	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/event"
 )
 
 // A CollisionGenerator generates collision particles
@@ -55,7 +55,7 @@ func (cg *CollisionGenerator) GenerateParticle(bp *baseParticle) Particle {
 
 // GetParticleSize on a CollisionGenerator tells the caller that the particle size
 // is per-particle specific
-func (cg *CollisionGenerator) GetParticleSize() (float64, float64, bool) {
+func (cg *CollisionGenerator) GetParticleSize() (w float64, h float64, perParticle bool) {
 	return 0, 0, true
 }
 

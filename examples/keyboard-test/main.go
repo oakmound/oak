@@ -3,54 +3,44 @@ package main
 import (
 	"sync"
 
-	oak "github.com/oakmound/oak/v2"
-	"github.com/oakmound/oak/v2/event"
-	"github.com/oakmound/oak/v2/key"
-	"github.com/oakmound/oak/v2/render"
-	"github.com/oakmound/oak/v2/scene"
+	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v3/scene"
 )
 
 var keyLock sync.Mutex
-var keys = map[string]struct{}{}
-
-type stringStringer string
-
-func (ss stringStringer) String() string {
-	return string(ss)
-}
+var keys = map[rune]struct{}{}
 
 func main() {
-	oak.Add("keyboard-test", func(string, interface{}) {
+	oak.AddScene("keyboard-test", scene.Scene{Start: func(*scene.Context) {
 		kRenderable := render.NewStrText("", 40, 40)
 		render.Draw(kRenderable, 0)
-		event.GlobalBind(func(_ int, k interface{}) int {
-			kValue := k.(string)
+		event.GlobalBind(key.Down, func(_ event.CID, k interface{}) int {
+			kValue := k.(key.Event)
 			keyLock.Lock()
-			keys[kValue] = struct{}{}
+			keys[kValue.Rune] = struct{}{}
 			txt := ""
 			for k := range keys {
-				txt += k + "\n"
+				txt += string(k) + " "
 			}
-			kRenderable.SetText(stringStringer(txt))
+			kRenderable.SetString(txt)
 			keyLock.Unlock()
 			return 0
-		}, key.Down)
-		event.GlobalBind(func(_ int, k interface{}) int {
-			kValue := k.(string)
+		})
+		event.GlobalBind(key.Up, func(_ event.CID, k interface{}) int {
+			kValue := k.(key.Event)
 			keyLock.Lock()
-			delete(keys, kValue)
+			delete(keys, kValue.Rune)
 			txt := ""
 			for k := range keys {
-				txt += k + " "
+				txt += string(k) + " "
 			}
-			kRenderable.SetText(stringStringer(txt))
+			kRenderable.SetString(txt)
 			keyLock.Unlock()
 			return 0
-		}, key.Up)
-	}, func() bool {
-		return true
-	}, func() (string, *scene.Result) {
-		return "keyboard-test", nil
-	})
+		})
+	}})
 	oak.Init("keyboard-test")
 }

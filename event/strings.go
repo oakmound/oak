@@ -12,10 +12,10 @@ package event
 //   Payload: (mouse.Event) details on the mouse event
 //
 // - KeyDown, KeyDown$a: when any key is pressed down, when key $a is pressed down.
-//   Payload: (string) the key pressed
+//   Payload: (key.Event) the key pressed
 //
 // - KeyUp, KeyUp$a: when any key is released, when key $a is released.
-//   Payload: (string) the key released
+//   Payload: (key.Event) the key released
 //
 // And the following:
 const (
@@ -25,12 +25,18 @@ const (
 	// AnimationEnd: Triggered on animations CIDs when they loop from the last to the first frame
 	// Payload: nil
 	AnimationEnd = "AnimationEnd"
-	// ViewportUpdate: Triggered when the position fo of the viewport changes
-	// Payload: []float64{viewportX, viewportY}
+	// ViewportUpdate: Triggered when the position of of the viewport changes
+	// Payload: intgeom.Point2
 	ViewportUpdate = "ViewportUpdate"
 	// OnStop: Triggered when the engine is stopped.
 	// Payload: nil
 	OnStop = "OnStop"
+	// FocusGain: Triggered when the window gains focus 
+	// Payload: nil
+	FocusGain = "FocusGain"
+	// FocusLoss: Triggered when the window loses focus 
+	// Payload: nil
+	FocusLoss = "FocusLoss"
 )
 
 //

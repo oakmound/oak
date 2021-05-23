@@ -2,8 +2,6 @@ package physics
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 type DeltaMass struct {
@@ -18,31 +16,47 @@ func (dm *DeltaMass) GetDelta() Vector {
 func TestForce(t *testing.T) {
 	v := NewForceVector(NewVector(100, 0), 100)
 	v2 := DefaultForceVector(NewVector(100, 0), 100)
-	assert.Equal(t, *v.Force, 100.0)
-	assert.Equal(t, *v2.Force, 10000.0)
+	if *v.Force != 100.0 {
+		t.Fatalf("force vector created with 100 force did not have 100 force")
+	}
+	if *v2.Force != 10000.0 {
+		t.Fatalf("mass to force vector did not scale")
+	}
 
 	v3 := NewVector(100, 100).GetForce()
-	assert.Equal(t, *v3.Force, 0.0)
+	if *v3.Force != 0.0 {
+		t.Fatalf("Non-force vector had force")
+	}
 
 	dm := &DeltaMass{
 		Mass{100},
 		NewVector(100, 0),
 	}
 
-	assert.NotNil(t, dm.SetMass(-10))
-	assert.Nil(t, dm.SetMass(10))
+	if dm.SetMass(-10) == nil {
+		t.Fatalf("set mass to negative did not fail")
+	}
+	if dm.SetMass(10) != nil {
+		t.Fatalf("set mass failed")
+	}
 
 	dm2 := &DeltaMass{
 		Mass{-10},
 		NewVector(0, 0),
 	}
 
-	assert.NotNil(t, Push(v3, dm2))
-	assert.Nil(t, Push(v3, dm))
+	if Push(v3, dm2) == nil {
+		t.Fatalf("pushing negative delta mass did not fail")
+	}
+	if Push(v3, dm) != nil {
+		t.Fatalf("pushing positive delta mass failed")
+	}
 
 	dm2.Freeze()
 
-	assert.Nil(t, Push(v3, dm2))
+	if Push(v3, dm2) != nil {
+		t.Fatalf("pushing frozen delta mass failed")
+	}
 
 	// Todo: test that pushing results in expected changes
 }
