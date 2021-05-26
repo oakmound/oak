@@ -14,6 +14,10 @@ func TestAudioFuncs(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	a := New(DefaultFont, kla.(Data))
+	err = a.SetVolume(0)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	err = <-a.Play()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -54,4 +58,9 @@ func TestAudioFuncs(t *testing.T) {
 	a.Play()
 	time.Sleep(a.PlayLength())
 	// Assert yet quieter audio is playing
+	a.SetVolume(-2000)
+	a.Play()
+	time.Sleep(a.PlayLength())
+	// Assert yet quieter audio is playing
+
 }
