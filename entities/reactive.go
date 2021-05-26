@@ -25,10 +25,11 @@ func NewReactive(x, y, w, h float64, r render.Renderable, tree *collision.Tree, 
 	rct.Doodad = *NewDoodad(x, y, r, cid)
 	rct.W = w
 	rct.H = h
-	rct.RSpace = collision.NewEmptyReactiveSpace(collision.NewSpace(x, y, w, h, cid))
+	rct.RSpace = collision.NewReactiveSpace(collision.NewSpace(x, y, w, h, cid), map[collision.Label]collision.OnHit{})
 	if tree == nil {
 		tree = collision.DefaultTree
 	}
+	rct.RSpace.Tree = tree
 	rct.Tree = tree
 	rct.Tree.Add(rct.RSpace.Space)
 	return &rct
