@@ -274,3 +274,15 @@ func (c *Controller) GoToScene(nextScene string) {
 func (c *Controller) InFocus() bool {
 	return c.inFocus
 }
+
+// CollisionTrees helps access the mouse and collision trees from the controller.
+// These trees together detail how a controller can drive mouse and entity interactions.
+func (c *Controller) CollisionTrees() (mouseTree, collisionTree *collision.Tree) {
+	return c.MouseTree, c.CollisionTree
+}
+
+// GlobalBind to delegate GlobalBind to the controller's logicHandler.
+// CONSIDER: This might not be the right long term strategy. Maybe compose controller with the handler in the future.
+func (c *Controller) GlobalBind(name string, fn event.Bindable) {
+	c.logicHandler.GlobalBind(name, fn)
+}

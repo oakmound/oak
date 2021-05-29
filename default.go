@@ -18,10 +18,6 @@ func Init(scene string, configOptions ...ConfigOption) error {
 	return defaultController.Init(scene, configOptions...)
 }
 
-func AddCommand(command string, fn func([]string)) error {
-	return defaultController.AddCommand(command, fn)
-}
-
 func AddScene(name string, sc scene.Scene) error {
 	return defaultController.AddScene(name, sc)
 }
