@@ -137,6 +137,8 @@ type Controller struct {
 
 	config Config
 
+	mostRecentInput InputType
+
 	TrackMouseClicks bool
 	startupLoading   bool
 	useViewBounds    bool
@@ -273,4 +275,11 @@ func (c *Controller) GoToScene(nextScene string) {
 
 func (c *Controller) InFocus() bool {
 	return c.inFocus
+}
+
+// MostRecentInput returns the most recent input type (e.g keyboard/mouse or joystick)
+// recognized by the window. This value will only change if the controller's Config is
+// set to TrackInputChanges
+func (c *Controller) MostRecentInput() InputType {
+	return c.mostRecentInput
 }

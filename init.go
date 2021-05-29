@@ -70,7 +70,7 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 		c.config.Font.DPI)
 
 	if c.config.TrackInputChanges {
-		trackJoystickChanges()
+		trackJoystickChanges(c.logicHandler)
 	}
 	if c.config.EventRefreshRate != 0 {
 		c.logicHandler.SetRefreshRate(time.Duration(c.config.EventRefreshRate))

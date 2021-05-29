@@ -66,7 +66,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 			}
 		}
 		if trackingInputs {
-			trackInputChanges()
+			c.trackInputChanges()
 		}
 		gctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
