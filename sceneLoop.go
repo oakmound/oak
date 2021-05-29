@@ -49,7 +49,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 
 	for {
 		c.setViewport(intgeom.Point2{0, 0})
-		c.useViewBounds = false
+		c.RemoveViewportBounds()
 
 		dlog.Info("Scene Start", c.SceneMap.CurrentScene)
 		scen, ok := c.SceneMap.GetCurrent()
