@@ -18,7 +18,7 @@ require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/yobert/alsa v0.0.0-20200618200352-d079056f5370 // indirect
 	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
-	golang.org/x/mobile v0.0.0-20190415191353-3e0bab5405d6
-	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
+	golang.org/x/mobile v0.0.0-20210220033013-bdb1ca9a1e08
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/sys v0.0.0-20190429190828-d89cdac9e872
 )

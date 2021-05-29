@@ -1,11 +1,13 @@
 package shake
 
 import (
+	"context"
 	"math/rand"
 	"time"
 
 	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v3/window"
 )
 
 // A Shaker knows how to shake something by a (or up to a) given magnitude.
@@ -25,7 +27,7 @@ var (
 	// DefaultShaker is the global default shaker, used when ShakeScreen is called.
 	DefaultShaker = &Shaker{
 		Random:        false,
-		Magnitude:     floatgeom.Point2{1.0, 1.0},
+		Magnitude:     floatgeom.Point2{3.0, 3.0},
 		Delay:         30 * time.Millisecond,
 		ResetPosition: true,
 	}
@@ -34,7 +36,6 @@ var (
 type ShiftPoser interface {
 	ShiftPos(x, y float64)
 	SetPos(x, y float64)
-	GetPos() (x, y float64)
 }
 
 func Shake(sp ShiftPoser, dur time.Duration) {
@@ -42,41 +43,51 @@ func Shake(sp ShiftPoser, dur time.Duration) {
 }
 
 func (sk *Shaker) Shake(sp ShiftPoser, dur time.Duration) {
-	doneTime := time.Now().Add(dur)
+	sk.ShakeContext(context.Background(), sp, dur)
+}
+
+func (sk *Shaker) ShakeContext(ctx context.Context, sp ShiftPoser, dur time.Duration) {
+	ctx, cancel := context.WithDeadline(ctx, time.Now().Add(dur))
 	mag := sk.Magnitude
 	delta := floatgeom.Point2{}
-
-	origX, origY := sp.GetPos()
 
 	if sk.Random {
 		randOff := mag
 		go func() {
+			defer cancel()
 			tick := time.NewTicker(sk.Delay)
 			defer tick.Stop()
 			for {
-				<-tick.C
-				if time.Now().After(doneTime) {
-					break
+				select {
+				case <-ctx.Done():
+					if sk.ResetPosition {
+						sp.ShiftPos(-delta.X(), -delta.Y())
+					}
+					return
+				case <-tick.C:
 				}
-				xDelta := randOff.X()
-				yDelta := randOff.Y()
-				sp.ShiftPos(xDelta-delta.X(), yDelta-delta.Y())
-				delta = floatgeom.Point2{xDelta, yDelta}
+				xDelta := randOff.X() - delta.X()
+				yDelta := randOff.Y() - delta.Y()
+				sp.ShiftPos(xDelta, yDelta)
+				delta = delta.Add(floatgeom.Point2{xDelta, yDelta})
 				mag = mag.MulConst(-1)
 				randOff = mag.MulConst(rand.Float64())
 			}
-			if sk.ResetPosition {
-				sp.SetPos(origX, origY)
-			}
+
 		}()
 	} else {
 		go func() {
+			defer cancel()
 			tick := time.NewTicker(sk.Delay)
 			defer tick.Stop()
 			for {
-				<-tick.C
-				if time.Now().After(doneTime) {
-					break
+				select {
+				case <-ctx.Done():
+					if sk.ResetPosition {
+						sp.ShiftPos(-delta.X(), -delta.Y())
+					}
+					return
+				case <-tick.C:
 				}
 				xDelta := mag.X()
 				yDelta := mag.Y()
@@ -85,21 +96,12 @@ func (sk *Shaker) Shake(sp ShiftPoser, dur time.Duration) {
 				delta = delta.Add(floatgeom.Point2{xDelta, yDelta})
 				mag = mag.MulConst(-1)
 			}
-			if sk.ResetPosition {
-				sp.SetPos(origX, origY)
-			}
 		}()
 	}
 }
 
-type ShiftScreener interface {
-	ShiftScreen(x, y int)
-	SetScreen(x, y int)
-	Viewport() intgeom.Point2
-}
-
 type screenToPoser struct {
-	ShiftScreener
+	window.Window
 }
 
 func (stp screenToPoser) ShiftPos(x, y float64) {
@@ -110,16 +112,11 @@ func (stp screenToPoser) SetPos(x, y float64) {
 	stp.SetScreen(int(x), int(y))
 }
 
-func (stp screenToPoser) GetPos() (x, y float64) {
-	vp := stp.Viewport()
-	return float64(vp.X()), float64(vp.Y())
+func ShakeScreen(ctx *scene.Context, dur time.Duration) {
+	DefaultShaker.ShakeScreen(ctx, dur)
 }
 
-func ShakeScreen(ss ShiftScreener, dur time.Duration) {
-	DefaultShaker.ShakeScreen(ss, dur)
-}
-
-func (sk *Shaker) ShakeScreen(ss ShiftScreener, dur time.Duration) {
-	poser := screenToPoser{ss}
-	sk.Shake(poser, dur)
+func (sk *Shaker) ShakeScreen(ctx *scene.Context, dur time.Duration) {
+	poser := screenToPoser{ctx.Window}
+	sk.ShakeContext(ctx, poser, dur)
 }

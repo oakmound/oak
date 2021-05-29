@@ -21,4 +21,6 @@ type Window interface {
 	NextScene()
 	GoToScene(string)
 	InFocus() bool
+	ShiftScreen(int, int)
+	SetScreen(int, int)
 }
