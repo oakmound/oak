@@ -31,12 +31,15 @@ const (
 	// OnStop: Triggered when the engine is stopped.
 	// Payload: nil
 	OnStop = "OnStop"
-	// FocusGain: Triggered when the window gains focus 
+	// FocusGain: Triggered when the window gains focus
 	// Payload: nil
 	FocusGain = "FocusGain"
-	// FocusLoss: Triggered when the window loses focus 
+	// FocusLoss: Triggered when the window loses focus
 	// Payload: nil
 	FocusLoss = "FocusLoss"
+	// InputChange: triggered when the most recent input device changes (e.g. keyboard to joystick or vice versa)
+	// Payload: oak.InputType
+	InputChange = "InputChange"
 )
 
 //

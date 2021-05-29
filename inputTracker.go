@@ -22,16 +22,24 @@ const (
 
 func (c *Controller) trackInputChanges() {
 	c.logicHandler.GlobalBind(key.Down, func(event.CID, interface{}) int {
-		atomic.SwapInt32(&c.mostRecentInput, KeyboardMouse)
-		// TODO: Trigger that the most recent input changed?
+		old := atomic.SwapInt32(&c.mostRecentInput, KeyboardMouse)
+		if old != KeyboardMouse {
+			c.logicHandler.Trigger(event.InputChange, KeyboardMouse)
+		}
 		return 0
 	})
 	c.logicHandler.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
-		atomic.SwapInt32(&c.mostRecentInput, KeyboardMouse)
+		old := atomic.SwapInt32(&c.mostRecentInput, KeyboardMouse)
+		if old != KeyboardMouse {
+			c.logicHandler.Trigger(event.InputChange, KeyboardMouse)
+		}
 		return 0
 	})
 	c.logicHandler.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
-		atomic.SwapInt32(&c.mostRecentInput, Joystick)
+		old := atomic.SwapInt32(&c.mostRecentInput, Joystick)
+		if old != Joystick {
+			c.logicHandler.Trigger(event.InputChange, Joystick)
+		}
 		return 0
 	})
 }

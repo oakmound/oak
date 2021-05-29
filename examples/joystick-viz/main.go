@@ -205,20 +205,32 @@ func newRenderer(ctx *scene.Context, joy *joystick.Joystick) {
 func main() {
 	oak.AddScene("viz", scene.Scene{Start: func(ctx *scene.Context) {
 		joystick.Init()
+		latestInput := new(string)
+		*latestInput = "Latest Input: None"
+		ctx.DrawStack.Draw(render.NewStrPtrText(latestInput, 10, 460), 4)
+		ctx.DrawStack.Draw(render.NewStrText("Space to Vibrate", 10, 440), 4)
+		ctx.EventHandler.GlobalBind(event.InputChange, func(_ event.CID, payload interface{}) int {
+			input := payload.(oak.InputType)
+			switch input {
+			case oak.Joystick:
+				*latestInput = "Latest Input: Joystick"
+			case oak.KeyboardMouse:
+				*latestInput = "Latest Input: Keyboard+Mouse"
+			}
+			return 0
+		})
 		go func() {
 			jCh, cancel := joystick.WaitForJoysticks(1 * time.Second)
 			defer cancel()
-			for {
-				select {
-				case joy := <-jCh:
-					newRenderer(ctx, joy)
-				}
+			for joy := range jCh {
+				newRenderer(ctx, joy)
 			}
 		}()
 	}})
 	oak.Init("viz", func(c oak.Config) (oak.Config, error) {
 		c.Assets.ImagePath = "."
 		c.Assets.AssetPath = "."
+		c.TrackInputChanges = true
 		return c, nil
 	})
 }
