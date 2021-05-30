@@ -1,7 +1,13 @@
 package window
 
-import "github.com/oakmound/oak/v3/alg/intgeom"
+import (
+	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v3/event"
+)
 
+// Window is an interface of methods on an oak.Controller used
+// to avoid circular imports
+// TODO v3: review Window/Controller naming
 type Window interface {
 	SetFullScreen(bool) error
 	SetBorderless(bool) error
@@ -11,14 +17,20 @@ type Window interface {
 	ShowNotification(title, msg string, icon bool) error
 	MoveWindow(x, y, w, h int) error
 	HideCursor() error
+
 	//GetMonitorSize() (int, int)
 	//Close() error
+
 	Width() int
 	Height() int
 	Viewport() intgeom.Point2
-	Quit()
 	SetViewportBounds(intgeom.Rect2)
+
 	NextScene()
 	GoToScene(string)
+
 	InFocus() bool
+	Quit()
+
+	EventHandler() event.Handler
 }

@@ -14,7 +14,10 @@ import (
 	"github.com/oakmound/oak/v3/shiny/driver"
 	"github.com/oakmound/oak/v3/shiny/screen"
 	"github.com/oakmound/oak/v3/timing"
+	"github.com/oakmound/oak/v3/window"
 )
+
+var _ window.Window = &Controller{}
 
 func (c *Controller) windowController(s screen.Screen, x, y int32, width, height int) (screen.Window, error) {
 	return s.NewWindow(screen.NewWindowGenerator(
@@ -281,8 +284,6 @@ func (c *Controller) CollisionTrees() (mouseTree, collisionTree *collision.Tree)
 	return c.MouseTree, c.CollisionTree
 }
 
-// GlobalBind to delegate GlobalBind to the controller's logicHandler.
-// CONSIDER: This might not be the right long term strategy. Maybe compose controller with the handler in the future.
-func (c *Controller) GlobalBind(name string, fn event.Bindable) {
-	c.logicHandler.GlobalBind(name, fn)
+func (c *Controller) EventHandler() event.Handler {
+	return c.logicHandler
 }
