@@ -7,8 +7,10 @@ import (
 	"strconv"
 
 	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/alg"
 	"github.com/oakmound/oak/v3/alg/range/floatrange"
 	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/debugstream"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/mouse"
 	"github.com/oakmound/oak/v3/physics"
@@ -52,7 +54,7 @@ func parseShape(args []string) shape.Shape {
 
 func main() {
 
-	oak.AddCommand("followMouse", func(args []string) {
+	debugstream.AddCommand("followMouse", func(args []string) {
 		event.GlobalBind(event.Enter, func(event.CID, interface{}) int {
 			// It'd be interesting to attach to the mouse position
 			src.SetPos(float64(mouse.LastEvent.X()), float64(mouse.LastEvent.Y()))
@@ -60,7 +62,7 @@ func main() {
 		})
 	})
 
-	oak.AddCommand("shape", func(args []string) {
+	debugstream.AddCommand("shape", func(args []string) {
 		if len(args) > 0 {
 			sh := parseShape(args)
 			if sh != nil {
@@ -69,7 +71,7 @@ func main() {
 		}
 	})
 
-	oak.AddCommand("size", func(args []string) {
+	debugstream.AddCommand("size", func(args []string) {
 		f1, f2, two, err := parseInts(args)
 		if err != nil {
 			return
@@ -81,7 +83,7 @@ func main() {
 		}
 	})
 
-	oak.AddCommand("endsize", func(args []string) {
+	debugstream.AddCommand("endsize", func(args []string) {
 		f1, f2, two, err := parseInts(args)
 		if err != nil {
 			return
@@ -93,7 +95,7 @@ func main() {
 		}
 	})
 
-	oak.AddCommand("count", func(args []string) {
+	debugstream.AddCommand("count", func(args []string) {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return
@@ -105,7 +107,7 @@ func main() {
 		}
 	})
 
-	oak.AddCommand("life", func(args []string) {
+	debugstream.AddCommand("life", func(args []string) {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return
@@ -117,7 +119,7 @@ func main() {
 		}
 	})
 
-	oak.AddCommand("rotation", func(args []string) {
+	debugstream.AddCommand("rotation", func(args []string) {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return
@@ -129,19 +131,19 @@ func main() {
 		}
 	})
 
-	oak.AddCommand("angle", func(args []string) {
+	debugstream.AddCommand("angle", func(args []string) {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return
 		}
 		if !two {
-			src.Generator.GetBaseGenerator().Angle = floatrange.NewConstant(npf)
+			src.Generator.GetBaseGenerator().Angle = floatrange.NewConstant(npf * alg.DegToRad)
 		} else {
-			src.Generator.GetBaseGenerator().Angle = floatrange.NewLinear(npf, npf2)
+			src.Generator.GetBaseGenerator().Angle = floatrange.NewLinear(npf*alg.DegToRad, npf2*alg.DegToRad)
 		}
 	})
 
-	oak.AddCommand("speed", func(args []string) {
+	debugstream.AddCommand("speed", func(args []string) {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return
@@ -153,7 +155,7 @@ func main() {
 		}
 	})
 
-	oak.AddCommand("spread", func(args []string) {
+	debugstream.AddCommand("spread", func(args []string) {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return
@@ -164,7 +166,7 @@ func main() {
 		src.Generator.GetBaseGenerator().Spread.SetPos(npf, npf2)
 	})
 
-	oak.AddCommand("gravity", func(args []string) {
+	debugstream.AddCommand("gravity", func(args []string) {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return
@@ -175,7 +177,7 @@ func main() {
 		src.Generator.GetBaseGenerator().Gravity.SetPos(npf, npf2)
 	})
 
-	oak.AddCommand("speeddecay", func(args []string) {
+	debugstream.AddCommand("speeddecay", func(args []string) {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return
@@ -186,7 +188,7 @@ func main() {
 		src.Generator.GetBaseGenerator().SpeedDecay.SetPos(npf, npf2)
 	})
 
-	oak.AddCommand("pos", func(args []string) {
+	debugstream.AddCommand("pos", func(args []string) {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return
@@ -197,7 +199,7 @@ func main() {
 		src.Generator.SetPos(npf, npf2)
 	})
 
-	oak.AddCommand("startcolor", func(args []string) {
+	debugstream.AddCommand("startcolor", func(args []string) {
 		if len(args) > 3 {
 			r, g, b, a, err := parseRGBA(args)
 			if err != nil {
@@ -208,7 +210,7 @@ func main() {
 		}
 	})
 
-	oak.AddCommand("startrand", func(args []string) {
+	debugstream.AddCommand("startrand", func(args []string) {
 		if len(args) > 3 {
 			r, g, b, a, err := parseRGBA(args)
 			if err != nil {
@@ -219,7 +221,7 @@ func main() {
 		}
 	})
 
-	oak.AddCommand("endcolor", func(args []string) {
+	debugstream.AddCommand("endcolor", func(args []string) {
 		if len(args) > 3 {
 			r, g, b, a, err := parseRGBA(args)
 			if err != nil {
@@ -230,7 +232,7 @@ func main() {
 		}
 	})
 
-	oak.AddCommand("endrand", func(args []string) {
+	debugstream.AddCommand("endrand", func(args []string) {
 		if len(args) > 3 {
 			r, g, b, a, err := parseRGBA(args)
 			if err != nil {
@@ -242,6 +244,7 @@ func main() {
 	})
 
 	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
+		render.Draw(render.NewDrawFPS(0, nil, 10, 10))
 		x := 320.0
 		y := 240.0
 		newPf := floatrange.NewLinear(1, 2)
@@ -302,7 +305,7 @@ func parseRGBA(args []string) (r, g, b, a int, err error) {
 
 func parseFloats(args []string) (f1, f2 float64, two bool, err error) {
 	if len(args) < 1 {
-		err = errors.New("No args")
+		err = errors.New("no args")
 		return
 	}
 	f1, err = strconv.ParseFloat(args[0], 64)

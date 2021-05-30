@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/debugstream"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/mouse"
 	"github.com/oakmound/oak/v3/render"
@@ -34,7 +35,7 @@ func main() {
 	// bezier X Y X Y X Y ...
 	// for defining custom points without using the mouse.
 	// does not interact with the mouse points tracked through left clicks.
-	oak.AddCommand("bezier", func(tokens []string) {
+	debugstream.AddCommand("bezier", func(tokens []string) {
 		if len(tokens) < 4 {
 			return
 		}
@@ -67,7 +68,10 @@ func main() {
 			return 0
 		})
 	}})
-	oak.Init("bezier")
+	oak.Init("bezier", func(c oak.Config) (oak.Config, error) {
+		c.EnableDebugConsole = true
+		return c, nil
+	})
 }
 
 func bezierDraw(b shape.Bezier) *render.CompositeM {
