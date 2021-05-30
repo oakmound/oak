@@ -109,11 +109,19 @@ func (c *ScopedCommands) AddCommand(s string, fn func([]string)) error {
 	return c.AddScopedCommand(0, s, fn)
 }
 
+func AddCommand(s string, fn func([]string)) error {
+	return DefaultCommands.AddCommand(s, fn)
+}
+
 // AddCommand adds a console command to call fn when
 // '<s> <args>' is input to the console. fn will be called
 // with args split on whitespace.
 func (c *ScopedCommands) AddScopedCommand(scopeID int32, s string, fn func([]string)) error {
 	return c.addCommand(scopeID, s, fn, false)
+}
+
+func AddScopedCommand(scopeID int32, s string, fn func([]string)) error {
+	return DefaultCommands.AddScopedCommand(scopeID, s, fn)
 }
 
 // addCommand for future executions.
