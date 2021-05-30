@@ -10,7 +10,8 @@ import (
 	"github.com/oakmound/oak/v3/scene"
 )
 
-func TestScreenShot(t *testing.T) {
+func blankScene(t *testing.T) *Controller {
+	t.Helper()
 	c1 := NewController()
 	err := c1.SceneMap.AddScene("blank", scene.Scene{})
 	if err != nil {
@@ -18,6 +19,19 @@ func TestScreenShot(t *testing.T) {
 	}
 	go c1.Init("blank")
 	time.Sleep(2 * time.Second)
+	return c1
+}
+
+func TestRecordGIF(t *testing.T) {
+	c1 := blankScene(t)
+	stop := c1.RecordGIF(100)
+	time.Sleep(2 * time.Second)
+	stop()
+	// TODO: could test that the gif has expected contents
+}
+
+func TestScreenShot(t *testing.T) {
+	c1 := blankScene(t)
 	MatchScreenShot(t, c1, filepath.Join("testdata", "screenshot.png"))
 }
 
