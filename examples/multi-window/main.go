@@ -37,6 +37,7 @@ func main() {
 			c.Debug.Level = "VERBOSE"
 			c.DrawFrameRate = 1200
 			c.FrameRate = 60
+			c.EnableDebugConsole = true
 			return c, nil
 		})
 		fmt.Println("scene 1 exited")
@@ -64,6 +65,7 @@ func main() {
 		c.Debug.Level = "VERBOSE"
 		c.DrawFrameRate = 1200
 		c.FrameRate = 60
+		c.EnableDebugConsole = true
 		return c, nil
 	})
 	fmt.Println("scene 2 exited")
