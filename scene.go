@@ -7,7 +7,7 @@ import (
 	"github.com/oakmound/oak/v3/timing"
 )
 
-// AddScene is shorthand for oak.SceneMap.AddScene
+// AddScene is shorthand for c.SceneMap.AddScene
 func (c *Controller) AddScene(name string, s scene.Scene) error {
 	return c.SceneMap.AddScene(name, s)
 }
