@@ -22,6 +22,7 @@ func main() {
 		Start: func(ctx *scene.Context) {
 			fmt.Println("Start scene 1")
 			cb := render.NewColorBox(50, 50, ctx.SceneInput.(color.RGBA))
+			render.UpdateDebugMap("r", cb)
 			cb.SetPos(50, 50)
 			ctx.DrawStack.Draw(cb, 0)
 			dFPS := render.NewDrawFPS(0.1, nil, 600, 10)
@@ -37,6 +38,7 @@ func main() {
 			c.Debug.Level = "VERBOSE"
 			c.DrawFrameRate = 1200
 			c.FrameRate = 60
+			c.EnableDebugConsole = true
 			return c, nil
 		})
 		fmt.Println("scene 1 exited")
@@ -50,6 +52,7 @@ func main() {
 		Start: func(ctx *scene.Context) {
 			fmt.Println("Start scene 2")
 			cb := render.NewColorBox(50, 50, ctx.SceneInput.(color.RGBA))
+			render.UpdateDebugMap("g", cb)
 			cb.SetPos(50, 50)
 			ctx.DrawStack.Draw(cb, 0)
 			dFPS := render.NewDrawFPS(0.1, nil, 600, 10)
@@ -64,6 +67,7 @@ func main() {
 		c.Debug.Level = "VERBOSE"
 		c.DrawFrameRate = 1200
 		c.FrameRate = 60
+		c.EnableDebugConsole = true
 		return c, nil
 	})
 	fmt.Println("scene 2 exited")

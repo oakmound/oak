@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/debugstream"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
@@ -31,7 +32,7 @@ var (
 )
 
 func AddNumberShortcuts(max int) {
-	oak.AddCommand("slide", func(args []string) {
+	debugstream.AddCommand("slide", func(args []string) {
 		if len(args) < 2 {
 			return
 		}
@@ -121,6 +122,7 @@ func Start(width, height int, slides ...Slide) {
 		c.Screen.Height = height
 		c.FrameRate = 30
 		c.DrawFrameRate = 30
+		c.EnableDebugConsole = true
 		return c, nil
 	})
 }
