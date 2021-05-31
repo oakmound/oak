@@ -187,24 +187,33 @@ func (sc *ScopedCommands) CommandsInScope(scope int32) []string {
 }
 
 func (sc *ScopedCommands) printHelp(tokenString []string) {
-	if len(tokenString) == 0 {
-		fmt.Println("help <scopeID> to see commands linked to a window or help 0 to see general commands")
-		fmt.Printf("Active Scopes: %v\n", sc.scopes)
-		return
+
+	scopeID := sc.assumedScope
+	var err error
+	if len(tokenString) != 0 {
+		scopeID, err = strToInt32(tokenString[0])
+		if err != nil {
+			fmt.Println("help <scopeID> expects a valid int scope")
+			fmt.Printf("you provided %s which errored with %v \n", tokenString[0], err)
+			fmt.Println("try using help without arguments for an overview")
+			return
+		}
 	}
 
-	scopeID, err := strToInt32(tokenString[0])
-	if err != nil {
-		fmt.Println("help <scopeID> expects a valid int scope")
-		fmt.Printf("you provided %s which errored with %v \n", tokenString[0], err)
-		return
-	}
+	fmt.Println("help <scopeID> to see commands linked to a given window")
+	fmt.Printf("Active Scopes: %v\n", sc.scopes)
 	if _, ok := sc.commands[scopeID]; !ok {
 		fmt.Printf("inactive scope %d see correct usage via help\n", scopeID)
 	}
+
 	fmt.Println("Current Assumed Scope:", sc.assumedScope)
-	fmt.Printf("Commands: %s\n", strings.Join(sc.CommandsInScope(scopeID), ","))
+	// TODO: if in a verbose mode present usage.
+
+	fmt.Printf("General Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(scopeID), "\n"+indent))
+	fmt.Printf("Current Window Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(scopeID), "\n"+indent))
 }
+
+const indent = "  "
 
 // assumeScope of the given windowID if possible
 // This allows for easier usage of windows when multiple windows exist.
