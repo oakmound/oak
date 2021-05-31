@@ -7,6 +7,7 @@ import (
 )
 
 func (c *Controller) debugConsole(input io.Reader) {
-	debugstream.DefaultCommands.AttachToStream(input)
-	debugstream.DefaultCommands.AddDefaultsForScope(c.ControllerID, c)
+	debugstream.AttachToStream(input)
+	debugstream.AddDefaultsForScope(c.ControllerID, c)
+
 }

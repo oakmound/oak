@@ -34,6 +34,7 @@ func (sc *ScopedCommands) AddDefaultsForScope(scopeID int32, controller interfac
 	}
 
 	// 	dlog.ErrorCheck(c.AddCommand("move", c.moveWindow))
+	sc.assumedScope = scopeID
 
 }
 
