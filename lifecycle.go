@@ -110,8 +110,3 @@ func (c *Controller) UpdateViewSize(width, height int) error {
 	c.windowTexture = newTexture
 	return nil
 }
-
-// GetScreen returns the current screen as an rgba buffer
-func (c *Controller) GetScreen() *image.RGBA {
-	return c.winBuffer.RGBA()
-}
