@@ -1,9 +1,9 @@
 package audio
 
 import (
-	"github.com/200sc/klangsynthese/audio"
-	"github.com/200sc/klangsynthese/audio/filter"
-	"github.com/200sc/klangsynthese/audio/filter/supports"
+	"github.com/oakmound/oak/v3/audio/internal/audio"
+	"github.com/oakmound/oak/v3/audio/internal/audio/filter"
+	"github.com/oakmound/oak/v3/audio/internal/audio/filter/supports"
 	"github.com/oakmound/oak/v3/physics"
 )
 
