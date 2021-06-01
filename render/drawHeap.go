@@ -15,7 +15,6 @@ type RenderableHeap struct {
 	toUndraw []Renderable
 	static   bool
 	addLock  sync.RWMutex
-	DrawPolygon
 }
 
 func newHeap(static bool) *RenderableHeap {
@@ -127,10 +126,7 @@ func (rh *RenderableHeap) DrawToScreen(world draw.Image, viewPos intgeom.Point2,
 				y := h + y2
 				if x > viewPos[0] && y > viewPos[1] &&
 					x2 < viewPos[0]+screenW && y2 < viewPos[1]+screenH {
-					// TODO v3: consider removing DrawPolygon or moving to oak grove
-					if rh.InDrawPolygon(x, y, x2, y2) {
-						r.Draw(world, vx, vy)
-					}
+					r.Draw(world, vx, vy)
 				}
 				newRh.heapPush(r)
 			}

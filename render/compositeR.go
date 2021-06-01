@@ -158,10 +158,7 @@ func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos intgeom.Point2, scr
 		y += h
 		if x > viewPos[0] && y > viewPos[1] &&
 			x2 < viewPos[0]+screenW && y2 < viewPos[1]+screenH {
-
-			if cs.InDrawPolygon(x, y, x2, y2) {
-				r.Draw(world, float64(-viewPos[0]), float64(-viewPos[1]))
-			}
+			r.Draw(world, float64(-viewPos[0]), float64(-viewPos[1]))
 		}
 	}
 	cs.rs = cs.rs[0:realLength]
