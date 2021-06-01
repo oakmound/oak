@@ -10,7 +10,6 @@ import (
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/oakerr"
 	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/shiny/driver"
 	"github.com/oakmound/oak/v3/timing"
 )
 
@@ -32,12 +31,12 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 	dlog.SetLogger(dlog.NewLogger())
 	dlog.CreateLogFile()
 
-	if c.config.Screen.TargetWidth != 0 && c.config.Screen.TargetHeight != 0 {
-		w, h := driver.MonitorSize()
-		if w != 0 || h != 0 {
-			// Todo: Modify conf.Screen.Scale
-		}
-	}
+	// if c.config.Screen.TargetWidth != 0 && c.config.Screen.TargetHeight != 0 {
+	// 	w, h := driver.MonitorSize()
+	// 	if w != 0 || h != 0 {
+	// 		// Todo: Modify conf.Screen.Scale
+	// 	}
+	// }
 
 	lvl, err := dlog.ParseDebugLevel(c.config.Debug.Level)
 	if err != nil {
@@ -70,7 +69,7 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 		c.config.Font.DPI)
 
 	if c.config.TrackInputChanges {
-		trackJoystickChanges()
+		trackJoystickChanges(c.logicHandler)
 	}
 	if c.config.EventRefreshRate != 0 {
 		c.logicHandler.SetRefreshRate(time.Duration(c.config.EventRefreshRate))

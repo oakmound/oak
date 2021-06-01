@@ -14,7 +14,7 @@ type Box struct {
 	metadata map[string]string
 }
 
-// NewBox creates a new btn.box
+// NewBox creates a new Box
 func NewBox(cid event.CID, x, y, w, h float64, r render.Renderable, layers ...int) *Box {
 	b := Box{}
 	cid = cid.Parse(&b)
@@ -26,7 +26,7 @@ func NewBox(cid event.CID, x, y, w, h float64, r render.Renderable, layers ...in
 	return &b
 }
 
-// Init intializes the btn.box
+// Init intializes the Box
 func (b *Box) Init() event.CID {
 	b.CID = event.NextID(b)
 	return b.CID

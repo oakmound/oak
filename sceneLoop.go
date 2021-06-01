@@ -10,8 +10,12 @@ import (
 	"github.com/oakmound/oak/v3/timing"
 )
 
+// the oak loading scene is a reserved scene
+// for preloading assets
+const oakLoadingScene = "oak:loading"
+
 func (c *Controller) sceneLoop(first string, trackingInputs bool) {
-	err := c.SceneMap.AddScene("loading", scene.Scene{
+	c.SceneMap.AddScene(oakLoadingScene, scene.Scene{
 		Start: func(*scene.Context) {
 			// TODO: language
 			dlog.Info("Loading Scene Init")
@@ -26,9 +30,6 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 			}
 		},
 	})
-	if err != nil {
-		// ???
-	}
 
 	var prevScene string
 
@@ -45,11 +46,11 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 
 	c.firstScene = first
 
-	c.SceneMap.CurrentScene = "loading"
+	c.SceneMap.CurrentScene = oakLoadingScene
 
 	for {
 		c.setViewport(intgeom.Point2{0, 0})
-		c.useViewBounds = false
+		c.RemoveViewportBounds()
 
 		dlog.Info("Scene Start", c.SceneMap.CurrentScene)
 		scen, ok := c.SceneMap.GetCurrent()
@@ -66,7 +67,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 			}
 		}
 		if trackingInputs {
-			trackInputChanges()
+			c.trackInputChanges()
 		}
 		gctx, cancel := context.WithCancel(context.Background())
 		defer cancel()

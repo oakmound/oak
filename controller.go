@@ -137,6 +137,8 @@ type Controller struct {
 
 	config Config
 
+	mostRecentInput InputType
+
 	TrackMouseClicks bool
 	startupLoading   bool
 	useViewBounds    bool
@@ -285,4 +287,11 @@ func (c *Controller) CollisionTrees() (mouseTree, collisionTree *collision.Tree)
 // CONSIDER: This might not be the right long term strategy. Maybe compose controller with the handler in the future.
 func (c *Controller) GlobalBind(name string, fn event.Bindable) {
 	c.logicHandler.GlobalBind(name, fn)
+}
+
+// MostRecentInput returns the most recent input type (e.g keyboard/mouse or joystick)
+// recognized by the window. This value will only change if the controller's Config is
+// set to TrackInputChanges
+func (c *Controller) MostRecentInput() InputType {
+	return c.mostRecentInput
 }

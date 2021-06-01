@@ -20,41 +20,46 @@ const (
 	Joystick      InputType = iota
 )
 
-var (
-	// MostRecentInput tracks what input type was most recently detected.
-	// This is only updated if TrackInputChanges is true in the config at startup
-	// TODO: scope this to controllers
-	MostRecentInput InputType
-)
-
-func trackInputChanges() {
-	event.GlobalBind(key.Down, func(event.CID, interface{}) int {
-		atomic.SwapInt32(&MostRecentInput, KeyboardMouse)
-		// TODO: Trigger that the most recent input changed?
+func (c *Controller) trackInputChanges() {
+	c.logicHandler.GlobalBind(key.Down, func(event.CID, interface{}) int {
+		old := atomic.SwapInt32(&c.mostRecentInput, KeyboardMouse)
+		if old != KeyboardMouse {
+			c.logicHandler.Trigger(event.InputChange, KeyboardMouse)
+		}
 		return 0
 	})
-	event.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
-		atomic.SwapInt32(&MostRecentInput, KeyboardMouse)
+	c.logicHandler.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
+		old := atomic.SwapInt32(&c.mostRecentInput, KeyboardMouse)
+		if old != KeyboardMouse {
+			c.logicHandler.Trigger(event.InputChange, KeyboardMouse)
+		}
 		return 0
 	})
-	event.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
-		atomic.SwapInt32(&MostRecentInput, Joystick)
+	c.logicHandler.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
+		old := atomic.SwapInt32(&c.mostRecentInput, Joystick)
+		if old != Joystick {
+			c.logicHandler.Trigger(event.InputChange, Joystick)
+		}
 		return 0
 	})
 }
 
-type joyHandler struct{}
+type joyHandler struct {
+	handler event.Handler
+}
 
 func (jh *joyHandler) Trigger(ev string, state interface{}) {
-	event.Trigger("Tracking"+ev, state)
+	jh.handler.Trigger("Tracking"+ev, state)
 }
 
-func trackJoystickChanges() {
+func trackJoystickChanges(handler event.Handler) {
 	dlog.ErrorCheck(joystick.Init())
 	go func() {
 		jCh, _ := joystick.WaitForJoysticks(3 * time.Second)
 		for j := range jCh {
-			j.Handler = &joyHandler{}
+			j.Handler = &joyHandler{
+				handler: handler,
+			}
 			j.Listen(nil)
 		}
 	}()

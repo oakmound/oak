@@ -43,8 +43,9 @@ func (c *Controller) endLoad() {
 	c.startupLoading = false
 }
 
-// SetBinaryPayload just sets some public fields on packages that require access to binary functions
-// as alternatives to os file functions.
+// SetBinaryPayload changes how oak will load files-- instead of loading from the filesystem,
+// they'll be loaded from the provided two functions: one to load bytes from a path,
+// and one to list paths underneath a directory.
 func SetBinaryPayload(payloadFn func(string) ([]byte, error), dirFn func(string) ([]string, error)) {
 	fileutil.BindataDir = dirFn
 	fileutil.BindataFn = payloadFn
