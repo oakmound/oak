@@ -4,8 +4,6 @@ import (
 	"reflect"
 	"sync"
 	"time"
-
-	"github.com/oakmound/oak/v3/timing"
 )
 
 // Bindable is a way of saying "Any function
@@ -34,7 +32,7 @@ type Bus struct {
 	doneCh              chan struct{}
 	updateCh            chan struct{}
 	framesElapsed       int
-	Ticker              *timing.DynamicTicker
+	Ticker              *time.Ticker
 	binds               []UnbindOption
 	partUnbinds         []Event
 	fullUnbinds         []UnbindOption
@@ -52,7 +50,6 @@ type Bus struct {
 // NewBus returns an empty event bus
 func NewBus() *Bus {
 	return &Bus{
-		Ticker:              timing.NewDynamicTicker(),
 		bindingMap:          make(map[string]map[CID]*bindableList),
 		updateCh:            make(chan struct{}),
 		doneCh:              make(chan struct{}),

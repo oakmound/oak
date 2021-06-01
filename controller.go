@@ -3,6 +3,7 @@ package oak
 import (
 	"image"
 	"sync/atomic"
+	"time"
 
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/collision"
@@ -13,7 +14,6 @@ import (
 	"github.com/oakmound/oak/v3/scene"
 	"github.com/oakmound/oak/v3/shiny/driver"
 	"github.com/oakmound/oak/v3/shiny/screen"
-	"github.com/oakmound/oak/v3/timing"
 )
 
 func (c *Controller) windowController(s screen.Screen, x, y int32, width, height int) (screen.Window, error) {
@@ -79,7 +79,7 @@ type Controller struct {
 	windowRect image.Rectangle
 
 	// DrawTicker is the parallel to LogicTicker to set the draw framerate
-	DrawTicker *timing.DynamicTicker
+	DrawTicker *time.Ticker
 
 	bkgFn func() image.Image
 

@@ -59,8 +59,7 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 	// assume we are in focus on window creation
 	c.inFocus = true
 
-	c.DrawTicker = timing.NewDynamicTicker()
-	c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
+	c.DrawTicker = time.NewTicker(timing.FPSToFrameDelay(c.DrawFrameRate))
 
 	wd, _ := os.Getwd()
 

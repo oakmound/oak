@@ -60,14 +60,25 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan struct{}) error {
 	eb.doneCh = ch
 	eb.updateCh = updateCh
 	eb.framerate = framerate
-	eb.Ticker = timing.NewDynamicTicker()
+	frameDelay := timing.FPSToFrameDelay(framerate)
+	if eb.Ticker == nil {
+		eb.Ticker = time.NewTicker(frameDelay)
+	}
 	go eb.ResolvePending()
 	go func(doneCh chan struct{}) {
-		eb.Ticker.SetTick(timing.FPSToFrameDelay(framerate))
+		eb.Ticker.Reset(frameDelay)
+		frameDelayF64 := float64(frameDelay)
+		lastTick := time.Now()
 		for {
 			select {
-			case <-eb.Ticker.C:
-				<-eb.TriggerBack(Enter, eb.framesElapsed)
+			case now := <-eb.Ticker.C:
+				deltaTime := now.Sub(lastTick)
+				lastTick = now
+				<-eb.TriggerBack(Enter, EnterPayload{
+					FramesElapsed:  eb.framesElapsed,
+					SinceLastFrame: deltaTime,
+					TickPercent:    float64(deltaTime) / frameDelayF64,
+				})
 				eb.framesElapsed++
 				eb.updateCh <- struct{}{}
 			case <-doneCh:
@@ -78,6 +89,12 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan struct{}) error {
 		}
 	}(ch)
 	return nil
+}
+
+type EnterPayload struct {
+	FramesElapsed  int
+	SinceLastFrame time.Duration
+	TickPercent    float64
 }
 
 // Update updates all entities bound to this handler
@@ -115,7 +132,7 @@ func (eb *Bus) Flush() error {
 
 // Stop ceases anything spawned by an ongoing UpdateLoop
 func (eb *Bus) Stop() error {
-	eb.Ticker.SetTick(math.MaxInt32 * time.Second)
+	eb.Ticker.Reset(math.MaxInt32 * time.Second)
 	select {
 	case eb.doneCh <- struct{}{}:
 	case <-eb.updateCh:
@@ -127,12 +144,12 @@ func (eb *Bus) Stop() error {
 
 // Pause stops the event bus from running any further enter events
 func (eb *Bus) Pause() {
-	eb.Ticker.SetTick(math.MaxInt32 * time.Second)
+	eb.Ticker.Reset(math.MaxInt32 * time.Second)
 }
 
 // Resume will resume emitting enter events
 func (eb *Bus) Resume() {
-	eb.Ticker.SetTick(timing.FPSToFrameDelay(eb.framerate))
+	eb.Ticker.Reset(timing.FPSToFrameDelay(eb.framerate))
 }
 
 // FramesElapsed returns how many frames have elapsed since UpdateLoop was last called.
@@ -144,6 +161,6 @@ func (eb *Bus) FramesElapsed() int {
 // (while it is looping) to be frameRate. If this operation is not
 // supported, it should return an error.
 func (eb *Bus) SetTick(framerate int) error {
-	eb.Ticker.SetTick(timing.FPSToFrameDelay(framerate))
+	eb.Ticker.Reset(timing.FPSToFrameDelay(framerate))
 	return nil
 }

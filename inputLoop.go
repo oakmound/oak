@@ -30,18 +30,18 @@ func (c *Controller) inputLoop() {
 			case lifecycle.StageFocused:
 				c.inFocus = true
 				// If you are in focused state, we don't care how you got there
-				c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
+				c.DrawTicker.Reset(timing.FPSToFrameDelay(c.DrawFrameRate))
 				c.logicHandler.Trigger(event.FocusGain, nil)
 			case lifecycle.StageVisible:
 				// If the last state was focused, this means the app is out of focus
 				// otherwise, we're visible for the first time
 				if e.From > e.To {
 					c.inFocus = false
-					c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.IdleDrawFrameRate))
+					c.DrawTicker.Reset(timing.FPSToFrameDelay(c.IdleDrawFrameRate))
 					c.logicHandler.Trigger(event.FocusLoss, nil)
 				} else {
 					c.inFocus = true
-					c.DrawTicker.SetTick(timing.FPSToFrameDelay(c.DrawFrameRate))
+					c.DrawTicker.Reset(timing.FPSToFrameDelay(c.DrawFrameRate))
 					c.logicHandler.Trigger(event.FocusGain, nil)
 				}
 			}
