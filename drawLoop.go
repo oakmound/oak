@@ -41,7 +41,7 @@ func (c *Controller) drawLoop() {
 		case <-c.DrawTicker.C:
 			draw.Draw(c.winBuffer.RGBA(), c.winBuffer.Bounds(), c.bkgFn(), zeroPoint, draw.Src)
 			c.DrawStack.PreDraw()
-			c.DrawStack.DrawToScreen(c.winBuffer.RGBA(), c.viewPos, c.ScreenWidth, c.ScreenHeight)
+			c.DrawStack.DrawToScreen(c.winBuffer.RGBA(), &c.viewPos, c.ScreenWidth, c.ScreenHeight)
 			c.publish()
 		}
 	}

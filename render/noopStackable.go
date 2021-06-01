@@ -26,6 +26,6 @@ func (ns NoopStackable) Copy() Stackable {
 	return ns
 }
 
-func (ns NoopStackable) DrawToScreen(draw.Image, intgeom.Point2, int, int) {}
+func (ns NoopStackable) DrawToScreen(draw.Image, *intgeom.Point2, int, int) {}
 
 func (ns NoopStackable) Clear() {}

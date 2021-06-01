@@ -27,7 +27,7 @@ type Stackable interface {
 	Add(Renderable, ...int) Renderable
 	Replace(Renderable, Renderable, int)
 	Copy() Stackable
-	DrawToScreen(draw.Image, intgeom.Point2, int, int)
+	DrawToScreen(draw.Image, *intgeom.Point2, int, int)
 	Clear()
 }
 
@@ -52,7 +52,7 @@ func (ds *DrawStack) Clear() {
 
 // DrawToScreen on a stack will render its contents to the input buffer, for a screen
 // of w,h dimensions, from a view point of view.
-func (ds *DrawStack) DrawToScreen(world draw.Image, view intgeom.Point2, w, h int) {
+func (ds *DrawStack) DrawToScreen(world draw.Image, view *intgeom.Point2, w, h int) {
 	for _, a := range ds.as {
 		// If we had concurrent operations, we'd do it here
 		// in that case each draw call would return to us something

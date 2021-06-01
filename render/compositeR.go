@@ -17,7 +17,6 @@ type CompositeR struct {
 	toUndraw    []Renderable
 	rs          []Renderable
 	predrawLock sync.Mutex
-	DrawPolygon
 }
 
 // NewCompositeR creates a new CompositeR from a slice of renderables
@@ -137,7 +136,7 @@ func (cs *CompositeR) Copy() Stackable {
 	return cs2
 }
 
-func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos intgeom.Point2, screenW, screenH int) {
+func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos *intgeom.Point2, screenW, screenH int) {
 	realLength := len(cs.rs)
 	for i := 0; i < realLength; i++ {
 		r := cs.rs[i]
