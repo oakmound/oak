@@ -47,8 +47,8 @@ func TestDrawHeapLoop(t *testing.T) {
 	for i := 0; i < heapLoops; i++ {
 		h.PreDraw()
 		h2.PreDraw()
-		h.DrawToScreen(world, viewPos, 640, 480)
-		h2.DrawToScreen(world, viewPos, 640, 480)
+		h.DrawToScreen(world, &viewPos, 640, 480)
+		h2.DrawToScreen(world, &viewPos, 640, 480)
 	}
 }
 

@@ -35,7 +35,7 @@ func TestCompositeR(t *testing.T) {
 	}
 
 	cmp.Draw(image.NewRGBA(image.Rect(0, 0, 10, 10)), 0, 0)
-	cmp.DrawToScreen(image.NewRGBA(image.Rect(0, 0, 3, 3)), intgeom.Point2{0, 0}, 100, 100)
+	cmp.DrawToScreen(image.NewRGBA(image.Rect(0, 0, 3, 3)), &intgeom.Point2{0, 0}, 100, 100)
 	cmp.Undraw()
 	if cmp.GetLayer() != Undraw {
 		t.Fatalf("composite layer was not set to Undraw when undrawn")
@@ -50,7 +50,7 @@ func TestCompositeR(t *testing.T) {
 		t.Fatalf("composite length mismatch post copy")
 	}
 
-	cmp2.DrawToScreen(image.NewRGBA(image.Rect(0, 0, 3, 3)), intgeom.Point2{0, 0}, 100, 100)
+	cmp2.DrawToScreen(image.NewRGBA(image.Rect(0, 0, 3, 3)), &intgeom.Point2{0, 0}, 100, 100)
 
 	cmp2.Prepend(nil)
 	if cmp2.Len() != 1 {

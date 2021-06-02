@@ -43,7 +43,7 @@ func TestDrawStack_Draw(t *testing.T) {
 	Draw(cb)
 	rgba := image.NewRGBA(image.Rect(0, 0, 10, 10))
 	GlobalDrawStack.PreDraw()
-	GlobalDrawStack.DrawToScreen(rgba, intgeom.Point2{0, 0}, 10, 10)
+	GlobalDrawStack.DrawToScreen(rgba, &intgeom.Point2{0, 0}, 10, 10)
 	if !reflect.DeepEqual(rgba, cb.GetRGBA()) {
 		t.Fatalf("rgba mismatch")
 	}
