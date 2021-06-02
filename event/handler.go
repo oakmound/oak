@@ -132,7 +132,9 @@ func (eb *Bus) Flush() error {
 
 // Stop ceases anything spawned by an ongoing UpdateLoop
 func (eb *Bus) Stop() error {
-	eb.Ticker.Reset(math.MaxInt32 * time.Second)
+	if eb.Ticker != nil {
+		eb.Ticker.Reset(math.MaxInt32 * time.Second)
+	}
 	select {
 	case eb.doneCh <- struct{}{}:
 	case <-eb.updateCh:
