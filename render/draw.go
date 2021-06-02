@@ -2,10 +2,6 @@ package render
 
 import (
 	"image/color"
-
-	"time"
-
-	"github.com/oakmound/oak/v3/timing"
 )
 
 var (
@@ -43,18 +39,4 @@ func DrawColor(c color.Color, x, y, w, h float64, layers ...int) (Renderable, er
 // pixel (box)
 func DrawPoint(c color.Color, x1, y1 float64, layers ...int) (Renderable, error) {
 	return DrawColor(c, x1, y1, 1, 1, layers...)
-}
-
-// DrawForTime draws and after d undraws an element
-func DrawForTime(r Renderable, d time.Duration, layers ...int) error {
-	_, err := Draw(r, layers...)
-	if err != nil {
-		return err
-	}
-	go func(r Renderable, d time.Duration) {
-		timing.DoAfter(d, func() {
-			r.Undraw()
-		})
-	}(r, d)
-	return nil
 }

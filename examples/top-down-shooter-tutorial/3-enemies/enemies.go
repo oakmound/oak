@@ -79,7 +79,7 @@ func main() {
 			for _, hit := range hits {
 				hit.Zone.CID.Trigger("Destroy", nil)
 			}
-			render.DrawForTime(
+			ctx.DrawForTime(
 				render.NewLine(x, y, mevent.X(), mevent.Y(), color.RGBA{0, 128, 0, 128}),
 				time.Millisecond*50,
 				1)

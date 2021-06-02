@@ -13,7 +13,6 @@ import (
 	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
-	"github.com/oakmound/oak/v3/timing"
 )
 
 var (
@@ -32,7 +31,7 @@ const (
 )
 
 func main() {
-	oak.AddScene("bounce", scene.Scene{Start: func(*scene.Context) {
+	oak.AddScene("bounce", scene.Scene{Start: func(ctx *scene.Context) {
 		render.Draw(render.NewDrawFPS(0.03, nil, 10, 10))
 
 		score = 0
@@ -42,9 +41,9 @@ func main() {
 		var pillarLoop func()
 		pillarLoop = func() {
 			newPillarPair()
-			timing.DoAfter(time.Duration(pillarFreq.Poll()*float64(time.Second)), pillarLoop)
+			ctx.DoAfter(time.Duration(pillarFreq.Poll()*float64(time.Second)), pillarLoop)
 		}
-		go timing.DoAfter(time.Duration(pillarFreq.Poll()*float64(time.Second)), pillarLoop)
+		go ctx.DoAfter(time.Duration(pillarFreq.Poll()*float64(time.Second)), pillarLoop)
 
 		// 3. Make Score
 		t := render.DefaultFont().NewIntText(&score, 200, 30)

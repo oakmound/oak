@@ -26,7 +26,7 @@ var (
 )
 
 func main() {
-	oak.AddScene("tds", scene.Scene{Start: func(*scene.Context) {
+	oak.AddScene("tds", scene.Scene{Start: func(ctx *scene.Context) {
 		playerAlive = true
 		char := entities.NewMoving(100, 100, 32, 32,
 			render.NewColorBox(32, 32, color.RGBA{0, 255, 0, 255}),
@@ -62,7 +62,7 @@ func main() {
 		char.Bind(mouse.Press, func(id event.CID, me interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			mevent := me.(mouse.Event)
-			render.DrawForTime(
+			ctx.DrawForTime(
 				render.NewLine(char.X()+char.W/2, char.Y()+char.H/2, mevent.X(), mevent.Y(), color.RGBA{0, 128, 0, 128}),
 				time.Millisecond*50,
 				1)

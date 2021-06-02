@@ -7,7 +7,6 @@ import (
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/scene"
-	"github.com/oakmound/oak/v3/timing"
 )
 
 // the oak loading scene is a reserved scene
@@ -122,16 +121,6 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 
 		// Send a signal to stop drawing
 		c.drawCh <- struct{}{}
-
-		// Reset any ongoing delays
-	delayLabel:
-		for {
-			select {
-			case timing.ClearDelayCh <- struct{}{}:
-			default:
-				break delayLabel
-			}
-		}
 
 		dlog.Verb("Resetting Engine")
 		// Reset transient portions of the engine
