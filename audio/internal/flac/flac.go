@@ -2,25 +2,25 @@
 package flac
 
 import (
-	"errors"
+	"fmt"
 	"io"
 
 	"github.com/eaburns/flac"
 	"github.com/oakmound/oak/v3/audio/internal/audio"
 )
 
-// def wav format
+// def flac format
 var format = audio.Format{
 	SampleRate: 44100,
 	Bits:       16,
 	Channels:   2,
 }
 
-// Load loads wav data from the incoming reader as an audio
+// Load loads flac data from the incoming reader as an audio
 func Load(r io.Reader) (audio.Audio, error) {
 	data, meta, err := flac.Decode(r)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to load flac")
+		return nil, fmt.Errorf("failed to load flac: %w", err)
 	}
 
 	fformat := audio.Format{
@@ -35,12 +35,12 @@ func Load(r io.Reader) (audio.Audio, error) {
 		})
 }
 
-// Save will eventually save an audio encoded as a wav to the given writer
+// Save will eventually save an audio encoded as flac to the given writer
 func Save(r io.ReadWriter, a audio.Audio) error {
-	return errors.New("Unsupported Functionality")
+	return fmt.Errorf("unsupported Functionality")
 }
 
-// Format returns the default wav formatting
+// Format returns the default flac formatting
 func Format() audio.Format {
 	return format
 }
