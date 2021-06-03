@@ -99,7 +99,9 @@ type EnterPayload struct {
 
 // Update updates all entities bound to this handler
 func (eb *Bus) Update() error {
-	<-eb.TriggerBack(Enter, eb.framesElapsed)
+	<-eb.TriggerBack(Enter, EnterPayload{
+		FramesElapsed: eb.framesElapsed,
+	})
 	return nil
 }
 

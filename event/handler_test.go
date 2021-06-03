@@ -46,7 +46,7 @@ func TestHandler(t *testing.T) {
 	}
 	sleep()
 
-	if triggers != 3 {
+	if triggers != 4 {
 		t.Fatalf("expected update to increment triggers")
 	}
 	if Flush() != nil {
