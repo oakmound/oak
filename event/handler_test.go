@@ -41,12 +41,13 @@ func TestHandler(t *testing.T) {
 		t.Fatal("Handler should be closed")
 	default:
 	}
+	expectedTriggers := triggers + 1
 	if Update() != nil {
 		t.Fatalf("Update failed")
 	}
 	sleep()
 
-	if triggers != 4 {
+	if triggers != expectedTriggers {
 		t.Fatalf("expected update to increment triggers")
 	}
 	if Flush() != nil {
