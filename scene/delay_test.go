@@ -86,7 +86,7 @@ func TestDrawForTime(t *testing.T) {
 	defer baseCancel()
 	ctx := &Context{
 		Context:   baseCtx,
-		DrawStack: render.GlobalDrawStack,
+		DrawStack: render.NewDrawStack(render.NewDynamicHeap(), render.NewDynamicHeap()),
 	}
 	err := ctx.DrawForTime(render.NewColorBox(5, 5, color.RGBA{255, 255, 255, 255}), 0, 4)
 	if err == nil {
