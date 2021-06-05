@@ -18,21 +18,3 @@ func Example() {
 	}})
 	Init("basicScene")
 }
-
-// Use AddCommand to grant access to command line commands. Often used to toggle debug modes.
-func ExampleAddCommand() {
-	debug := true
-	AddCommand("SetDebug", func(args []string) {
-
-		if len(args) == 0 {
-			debug = !debug
-		}
-		switch args[0][:1] {
-		case "t", "T":
-			debug = true
-		case "f", "F":
-			debug = false
-		}
-
-	})
-}

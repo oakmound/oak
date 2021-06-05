@@ -110,7 +110,7 @@ func (sc *ScopedCommands) AddCommand(s string, fn func([]string)) error {
 	return sc.AddScopedCommand(0, s, fn)
 }
 
-// AddScopedCommand adds a console command for a given window scope to call fn when
+// AddScopedCommand adds a console command to call fn when
 // '<s> <args>' is input to the console. fn will be called
 // with args split on whitespace.
 func (sc *ScopedCommands) AddScopedCommand(scopeID int32, s string, fn func([]string)) error {

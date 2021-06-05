@@ -3,6 +3,8 @@ package debugstream
 import (
 	"io"
 	"sync"
+
+	"github.com/oakmound/oak/v3/window"
 )
 
 var (
@@ -41,5 +43,7 @@ func AttachToStream(input io.Reader) {
 // AddDefaultsForScope for debugging.
 func AddDefaultsForScope(scopeID int32, controller interface{}) {
 	checkOrCreateDefaults()
-	DefaultCommands.AddDefaultsForScope(scopeID, controller)
+	if c, ok := controller.(window.Window); ok {
+		DefaultCommands.AddDefaultsForScope(scopeID, c)
+	}
 }

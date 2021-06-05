@@ -4,45 +4,40 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/collision"
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/mouse"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/render/mod"
+	"github.com/oakmound/oak/v3/window"
 )
 
 // AddDefaultsForScope for debugging.
-// This is a nasty set of reflection all to break this out into a subpackage.
-func (sc *ScopedCommands) AddDefaultsForScope(scopeID int32, controller interface{}) {
-
-	if fs, ok := controller.(fullScreenable); ok {
-		dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "fullscreen", fullScreen(fs)))
-	}
-
-	if md, ok := controller.(mouseDetailer); ok {
-		dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "mouse", mouseCommands(md)))
-	}
-
-	if cq, ok := controller.(canQuit); ok {
-		dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "quit", quitCommands(cq)))
-	}
-
-	if hs, ok := controller.(hasScenes); ok {
-		dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "skip", skipCommands(hs)))
-	}
-
-	// 	dlog.ErrorCheck(c.AddCommand("move", c.moveWindow))
-	sc.assumedScope = scopeID
-
+func (sc *ScopedCommands) AddDefaultsForScope(scopeID int32, controller window.Window) {
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "fullscreen", fullScreen(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "mouse", mouseCommands(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "quit", quitCommands(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "skip", skipCommands(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "move", moveWindow(controller)))
 }
 
-type fullScreenable interface {
-	SetFullScreen(bool) error
+func moveWindow(w window.Window) func([]string) {
+	return func(sub []string) {
+		if len(sub) != 2 && len(sub) != 4 {
+			fmt.Println("'move' expects 'x y' or 'x y w h'")
+			return
+		}
+		width := parseTokenAsInt(sub, 3, w.Width())
+		height := parseTokenAsInt(sub, 4, w.Height())
+		v := w.Viewport()
+		x := parseTokenAsInt(sub, 0, v.X())
+		y := parseTokenAsInt(sub, 1, v.Y())
+		w.MoveWindow(x, y, width, height)
+	}
 }
 
-func fullScreen(fs fullScreenable) func([]string) {
+func fullScreen(w window.Window) func([]string) {
 	return func(sub []string) {
 		on := true
 		if len(sub) > 0 {
@@ -50,28 +45,12 @@ func fullScreen(fs fullScreenable) func([]string) {
 				on = false
 			}
 		}
-		err := fs.SetFullScreen(on)
+		err := w.SetFullScreen(on)
 		dlog.ErrorCheck(err)
 	}
 }
 
-type hasCollisionTrees interface {
-	CollisionTrees() (mouseTree, collisionTree *collision.Tree)
-}
-type hasViewport interface {
-	Viewport() intgeom.Point2
-}
-type hasGlobalBind interface {
-	GlobalBind(name string, fn event.Bindable)
-}
-
-type mouseDetailer interface {
-	hasCollisionTrees
-	hasViewport
-	hasGlobalBind
-}
-
-func mouseCommands(md mouseDetailer) func([]string) {
+func mouseCommands(w window.Window) func([]string) {
 	return func(tokenString []string) {
 		if len(tokenString) != 1 {
 			fmt.Println("Input must be a single string from the following (\"details\") ")
@@ -79,8 +58,7 @@ func mouseCommands(md mouseDetailer) func([]string) {
 		}
 		switch tokenString[0] {
 		case "details":
-			// CONSIDER: scoping to the controllers logicHandler
-			md.GlobalBind("MouseRelease", mouseDetails(md))
+			w.EventHandler().GlobalBind("MouseRelease", mouseDetails(w))
 		default:
 			fmt.Println("Bad Mouse Input")
 		}
@@ -89,10 +67,10 @@ func mouseCommands(md mouseDetailer) func([]string) {
 
 }
 
-func mouseDetails(md mouseDetailer) func(event.CID, interface{}) int {
+func mouseDetails(w window.Window) func(event.CID, interface{}) int {
 	return func(nothing event.CID, mevent interface{}) int {
 		me := mevent.(mouse.Event)
-		viewPos := md.Viewport()
+		viewPos := w.Viewport()
 		x := int(me.X()) + viewPos[0]
 		y := int(me.Y()) + viewPos[1]
 		loc := collision.NewUnassignedSpace(float64(x), float64(y), 16, 16)
@@ -115,25 +93,16 @@ func mouseDetails(md mouseDetailer) func(event.CID, interface{}) int {
 	}
 }
 
-type canQuit interface {
-	Quit()
-}
-
-func quitCommands(quitter canQuit) func([]string) {
+func quitCommands(w window.Window) func([]string) {
 	return func(tokenString []string) {
 		if len(tokenString) > 0 {
 			fmt.Println("Quit does not support extra options such as the ones provided: ", tokenString)
 		}
-		quitter.Quit()
-
+		w.Quit()
 	}
 }
 
-type hasScenes interface {
-	NextScene()
-}
-
-func skipCommands(scener hasScenes) func([]string) {
+func skipCommands(w window.Window) func([]string) {
 	return func(tokenString []string) {
 
 		if len(tokenString) != 1 {
@@ -142,7 +111,7 @@ func skipCommands(scener hasScenes) func([]string) {
 		}
 		switch tokenString[0] {
 		case "scene":
-			scener.NextScene()
+			w.NextScene()
 		default:
 			fmt.Println("Bad Skip Input")
 		}
