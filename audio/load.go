@@ -4,9 +4,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/200sc/klangsynthese/audio"
-	"github.com/200sc/klangsynthese/mp3"
-	"github.com/200sc/klangsynthese/wav"
+	"github.com/oakmound/oak/v3/audio/internal/audio"
+	"github.com/oakmound/oak/v3/audio/internal/mp3"
+	"github.com/oakmound/oak/v3/audio/internal/wav"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/oakmound/oak/v3/dlog"

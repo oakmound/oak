@@ -3,7 +3,7 @@ package audio
 import (
 	"testing"
 
-	"github.com/200sc/klangsynthese/font"
+	"github.com/oakmound/oak/v3/audio/internal/font"
 )
 
 func TestFontManager(t *testing.T) {

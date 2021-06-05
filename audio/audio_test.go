@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/200sc/klangsynthese/audio/filter"
-	"github.com/200sc/klangsynthese/synth"
+	"github.com/oakmound/oak/v3/audio/internal/audio/filter"
+	"github.com/oakmound/oak/v3/audio/internal/synth"
 )
 
 func TestAudioFuncs(t *testing.T) {

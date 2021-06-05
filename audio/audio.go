@@ -3,8 +3,8 @@ package audio
 import (
 	"fmt"
 
-	"github.com/200sc/klangsynthese/audio"
-	"github.com/200sc/klangsynthese/font"
+	"github.com/oakmound/oak/v3/audio/internal/audio"
+	"github.com/oakmound/oak/v3/audio/internal/font"
 	"github.com/oakmound/oak/v3/oakerr"
 )
 
