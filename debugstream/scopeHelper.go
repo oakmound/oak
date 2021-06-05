@@ -23,14 +23,13 @@ func (sc *ScopedCommands) AddDefaultsForScope(scopeID int32, controller window.W
 	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "move", nil, moveWindow(controller)))
 }
 
-func moveWindow(w window.Window) func([]string) error {
-	return func(sub []string) error {
+func moveWindow(w window.Window) func([]string) string {
+	return func(sub []string) string {
 		if len(sub) != 2 && len(sub) != 4 {
-			fmt.Println("'move' expects 'x y' or 'x y w h'")
 			return oakerr.InsufficientInputs{
 				AtLeast:   2,
 				InputName: "coordinates",
-			}
+			}.Error()
 		}
 		width := parseTokenAsInt(sub, 3, w.Width())
 		height := parseTokenAsInt(sub, 4, w.Height())
@@ -38,12 +37,12 @@ func moveWindow(w window.Window) func([]string) error {
 		x := parseTokenAsInt(sub, 0, v.X())
 		y := parseTokenAsInt(sub, 1, v.Y())
 		w.MoveWindow(x, y, width, height)
-		return nil
+		return ""
 	}
 }
 
-func fullScreen(w window.Window) func([]string) error {
-	return func(sub []string) error {
+func fullScreen(w window.Window) func([]string) string {
+	return func(sub []string) (out string) {
 		on := true
 		if len(sub) > 0 {
 			if sub[0] == "off" {
@@ -52,27 +51,26 @@ func fullScreen(w window.Window) func([]string) error {
 		}
 		err := w.SetFullScreen(on)
 		dlog.ErrorCheck(err)
-		return nil
+		return
 	}
 }
 
-func mouseCommands(w window.Window) func([]string) error {
-	return func(tokenString []string) error {
+func mouseCommands(w window.Window) func([]string) string {
+	return func(tokenString []string) string {
 		if len(tokenString) != 1 {
-			fmt.Println("Input must be a single string from the following (\"details\") ")
 			return oakerr.InsufficientInputs{
 				AtLeast:   1,
 				InputName: "arguments",
-			}
+			}.Error()
 		}
 		switch tokenString[0] {
 		case "details":
 			w.EventHandler().GlobalBind("MouseRelease", mouseDetails(w))
 		default:
-			fmt.Println("Bad Mouse Input")
+			return "Bad Mouse Input"
 		}
 
-		return nil
+		return ""
 
 	}
 
@@ -104,56 +102,53 @@ func mouseDetails(w window.Window) func(event.CID, interface{}) int {
 	}
 }
 
-func quitCommands(w window.Window) func([]string) error {
-	return func(tokenString []string) error {
+func quitCommands(w window.Window) func([]string) string {
+	return func(tokenString []string) string {
 		w.Quit()
 		if len(tokenString) > 0 {
-			fmt.Println("Quit does not support extra options such as the ones provided: ", tokenString)
-			return oakerr.InvalidInput{InputName: "any arguments"}
+			return fmt.Sprintf("Quit does not support extra options such as the ones provided: %v\n ", tokenString) +
+				oakerr.InvalidInput{InputName: "any arguments"}.Error()
 		}
-		return nil
+		return ""
 
 	}
 }
 
-func skipCommands(w window.Window) func([]string) error {
-	return func(tokenString []string) error {
+func skipCommands(w window.Window) func([]string) string {
+	return func(tokenString []string) string {
 
 		if len(tokenString) != 1 {
-			fmt.Println("Input must be a single string from the following (\"scene\"). ")
 			return oakerr.InsufficientInputs{
 				AtLeast:   1,
 				InputName: "arguments",
-			}
+			}.Error()
 		}
 		switch tokenString[0] {
 		case "scene":
 			w.NextScene()
 		default:
-			fmt.Println("Bad Skip Input")
-			return oakerr.NotFound{InputName: tokenString[0]}
+			return oakerr.NotFound{InputName: tokenString[0]}.Error()
 
 		}
-		return nil
+		return ""
 	}
 }
 
-func fadeCommands(tokenString []string) error {
+func fadeCommands(tokenString []string) (out string) {
 	if len(tokenString) == 0 {
-		fmt.Println("Input must start with the name of the renderable to fade")
 		return oakerr.InsufficientInputs{
 			AtLeast:   1,
 			InputName: "arguments",
-		}
+		}.Error()
 	}
 	toFade, ok := render.GetDebugRenderable(tokenString[0])
 	if ok {
 		fadeVal := parseTokenAsInt(tokenString, 1, 255)
 		toFade.(render.Modifiable).Filter(mod.Fade(fadeVal))
 	}
+	out += fmt.Sprintf("Could not fade input %s\n", tokenString[0]) +
+		fmt.Sprintf("Possible inputs are '%s'\n", strings.Join(render.EnumerateDebugRenderableKeys(), ", "))
 
-	fmt.Println("Could not fade input", tokenString[0])
-	fmt.Printf("Possible inputs are '%s'\n", strings.Join(render.EnumerateDebugRenderableKeys(), ", "))
-	return oakerr.NotFound{InputName: tokenString[0]}
-
+	out += oakerr.NotFound{InputName: tokenString[0]}.Error() + "\n"
+	return
 }

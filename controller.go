@@ -2,10 +2,12 @@ package oak
 
 import (
 	"image"
+	"io"
 	"sync/atomic"
 
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/debugstream"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/mouse"
@@ -295,4 +297,10 @@ func (c *Controller) EventHandler() event.Handler {
 // set to TrackInputChanges
 func (c *Controller) MostRecentInput() InputType {
 	return c.mostRecentInput
+}
+
+func (c *Controller) debugConsole(input io.Reader, output io.Writer) {
+	debugstream.AttachToStream(input, output)
+	debugstream.AddDefaultsForScope(c.ControllerID, c)
+
 }

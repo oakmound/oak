@@ -16,13 +16,17 @@ func Test_jaroDecreased(t *testing.T) {
 		want  float64
 		want2 float64
 	}{
+
 		{"fullmatch", args{"super", "super"}, 1, 1},
 		{"partial by paper", args{"CRATE", "TRACE"}, 2.2 / 3.0, (2.2 / 3.0) * 1.2 * 1.05},
 		{"nomatch", args{"aaaaa", "super"}, 0, 0},
+		{"empty", args{"", "super"}, 0, 0},
 
 		{"partialex", args{"afulls", "fullscreen"}, 7.0 / 9.0, 1},
 		{"partialex2", args{"scope", "help"}, 3.0/20.0 + 1.0/3.0, (3.0/20.0 + 1.0/3.0) * 1.04},
 		{"low", args{"full", "help"}, 0.5, 0.5 * 1.04},
+
+		{"transposes", args{"ooftypething", "rooftypething"}, 0.97435897, 1},
 
 		{"single", args{"f", "fullscreen"}, (2.1) / 3.0, (2.1) / 3.0 * 1.1 * 1.1},
 	}

@@ -21,23 +21,23 @@ func checkOrCreateDefaults() {
 
 // AddCommand to the default command set.
 // See ScopedCommands' AddComand.
-func AddCommand(s string, usageFn func([]string) string, fn func([]string) error) error {
+func AddCommand(s string, usageFn func([]string) string, fn func([]string) string) error {
 	checkOrCreateDefaults()
 	return DefaultCommands.AddCommand(s, usageFn, fn)
 }
 
 // AddScopedCommand to the default command set.
 // See ScopedCommands' AddScopedCommand.
-func AddScopedCommand(scopeID int32, s string, usageFn func([]string) string, fn func([]string) error) error {
+func AddScopedCommand(scopeID int32, s string, usageFn func([]string) string, fn func([]string) string) error {
 	checkOrCreateDefaults()
 	return DefaultCommands.AddScopedCommand(scopeID, s, usageFn, fn)
 }
 
 // AttachToStream if possible to start consuming the stream
 // and executing commands per the stored infomraiton in the ScopeCommands.
-func AttachToStream(input io.Reader) {
+func AttachToStream(input io.Reader, output io.Writer) {
 	checkOrCreateDefaults()
-	DefaultCommands.AttachToStream(input)
+	DefaultCommands.AttachToStream(input, output)
 }
 
 // AddDefaultsForScope for debugging.

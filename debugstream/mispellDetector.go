@@ -52,9 +52,6 @@ func jaroDecreased(candidate, registered string) (float64, float64) {
 
 		for j := start; j <= end; j++ {
 
-			if registeredCharStates[j] == matched {
-				continue
-			}
 			if candidate[i] == registered[j] {
 				if registeredCharStates[j] > unmatched {
 					candidateCharStates[i] = potentialDuplicate
