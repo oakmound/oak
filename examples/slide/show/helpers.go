@@ -42,7 +42,7 @@ func TxtSetAt(f *render.Font, xpos, ypos, xadv, yadv float64, txts ...string) []
 
 // TxtAt creates string on screen at a given location
 func TxtAt(f *render.Font, txt string, xpos, ypos float64) render.Renderable {
-	return Pos(f.NewStrText(txt, 0, 0), xpos, ypos)
+	return Pos(f.NewText(txt, 0, 0), xpos, ypos)
 }
 
 // Title draws a string as the title of a slide
@@ -68,7 +68,7 @@ func TxtSetFrom(f *render.Font, xpos, ypos, xadv, yadv float64, txts ...string) 
 
 // TxtFrom draws a new string starting from the right rather than the left
 func TxtFrom(f *render.Font, txt string, xpos, ypos float64) render.Renderable {
-	return f.NewStrText(txt, width*xpos, height*ypos)
+	return f.NewText(txt, width*xpos, height*ypos)
 }
 
 // Pos sets the center x and y for a renderable
@@ -158,7 +158,7 @@ func ImageCaption(file string, xpos, ypos float64, scale float64, f *render.Font
 	x := r.X() + float64(w)/2
 	y := r.Y() + float64(h) + 28
 
-	s := f.NewStrText(cap, x, y)
+	s := f.NewText(cap, x, y)
 	s.Center()
 
 	return render.NewCompositeR(r, s)

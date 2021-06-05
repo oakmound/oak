@@ -94,7 +94,7 @@ func Start(width, height int, slides ...Slide) {
 				oldBackground = oak.GetBackgroundImage()
 				oak.SetColorBackground(image.NewUniform(color.RGBA{0, 0, 0, 255}))
 				render.Draw(
-					Express.NewStrText(
+					Express.NewText(
 						"Spacebar to restart show ...",
 						float64(ctx.Window.Width()/2),
 						float64(ctx.Window.Height()-50),

@@ -11,9 +11,6 @@ import (
 func TestSpaceFuncs(t *testing.T) {
 	Clear()
 	s := NewUnassignedSpace(10, 10, 10, 10)
-	if s.String() == "" {
-		t.Fatalf("space.String() should not be an empty string")
-	}
 	if s.W() != 10.0 {
 		t.Fatalf("expected 10 width, got %v", s.W())
 	}

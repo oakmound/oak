@@ -1,9 +1,6 @@
 package collision
 
 import (
-	"fmt"
-	"strconv"
-
 	"github.com/oakmound/oak/v3/alg/floatgeom"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/physics"
@@ -192,14 +189,6 @@ func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
 	}
 
 	return spaces
-}
-
-func (s *Space) String() string {
-	return strconv.FormatFloat(s.X(), 'f', 2, 32) + "," +
-		strconv.FormatFloat(s.Y(), 'f', 2, 32) + "," +
-		strconv.FormatFloat(s.GetW(), 'f', 2, 32) + "," +
-		strconv.FormatFloat(s.GetH(), 'f', 2, 32) + "::" +
-		strconv.Itoa(int(s.CID)) + "::" + fmt.Sprintf("%p", s)
 }
 
 // NewUnassignedSpace returns a space that just has a rectangle

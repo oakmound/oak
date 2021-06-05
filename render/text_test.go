@@ -8,7 +8,7 @@ import (
 func TestTextFns(t *testing.T) {
 	initTestFont()
 
-	txt := DefaultFont().NewStrText("Test", 0, 0)
+	txt := DefaultFont().NewText("Test", 0, 0)
 
 	fg := FontGenerator{
 		RawFile: luxisrTTF,
@@ -31,7 +31,7 @@ func TestTextFns(t *testing.T) {
 	}
 
 	n := 100
-	txt.SetIntP(&n)
+	txt.SetIntPtr(&n)
 
 	n = 50
 	if txt.text.String() != "50" {
@@ -46,9 +46,6 @@ func TestTextFns(t *testing.T) {
 	txt.SetStringer(dummyStringer{})
 	if txt.text.String() != "Dummy" {
 		t.Fatalf("text SetText failed")
-	}
-	if txt.String() != "Text[Dummy]" {
-		t.Fatalf("text String() failed")
 	}
 
 	txts := txt.Wrap(1, 10)

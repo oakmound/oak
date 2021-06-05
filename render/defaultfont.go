@@ -11,7 +11,7 @@ import (
 
 // NewText creates a text element using the default font.
 func NewText(str fmt.Stringer, x, y float64) *Text {
-	return DefaultFont().NewText(str, x, y)
+	return DefaultFont().NewStringerText(str, x, y)
 }
 
 // NewIntText wraps the given int pointer in a stringer interface and creates
@@ -22,7 +22,7 @@ func NewIntText(str *int, x, y float64) *Text {
 
 // NewStrText is a helper to take in a string instead of a Stringer for NewText
 func NewStrText(str string, x, y float64) *Text {
-	return DefaultFont().NewStrText(str, x, y)
+	return DefaultFont().NewText(str, x, y)
 }
 
 // NewStrPtrText is a helper to take in a string pointer for NewText

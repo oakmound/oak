@@ -55,7 +55,7 @@ func main() {
 
 			for y := 0.0; y <= 480; y += strSize {
 				str := randomStr(strlen)
-				strs = append(strs, font.NewStrText(str, 0, y))
+				strs = append(strs, font.NewText(str, 0, y))
 				render.Draw(strs[len(strs)-1], 0)
 			}
 		},

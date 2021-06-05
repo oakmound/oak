@@ -16,9 +16,9 @@ type Text struct {
 	d    *Font
 }
 
-// NewText takes in anything that has a String() function and returns a text
-// object with the associated font and screen position
-func (f *Font) NewText(str fmt.Stringer, x, y float64) *Text {
+// NewStringerText creates a renderable text component that will draw the string
+// provided by the given stringer each frame.
+func (f *Font) NewStringerText(str fmt.Stringer, x, y float64) *Text {
 	return &Text{
 		LayeredPoint: NewLayeredPoint(x, y, 0),
 		text:         str,
@@ -36,7 +36,7 @@ func (sip stringerIntPointer) String() string {
 
 // NewIntText wraps the given int pointer in a stringer interface
 func (f *Font) NewIntText(str *int, x, y float64) *Text {
-	return f.NewText(stringerIntPointer{str}, x, y)
+	return f.NewStringerText(stringerIntPointer{str}, x, y)
 }
 
 type stringStringer string
@@ -45,9 +45,9 @@ func (ss stringStringer) String() string {
 	return string(ss)
 }
 
-// NewStrText is a helper to take in a string instead of a stringer for NewText
-func (f *Font) NewStrText(str string, x, y float64) *Text {
-	return f.NewText(stringStringer(str), x, y)
+// NewText creates a renderable text component with the given string body
+func (f *Font) NewText(str string, x, y float64) *Text {
+	return f.NewStringerText(stringStringer(str), x, y)
 }
 
 type stringPtrStringer struct {
@@ -61,9 +61,10 @@ func (sp stringPtrStringer) String() string {
 	return string(*sp.s)
 }
 
-// NewStrPtrText is a helper to take in a string pointer for NewText
+// NewStrPtrText creates a renderable text component with a body matching
+// and updating to match the content behind the provided string pointer
 func (f *Font) NewStrPtrText(str *string, x, y float64) *Text {
-	return f.NewText(stringPtrStringer{str}, x, y)
+	return f.NewStringerText(stringPtrStringer{str}, x, y)
 }
 
 func (t *Text) drawWithFont(buff draw.Image, xOff, yOff float64, fnt *Font) {
@@ -118,23 +119,15 @@ func (t *Text) SetInt(i int) {
 	t.text = stringStringer(strconv.Itoa(i))
 }
 
-// SetIntP takes in an integer pointer that will be drawn at whatever
-// the value is behind the pointer when it is drawn
-// TODO: (3.0) rename to SetIntPtr
-func (t *Text) SetIntP(i *int) {
+// SetIntPtr takes in an integer pointer that will draw the integer
+// behind the pointer, in base 10, each frame
+func (t *Text) SetIntPtr(i *int) {
 	t.text = stringerIntPointer{i}
 }
 
 // StringLiteral returns what text is currently rendering.
-// Note this avoids the pretty print addtions that the String function adds.
 func (t *Text) StringLiteral() string {
 	return t.text.String()
-}
-
-// Todo: more SetX methods like float, floatP
-
-func (t *Text) String() string {
-	return "Text[" + t.text.String() + "]"
 }
 
 // Wrap returns the input text split into a list of texts
@@ -152,9 +145,9 @@ func (t *Text) Wrap(charLimit int, vertInc float64) []*Text {
 	vertical := 0.0
 	for i := range out {
 		if start+charLimit <= len(st) {
-			out[i] = t.d.NewStrText(st[start:start+charLimit], t.X(), t.Y()+vertical)
+			out[i] = t.d.NewText(st[start:start+charLimit], t.X(), t.Y()+vertical)
 		} else {
-			out[i] = t.d.NewStrText(st[start:], t.X(), t.Y()+vertical)
+			out[i] = t.d.NewText(st[start:], t.X(), t.Y()+vertical)
 		}
 		start += charLimit
 		vertical += vertInc

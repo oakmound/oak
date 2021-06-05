@@ -46,10 +46,10 @@ func main() {
 			r = 255
 			font, _ = fg.Generate()
 			txts := []*render.Text{
-				font.NewStrText("Rainbow", 200, 200),
-				font.NewText(floatStringer{&r}, 200, 250),
-				font.NewText(floatStringer{&g}, 320, 250),
-				font.NewText(floatStringer{&b}, 440, 250),
+				font.NewText("Rainbow", 200, 200),
+				font.NewStringerText(floatStringer{&r}, 200, 250),
+				font.NewStringerText(floatStringer{&g}, 320, 250),
+				font.NewStringerText(floatStringer{&b}, 440, 250),
 			}
 			for _, txt := range txts {
 				txt.SetFont(font)
@@ -59,9 +59,9 @@ func main() {
 			font2.Color = image.NewUniform(color.RGBA{255, 255, 255, 255})
 			font2, _ = font2.Generate()
 			// Could give each r,g,b a color which is just the r,g,b value
-			render.Draw(font2.NewStrText("r", 170, 250), 0)
-			render.Draw(font2.NewStrText("g", 290, 250), 0)
-			render.Draw(font2.NewStrText("b", 410, 250), 0)
+			render.Draw(font2.NewText("r", 170, 250), 0)
+			render.Draw(font2.NewText("g", 290, 250), 0)
+			render.Draw(font2.NewText("b", 410, 250), 0)
 		},
 			Loop: func() bool {
 				r = limit.EnforceRange(r + diff.Poll())
