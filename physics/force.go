@@ -77,7 +77,6 @@ func Push(a Pushes, b Pushable) error {
 	dlog.Verb("Pushing", b.GetMass())
 	if b.GetMass() <= 0 {
 		if b.GetMass() != frozen {
-			// Todo: this could be more specific
 			return oakerr.InsufficientInputs{InputName: "Mass", AtLeast: 0}
 		}
 		return nil

@@ -53,7 +53,6 @@ func (c *Controller) inputLoop() {
 		// The specific key that is pressed is passed as the data interface for
 		// the former events, but not for the latter.
 		case key.Event:
-			// TODO v3: reevaluate key bindings-- we need the rune this event has
 			switch e.Direction {
 			case key.DirPress:
 				c.TriggerKeyDown(okey.Event(e))
@@ -83,9 +82,6 @@ func (c *Controller) inputLoop() {
 			// render and collision space. I.e. if the viewport is at 0, the mouse's
 			// position is exactly the same as the position of a visible entity
 			// on screen. When not at zero, the offset will be exactly the viewport.
-			// Todo: consider incorporating viewport into the event, see the
-			// workaround needed in mouseDetails, and how mouse events might not
-			// propagate to their expected position.
 			mevent := omouse.NewEvent(
 				float64((((e.X - float32(c.windowRect.Min.X)) / float32(c.windowRect.Max.X-c.windowRect.Min.X)) * float32(c.ScreenWidth))),
 				float64((((e.Y - float32(c.windowRect.Min.Y)) / float32(c.windowRect.Max.Y-c.windowRect.Min.Y)) * float32(c.ScreenHeight))),
@@ -94,11 +90,8 @@ func (c *Controller) inputLoop() {
 			)
 			c.TriggerMouseEvent(mevent)
 
-		// There's something called a paint event that we don't respond to
-
 		// Size events update what we scale the screen to
 		case size.Event:
-			//dlog.Verb("Got size event", e)
 			c.ChangeWindow(e.WidthPx, e.HeightPx)
 		}
 	}

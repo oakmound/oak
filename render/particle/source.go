@@ -250,7 +250,7 @@ func (ps *Source) ShiftX(x float64) {
 	ps.Generator.ShiftX(x)
 }
 
-// ShiftY shift's a source's underlying generator (todo: consider if this shoud be composed)
+// ShiftY shift's a source's underlying generator
 func (ps *Source) ShiftY(y float64) {
 	ps.Generator.ShiftY(y)
 }

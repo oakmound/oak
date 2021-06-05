@@ -13,7 +13,7 @@ func TestMouseClicks(t *testing.T) {
 	c1 := NewController()
 	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
 	var triggered bool
-	go event.ResolvePending()
+	go event.ResolveChanges()
 	event.GlobalBind(mouse.Click, func(event.CID, interface{}) int {
 		triggered = true
 		return 0
@@ -31,7 +31,7 @@ func TestMouseClicksRelative(t *testing.T) {
 	c1 := NewController()
 	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
 	var triggered bool
-	go c1.logicHandler.(*event.Bus).ResolvePending()
+	go c1.logicHandler.(*event.Bus).ResolveChanges()
 	c1.logicHandler.GlobalBind(mouse.ClickOn+"Relative", func(event.CID, interface{}) int {
 		triggered = true
 		return 0
@@ -47,7 +47,7 @@ func TestMouseClicksRelative(t *testing.T) {
 
 func TestPropagate(t *testing.T) {
 	c1 := NewController()
-	go event.ResolvePending()
+	go event.ResolveChanges()
 	var triggered bool
 	cid := event.CID(0).Parse(ent{})
 	s := collision.NewSpace(10, 10, 10, 10, cid)

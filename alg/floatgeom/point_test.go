@@ -265,7 +265,6 @@ func TestPointAccess(t *testing.T) {
 // Pattern here: there's a set of input pairs here
 // each test takes these and has expected outputs for each pair index.
 var (
-	// Todo: add more test cases
 	pt3cases = []struct{ x1, y1, z1, x2, y2, z2 float64 }{
 		{0, 0, 0, 1, 1, 1},
 	}

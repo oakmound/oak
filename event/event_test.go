@@ -17,7 +17,7 @@ func sleep() {
 
 func TestBus(t *testing.T) {
 	triggers := 0
-	go ResolvePending()
+	go ResolveChanges()
 	GlobalBind("T", Empty(func() {
 		triggers++
 	}))
@@ -35,7 +35,7 @@ func TestBus(t *testing.T) {
 
 func TestUnbind(t *testing.T) {
 	triggers := 0
-	go ResolvePending()
+	go ResolveChanges()
 	GlobalBind("T", func(CID, interface{}) int {
 		triggers++
 		return UnbindSingle
@@ -100,7 +100,7 @@ func (e ent) Init() CID {
 
 func TestCID(t *testing.T) {
 	triggers := 0
-	go ResolvePending()
+	go ResolveChanges()
 	cid := CID(0).Parse(ent{})
 	cid.Bind("T", func(CID, interface{}) int {
 		triggers++
@@ -152,7 +152,7 @@ func TestCID(t *testing.T) {
 }
 
 func TestEntity(t *testing.T) {
-	go ResolvePending()
+	go ResolveChanges()
 	e := ent{}
 	cid := e.Init()
 	cid2 := cid.Parse(e)
@@ -173,7 +173,7 @@ var (
 )
 
 func TestUnbindBindable(t *testing.T) {
-	go ResolvePending()
+	go ResolveChanges()
 	GlobalBind("T", tBinding)
 	sleep()
 	Trigger("T", nil)
@@ -214,7 +214,7 @@ func TestBindableList(t *testing.T) {
 }
 
 func TestUnbindAllAndRebind(t *testing.T) {
-	go ResolvePending()
+	go ResolveChanges()
 	UnbindAllAndRebind(
 		Event{
 			Name:     "T",

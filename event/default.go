@@ -97,9 +97,9 @@ func Reset() {
 	DefaultBus.Reset()
 }
 
-// ResolvePending calls ResolvePending on the DefaultBus
-func ResolvePending() {
-	DefaultBus.ResolvePending()
+// ResolveChanges calls ResolveChanges on the DefaultBus
+func ResolveChanges() {
+	DefaultBus.ResolveChanges()
 }
 
 // SetTick calls SetTick on the DefaultBus

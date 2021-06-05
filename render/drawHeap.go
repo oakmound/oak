@@ -99,18 +99,18 @@ func (rh *RenderableHeap) Copy() Stackable {
 func (rh *RenderableHeap) DrawToScreen(world draw.Image, viewPos *intgeom.Point2, screenW, screenH int) {
 	newRh := &RenderableHeap{}
 	if rh.static {
+		var r Renderable
+		// Undraws will all come first, loop to remove them
 		for len(rh.rs) > 0 {
-			r := rh.heapPop()
+			r = rh.heapPop()
 			if r.GetLayer() != Undraw {
-				r.Draw(world, 0, 0)
-				newRh.heapPush(r)
-				// TODO: at this point we know r.GetLayer cannot be Undraw
-				// (because undraws will all come first)
-				// can we use a smarter data structure that could do:
-				// 1. pop all undraws and remove them
-				// 2. iterate through remaining elements in order, drawing
-				// 3. re-init the tree for layer changes
+				break
 			}
+		}
+		for len(rh.rs) > 0 {
+			r.Draw(world, 0, 0)
+			newRh.heapPush(r)
+			r = rh.heapPop()
 		}
 	} else {
 		// TODO: test if we can remove these bounds checks (because draw.Draw already does them)

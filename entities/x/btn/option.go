@@ -163,10 +163,11 @@ func Click(bnd event.Bindable) Option {
 	return Binding(mouse.ClickOn, bnd)
 }
 
-// Todo: change this to AllowRevert, and reverse the default behavior
-func DisallowRevert() Option {
+// AllowRevert wraps a button in a Reverting renderable, enabling phase changes
+// through modifications and reversion
+func AllowRevert() Option {
 	return func(g Generator) Generator {
-		g.DisallowRevert = true
+		g.AllowRevert = true
 		return g
 	}
 }

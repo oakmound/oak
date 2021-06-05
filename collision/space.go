@@ -9,8 +9,8 @@ import (
 // ID Types constant
 const (
 	NONE = iota
-	CID
-	PID
+	IDTypeCID
+	IDTypePID
 )
 
 // A Space is a rectangle
@@ -218,9 +218,7 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 		rect,
 		l,
 		cID,
-		CID, // todo: This is hard to read as distinct from cID
-		// todo: a way to generate non-CID typed spaces that isn't
-		// package specific (see render/particle)
+		IDTypeCID,
 	}
 }
 
@@ -235,7 +233,7 @@ func NewRectSpace(rect floatgeom.Rect3, l Label, cID event.CID) *Space {
 		rect,
 		l,
 		cID,
-		CID,
+		IDTypeCID,
 	}
 }
 

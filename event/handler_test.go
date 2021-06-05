@@ -67,7 +67,7 @@ func TestHandler(t *testing.T) {
 func BenchmarkHandler(b *testing.B) {
 	triggers := 0
 	entities := 10
-	go DefaultBus.ResolvePending()
+	go DefaultBus.ResolveChanges()
 	for i := 0; i < entities; i++ {
 		DefaultBus.GlobalBind(Enter, func(CID, interface{}) int {
 			triggers++
@@ -82,7 +82,7 @@ func BenchmarkHandler(b *testing.B) {
 
 func TestPauseAndResume(t *testing.T) {
 	b := NewBus(nil)
-	b.ResolvePending()
+	b.ResolveChanges()
 	triggerCt := 0
 	b.Bind("EnterFrame", 0, func(CID, interface{}) int {
 		triggerCt++

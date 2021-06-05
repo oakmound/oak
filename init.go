@@ -3,6 +3,7 @@ package oak
 import (
 	"fmt"
 	"image"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
@@ -73,9 +74,12 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 	if c.config.EventRefreshRate != 0 {
 		c.logicHandler.SetRefreshRate(time.Duration(c.config.EventRefreshRate))
 	}
-	// END of loading variables from configuration
 
-	seedRNG()
+	if !c.config.SkipRNGSeed {
+		// seed math/rand with time.Now, useful for minimal examples
+		//that would tend to forget to do this.
+		rand.Seed(time.Now().UTC().UnixNano())
+	}
 
 	imageDir := filepath.Join(wd,
 		c.config.Assets.AssetPath,

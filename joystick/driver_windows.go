@@ -98,7 +98,6 @@ func (j *Joystick) getState() (*State, error) {
 func (j *Joystick) vibrate(left, right uint16) error {
 	j.vibration.LeftMotorSpeed = left
 	j.vibration.RightMotorSpeed = right
-	// Todo: wrap these errors?
 	return w32.XInputSetState(j.id, j.vibration)
 }
 

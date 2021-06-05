@@ -79,9 +79,6 @@ func (ii IndivisibleInput) Error() string {
 	return errorString(codeIndivisibleInput, ii.InputName, ii.MustDivideBy)
 }
 
-// Todo: compose InvalidInput into other invalid input esque structs, add
-// constructors.
-
 // InvalidInput is a generic struct returned for otherwise invalid input.
 type InvalidInput struct {
 	InputName string

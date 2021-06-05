@@ -26,7 +26,7 @@ func main() {
 			ctx.DrawStack.Draw(cb, 0)
 			dFPS := render.NewDrawFPS(0.1, nil, 600, 10)
 			ctx.DrawStack.Draw(dFPS, 1)
-			ctx.EventHandler.GlobalBind(mouse.Press, mouse.Binding(func(_ event.CID, me mouse.Event) int {
+			ctx.EventHandler.GlobalBind(mouse.Press, mouse.Binding(func(_ event.CID, me *mouse.Event) int {
 				cb.SetPos(me.X(), me.Y())
 				return 0
 			}))
@@ -54,7 +54,7 @@ func main() {
 			ctx.DrawStack.Draw(cb, 0)
 			dFPS := render.NewDrawFPS(0.1, nil, 600, 10)
 			ctx.DrawStack.Draw(dFPS, 1)
-			ctx.EventHandler.GlobalBind(mouse.Press, mouse.Binding(func(_ event.CID, me mouse.Event) int {
+			ctx.EventHandler.GlobalBind(mouse.Press, mouse.Binding(func(_ event.CID, me *mouse.Event) int {
 				cb.SetPos(me.X(), me.Y())
 				return 0
 			}))

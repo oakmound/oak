@@ -87,7 +87,6 @@ func Start(width, height int, slides ...Slide) {
 
 	var oldBackground image.Image
 
-	// Todo: customizable end slide
 	oak.AddScene("slide"+strconv.Itoa(len(slides)),
 		scene.Scene{
 			Start: func(ctx *scene.Context) {

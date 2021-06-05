@@ -51,10 +51,6 @@ func FontColor(c color.Color) FontMod {
 	})
 }
 
-// todo: we need to do this because some things
-// haven't started in the engine yet (the engine
-// doesn't know what our directories are for assets)
-// Can we change this?
 func fpFilter(file string) string {
 	return filepath.Join("assets", "font", file)
 }

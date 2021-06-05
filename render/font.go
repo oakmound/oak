@@ -152,7 +152,10 @@ func (f *Font) Copy() *Font {
 	return f2
 }
 
-// TODO: Implement the below functions manually with font fallback
+// TODO: Implement MeasureString manually with font fallback
+// This is non-trivial, as we currently detect empty boxes with
+// y values which we would not get using the algorithm MeasureString
+// calls.
 
 func (f *Font) MeasureString(s string) fixed.Int26_6 {
 	f.mutex.Lock()

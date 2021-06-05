@@ -18,7 +18,7 @@ func (as *aspace) Init() event.CID {
 
 func TestAttachSpace(t *testing.T) {
 	Clear()
-	go event.ResolvePending()
+	go event.ResolveChanges()
 	go func() {
 		for {
 			<-time.After(5 * time.Millisecond)

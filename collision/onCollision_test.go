@@ -19,7 +19,7 @@ func (cp *cphase) Init() event.CID {
 func TestCollisionPhase(t *testing.T) {
 	callers := event.NewCallerMap()
 	bus := event.NewBus(callers)
-	go bus.ResolvePending()
+	go bus.ResolveChanges()
 	go func() {
 		for {
 			<-time.After(5 * time.Millisecond)

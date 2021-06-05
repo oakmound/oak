@@ -2,13 +2,13 @@ package event
 
 import "time"
 
-// ResolvePending is a constant loop that tracks slices of bind or unbind calls
+// ResolveChanges is a constant loop that tracks slices of bind or unbind calls
 // and resolves them individually such that they don't break the bus.
 // Each section of the loop waits for the predetermined refreshrate prior to attempting to flush.
-// Todo: this should have a better name
+//
 // If you ask "Why does this not use select over channels, share memory by communicating",
 // the answer is we tried, and it was cripplingly slow.
-func (eb *Bus) ResolvePending() {
+func (eb *Bus) ResolveChanges() {
 	eb.init.Do(func() {
 		go func() {
 			for {
@@ -19,7 +19,7 @@ func (eb *Bus) ResolvePending() {
 	})
 }
 
-// SetRefreshRate on the event bus detailing the time to wait per attempt to ResolvePending.
+// SetRefreshRate on the event bus detailing the time to wait per attempt to ResolveChanges.
 func (eb *Bus) SetRefreshRate(refreshRate time.Duration) {
 	eb.refreshRate = refreshRate
 }

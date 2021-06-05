@@ -65,7 +65,7 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan struct{}) error {
 	if eb.Ticker == nil {
 		eb.Ticker = time.NewTicker(frameDelay)
 	}
-	go eb.ResolvePending()
+	go eb.ResolveChanges()
 	go func(doneCh chan struct{}) {
 		eb.Ticker.Reset(frameDelay)
 		frameDelayF64 := float64(frameDelay)

@@ -89,8 +89,7 @@ func ReadDir(file string) ([]os.FileInfo, error) {
 			for i, s := range strs {
 				// If the data does not contain a period, we consider it
 				// a directory
-				// todo: can we supply a function that will tell us this
-				// so we don't make this (bad) assumption?
+				// todo: match embed / fs packages to remove the above bad assumption
 				fis[i] = dummyfileinfo{s, !strings.ContainsRune(s, '.')}
 				dlog.Verb("Creating dummy file into for", s, fis[i])
 			}

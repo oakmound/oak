@@ -18,7 +18,7 @@ func (cp *cphase) Init() event.CID {
 }
 
 func TestCollisionPhase(t *testing.T) {
-	go event.ResolvePending()
+	go event.ResolveChanges()
 	go func() {
 		for {
 			<-time.After(5 * time.Millisecond)

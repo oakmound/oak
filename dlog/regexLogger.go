@@ -54,7 +54,7 @@ func (l *RegexLogger) GetLogLevel() Level {
 // It only includes logs which pass the current filters.
 func (l *RegexLogger) dLog(w io.Writer, override bool, in ...interface{}) {
 	_, file, line, ok := runtime.Caller(2)
-	// TODO oak v3: more precise ruintime caller counting
+	// TODO oak v3: more precise runtime caller counting
 	if strings.Contains(file, "dlog") {
 		_, file, line, ok = runtime.Caller(3)
 	}

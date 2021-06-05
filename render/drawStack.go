@@ -57,7 +57,6 @@ func (ds *DrawStack) DrawToScreen(world draw.Image, view *intgeom.Point2, w, h i
 		// If we had concurrent operations, we'd do it here
 		// in that case each draw call would return to us something
 		// to composite onto the window / world
-		// TODO v3: add 'DrawConcurrency'? Bake in the background drawing? Benchmark if done
 		a.DrawToScreen(world, view, w, h)
 	}
 }

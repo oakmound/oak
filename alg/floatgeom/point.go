@@ -398,7 +398,6 @@ func (p Point3) ToRect(span float64) Rect3 {
 
 // ProjectX projects the Point3 onto the x axis, removing it's
 // x component and returning a Point2
-// todo: I'm not sure about this (these) function name
 func (p Point3) ProjectX() Point2 {
 	return Point2{p[1], p[2]}
 }

@@ -21,6 +21,9 @@ import (
 	"github.com/oakmound/oak/v3/scene"
 )
 
+// try fiddling with this value
+const Deadzone = 4000
+
 type renderer struct {
 	event.CID
 	joy          *joystick.Joystick
@@ -115,7 +118,15 @@ func newRenderer(ctx *scene.Context, joy *joystick.Joystick) {
 	rend.rStickCenter = floatgeom.Point2{rend.rs["RtStick"].X(), rend.rs["RtStick"].Y()}
 
 	joy.Handler = rend
-	joy.Listen(nil)
+	opts := &joystick.ListenOptions{
+		JoystickChanges: true,
+		StickChanges:    true,
+		StickDeadzoneLX: Deadzone,
+		StickDeadzoneLY: Deadzone,
+		StickDeadzoneRX: Deadzone,
+		StickDeadzoneRY: Deadzone,
+	}
+	joy.Listen(opts)
 
 	bts := []string{
 		"X",
@@ -184,20 +195,44 @@ func newRenderer(ctx *scene.Context, joy *joystick.Joystick) {
 		x = rend.rs[tgr].X()
 		rend.rs[tgr].SetPos(x, rend.triggerY+float64(st.TriggerR/16))
 
+		return 0
+	})
+
+	rend.Bind(joystick.LtStickChange, func(id event.CID, state interface{}) int {
+		rend, ok := event.GetEntity(id).(*renderer)
+		if !ok {
+			return 0
+		}
+		st, ok := state.(*joystick.State)
+		if !ok {
+			return 0
+		}
+
 		pos := rend.lStickCenter
 		pos = pos.Add(floatgeom.Point2{
 			float64(st.StickLX / 2048),
 			-float64(st.StickLY / 2048),
 		})
 		rend.rs["LtStick"].SetPos(pos.X(), pos.Y())
+		return 0
+	})
 
-		pos = rend.rStickCenter
+	rend.Bind(joystick.RtStickChange, func(id event.CID, state interface{}) int {
+		rend, ok := event.GetEntity(id).(*renderer)
+		if !ok {
+			return 0
+		}
+		st, ok := state.(*joystick.State)
+		if !ok {
+			return 0
+		}
+
+		pos := rend.rStickCenter
 		pos = pos.Add(floatgeom.Point2{
 			float64(st.StickRX / 2048),
 			-float64(st.StickRY / 2048),
 		})
 		rend.rs["RtStick"].SetPos(pos.X(), pos.Y())
-
 		return 0
 	})
 }
