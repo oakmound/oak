@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/audio/internal/audio/filter"
-	"github.com/oakmound/oak/v3/audio/internal/synth"
+	"github.com/oakmound/oak/v3/audio/support/audio/filter"
+	"github.com/oakmound/oak/v3/audio/support/synth"
 )
 
 func TestAudioFuncs(t *testing.T) {
