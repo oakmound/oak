@@ -256,3 +256,8 @@ func NewRect(x, y, w, h float64) floatgeom.Rect3 {
 	}
 	return floatgeom.NewRect3WH(x, y, 0, w, h, 1)
 }
+
+func (s *Space) SetZLayer(z float64) {
+	s.Location.Min[2] = z
+	s.Location.Max[2] = z
+}

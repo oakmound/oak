@@ -2,6 +2,7 @@ package oak
 
 import (
 	"image"
+	"sort"
 	"sync/atomic"
 	"time"
 
@@ -189,9 +190,16 @@ func (c *Controller) Propagate(eventName string, me mouse.Event) {
 	mouse.LastEvent = me
 
 	hits := c.MouseTree.SearchIntersect(me.ToSpace().Bounds())
+	sort.Slice(hits, func(i, j int) bool {
+		return hits[i].Location.Min.Z() < hits[i].Location.Max.Z()
+	})
 	for _, sp := range hits {
-		sp.CID.Trigger(eventName, &me)
+		<-sp.CID.TriggerBus(eventName, &me, c.logicHandler)
+		if me.StopPropagation {
+			break
+		}
 	}
+	me.StopPropagation = false
 
 	if c.TrackMouseClicks {
 		if eventName == mouse.PressOn+"Relative" {
@@ -201,11 +209,17 @@ func (c *Controller) Propagate(eventName string, me mouse.Event) {
 		} else if eventName == mouse.ReleaseOn {
 			if me.Button == c.LastMousePress.Button {
 				pressHits := c.MouseTree.SearchIntersect(c.LastMousePress.ToSpace().Bounds())
+				sort.Slice(pressHits, func(i, j int) bool {
+					return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
+				})
 				for _, sp1 := range pressHits {
 					for _, sp2 := range hits {
 						if sp1.CID == sp2.CID {
-							event.Trigger(mouse.Click, &me)
-							sp1.CID.Trigger(mouse.ClickOn, &me)
+							c.logicHandler.Trigger(mouse.Click, &me)
+							<-sp1.CID.TriggerBus(mouse.ClickOn, &me, c.logicHandler)
+							if me.StopPropagation {
+								return
+							}
 						}
 					}
 				}
@@ -213,10 +227,16 @@ func (c *Controller) Propagate(eventName string, me mouse.Event) {
 		} else if eventName == mouse.ReleaseOn+"Relative" {
 			if me.Button == c.lastRelativePress.Button {
 				pressHits := c.MouseTree.SearchIntersect(c.lastRelativePress.ToSpace().Bounds())
+				sort.Slice(pressHits, func(i, j int) bool {
+					return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
+				})
 				for _, sp1 := range pressHits {
 					for _, sp2 := range hits {
 						if sp1.CID == sp2.CID {
 							sp1.CID.Trigger(mouse.ClickOn+"Relative", &me)
+							if me.StopPropagation {
+								return
+							}
 						}
 					}
 				}

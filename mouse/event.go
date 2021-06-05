@@ -23,6 +23,10 @@ type Event struct {
 	floatgeom.Point2
 	Button
 	Event string
+
+	// Set StopPropagation on a mouse event to prevent it from triggering on
+	// lower layers of mouse collision spaces while in flight
+	StopPropagation bool
 }
 
 // NewEvent creates an event.
@@ -41,5 +45,16 @@ func NewZeroEvent(x, y float64) Event {
 
 // ToSpace converts a mouse event into a collision space
 func (e Event) ToSpace() *collision.Space {
-	return collision.NewUnassignedSpace(e.X(), e.Y(), 0.1, 0.1)
+	sp := collision.NewUnassignedSpace(e.X(), e.Y(), 0.1, 0.1)
+	sp.Location.Max[2] = MaxZLayer
+	sp.Location.Min[2] = MinZLayer
+	return sp
 }
+
+// Min and Max Z layer inform what range of z layer values will be checked
+// on mouse collision interactions. Mouse events will not propagate to
+// elements with z layers outside of this range.
+const (
+	MinZLayer = 0
+	MaxZLayer = 1000
+)

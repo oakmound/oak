@@ -54,7 +54,7 @@ func phaseCollisionEnter(id event.CID, nothing interface{}) int {
 	if ev == nil {
 		ev = &LastEvent
 	}
-	if ev.Propagated {
+	if ev.StopPropagation {
 		return 0
 	}
 
