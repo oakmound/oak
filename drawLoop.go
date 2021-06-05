@@ -24,10 +24,14 @@ func (c *Controller) drawLoop() {
 	for {
 	drawSelect:
 		select {
+		case <-c.quitCh:
+			return
 		case <-c.drawCh:
 			<-c.drawCh
 			for {
 				select {
+				case <-c.quitCh:
+					return
 				case <-c.drawCh:
 					break drawSelect
 				case <-c.DrawTicker.C:

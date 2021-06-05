@@ -108,6 +108,9 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 
 		for cont {
 			select {
+			case <-c.quitCh:
+				cancel()
+				return
 			case <-c.sceneCh:
 				cont = scen.Loop()
 			case nextSceneOverride = <-c.skipSceneCh:
