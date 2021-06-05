@@ -73,6 +73,10 @@ func (s *Sequence) Filter(fs ...audio.Filter) (audio.Audio, error) {
 	return s, nil
 }
 
+func (s *Sequence) SetVolume(int32) error {
+	return errors.New("unsupported")
+}
+
 // MustFilter acts as filter, but does not respect errors.
 func (s *Sequence) MustFilter(fs ...audio.Filter) audio.Audio {
 	a, _ := s.Filter(fs...)
