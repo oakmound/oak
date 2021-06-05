@@ -96,5 +96,5 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 	}
 	dlog.Info("Init Main Driver")
 	c.Driver(c.lifecycleLoop)
-	return nil
+	return c.exitError
 }

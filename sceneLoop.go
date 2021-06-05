@@ -6,6 +6,7 @@ import (
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/oakerr"
 	"github.com/oakmound/oak/v3/scene"
 )
 
@@ -51,25 +52,26 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 		c.setViewport(intgeom.Point2{0, 0})
 		c.RemoveViewportBounds()
 
-		dlog.Info("Scene Start", c.SceneMap.CurrentScene)
+		dlog.Info("Scene Start: ", c.SceneMap.CurrentScene)
 		scen, ok := c.SceneMap.GetCurrent()
 		if !ok {
-			dlog.Error("Unknown scene", c.SceneMap.CurrentScene)
+			dlog.Error("Unknown scene: ", c.SceneMap.CurrentScene)
 			if c.ErrorScene != "" {
 				c.SceneMap.CurrentScene = c.ErrorScene
 				scen, ok = c.SceneMap.GetCurrent()
 				if !ok {
-					panic("error scene not defined in scene map")
+					go c.exitWithError(oakerr.NotFound{InputName: "ErrorScene"})
+					return
 				}
 			} else {
-				panic("Unknown scene " + c.SceneMap.CurrentScene)
+				go c.exitWithError(oakerr.NotFound{InputName: "Scene"})
+				return
 			}
 		}
 		if trackingInputs {
 			c.trackInputChanges()
 		}
 		gctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
 		go func() {
 			dlog.Info("Starting scene in goroutine", c.SceneMap.CurrentScene)
 			scen.Start(&scene.Context{

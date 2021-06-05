@@ -18,7 +18,7 @@ func (c *Controller) lifecycleLoop(s screen.Screen) {
 	dlog.Info("Creating window buffer")
 	err := c.UpdateViewSize(c.ScreenWidth, c.ScreenHeight)
 	if err != nil {
-		dlog.Error(err)
+		go c.exitWithError(err)
 		return
 	}
 
@@ -26,12 +26,16 @@ func (c *Controller) lifecycleLoop(s screen.Screen) {
 	// Apply that factor to the scale
 
 	dlog.Info("Creating window controller")
-	c.newWindow(
+	err = c.newWindow(
 		int32(c.config.Screen.X),
 		int32(c.config.Screen.Y),
 		c.ScreenWidth*c.config.Screen.Scale,
 		c.ScreenHeight*c.config.Screen.Scale,
 	)
+	if err != nil {
+		go c.exitWithError(err)
+		return
+	}
 
 	dlog.Info("Starting draw loop")
 	go c.drawLoop()
@@ -41,21 +45,22 @@ func (c *Controller) lifecycleLoop(s screen.Screen) {
 	<-c.quitCh
 }
 
-// Quit sends a signal to the window to close itself, ending oak.
+// Quit sends a signal to the window to close itself, closing the window and
+// any spun up resources.
 func (c *Controller) Quit() {
 	c.windowControl.Send(lifecycle.Event{To: lifecycle.StageDead})
 }
 
-func (c *Controller) newWindow(x, y int32, width, height int) {
+func (c *Controller) newWindow(x, y int32, width, height int) error {
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
 	wC, err := c.windowController(c.screenControl, x, y, width, height)
 	if err != nil {
-		dlog.Error(err)
-		panic(err)
+		return err
 	}
 	c.windowControl = wC
 	c.ChangeWindow(width, height)
+	return nil
 }
 
 // SetAspectRatio will enforce that the displayed window does not distort the

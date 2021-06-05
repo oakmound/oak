@@ -139,6 +139,8 @@ type Controller struct {
 
 	mostRecentInput InputType
 
+	exitError error
+
 	TrackMouseClicks bool
 	startupLoading   bool
 	useViewBounds    bool
@@ -282,4 +284,9 @@ func (c *Controller) InFocus() bool {
 // set to TrackInputChanges
 func (c *Controller) MostRecentInput() InputType {
 	return c.mostRecentInput
+}
+
+func (c *Controller) exitWithError(err error) {
+	c.exitError = err
+	c.Quit()
 }
