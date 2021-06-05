@@ -22,6 +22,10 @@ func (cid CID) Trigger(eventName string, data interface{}) {
 	}(eventName, data)
 }
 
+func (cid CID) TriggerBus(eventName string, data interface{}, bus Handler) chan struct{} {
+	return bus.TriggerCIDBack(cid, eventName, data)
+}
+
 // Bind on a CID is shorthand for bus.Bind(name, cid, fn), on the default bus.
 func (cid CID) Bind(name string, fn Bindable) {
 	DefaultBus.Bind(name, cid, fn)

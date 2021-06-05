@@ -36,6 +36,21 @@ func (eb *Bus) Trigger(eventName string, data interface{}) {
 	}(eb, eventName, data)
 }
 
+func (eb *Bus) TriggerCIDBack(cid CID, eventName string, data interface{}) chan struct{} {
+	ch := make(chan struct{})
+	go func() {
+		eb.mutex.RLock()
+		if idMap, ok := eb.bindingMap[eventName]; ok {
+			if bs, ok := idMap[cid]; ok {
+				eb.triggerDefault(bs.sl, cid, eventName, data)
+			}
+		}
+		eb.mutex.RUnlock()
+		close(ch)
+	}()
+	return ch
+}
+
 func (eb *Bus) trigger(eventName string, data interface{}) {
 	eb.mutex.RLock()
 	for id, bs := range eb.bindingMap[eventName] {

@@ -29,6 +29,7 @@ type Handler interface {
 	// <Triggerer>
 	Trigger(event string, data interface{})
 	TriggerBack(event string, data interface{}) chan struct{}
+	TriggerCIDBack(cid CID, eventName string, data interface{}) chan struct{}
 	// <Pauser>
 	Pause()
 	Resume()
