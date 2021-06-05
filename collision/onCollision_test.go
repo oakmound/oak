@@ -9,45 +9,51 @@ import (
 
 type cphase struct {
 	Phase
+	callers *event.CallerMap
 }
 
 func (cp *cphase) Init() event.CID {
-	return event.NextID(cp)
+	return cp.callers.NextID(cp)
 }
 
 func TestCollisionPhase(t *testing.T) {
-	go event.ResolvePending()
+	callers := event.NewCallerMap()
+	bus := event.NewBus(callers)
+	go bus.ResolvePending()
 	go func() {
 		for {
 			<-time.After(5 * time.Millisecond)
-			<-event.TriggerBack(event.Enter, nil)
+			<-bus.TriggerBack(event.Enter, nil)
 		}
 	}()
-	cp := cphase{}
+	cp := cphase{
+		callers: callers,
+	}
 	cid := cp.Init()
 	s := NewSpace(10, 10, 10, 10, cid)
-	err := PhaseCollision(s, nil)
+	tree := NewTree()
+	err := PhaseCollisionWithBus(s, tree, bus, callers)
 	if err != nil {
 		t.Fatalf("phase collision failed: %v", err)
 	}
 	var active bool
-	cid.Bind("CollisionStart", func(event.CID, interface{}) int {
+	bus.Bind("CollisionStart", cid, func(event.CID, interface{}) int {
 		active = true
 		return 0
 	})
-	cid.Bind("CollisionStop", func(event.CID, interface{}) int {
+	bus.Bind("CollisionStop", cid, func(event.CID, interface{}) int {
 		active = false
 		return 0
 	})
 
 	s2 := NewLabeledSpace(15, 15, 10, 10, 5)
-	Add(s2)
+	tree.Add(s2)
 	time.Sleep(200 * time.Millisecond)
 	if !active {
 		t.Fatalf("collision should be active")
 	}
 
-	Remove(s2)
+	tree.Remove(s2)
 	time.Sleep(200 * time.Millisecond)
 	if active {
 		t.Fatalf("collision should be inactive")
@@ -57,10 +63,5 @@ func TestCollisionPhase(t *testing.T) {
 	err = PhaseCollision(s3, nil)
 	if err == nil {
 		t.Fatalf("phase collision should have failed")
-	}
-
-	err = PhaseCollision(s, DefaultTree)
-	if err != nil {
-		t.Fatalf("phase collision failed: %v", err)
 	}
 }
