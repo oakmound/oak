@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -87,7 +88,13 @@ func (sc *ScopedCommands) AttachToStream(input io.Reader) {
 						}
 
 						fmt.Printf("Unknown command '%s' for scopeID %d see correct usage via help or help %d\n", tokenString[tokenIDX], scopeID, scopeID)
-
+						suggestions := sc.suggestForCandidate(4, tokenString[tokenIDX])
+						if len(suggestions) > 0 {
+							fmt.Println("Did you mean one of the following?")
+							for _, s := range suggestions {
+								fmt.Println(indent, s)
+							}
+						}
 					}
 				}
 			}()
@@ -209,8 +216,8 @@ func (sc *ScopedCommands) printHelp(tokenString []string) {
 	fmt.Println("Current Assumed Scope:", sc.assumedScope)
 	// TODO: if in a verbose mode present usage.
 
-	fmt.Printf("General Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(scopeID), "\n"+indent))
-	fmt.Printf("Current Window Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(scopeID), "\n"+indent))
+	fmt.Printf("General Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(0), "\n"+indent))
+	fmt.Printf("Current Window Commands:\n%s%s\n\n", indent, strings.Join(sc.CommandsInScope(scopeID), "\n"+indent))
 }
 
 const indent = "  "
@@ -235,6 +242,44 @@ func (sc *ScopedCommands) assumeScope(tokenString []string) {
 	}
 	sc.assumedScope = scopeID
 	fmt.Println("assumed scope ", scopeID)
+}
+
+func (sc *ScopedCommands) suggestForCandidate(maxSuggestions int, candidate string) (suggestions []string) {
+
+	possibilities := []candidateStore{}
+	scopes := []int32{sc.assumedScope}
+	if sc.assumedScope != 0 {
+		scopes = append(scopes, 0)
+	}
+	for _, s := range scopes {
+		for c := range sc.commands[s] {
+			_, val := jaroDecreased(candidate, c)
+			if val > suggestionCuttOff {
+				possibilities = append(possibilities, candidateStore{c, val})
+			}
+		}
+	}
+
+	sort.Slice(possibilities, func(i, j int) bool {
+		return possibilities[i].value > possibilities[j].value
+	})
+
+	maxS := maxSuggestions
+	if len(possibilities) <= maxS {
+		maxS = len(possibilities)
+	}
+	for i := 0; i < maxS; i++ {
+		suggestions = append(suggestions, possibilities[i].name)
+	}
+
+	return suggestions
+}
+
+const suggestionCuttOff = 0.4
+
+type candidateStore struct {
+	name  string
+	value float64
 }
 
 func strToInt32(potentialInt string) (int32, error) {
