@@ -61,7 +61,7 @@ func main() {
 
 		char.Bind(mouse.Press, func(id event.CID, me interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
-			mevent := me.(mouse.Event)
+			mevent := me.(*mouse.Event)
 			ctx.DrawForTime(
 				render.NewLine(char.X()+char.W/2, char.Y()+char.H/2, mevent.X(), mevent.Y(), color.RGBA{0, 128, 0, 128}),
 				time.Millisecond*50,

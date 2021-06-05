@@ -190,7 +190,7 @@ func (c *Controller) Propagate(eventName string, me mouse.Event) {
 
 	hits := c.MouseTree.SearchIntersect(me.ToSpace().Bounds())
 	for _, sp := range hits {
-		sp.CID.Trigger(eventName, me)
+		sp.CID.Trigger(eventName, &me)
 	}
 
 	if c.TrackMouseClicks {
@@ -204,8 +204,8 @@ func (c *Controller) Propagate(eventName string, me mouse.Event) {
 				for _, sp1 := range pressHits {
 					for _, sp2 := range hits {
 						if sp1.CID == sp2.CID {
-							event.Trigger(mouse.Click, me)
-							sp1.CID.Trigger(mouse.ClickOn, me)
+							event.Trigger(mouse.Click, &me)
+							sp1.CID.Trigger(mouse.ClickOn, &me)
 						}
 					}
 				}
@@ -216,7 +216,7 @@ func (c *Controller) Propagate(eventName string, me mouse.Event) {
 				for _, sp1 := range pressHits {
 					for _, sp2 := range hits {
 						if sp1.CID == sp2.CID {
-							sp1.CID.Trigger(mouse.ClickOn+"Relative", me)
+							sp1.CID.Trigger(mouse.ClickOn+"Relative", &me)
 						}
 					}
 				}

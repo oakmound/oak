@@ -71,7 +71,7 @@ func main() {
 
 		char.Bind(mouse.Press, func(id event.CID, me interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
-			mevent := me.(mouse.Event)
+			mevent := me.(*mouse.Event)
 			x := char.X() + char.W/2
 			y := char.Y() + char.H/2
 			ray.DefaultCaster.CastDistance = floatgeom.Point2{x, y}.Sub(floatgeom.Point2{mevent.X(), mevent.Y()}).Magnitude()

@@ -6,10 +6,10 @@ package event
 //   Payload: (collision.Label) the label the entity has started/stopped touching
 //
 // - MouseCollisionStart/Stop: as above, for mouse collision
-//   Payload: (mouse.Event)
+//   Payload: (*mouse.Event)
 //
 // - Mouse events: MousePress, MouseRelease, MouseScrollDown, MouseScrollUp, MouseDrag
-//   Payload: (mouse.Event) details on the mouse event
+//   Payload: (*mouse.Event) details on the mouse event
 //
 // - KeyDown, KeyDown$a: when any key is pressed down, when key $a is pressed down.
 //   Payload: (key.Event) the key pressed

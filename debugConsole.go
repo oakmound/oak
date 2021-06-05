@@ -110,7 +110,7 @@ func parseTokenAsInt(tokenString []string, arrIndex int, defaultVal int) int {
 }
 
 func (c *Controller) mouseDetails(nothing event.CID, mevent interface{}) int {
-	me := mevent.(mouse.Event)
+	me := mevent.(*mouse.Event)
 	x := int(me.X()) + c.viewPos[0]
 	y := int(me.Y()) + c.viewPos[1]
 	loc := collision.NewUnassignedSpace(float64(x), float64(y), 16, 16)
