@@ -7,7 +7,7 @@ import (
 )
 
 func TestBusStop(t *testing.T) {
-	b := NewBus()
+	b := NewBus(nil)
 	b.Ticker = time.NewTicker(10000 * time.Second)
 	phase := 0
 	wait := make(chan struct{})

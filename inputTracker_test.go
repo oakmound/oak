@@ -13,7 +13,7 @@ import (
 
 func TestTrackInputChanges(t *testing.T) {
 	c1 := NewController()
-	c1.SetLogicHandler(event.NewBus())
+	c1.SetLogicHandler(event.NewBus(nil))
 	c1.AddScene("1", scene.Scene{})
 	go c1.Init("1", func(c Config) (Config, error) {
 		c.TrackInputChanges = true

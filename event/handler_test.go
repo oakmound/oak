@@ -81,7 +81,7 @@ func BenchmarkHandler(b *testing.B) {
 }
 
 func TestPauseAndResume(t *testing.T) {
-	b := NewBus()
+	b := NewBus(nil)
 	b.ResolvePending()
 	triggerCt := 0
 	b.Bind("EnterFrame", 0, func(CID, interface{}) int {

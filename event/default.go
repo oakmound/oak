@@ -6,12 +6,11 @@ package event
 var (
 	// DefaultBus is a bus that has additional operations for CIDs, and can
 	// be called via event.Call as opposed to bus.Call
-	DefaultBus = NewBus()
+	DefaultBus = NewBus(DefaultCallerMap)
 )
 
 // Trigger an event, but only for one ID, on the default bus
 func (cid CID) Trigger(eventName string, data interface{}) {
-
 	go func(eventName string, data interface{}) {
 		DefaultBus.mutex.RLock()
 		if idMap, ok := DefaultBus.bindingMap[eventName]; ok {

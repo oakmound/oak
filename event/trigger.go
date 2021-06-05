@@ -20,13 +20,11 @@ import (
 // TriggerBack is right now used by the primary logic loop to dictate logical
 // framerate, so EnterFrame events are called through TriggerBack.
 func (eb *Bus) TriggerBack(eventName string, data interface{}) chan struct{} {
-
 	ch := make(chan struct{})
 	go func(ch chan struct{}, eb *Bus, eventName string, data interface{}) {
 		eb.trigger(eventName, data)
 		close(ch)
 	}(ch, eb, eventName, data)
-
 	return ch
 }
 
@@ -52,6 +50,10 @@ func (eb *Bus) triggerDefault(sl []Bindable, id CID, eventName string, data inte
 	prog := &sync.WaitGroup{}
 	prog.Add(len(sl))
 	for i, bnd := range sl {
+		if bnd == nil {
+			prog.Done()
+			continue
+		}
 		go func(bnd Bindable, id CID, eventName string, data interface{}, prog *sync.WaitGroup, index int) {
 			eb.handleBindable(bnd, id, data, index, eventName)
 			prog.Done()
@@ -61,24 +63,23 @@ func (eb *Bus) triggerDefault(sl []Bindable, id CID, eventName string, data inte
 }
 
 func (eb *Bus) handleBindable(bnd Bindable, id CID, data interface{}, index int, eventName string) {
-	if bnd != nil {
-		if id == 0 || GetEntity(id) != nil {
-			response := bnd(id, data)
-			switch response {
-			case UnbindEvent:
-				UnbindAll(Event{
+	if id == 0 || eb.callerMap.HasEntity(id) {
+		response := bnd(id, data)
+		switch response {
+		case UnbindEvent:
+			UnbindAll(Event{
+				Name:     eventName,
+				CallerID: id,
+			})
+		case UnbindSingle:
+			bnd := binding{
+				Event: Event{
 					Name:     eventName,
 					CallerID: id,
-				})
-			case UnbindSingle:
-				binding{
-					Event{
-						Name:     eventName,
-						CallerID: id,
-					},
-					index,
-				}.unbind(eb)
+				},
+				index: index,
 			}
+			bnd.unbind(eb)
 		}
 	}
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func TestResolvePendingWithRefreshRate(t *testing.T) {
-	b := NewBus()
+	b := NewBus(nil)
 	b.SetRefreshRate(6 * time.Second)
 	b.ResolvePending()
 	failed := false
