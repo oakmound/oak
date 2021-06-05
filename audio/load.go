@@ -4,9 +4,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oakmound/oak/v3/audio/internal/audio"
-	"github.com/oakmound/oak/v3/audio/internal/mp3"
-	"github.com/oakmound/oak/v3/audio/internal/wav"
+	"github.com/oakmound/oak/v3/audio/support/audio"
+	"github.com/oakmound/oak/v3/audio/support/mp3"
+	"github.com/oakmound/oak/v3/audio/support/wav"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/oakmound/oak/v3/dlog"

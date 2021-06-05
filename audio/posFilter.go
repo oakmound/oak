@@ -1,9 +1,9 @@
 package audio
 
 import (
-	"github.com/oakmound/oak/v3/audio/internal/audio"
-	"github.com/oakmound/oak/v3/audio/internal/audio/filter"
-	"github.com/oakmound/oak/v3/audio/internal/audio/filter/supports"
+	"github.com/oakmound/oak/v3/audio/support/audio"
+	"github.com/oakmound/oak/v3/audio/support/audio/filter"
+	"github.com/oakmound/oak/v3/audio/support/audio/filter/supports"
 	"github.com/oakmound/oak/v3/physics"
 )
 

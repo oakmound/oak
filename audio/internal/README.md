@@ -1,1 +1,0 @@
-This internal package is effectively a vendored version of 200sc/klangsythese
