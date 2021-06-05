@@ -11,7 +11,7 @@ type Scene struct {
 	// Start is called when a scene begins, including contextual information like
 	// what scene came before this one and a direct reference to clean data structures
 	// for event handling and rendering
-	Start func(context *Context)
+	Start func(ctx *Context)
 	// If Loop returns true, the scene will continue
 	// If Loop returns false, End will be called to determine the next scene
 	Loop func() (cont bool)
