@@ -2,6 +2,7 @@ package debugstream
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -20,15 +21,26 @@ type ScopedCommands struct {
 	attachOnce   sync.Once
 	assumedScope int32
 	scopes       []int32
-	commands     map[int32]map[string]func([]string)
+	commands     map[int32]map[string]command
+}
+
+// command is a local format for performing these debug stream things.
+type command struct {
+	name      string
+	operation func([]string) error  // the actual operation to execute
+	usage     func([]string) string // optional args to give scoped usage
+}
+
+func newCommand(name string, operation func([]string) error, usage func([]string) string) command {
+	return command{name, operation, usage}
 }
 
 // NewScopedCommands creates set of standard help functions.
 func NewScopedCommands() *ScopedCommands {
-	sc := &ScopedCommands{commands: map[int32]map[string]func([]string){}}
-	sc.AddCommand("help", sc.printHelp)
-	sc.AddCommand("scope", sc.assumeScope)
-	sc.AddCommand("fade", fadeCommands)
+	sc := &ScopedCommands{commands: map[int32]map[string]command{}}
+	sc.AddCommand("help", nil, sc.printHelp)
+	sc.AddCommand("scope", nil, sc.assumeScope)
+	sc.AddCommand("fade", nil, fadeCommands)
 	return sc
 }
 
@@ -44,7 +56,6 @@ func (sc *ScopedCommands) AttachToStream(input io.Reader) {
 			go func() {
 				for {
 					for scanner.Scan() {
-
 						// TODO: accept interrupts
 
 						tokenString := strings.Fields(scanner.Text())
@@ -69,21 +80,21 @@ func (sc *ScopedCommands) AttachToStream(input io.Reader) {
 
 							tokenIDX++
 							// see if specified
-							if fn, ok := sc.commands[scopeID][tokenString[tokenIDX]]; ok {
-								fn(tokenString[tokenIDX+1:])
+							if cmd, ok := sc.commands[scopeID][tokenString[tokenIDX]]; ok {
+								cmd.operation(tokenString[tokenIDX+1:])
 								continue
 							}
 						}
 
 						// assumedscope
-						if fn, ok := sc.commands[sc.assumedScope][tokenString[0]]; ok {
-							fn(tokenString[1:])
+						if cmd, ok := sc.commands[sc.assumedScope][tokenString[0]]; ok {
+							cmd.operation(tokenString[1:])
 							continue
 						}
 
 						// fallback to scope 0
-						if fn, ok := sc.commands[0][tokenString[0]]; ok {
-							fn(tokenString[1:])
+						if cmd, ok := sc.commands[0][tokenString[0]]; ok {
+							cmd.operation(tokenString[1:])
 							continue
 						}
 
@@ -104,28 +115,28 @@ func (sc *ScopedCommands) AttachToStream(input io.Reader) {
 // AddCommand adds a console command to call fn when
 // '<s> <args>' is input to the console. fn will be called
 // with args split on whitespace.
-func (sc *ScopedCommands) AddCommand(s string, fn func([]string)) error {
+func (sc *ScopedCommands) AddCommand(s string, usageFn func([]string) string, fn func([]string) error) error {
 	// We tightly link to controllerIDs here for better or for worse and controllerIDs shall always be > 0
 	// This means our unscoped commands are safe when set as 0.
-	return sc.AddScopedCommand(0, s, fn)
+	return sc.AddScopedCommand(0, s, usageFn, fn)
 }
 
 // AddScopedCommand adds a console command to call fn when
 // '<s> <args>' is input to the console. fn will be called
 // with args split on whitespace.
-func (sc *ScopedCommands) AddScopedCommand(scopeID int32, s string, fn func([]string)) error {
-	return sc.addCommand(scopeID, s, fn, false)
+func (sc *ScopedCommands) AddScopedCommand(scopeID int32, s string, usageFn func([]string) string, fn func([]string) error) error {
+	return sc.addCommand(scopeID, s, usageFn, fn, false)
 }
 
 // addCommand for future executions.
-func (sc *ScopedCommands) addCommand(scopeID int32, s string, fn func([]string), force bool) error {
+func (sc *ScopedCommands) addCommand(scopeID int32, s string, usageFn func([]string) string, fn func([]string) error, force bool) error {
 
 	sc.Lock()
 	defer sc.Unlock()
 
 	if _, ok := sc.commands[scopeID]; !ok {
 
-		sc.commands[scopeID] = map[string]func([]string){}
+		sc.commands[scopeID] = map[string]command{}
 		sc.scopes = append(sc.scopes, scopeID)
 	}
 
@@ -138,7 +149,7 @@ func (sc *ScopedCommands) addCommand(scopeID int32, s string, fn func([]string),
 			}
 		}
 	}
-	sc.commands[scopeID][s] = fn
+	sc.commands[scopeID][s] = newCommand(s, fn, usageFn)
 
 	return nil
 }
@@ -155,13 +166,13 @@ func (sc *ScopedCommands) ClearCommand(scopeID int32, s string) {
 // ResetCommands will throw out all existing debug commands from the
 // debug console.
 func (sc *ScopedCommands) ResetCommands() {
-	sc.commands = map[int32]map[string]func([]string){}
+	sc.commands = map[int32]map[string]command{}
 }
 
 // ResetCommandsForScope will throw out all existing debug commands from the
 // debug console for hte given scope.
 func (sc *ScopedCommands) ResetCommandsForScope(scope int32) {
-	sc.commands[scope] = map[string]func([]string){}
+	sc.commands[scope] = map[string]command{}
 }
 
 // RemoveScope from the command set.
@@ -193,7 +204,7 @@ func (sc *ScopedCommands) CommandsInScope(scope int32) []string {
 	return dkeys
 }
 
-func (sc *ScopedCommands) printHelp(tokenString []string) {
+func (sc *ScopedCommands) printHelp(tokenString []string) error {
 
 	scopeID := sc.assumedScope
 	var err error
@@ -203,7 +214,7 @@ func (sc *ScopedCommands) printHelp(tokenString []string) {
 			fmt.Println("help <scopeID> expects a valid int scope")
 			fmt.Printf("you provided %s which errored with %v \n", tokenString[0], err)
 			fmt.Println("try using help without arguments for an overview")
-			return
+			return nil
 		}
 	}
 
@@ -218,30 +229,32 @@ func (sc *ScopedCommands) printHelp(tokenString []string) {
 
 	fmt.Printf("General Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(0), "\n"+indent))
 	fmt.Printf("Current Window Commands:\n%s%s\n\n", indent, strings.Join(sc.CommandsInScope(scopeID), "\n"+indent))
+	return nil
 }
 
 const indent = "  "
 
 // assumeScope of the given windowID if possible
 // This allows for easier usage of windows when multiple windows exist.
-func (sc *ScopedCommands) assumeScope(tokenString []string) {
+func (sc *ScopedCommands) assumeScope(tokenString []string) error {
 	if len(tokenString) == 0 {
 		fmt.Println("assume scope requires a scopeID or -")
 		fmt.Printf("Active Scopes: %v\n", sc.scopes)
-		return
+		return errors.New("missing scopeID")
 	}
 
 	scopeID, err := strToInt32(tokenString[0])
 	if err != nil {
 		fmt.Println("assume scope <scopeID> expects a valid int32 scope")
 		fmt.Printf("you provided %s which errored with %v \n", tokenString[0], err)
-		return
+		return errors.New("scopeID must be a valid int32")
 	}
 	if _, ok := sc.commands[scopeID]; !ok {
 		fmt.Printf("inactive scope %d see correct usage via help\n", scopeID)
 	}
 	sc.assumedScope = scopeID
 	fmt.Println("assumed scope ", scopeID)
+	return nil
 }
 
 func (sc *ScopedCommands) suggestForCandidate(maxSuggestions int, candidate string) (suggestions []string) {

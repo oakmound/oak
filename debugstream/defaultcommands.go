@@ -21,16 +21,16 @@ func checkOrCreateDefaults() {
 
 // AddCommand to the default command set.
 // See ScopedCommands' AddComand.
-func AddCommand(s string, fn func([]string)) error {
+func AddCommand(s string, usageFn func([]string) string, fn func([]string) error) error {
 	checkOrCreateDefaults()
-	return DefaultCommands.AddCommand(s, fn)
+	return DefaultCommands.AddCommand(s, usageFn, fn)
 }
 
 // AddScopedCommand to the default command set.
 // See ScopedCommands' AddScopedCommand.
-func AddScopedCommand(scopeID int32, s string, fn func([]string)) error {
+func AddScopedCommand(scopeID int32, s string, usageFn func([]string) string, fn func([]string) error) error {
 	checkOrCreateDefaults()
-	return DefaultCommands.AddScopedCommand(scopeID, s, fn)
+	return DefaultCommands.AddScopedCommand(scopeID, s, usageFn, fn)
 }
 
 // AttachToStream if possible to start consuming the stream

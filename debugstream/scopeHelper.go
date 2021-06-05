@@ -8,6 +8,7 @@ import (
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/oakerr"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/render/mod"
 	"github.com/oakmound/oak/v3/window"
@@ -15,18 +16,21 @@ import (
 
 // AddDefaultsForScope for debugging.
 func (sc *ScopedCommands) AddDefaultsForScope(scopeID int32, controller window.Window) {
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "fullscreen", fullScreen(controller)))
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "mouse", mouseCommands(controller)))
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "quit", quitCommands(controller)))
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "skip", skipCommands(controller)))
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "move", moveWindow(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "fullscreen", nil, fullScreen(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "mouse", nil, mouseCommands(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "quit", nil, quitCommands(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "skip", nil, skipCommands(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "move", nil, moveWindow(controller)))
 }
 
-func moveWindow(w window.Window) func([]string) {
-	return func(sub []string) {
+func moveWindow(w window.Window) func([]string) error {
+	return func(sub []string) error {
 		if len(sub) != 2 && len(sub) != 4 {
 			fmt.Println("'move' expects 'x y' or 'x y w h'")
-			return
+			return oakerr.InsufficientInputs{
+				AtLeast:   2,
+				InputName: "coordinates",
+			}
 		}
 		width := parseTokenAsInt(sub, 3, w.Width())
 		height := parseTokenAsInt(sub, 4, w.Height())
@@ -34,11 +38,12 @@ func moveWindow(w window.Window) func([]string) {
 		x := parseTokenAsInt(sub, 0, v.X())
 		y := parseTokenAsInt(sub, 1, v.Y())
 		w.MoveWindow(x, y, width, height)
+		return nil
 	}
 }
 
-func fullScreen(w window.Window) func([]string) {
-	return func(sub []string) {
+func fullScreen(w window.Window) func([]string) error {
+	return func(sub []string) error {
 		on := true
 		if len(sub) > 0 {
 			if sub[0] == "off" {
@@ -47,14 +52,18 @@ func fullScreen(w window.Window) func([]string) {
 		}
 		err := w.SetFullScreen(on)
 		dlog.ErrorCheck(err)
+		return nil
 	}
 }
 
-func mouseCommands(w window.Window) func([]string) {
-	return func(tokenString []string) {
+func mouseCommands(w window.Window) func([]string) error {
+	return func(tokenString []string) error {
 		if len(tokenString) != 1 {
 			fmt.Println("Input must be a single string from the following (\"details\") ")
-			return
+			return oakerr.InsufficientInputs{
+				AtLeast:   1,
+				InputName: "arguments",
+			}
 		}
 		switch tokenString[0] {
 		case "details":
@@ -62,6 +71,8 @@ func mouseCommands(w window.Window) func([]string) {
 		default:
 			fmt.Println("Bad Mouse Input")
 		}
+
+		return nil
 
 	}
 
@@ -93,44 +104,56 @@ func mouseDetails(w window.Window) func(event.CID, interface{}) int {
 	}
 }
 
-func quitCommands(w window.Window) func([]string) {
-	return func(tokenString []string) {
+func quitCommands(w window.Window) func([]string) error {
+	return func(tokenString []string) error {
+		w.Quit()
 		if len(tokenString) > 0 {
 			fmt.Println("Quit does not support extra options such as the ones provided: ", tokenString)
+			return oakerr.InvalidInput{InputName: "any arguments"}
 		}
-		w.Quit()
+		return nil
+
 	}
 }
 
-func skipCommands(w window.Window) func([]string) {
-	return func(tokenString []string) {
+func skipCommands(w window.Window) func([]string) error {
+	return func(tokenString []string) error {
 
 		if len(tokenString) != 1 {
 			fmt.Println("Input must be a single string from the following (\"scene\"). ")
-			return
+			return oakerr.InsufficientInputs{
+				AtLeast:   1,
+				InputName: "arguments",
+			}
 		}
 		switch tokenString[0] {
 		case "scene":
 			w.NextScene()
 		default:
 			fmt.Println("Bad Skip Input")
+			return oakerr.NotFound{InputName: tokenString[0]}
+
 		}
+		return nil
 	}
 }
 
-func fadeCommands(tokenString []string) {
+func fadeCommands(tokenString []string) error {
 	if len(tokenString) == 0 {
 		fmt.Println("Input must start with the name of the renderable to fade")
-		return
+		return oakerr.InsufficientInputs{
+			AtLeast:   1,
+			InputName: "arguments",
+		}
 	}
 	toFade, ok := render.GetDebugRenderable(tokenString[0])
 	if ok {
 		fadeVal := parseTokenAsInt(tokenString, 1, 255)
 		toFade.(render.Modifiable).Filter(mod.Fade(fadeVal))
-		return
 	}
 
 	fmt.Println("Could not fade input", tokenString[0])
 	fmt.Printf("Possible inputs are '%s'\n", strings.Join(render.EnumerateDebugRenderableKeys(), ", "))
+	return oakerr.NotFound{InputName: tokenString[0]}
 
 }
