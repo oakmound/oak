@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/audio/internal/font"
-	"github.com/oakmound/oak/v3/audio/internal/synth"
+	"github.com/oakmound/oak/v3/audio/support/font"
+	"github.com/oakmound/oak/v3/audio/support/synth"
 )
 
 func TestPosFilter(t *testing.T) {

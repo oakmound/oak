@@ -3,7 +3,7 @@ package audio
 import (
 	"testing"
 
-	"github.com/oakmound/oak/v3/audio/internal/font"
+	"github.com/oakmound/oak/v3/audio/support/font"
 )
 
 func TestFontManager(t *testing.T) {
