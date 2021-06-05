@@ -41,12 +41,16 @@ func TestCollisionPhase(t *testing.T) {
 		return 0
 	})
 	time.Sleep(200 * time.Millisecond)
-	LastEvent = Event{floatgeom.Point2{10, 10}, ButtonNone, ""}
+	LastEvent = Event{
+		Point2: floatgeom.Point2{10, 10},
+	}
 	time.Sleep(200 * time.Millisecond)
 	if !active {
 		t.Fatalf("phase collision did not trigger")
 	}
-	LastEvent = Event{floatgeom.Point2{21, 21}, ButtonNone, ""}
+	LastEvent = Event{
+		Point2: floatgeom.Point2{21, 21},
+	}
 	time.Sleep(200 * time.Millisecond)
 	if active {
 		t.Fatalf("phase collision triggered innapropriately")
