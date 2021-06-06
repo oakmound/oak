@@ -17,8 +17,6 @@ type Logger interface {
 }
 
 // DefaultLogger is the Logger which all oak log messages are passed through.
-// If this is not manually set through SetLogger, oak will initialize this
-// to the an instance of the private logger type
 var DefaultLogger Logger = NewLogger()
 
 // ErrorCheck checks that the input is not nil, then calls Error on it if it is
