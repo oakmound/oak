@@ -44,7 +44,7 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 	dlog.SetFilter(func(msg string) bool {
 		return strings.Contains(msg, c.config.Debug.Filter)
 	})
-	err = dlog.SetDebugLevel(lvl)
+	err = dlog.SetLogLevel(lvl)
 	if err != nil {
 		return err
 	}
