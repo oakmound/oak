@@ -178,6 +178,9 @@ func (j *Joystick) close() error {
 	return j.fh.Close()
 }
 
+// Joysticks contain "js%d"
+var joystickRegex = regexp.MustCompile("js(\\d)+")
+
 func getJoysticks() []*Joystick {
 	sc := libudev.NewScanner()
 	err, dvs := sc.ScanDevices()
@@ -185,18 +188,12 @@ func getJoysticks() []*Joystick {
 		fmt.Println(err)
 		return nil
 	}
-	// Joysticks contain "js%d"
-	rgx, err := regexp.Compile("js(\\d)+")
-	if err != nil {
-		dlog.Error(err)
-		return nil
-	}
-
+	
 	filtered := []*types.Device{}
 
 	for _, d := range dvs {
 		// Find joysticks
-		if !rgx.MatchString(d.Devpath) {
+		if !joystickRegex.MatchString(d.Devpath) {
 			continue
 		}
 		// Ignore mice
@@ -210,7 +207,7 @@ func getJoysticks() []*Joystick {
 	joys := make([]*Joystick, len(filtered))
 	for i, f := range filtered {
 		var id uint32 = math.MaxUint32
-		matches := rgx.FindStringSubmatch(f.Devpath)
+		matches := joystickRegex.FindStringSubmatch(f.Devpath)
 		if len(matches) > 1 {
 			idint, err := strconv.Atoi(matches[1])
 			id = uint32(idint)
