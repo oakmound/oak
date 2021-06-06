@@ -5,9 +5,9 @@ import (
 )
 
 func TestSetLanguageString(t *testing.T) {
-	SetLanguageString("Gibberish")
-	if currentLanguage != EN {
-		t.Fatalf("Gibberish did not set language to English")
+	err := SetLanguageString("Gibberish")
+	if err == nil {
+		t.Fatal("Setting to language Gibberish did not error")
 	}
 	SetLanguageString("German")
 	if currentLanguage != DE {

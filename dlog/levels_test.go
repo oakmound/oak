@@ -2,9 +2,9 @@ package dlog_test
 
 import (
 	"testing"
+
 	"github.com/oakmound/oak/v3/dlog"
 )
-
 
 func TestLevelsString(t *testing.T) {
 	type testCase struct {
@@ -18,9 +18,6 @@ func TestLevelsString(t *testing.T) {
 		}, {
 			in:  dlog.ERROR,
 			out: "ERROR",
-		}, {
-			in:  dlog.WARN,
-			out: "WARN",
 		}, {
 			in:  dlog.INFO,
 			out: "INFO",

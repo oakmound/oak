@@ -50,7 +50,7 @@ func Open(file string) (io.ReadCloser, error) {
 			// convert data to io.Reader
 			return nopCloser{bytes.NewReader(data)}, err
 		}
-		dlog.Warn("File not found in binary", rel)
+		dlog.Info("File not found in binary", rel)
 	}
 	return os.Open(file)
 }
@@ -60,7 +60,7 @@ func ReadFile(file string) ([]byte, error) {
 	if BindataFn != nil {
 		rel, err := filepath.Rel(wd, file)
 		if err != nil {
-			dlog.Warn("Error in rel", err)
+			dlog.Info("Error in rel", err)
 			rel = file
 		}
 		return BindataFn(rel)
@@ -78,7 +78,7 @@ func ReadDir(file string) ([]os.FileInfo, error) {
 		dlog.Verb("Bindata not nil, reading directory", file)
 		rel, err = filepath.Rel(wd, file)
 		if err != nil {
-			dlog.Warn(err)
+			dlog.Info(err)
 			// Just try the relative path by itself if we can't form
 			// an absolute path.
 			rel = file
@@ -95,7 +95,7 @@ func ReadDir(file string) ([]os.FileInfo, error) {
 			}
 			return fis, nil
 		}
-		dlog.Warn(err)
+		dlog.Info(err)
 	}
 	return ioutil.ReadDir(file)
 }

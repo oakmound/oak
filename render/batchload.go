@@ -106,7 +106,7 @@ func BlankBatchLoad(baseFolder string, maxFileSize int64) error {
 	}
 	if len(warnFiles) != 0 {
 		fileNames := strings.Join(warnFiles, ",")
-		dlog.Warn("The files", fileNames, "are not all lowercase. This may cause data to fail to load"+
+		dlog.Info("The files", fileNames, "are not all lowercase. This may cause data to fail to load"+
 			" when using tools like go-bindata.")
 	}
 	wg.Wait()

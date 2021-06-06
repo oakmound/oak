@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/oakmound/oak/v3/dlog"
@@ -29,9 +30,6 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 		return fmt.Errorf("failed to create config: %w", err)
 	}
 
-	dlog.SetLogger(dlog.NewLogger())
-	dlog.CreateLogFile()
-
 	// if c.config.Screen.TargetWidth != 0 && c.config.Screen.TargetHeight != 0 {
 	// 	w, h := driver.MonitorSize()
 	// 	if w != 0 || h != 0 {
@@ -43,11 +41,17 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 	if err != nil {
 		return fmt.Errorf("failed to parse debug config: %w", err)
 	}
-	dlog.SetDebugLevel(lvl)
-	// We are intentionally using the lvl value before checking error,
-	// because we can only log errors through dlog itself anyway
-	dlog.SetDebugFilter(c.config.Debug.Filter)
-	oakerr.SetLanguageString(c.config.Language)
+	dlog.SetFilter(func(msg string) bool {
+		return strings.Contains(msg, c.config.Debug.Filter)
+	})
+	err = dlog.SetDebugLevel(lvl)
+	if err != nil {
+		return err
+	}
+	err = oakerr.SetLanguageString(c.config.Language)
+	if err != nil {
+		return err
+	}
 
 	// TODO: languages
 	dlog.Info("Oak Init Start")
