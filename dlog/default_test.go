@@ -26,7 +26,6 @@ func TestLogger(t *testing.T) {
 	var buff = new(bytes.Buffer)
 
 	lgr.SetOutput(buff)
-
 	// This function wrapper corrects the logged file generated
 	calllogger := func() {
 		lgr.Error("error")
@@ -37,7 +36,6 @@ func TestLogger(t *testing.T) {
 		lgr.Verb("bar")
 		lgr.Verb("foo")
 	}
-
 	calllogger()
 
 	expectedOut := `[default_test:39]  ERROR: error
