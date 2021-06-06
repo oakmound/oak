@@ -1,25 +1,27 @@
-package dlog
+package dlog_test
 
 import (
 	"bytes"
 	"strings"
 	"testing"
+
+	"github.com/oakmound/oak/v3/dlog"
 )
 
 func TestLogger(t *testing.T) {
-	lgr := NewLogger().(*logger)
+	lgr := dlog.NewLogger()
 
 	defaultLevel := lgr.GetLogLevel()
-	if defaultLevel != ERROR {
+	if defaultLevel != dlog.ERROR {
 		t.Fatalf("expected default log level to be ERROR, was: %v", defaultLevel)
 	}
 
-	err := lgr.SetDebugLevel(-1)
+	err := lgr.SetLogLevel(-1)
 	if err == nil {
 		t.Fatalf("expected -1 log level to error")
 	}
 
-	lgr.SetDebugLevel(VERBOSE)
+	lgr.SetLogLevel(dlog.VERBOSE)
 
 	var buff = new(bytes.Buffer)
 

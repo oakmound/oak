@@ -108,9 +108,9 @@ func (l *logger) SetFilter(filter func(string) bool) {
 	l.debugFilter = filter
 }
 
-// SetDebugLevel sets what message levels of debug
+// SetLogLevel sets what message levels of debug
 // will be printed.
-func (l *logger) SetDebugLevel(level Level) error {
+func (l *logger) SetLogLevel(level Level) error {
 	if level < NONE || level > VERBOSE {
 		return oakerr.InvalidInput{}
 	} else {

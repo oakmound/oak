@@ -10,9 +10,9 @@ type Logger interface {
 	Error(...interface{})
 	Info(...interface{})
 	Verb(...interface{})
-	GetLogLevel() Level
 	SetFilter(func(string) bool)
-	SetDebugLevel(l Level) error
+	GetLogLevel() Level
+	SetLogLevel(l Level) error
 	SetOutput(io.Writer)
 }
 
@@ -55,9 +55,9 @@ func SetFilter(filter func(string) bool) {
 	DefaultLogger.SetFilter(filter)
 }
 
-// SetDebugLevel sets the log level of the fullOakLogger.
-func SetDebugLevel(l Level) error {
-	return DefaultLogger.SetDebugLevel(l)
+// SetLogLevel sets the log level of the default logger.
+func SetLogLevel(l Level) error {
+	return DefaultLogger.SetLogLevel(l)
 }
 
 func SetOutput(w io.Writer) {

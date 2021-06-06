@@ -73,3 +73,15 @@ func TestParseDebugLevel(t *testing.T) {
 		})
 	}
 }
+
+func TestDefaultFunctions(t *testing.T) {
+	// coverage tests, functionality tested elsewhere
+	dlog.Info("test")
+	dlog.Verb("test")
+	dlog.SetLogLevel(dlog.VERBOSE)
+	if dlog.GetLogLevel() != dlog.VERBOSE {
+		t.Fatalf("GetLogLevel did not match Set")
+	}
+	dlog.SetOutput(os.Stderr)
+	dlog.SetFilter(func(s string) bool { return false })
+}
