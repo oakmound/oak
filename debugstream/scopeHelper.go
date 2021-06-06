@@ -16,11 +16,17 @@ import (
 
 // AddDefaultsForScope for debugging.
 func (sc *ScopedCommands) AddDefaultsForScope(scopeID int32, controller window.Window) {
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "fullscreen", nil, fullScreen(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "fullscreen", explainFullScreen, fullScreen(controller)))
 	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "mouse", nil, mouseCommands(controller)))
 	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "quit", nil, quitCommands(controller)))
 	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "skip", nil, skipCommands(controller)))
 	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "move", nil, moveWindow(controller)))
+
+	if sc.assumedScope != 0 {
+		return
+	}
+	// assume the scope for easy usage here
+	sc.assumedScope = scopeID
 }
 
 func moveWindow(w window.Window) func([]string) string {
@@ -41,6 +47,9 @@ func moveWindow(w window.Window) func([]string) string {
 	}
 }
 
+func explainFullScreen([]string) string {
+	return "specify off 'fullscreen off' to exit fullscreen\n"
+}
 func fullScreen(w window.Window) func([]string) string {
 	return func(sub []string) (out string) {
 		on := true

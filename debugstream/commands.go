@@ -39,7 +39,7 @@ func newCommand(name string, usage func([]string) string, operation func([]strin
 func NewScopedCommands() *ScopedCommands {
 	sc := &ScopedCommands{commands: map[int32]map[string]command{}}
 	sc.AddCommand("help", nil, sc.printHelp)
-	sc.AddCommand("scope", nil, sc.assumeScope)
+	sc.AddCommand("scope", sc.explainAssumeScope, sc.assumeScope)
 	sc.AddCommand("fade", nil, fadeCommands)
 	return sc
 }
@@ -107,22 +107,25 @@ func (sc *ScopedCommands) AttachToStream(input io.Reader, out io.Writer) {
 
 							tokenIDX++
 							// see if specified
-							if cmd, ok := sc.commands[scopeID][tokenString[tokenIDX]]; ok {
+							potentialOp := strings.ToLower(tokenString[tokenIDX])
+							if cmd, ok := sc.commands[scopeID][potentialOp]; ok {
 								commandOut := cmd.operation(tokenString[tokenIDX+1:])
 								out.Write([]byte(commandOut))
 								continue
 							}
 						}
-
+						potentialOp := strings.ToLower(tokenString[0])
 						// assumedscope
-						if cmd, ok := sc.commands[sc.assumedScope][tokenString[0]]; ok {
-							cmd.operation(tokenString[1:])
+						if cmd, ok := sc.commands[sc.assumedScope][potentialOp]; ok {
+							commandOut := cmd.operation(tokenString[1:])
+							out.Write([]byte(commandOut))
 							continue
 						}
 
 						// fallback to scope 0
-						if cmd, ok := sc.commands[0][tokenString[0]]; ok {
-							cmd.operation(tokenString[1:])
+						if cmd, ok := sc.commands[0][potentialOp]; ok {
+							commandOut := cmd.operation(tokenString[1:])
+							out.Write([]byte(commandOut))
 							continue
 						}
 
@@ -158,7 +161,9 @@ func (sc *ScopedCommands) AddScopedCommand(scopeID int32, s string, usageFn func
 }
 
 // addCommand for future executions.
-func (sc *ScopedCommands) addCommand(scopeID int32, s string, usageFn func([]string) string, fn func([]string) string, force bool) error {
+func (sc *ScopedCommands) addCommand(scopeID int32, sname string, usageFn func([]string) string, fn func([]string) string, force bool) error {
+
+	s := strings.ToLower(sname)
 
 	sc.Lock()
 	defer sc.Unlock()
@@ -217,7 +222,7 @@ func (sc *ScopedCommands) RemoveScope(scope int32) {
 }
 
 // GetDebugKeys returns the current debug console commands as a string array
-func (sc *ScopedCommands) CommandsInScope(scope int32) []string {
+func (sc *ScopedCommands) CommandsInScope(scope int32, showUsage bool) []string {
 
 	cmds, ok := sc.commands[scope]
 	if !ok {
@@ -226,15 +231,18 @@ func (sc *ScopedCommands) CommandsInScope(scope int32) []string {
 
 	dkeys := make([]string, len(cmds))
 	i := 0
-	for k := range cmds {
-		dkeys[i] = k
+	empty := []string{}
+	for k, command := range cmds {
+		dkeys[i] = k + "\n"
+		if showUsage && command.usage != nil {
+			dkeys[i] = fmt.Sprintf("%s: %s", k, command.usage(empty))
+		}
 		i++
 	}
 	return dkeys
 }
 
 func (sc *ScopedCommands) printHelp(tokenString []string) (out string) {
-
 	scopeID := sc.assumedScope
 	var err error
 	if len(tokenString) != 0 {
@@ -251,25 +259,31 @@ func (sc *ScopedCommands) printHelp(tokenString []string) (out string) {
 		fmt.Sprintf("Active Scopes: %v\n", sc.scopes)
 	if _, ok := sc.commands[scopeID]; !ok {
 		out += fmt.Sprintf("inactive scope %d see correct usage via help\n", scopeID)
+		return
 	}
 
 	out += fmt.Sprintf("Current Assumed Scope: %v\n", sc.assumedScope)
 	// TODO: if in a verbose mode present usage.
-
-	out += fmt.Sprintf("General Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(0), "\n"+indent))
-	out += fmt.Sprintf("Current Window Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(scopeID), "\n"+indent))
+	out += fmt.Sprintf("General Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(0, true), indent))
+	if scopeID != 0 {
+		out += fmt.Sprintf("Current Window Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(scopeID, true), indent))
+	}
 	return
 }
 
 const indent = "  "
 
+func (sc *ScopedCommands) explainAssumeScope([]string) string {
+	return fmt.Sprintf("provide a scopeID to use commands without a scopeID prepended. Current Scopes are: %v\n", sc.scopes)
+}
+
 // assumeScope of the given windowID if possible
 // This allows for easier usage of windows when multiple windows exist.
 func (sc *ScopedCommands) assumeScope(tokenString []string) (out string) {
 	if len(tokenString) == 0 {
-		fmt.Println("assume scope requires a scopeID or -")
-		fmt.Printf("Active Scopes: %v\n", sc.scopes)
-
+		out += "assume scope requires a scopeID\n" +
+			fmt.Sprintf("Active Scopes: %v\n", sc.scopes)
+		return
 	}
 
 	scopeID, err := strToInt32(tokenString[0])
