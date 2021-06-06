@@ -135,9 +135,10 @@ func (c *Controller) TriggerKeyHeld(e okey.Event) {
 // from a real key mouse press or movement.
 func (c *Controller) TriggerMouseEvent(mevent omouse.Event) {
 	c.Propagate(mevent.Event+"On", mevent)
-	c.logicHandler.Trigger(mevent.Event, mevent)
+	c.logicHandler.Trigger(mevent.Event, &mevent)
 
-	mevent.Point2[0] += float64(c.viewPos[0])
-	mevent.Point2[1] += float64(c.viewPos[1])
-	c.Propagate(mevent.Event+"OnRelative", mevent)
+	relativeEvent := mevent
+	relativeEvent.Point2[0] += float64(c.viewPos[0])
+	relativeEvent.Point2[1] += float64(c.viewPos[1])
+	c.Propagate(relativeEvent.Event+"OnRelative", relativeEvent)
 }
