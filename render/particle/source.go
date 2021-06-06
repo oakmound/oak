@@ -4,7 +4,6 @@ import (
 	"math"
 	"time"
 
-	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/physics"
 	"github.com/oakmound/oak/v3/render"
@@ -171,8 +170,7 @@ func (ps *Source) addParticles() {
 		ps.particles[ps.nextPID] = p
 		ps.nextPID++
 		p.SetLayer(ps.Layer(bp.GetPos()))
-		_, err := render.Draw(p, ps.stackLevel)
-		dlog.ErrorCheck(err)
+		render.Draw(p, ps.stackLevel)
 	}
 
 }

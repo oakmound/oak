@@ -93,16 +93,13 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 		c.config.Assets.AudioPath)
 
 	// TODO: languages
-	dlog.Info("Init Scene Loop")
 	go c.sceneLoop(firstScene, c.config.TrackInputChanges)
-	dlog.Info("Init asset load")
 	render.SetAssetPaths(imageDir)
 	go c.loadAssets(imageDir, audioDir)
 	if c.config.EnableDebugConsole {
 		dlog.Info("Init Console")
 		go c.debugConsole(os.Stdin)
 	}
-	dlog.Info("Init Main Driver")
 	c.Driver(c.lifecycleLoop)
 	return c.exitError
 }

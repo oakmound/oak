@@ -5,8 +5,6 @@ import (
 
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/oakerr"
-
-	"github.com/oakmound/oak/v3/dlog"
 )
 
 var (
@@ -84,7 +82,6 @@ func (d *DrawStack) Draw(r Renderable, layers ...int) (Renderable, error) {
 	if len(layers) > 0 {
 		stackLayer := layers[0]
 		if stackLayer < 0 || stackLayer >= len(d.as) {
-			dlog.Error("Layer", stackLayer, "does not exist on global draw stack")
 			return nil, oakerr.InvalidInput{InputName: "layers"}
 		}
 		return d.as[stackLayer].Add(r, layers[1:]...), nil

@@ -10,7 +10,6 @@ import (
 
 	"github.com/oakmound/oak/v3/render/mod"
 
-	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/render"
 
 	"github.com/oakmound/oak/v3/alg/floatgeom"
@@ -60,11 +59,10 @@ var initialOffsets = map[string]floatgeom.Point2{
 	"RtTrigger":     {240, 6},
 }
 
-func newRenderer(ctx *scene.Context, joy *joystick.Joystick) {
+func newRenderer(ctx *scene.Context, joy *joystick.Joystick) error {
 	outline, err := render.LoadSprite("", "controllerOutline.png")
 	if err != nil {
-		dlog.Error(err)
-		return
+		return err
 	}
 	rend := &renderer{
 		joy:       joy,
@@ -235,6 +233,7 @@ func newRenderer(ctx *scene.Context, joy *joystick.Joystick) {
 		rend.rs["RtStick"].SetPos(pos.X(), pos.Y())
 		return 0
 	})
+	return nil
 }
 
 func main() {
@@ -258,7 +257,10 @@ func main() {
 			jCh, cancel := joystick.WaitForJoysticks(1 * time.Second)
 			defer cancel()
 			for joy := range jCh {
-				newRenderer(ctx, joy)
+				err := newRenderer(ctx, joy)
+				if err != nil {
+					fmt.Println(err)
+				}
 			}
 		}()
 	}})

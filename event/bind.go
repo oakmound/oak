@@ -1,14 +1,9 @@
 package event
 
-import "github.com/oakmound/oak/v3/dlog"
-
 // Bind adds a function to the event bus tied to the given callerID
 // to be called when the event name is triggered. It is equivalent to
 // calling BindPriority with a zero Priority.
 func (eb *Bus) Bind(name string, callerID CID, fn Bindable) {
-
-	dlog.Verb("Binding ", callerID, " with name ", name)
-
 	eb.pendingMutex.Lock()
 	eb.binds = append(eb.binds, UnbindOption{
 		Event: Event{

@@ -223,7 +223,6 @@ func (c *Controller) fullScreen(sub []string) {
 	// 	}
 	// }
 	//err := c.SetFullScreen(on)
-	//dlog.ErrorCheck(err)
 }
 
 // RunCommand runs a command added with AddCommand.

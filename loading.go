@@ -10,14 +10,13 @@ import (
 
 func (c *Controller) loadAssets(imageDir, audioDir string) {
 	if c.config.BatchLoad {
-		dlog.Info("Loading Images")
 		var eg errgroup.Group
 		eg.Go(func() error {
 			err := render.BlankBatchLoad(imageDir, c.config.BatchLoadOptions.MaxImageFileSize)
 			if err != nil {
 				return err
 			}
-			dlog.Info("Done Loading Images")
+			dlog.Verb("Done Loading Images")
 			return nil
 		})
 		eg.Go(func() error {
@@ -30,7 +29,7 @@ func (c *Controller) loadAssets(imageDir, audioDir string) {
 			if err != nil {
 				return err
 			}
-			dlog.Info("Done Loading Audio")
+			dlog.Verb("Done Loading Audio")
 			return nil
 		})
 		dlog.ErrorCheck(eg.Wait())
@@ -39,7 +38,7 @@ func (c *Controller) loadAssets(imageDir, audioDir string) {
 }
 
 func (c *Controller) endLoad() {
-	dlog.Info("Done Loading")
+	dlog.Verb("Done Loading")
 	c.startupLoading = false
 }
 
