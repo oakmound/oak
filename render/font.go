@@ -15,7 +15,6 @@ import (
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/fileutil"
-	"github.com/oakmound/oak/v3/oakerr"
 )
 
 var (
@@ -56,6 +55,7 @@ func (fg *FontGenerator) Generate() (*Font, error) {
 
 	// Replace zero values with defaults
 	var fnt *truetype.Font
+	var err error
 	if fg.File == "" && len(fg.RawFile) == 0 {
 		if defaultFontFile != "" {
 			fg.File = defaultFontFile
@@ -64,7 +64,6 @@ func (fg *FontGenerator) Generate() (*Font, error) {
 		}
 	}
 	if len(fg.RawFile) != 0 {
-		var err error
 		fnt, err = truetype.Parse(fg.RawFile)
 		if err != nil {
 			return nil, err
@@ -74,9 +73,9 @@ func (fg *FontGenerator) Generate() (*Font, error) {
 		if fg.Absolute {
 			dir = ""
 		}
-		fnt = LoadFont(dir, fg.File)
-		if fnt == nil {
-			return nil, oakerr.InvalidInput{InputName: "fg.File"}
+		fnt, err = LoadFont(dir, fg.File)
+		if err != nil {
+			return nil, err
 		}
 	}
 	if fg.Size == 0 {
@@ -259,19 +258,17 @@ func FontColor(s string) image.Image {
 // LoadFont loads in a font file and stores it with the given fontFile name.
 // This is necessary before using that file in a generator, otherwise the default
 // directory will be tried at generation time.
-func LoadFont(dir, fontFile string) *truetype.Font {
+func LoadFont(dir, fontFile string) (*truetype.Font, error) {
 	if _, ok := loadedFonts[fontFile]; !ok {
 		fontBytes, err := fileutil.ReadFile(filepath.Join(dir, fontFile))
 		if err != nil {
-			dlog.Error(err)
-			return nil
+			return nil, err
 		}
 		font, err := truetype.Parse(fontBytes)
 		if err != nil {
-			dlog.Error(err)
-			return nil
+			return nil, err
 		}
 		loadedFonts[fontFile] = font
 	}
-	return loadedFonts[fontFile]
+	return loadedFonts[fontFile], nil
 }
