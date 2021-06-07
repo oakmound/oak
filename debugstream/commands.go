@@ -40,7 +40,7 @@ func NewScopedCommands() *ScopedCommands {
 	sc := &ScopedCommands{commands: map[int32]map[string]command{}}
 	sc.AddCommand("help", nil, sc.printHelp)
 	sc.AddCommand("scope", sc.explainAssumeScope, sc.assumeScope)
-	sc.AddCommand("fade", nil, fadeCommands)
+	sc.AddCommand("fade", explainFade, fadeCommands)
 	return sc
 }
 
@@ -242,32 +242,65 @@ func (sc *ScopedCommands) CommandsInScope(scope int32, showUsage bool) []string 
 	return dkeys
 }
 
+// printHelp descriptions.
+// Either for everything, a given scopeID, a given command, or a scopeID with a command.
 func (sc *ScopedCommands) printHelp(tokenString []string) (out string) {
 	scopeID := sc.assumedScope
+	commandStr := ""
 	var err error
-	if len(tokenString) != 0 {
+	tknIndex := 0
+	if len(tokenString) > 0 {
+
+		// Check for a scope
 		scopeID, err = strToInt32(tokenString[0])
-		if err != nil {
-			out += "help <scopeID> expects a valid int scope\n" +
-				fmt.Sprintf("you provided %s which errored with %v \n", tokenString[0], err) +
-				"try using help without arguments for an overview\n"
-			return
+		if err == nil {
+			tknIndex++
+		}
+		// check for a command of interest
+		if len(tokenString) > tknIndex {
+			commandStr = tokenString[tknIndex]
 		}
 	}
 
-	out += "help <scopeID> to see commands linked to a given window\n" +
-		fmt.Sprintf("Active Scopes: %v\n", sc.scopes)
+	// error out if the scopeID is invalid for one reason or another
 	if _, ok := sc.commands[scopeID]; !ok {
-		out += fmt.Sprintf("inactive scope %d see correct usage via help\n", scopeID)
+		if scopeID == sc.assumedScope {
+			out += fmt.Sprintf("current scope %v is not usable please use 'scope 0' or 'scope\n", scopeID)
+		} else {
+			out += fmt.Sprintf("inactive scope %d see correct usage by using help without the scope\n", scopeID)
+		}
 		return
 	}
 
-	out += fmt.Sprintf("Current Assumed Scope: %v\n", sc.assumedScope)
-	// TODO: if in a verbose mode present usage.
-	out += fmt.Sprintf("General Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(0, true), indent))
-	if scopeID != 0 {
-		out += fmt.Sprintf("Current Window Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(scopeID, true), indent))
+	if scopeID == sc.assumedScope {
+		out += "help <scopeID> to see commands linked to a given window\n" +
+			fmt.Sprintf("Active Scopes: %v\n", sc.scopes)
 	}
+
+	out += fmt.Sprintf("Current Assumed Scope: %v\n", sc.assumedScope) // TODO: if in a verbose mode present usage.
+
+	// give a general overview if a specific command is not specified
+	if commandStr == "" {
+		out += fmt.Sprintf("General Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(0, true), indent))
+		if scopeID != 0 {
+			out += fmt.Sprintf("Current Window Commands:\n%s%s\n", indent, strings.Join(sc.CommandsInScope(scopeID, true), indent))
+		}
+		return
+	}
+
+	out += fmt.Sprintf("Registered Instances of %s\n", commandStr)
+	// return just the usage for the given command
+	for scope, cmdSet := range sc.commands {
+		if c, ok := cmdSet[commandStr]; ok {
+			out += fmt.Sprintf("%sscope%v %s: %s\n", indent, scopeID, commandStr, c.usage(tokenString[tknIndex:]))
+		} else {
+			if scope == scopeID {
+				out += fmt.Sprintf("%sWarning scope '%v' did not have the specified command %s\n", indent, scopeID, commandStr)
+			}
+		}
+
+	}
+
 	return
 }
 

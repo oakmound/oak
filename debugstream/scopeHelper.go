@@ -17,8 +17,8 @@ import (
 // AddDefaultsForScope for debugging.
 func (sc *ScopedCommands) AddDefaultsForScope(scopeID int32, controller window.Window) {
 	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "fullscreen", explainFullScreen, fullScreen(controller)))
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "mouse", nil, mouseCommands(controller)))
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "quit", nil, quitCommands(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "mouse", explainMouse, mouseCommands(controller)))
+	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "quit", explainQuit, quitCommands(controller)))
 	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "skip", nil, skipCommands(controller)))
 	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "move", nil, moveWindow(controller)))
 
@@ -62,6 +62,15 @@ func fullScreen(w window.Window) func([]string) string {
 		dlog.ErrorCheck(err)
 		return
 	}
+}
+
+func explainMouse(tokenStrings []string) string {
+	if len(tokenStrings) > 0 {
+		if tokenStrings[0] == "details" {
+			return "next click of mouse on the given window will print its locat"
+		}
+	}
+	return "'details' for the mouse info"
 }
 
 func mouseCommands(w window.Window) func([]string) string {
@@ -110,7 +119,9 @@ func mouseDetails(w window.Window) func(event.CID, interface{}) int {
 		return event.UnbindSingle
 	}
 }
-
+func explainQuit([]string) string {
+	return "tell the given window to close itself\n"
+}
 func quitCommands(w window.Window) func([]string) string {
 	return func(tokenString []string) string {
 		w.Quit()
@@ -141,6 +152,10 @@ func skipCommands(w window.Window) func([]string) string {
 		}
 		return ""
 	}
+}
+
+func explainFade([]string) string {
+	return "fade the specified renderable by the given int if given. Renderable must be registered in debug\n"
 }
 
 func fadeCommands(tokenString []string) (out string) {
