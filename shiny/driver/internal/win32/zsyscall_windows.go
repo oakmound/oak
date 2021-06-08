@@ -43,7 +43,6 @@ var (
 
 var (
 	procShell_NotifyIconW = modshell32.NewProc("Shell_NotifyIconW")
-
 	procRegisterClass      = moduser32.NewProc("RegisterClassW")
 	procIsZoomed           = moduser32.NewProc("IsZoomed")
 	procLoadIcon           = moduser32.NewProc("LoadIconW")
@@ -77,6 +76,7 @@ var (
 	procLoadCursorFromFile = moduser32.NewProc("LoadCursorFromFileW")
 	procCreateCursor       = moduser32.NewProc("CreateCursor")
 	procSetClassLongPtr    = moduser32.NewProc("SetClassLongPtrW")
+	procGetCursorPos       = moduser32.NewProc("GetCursorPos")
 )
 
 func _GetKeyboardLayout(threadID uint32) (locale syscall.Handle) {
@@ -415,3 +415,9 @@ const (
 	// Replaces the pointer to the window procedure associated with the class.
 	GCLP_WNDPROC ClassLongParam = -24
 )
+
+func GetCursorPos() (x, y int, ok bool) {
+	pt := POINT{}
+	ret, _, _ := procGetCursorPos.Call(uintptr(unsafe.Pointer(&pt)))
+	return int(pt.X), int(pt.Y), ret != 0
+}

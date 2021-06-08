@@ -93,3 +93,7 @@ func Height() int {
 func HideCursor() error {
 	return defaultController.HideCursor()
 }
+
+func GetCursorPosition() (x, y float64, err error) {
+	return defaultController.GetCursorPosition()
+}

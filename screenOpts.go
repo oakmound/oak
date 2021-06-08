@@ -113,3 +113,17 @@ func (c *Controller) HideCursor() error {
 		Operation: "HideCursor",
 	}
 }
+
+type getCursorPositioner interface {
+	GetCursorPosition() (x, y float64)
+}
+
+func (c *Controller) GetCursorPosition() (x, y float64, err error) {
+	if wp, ok := c.windowControl.(getCursorPositioner); ok {
+		x, y := wp.GetCursorPosition()
+		return x, y, nil
+	}
+	return 0, 0, oakerr.UnsupportedPlatform{
+		Operation: "GetCursorPosition",
+	}
+}
