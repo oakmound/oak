@@ -496,6 +496,7 @@ func handleCmd(hwnd win32.HWND, uMsg uint32, wParam, lParam uintptr) {
 }
 
 func (w *windowImpl) GetCursorPosition() (x, y float64) {
+	w.windowRect, _ = win32.GetWindowRect(w.hwnd)
 	xint, yint, _ := win32.GetCursorPos()
-	return float64(xint), float64(yint)
+	return float64(xint) - float64(w.windowRect.Left), float64(yint) - float64(w.windowRect.Top)
 }
