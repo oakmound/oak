@@ -38,7 +38,7 @@ func NewEvent(x, y float64, button Button, event string) Event {
 	}
 }
 
-// NewZeroEvent creates an event with no button or event.
+// NewZeroEvent creates an event with no button or event name.
 func NewZeroEvent(x, y float64) Event {
 	return NewEvent(x, y, ButtonNone, "")
 }

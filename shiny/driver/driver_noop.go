@@ -1,4 +1,4 @@
-// +build noop
+// +build no-os-window
 
 package driver
 
