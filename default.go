@@ -11,7 +11,7 @@ import (
 	"github.com/oakmound/oak/v3/scene"
 )
 
-var defaultController *Controller
+var defaultController *Window
 
 var initDefaultControllerOnce sync.Once
 

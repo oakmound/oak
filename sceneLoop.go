@@ -14,19 +14,19 @@ import (
 // for preloading assets
 const oakLoadingScene = "oak:loading"
 
-func (c *Controller) sceneLoop(first string, trackingInputs bool) {
-	c.SceneMap.AddScene(oakLoadingScene, scene.Scene{
+func (w *Window) sceneLoop(first string, trackingInputs bool) {
+	w.SceneMap.AddScene(oakLoadingScene, scene.Scene{
 		Start: func(*scene.Context) {
 			// TODO: language
 			dlog.Info("Loading Scene Init")
 		},
 		Loop: func() bool {
-			return c.startupLoading
+			return w.startupLoading
 		},
 		End: func() (string, *scene.Result) {
 			dlog.Info("Load Complete")
-			return c.firstScene, &scene.Result{
-				NextSceneInput: c.FirstSceneInput,
+			return w.firstScene, &scene.Result{
+				NextSceneInput: w.FirstSceneInput,
 			}
 		},
 	})
@@ -38,124 +38,124 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 	// TODO: language
 	dlog.Info("First Scene Start")
 
-	c.drawCh <- struct{}{}
-	c.drawCh <- struct{}{}
+	w.drawCh <- struct{}{}
+	w.drawCh <- struct{}{}
 
 	// TODO: language
 	dlog.Verb("Draw Channel Activated")
 
-	c.firstScene = first
+	w.firstScene = first
 
-	c.SceneMap.CurrentScene = oakLoadingScene
+	w.SceneMap.CurrentScene = oakLoadingScene
 
 	for {
-		c.setViewport(intgeom.Point2{0, 0})
-		c.RemoveViewportBounds()
+		w.setViewport(intgeom.Point2{0, 0})
+		w.RemoveViewportBounds()
 
-		dlog.Info("Scene Start: ", c.SceneMap.CurrentScene)
-		scen, ok := c.SceneMap.GetCurrent()
+		dlog.Info("Scene Start: ", w.SceneMap.CurrentScene)
+		scen, ok := w.SceneMap.GetCurrent()
 		if !ok {
-			dlog.Error("Unknown scene: ", c.SceneMap.CurrentScene)
-			if c.ErrorScene != "" {
-				c.SceneMap.CurrentScene = c.ErrorScene
-				scen, ok = c.SceneMap.GetCurrent()
+			dlog.Error("Unknown scene: ", w.SceneMap.CurrentScene)
+			if w.ErrorScene != "" {
+				w.SceneMap.CurrentScene = w.ErrorScene
+				scen, ok = w.SceneMap.GetCurrent()
 				if !ok {
-					go c.exitWithError(oakerr.NotFound{InputName: "ErrorScene"})
+					go w.exitWithError(oakerr.NotFound{InputName: "ErrorScene"})
 					return
 				}
 			} else {
-				go c.exitWithError(oakerr.NotFound{InputName: "Scene"})
+				go w.exitWithError(oakerr.NotFound{InputName: "Scene"})
 				return
 			}
 		}
 		if trackingInputs {
-			c.trackInputChanges()
+			w.trackInputChanges()
 		}
-		gctx, cancel := context.WithCancel(c.ParentContext)
+		gctx, cancel := context.WithCancel(w.ParentContext)
 		go func() {
-			dlog.Info("Starting scene in goroutine", c.SceneMap.CurrentScene)
+			dlog.Info("Starting scene in goroutine", w.SceneMap.CurrentScene)
 			scen.Start(&scene.Context{
 				Context:       gctx,
 				PreviousScene: prevScene,
 				SceneInput:    result.NextSceneInput,
-				DrawStack:     c.DrawStack,
-				EventHandler:  c.logicHandler,
-				CallerMap:     c.CallerMap,
-				MouseTree:     c.MouseTree,
-				CollisionTree: c.CollisionTree,
-				Window:        c,
+				DrawStack:     w.DrawStack,
+				EventHandler:  w.logicHandler,
+				CallerMap:     w.CallerMap,
+				MouseTree:     w.MouseTree,
+				CollisionTree: w.CollisionTree,
+				Window:        w,
 			})
-			c.transitionCh <- struct{}{}
+			w.transitionCh <- struct{}{}
 		}()
 
-		c.sceneTransition(result)
+		w.sceneTransition(result)
 
 		// Post transition, begin loading animation
 		dlog.Info("Starting load animation")
-		c.drawCh <- struct{}{}
+		w.drawCh <- struct{}{}
 		dlog.Info("Getting Transition Signal")
-		<-c.transitionCh
+		<-w.transitionCh
 		dlog.Info("Resume Drawing")
 		// Send a signal to resume (or begin) drawing
-		c.drawCh <- struct{}{}
+		w.drawCh <- struct{}{}
 
 		dlog.Info("Looping Scene")
 		cont := true
 
-		dlog.ErrorCheck(c.logicHandler.UpdateLoop(c.FrameRate, c.sceneCh))
+		dlog.ErrorCheck(w.logicHandler.UpdateLoop(w.FrameRate, w.sceneCh))
 
 		nextSceneOverride := ""
 
 		for cont {
 			select {
-			case <-c.ParentContext.Done():
-			case <-c.quitCh:
+			case <-w.ParentContext.Done():
+			case <-w.quitCh:
 				cancel()
 				return
-			case <-c.sceneCh:
+			case <-w.sceneCh:
 				cont = scen.Loop()
-			case nextSceneOverride = <-c.skipSceneCh:
+			case nextSceneOverride = <-w.skipSceneCh:
 				cont = false
 			}
 		}
 		cancel()
-		dlog.Info("Scene End", c.SceneMap.CurrentScene)
+		dlog.Info("Scene End", w.SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
-		dlog.ErrorCheck(c.logicHandler.Stop())
-		prevScene = c.SceneMap.CurrentScene
+		dlog.ErrorCheck(w.logicHandler.Stop())
+		prevScene = w.SceneMap.CurrentScene
 
 		// Send a signal to stop drawing
-		c.drawCh <- struct{}{}
+		w.drawCh <- struct{}{}
 
 		dlog.Verb("Resetting Engine")
 		// Reset transient portions of the engine
 		// We start by clearing the event bus to
 		// remove most ongoing code
-		c.logicHandler.Reset()
+		w.logicHandler.Reset()
 		// We follow by clearing collision areas
 		// because otherwise collision function calls
 		// on non-entities (i.e. particles) can still
 		// be triggered and attempt to access an entity
 		dlog.Verb("Event Bus Reset")
-		c.CollisionTree.Clear()
-		c.MouseTree.Clear()
-		if c.CallerMap == event.DefaultCallerMap {
+		w.CollisionTree.Clear()
+		w.MouseTree.Clear()
+		if w.CallerMap == event.DefaultCallerMap {
 			event.ResetCallerMap()
-			c.CallerMap = event.DefaultCallerMap
+			w.CallerMap = event.DefaultCallerMap
 		} else {
-			c.CallerMap = event.NewCallerMap()
+			w.CallerMap = event.NewCallerMap()
 		}
-		c.DrawStack.Clear()
-		c.DrawStack.PreDraw()
+		w.DrawStack.Clear()
+		w.DrawStack.PreDraw()
 		dlog.Verb("Engine Reset")
 
 		// Todo: Add in customizable loading scene between regular scenes,
 		// In addition to the existing customizable loading renderable?
 
-		c.SceneMap.CurrentScene, result = scen.End()
+		w.SceneMap.CurrentScene, result = scen.End()
 		if nextSceneOverride != "" {
-			c.SceneMap.CurrentScene = nextSceneOverride
+			w.SceneMap.CurrentScene = nextSceneOverride
 		}
 		// For convenience, we allow the user to return nil
 		// but it gets translated to an empty result

@@ -8,11 +8,11 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func (c *Controller) loadAssets(imageDir, audioDir string) {
-	if c.config.BatchLoad {
+func (w *Window) loadAssets(imageDir, audioDir string) {
+	if w.config.BatchLoad {
 		var eg errgroup.Group
 		eg.Go(func() error {
-			err := render.BlankBatchLoad(imageDir, c.config.BatchLoadOptions.MaxImageFileSize)
+			err := render.BlankBatchLoad(imageDir, w.config.BatchLoadOptions.MaxImageFileSize)
 			if err != nil {
 				return err
 			}
@@ -21,7 +21,7 @@ func (c *Controller) loadAssets(imageDir, audioDir string) {
 		})
 		eg.Go(func() error {
 			var err error
-			if c.config.BatchLoadOptions.BlankOutAudio {
+			if w.config.BatchLoadOptions.BlankOutAudio {
 				err = audio.BlankBatchLoad(audioDir)
 			} else {
 				err = audio.BatchLoad(audioDir)
@@ -34,12 +34,12 @@ func (c *Controller) loadAssets(imageDir, audioDir string) {
 		})
 		dlog.ErrorCheck(eg.Wait())
 	}
-	c.endLoad()
+	w.endLoad()
 }
 
-func (c *Controller) endLoad() {
+func (w *Window) endLoad() {
 	dlog.Verb("Done Loading")
-	c.startupLoading = false
+	w.startupLoading = false
 }
 
 // SetBinaryPayload changes how oak will load files-- instead of loading from the filesystem,

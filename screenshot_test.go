@@ -10,7 +10,7 @@ import (
 	"github.com/oakmound/oak/v3/scene"
 )
 
-func blankScene(t *testing.T) *Controller {
+func blankScene(t *testing.T) *Window {
 	t.Helper()
 	c1 := NewController()
 	err := c1.SceneMap.AddScene("blank", scene.Scene{})
@@ -35,9 +35,9 @@ func TestScreenShot(t *testing.T) {
 	MatchScreenShot(t, c1, filepath.Join("testdata", "screenshot.png"))
 }
 
-func MatchScreenShot(t *testing.T, c *Controller, path string) {
+func MatchScreenShot(t *testing.T, w *Window, path string) {
 	t.Helper()
-	rgba := c.ScreenShot()
+	rgba := w.ScreenShot()
 	f, err := os.Open(path)
 	if err != nil {
 		t.Fatalf("failed to open screenshot file: %v", err)

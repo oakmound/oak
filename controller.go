@@ -21,20 +21,20 @@ import (
 	"github.com/oakmound/oak/v3/window"
 )
 
-var _ window.Window = &Controller{}
+var _ window.Window = &Window{}
 
-func (c *Controller) windowController(s screen.Screen, x, y int32, width, height int) (screen.Window, error) {
+func (w *Window) windowController(s screen.Screen, x, y int32, width, height int) (screen.Window, error) {
 	return s.NewWindow(screen.NewWindowGenerator(
 		screen.Dimensions(width, height),
-		screen.Title(c.config.Title),
+		screen.Title(w.config.Title),
 		screen.Position(x, y),
-		screen.Fullscreen(c.config.Fullscreen),
-		screen.Borderless(c.config.Borderless),
-		screen.TopMost(c.config.TopMost),
+		screen.Fullscreen(w.config.Fullscreen),
+		screen.Borderless(w.config.Borderless),
+		screen.TopMost(w.config.TopMost),
 	))
 }
 
-type Controller struct {
+type Window struct {
 	key.State
 
 	// TODO: most of these channels are not closed cleanly
@@ -106,7 +106,7 @@ type Controller struct {
 	Driver Driver
 
 	// prePublish is a function called each draw frame prior to
-	prePublish func(c *Controller, tx screen.Texture)
+	prePublish func(w *Window, tx screen.Texture)
 
 	// LoadingR is a renderable that is displayed during loading screens.
 	LoadingR render.Renderable
@@ -163,8 +163,8 @@ var (
 	nextControllerID = new(int32)
 )
 
-func NewController() *Controller {
-	c := &Controller{
+func NewController() *Window {
+	c := &Window{
 		State:        key.NewState(),
 		transitionCh: make(chan struct{}),
 		sceneCh:      make(chan struct{}),
@@ -175,7 +175,7 @@ func NewController() *Controller {
 
 	c.SceneMap = scene.NewMap()
 	c.Driver = driver.Main
-	c.prePublish = func(*Controller, screen.Texture) {}
+	c.prePublish = func(*Window, screen.Texture) {}
 	c.bkgFn = func() image.Image {
 		return image.Black
 	}
@@ -193,38 +193,38 @@ func NewController() *Controller {
 }
 
 // Propagate triggers direct mouse events on entities which are clicked
-func (c *Controller) Propagate(eventName string, me mouse.Event) {
-	c.LastMouseEvent = me
+func (w *Window) Propagate(eventName string, me mouse.Event) {
+	w.LastMouseEvent = me
 	mouse.LastEvent = me
 
-	hits := c.MouseTree.SearchIntersect(me.ToSpace().Bounds())
+	hits := w.MouseTree.SearchIntersect(me.ToSpace().Bounds())
 	sort.Slice(hits, func(i, j int) bool {
 		return hits[i].Location.Min.Z() < hits[i].Location.Max.Z()
 	})
 	for _, sp := range hits {
-		<-sp.CID.TriggerBus(eventName, &me, c.logicHandler)
+		<-sp.CID.TriggerBus(eventName, &me, w.logicHandler)
 		if me.StopPropagation {
 			break
 		}
 	}
 	me.StopPropagation = false
 
-	if c.TrackMouseClicks {
+	if w.TrackMouseClicks {
 		if eventName == mouse.PressOn+"Relative" {
-			c.lastRelativePress = me
+			w.lastRelativePress = me
 		} else if eventName == mouse.PressOn {
-			c.LastMousePress = me
+			w.LastMousePress = me
 		} else if eventName == mouse.ReleaseOn {
-			if me.Button == c.LastMousePress.Button {
-				pressHits := c.MouseTree.SearchIntersect(c.LastMousePress.ToSpace().Bounds())
+			if me.Button == w.LastMousePress.Button {
+				pressHits := w.MouseTree.SearchIntersect(w.LastMousePress.ToSpace().Bounds())
 				sort.Slice(pressHits, func(i, j int) bool {
 					return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
 				})
 				for _, sp1 := range pressHits {
 					for _, sp2 := range hits {
 						if sp1.CID == sp2.CID {
-							c.logicHandler.Trigger(mouse.Click, &me)
-							<-sp1.CID.TriggerBus(mouse.ClickOn, &me, c.logicHandler)
+							w.logicHandler.Trigger(mouse.Click, &me)
+							<-sp1.CID.TriggerBus(mouse.ClickOn, &me, w.logicHandler)
 							if me.StopPropagation {
 								return
 							}
@@ -233,8 +233,8 @@ func (c *Controller) Propagate(eventName string, me mouse.Event) {
 				}
 			}
 		} else if eventName == mouse.ReleaseOn+"Relative" {
-			if me.Button == c.lastRelativePress.Button {
-				pressHits := c.MouseTree.SearchIntersect(c.lastRelativePress.ToSpace().Bounds())
+			if me.Button == w.lastRelativePress.Button {
+				pressHits := w.MouseTree.SearchIntersect(w.lastRelativePress.ToSpace().Bounds())
 				sort.Slice(pressHits, func(i, j int) bool {
 					return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
 				})
@@ -253,83 +253,83 @@ func (c *Controller) Propagate(eventName string, me mouse.Event) {
 	}
 }
 
-func (c *Controller) Width() int {
-	return c.ScreenWidth
+func (w *Window) Width() int {
+	return w.ScreenWidth
 }
 
-func (c *Controller) Height() int {
-	return c.ScreenHeight
+func (w *Window) Height() int {
+	return w.ScreenHeight
 }
 
-func (c *Controller) Viewport() intgeom.Point2 {
-	return c.viewPos
+func (w *Window) Viewport() intgeom.Point2 {
+	return w.viewPos
 }
 
-func (c *Controller) ViewportBounds() intgeom.Rect2 {
-	return c.viewBounds
+func (w *Window) ViewportBounds() intgeom.Rect2 {
+	return w.viewBounds
 }
 
-func (c *Controller) SetLoadingRenderable(r render.Renderable) {
-	c.LoadingR = r
+func (w *Window) SetLoadingRenderable(r render.Renderable) {
+	w.LoadingR = r
 }
 
-func (c *Controller) SetBackground(b Background) {
-	c.bkgFn = func() image.Image {
+func (w *Window) SetBackground(b Background) {
+	w.bkgFn = func() image.Image {
 		return b.GetRGBA()
 	}
 }
 
-func (c *Controller) SetColorBackground(img image.Image) {
-	c.bkgFn = func() image.Image {
+func (w *Window) SetColorBackground(img image.Image) {
+	w.bkgFn = func() image.Image {
 		return img
 	}
 }
 
-func (c *Controller) GetBackgroundImage() image.Image {
-	return c.bkgFn()
+func (w *Window) GetBackgroundImage() image.Image {
+	return w.bkgFn()
 }
 
 // SetLogicHandler swaps the logic system of the engine with some other
 // implementation. If this is never called, it will use event.DefaultBus
-func (c *Controller) SetLogicHandler(h event.Handler) {
-	c.logicHandler = h
+func (w *Window) SetLogicHandler(h event.Handler) {
+	w.logicHandler = h
 }
 
-func (c *Controller) NextScene() {
-	c.skipSceneCh <- ""
+func (w *Window) NextScene() {
+	w.skipSceneCh <- ""
 }
 
-func (c *Controller) GoToScene(nextScene string) {
-	c.skipSceneCh <- nextScene
+func (w *Window) GoToScene(nextScene string) {
+	w.skipSceneCh <- nextScene
 }
 
-func (c *Controller) InFocus() bool {
-	return c.inFocus
+func (w *Window) InFocus() bool {
+	return w.inFocus
 }
 
 // CollisionTrees helps access the mouse and collision trees from the controller.
 // These trees together detail how a controller can drive mouse and entity interactions.
-func (c *Controller) CollisionTrees() (mouseTree, collisionTree *collision.Tree) {
-	return c.MouseTree, c.CollisionTree
+func (w *Window) CollisionTrees() (mouseTree, collisionTree *collision.Tree) {
+	return w.MouseTree, w.CollisionTree
 }
 
-func (c *Controller) EventHandler() event.Handler {
-	return c.logicHandler
+func (w *Window) EventHandler() event.Handler {
+	return w.logicHandler
 }
 
 // MostRecentInput returns the most recent input type (e.g keyboard/mouse or joystick)
 // recognized by the window. This value will only change if the controller's Config is
 // set to TrackInputChanges
-func (c *Controller) MostRecentInput() InputType {
-	return c.mostRecentInput
+func (w *Window) MostRecentInput() InputType {
+	return w.mostRecentInput
 }
 
-func (c *Controller) exitWithError(err error) {
-	c.exitError = err
-	c.Quit()
+func (w *Window) exitWithError(err error) {
+	w.exitError = err
+	w.Quit()
 }
 
-func (c *Controller) debugConsole(input io.Reader, output io.Writer) {
-	debugstream.AttachToStream(c.ParentContext, input, output)
-	debugstream.AddDefaultsForScope(c.ControllerID, c)
+func (w *Window) debugConsole(input io.Reader, output io.Writer) {
+	debugstream.AttachToStream(w.ParentContext, input, output)
+	debugstream.AddDefaultsForScope(w.ControllerID, w)
 }

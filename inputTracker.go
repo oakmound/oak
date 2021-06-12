@@ -20,25 +20,25 @@ const (
 	InputJoystick      InputType = iota
 )
 
-func (c *Controller) trackInputChanges() {
-	c.logicHandler.GlobalBind(key.Down, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&c.mostRecentInput, InputKeyboardMouse)
+func (w *Window) trackInputChanges() {
+	w.logicHandler.GlobalBind(key.Down, func(event.CID, interface{}) int {
+		old := atomic.SwapInt32(&w.mostRecentInput, InputKeyboardMouse)
 		if old != InputKeyboardMouse {
-			c.logicHandler.Trigger(event.InputChange, InputKeyboardMouse)
+			w.logicHandler.Trigger(event.InputChange, InputKeyboardMouse)
 		}
 		return 0
 	})
-	c.logicHandler.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&c.mostRecentInput, InputKeyboardMouse)
+	w.logicHandler.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
+		old := atomic.SwapInt32(&w.mostRecentInput, InputKeyboardMouse)
 		if old != InputKeyboardMouse {
-			c.logicHandler.Trigger(event.InputChange, InputKeyboardMouse)
+			w.logicHandler.Trigger(event.InputChange, InputKeyboardMouse)
 		}
 		return 0
 	})
-	c.logicHandler.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&c.mostRecentInput, InputJoystick)
+	w.logicHandler.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
+		old := atomic.SwapInt32(&w.mostRecentInput, InputJoystick)
 		if old != InputJoystick {
-			c.logicHandler.Trigger(event.InputChange, InputJoystick)
+			w.logicHandler.Trigger(event.InputChange, InputJoystick)
 		}
 		return 0
 	})

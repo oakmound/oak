@@ -22,10 +22,10 @@ var (
 // Init initializes the oak engine.
 // It spawns off an event loop of several goroutines
 // and loops through scenes after initialization.
-func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) error {
+func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 
 	var err error
-	c.config, err = NewConfig(configOptions...)
+	w.config, err = NewConfig(configOptions...)
 	if err != nil {
 		return fmt.Errorf("failed to create config: %w", err)
 	}
@@ -37,18 +37,18 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 	// 	}
 	// }
 
-	lvl, err := dlog.ParseDebugLevel(c.config.Debug.Level)
+	lvl, err := dlog.ParseDebugLevel(w.config.Debug.Level)
 	if err != nil {
 		return fmt.Errorf("failed to parse debug config: %w", err)
 	}
 	dlog.SetFilter(func(msg string) bool {
-		return strings.Contains(msg, c.config.Debug.Filter)
+		return strings.Contains(msg, w.config.Debug.Filter)
 	})
 	err = dlog.SetLogLevel(lvl)
 	if err != nil {
 		return err
 	}
-	err = oakerr.SetLanguageString(c.config.Language)
+	err = oakerr.SetLanguageString(w.config.Language)
 	if err != nil {
 		return err
 	}
@@ -56,50 +56,50 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 	// TODO: languages
 	dlog.Info("Oak Init Start")
 
-	c.ScreenWidth = c.config.Screen.Width
-	c.ScreenHeight = c.config.Screen.Height
-	c.FrameRate = c.config.FrameRate
-	c.DrawFrameRate = c.config.DrawFrameRate
-	c.IdleDrawFrameRate = c.config.IdleDrawFrameRate
+	w.ScreenWidth = w.config.Screen.Width
+	w.ScreenHeight = w.config.Screen.Height
+	w.FrameRate = w.config.FrameRate
+	w.DrawFrameRate = w.config.DrawFrameRate
+	w.IdleDrawFrameRate = w.config.IdleDrawFrameRate
 	// assume we are in focus on window creation
-	c.inFocus = true
+	w.inFocus = true
 
-	c.DrawTicker = time.NewTicker(timing.FPSToFrameDelay(c.DrawFrameRate))
+	w.DrawTicker = time.NewTicker(timing.FPSToFrameDelay(w.DrawFrameRate))
 
 	wd, _ := os.Getwd()
 
-	render.SetFontDefaults(wd, c.config.Assets.AssetPath, c.config.Assets.FontPath,
-		c.config.Font.Hinting, c.config.Font.Color, c.config.Font.File, c.config.Font.Size,
-		c.config.Font.DPI)
+	render.SetFontDefaults(wd, w.config.Assets.AssetPath, w.config.Assets.FontPath,
+		w.config.Font.Hinting, w.config.Font.Color, w.config.Font.File, w.config.Font.Size,
+		w.config.Font.DPI)
 
-	if c.config.TrackInputChanges {
-		trackJoystickChanges(c.logicHandler)
+	if w.config.TrackInputChanges {
+		trackJoystickChanges(w.logicHandler)
 	}
-	if c.config.EventRefreshRate != 0 {
-		c.logicHandler.SetRefreshRate(time.Duration(c.config.EventRefreshRate))
+	if w.config.EventRefreshRate != 0 {
+		w.logicHandler.SetRefreshRate(time.Duration(w.config.EventRefreshRate))
 	}
 
-	if !c.config.SkipRNGSeed {
+	if !w.config.SkipRNGSeed {
 		// seed math/rand with time.Now, useful for minimal examples
 		//that would tend to forget to do this.
 		rand.Seed(time.Now().UTC().UnixNano())
 	}
 
 	imageDir := filepath.Join(wd,
-		c.config.Assets.AssetPath,
-		c.config.Assets.ImagePath)
+		w.config.Assets.AssetPath,
+		w.config.Assets.ImagePath)
 	audioDir := filepath.Join(wd,
-		c.config.Assets.AssetPath,
-		c.config.Assets.AudioPath)
+		w.config.Assets.AssetPath,
+		w.config.Assets.AudioPath)
 
 	// TODO: languages
-	go c.sceneLoop(firstScene, c.config.TrackInputChanges)
+	go w.sceneLoop(firstScene, w.config.TrackInputChanges)
 	render.SetAssetPaths(imageDir)
-	go c.loadAssets(imageDir, audioDir)
-	if c.config.EnableDebugConsole {
+	go w.loadAssets(imageDir, audioDir)
+	if w.config.EnableDebugConsole {
 		dlog.Info("Init Console")
-		go c.debugConsole(os.Stdin, os.Stdout)
+		go w.debugConsole(os.Stdin, os.Stdout)
 	}
-	c.Driver(c.lifecycleLoop)
-	return c.exitError
+	w.Driver(w.lifecycleLoop)
+	return w.exitError
 }
