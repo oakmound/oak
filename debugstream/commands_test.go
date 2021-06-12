@@ -59,17 +59,17 @@ func TestScopedCommands_Help(t *testing.T) {
 Active Scopes: [0]
 Current Assumed Scope: 0
 General Commands:
+  fade: fade the specified renderable by the given int if given. Renderable must be registered in debug
   help
   scope: provide a scopeID to use commands without a scopeID prepended
-  fade: fade the specified renderable by the given int if given. Renderable must be registered in debug
 
 help <scopeID> to see commands linked to a given window
 Active Scopes: [0]
 Current Assumed Scope: 0
 General Commands:
+  fade: fade the specified renderable by the given int if given. Renderable must be registered in debug
   help
   scope: provide a scopeID to use commands without a scopeID prepended
-  fade: fade the specified renderable by the given int if given. Renderable must be registered in debug
 
 help <scopeID> to see commands linked to a given window
 Active Scopes: [0]
