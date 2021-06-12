@@ -59,7 +59,7 @@ if [ -f profile.out ]; then
     cat profile.out >> coverage.txt
     rm profile.out
 fi
-go test -coverprofile=profile.out -covermode=atomic --tags=no-os-window .
+go test -coverprofile=profile.out -covermode=atomic --tags=nooswindow .
 if [ -f profile.out ]; then
     cat profile.out >> coverage.txt
     rm profile.out
