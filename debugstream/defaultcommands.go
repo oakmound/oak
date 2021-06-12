@@ -1,6 +1,7 @@
 package debugstream
 
 import (
+	"context"
 	"io"
 	"sync"
 
@@ -21,23 +22,16 @@ func checkOrCreateDefaults() {
 
 // AddCommand to the default command set.
 // See ScopedCommands' AddComand.
-func AddCommand(s string, usageFn func([]string) string, fn func([]string) string) error {
+func AddCommand(c Command) error {
 	checkOrCreateDefaults()
-	return DefaultCommands.AddCommand(s, usageFn, fn)
-}
-
-// AddScopedCommand to the default command set.
-// See ScopedCommands' AddScopedCommand.
-func AddScopedCommand(scopeID int32, s string, usageFn func([]string) string, fn func([]string) string) error {
-	checkOrCreateDefaults()
-	return DefaultCommands.AddScopedCommand(scopeID, s, usageFn, fn)
+	return DefaultCommands.AddCommand(c)
 }
 
 // AttachToStream if possible to start consuming the stream
 // and executing commands per the stored infomraiton in the ScopeCommands.
-func AttachToStream(input io.Reader, output io.Writer) {
+func AttachToStream(ctx context.Context, input io.Reader, output io.Writer) {
 	checkOrCreateDefaults()
-	DefaultCommands.AttachToStream(input, output)
+	DefaultCommands.AttachToStream(ctx, input, output)
 }
 
 // AddDefaultsForScope for debugging.

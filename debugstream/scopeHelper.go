@@ -16,11 +16,11 @@ import (
 
 // AddDefaultsForScope for debugging.
 func (sc *ScopedCommands) AddDefaultsForScope(scopeID int32, controller window.Window) {
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "fullscreen", explainFullScreen, fullScreen(controller)))
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "mouse", explainMouse, mouseCommands(controller)))
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "quit", explainQuit, quitCommands(controller)))
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "skip", nil, skipCommands(controller)))
-	dlog.ErrorCheck(sc.AddScopedCommand(scopeID, "move", nil, moveWindow(controller)))
+	dlog.ErrorCheck(sc.AddCommand(Command{ScopeID: scopeID, Name: "fullscreen", Usage: explainFullScreen, Operation: fullScreen(controller)}))
+	dlog.ErrorCheck(sc.AddCommand(Command{ScopeID: scopeID, Name: "mouse-details", Usage: explainMouseDetails, Operation: mouseCommands(controller)}))
+	dlog.ErrorCheck(sc.AddCommand(Command{ScopeID: scopeID, Name: "quit", Usage: explainQuit, Operation: quitCommands(controller)}))
+	dlog.ErrorCheck(sc.AddCommand(Command{ScopeID: scopeID, Name: "skip-scene", Operation: skipCommands(controller)}))
+	dlog.ErrorCheck(sc.AddCommand(Command{ScopeID: scopeID, Name: "move", Operation: moveWindow(controller)}))
 
 	if sc.assumedScope != 0 {
 		return
@@ -47,9 +47,8 @@ func moveWindow(w window.Window) func([]string) string {
 	}
 }
 
-func explainFullScreen([]string) string {
-	return "specify off 'fullscreen off' to exit fullscreen\n"
-}
+const explainFullScreen = "specify off 'fullscreen off' to exit fullscreen"
+
 func fullScreen(w window.Window) func([]string) string {
 	return func(sub []string) (out string) {
 		on := true
@@ -64,34 +63,13 @@ func fullScreen(w window.Window) func([]string) string {
 	}
 }
 
-func explainMouse(tokenStrings []string) string {
-	if len(tokenStrings) > 0 {
-		if tokenStrings[0] == "details" {
-			return "next click of mouse on the given window will print its locat"
-		}
-	}
-	return "'details' for the mouse info"
-}
+const explainMouseDetails = "the mext mouse click on the given window will print the cursor's location"
 
 func mouseCommands(w window.Window) func([]string) string {
 	return func(tokenString []string) string {
-		if len(tokenString) != 1 {
-			return oakerr.InsufficientInputs{
-				AtLeast:   1,
-				InputName: "arguments",
-			}.Error()
-		}
-		switch tokenString[0] {
-		case "details":
-			w.EventHandler().GlobalBind("MouseRelease", mouseDetails(w))
-		default:
-			return "Bad Mouse Input"
-		}
-
+		w.EventHandler().GlobalBind("MouseRelease", mouseDetails(w))
 		return ""
-
 	}
-
 }
 
 func mouseDetails(w window.Window) func(event.CID, interface{}) int {
@@ -119,9 +97,9 @@ func mouseDetails(w window.Window) func(event.CID, interface{}) int {
 		return event.UnbindSingle
 	}
 }
-func explainQuit([]string) string {
-	return "tell the given window to close itself\n"
-}
+
+const explainQuit = "close the given window"
+
 func quitCommands(w window.Window) func([]string) string {
 	return func(tokenString []string) string {
 		w.Quit()
@@ -136,27 +114,12 @@ func quitCommands(w window.Window) func([]string) string {
 
 func skipCommands(w window.Window) func([]string) string {
 	return func(tokenString []string) string {
-
-		if len(tokenString) != 1 {
-			return oakerr.InsufficientInputs{
-				AtLeast:   1,
-				InputName: "arguments",
-			}.Error()
-		}
-		switch tokenString[0] {
-		case "scene":
-			w.NextScene()
-		default:
-			return oakerr.NotFound{InputName: tokenString[0]}.Error()
-
-		}
+		w.NextScene()
 		return ""
 	}
 }
 
-func explainFade([]string) string {
-	return "fade the specified renderable by the given int if given. Renderable must be registered in debug\n"
-}
+const explainFade = "fade the specified renderable by the given int if given. Renderable must be registered in debug"
 
 func fadeCommands(tokenString []string) (out string) {
 	if len(tokenString) == 0 {

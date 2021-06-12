@@ -304,7 +304,7 @@ func (c *Controller) MostRecentInput() InputType {
 }
 
 func (c *Controller) debugConsole(input io.Reader, output io.Writer) {
-	debugstream.AttachToStream(input, output)
+	debugstream.AttachToStream(c.ParentContext, input, output)
 	debugstream.AddDefaultsForScope(c.ControllerID, c)
 
 }

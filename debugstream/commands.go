@@ -2,6 +2,7 @@ package debugstream
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"sort"
@@ -20,47 +21,44 @@ type ScopedCommands struct {
 	attachOnce   sync.Once
 	assumedScope int32
 	scopes       []int32
-	commands     map[int32]map[string]command
-	closeChan    chan struct{}
+	commands     map[int32]map[string]Command
 }
 
-// command is a local format for performing these debug stream things.
-type command struct {
-	name      string
-	operation func([]string) string // the actual operation to execute
-	usage     func([]string) string // optional args to give scoped usage
-}
-
-func newCommand(name string, usage func([]string) string, operation func([]string) string) command {
-	return command{name, operation, usage}
+// Command is a local format for performing these debug stream things.
+type Command struct {
+	Name      string
+	ScopeID   int32
+	Operation func([]string) string // the actual operation to execute
+	Usage     string                // usage string, print when 'help' is called
+	Force     bool                  // replace any existing command by this name
 }
 
 // NewScopedCommands creates set of standard help functions.
 func NewScopedCommands() *ScopedCommands {
-	sc := &ScopedCommands{commands: map[int32]map[string]command{}}
-	sc.AddCommand("help", nil, sc.printHelp)
-	sc.AddCommand("scope", sc.explainAssumeScope, sc.assumeScope)
-	sc.AddCommand("fade", explainFade, fadeCommands)
+	sc := &ScopedCommands{commands: map[int32]map[string]Command{}}
+	sc.AddCommand(Command{
+		Name:      "help",
+		Operation: sc.printHelp,
+	})
+	sc.AddCommand(Command{
+		Name:      "scope",
+		Usage:     explainAssumeScope,
+		Operation: sc.assumeScope,
+	})
+	sc.AddCommand(Command{
+		Name:      "fade",
+		Usage:     explainFade,
+		Operation: fadeCommands,
+	})
 	return sc
 }
 
-func (sc *ScopedCommands) UnAttachFromStream() {
-	if sc.closeChan == nil {
-		return
-	}
-	close(sc.closeChan)
-}
-
 // AttachToStream and start executing the registered commands on input to said stream.
-// Currently a given set of scoped commands may be attached once and only once.
-func (sc *ScopedCommands) AttachToStream(input io.Reader, out io.Writer) {
-	if sc == nil {
-		return
-	}
+// Currently a given set of scoped commands may be attached once and only once. It will stop
+// parsing commands when the provided context is done.
+func (sc *ScopedCommands) AttachToStream(ctx context.Context, input io.Reader, out io.Writer) {
 	sc.attachOnce.Do(
-
 		func() {
-			sc.closeChan = make(chan struct{})
 			textIn := make(chan string)
 			go func(textBuffer chan string, in io.Reader) {
 				scanner := bufio.NewScanner(in)
@@ -77,7 +75,7 @@ func (sc *ScopedCommands) AttachToStream(input io.Reader, out io.Writer) {
 				for {
 
 					select {
-					case <-sc.closeChan:
+					case <-ctx.Done():
 						out.Write([]byte("stopping debugstream"))
 						return
 
@@ -109,7 +107,7 @@ func (sc *ScopedCommands) AttachToStream(input io.Reader, out io.Writer) {
 							// see if specified
 							potentialOp := strings.ToLower(tokenString[tokenIDX])
 							if cmd, ok := sc.commands[scopeID][potentialOp]; ok {
-								commandOut := cmd.operation(tokenString[tokenIDX+1:])
+								commandOut := cmd.Operation(tokenString[tokenIDX+1:])
 								out.Write([]byte(commandOut))
 								continue
 							}
@@ -117,14 +115,14 @@ func (sc *ScopedCommands) AttachToStream(input io.Reader, out io.Writer) {
 						potentialOp := strings.ToLower(tokenString[0])
 						// assumedscope
 						if cmd, ok := sc.commands[sc.assumedScope][potentialOp]; ok {
-							commandOut := cmd.operation(tokenString[1:])
+							commandOut := cmd.Operation(tokenString[1:])
 							out.Write([]byte(commandOut))
 							continue
 						}
 
 						// fallback to scope 0
 						if cmd, ok := sc.commands[0][potentialOp]; ok {
-							commandOut := cmd.operation(tokenString[1:])
+							commandOut := cmd.Operation(tokenString[1:])
 							out.Write([]byte(commandOut))
 							continue
 						}
@@ -147,44 +145,30 @@ func (sc *ScopedCommands) AttachToStream(input io.Reader, out io.Writer) {
 // AddCommand adds a console command to call fn when
 // '<s> <args>' is input to the console. fn will be called
 // with args split on whitespace.
-func (sc *ScopedCommands) AddCommand(s string, usageFn func([]string) string, fn func([]string) string) error {
-	// We tightly link to controllerIDs here for better or for worse and controllerIDs shall always be > 0
-	// This means our unscoped commands are safe when set as 0.
-	return sc.AddScopedCommand(0, s, usageFn, fn)
-}
+func (sc *ScopedCommands) AddCommand(c Command) error {
 
-// AddScopedCommand adds a console command to call fn when
-// '<s> <args>' is input to the console. fn will be called
-// with args split on whitespace.
-func (sc *ScopedCommands) AddScopedCommand(scopeID int32, s string, usageFn func([]string) string, fn func([]string) string) error {
-	return sc.addCommand(scopeID, s, usageFn, fn, false)
-}
-
-// addCommand for future executions.
-func (sc *ScopedCommands) addCommand(scopeID int32, sname string, usageFn func([]string) string, fn func([]string) string, force bool) error {
-
-	s := strings.ToLower(sname)
+	s := strings.ToLower(c.Name)
+	scopeID := c.ScopeID
 
 	sc.Lock()
 	defer sc.Unlock()
 
 	if _, ok := sc.commands[scopeID]; !ok {
 
-		sc.commands[scopeID] = map[string]command{}
+		sc.commands[scopeID] = map[string]Command{}
 		sc.scopes = append(sc.scopes, scopeID)
 	}
 
 	if _, ok := sc.commands[scopeID][s]; ok {
-		if !force {
+		if !c.Force {
 			return oakerr.ExistingElement{
-				InputName:   s,
+				InputName:   c.Name,
 				InputType:   "string",
 				Overwritten: false,
 			}
 		}
 	}
-	sc.commands[scopeID][s] = newCommand(s, usageFn, fn)
-
+	sc.commands[scopeID][s] = c
 	return nil
 }
 
@@ -200,13 +184,13 @@ func (sc *ScopedCommands) ClearCommand(scopeID int32, s string) {
 // ResetCommands will throw out all existing debug commands from the
 // debug console.
 func (sc *ScopedCommands) ResetCommands() {
-	sc.commands = map[int32]map[string]command{}
+	sc.commands = map[int32]map[string]Command{}
 }
 
 // ResetCommandsForScope will throw out all existing debug commands from the
 // debug console for hte given scope.
 func (sc *ScopedCommands) ResetCommandsForScope(scope int32) {
-	sc.commands[scope] = map[string]command{}
+	sc.commands[scope] = map[string]Command{}
 }
 
 // RemoveScope from the command set.
@@ -231,11 +215,10 @@ func (sc *ScopedCommands) CommandsInScope(scope int32, showUsage bool) []string 
 
 	dkeys := make([]string, len(cmds))
 	i := 0
-	empty := []string{}
 	for k, command := range cmds {
 		dkeys[i] = k + "\n"
-		if showUsage && command.usage != nil {
-			dkeys[i] = fmt.Sprintf("%s: %s", k, command.usage(empty))
+		if showUsage && command.Usage != "" {
+			dkeys[i] = fmt.Sprintf("%s: %s\n", k, command.Usage)
 		}
 		i++
 	}
@@ -292,7 +275,7 @@ func (sc *ScopedCommands) printHelp(tokenString []string) (out string) {
 	// return just the usage for the given command
 	for scope, cmdSet := range sc.commands {
 		if c, ok := cmdSet[commandStr]; ok {
-			out += fmt.Sprintf("%sscope%v %s: %s\n", indent, scopeID, commandStr, c.usage(tokenString[tknIndex:]))
+			out += fmt.Sprintf("%sscope%v %s: %s\n", indent, scopeID, commandStr, c.Usage)
 		} else {
 			if scope == scopeID {
 				out += fmt.Sprintf("%sWarning scope '%v' did not have the specified command %s\n", indent, scopeID, commandStr)
@@ -305,10 +288,7 @@ func (sc *ScopedCommands) printHelp(tokenString []string) (out string) {
 }
 
 const indent = "  "
-
-func (sc *ScopedCommands) explainAssumeScope([]string) string {
-	return fmt.Sprintf("provide a scopeID to use commands without a scopeID prepended. Current Scopes are: %v\n", sc.scopes)
-}
+const explainAssumeScope = "provide a scopeID to use commands without a scopeID prepended"
 
 // assumeScope of the given windowID if possible
 // This allows for easier usage of windows when multiple windows exist.
