@@ -21,7 +21,7 @@ func TestTrackInputChanges(t *testing.T) {
 	})
 	time.Sleep(2 * time.Second)
 	expectedType := new(InputType)
-	*expectedType = KeyboardMouse
+	*expectedType = InputKeyboardMouse
 	failed := false
 	c1.logicHandler.GlobalBind(event.InputChange, func(_ event.CID, payload interface{}) int {
 		mode := payload.(InputType)
@@ -35,19 +35,19 @@ func TestTrackInputChanges(t *testing.T) {
 	if failed {
 		t.Fatalf("keyboard change failed")
 	}
-	*expectedType = Joystick
+	*expectedType = InputJoystick
 	c1.logicHandler.Trigger("Tracking"+joystick.Change, &joystick.State{})
 	time.Sleep(2 * time.Second)
 	if failed {
 		t.Fatalf("joystick change failed")
 	}
-	*expectedType = KeyboardMouse
+	*expectedType = InputKeyboardMouse
 	c1.TriggerMouseEvent(mouse.Event{Event: mouse.Press})
 	time.Sleep(2 * time.Second)
 	if failed {
 		t.Fatalf("mouse change failed")
 	}
-	c1.mostRecentInput = Joystick
+	c1.mostRecentInput = InputJoystick
 	c1.TriggerKeyDown(key.Event{})
 	time.Sleep(2 * time.Second)
 	if failed {
