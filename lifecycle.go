@@ -40,9 +40,15 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 }
 
 // Quit sends a signal to the window to close itself, closing the window and
-// any spun up resources.
+// any spun up resources. It should not be called before Init. After it is called,
+// it must not be called again.
 func (w *Window) Quit() {
-	w.windowControl.Send(lifecycle.Event{To: lifecycle.StageDead})
+	// We could have hit this before the window was created
+	if w.windowControl == nil {
+		close(w.quitCh)
+	} else {
+		w.windowControl.Send(lifecycle.Event{To: lifecycle.StageDead})
+	}
 	if w.config.EnableDebugConsole {
 		debugstream.DefaultCommands.RemoveScope(w.ControllerID)
 	}
