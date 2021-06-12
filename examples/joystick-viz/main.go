@@ -212,9 +212,9 @@ func main() {
 		ctx.EventHandler.GlobalBind(event.InputChange, func(_ event.CID, payload interface{}) int {
 			input := payload.(oak.InputType)
 			switch input {
-			case oak.Joystick:
+			case oak.InputJoystick:
 				*latestInput = "Latest Input: Joystick"
-			case oak.KeyboardMouse:
+			case oak.InputKeyboardMouse:
 				*latestInput = "Latest Input: Keyboard+Mouse"
 			}
 			return 0
