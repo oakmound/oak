@@ -221,6 +221,7 @@ func (sc *ScopedCommands) CommandsInScope(scope int32, showUsage bool) []string 
 		}
 		i++
 	}
+	sort.Strings(dkeys)
 	return dkeys
 }
 
