@@ -10,11 +10,11 @@ import (
 var (
 	// DefaultCommands to attach to. TODO: init should be lazy.
 	DefaultCommands *ScopedCommands
-	DefaultsOnce    sync.Once
+	defaultsOnce    sync.Once
 )
 
 func checkOrCreateDefaults() {
-	DefaultsOnce.Do(func() {
+	defaultsOnce.Do(func() {
 		DefaultCommands = NewScopedCommands()
 	})
 }
