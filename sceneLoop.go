@@ -71,7 +71,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 		if trackingInputs {
 			c.trackInputChanges()
 		}
-		gctx, cancel := context.WithCancel(context.Background())
+		gctx, cancel := context.WithCancel(c.ParentContext)
 		go func() {
 			dlog.Info("Starting scene in goroutine", c.SceneMap.CurrentScene)
 			scen.Start(&scene.Context{
@@ -108,6 +108,7 @@ func (c *Controller) sceneLoop(first string, trackingInputs bool) {
 
 		for cont {
 			select {
+			case <-c.ParentContext.Done():
 			case <-c.quitCh:
 				cancel()
 				return

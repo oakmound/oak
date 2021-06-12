@@ -30,6 +30,8 @@ func (c *Controller) drawLoop() {
 			<-c.drawCh
 			for {
 				select {
+				case <-c.ParentContext.Done():
+					return
 				case <-c.quitCh:
 					return
 				case <-c.drawCh:

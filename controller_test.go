@@ -39,10 +39,16 @@ func TestMouseClicksRelative(t *testing.T) {
 	c1.MouseTree.Add(sp)
 	c1.Propagate(mouse.PressOn+"Relative", mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.PressOn))
 	c1.Propagate(mouse.ReleaseOn+"Relative", mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.ReleaseOn))
-	time.Sleep(2 * time.Second)
+	time.Sleep(3 * time.Second)
 	if !triggered {
 		t.Fatalf("propagation failed to trigger click binding")
 	}
+}
+
+type ent struct{}
+
+func (e ent) Init() event.CID {
+	return 0
 }
 
 func TestPropagate(t *testing.T) {

@@ -16,29 +16,29 @@ type InputType = int32
 
 // Supported Input Types
 const (
-	KeyboardMouse InputType = iota
-	Joystick      InputType = iota
+	InputKeyboardMouse InputType = iota
+	InputJoystick      InputType = iota
 )
 
 func (c *Controller) trackInputChanges() {
 	c.logicHandler.GlobalBind(key.Down, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&c.mostRecentInput, KeyboardMouse)
-		if old != KeyboardMouse {
-			c.logicHandler.Trigger(event.InputChange, KeyboardMouse)
+		old := atomic.SwapInt32(&c.mostRecentInput, InputKeyboardMouse)
+		if old != InputKeyboardMouse {
+			c.logicHandler.Trigger(event.InputChange, InputKeyboardMouse)
 		}
 		return 0
 	})
 	c.logicHandler.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&c.mostRecentInput, KeyboardMouse)
-		if old != KeyboardMouse {
-			c.logicHandler.Trigger(event.InputChange, KeyboardMouse)
+		old := atomic.SwapInt32(&c.mostRecentInput, InputKeyboardMouse)
+		if old != InputKeyboardMouse {
+			c.logicHandler.Trigger(event.InputChange, InputKeyboardMouse)
 		}
 		return 0
 	})
 	c.logicHandler.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&c.mostRecentInput, Joystick)
-		if old != Joystick {
-			c.logicHandler.Trigger(event.InputChange, Joystick)
+		old := atomic.SwapInt32(&c.mostRecentInput, InputJoystick)
+		if old != InputJoystick {
+			c.logicHandler.Trigger(event.InputChange, InputJoystick)
 		}
 		return 0
 	})
