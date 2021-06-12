@@ -6,17 +6,13 @@ import (
 
 	"github.com/oakmound/oak/v3/alg"
 	"github.com/oakmound/oak/v3/debugstream"
-	"github.com/oakmound/oak/v3/dlog"
 	"golang.org/x/mobile/event/lifecycle"
 
 	"github.com/oakmound/oak/v3/shiny/screen"
 )
 
 func (w *Window) lifecycleLoop(s screen.Screen) {
-	dlog.Info("Init Lifecycle")
-
 	w.screenControl = s
-	dlog.Info("Creating window buffer")
 	err := w.UpdateViewSize(w.ScreenWidth, w.ScreenHeight)
 	if err != nil {
 		go w.exitWithError(err)
@@ -26,7 +22,6 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 	// Right here, query the backing scale factor of the physical screen
 	// Apply that factor to the scale
 
-	dlog.Info("Creating window controller")
 	err = w.newWindow(
 		int32(w.config.Screen.X),
 		int32(w.config.Screen.Y),
@@ -38,9 +33,7 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 		return
 	}
 
-	dlog.Info("Starting draw loop")
 	go w.drawLoop()
-	dlog.Info("Starting input loop")
 	go w.inputLoop()
 
 	<-w.quitCh
@@ -63,8 +56,7 @@ func (w *Window) newWindow(x, y int32, width, height int) error {
 		return err
 	}
 	w.windowControl = wC
-	w.ChangeWindow(width, height)
-	return nil
+	return w.ChangeWindow(width, height)
 }
 
 // SetAspectRatio will enforce that the displayed window does not distort the
@@ -77,7 +69,7 @@ func (w *Window) SetAspectRatio(xToY float64) {
 
 // ChangeWindow sets the width and height of the game window. Although exported,
 // calling it without a size event will probably not act as expected.
-func (w *Window) ChangeWindow(width, height int) {
+func (w *Window) ChangeWindow(width, height int) error {
 	// Draw a black frame to cover up smears
 	// Todo: could restrict the black to -just- the area not covered by the
 	// scaled screen buffer
@@ -86,7 +78,7 @@ func (w *Window) ChangeWindow(width, height int) {
 		draw.Draw(buff.RGBA(), buff.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
 		w.windowControl.Upload(zeroPoint, buff, buff.Bounds())
 	} else {
-		dlog.Error(err)
+		return err
 	}
 	var x, y int
 	if w.UseAspectRatio {
@@ -102,6 +94,7 @@ func (w *Window) ChangeWindow(width, height int) {
 		}
 	}
 	w.windowRect = image.Rect(-x, -y, width, height)
+	return nil
 }
 
 func (w *Window) UpdateViewSize(width, height int) error {

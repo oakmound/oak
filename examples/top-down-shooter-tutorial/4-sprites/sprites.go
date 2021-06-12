@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"math/rand"
 	"path/filepath"
@@ -57,7 +58,7 @@ func main() {
 			"right": eggplant.Copy().Modify(mod.FlipX),
 		})
 		if err != nil {
-			dlog.Error(err)
+			fmt.Println(err)
 		}
 		char := entities.NewMoving(100, 100, 32, 32,
 			playerR,

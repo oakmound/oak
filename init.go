@@ -54,7 +54,6 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 	}
 
 	// TODO: languages
-	dlog.Info("Oak Init Start")
 
 	w.ScreenWidth = w.config.Screen.Width
 	w.ScreenHeight = w.config.Screen.Height
@@ -97,7 +96,6 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 	render.SetAssetPaths(imageDir)
 	go w.loadAssets(imageDir, audioDir)
 	if w.config.EnableDebugConsole {
-		dlog.Info("Init Console")
 		go w.debugConsole(os.Stdin, os.Stdout)
 	}
 	w.Driver(w.lifecycleLoop)

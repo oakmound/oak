@@ -231,7 +231,7 @@ func parseFontHinting(hintType string) (faceHinting font.Hinting) {
 	hintType = strings.ToLower(hintType)
 	switch hintType {
 	default:
-		dlog.Error("Unable to parse font hinting, ", hintType)
+		dlog.Error("Unable to parse font hinting: ", hintType)
 		fallthrough
 	case "", "none":
 		faceHinting = font.HintingNone

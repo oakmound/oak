@@ -122,7 +122,6 @@ func batchLoad(baseFolder string, blankOut bool) error {
 	files, err := fileutil.ReadDir(baseFolder)
 
 	if err != nil {
-		dlog.Error(err)
 		return err
 	}
 
@@ -143,7 +142,6 @@ func batchLoad(baseFolder string, blankOut bool) error {
 						_, err = Load(baseFolder, n)
 					}
 					if err != nil {
-						dlog.Error(err)
 						return err
 					}
 					return nil
@@ -154,7 +152,6 @@ func batchLoad(baseFolder string, blankOut bool) error {
 		}
 	}
 	err = eg.Wait()
-	dlog.Verb("Loading complete")
 	return err
 }
 

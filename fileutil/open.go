@@ -60,7 +60,6 @@ func ReadFile(file string) ([]byte, error) {
 	if BindataFn != nil {
 		rel, err := filepath.Rel(wd, file)
 		if err != nil {
-			dlog.Info("Error in rel", err)
 			rel = file
 		}
 		return BindataFn(rel)
@@ -94,7 +93,7 @@ func ReadDir(file string) ([]os.FileInfo, error) {
 			}
 			return fis, nil
 		}
-		dlog.Info(err)
+		dlog.Error(err)
 	}
 	return ioutil.ReadDir(file)
 }

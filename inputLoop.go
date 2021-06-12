@@ -91,7 +91,8 @@ func (w *Window) inputLoop() {
 
 		// Size events update what we scale the screen to
 		case size.Event:
-			w.ChangeWindow(e.WidthPx, e.HeightPx)
+			err := w.ChangeWindow(e.WidthPx, e.HeightPx)
+			dlog.ErrorCheck(err)
 		}
 	}
 }

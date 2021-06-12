@@ -16,15 +16,10 @@ const oakLoadingScene = "oak:loading"
 
 func (w *Window) sceneLoop(first string, trackingInputs bool) {
 	w.SceneMap.AddScene(oakLoadingScene, scene.Scene{
-		Start: func(*scene.Context) {
-			// TODO: language
-			dlog.Info("Loading Scene Init")
-		},
 		Loop: func() bool {
 			return w.startupLoading
 		},
 		End: func() (string, *scene.Result) {
-			dlog.Info("Load Complete")
 			return w.firstScene, &scene.Result{
 				NextSceneInput: w.FirstSceneInput,
 			}
@@ -35,14 +30,8 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 
 	result := new(scene.Result)
 
-	// TODO: language
-	dlog.Info("First Scene Start")
-
 	w.drawCh <- struct{}{}
 	w.drawCh <- struct{}{}
-
-	// TODO: language
-	dlog.Verb("Draw Channel Activated")
 
 	w.firstScene = first
 
@@ -73,7 +62,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		}
 		gctx, cancel := context.WithCancel(w.ParentContext)
 		go func() {
-			dlog.Info("Starting scene in goroutine", w.SceneMap.CurrentScene)
+			dlog.Verb("Starting scene in goroutine", w.SceneMap.CurrentScene)
 			scen.Start(&scene.Context{
 				Context:       gctx,
 				PreviousScene: prevScene,
@@ -91,11 +80,11 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		w.sceneTransition(result)
 
 		// Post transition, begin loading animation
-		dlog.Info("Starting load animation")
+		dlog.Verb("Starting load animation")
 		w.drawCh <- struct{}{}
-		dlog.Info("Getting Transition Signal")
+		dlog.Verb("Getting Transition Signal")
 		<-w.transitionCh
-		dlog.Info("Resume Drawing")
+		dlog.Verb("Resume Drawing")
 		// Send a signal to resume (or begin) drawing
 		w.drawCh <- struct{}{}
 
