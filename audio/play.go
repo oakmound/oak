@@ -1,7 +1,7 @@
 package audio
 
 import (
-	"github.com/oakmound/oak/v3/audio/support/font"
+	"github.com/oakmound/oak/v3/audio/font"
 	"github.com/oakmound/oak/v3/dlog"
 )
 

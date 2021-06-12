@@ -3,8 +3,8 @@ package audio
 import (
 	"fmt"
 
-	"github.com/oakmound/oak/v3/audio/support/audio"
-	"github.com/oakmound/oak/v3/audio/support/font"
+	"github.com/oakmound/oak/v3/audio/font"
+	"github.com/oakmound/oak/v3/audio/klang"
 	"github.com/oakmound/oak/v3/oakerr"
 )
 
@@ -12,7 +12,7 @@ import (
 // required to filter it through a sound font.
 type Audio struct {
 	*font.Audio
-	toStop    audio.Audio
+	toStop    klang.Audio
 	X, Y      *float64
 	setVolume int32
 }
@@ -76,22 +76,22 @@ func (a *Audio) Stop() error {
 }
 
 // Copy returns a copy of the audio
-func (a *Audio) Copy() (audio.Audio, error) {
+func (a *Audio) Copy() (klang.Audio, error) {
 	a2, err := a.Audio.Copy()
 	if err != nil {
 		return nil, err
 	}
-	return New(a.Audio.Font, a2.(audio.FullAudio), a.X, a.Y), nil
+	return New(a.Audio.Font, a2.(klang.FullAudio), a.X, a.Y), nil
 }
 
 // MustCopy acts like Copy, but panics on an error.
-func (a *Audio) MustCopy() audio.Audio {
-	return New(a.Audio.Font, a.Audio.MustCopy().(audio.FullAudio), a.X, a.Y)
+func (a *Audio) MustCopy() klang.Audio {
+	return New(a.Audio.Font, a.Audio.MustCopy().(klang.FullAudio), a.X, a.Y)
 }
 
 // Filter returns the audio with some set of filters applied to it.
-func (a *Audio) Filter(fs ...audio.Filter) (audio.Audio, error) {
-	var ad audio.Audio = a
+func (a *Audio) Filter(fs ...klang.Filter) (klang.Audio, error) {
+	var ad klang.Audio = a
 	var err, consErr error
 	for _, f := range fs {
 		ad, err = f.Apply(ad)
@@ -107,7 +107,7 @@ func (a *Audio) Filter(fs ...audio.Filter) (audio.Audio, error) {
 }
 
 // MustFilter acts like Filter but ignores errors.
-func (a *Audio) MustFilter(fs ...audio.Filter) audio.Audio {
+func (a *Audio) MustFilter(fs ...klang.Filter) klang.Audio {
 	ad, _ := a.Filter(fs...)
 	return ad
 }
