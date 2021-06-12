@@ -37,7 +37,6 @@ func TestTrackInputChanges(t *testing.T) {
 	}
 	*expectedType = Joystick
 	c1.logicHandler.Trigger("Tracking"+joystick.Change, &joystick.State{})
-	c1.TriggerMouseEvent(mouse.Event{Event: mouse.Press})
 	time.Sleep(2 * time.Second)
 	if failed {
 		t.Fatalf("joystick change failed")
