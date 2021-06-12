@@ -2,6 +2,7 @@ package debugstream
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/oakmound/oak/v3/collision"
@@ -138,4 +139,14 @@ func fadeCommands(tokenString []string) (out string) {
 
 	out += oakerr.NotFound{InputName: tokenString[0]}.Error() + "\n"
 	return
+}
+
+func parseTokenAsInt(tokenString []string, arrIndex int, defaultVal int) int {
+	if len(tokenString) > arrIndex {
+		tmp, err := strconv.Atoi(tokenString[arrIndex])
+		if err == nil {
+			return tmp
+		}
+	}
+	return defaultVal
 }

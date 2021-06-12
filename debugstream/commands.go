@@ -94,11 +94,11 @@ func (sc *ScopedCommands) AttachToStream(ctx context.Context, input io.Reader, o
 						if err == nil {
 							_, ok := sc.commands[scopeID]
 							if !ok {
-								out.Write([]byte(fmt.Sprintf("unknown scopeID %d see correct usage via help\n", scopeID)))
+								out.Write([]byte(fmt.Sprintf("unknown scopeID %d\n", scopeID)))
 								continue
 							}
 							if len(tokenString) == 1 {
-								out.Write([]byte(fmt.Sprintf("Only provided scopeID %d without see usage via help\n", scopeID)))
+								out.Write([]byte(fmt.Sprintf("only provided scopeID %d without command\n", scopeID)))
 								continue
 							}
 
@@ -277,7 +277,7 @@ func (sc *ScopedCommands) printHelp(tokenString []string) (out string) {
 			out += fmt.Sprintf("%sscope%v %s: %s\n", indent, scopeID, commandStr, c.Usage)
 		} else {
 			if scope == scopeID {
-				out += fmt.Sprintf("%sWarning scope '%v' did not have the specified command %s\n", indent, scopeID, commandStr)
+				out += fmt.Sprintf("%sWarning scope '%v' did not have the specified command %q\n", indent, scopeID, commandStr)
 			}
 		}
 
@@ -301,11 +301,12 @@ func (sc *ScopedCommands) assumeScope(tokenString []string) (out string) {
 	scopeID, err := strToInt32(tokenString[0])
 	if err != nil {
 		out += "assume scope <scopeID> expects a valid int32 scope\n" +
-			fmt.Sprintf("you provided %s which errored with %v \n", tokenString[0], err)
+			fmt.Sprintf("you provided %q which errored with %v\n", tokenString[0], err)
 		return
 	}
 	if _, ok := sc.commands[scopeID]; !ok {
-		out += fmt.Sprintf("inactive scope %d see correct usage via help\n", scopeID)
+		out += fmt.Sprintf("inactive scope %d\n", scopeID)
+		return
 	}
 	sc.assumedScope = scopeID
 	out += fmt.Sprintf("assumed scope %v\n", scopeID)
@@ -353,14 +354,4 @@ type candidateStore struct {
 func strToInt32(potentialInt string) (int32, error) {
 	i64, err := strconv.ParseInt(potentialInt, 10, 32)
 	return int32(i64), err
-}
-
-func parseTokenAsInt(tokenString []string, arrIndex int, defaultVal int) int {
-	if len(tokenString) > arrIndex {
-		tmp, err := strconv.Atoi(tokenString[arrIndex])
-		if err == nil {
-			return tmp
-		}
-	}
-	return defaultVal
 }

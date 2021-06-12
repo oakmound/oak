@@ -18,6 +18,78 @@ func TestScopedCommands(t *testing.T) {
 	}
 }
 
+func TestScopedCommands_AssumeScope(t *testing.T) {
+	sc := NewScopedCommands()
+
+	in := bytes.NewBufferString("scope\nscope zero\nscope 2\nscope 0\n0 scope 0\n2 scope 0\n0")
+	out := new(bytes.Buffer)
+
+	sc.AttachToStream(context.Background(), in, out)
+
+	time.Sleep(50 * time.Millisecond)
+
+	expected := `assume scope requires a scopeID
+Active Scopes: [0]
+assume scope <scopeID> expects a valid int32 scope
+you provided "zero" which errored with strconv.ParseInt: parsing "zero": invalid syntax
+inactive scope 2
+assumed scope 0
+assumed scope 0
+unknown scopeID 2
+only provided scopeID 0 without command
+`
+
+	got := out.String()
+	if got != expected {
+		t.Fatal("got:\n" + got + "\nexpected:\n" + expected)
+	}
+}
+
+func TestScopedCommands_Help(t *testing.T) {
+	sc := NewScopedCommands()
+
+	in := bytes.NewBufferString("help\nhelp 0\n help scope\nhelp 1\nhelp badcommand")
+	out := new(bytes.Buffer)
+
+	sc.AttachToStream(context.Background(), in, out)
+
+	time.Sleep(50 * time.Millisecond)
+
+	expected := `help <scopeID> to see commands linked to a given window
+Active Scopes: [0]
+Current Assumed Scope: 0
+General Commands:
+  help
+  scope: provide a scopeID to use commands without a scopeID prepended
+  fade: fade the specified renderable by the given int if given. Renderable must be registered in debug
+
+help <scopeID> to see commands linked to a given window
+Active Scopes: [0]
+Current Assumed Scope: 0
+General Commands:
+  help
+  scope: provide a scopeID to use commands without a scopeID prepended
+  fade: fade the specified renderable by the given int if given. Renderable must be registered in debug
+
+help <scopeID> to see commands linked to a given window
+Active Scopes: [0]
+Current Assumed Scope: 0
+Registered Instances of scope
+  scope0 scope: provide a scopeID to use commands without a scopeID prepended
+inactive scope 1 see correct usage by using help without the scope
+help <scopeID> to see commands linked to a given window
+Active Scopes: [0]
+Current Assumed Scope: 0
+Registered Instances of badcommand
+  Warning scope '0' did not have the specified command "badcommand"
+`
+
+	got := out.String()
+	if got != expected {
+		t.Fatal("got:\n" + got + "\nexpected:\n" + expected)
+	}
+}
+
 func TestScopedCommands_AttachToStream(t *testing.T) {
 	in := bytes.NewBufferString("simple")
 	out := new(bytes.Buffer)
@@ -32,7 +104,6 @@ func TestScopedCommands_AttachToStream(t *testing.T) {
 	if !strings.Contains(output, "Unknown command") {
 		t.Fatalf("attached Stream doesnt work %s\n", output)
 	}
-
 }
 
 func TestScopedCommands_DetachFromStream(t *testing.T) {
