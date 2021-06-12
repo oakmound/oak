@@ -73,7 +73,6 @@ func (sc *ScopedCommands) AttachToStream(ctx context.Context, input io.Reader, o
 			go func() {
 
 				for {
-
 					select {
 					case <-ctx.Done():
 						out.Write([]byte("stopping debugstream"))

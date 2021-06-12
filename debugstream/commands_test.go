@@ -2,6 +2,7 @@ package debugstream
 
 import (
 	"bytes"
+	"context"
 	"strings"
 	"testing"
 	"time"
@@ -9,17 +10,20 @@ import (
 
 func TestScopedCommands(t *testing.T) {
 	sc := NewScopedCommands()
-	if len(sc.commands) > 0 {
-		t.Fatalf("scoped commands failed to create as expected")
+	if len(sc.commands) != 1 {
+		t.Fatalf("scoped commands failed to create with one scope: had %v", len(sc.commands))
 	}
-
+	if len(sc.commands[0]) != 3 {
+		t.Fatalf("scoped commands failed to create with three commands: had %v", len(sc.commands[0]))
+	}
 }
 
 func TestScopedCommands_AttachToStream(t *testing.T) {
 	in := bytes.NewBufferString("simple")
 	out := new(bytes.Buffer)
 
-	AttachToStream(in, out)
+	sc := NewScopedCommands()
+	sc.AttachToStream(context.Background(), in, out)
 
 	// lazy interim approach for the async to complete
 
@@ -31,12 +35,15 @@ func TestScopedCommands_AttachToStream(t *testing.T) {
 
 }
 
-func TestScopedCommands_UnAttachFromStream(t *testing.T) {
+func TestScopedCommands_DetachFromStream(t *testing.T) {
 	in := new(bytes.Buffer)
 	out := new(bytes.Buffer)
 
-	AttachToStream(in, out)
-	DefaultCommands.UnAttachFromStream()
+	ctx, cancel := context.WithCancel(context.Background())
+
+	sc := NewScopedCommands()
+	sc.AttachToStream(ctx, in, out)
+	cancel()
 	time.Sleep(50 * time.Millisecond)
 	output := out.String()
 	if !strings.Contains(output, "stopping debugstream") {
