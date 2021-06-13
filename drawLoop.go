@@ -44,10 +44,13 @@ func (w *Window) drawLoop() {
 					w.publish()
 				}
 			}
+		case f := <-w.betweenDrawCh:
+			f()
 		case <-w.DrawTicker.C:
 			draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
 			w.DrawStack.PreDraw()
-			w.DrawStack.DrawToScreen(w.winBuffer.RGBA(), &w.viewPos, w.ScreenWidth, w.ScreenHeight)
+			p := w.viewPos
+			w.DrawStack.DrawToScreen(w.winBuffer.RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
 			w.publish()
 		}
 	}
@@ -58,4 +61,11 @@ func (w *Window) publish() {
 	w.windowTexture.Upload(zeroPoint, w.winBuffer, w.winBuffer.Bounds())
 	w.windowControl.Scale(w.windowRect, w.windowTexture, w.windowTexture.Bounds(), draw.Src)
 	w.windowControl.Publish()
+}
+
+// DoBetweenDraws will execute the given function in-between draw frames
+func (w *Window) DoBetweenDraws(f func()) {
+	go func() {
+		w.betweenDrawCh <- f
+	}()
 }

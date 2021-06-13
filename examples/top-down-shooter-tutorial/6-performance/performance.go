@@ -82,7 +82,6 @@ func main() {
 
 		char.Bind(event.Enter, func(id event.CID, payload interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
-			char.Delta.Zero()
 
 			enterPayload := payload.(event.EnterPayload)
 			if oak.IsDown(key.W) {
@@ -97,11 +96,14 @@ func main() {
 			if oak.IsDown(key.D) {
 				char.Delta.ShiftX(char.Speed.X() * enterPayload.TickPercent)
 			}
-			char.ShiftPos(char.Delta.X(), char.Delta.Y())
-			oak.SetScreen(
-				int(char.R.X()-screenCenter.X()),
-				int(char.R.Y()-screenCenter.Y()),
-			)
+			ctx.Window.(*oak.Window).DoBetweenDraws(func() {
+				char.ShiftPos(char.Delta.X(), char.Delta.Y())
+				oak.SetScreen(
+					int(char.R.X()-screenCenter.X()),
+					int(char.R.Y()-screenCenter.Y()),
+				)
+				char.Delta.Zero()
+			})
 			// Don't go out of bounds
 			if char.X() < 0 {
 				char.SetX(0)

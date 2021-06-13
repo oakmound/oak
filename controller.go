@@ -58,6 +58,8 @@ type Window struct {
 	// drawing should cease (or resume)
 	drawCh chan struct{}
 
+	betweenDrawCh chan func()
+
 	// ScreenWidth is the width of the screen
 	ScreenWidth int
 	// ScreenHeight is the height of the screen
@@ -165,12 +167,13 @@ var (
 
 func NewController() *Window {
 	c := &Window{
-		State:        key.NewState(),
-		transitionCh: make(chan struct{}),
-		sceneCh:      make(chan struct{}),
-		skipSceneCh:  make(chan string),
-		quitCh:       make(chan struct{}),
-		drawCh:       make(chan struct{}),
+		State:         key.NewState(),
+		transitionCh:  make(chan struct{}),
+		sceneCh:       make(chan struct{}),
+		skipSceneCh:   make(chan string),
+		quitCh:        make(chan struct{}),
+		drawCh:        make(chan struct{}),
+		betweenDrawCh: make(chan func()),
 	}
 
 	c.SceneMap = scene.NewMap()
