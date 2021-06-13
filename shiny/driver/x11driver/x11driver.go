@@ -12,6 +12,7 @@ package x11driver
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/BurntSushi/xgb/render"
 	"github.com/BurntSushi/xgb/shm"
@@ -34,6 +35,8 @@ func Main(f func(screen.Screen)) {
 	}
 }
 
+var mainLock sync.Mutex
+
 func main(f func(screen.Screen)) (retErr error) {
 	xutil, err := xgbutil.NewConn()
 	if err != nil {
@@ -45,12 +48,14 @@ func main(f func(screen.Screen)) (retErr error) {
 		}
 	}()
 
+	mainLock.Lock()
 	if err := render.Init(xutil.Conn()); err != nil {
 		return fmt.Errorf("x11driver: render.Init failed: %v", err)
 	}
 	if err := shm.Init(xutil.Conn()); err != nil {
 		return fmt.Errorf("x11driver: shm.Init failed: %v", err)
 	}
+	mainLock.Unlock()
 
 	s, err := newScreenImpl(xutil)
 	if err != nil {
