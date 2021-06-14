@@ -1,6 +1,7 @@
 package oak
 
 import (
+	"context"
 	"image"
 	"io"
 	"sync/atomic"
@@ -144,6 +145,8 @@ type Controller struct {
 
 	mostRecentInput InputType
 
+	ParentContext context.Context
+
 	TrackMouseClicks bool
 	startupLoading   bool
 	useViewBounds    bool
@@ -183,6 +186,7 @@ func NewController() *Controller {
 	c.TrackMouseClicks = true
 	c.commands = make(map[string]func([]string))
 	c.ControllerID = atomic.AddInt32(nextControllerID, 1)
+	c.ParentContext = context.Background()
 	return c
 }
 
@@ -300,7 +304,7 @@ func (c *Controller) MostRecentInput() InputType {
 }
 
 func (c *Controller) debugConsole(input io.Reader, output io.Writer) {
-	debugstream.AttachToStream(input, output)
+	debugstream.AttachToStream(c.ParentContext, input, output)
 	debugstream.AddDefaultsForScope(c.ControllerID, c)
 
 }

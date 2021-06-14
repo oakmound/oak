@@ -55,16 +55,16 @@ func parseShape(args []string) shape.Shape {
 
 func main() {
 
-	debugstream.AddCommand("followMouse", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "followMouse", Operation: func(args []string) string {
 		event.GlobalBind(event.Enter, func(event.CID, interface{}) int {
 			// It'd be interesting to attach to the mouse position
 			src.SetPos(float64(mouse.LastEvent.X()), float64(mouse.LastEvent.Y()))
 			return 0
 		})
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("shape", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "shape", Operation: func(args []string) string {
 		if len(args) > 0 {
 			sh := parseShape(args)
 			if sh != nil {
@@ -72,9 +72,9 @@ func main() {
 			}
 		}
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("size", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "size", Operation: func(args []string) string {
 		f1, f2, two, err := parseInts(args)
 		if err != nil {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
@@ -86,9 +86,9 @@ func main() {
 		}
 
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("endsize", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "endsize", Operation: func(args []string) string {
 		f1, f2, two, err := parseInts(args)
 		if err != nil {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
@@ -99,9 +99,9 @@ func main() {
 			src.Generator.(pt.Sizeable).SetEndSize(intrange.NewLinear(f1, f2))
 		}
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("count", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "count", Operation: func(args []string) string {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
@@ -112,9 +112,9 @@ func main() {
 			src.Generator.GetBaseGenerator().NewPerFrame = floatrange.NewLinear(npf, npf2)
 		}
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("life", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "life", Operation: func(args []string) string {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
@@ -125,9 +125,9 @@ func main() {
 			src.Generator.GetBaseGenerator().LifeSpan = floatrange.NewLinear(npf, npf2)
 		}
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("rotation", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "rotation", Operation: func(args []string) string {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
@@ -138,9 +138,9 @@ func main() {
 			src.Generator.GetBaseGenerator().Rotation = floatrange.NewLinear(npf, npf2)
 		}
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("angle", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "angle", Operation: func(args []string) string {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
@@ -151,9 +151,9 @@ func main() {
 			src.Generator.GetBaseGenerator().Angle = floatrange.NewLinear(npf*alg.DegToRad, npf2*alg.DegToRad)
 		}
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("speed", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "speed", Operation: func(args []string) string {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
@@ -164,9 +164,9 @@ func main() {
 			src.Generator.GetBaseGenerator().Speed = floatrange.NewLinear(npf, npf2)
 		}
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("spread", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "spread", Operation: func(args []string) string {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
@@ -176,9 +176,9 @@ func main() {
 		}
 		src.Generator.GetBaseGenerator().Spread.SetPos(npf, npf2)
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("gravity", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "gravity", Operation: func(args []string) string {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
@@ -188,9 +188,9 @@ func main() {
 		}
 		src.Generator.GetBaseGenerator().Gravity.SetPos(npf, npf2)
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("speeddecay", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "speeddecay", Operation: func(args []string) string {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
@@ -200,9 +200,9 @@ func main() {
 		}
 		src.Generator.GetBaseGenerator().SpeedDecay.SetPos(npf, npf2)
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("pos", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "pos", Operation: func(args []string) string {
 		npf, npf2, two, err := parseFloats(args)
 		if err != nil {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
@@ -213,9 +213,9 @@ func main() {
 		src.Generator.SetPos(npf, npf2)
 
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("startcolor", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "startcolor", Operation: func(args []string) string {
 		if len(args) < 3 {
 			return oakerr.InsufficientInputs{AtLeast: 3, InputName: "colorvalues"}.Error()
 		}
@@ -226,9 +226,9 @@ func main() {
 		startColor = color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
 		src.Generator.(pt.Colorable).SetStartColor(startColor, startColorRand)
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("startrand", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "startrand", Operation: func(args []string) string {
 		if len(args) < 3 {
 			return oakerr.InsufficientInputs{AtLeast: 3, InputName: "colorvalues"}.Error()
 		}
@@ -239,10 +239,9 @@ func main() {
 		startColorRand = color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
 		src.Generator.(pt.Colorable).SetStartColor(startColor, startColorRand)
 		return ""
+	}})
 
-	})
-
-	debugstream.AddCommand("endcolor", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "endcolor", Operation: func(args []string) string {
 		if len(args) < 3 {
 			return oakerr.InsufficientInputs{AtLeast: 3, InputName: "colorvalues"}.Error()
 		}
@@ -253,9 +252,9 @@ func main() {
 		endColor = color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
 		src.Generator.(pt.Colorable).SetEndColor(endColor, endColorRand)
 		return ""
-	})
+	}})
 
-	debugstream.AddCommand("endrand", nil, func(args []string) string {
+	debugstream.AddCommand(debugstream.Command{Name: "endrand", Operation: func(args []string) string {
 		if len(args) < 3 {
 			return oakerr.InsufficientInputs{AtLeast: 3, InputName: "colorvalues"}.Error()
 		}
@@ -266,7 +265,7 @@ func main() {
 		endColorRand = color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
 		src.Generator.(pt.Colorable).SetEndColor(endColor, endColorRand)
 		return ""
-	})
+	}})
 
 	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
 		render.Draw(render.NewDrawFPS(0, nil, 10, 10))

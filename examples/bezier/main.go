@@ -35,9 +35,9 @@ func main() {
 	// bezier X Y X Y X Y ...
 	// for defining custom points without using the mouse.
 	// does not interact with the mouse points tracked through left clicks.
-	debugstream.AddCommand("bezier", func(tokens []string) {
+	debugstream.AddCommand(debugstream.Command{Name: "bezier", Operation: func(tokens []string) string {
 		if len(tokens) < 4 {
-			return
+			return ""
 		}
 		tokens = tokens[1:]
 		var err error
@@ -46,11 +46,12 @@ func main() {
 			floats[i], err = strconv.ParseFloat(s, 64)
 			if err != nil {
 				fmt.Println(err)
-				return
+				return ""
 			}
 		}
 		renderCurve(floats)
-	})
+		return ""
+	}})
 
 	oak.AddScene("bezier", scene.Scene{Start: func(*scene.Context) {
 		mouseFloats := []float64{}
