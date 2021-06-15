@@ -112,6 +112,10 @@ func (rh *RenderableHeap) DrawToScreen(world draw.Image, viewPos *intgeom.Point2
 			newRh.heapPush(r)
 			r = rh.heapPop()
 		}
+		if r != nil && r.GetLayer() != Undraw {
+			r.Draw(world, 0, 0)
+			newRh.heapPush(r)
+		}
 	} else {
 		// TODO: test if we can remove these bounds checks (because draw.Draw already does them)
 		vx := float64(-viewPos[0])
