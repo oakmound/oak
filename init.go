@@ -93,7 +93,7 @@ func (c *Controller) Init(firstScene string, configOptions ...ConfigOption) erro
 	go c.loadAssets(imageDir, audioDir)
 	if c.config.EnableDebugConsole {
 		dlog.Info("Init Console")
-		go c.debugConsole(os.Stdin)
+		go c.debugConsole(os.Stdin, os.Stdout)
 	}
 	dlog.Info("Init Main Driver")
 	c.Driver(c.lifecycleLoop)

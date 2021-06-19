@@ -5,6 +5,7 @@ import (
 	"image/draw"
 
 	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v3/debugstream"
 	"github.com/oakmound/oak/v3/dlog"
 	"golang.org/x/mobile/event/lifecycle"
 
@@ -44,6 +45,9 @@ func (c *Controller) lifecycleLoop(s screen.Screen) {
 // Quit sends a signal to the window to close itself, ending oak.
 func (c *Controller) Quit() {
 	c.windowControl.Send(lifecycle.Event{To: lifecycle.StageDead})
+	if c.config.EnableDebugConsole {
+		debugstream.DefaultCommands.RemoveScope(c.ControllerID)
+	}
 }
 
 func (c *Controller) newWindow(x, y int32, width, height int) {

@@ -2,6 +2,7 @@ package render
 
 import "golang.org/x/sync/syncmap"
 
+// TODO: move this to a debug tools package
 var (
 	debugMap syncmap.Map
 )
@@ -20,4 +21,17 @@ func GetDebugRenderable(rName string) (Renderable, bool) {
 		return nil, false
 	}
 	return r.(Renderable), ok
+}
+
+// EnumerateDebugRenderableKeys which does not check to see if the associated renderables are still extant
+func EnumerateDebugRenderableKeys() []string {
+	keys := []string{}
+	debugMap.Range(func(k, v interface{}) bool {
+		key, ok := k.(string)
+		if ok {
+			keys = append(keys, key)
+		}
+		return true
+	})
+	return keys
 }

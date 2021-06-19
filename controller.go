@@ -1,11 +1,14 @@
 package oak
 
 import (
+	"context"
 	"image"
+	"io"
 	"sync/atomic"
 
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/debugstream"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/mouse"
@@ -14,7 +17,10 @@ import (
 	"github.com/oakmound/oak/v3/shiny/driver"
 	"github.com/oakmound/oak/v3/shiny/screen"
 	"github.com/oakmound/oak/v3/timing"
+	"github.com/oakmound/oak/v3/window"
 )
+
+var _ window.Window = &Controller{}
 
 func (c *Controller) windowController(s screen.Screen, x, y int32, width, height int) (screen.Window, error) {
 	return s.NewWindow(screen.NewWindowGenerator(
@@ -139,6 +145,8 @@ type Controller struct {
 
 	mostRecentInput InputType
 
+	ParentContext context.Context
+
 	TrackMouseClicks bool
 	startupLoading   bool
 	useViewBounds    bool
@@ -178,6 +186,7 @@ func NewController() *Controller {
 	c.TrackMouseClicks = true
 	c.commands = make(map[string]func([]string))
 	c.ControllerID = atomic.AddInt32(nextControllerID, 1)
+	c.ParentContext = context.Background()
 	return c
 }
 
@@ -277,9 +286,25 @@ func (c *Controller) InFocus() bool {
 	return c.inFocus
 }
 
+// CollisionTrees helps access the mouse and collision trees from the controller.
+// These trees together detail how a controller can drive mouse and entity interactions.
+func (c *Controller) CollisionTrees() (mouseTree, collisionTree *collision.Tree) {
+	return c.MouseTree, c.CollisionTree
+}
+
+func (c *Controller) EventHandler() event.Handler {
+	return c.logicHandler
+}
+
 // MostRecentInput returns the most recent input type (e.g keyboard/mouse or joystick)
 // recognized by the window. This value will only change if the controller's Config is
 // set to TrackInputChanges
 func (c *Controller) MostRecentInput() InputType {
 	return c.mostRecentInput
+}
+
+func (c *Controller) debugConsole(input io.Reader, output io.Writer) {
+	debugstream.AttachToStream(c.ParentContext, input, output)
+	debugstream.AddDefaultsForScope(c.ControllerID, c)
+
 }
