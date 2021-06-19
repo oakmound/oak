@@ -2,6 +2,7 @@ package render
 
 import "golang.org/x/sync/syncmap"
 
+// TODO: move this to a debug tools package
 var (
 	debugMap syncmap.Map
 )
