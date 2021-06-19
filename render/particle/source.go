@@ -187,6 +187,7 @@ func rotateParticles(id event.CID, payload interface{}) int {
 		ps.addParticles()
 	}
 	if time.Now().After(ps.stopRotateAt) {
+		ps.CID.Bind(event.Enter, clearParticles)
 		return event.UnbindSingle
 	}
 	return 0
