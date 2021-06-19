@@ -31,7 +31,7 @@ func (f *fakeWindow) Quit() {
 }
 
 func (f *fakeWindow) EventHandler() event.Handler {
-	return event.NewBus()
+	return event.NewBus(nil)
 }
 
 func (f *fakeWindow) SetFullScreen(bool) error {

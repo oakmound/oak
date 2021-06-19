@@ -12,7 +12,7 @@ import (
 
 func blankScene(t *testing.T) *Window {
 	t.Helper()
-	c1 := NewController()
+	c1 := NewWindow()
 	err := c1.SceneMap.AddScene("blank", scene.Scene{})
 	if err != nil {
 		t.Fatalf("Scene Add failed: %v", err)

@@ -7,7 +7,7 @@ import (
 )
 
 func TestSceneTransition(t *testing.T) {
-	c1 := NewController()
+	c1 := NewWindow()
 	c1.AddScene("1", scene.Scene{
 		Start: func(context *scene.Context) {
 			go context.Window.NextScene()

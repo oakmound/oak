@@ -10,7 +10,7 @@ import (
 )
 
 func TestMouseClicks(t *testing.T) {
-	c1 := NewController()
+	c1 := NewWindow()
 	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
 	var triggered bool
 	go event.ResolveChanges()
@@ -18,6 +18,7 @@ func TestMouseClicks(t *testing.T) {
 		triggered = true
 		return 0
 	})
+	time.Sleep(2 * time.Second)
 	mouse.DefaultTree.Add(sp)
 	c1.Propagate(mouse.PressOn, mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.PressOn))
 	c1.Propagate(mouse.ReleaseOn, mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.ReleaseOn))
@@ -28,7 +29,7 @@ func TestMouseClicks(t *testing.T) {
 }
 
 func TestMouseClicksRelative(t *testing.T) {
-	c1 := NewController()
+	c1 := NewWindow()
 	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
 	var triggered bool
 	go c1.logicHandler.(*event.Bus).ResolveChanges()
@@ -36,6 +37,7 @@ func TestMouseClicksRelative(t *testing.T) {
 		triggered = true
 		return 0
 	})
+	time.Sleep(2 * time.Second)
 	c1.MouseTree.Add(sp)
 	c1.Propagate(mouse.PressOn+"Relative", mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.PressOn))
 	c1.Propagate(mouse.ReleaseOn+"Relative", mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.ReleaseOn))
@@ -52,7 +54,7 @@ func (e ent) Init() event.CID {
 }
 
 func TestPropagate(t *testing.T) {
-	c1 := NewController()
+	c1 := NewWindow()
 	go event.ResolveChanges()
 	var triggered bool
 	cid := event.CID(0).Parse(ent{})

@@ -118,8 +118,8 @@ type getCursorPositioner interface {
 	GetCursorPosition() (x, y float64)
 }
 
-func (c *Controller) GetCursorPosition() (x, y float64, err error) {
-	if wp, ok := c.windowControl.(getCursorPositioner); ok {
+func (w *Window) GetCursorPosition() (x, y float64, err error) {
+	if wp, ok := w.windowControl.(getCursorPositioner); ok {
 		x, y := wp.GetCursorPosition()
 		return x, y, nil
 	}

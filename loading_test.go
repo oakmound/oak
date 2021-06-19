@@ -7,7 +7,7 @@ import (
 )
 
 func TestBatchLoad_HappyPath(t *testing.T) {
-	c1 := NewController()
+	c1 := NewWindow()
 	c1.AddScene("1", scene.Scene{
 		Start: func(context *scene.Context) {
 			context.Window.Quit()
@@ -21,7 +21,7 @@ func TestBatchLoad_HappyPath(t *testing.T) {
 }
 
 func TestBatchLoad_NotFound(t *testing.T) {
-	c1 := NewController()
+	c1 := NewWindow()
 	c1.AddScene("1", scene.Scene{
 		Start: func(context *scene.Context) {
 			context.Window.Quit()
@@ -34,7 +34,7 @@ func TestBatchLoad_NotFound(t *testing.T) {
 }
 
 func TestBatchLoad_Blank(t *testing.T) {
-	c1 := NewController()
+	c1 := NewWindow()
 	c1.AddScene("1", scene.Scene{
 		Start: func(context *scene.Context) {
 			context.Window.Quit()

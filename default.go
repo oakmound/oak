@@ -17,7 +17,7 @@ var initDefaultControllerOnce sync.Once
 
 func initDefaultController() {
 	initDefaultControllerOnce.Do(func() {
-		defaultController = NewController()
+		defaultController = NewWindow()
 	})
 }
 

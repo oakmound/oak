@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	controller := oak.NewController()
+	controller := oak.NewWindow()
 	// If ErrorScene is set, the scene handler will
 	// fall back to this error scene if it is told to
 	// go to an unknown scene

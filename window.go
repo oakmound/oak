@@ -165,7 +165,7 @@ var (
 	nextControllerID = new(int32)
 )
 
-func NewController() *Window {
+func NewWindow() *Window {
 	c := &Window{
 		State:         key.NewState(),
 		transitionCh:  make(chan struct{}),

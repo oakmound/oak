@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	c1 := oak.NewController()
+	c1 := oak.NewWindow()
 	c1.DrawStack = render.NewDrawStack(render.NewDynamicHeap())
 
 	// Two windows cannot share the same logic handler
@@ -44,7 +44,7 @@ func main() {
 		fmt.Println("scene 1 exited")
 	}()
 
-	c2 := oak.NewController()
+	c2 := oak.NewWindow()
 	c2.DrawStack = render.NewDrawStack(render.NewDynamicHeap())
 	c2.SetLogicHandler(event.NewBus(nil))
 	c2.FirstSceneInput = color.RGBA{0, 255, 0, 255}
@@ -72,5 +72,5 @@ func main() {
 	})
 	fmt.Println("scene 2 exited")
 
-	//oak.Init() => oak.NewController(render.GlobalDrawStack, dlog.DefaultLogger ...).Init()
+	//oak.Init() => oak.NewWindow(render.GlobalDrawStack, dlog.DefaultLogger ...).Init()
 }
