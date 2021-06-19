@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	// DefaultCommands to attach to. TODO: init should be lazy.
+	// DefaultCommands to attach to.
 	DefaultCommands *ScopedCommands
 	defaultsOnce    sync.Once
 )

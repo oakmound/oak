@@ -38,8 +38,8 @@ func moveWindow(w window.Window) func([]string) string {
 				InputName: "coordinates",
 			}.Error()
 		}
-		width := parseTokenAsInt(sub, 3, w.Width())
-		height := parseTokenAsInt(sub, 4, w.Height())
+		width := parseTokenAsInt(sub, 2, w.Width())
+		height := parseTokenAsInt(sub, 3, w.Height())
 		v := w.Viewport()
 		x := parseTokenAsInt(sub, 0, v.X())
 		y := parseTokenAsInt(sub, 1, v.Y())
@@ -104,10 +104,6 @@ const explainQuit = "close the given window"
 func quitCommands(w window.Window) func([]string) string {
 	return func(tokenString []string) string {
 		w.Quit()
-		if len(tokenString) > 0 {
-			return fmt.Sprintf("Quit does not support extra options such as the ones provided: %v\n ", tokenString) +
-				oakerr.InvalidInput{InputName: "any arguments"}.Error()
-		}
 		return ""
 
 	}
@@ -127,17 +123,16 @@ func fadeCommands(tokenString []string) (out string) {
 		return oakerr.InsufficientInputs{
 			AtLeast:   1,
 			InputName: "arguments",
-		}.Error()
+		}.Error() + "\n"
 	}
 	toFade, ok := render.GetDebugRenderable(tokenString[0])
 	if ok {
 		fadeVal := parseTokenAsInt(tokenString, 1, 255)
 		toFade.(render.Modifiable).Filter(mod.Fade(fadeVal))
+		return
 	}
 	out += fmt.Sprintf("Could not fade input %s\n", tokenString[0]) +
 		fmt.Sprintf("Possible inputs are '%s'\n", strings.Join(render.EnumerateDebugRenderableKeys(), ", "))
-
-	out += oakerr.NotFound{InputName: tokenString[0]}.Error() + "\n"
 	return
 }
 
