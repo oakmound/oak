@@ -1,7 +1,6 @@
 package particle
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -62,7 +61,6 @@ func (ps *Source) cycleParticles() bool {
 		bp := p.GetBaseParticle()
 		for bp.Life <= 0 {
 			p.Undraw()
-			fmt.Println("UNDREWWWWW it")
 			cycled = true
 			if pg.EndFunc != nil && bp.Life > IgnoreEnd {
 				pg.EndFunc(p)
@@ -189,7 +187,6 @@ func rotateParticles(id event.CID, payload interface{}) int {
 		ps.addParticles()
 	}
 	if time.Now().After(ps.stopRotateAt) {
-		ps.CID.Bind(event.Enter, rotateParticles)
 		return event.UnbindSingle
 	}
 	return 0
