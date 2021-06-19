@@ -52,3 +52,9 @@ func (b *Box) Metadata(k string) (v string, ok bool) {
 	v, ok = b.metadata[k]
 	return v, ok
 }
+
+func (b *Box) Destroy() {
+	b.UnbindAll()
+	b.R.Undraw()
+	mouse.Remove(b.GetSpace())
+}

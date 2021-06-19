@@ -81,3 +81,10 @@ func (b *TextBox) SetPos(x, y float64) {
 func (b *TextBox) SetOffsets(txtX, txtY float64) {
 	b.Text.Vector = b.Text.Attach(b.Box.Vector, txtX, -txtY+b.H)
 }
+
+func (b *TextBox) Destroy() {
+	if b.Text != nil {
+		b.Text.Undraw()
+	}
+	b.Box.Destroy()
+}

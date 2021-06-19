@@ -14,4 +14,5 @@ type Btn interface {
 	GetSpace() *collision.Space
 	SetMetadata(string, string)
 	Metadata(string) (string, bool)
+	Destroy()
 }
