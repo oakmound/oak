@@ -117,3 +117,7 @@ func HideCursor() error {
 	initDefaultController()
 	return defaultController.HideCursor()
 }
+
+func GetCursorPosition() (x, y float64, err error) {
+	return defaultController.GetCursorPosition()
+}

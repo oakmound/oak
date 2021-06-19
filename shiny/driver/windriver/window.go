@@ -494,3 +494,9 @@ func handleCmd(hwnd win32.HWND, uMsg uint32, wParam, lParam uintptr) {
 		c.err = fmt.Errorf("unknown command id=%d", c.id)
 	}
 }
+
+func (w *windowImpl) GetCursorPosition() (x, y float64) {
+	w.windowRect, _ = win32.GetWindowRect(w.hwnd)
+	xint, yint, _ := win32.GetCursorPos()
+	return float64(xint) - float64(w.windowRect.Left), float64(yint) - float64(w.windowRect.Top)
+}

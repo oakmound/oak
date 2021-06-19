@@ -88,6 +88,7 @@ func main(f func(screen.Screen)) error {
 		case req := <-moveWindowCh:
 			req.window.SetPos(int(req.x), int(req.y))
 			req.window.SetSize(int(req.width), int(req.height))
+			req.respCh <- struct{}{}
 		default:
 			glfw.WaitEvents()
 		}
@@ -106,6 +107,7 @@ type newWindowResp struct {
 type moveWindowReq struct {
 	window              *glfw.Window
 	x, y, width, height int
+	respCh              chan struct{}
 }
 
 type releaseWindowReq struct {
@@ -130,6 +132,9 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, moveWin
 	cv := appkit.NewWindow(unsafe.Pointer(window.GetCocoaWindow())).ContentView()
 	cv.SetLayer(ml)
 	cv.SetWantsLayer(true)
+	if opts.Borderless {
+		window.SetAttrib(glfw.Decorated, 0)
+	}
 
 	w := &windowImpl{
 		device:          device,
