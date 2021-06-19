@@ -166,3 +166,24 @@ func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos *intgeom.Point2, sc
 func (cs *CompositeR) Clear() {
 	*cs = *NewCompositeR()
 }
+
+// ToSprite converts the composite into a sprite by drawing each layer in order
+// and overwriting lower layered pixels
+func (cs *CompositeR) ToSprite() *Sprite {
+	var maxW, maxH int
+	for _, r := range cs.rs {
+		x, y := int(r.X()), int(r.Y())
+		w, h := r.GetDims()
+		if x+w > maxW {
+			maxW = x + w
+		}
+		if y+h > maxH {
+			maxH = y + h
+		}
+	}
+	sp := NewEmptySprite(cs.X(), cs.Y(), maxW, maxH)
+	for _, r := range cs.rs {
+		r.Draw(sp, 0, 0)
+	}
+	return sp
+}
