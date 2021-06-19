@@ -66,7 +66,7 @@ func TestSkipCommands(t *testing.T) {
 
 	sc.AttachToStream(context.Background(), in, out)
 
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	expected := `assumed scope 1
 `
@@ -90,7 +90,7 @@ func TestQuitCommands(t *testing.T) {
 
 	sc.AttachToStream(context.Background(), in, out)
 
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	expected := ``
 
@@ -115,7 +115,7 @@ func TestFadeCommands(t *testing.T) {
 
 	sc.AttachToStream(context.Background(), in, out)
 
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	expected := "Must supply at least 1 arguments\nCould not fade input bad-r\nPossible inputs are 'test-r'\n"
 
@@ -135,7 +135,7 @@ func TestMouseCommands(t *testing.T) {
 
 	sc.AttachToStream(context.Background(), in, out)
 
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	expected := ``
 
@@ -155,7 +155,7 @@ func TestFullScreen(t *testing.T) {
 
 	sc.AttachToStream(context.Background(), in, out)
 
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	expected := ``
 
@@ -193,7 +193,7 @@ func TestMoveWindow(t *testing.T) {
 
 	sc.AttachToStream(context.Background(), in, out)
 
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	expected := `Must supply at least 2 coordinates`
 
