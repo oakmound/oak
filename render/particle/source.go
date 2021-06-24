@@ -16,7 +16,6 @@ const (
 
 // A Source is used to store and control a set of particles.
 type Source struct {
-	render.Layered
 	Generator Generator
 	*Allocator
 
@@ -179,6 +178,9 @@ func (ps *Source) addParticles() {
 // as a Source is active.
 func rotateParticles(id event.CID, payload interface{}) int {
 	ps := id.E().(*Source)
+	if ps.stopped {
+		return 0
+	}
 	if !ps.started {
 		ps.started = true
 	}
@@ -187,8 +189,8 @@ func rotateParticles(id event.CID, payload interface{}) int {
 		ps.addParticles()
 	}
 	if time.Now().After(ps.stopRotateAt) {
-		ps.CID.Bind(event.Enter, clearParticles)
-		return event.UnbindSingle
+		go ps.Stop()
+		return 0
 	}
 	return 0
 }
