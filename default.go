@@ -11,113 +11,114 @@ import (
 	"github.com/oakmound/oak/v3/scene"
 )
 
-var defaultController *Window
+var defaultWindow *Window
 
-var initDefaultControllerOnce sync.Once
+var initDefaultWindowOnce sync.Once
 
-func initDefaultController() {
-	initDefaultControllerOnce.Do(func() {
-		defaultController = NewWindow()
+func initDefaultWindow() {
+	initDefaultWindowOnce.Do(func() {
+		defaultWindow = NewWindow()
 	})
 }
 
 func Init(scene string, configOptions ...ConfigOption) error {
-	initDefaultController()
-	defaultController.DrawStack = render.GlobalDrawStack
-	defaultController.logicHandler = event.DefaultBus
-	return defaultController.Init(scene, configOptions...)
+	initDefaultWindow()
+	defaultWindow.DrawStack = render.GlobalDrawStack
+	defaultWindow.logicHandler = event.DefaultBus
+	return defaultWindow.Init(scene, configOptions...)
 }
 
 func AddScene(name string, sc scene.Scene) error {
-	initDefaultController()
-	return defaultController.AddScene(name, sc)
+	initDefaultWindow()
+	return defaultWindow.AddScene(name, sc)
 }
 
 func IsDown(key string) bool {
-	initDefaultController()
-	return defaultController.IsDown(key)
+	initDefaultWindow()
+	return defaultWindow.IsDown(key)
 }
 
 func IsHeld(key string) (bool, time.Duration) {
-	initDefaultController()
-	return defaultController.IsHeld(key)
+	initDefaultWindow()
+	return defaultWindow.IsHeld(key)
 }
 
 func SetUp(key string) {
-	initDefaultController()
-	defaultController.SetUp(key)
+	initDefaultWindow()
+	defaultWindow.SetUp(key)
 }
 
 func SetDown(key string) {
-	initDefaultController()
-	defaultController.SetDown(key)
+	initDefaultWindow()
+	defaultWindow.SetDown(key)
 }
 
 func SetViewportBounds(rect intgeom.Rect2) {
-	initDefaultController()
-	defaultController.SetViewportBounds(rect)
+	initDefaultWindow()
+	defaultWindow.SetViewportBounds(rect)
 }
 
 func ShiftScreen(x, y int) {
-	initDefaultController()
-	defaultController.ShiftScreen(x, y)
+	initDefaultWindow()
+	defaultWindow.ShiftScreen(x, y)
 }
 
 func SetScreen(x, y int) {
-	initDefaultController()
-	defaultController.SetScreen(x, y)
+	initDefaultWindow()
+	defaultWindow.SetScreen(x, y)
 }
 
 func SetFullScreen(fs bool) error {
-	initDefaultController()
-	return defaultController.SetFullScreen(fs)
+	initDefaultWindow()
+	return defaultWindow.SetFullScreen(fs)
 }
 
 func SetBorderless(bs bool) error {
-	initDefaultController()
-	return defaultController.SetBorderless(bs)
+	initDefaultWindow()
+	return defaultWindow.SetBorderless(bs)
 }
 
 func ScreenShot() *image.RGBA {
-	initDefaultController()
-	return defaultController.ScreenShot()
+	initDefaultWindow()
+	return defaultWindow.ScreenShot()
 }
 
 func SetLoadingRenderable(r render.Renderable) {
-	initDefaultController()
-	defaultController.SetLoadingRenderable(r)
+	initDefaultWindow()
+	defaultWindow.SetLoadingRenderable(r)
 }
 
 func SetBackground(b Background) {
-	initDefaultController()
-	defaultController.SetBackground(b)
+	initDefaultWindow()
+	defaultWindow.SetBackground(b)
 }
 
 func SetColorBackground(img image.Image) {
-	initDefaultController()
-	defaultController.SetColorBackground(img)
+	initDefaultWindow()
+	defaultWindow.SetColorBackground(img)
 }
 
 func GetBackgroundImage() image.Image {
-	initDefaultController()
-	return defaultController.GetBackgroundImage()
+	initDefaultWindow()
+	return defaultWindow.GetBackgroundImage()
 }
 
 func Width() int {
-	initDefaultController()
-	return defaultController.Width()
+	initDefaultWindow()
+	return defaultWindow.Width()
 }
 
 func Height() int {
-	initDefaultController()
-	return defaultController.Height()
+	initDefaultWindow()
+	return defaultWindow.Height()
 }
 
 func HideCursor() error {
-	initDefaultController()
-	return defaultController.HideCursor()
+	initDefaultWindow()
+	return defaultWindow.HideCursor()
 }
 
 func GetCursorPosition() (x, y float64, err error) {
-	return defaultController.GetCursorPosition()
+	initDefaultWindow()
+	return defaultWindow.GetCursorPosition()
 }
