@@ -20,7 +20,7 @@ package event
 // And the following:
 const (
 	// Enter : the beginning of every logical frame.
-	// Payload: (int) frames passed since this scene started
+	// Payload: (EnterPayload) details on the frame and time since last tick
 	Enter = "EnterFrame"
 	// AnimationEnd: Triggered on animations CIDs when they loop from the last to the first frame
 	// Payload: nil
