@@ -242,7 +242,7 @@ func main() {
 		latestInput := new(string)
 		*latestInput = "Latest Input: None"
 		ctx.DrawStack.Draw(render.NewStrPtrText(latestInput, 10, 460), 4)
-		ctx.DrawStack.Draw(render.NewStrText("Space to Vibrate", 10, 440), 4)
+		ctx.DrawStack.Draw(render.NewText("Space to Vibrate", 10, 440), 4)
 		ctx.EventHandler.GlobalBind(event.InputChange, func(_ event.CID, payload interface{}) int {
 			input := payload.(oak.InputType)
 			switch input {

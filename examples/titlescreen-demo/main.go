@@ -40,7 +40,7 @@ func main() {
 	oak.AddScene("titlescreen", scene.Scene{Start: func(ctx *scene.Context) {
 
 		//create text saying titlescreen in placeholder position
-		titleText := render.NewStrText("titlescreen", 0, 0)
+		titleText := render.NewText("titlescreen", 0, 0)
 
 		//center text along both axes
 		center(ctx, titleText, Both)
@@ -49,7 +49,7 @@ func main() {
 		render.Draw(titleText)
 
 		//do the same for the text with button instuctions, but this time Y position is not a placeholder (X still is)
-		instructionText := render.NewStrText("press Enter to start, or press Q to quit", 0, float64(ctx.Window.Height()*3/4))
+		instructionText := render.NewText("press Enter to start, or press Q to quit", 0, float64(ctx.Window.Height()*3/4))
 		//this time we only center the X axis, otherwise it would overlap titleText
 		center(ctx, instructionText, X)
 		render.Draw(instructionText)
@@ -80,7 +80,7 @@ func main() {
 		//we have to get the visual part specificaly, and not the whole thing.
 		render.Draw(player.R)
 
-		controlsText := render.NewStrText("WASD to move, ESC to return to titlescreen", 5, 20)
+		controlsText := render.NewText("WASD to move, ESC to return to titlescreen", 5, 20)
 		//we draw the text on layer 1 (instead of the default layer 0)
 		//because we want it to show up above the player
 		render.Draw(controlsText, 1)

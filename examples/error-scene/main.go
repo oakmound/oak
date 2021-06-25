@@ -13,10 +13,10 @@ func main() {
 	// go to an unknown scene
 	controller.ErrorScene = "error"
 	controller.AddScene("typo", scene.Scene{Start: func(ctx *scene.Context) {
-		ctx.DrawStack.Draw(render.NewStrText("Real scene", 100, 100))
+		ctx.DrawStack.Draw(render.NewText("Real scene", 100, 100))
 	}})
 	controller.AddScene("error", scene.Scene{Start: func(ctx *scene.Context) {
-		ctx.DrawStack.Draw(render.NewStrText("Error scene", 100, 100))
+		ctx.DrawStack.Draw(render.NewText("Error scene", 100, 100))
 	}})
 
 	controller.Init("typpo")
