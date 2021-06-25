@@ -7,7 +7,6 @@ import (
 
 // Window is an interface of methods on an oak.Controller used
 // to avoid circular imports
-// TODO v3: review Window/Controller naming
 type Window interface {
 	SetFullScreen(bool) error
 	SetBorderless(bool) error
