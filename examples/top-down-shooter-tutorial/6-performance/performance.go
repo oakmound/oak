@@ -47,8 +47,8 @@ const (
 func main() {
 
 	oak.AddScene("tds", scene.Scene{Start: func(ctx *scene.Context) {
-		render.Draw(render.NewDrawFPS(0.03, nil, 10, 10), 2, 0)
-		render.Draw(render.NewLogicFPS(0.03, nil, 10, 20), 2, 0)
+		render.Draw(render.NewDrawFPS(0, nil, 10, 10), 2, 0)
+		render.Draw(render.NewLogicFPS(0, nil, 10, 20), 2, 0)
 
 		// Initialization
 		playerAlive = true
@@ -71,26 +71,39 @@ func main() {
 			playerR,
 			nil, 0, 0)
 
-		char.Speed = physics.NewVector(5, 5)
+		char.Speed = physics.NewVector(3, 3)
 		playerPos = char.Point.Vector
 		render.Draw(char.R, 1, 2)
 
-		char.Bind(event.Enter, func(id event.CID, _ interface{}) int {
+		screenCenter := floatgeom.Point2{
+			float64(ctx.Window.Width()) / 2,
+			float64(ctx.Window.Height()) / 2,
+		}
+
+		char.Bind(event.Enter, func(id event.CID, payload interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
-			char.Delta.Zero()
+
+			enterPayload := payload.(event.EnterPayload)
 			if oak.IsDown(key.W) {
-				char.Delta.ShiftY(-char.Speed.Y())
+				char.Delta.ShiftY(-char.Speed.Y() * enterPayload.TickPercent)
 			}
 			if oak.IsDown(key.A) {
-				char.Delta.ShiftX(-char.Speed.X())
+				char.Delta.ShiftX(-char.Speed.X() * enterPayload.TickPercent)
 			}
 			if oak.IsDown(key.S) {
-				char.Delta.ShiftY(char.Speed.Y())
+				char.Delta.ShiftY(char.Speed.Y() * enterPayload.TickPercent)
 			}
 			if oak.IsDown(key.D) {
-				char.Delta.ShiftX(char.Speed.X())
+				char.Delta.ShiftX(char.Speed.X() * enterPayload.TickPercent)
 			}
-			char.ShiftPos(char.Delta.X(), char.Delta.Y())
+			ctx.Window.(*oak.Window).DoBetweenDraws(func() {
+				char.ShiftPos(char.Delta.X(), char.Delta.Y())
+				oak.SetScreen(
+					int(char.R.X()-screenCenter.X()),
+					int(char.R.Y()-screenCenter.Y()),
+				)
+				char.Delta.Zero()
+			})
 			// Don't go out of bounds
 			if char.X() < 0 {
 				char.SetX(0)
@@ -102,10 +115,7 @@ func main() {
 			} else if char.Y() > fieldHeight-char.H {
 				char.SetY(fieldHeight - char.H)
 			}
-			oak.SetScreen(
-				int(char.R.X())-ctx.Window.Width()/2,
-				int(char.R.Y())-ctx.Window.Height()/2,
-			)
+
 			hit := char.HitLabel(Enemy)
 			if hit != nil {
 				playerAlive = false
@@ -128,7 +138,7 @@ func main() {
 
 		char.Bind(mouse.Press, func(id event.CID, me interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
-			mevent := me.(mouse.Event)
+			mevent := me.(*mouse.Event)
 			x := char.X() + char.W/2
 			y := char.Y() + char.H/2
 			vp := ctx.Window.Viewport()
@@ -139,7 +149,7 @@ func main() {
 			for _, hit := range hits {
 				hit.Zone.CID.Trigger("Destroy", nil)
 			}
-			render.DrawForTime(
+			ctx.DrawForTime(
 				render.NewLine(x, y, mx, my, color.RGBA{0, 128, 0, 128}),
 				time.Millisecond*50,
 				1, 2)
@@ -148,9 +158,9 @@ func main() {
 
 		// Create enemies periodically
 		event.GlobalBind(event.Enter, func(_ event.CID, frames interface{}) int {
-			f := frames.(int)
-			if f%EnemyRefresh == 0 {
-				NewEnemy()
+			enterPayload := frames.(event.EnterPayload)
+			if enterPayload.FramesElapsed%EnemyRefresh == 0 {
+				go NewEnemy()
 			}
 			return 0
 		})
@@ -178,6 +188,7 @@ func main() {
 
 	oak.Init("tds", func(c oak.Config) (oak.Config, error) {
 		c.BatchLoad = true
+		//c.FrameRate = 30
 		return c, nil
 	})
 }
@@ -205,13 +216,14 @@ func NewEnemy() {
 
 	enemy.UpdateLabel(Enemy)
 
-	enemy.Bind(event.Enter, func(id event.CID, _ interface{}) int {
+	enemy.Bind(event.Enter, func(id event.CID, payload interface{}) int {
 		enemy := event.GetEntity(id).(*entities.Solid)
+		enterPayload := payload.(event.EnterPayload)
 		// move towards the player
 		x, y := enemy.GetPos()
 		pt := floatgeom.Point2{x, y}
 		pt2 := floatgeom.Point2{playerPos.X(), playerPos.Y()}
-		delta := pt2.Sub(pt).Normalize().MulConst(EnemySpeed)
+		delta := pt2.Sub(pt).Normalize().MulConst(EnemySpeed * enterPayload.TickPercent)
 		enemy.ShiftPos(delta.X(), delta.Y())
 
 		// update animation

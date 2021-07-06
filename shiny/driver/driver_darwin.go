@@ -4,7 +4,7 @@
 
 // +build darwin
 // +build darwingl
-// +build !noop
+// +build !nooswindow
 
 package driver
 

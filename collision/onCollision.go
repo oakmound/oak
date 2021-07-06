@@ -11,6 +11,7 @@ import (
 type Phase struct {
 	OnCollisionS *Space
 	tree         *Tree
+	bus          event.Handler
 	// If allocating maps becomes an issue
 	// we can have two constant maps that we
 	// switch between on alternating frames
@@ -30,15 +31,22 @@ type collisionPhase interface {
 // entities begin to collide or stop colliding with the space.
 // If tree is nil, it uses DefTree
 func PhaseCollision(s *Space, tree *Tree) error {
-	en := s.CID.E()
+	return PhaseCollisionWithBus(s, tree, event.DefaultBus, event.DefaultCallerMap)
+}
+
+// PhaseCollisionWithBus allows for a non-default bus and non-default entity mapping
+// in a phase collision binding.
+func PhaseCollisionWithBus(s *Space, tree *Tree, bus event.Handler, entities *event.CallerMap) error {
+	en := entities.GetEntity(s.CID)
 	if cp, ok := en.(collisionPhase); ok {
 		oc := cp.getCollisionPhase()
 		oc.OnCollisionS = s
 		oc.tree = tree
+		oc.bus = bus
 		if oc.tree == nil {
 			oc.tree = DefaultTree
 		}
-		s.CID.Bind(event.Enter, phaseCollisionEnter)
+		bus.Bind(event.Enter, s.CID, phaseCollisionEnter(entities))
 		return nil
 	}
 	return errors.New("This space's entity does not implement collisionPhase")
@@ -51,31 +59,33 @@ const (
 	Stop  = "CollisionStop"
 )
 
-func phaseCollisionEnter(id event.CID, nothing interface{}) int {
-	e := id.E().(collisionPhase)
-	oc := e.getCollisionPhase()
+func phaseCollisionEnter(entities *event.CallerMap) func(id event.CID, nothing interface{}) int {
+	return func(id event.CID, nothing interface{}) int {
+		e := entities.GetEntity(id).(collisionPhase)
+		oc := e.getCollisionPhase()
 
-	// check hits
-	hits := oc.tree.Hits(oc.OnCollisionS)
-	newTouching := map[Label]bool{}
+		// check hits
+		hits := oc.tree.Hits(oc.OnCollisionS)
+		newTouching := map[Label]bool{}
 
-	// if any are new, trigger on collision
-	for _, h := range hits {
-		l := h.Label
-		if _, ok := oc.Touching[l]; !ok {
-			event.CID(id).Trigger(Start, l)
+		// if any are new, trigger on collision
+		for _, h := range hits {
+			l := h.Label
+			if _, ok := oc.Touching[l]; !ok {
+				id.TriggerBus(Start, l, oc.bus)
+			}
+			newTouching[l] = true
 		}
-		newTouching[l] = true
-	}
 
-	// if we lost any, trigger off collision
-	for l := range oc.Touching {
-		if _, ok := newTouching[l]; !ok {
-			event.CID(id).Trigger(Stop, l)
+		// if we lost any, trigger off collision
+		for l := range oc.Touching {
+			if _, ok := newTouching[l]; !ok {
+				id.TriggerBus(Stop, l, oc.bus)
+			}
 		}
+
+		oc.Touching = newTouching
+
+		return 0
 	}
-
-	oc.Touching = newTouching
-
-	return 0
 }

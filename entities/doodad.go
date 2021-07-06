@@ -1,8 +1,6 @@
 package entities
 
 import (
-	"strconv"
-
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/render"
 )
@@ -78,13 +76,4 @@ func (d *Doodad) SetPos(x, y float64) {
 	if d.R != nil {
 		d.R.SetPos(x, y)
 	}
-}
-
-func (d *Doodad) String() string {
-	s := "Doodad: \nP{ "
-	s += d.Point.String()
-	s += " }\nID:{ "
-	s += strconv.Itoa(int(d.CID))
-	s += " }"
-	return s
 }

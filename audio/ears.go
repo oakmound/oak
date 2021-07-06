@@ -1,7 +1,6 @@
 package audio
 
 import (
-	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/physics"
 )
 
@@ -58,15 +57,11 @@ func (e *Ears) CalculateVolume(v physics.Vector) float64 {
 	v2 := physics.NewVector(*e.X, *e.Y)
 	dist := v2.Distance(v)
 
-	dlog.Verb("Vector Distance:", dist, v, v2)
-
 	// Ignore scaling variable
 	lin := (e.SilenceRadius - dist) / e.SilenceRadius
 	if lin < 0 {
 		lin = 0
 	}
-
-	dlog.Verb("Silence scale", lin, e.SilenceRadius, dist)
 
 	return lin
 }

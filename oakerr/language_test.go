@@ -5,24 +5,24 @@ import (
 )
 
 func TestSetLanguageString(t *testing.T) {
-	SetLanguageString("Gibberish")
-	if currentLanguage != English {
-		t.Fatalf("Gibberish did not set language to English")
+	err := SetLanguageString("Gibberish")
+	if err == nil {
+		t.Fatal("Setting to language Gibberish did not error")
 	}
 	SetLanguageString("German")
-	if currentLanguage != Deutsch {
+	if currentLanguage != DE {
 		t.Fatalf("German did not set language to Deutsch")
 	}
 	SetLanguageString("English")
-	if currentLanguage != English {
+	if currentLanguage != EN {
 		t.Fatalf("English did not set language to English")
 	}
 	SetLanguageString("Japanese")
-	if currentLanguage != 日本語 {
+	if currentLanguage != JP {
 		t.Fatalf("Japanese did not set language to 日本語")
 	}
 	SetLanguageString("日本語")
-	if currentLanguage != 日本語 {
+	if currentLanguage != JP {
 		t.Fatalf("日本語 did not set language to 日本語")
 	}
 }

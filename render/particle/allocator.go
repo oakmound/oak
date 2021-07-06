@@ -6,7 +6,6 @@ const (
 	blockSize = 2048
 )
 
-// TODO: add .Stop?
 type Allocator struct {
 	particleBlocks map[int]event.CID
 	nextOpenCh     chan int
@@ -14,6 +13,7 @@ type Allocator struct {
 	allocCh        chan event.CID
 	requestCh      chan int
 	responseCh     chan event.CID
+	stopCh         chan struct{}
 }
 
 func NewAllocator() *Allocator {
@@ -24,6 +24,7 @@ func NewAllocator() *Allocator {
 		allocCh:        make(chan event.CID),
 		requestCh:      make(chan int),
 		responseCh:     make(chan event.CID),
+		stopCh:         make(chan struct{}),
 	}
 }
 
@@ -32,6 +33,8 @@ func (a *Allocator) Run() {
 	for {
 		if _, ok := a.particleBlocks[lastOpen]; !ok {
 			select {
+			case <-a.stopCh:
+				return
 			case pID := <-a.requestCh:
 				a.responseCh <- a.particleBlocks[pID/blockSize]
 				lastOpen--
@@ -45,6 +48,8 @@ func (a *Allocator) Run() {
 			}
 		}
 		select {
+		case <-a.stopCh:
+			return
 		case i := <-a.freeCh:
 			opened := a.freereceive(i)
 			if opened < lastOpen {
@@ -92,4 +97,10 @@ func (a *Allocator) LookupSource(id int) *Source {
 func (a *Allocator) Lookup(id int) Particle {
 	source := a.LookupSource(id)
 	return source.particles[id%blockSize]
+}
+
+// Stop stops the allocator's ongoing Run. Once stopped, allocator may not be reused.
+// Stop must not be called more than once.
+func (a *Allocator) Stop() {
+	close(a.stopCh)
 }

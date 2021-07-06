@@ -17,7 +17,6 @@ type CompositeR struct {
 	toUndraw    []Renderable
 	rs          []Renderable
 	predrawLock sync.Mutex
-	DrawPolygon
 }
 
 // NewCompositeR creates a new CompositeR from a slice of renderables
@@ -137,7 +136,7 @@ func (cs *CompositeR) Copy() Stackable {
 	return cs2
 }
 
-func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos intgeom.Point2, screenW, screenH int) {
+func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos *intgeom.Point2, screenW, screenH int) {
 	realLength := len(cs.rs)
 	for i := 0; i < realLength; i++ {
 		r := cs.rs[i]
@@ -158,10 +157,7 @@ func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos intgeom.Point2, scr
 		y += h
 		if x > viewPos[0] && y > viewPos[1] &&
 			x2 < viewPos[0]+screenW && y2 < viewPos[1]+screenH {
-
-			if cs.InDrawPolygon(x, y, x2, y2) {
-				r.Draw(world, float64(-viewPos[0]), float64(-viewPos[1]))
-			}
+			r.Draw(world, float64(-viewPos[0]), float64(-viewPos[1]))
 		}
 	}
 	cs.rs = cs.rs[0:realLength]
@@ -169,4 +165,25 @@ func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos intgeom.Point2, scr
 
 func (cs *CompositeR) Clear() {
 	*cs = *NewCompositeR()
+}
+
+// ToSprite converts the composite into a sprite by drawing each layer in order
+// and overwriting lower layered pixels
+func (cs *CompositeR) ToSprite() *Sprite {
+	var maxW, maxH int
+	for _, r := range cs.rs {
+		x, y := int(r.X()), int(r.Y())
+		w, h := r.GetDims()
+		if x+w > maxW {
+			maxW = x + w
+		}
+		if y+h > maxH {
+			maxH = y + h
+		}
+	}
+	sp := NewEmptySprite(cs.X(), cs.Y(), maxW, maxH)
+	for _, r := range cs.rs {
+		r.Draw(sp, 0, 0)
+	}
+	return sp
 }

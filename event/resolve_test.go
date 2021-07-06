@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-func TestResolvePendingWithRefreshRate(t *testing.T) {
-	b := NewBus()
+func TestResolveChangesWithRefreshRate(t *testing.T) {
+	b := NewBus(nil)
 	b.SetRefreshRate(6 * time.Second)
-	b.ResolvePending()
+	b.ResolveChanges()
 	failed := false
 	b.Bind("EnterFrame", 0, func(CID, interface{}) int {
 		failed = true

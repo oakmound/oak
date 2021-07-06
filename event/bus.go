@@ -4,8 +4,6 @@ import (
 	"reflect"
 	"sync"
 	"time"
-
-	"github.com/oakmound/oak/v3/timing"
 )
 
 // Bindable is a way of saying "Any function
@@ -34,7 +32,7 @@ type Bus struct {
 	doneCh              chan struct{}
 	updateCh            chan struct{}
 	framesElapsed       int
-	Ticker              *timing.DynamicTicker
+	Ticker              *time.Ticker
 	binds               []UnbindOption
 	partUnbinds         []Event
 	fullUnbinds         []UnbindOption
@@ -42,6 +40,7 @@ type Bus struct {
 	unbindAllAndRebinds []UnbindAllOption
 	framerate           int
 	refreshRate         time.Duration
+	callerMap           *CallerMap
 
 	mutex        sync.RWMutex
 	pendingMutex sync.Mutex
@@ -49,21 +48,17 @@ type Bus struct {
 	init sync.Once
 }
 
-// NewBus returns an empty event bus
-func NewBus() *Bus {
+// NewBus returns an empty event bus with an assigned caller map. If nil
+// is provided, the caller map used will be DefaultCallerMap
+func NewBus(callerMap *CallerMap) *Bus {
+	if callerMap == nil {
+		callerMap = DefaultCallerMap
+	}
 	return &Bus{
-		Ticker:              timing.NewDynamicTicker(),
-		bindingMap:          make(map[string]map[CID]*bindableList),
-		updateCh:            make(chan struct{}),
-		doneCh:              make(chan struct{}),
-		binds:               make([]UnbindOption, 0),
-		partUnbinds:         make([]Event, 0),
-		fullUnbinds:         make([]UnbindOption, 0),
-		unbinds:             make([]binding, 0),
-		unbindAllAndRebinds: make([]UnbindAllOption, 0),
-		mutex:               sync.RWMutex{},
-		pendingMutex:        sync.Mutex{},
-		init:                sync.Once{},
+		bindingMap: make(map[string]map[CID]*bindableList),
+		updateCh:   make(chan struct{}),
+		doneCh:     make(chan struct{}),
+		callerMap:  callerMap,
 	}
 }
 

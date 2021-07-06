@@ -15,7 +15,7 @@ var keys = map[rune]struct{}{}
 
 func main() {
 	oak.AddScene("keyboard-test", scene.Scene{Start: func(*scene.Context) {
-		kRenderable := render.NewStrText("", 40, 40)
+		kRenderable := render.NewText("", 40, 40)
 		render.Draw(kRenderable, 0)
 		event.GlobalBind(key.Down, func(_ event.CID, k interface{}) int {
 			kValue := k.(key.Event)

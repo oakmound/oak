@@ -1,8 +1,6 @@
 package entities
 
 import (
-	"strconv"
-
 	"github.com/oakmound/oak/v3/collision"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/render"
@@ -121,17 +119,4 @@ func (s *Solid) SetPos(x float64, y float64) {
 func (s *Solid) Destroy() {
 	s.Doodad.Destroy()
 	s.Tree.Remove(s.Space)
-}
-
-func (s *Solid) String() string {
-	st := "Solid:\n{"
-	st += s.Doodad.String()
-	st += "},\n"
-	w := strconv.FormatFloat(s.W, 'f', 2, 32)
-	h := strconv.FormatFloat(s.H, 'f', 2, 32)
-	st += "W: " + w + ", H: " + h
-	st += ",\nS:{"
-	st += s.Space.String()
-	st += "}"
-	return st
 }

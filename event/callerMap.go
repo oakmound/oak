@@ -98,5 +98,5 @@ func DestroyEntity(id CID) {
 
 // ResetCallerMap resets the DefaultCallerMap to be empty.
 func ResetCallerMap() {
-	DefaultCallerMap = NewCallerMap()
+	*DefaultCallerMap = *NewCallerMap()
 }

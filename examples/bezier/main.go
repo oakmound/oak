@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/debugstream"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/mouse"
 	"github.com/oakmound/oak/v3/render"
@@ -34,9 +35,9 @@ func main() {
 	// bezier X Y X Y X Y ...
 	// for defining custom points without using the mouse.
 	// does not interact with the mouse points tracked through left clicks.
-	oak.AddCommand("bezier", func(tokens []string) {
+	debugstream.AddCommand(debugstream.Command{Name: "bezier", Operation: func(tokens []string) string {
 		if len(tokens) < 4 {
-			return
+			return ""
 		}
 		tokens = tokens[1:]
 		var err error
@@ -45,16 +46,17 @@ func main() {
 			floats[i], err = strconv.ParseFloat(s, 64)
 			if err != nil {
 				fmt.Println(err)
-				return
+				return ""
 			}
 		}
 		renderCurve(floats)
-	})
+		return ""
+	}})
 
 	oak.AddScene("bezier", scene.Scene{Start: func(*scene.Context) {
 		mouseFloats := []float64{}
 		event.GlobalBind(mouse.Press, func(_ event.CID, mouseEvent interface{}) int {
-			me := mouseEvent.(mouse.Event)
+			me := mouseEvent.(*mouse.Event)
 			// Left click to add a point to the curve
 			if me.Button == mouse.ButtonLeft {
 				mouseFloats = append(mouseFloats, float64(me.X()), float64(me.Y()))
@@ -67,7 +69,10 @@ func main() {
 			return 0
 		})
 	}})
-	oak.Init("bezier")
+	oak.Init("bezier", func(c oak.Config) (oak.Config, error) {
+		c.EnableDebugConsole = true
+		return c, nil
+	})
 }
 
 func bezierDraw(b shape.Bezier) *render.CompositeM {

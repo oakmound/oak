@@ -1,7 +1,7 @@
 package audio
 
 import (
-	"github.com/200sc/klangsynthese/font"
+	"github.com/oakmound/oak/v3/audio/font"
 	"github.com/oakmound/oak/v3/oakerr"
 )
 

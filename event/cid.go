@@ -4,8 +4,6 @@ package event
 type CID int
 
 // E is shorthand for GetEntity(int(cid))
-// But we apparently forgot we added this shorthand,
-// because this isn't used anywhere.
 func (cid CID) E() interface{} {
 	return GetEntity(cid)
 }

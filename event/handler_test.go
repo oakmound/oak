@@ -41,12 +41,13 @@ func TestHandler(t *testing.T) {
 		t.Fatal("Handler should be closed")
 	default:
 	}
+	expectedTriggers := triggers + 1
 	if Update() != nil {
 		t.Fatalf("Update failed")
 	}
 	sleep()
 
-	if triggers != 3 {
+	if triggers != expectedTriggers {
 		t.Fatalf("expected update to increment triggers")
 	}
 	if Flush() != nil {
@@ -66,7 +67,7 @@ func TestHandler(t *testing.T) {
 func BenchmarkHandler(b *testing.B) {
 	triggers := 0
 	entities := 10
-	go DefaultBus.ResolvePending()
+	go DefaultBus.ResolveChanges()
 	for i := 0; i < entities; i++ {
 		DefaultBus.GlobalBind(Enter, func(CID, interface{}) int {
 			triggers++
@@ -80,8 +81,8 @@ func BenchmarkHandler(b *testing.B) {
 }
 
 func TestPauseAndResume(t *testing.T) {
-	b := NewBus()
-	b.ResolvePending()
+	b := NewBus(nil)
+	b.ResolveChanges()
 	triggerCt := 0
 	b.Bind("EnterFrame", 0, func(CID, interface{}) int {
 		triggerCt++

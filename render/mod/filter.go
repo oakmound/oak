@@ -4,8 +4,6 @@ import (
 	"image"
 	"image/color"
 	"math"
-
-	"github.com/oakmound/oak/v3/dlog"
 )
 
 // A Filter modifies an input image in place. This is useful notably for modifying
@@ -176,7 +174,6 @@ func StripOuterAlpha(m *image.RGBA, level int) Filter {
 	l := uint8(level)
 	return func(rgba *image.RGBA) {
 		if m == nil {
-			dlog.Warn("Invalid rgba provided to stripouteralpha")
 			return
 		}
 

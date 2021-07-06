@@ -86,6 +86,13 @@ type ListenOptions struct {
 	// "RtStickChange": *State
 	// "LtStickChange": *State
 	StickChanges bool
+	// StickDeadzones enable preventing movement near the center of
+	// the analog control being sent to a logic handler. A
+	// StickDeadzone value will be treated as an absolute threshold.
+	StickDeadzoneLX int16
+	StickDeadzoneLY int16
+	StickDeadzoneRX int16
+	StickDeadzoneRY int16
 }
 
 func (lo *ListenOptions) sendFn() func(Triggerer, *State, *State) {
@@ -175,30 +182,28 @@ func (lo *ListenOptions) sendFn() func(Triggerer, *State, *State) {
 			}
 		}
 	}
-	// Todo: support a stick deadzone where we don't report very tiny changes
-	// near the center of the stick
 	if lo.StickChanges {
 		prevFn := fn
 		if prevFn != nil {
 			fn = func(h Triggerer, cur, last *State) {
 				prevFn(h, cur, last)
-				if cur.StickLX != last.StickLX ||
-					cur.StickLY != last.StickLY {
+				if deltaExceedsThreshold(cur.StickLX, last.StickLX, lo.StickDeadzoneLX) ||
+					deltaExceedsThreshold(cur.StickLY, last.StickLY, lo.StickDeadzoneLY) {
 					h.Trigger(LtStickChange, cur)
 				}
-				if cur.StickRX != last.StickRX ||
-					cur.StickRY != last.StickRY {
+				if deltaExceedsThreshold(cur.StickRX, last.StickRX, lo.StickDeadzoneRX) ||
+					deltaExceedsThreshold(cur.StickRY, last.StickRY, lo.StickDeadzoneRY) {
 					h.Trigger(RtStickChange, cur)
 				}
 			}
 		} else {
 			fn = func(h Triggerer, cur, last *State) {
-				if cur.StickLX != last.StickLX ||
-					cur.StickLY != last.StickLY {
+				if deltaExceedsThreshold(cur.StickLX, last.StickLX, lo.StickDeadzoneLX) ||
+					deltaExceedsThreshold(cur.StickLY, last.StickLY, lo.StickDeadzoneLY) {
 					h.Trigger(LtStickChange, cur)
 				}
-				if cur.StickRX != last.StickRX ||
-					cur.StickRY != last.StickRY {
+				if deltaExceedsThreshold(cur.StickRX, last.StickRX, lo.StickDeadzoneRX) ||
+					deltaExceedsThreshold(cur.StickRY, last.StickRY, lo.StickDeadzoneRY) {
 					h.Trigger(RtStickChange, cur)
 				}
 			}
@@ -230,6 +235,17 @@ func (lo *ListenOptions) sendFn() func(Triggerer, *State, *State) {
 	return fn
 }
 
+func deltaExceedsThreshold(old, new, threshold int16) bool {
+	return intAbs(old-new) > threshold
+}
+
+func intAbs(x int16) (positiveX int16) {
+	if x < 0 {
+		return x * -1
+	}
+	return x
+}
+
 // Listen causes the joystick to send its inputs to its Handler, by regularly
 // querying GetState. The type of events returned can be specified by options.
 // If the options are nil, only JoystickChange events will be sent.
@@ -240,6 +256,18 @@ func (j *Joystick) Listen(opts *ListenOptions) (cancel func()) {
 		}
 	}
 	stop := make(chan struct{})
+	if opts.StickDeadzoneLX < 0 {
+		opts.StickDeadzoneLX *= -1
+	}
+	if opts.StickDeadzoneRX < 0 {
+		opts.StickDeadzoneRX *= -1
+	}
+	if opts.StickDeadzoneRY < 0 {
+		opts.StickDeadzoneRY *= -1
+	}
+	if opts.StickDeadzoneLY < 0 {
+		opts.StickDeadzoneLY *= -1
+	}
 	sendFn := opts.sendFn()
 	go func() {
 		// Perform required initialization to receive inputs from OS

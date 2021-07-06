@@ -10,7 +10,6 @@ import (
 )
 
 // CutRound rounds the edges of the Modifiable with Bezier curves.
-// Todo: We have a nice bezier toolkit now, so use it here
 func CutRound(xOff, yOff float64) Mod {
 	return func(rgba image.Image) *image.RGBA {
 		bds := rgba.Bounds()

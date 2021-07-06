@@ -3,7 +3,7 @@ package audio
 import (
 	"sync"
 
-	"github.com/200sc/klangsynthese/font"
+	"github.com/oakmound/oak/v3/audio/font"
 )
 
 var (

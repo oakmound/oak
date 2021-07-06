@@ -3,7 +3,6 @@ package key
 // This lists the keys sent through oak's input events.
 // This list is not used internally by oak, but was generated from
 // the expected output from x/mobile/key.
-// todo: write a go generate script to perform said generation
 //
 // These strings are sent as payloads to Key.Down and Key.Up events,
 // and through "KeyDown"+$a, "KeyUp"+$a for any $a in the const.

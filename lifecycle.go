@@ -5,113 +5,116 @@ import (
 	"image/draw"
 
 	"github.com/oakmound/oak/v3/alg"
-	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/debugstream"
 	"golang.org/x/mobile/event/lifecycle"
 
 	"github.com/oakmound/oak/v3/shiny/screen"
 )
 
-func (c *Controller) lifecycleLoop(s screen.Screen) {
-	dlog.Info("Init Lifecycle")
-
-	c.screenControl = s
-	dlog.Info("Creating window buffer")
-	err := c.UpdateViewSize(c.ScreenWidth, c.ScreenHeight)
+func (w *Window) lifecycleLoop(s screen.Screen) {
+	w.screenControl = s
+	err := w.UpdateViewSize(w.ScreenWidth, w.ScreenHeight)
 	if err != nil {
-		dlog.Error(err)
+		go w.exitWithError(err)
 		return
 	}
 
 	// Right here, query the backing scale factor of the physical screen
 	// Apply that factor to the scale
 
-	dlog.Info("Creating window controller")
-	c.newWindow(
-		int32(c.config.Screen.X),
-		int32(c.config.Screen.Y),
-		c.ScreenWidth*c.config.Screen.Scale,
-		c.ScreenHeight*c.config.Screen.Scale,
+	err = w.newWindow(
+		int32(w.config.Screen.X),
+		int32(w.config.Screen.Y),
+		w.ScreenWidth*w.config.Screen.Scale,
+		w.ScreenHeight*w.config.Screen.Scale,
 	)
+	if err != nil {
+		go w.exitWithError(err)
+		return
+	}
 
-	dlog.Info("Starting draw loop")
-	go c.drawLoop()
-	dlog.Info("Starting input loop")
-	go c.inputLoop()
+	go w.drawLoop()
+	go w.inputLoop()
 
-	<-c.quitCh
+	<-w.quitCh
 }
 
-// Quit sends a signal to the window to close itself, ending oak.
-func (c *Controller) Quit() {
-	c.windowControl.Send(lifecycle.Event{To: lifecycle.StageDead})
+// Quit sends a signal to the window to close itself, closing the window and
+// any spun up resources. It should not be called before Init. After it is called,
+// it must not be called again.
+func (w *Window) Quit() {
+	// We could have hit this before the window was created
+	if w.windowControl == nil {
+		close(w.quitCh)
+	} else {
+		w.windowControl.Send(lifecycle.Event{To: lifecycle.StageDead})
+	}
+	if w.config.EnableDebugConsole {
+		debugstream.DefaultCommands.RemoveScope(w.ControllerID)
+	}
 }
 
-func (c *Controller) newWindow(x, y int32, width, height int) {
+func (w *Window) newWindow(x, y int32, width, height int) error {
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
-	wC, err := c.windowController(c.screenControl, x, y, width, height)
+	wC, err := w.windowController(w.screenControl, x, y, width, height)
 	if err != nil {
-		dlog.Error(err)
-		panic(err)
+		return err
 	}
-	c.windowControl = wC
-	c.ChangeWindow(width, height)
+	w.windowControl = wC
+	return w.ChangeWindow(width, height)
 }
 
 // SetAspectRatio will enforce that the displayed window does not distort the
 // input screen away from the given x:y ratio. The screen will not use these
 // settings until a new size event is received from the OS.
-func (c *Controller) SetAspectRatio(xToY float64) {
-	c.UseAspectRatio = true
-	c.aspectRatio = xToY
+func (w *Window) SetAspectRatio(xToY float64) {
+	w.UseAspectRatio = true
+	w.aspectRatio = xToY
 }
 
 // ChangeWindow sets the width and height of the game window. Although exported,
 // calling it without a size event will probably not act as expected.
-func (c *Controller) ChangeWindow(width, height int) {
+func (w *Window) ChangeWindow(width, height int) error {
 	// Draw a black frame to cover up smears
 	// Todo: could restrict the black to -just- the area not covered by the
 	// scaled screen buffer
-	buff, err := c.screenControl.NewImage(image.Point{width, height})
+	buff, err := w.screenControl.NewImage(image.Point{width, height})
 	if err == nil {
-		draw.Draw(buff.RGBA(), buff.Bounds(), c.bkgFn(), zeroPoint, draw.Src)
-		c.windowControl.Upload(zeroPoint, buff, buff.Bounds())
+		draw.Draw(buff.RGBA(), buff.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+		w.windowControl.Upload(zeroPoint, buff, buff.Bounds())
 	} else {
-		dlog.Error(err)
+		return err
 	}
 	var x, y int
-	if c.UseAspectRatio {
+	if w.UseAspectRatio {
 		inRatio := float64(width) / float64(height)
-		if c.aspectRatio > inRatio {
-			newHeight := alg.RoundF64(float64(height) * (inRatio / c.aspectRatio))
+		if w.aspectRatio > inRatio {
+			newHeight := alg.RoundF64(float64(height) * (inRatio / w.aspectRatio))
 			y = (newHeight - height) / 2
 			height = newHeight - y
 		} else {
-			newWidth := alg.RoundF64(float64(width) * (c.aspectRatio / inRatio))
+			newWidth := alg.RoundF64(float64(width) * (w.aspectRatio / inRatio))
 			x = (newWidth - width) / 2
 			width = newWidth - x
 		}
 	}
-	c.windowRect = image.Rect(-x, -y, width, height)
-}
-
-func (c *Controller) UpdateViewSize(width, height int) error {
-	c.ScreenWidth = width
-	c.ScreenHeight = height
-	newBuffer, err := c.screenControl.NewImage(image.Point{width, height})
-	if err != nil {
-		return err
-	}
-	c.winBuffer = newBuffer
-	newTexture, err := c.screenControl.NewTexture(c.winBuffer.Bounds().Max)
-	if err != nil {
-		return err
-	}
-	c.windowTexture = newTexture
+	w.windowRect = image.Rect(-x, -y, width, height)
 	return nil
 }
 
-// GetScreen returns the current screen as an rgba buffer
-func (c *Controller) GetScreen() *image.RGBA {
-	return c.winBuffer.RGBA()
+func (w *Window) UpdateViewSize(width, height int) error {
+	w.ScreenWidth = width
+	w.ScreenHeight = height
+	newBuffer, err := w.screenControl.NewImage(image.Point{width, height})
+	if err != nil {
+		return err
+	}
+	w.winBuffer = newBuffer
+	newTexture, err := w.screenControl.NewTexture(w.winBuffer.Bounds().Max)
+	if err != nil {
+		return err
+	}
+	w.windowTexture = newTexture
+	return nil
 }

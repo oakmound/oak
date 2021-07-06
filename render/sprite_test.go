@@ -15,11 +15,9 @@ var (
 	// this is excessive for a lot of tests
 	// but it takes away some decision making
 	// and could reveal problems that probably aren't there
-	// but hey you never know
 	widths  = intrange.NewLinear(1, 10)
 	heights = intrange.NewLinear(1, 10)
 	colors  = colorrange.NewLinear(color.RGBA{0, 0, 0, 0}, color.RGBA{255, 255, 255, 255})
-	seeds   = intrange.NewLinear(0, 10000)
 )
 
 const (

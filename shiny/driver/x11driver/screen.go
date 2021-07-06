@@ -233,6 +233,7 @@ func (s *screenImpl) handleSecondLayerEvent(ev xgb.Event) {
 			if w := s.findWindow(ev.Window); w != nil {
 				w.lifecycler.SetDead(true)
 				w.lifecycler.SendEvent(w, nil)
+				w.Release()
 			}
 		case s.atoms["WM_TAKE_FOCUS"]:
 			xproto.SetInputFocus(s.xc, xproto.InputFocusParent, ev.Window, xproto.Timestamp(ev.Data.Data32[1]))

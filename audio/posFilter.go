@@ -1,9 +1,9 @@
 package audio
 
 import (
-	"github.com/200sc/klangsynthese/audio"
-	"github.com/200sc/klangsynthese/audio/filter"
-	"github.com/200sc/klangsynthese/audio/filter/supports"
+	"github.com/oakmound/oak/v3/audio/klang"
+	"github.com/oakmound/oak/v3/audio/klang/filter"
+	"github.com/oakmound/oak/v3/audio/klang/filter/supports"
 	"github.com/oakmound/oak/v3/physics"
 )
 
@@ -16,7 +16,7 @@ type SupportsPos interface {
 }
 
 var (
-	_ audio.Filter = Pos(func(SupportsPos) {})
+	_ klang.Filter = Pos(func(SupportsPos) {})
 )
 
 // Pos functions are filters that require a SupportsPos interface
@@ -24,7 +24,7 @@ type Pos func(SupportsPos)
 
 // Apply is a function allowing Pos to satisfy the audio.Filter interface.
 // Pos applies itself to any audio it is given that supports it.
-func (xp Pos) Apply(a audio.Audio) (audio.Audio, error) {
+func (xp Pos) Apply(a klang.Audio) (klang.Audio, error) {
 	if sxp, ok := a.(SupportsPos); ok {
 		xp(sxp)
 		return a, nil

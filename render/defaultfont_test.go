@@ -6,11 +6,11 @@ import (
 
 func TestLegacyFont(t *testing.T) {
 	initTestFont()
-	if NewText(dummyStringer{}, 0, 0) == nil {
-		t.Fatalf("NewText failed")
+	if NewStringerText(dummyStringer{}, 0, 0) == nil {
+		t.Fatalf("NewStringerText failed")
 	}
-	if NewStrText("text", 0, 0) == nil {
-		t.Fatalf("NewStrText failed")
+	if NewText("text", 0, 0) == nil {
+		t.Fatalf("NewText failed")
 	}
 	if NewIntText(new(int), 0, 0) == nil {
 		t.Fatalf("NewIntText failed")

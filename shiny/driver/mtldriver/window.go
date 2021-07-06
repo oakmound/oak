@@ -41,14 +41,22 @@ type windowImpl struct {
 }
 
 func (w *windowImpl) MoveWindow(x, y, width, height int32) error {
+	respCh := make(chan struct{})
 	w.moveWindowCh <- moveWindowReq{
 		window: w.window,
 		x:      int(x),
 		y:      int(y),
 		width:  int(width),
 		height: int(height),
+		respCh: respCh,
 	}
+	glfw.PostEmptyEvent()
+	<-respCh
 	return nil
+}
+
+func (w *windowImpl) GetCursorPosition() (x, y float64) {
+	return w.window.GetCursorPos()
 }
 
 func (w *windowImpl) Release() {

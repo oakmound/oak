@@ -17,7 +17,7 @@ const (
 
 func main() {
 	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
-		txt := render.NewStrText("Press F to toggle fullscreen. Press B to toggle borderless.", 50, 50)
+		txt := render.NewText("Press F to toggle fullscreen. Press B to toggle borderless.", 50, 50)
 		render.Draw(txt)
 
 		borderless := borderlessAtStart

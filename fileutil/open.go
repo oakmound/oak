@@ -50,7 +50,7 @@ func Open(file string) (io.ReadCloser, error) {
 			// convert data to io.Reader
 			return nopCloser{bytes.NewReader(data)}, err
 		}
-		dlog.Warn("File not found in binary", rel)
+		dlog.Info("File not found in binary", rel)
 	}
 	return os.Open(file)
 }
@@ -60,7 +60,6 @@ func ReadFile(file string) ([]byte, error) {
 	if BindataFn != nil {
 		rel, err := filepath.Rel(wd, file)
 		if err != nil {
-			dlog.Warn("Error in rel", err)
 			rel = file
 		}
 		return BindataFn(rel)
@@ -78,7 +77,6 @@ func ReadDir(file string) ([]os.FileInfo, error) {
 		dlog.Verb("Bindata not nil, reading directory", file)
 		rel, err = filepath.Rel(wd, file)
 		if err != nil {
-			dlog.Warn(err)
 			// Just try the relative path by itself if we can't form
 			// an absolute path.
 			rel = file
@@ -89,14 +87,13 @@ func ReadDir(file string) ([]os.FileInfo, error) {
 			for i, s := range strs {
 				// If the data does not contain a period, we consider it
 				// a directory
-				// todo: can we supply a function that will tell us this
-				// so we don't make this (bad) assumption?
+				// todo: match embed / fs packages to remove the above bad assumption
 				fis[i] = dummyfileinfo{s, !strings.ContainsRune(s, '.')}
 				dlog.Verb("Creating dummy file into for", s, fis[i])
 			}
 			return fis, nil
 		}
-		dlog.Warn(err)
+		dlog.Error(err)
 	}
 	return ioutil.ReadDir(file)
 }

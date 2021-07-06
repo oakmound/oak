@@ -2,8 +2,6 @@ package physics
 
 import (
 	"github.com/oakmound/oak/v3/oakerr"
-
-	"github.com/oakmound/oak/v3/dlog"
 )
 
 const frozen = -64
@@ -74,10 +72,8 @@ type Pushes interface {
 
 // Push applies the force from the pushing object its target
 func Push(a Pushes, b Pushable) error {
-	dlog.Verb("Pushing", b.GetMass())
 	if b.GetMass() <= 0 {
 		if b.GetMass() != frozen {
-			// Todo: this could be more specific
 			return oakerr.InsufficientInputs{InputName: "Mass", AtLeast: 0}
 		}
 		return nil
@@ -86,6 +82,5 @@ func Push(a Pushes, b Pushable) error {
 	fdirection := a.GetForce().Copy()
 	totalF := *a.GetForce().Force / b.GetMass()
 	b.GetDelta().Add(fdirection.Normalize().Scale(totalF))
-	dlog.Verb("Total Force was ", totalF, " fdirection ", fdirection.X(), fdirection.Y())
 	return nil
 }

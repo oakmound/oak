@@ -80,3 +80,27 @@ func TestFPSToFrameDelay(t *testing.T) {
 		}
 	})
 }
+
+func TestFrameDelayToFPS(t *testing.T) {
+	t.Parallel()
+	rand.Seed(time.Now().UnixNano())
+	t.Run("1-100001", func(t *testing.T) {
+		t.Parallel()
+		for i := 0; i < randTestCt; i++ {
+			rate := rand.Intn(100000) + 1
+			got := FrameDelayToFPS(time.Duration(rate))
+			expected := float64(time.Second) / float64(rate)
+			if got != expected {
+				t.Fatalf("got fps of %v, expected %v", got, expected)
+			}
+		}
+	})
+	t.Run("0", func(t *testing.T) {
+		t.Parallel()
+		got := FrameDelayToFPS(0)
+		expected := math.MaxFloat64
+		if got != expected {
+			t.Fatalf("got fps of %v, expected %v", got, expected)
+		}
+	})
+}

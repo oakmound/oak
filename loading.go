@@ -8,21 +8,20 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func (c *Controller) loadAssets(imageDir, audioDir string) {
-	if c.config.BatchLoad {
-		dlog.Info("Loading Images")
+func (w *Window) loadAssets(imageDir, audioDir string) {
+	if w.config.BatchLoad {
 		var eg errgroup.Group
 		eg.Go(func() error {
-			err := render.BlankBatchLoad(imageDir, c.config.BatchLoadOptions.MaxImageFileSize)
+			err := render.BlankBatchLoad(imageDir, w.config.BatchLoadOptions.MaxImageFileSize)
 			if err != nil {
 				return err
 			}
-			dlog.Info("Done Loading Images")
+			dlog.Verb("Done Loading Images")
 			return nil
 		})
 		eg.Go(func() error {
 			var err error
-			if c.config.BatchLoadOptions.BlankOutAudio {
+			if w.config.BatchLoadOptions.BlankOutAudio {
 				err = audio.BlankBatchLoad(audioDir)
 			} else {
 				err = audio.BatchLoad(audioDir)
@@ -30,21 +29,22 @@ func (c *Controller) loadAssets(imageDir, audioDir string) {
 			if err != nil {
 				return err
 			}
-			dlog.Info("Done Loading Audio")
+			dlog.Verb("Done Loading Audio")
 			return nil
 		})
 		dlog.ErrorCheck(eg.Wait())
 	}
-	c.endLoad()
+	w.endLoad()
 }
 
-func (c *Controller) endLoad() {
-	dlog.Info("Done Loading")
-	c.startupLoading = false
+func (w *Window) endLoad() {
+	dlog.Verb("Done Loading")
+	w.startupLoading = false
 }
 
-// SetBinaryPayload just sets some public fields on packages that require access to binary functions
-// as alternatives to os file functions.
+// SetBinaryPayload changes how oak will load files-- instead of loading from the filesystem,
+// they'll be loaded from the provided two functions: one to load bytes from a path,
+// and one to list paths underneath a directory.
 func SetBinaryPayload(payloadFn func(string) ([]byte, error), dirFn func(string) ([]string, error)) {
 	fileutil.BindataDir = dirFn
 	fileutil.BindataFn = payloadFn

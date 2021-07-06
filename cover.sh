@@ -34,6 +34,11 @@ if [ -f profile.out ]; then
     cat profile.out >> coverage.txt
     rm profile.out
 fi
+go test -coverprofile=profile.out -covermode=atomic ./debugstream
+if [ -f profile.out ]; then
+    cat profile.out >> coverage.txt
+    rm profile.out
+fi
 go test -coverprofile=profile.out -covermode=atomic ./dlog
 if [ -f profile.out ]; then
     cat profile.out >> coverage.txt
@@ -50,6 +55,11 @@ if [ -f profile.out ]; then
     rm profile.out
 fi
 go test -coverprofile=profile.out -covermode=atomic ./mouse
+if [ -f profile.out ]; then
+    cat profile.out >> coverage.txt
+    rm profile.out
+fi
+go test -coverprofile=profile.out -covermode=atomic --tags=nooswindow .
 if [ -f profile.out ]; then
     cat profile.out >> coverage.txt
     rm profile.out

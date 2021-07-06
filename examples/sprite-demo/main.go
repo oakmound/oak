@@ -1,12 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"math/rand"
 	"path/filepath"
 
 	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/entities"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/render"
@@ -48,7 +48,7 @@ func main() {
 			for i := 0; i < 360; i++ {
 				s, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "gopher11.png"))
 				if err != nil {
-					dlog.Error(err)
+					fmt.Println(err)
 					return
 				}
 				s.Modify(mod.Rotate(float32(i)))

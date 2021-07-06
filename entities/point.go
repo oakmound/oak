@@ -1,8 +1,6 @@
 package entities
 
 import (
-	"strconv"
-
 	"github.com/oakmound/oak/v3/physics"
 )
 
@@ -41,10 +39,4 @@ func (p *Point) DistanceTo(x, y float64) float64 {
 // DistanceToPoint returns the euclidean distance to p2.GetLogicPos()
 func (p *Point) DistanceToPoint(p2 Point) float64 {
 	return p.Distance(p2.Vector)
-}
-
-func (p *Point) String() string {
-	x := strconv.FormatFloat(p.X(), 'f', 2, 32)
-	y := strconv.FormatFloat(p.Y(), 'f', 2, 32)
-	return "X(): " + x + ", Y(): " + y
 }

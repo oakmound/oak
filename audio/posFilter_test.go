@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/200sc/klangsynthese/font"
-	"github.com/200sc/klangsynthese/synth"
+	"github.com/oakmound/oak/v3/audio/font"
+	"github.com/oakmound/oak/v3/audio/synth"
 )
 
 func TestPosFilter(t *testing.T) {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"math/rand"
 	"path/filepath"
@@ -65,7 +66,7 @@ func main() {
 			"right": eggplant.Copy().Modify(mod.FlipX),
 		})
 		if err != nil {
-			dlog.Error(err)
+			fmt.Println(err)
 		}
 		char := entities.NewMoving(100, 100, 32, 32,
 			playerR,
@@ -128,7 +129,7 @@ func main() {
 
 		char.Bind(mouse.Press, func(id event.CID, me interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
-			mevent := me.(mouse.Event)
+			mevent := me.(*mouse.Event)
 			x := char.X() + char.W/2
 			y := char.Y() + char.H/2
 			vp := ctx.Window.Viewport()
@@ -139,7 +140,7 @@ func main() {
 			for _, hit := range hits {
 				hit.Zone.CID.Trigger("Destroy", nil)
 			}
-			render.DrawForTime(
+			ctx.DrawForTime(
 				render.NewLine(x, y, mx, my, color.RGBA{0, 128, 0, 128}),
 				time.Millisecond*50,
 				2)

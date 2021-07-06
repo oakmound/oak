@@ -68,7 +68,7 @@ func main() {
 
 			y := 0.0
 			for _, str := range strs {
-				render.Draw(font.NewStrText(str, 10, y), 0)
+				render.Draw(font.NewText(str, 10, y), 0)
 				y += fontHeight
 			}
 		},

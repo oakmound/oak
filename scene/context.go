@@ -22,5 +22,4 @@ type Context struct {
 	CallerMap     *event.CallerMap
 	MouseTree     *collision.Tree
 	CollisionTree *collision.Tree
-	// todo: ...
 }

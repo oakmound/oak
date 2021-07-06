@@ -18,7 +18,6 @@ func TestFont_UnsafeCopy(t *testing.T) {
 
 var initTestFontOnce sync.Once
 
-// Todo: move this to font_test.go, once we have font_test.go
 func initTestFont() {
 	initTestFontOnce.Do(func() {
 		DefFontGenerator = FontGenerator{RawFile: luxisrTTF}

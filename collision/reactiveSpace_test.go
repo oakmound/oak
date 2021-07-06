@@ -7,7 +7,7 @@ import (
 func TestReactiveSpace(t *testing.T) {
 	Clear()
 	var triggered bool
-	rs1 := NewEmptyReactiveSpace(NewUnassignedSpace(0, 0, 10, 10))
+	rs1 := NewReactiveSpace(NewUnassignedSpace(0, 0, 10, 10), map[Label]OnHit{})
 	if rs1 == nil {
 		t.Fatalf("reactive space was nil after creation")
 	}

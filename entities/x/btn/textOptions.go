@@ -59,8 +59,12 @@ func TxtOff(x, y float64) Option {
 // be large enough for the given text plus the provided buffer
 func FitText(buffer int) Option {
 	return func(g Generator) Generator {
-		if g.Font != nil && g.Text != "" {
-			w := g.Font.MeasureString(g.Text)
+		if g.Font != nil && (g.Text != "" || g.TextPtr != nil) {
+			measure := g.Text
+			if g.TextPtr != nil {
+				measure = *g.TextPtr
+			}
+			w := g.Font.MeasureString(measure)
 			wf := float64(w.Ceil() + buffer)
 			if g.W < wf {
 				g.W = wf

@@ -50,16 +50,6 @@ func TestDrawHelpers(t *testing.T) {
 		t.Fatalf("draw color to invalid layer should fail")
 	}
 
-	err = DrawForTime(NewColorBox(5, 5, color.RGBA{255, 255, 255, 255}), 0, 4)
-	if err == nil {
-		t.Fatalf("draw time to invalid layer should fail")
-	}
-
-	err = DrawForTime(NewColorBox(5, 5, color.RGBA{255, 255, 255, 255}), 0, 0)
-	if err != nil {
-		t.Fatalf("draw time should not have failed")
-	}
-
 	_, err = DrawPoint(color.RGBA{100, 100, 100, 255}, 0, 0, 0)
 	if err != nil {
 		t.Fatalf("draw color should not have failed")

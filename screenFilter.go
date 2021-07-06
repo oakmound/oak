@@ -9,20 +9,20 @@ import (
 )
 
 // SetPalette tells oak to conform the screen to the input color palette before drawing.
-func (c *Controller) SetPalette(palette color.Palette) {
-	c.SetScreenFilter(mod.ConformToPallete(palette))
+func (w *Window) SetPalette(palette color.Palette) {
+	w.SetScreenFilter(mod.ConformToPallete(palette))
 }
 
 // SetScreenFilter will filter the screen by the given modification function prior
 // to publishing the screen's rgba to be displayed.
-func (c *Controller) SetScreenFilter(screenFilter mod.Filter) {
-	c.prePublish = func(c *Controller, tx screen.Texture) {
-		screenFilter(c.winBuffer.RGBA())
+func (w *Window) SetScreenFilter(screenFilter mod.Filter) {
+	w.prePublish = func(w *Window, tx screen.Texture) {
+		screenFilter(w.winBuffer.RGBA())
 	}
 }
 
 // ClearScreenFilter resets the draw function to no longer filter the screen before
 // publishing it to the window.
-func (c *Controller) ClearScreenFilter() {
-	c.prePublish = func(*Controller, screen.Texture) {}
+func (w *Window) ClearScreenFilter() {
+	w.prePublish = func(*Window, screen.Texture) {}
 }

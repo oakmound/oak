@@ -3,7 +3,6 @@ package render
 import (
 	"image"
 
-	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/oakerr"
 )
 
@@ -30,14 +29,11 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 	imageLock.RUnlock()
 
 	if !ok {
-		dlog.Verb("Missing file in loaded images: ", fileName)
 		rgba, err = loadSprite(directory, fileName, 0)
 		if err != nil {
 			return nil, err
 		}
 	}
-
-	dlog.Verb("Loading sheet: ", fileName)
 
 	sheet, err := MakeSheet(rgba, w, h, pad)
 	if err != nil {
@@ -56,15 +52,12 @@ func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
 func MakeSheet(rgba *image.RGBA, w, h, pad int) (*Sheet, error) {
 
 	if w <= 0 {
-		dlog.Error("Bad dimensions given to load sheet")
 		return nil, oakerr.InvalidInput{InputName: "w"}
 	}
 	if h <= 0 {
-		dlog.Error("Bad dimensions given to load sheet")
 		return nil, oakerr.InvalidInput{InputName: "h"}
 	}
 	if pad < 0 {
-		dlog.Error("Bad pad given to load sheet")
 		return nil, oakerr.InvalidInput{InputName: "pad"}
 	}
 
@@ -87,7 +80,6 @@ func MakeSheet(rgba *image.RGBA, w, h, pad int) (*Sheet, error) {
 	if sheetW < 1 || sheetH < 1 ||
 		widthBuffers != sheetW-1 ||
 		heightBuffers != sheetH-1 {
-		dlog.Error("Bad dimensions given to load sheet")
 		return nil, oakerr.InvalidInput{InputName: "w,h"}
 	}
 
@@ -103,7 +95,6 @@ func MakeSheet(rgba *image.RGBA, w, h, pad int) (*Sheet, error) {
 		i++
 	}
 
-	dlog.Verb("Loaded sheet into map")
 	return &sheet, nil
 }
 
@@ -112,7 +103,6 @@ func MakeSheet(rgba *image.RGBA, w, h, pad int) (*Sheet, error) {
 // Otherwise it will return the sheet as a 2d array of sprites
 func GetSheet(fileName string) (*Sheet, error) {
 	sheetLock.RLock()
-	dlog.Verb(loadedSheets, fileName, loadedSheets[fileName])
 	sh, ok := loadedSheets[fileName]
 	sheetLock.RUnlock()
 	if !ok {

@@ -16,45 +16,50 @@ type InputType = int32
 
 // Supported Input Types
 const (
-	KeyboardMouse InputType = iota
-	Joystick      InputType = iota
+	InputKeyboardMouse InputType = iota
+	InputJoystick      InputType = iota
 )
 
-var (
-	// MostRecentInput tracks what input type was most recently detected.
-	// This is only updated if TrackInputChanges is true in the config at startup
-	// TODO: scope this to controllers
-	MostRecentInput InputType
-)
-
-func trackInputChanges() {
-	event.GlobalBind(key.Down, func(event.CID, interface{}) int {
-		atomic.SwapInt32(&MostRecentInput, KeyboardMouse)
-		// TODO: Trigger that the most recent input changed?
+func (w *Window) trackInputChanges() {
+	w.logicHandler.GlobalBind(key.Down, func(event.CID, interface{}) int {
+		old := atomic.SwapInt32(&w.mostRecentInput, InputKeyboardMouse)
+		if old != InputKeyboardMouse {
+			w.logicHandler.Trigger(event.InputChange, InputKeyboardMouse)
+		}
 		return 0
 	})
-	event.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
-		atomic.SwapInt32(&MostRecentInput, KeyboardMouse)
+	w.logicHandler.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
+		old := atomic.SwapInt32(&w.mostRecentInput, InputKeyboardMouse)
+		if old != InputKeyboardMouse {
+			w.logicHandler.Trigger(event.InputChange, InputKeyboardMouse)
+		}
 		return 0
 	})
-	event.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
-		atomic.SwapInt32(&MostRecentInput, Joystick)
+	w.logicHandler.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
+		old := atomic.SwapInt32(&w.mostRecentInput, InputJoystick)
+		if old != InputJoystick {
+			w.logicHandler.Trigger(event.InputChange, InputJoystick)
+		}
 		return 0
 	})
 }
 
-type joyHandler struct{}
+type joyHandler struct {
+	handler event.Handler
+}
 
 func (jh *joyHandler) Trigger(ev string, state interface{}) {
-	event.Trigger("Tracking"+ev, state)
+	jh.handler.Trigger("Tracking"+ev, state)
 }
 
-func trackJoystickChanges() {
+func trackJoystickChanges(handler event.Handler) {
 	dlog.ErrorCheck(joystick.Init())
 	go func() {
 		jCh, _ := joystick.WaitForJoysticks(3 * time.Second)
 		for j := range jCh {
-			j.Handler = &joyHandler{}
+			j.Handler = &joyHandler{
+				handler: handler,
+			}
 			j.Listen(nil)
 		}
 	}()

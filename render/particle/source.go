@@ -4,13 +4,9 @@ import (
 	"math"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/range/intrange"
-
-	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/physics"
 	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/timing"
 )
 
 const (
@@ -20,19 +16,19 @@ const (
 
 // A Source is used to store and control a set of particles.
 type Source struct {
-	render.Layered
 	Generator Generator
 	*Allocator
 
-	particles  [blockSize]Particle
-	nextPID    int
-	CID        event.CID
-	pIDBlock   int
-	stackLevel int
-	EndFunc    func()
-	paused     bool
-	started    bool
-	stopped    bool
+	particles    [blockSize]Particle
+	nextPID      int
+	CID          event.CID
+	pIDBlock     int
+	stackLevel   int
+	EndFunc      func()
+	stopRotateAt time.Time
+	paused       bool
+	started      bool
+	stopped      bool
 }
 
 // NewSource creates a new source
@@ -48,6 +44,8 @@ func NewSource(g Generator, stackLevel int) *Source {
 // Init allows a source to be considered as an entity, and initializes it
 func (ps *Source) Init() event.CID {
 	CID := event.NextID(ps)
+	ps.stopRotateAt = time.Now().Add(
+		time.Duration(ps.Generator.GetBaseGenerator().Duration.Poll()) * time.Millisecond)
 	CID.Bind(event.Enter, rotateParticles)
 	ps.CID = CID
 	ps.pIDBlock = ps.Allocate(ps.CID)
@@ -171,29 +169,28 @@ func (ps *Source) addParticles() {
 		ps.particles[ps.nextPID] = p
 		ps.nextPID++
 		p.SetLayer(ps.Layer(bp.GetPos()))
-		_, err := render.Draw(p, ps.stackLevel)
-		dlog.ErrorCheck(err)
+		render.Draw(p, ps.stackLevel)
 	}
 
 }
 
 // rotateParticles updates particles over time as long
 // as a Source is active.
-func rotateParticles(id event.CID, nothing interface{}) int {
+func rotateParticles(id event.CID, payload interface{}) int {
 	ps := id.E().(*Source)
+	if ps.stopped {
+		return 0
+	}
 	if !ps.started {
-		if ps.Generator.GetBaseGenerator().Duration != Inf {
-			go func(ps *Source, duration intrange.Range) {
-				timing.DoAfter(time.Duration(duration.Poll())*time.Millisecond, func() {
-					ps.Stop()
-				})
-			}(ps, ps.Generator.GetBaseGenerator().Duration)
-		}
 		ps.started = true
 	}
 	if !ps.paused {
 		ps.cycleParticles()
 		ps.addParticles()
+	}
+	if time.Now().After(ps.stopRotateAt) {
+		go ps.Stop()
+		return 0
 	}
 	return 0
 }
@@ -254,7 +251,7 @@ func (ps *Source) ShiftX(x float64) {
 	ps.Generator.ShiftX(x)
 }
 
-// ShiftY shift's a source's underlying generator (todo: consider if this shoud be composed)
+// ShiftY shift's a source's underlying generator
 func (ps *Source) ShiftY(y float64) {
 	ps.Generator.ShiftY(y)
 }

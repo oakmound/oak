@@ -10,7 +10,6 @@ import (
 
 	"github.com/oakmound/oak/v3/render/mod"
 
-	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/render"
 
 	"github.com/oakmound/oak/v3/alg/floatgeom"
@@ -20,6 +19,9 @@ import (
 	"github.com/oakmound/oak/v3/joystick"
 	"github.com/oakmound/oak/v3/scene"
 )
+
+// try fiddling with this value
+const Deadzone = 4000
 
 type renderer struct {
 	event.CID
@@ -57,11 +59,10 @@ var initialOffsets = map[string]floatgeom.Point2{
 	"RtTrigger":     {240, 6},
 }
 
-func newRenderer(ctx *scene.Context, joy *joystick.Joystick) {
+func newRenderer(ctx *scene.Context, joy *joystick.Joystick) error {
 	outline, err := render.LoadSprite("", "controllerOutline.png")
 	if err != nil {
-		dlog.Error(err)
-		return
+		return err
 	}
 	rend := &renderer{
 		joy:       joy,
@@ -115,7 +116,15 @@ func newRenderer(ctx *scene.Context, joy *joystick.Joystick) {
 	rend.rStickCenter = floatgeom.Point2{rend.rs["RtStick"].X(), rend.rs["RtStick"].Y()}
 
 	joy.Handler = rend
-	joy.Listen(nil)
+	opts := &joystick.ListenOptions{
+		JoystickChanges: true,
+		StickChanges:    true,
+		StickDeadzoneLX: Deadzone,
+		StickDeadzoneLY: Deadzone,
+		StickDeadzoneRX: Deadzone,
+		StickDeadzoneRY: Deadzone,
+	}
+	joy.Listen(opts)
 
 	bts := []string{
 		"X",
@@ -184,34 +193,73 @@ func newRenderer(ctx *scene.Context, joy *joystick.Joystick) {
 		x = rend.rs[tgr].X()
 		rend.rs[tgr].SetPos(x, rend.triggerY+float64(st.TriggerR/16))
 
+		return 0
+	})
+
+	rend.Bind(joystick.LtStickChange, func(id event.CID, state interface{}) int {
+		rend, ok := event.GetEntity(id).(*renderer)
+		if !ok {
+			return 0
+		}
+		st, ok := state.(*joystick.State)
+		if !ok {
+			return 0
+		}
+
 		pos := rend.lStickCenter
 		pos = pos.Add(floatgeom.Point2{
 			float64(st.StickLX / 2048),
 			-float64(st.StickLY / 2048),
 		})
 		rend.rs["LtStick"].SetPos(pos.X(), pos.Y())
+		return 0
+	})
 
-		pos = rend.rStickCenter
+	rend.Bind(joystick.RtStickChange, func(id event.CID, state interface{}) int {
+		rend, ok := event.GetEntity(id).(*renderer)
+		if !ok {
+			return 0
+		}
+		st, ok := state.(*joystick.State)
+		if !ok {
+			return 0
+		}
+
+		pos := rend.rStickCenter
 		pos = pos.Add(floatgeom.Point2{
 			float64(st.StickRX / 2048),
 			-float64(st.StickRY / 2048),
 		})
 		rend.rs["RtStick"].SetPos(pos.X(), pos.Y())
-
 		return 0
 	})
+	return nil
 }
 
 func main() {
 	oak.AddScene("viz", scene.Scene{Start: func(ctx *scene.Context) {
 		joystick.Init()
+		latestInput := new(string)
+		*latestInput = "Latest Input: None"
+		ctx.DrawStack.Draw(render.NewStrPtrText(latestInput, 10, 460), 4)
+		ctx.DrawStack.Draw(render.NewText("Space to Vibrate", 10, 440), 4)
+		ctx.EventHandler.GlobalBind(event.InputChange, func(_ event.CID, payload interface{}) int {
+			input := payload.(oak.InputType)
+			switch input {
+			case oak.InputJoystick:
+				*latestInput = "Latest Input: Joystick"
+			case oak.InputKeyboardMouse:
+				*latestInput = "Latest Input: Keyboard+Mouse"
+			}
+			return 0
+		})
 		go func() {
 			jCh, cancel := joystick.WaitForJoysticks(1 * time.Second)
 			defer cancel()
-			for {
-				select {
-				case joy := <-jCh:
-					newRenderer(ctx, joy)
+			for joy := range jCh {
+				err := newRenderer(ctx, joy)
+				if err != nil {
+					fmt.Println(err)
 				}
 			}
 		}()
@@ -219,6 +267,7 @@ func main() {
 	oak.Init("viz", func(c oak.Config) (oak.Config, error) {
 		c.Assets.ImagePath = "."
 		c.Assets.AssetPath = "."
+		c.TrackInputChanges = true
 		return c, nil
 	})
 }

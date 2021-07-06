@@ -30,6 +30,7 @@ type Config struct {
 	TopMost             bool             `json:"topmost"`
 	Borderless          bool             `json:"borderless"`
 	Fullscreen          bool             `json:"fullscreen"`
+	SkipRNGSeed         bool             `json:"skip_rng_seed"`
 }
 
 // A Duration is a wrapper around time.Duration that allows for easier json formatting.
@@ -267,5 +268,6 @@ func (c Config) overwriteFrom(c2 Config) Config {
 	c.TopMost = c2.TopMost
 	c.Borderless = c2.Borderless
 	c.Fullscreen = c2.Fullscreen
+	c.SkipRNGSeed = c2.SkipRNGSeed
 	return c
 }

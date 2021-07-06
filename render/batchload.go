@@ -11,6 +11,7 @@ import (
 
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/fileutil"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
 var (
@@ -35,20 +36,19 @@ func BatchLoad(baseFolder string) error {
 func BlankBatchLoad(baseFolder string, maxFileSize int64) error {
 	folders, err := fileutil.ReadDir(baseFolder)
 	if err != nil {
-		dlog.Error(err)
 		return err
 	}
-	aliases := parseAliasFile(baseFolder)
+	aliases, err := parseAliasFile(baseFolder)
+	if err != nil {
+		return err
+	}
 
 	warnFiles := []string{}
 
 	var wg sync.WaitGroup
 
-	for i, folder := range folders {
-
-		dlog.Verb("folder ", i, folder.Name())
+	for _, folder := range folders {
 		if folder.IsDir() {
-
 			frameW, frameH, possibleSheet, err := parseLoadFolderName(aliases, folder.Name())
 			if err != nil {
 				return err
@@ -59,7 +59,6 @@ func BlankBatchLoad(baseFolder string, maxFileSize int64) error {
 				if !file.IsDir() {
 					name := file.Name()
 					if _, ok := fileDecoders[strings.ToLower(name[len(name)-4:])]; ok {
-						dlog.Verb("loading file ", name)
 						lower := strings.ToLower(name)
 						relativePath := filepath.Join(folder.Name(), name)
 						if lower != name {
@@ -81,8 +80,6 @@ func BlankBatchLoad(baseFolder string, maxFileSize int64) error {
 							w := buff.Bounds().Max.X
 							h := buff.Bounds().Max.Y
 
-							dlog.Verb("buffer: ", w, h, " frame: ", frameW, frameH)
-
 							if w < frameW || h < frameH {
 								dlog.Error("File ", name, " in folder", folder.Name(),
 									" is too small for folder dimensions", frameW, frameH)
@@ -90,7 +87,6 @@ func BlankBatchLoad(baseFolder string, maxFileSize int64) error {
 								// Load this as a sheet if it is greater
 								// than the folder size's frame size
 							} else if w != frameW || h != frameH {
-								dlog.Verb("Loading as sprite sheet")
 								_, err = LoadSheet(baseFolder, relativePath, frameW, frameH, defaultPad)
 								dlog.ErrorCheck(err)
 							}
@@ -100,36 +96,33 @@ func BlankBatchLoad(baseFolder string, maxFileSize int64) error {
 					}
 				}
 			}
-		} else {
-			dlog.Verb("Not Folder", folder.Name())
 		}
 	}
 	if len(warnFiles) != 0 {
 		fileNames := strings.Join(warnFiles, ",")
-		dlog.Warn("The files", fileNames, "are not all lowercase. This may cause data to fail to load"+
+		dlog.Info("The files", fileNames, "are not all lowercase. This may cause data to fail to load"+
 			" when using tools like go-bindata.")
 	}
 	wg.Wait()
 	return nil
 }
 
-func parseAliasFile(baseFolder string) map[string]string {
+func parseAliasFile(baseFolder string) (map[string]string, error) {
 	aliasFile, err := fileutil.ReadFile(filepath.Join(baseFolder, "alias.json"))
 	aliases := make(map[string]string)
 	if err == nil {
 		err = json.Unmarshal(aliasFile, &aliases)
 		if err != nil {
-			dlog.Error("Alias file unparseable: ", err)
+			return nil, oakerr.InvalidInput{InputName: "alias.json"}
 		}
 	}
-	return aliases
+	return aliases, nil
 }
 
 func parseLoadFolderName(aliases map[string]string, name string) (int, int, bool, error) {
 	var frameW, frameH int
 	if result := regexpTwoNumbers.Find([]byte(name)); result != nil {
 		vals := strings.Split(string(result), "x")
-		dlog.Verb("Extracted dimensions: ", vals)
 		frameW, _ = strconv.Atoi(vals[0])
 		frameH, _ = strconv.Atoi(vals[1])
 	} else if result := regexpSingleNumber.Find([]byte(name)); result != nil {
@@ -140,7 +133,6 @@ func parseLoadFolderName(aliases map[string]string, name string) (int, int, bool
 		if aliased, ok := aliases[name]; ok {
 			if result := regexpTwoNumbers.Find([]byte(aliased)); result != nil {
 				vals := strings.Split(string(result), "x")
-				dlog.Verb("Extracted dimensions: ", vals)
 				frameW, _ = strconv.Atoi(vals[0])
 				frameH, _ = strconv.Atoi(vals[1])
 			} else if result := regexpSingleNumber.Find([]byte(aliased)); result != nil {

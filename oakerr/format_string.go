@@ -19,13 +19,13 @@ const (
 func errorString(code errCode, inputs ...interface{}) string {
 	format, ok := errFmtStrings[currentLanguage][code]
 	if !ok {
-		format = errFmtStrings[English][code]
+		format = errFmtStrings[EN][code]
 	}
 	return fmt.Sprintf(format, inputs...)
 }
 
 var errFmtStrings = map[Language]map[errCode]string{
-	English: {
+	EN: {
 		codeNotFound:                   "%v was not found",
 		codeExistingElement:            "%1v %2v already defined",
 		codeExistingElementOverwritten: "%1v %2v already defined, old %2v overwritten",
@@ -36,7 +36,7 @@ var errFmtStrings = map[Language]map[errCode]string{
 		codeInvalidInput:               "invalid input: %v",
 		codeUnsupportedPlatform:        "%v is not supported on this platform",
 	},
-	Deutsch: {
+	DE: {
 		codeNotFound:                   "%v nicht gefunden",
 		codeExistingElement:            "%1v %2v schon definiert",
 		codeExistingElementOverwritten: "%1v %2v schon definiert, alterer %2v uberschreiben",
@@ -47,7 +47,7 @@ var errFmtStrings = map[Language]map[errCode]string{
 		codeInvalidInput:               "ungültige Eingabe: %v",
 		codeUnsupportedPlatform:        "%v ist auf diesem betriebssystem nicht unterstützt",
 	},
-	日本語: {
+	JP: {
 		codeNotFound: "%qが見つからない",
 		//codeExistingElement: "%1q%2qはもう存在します"
 		//codeExistingElementOverwritten: "%1q%2qはすでに存在し、古い%2qは上書きされます"

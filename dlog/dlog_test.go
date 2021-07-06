@@ -1,26 +1,26 @@
 package dlog_test
 
 import (
+	"bytes"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/oakmound/oak/v3/dlog"
 )
 
 func TestErrorCheck(t *testing.T) {
-	called := false
-	dlog.Error = func(...interface{}) {
-		called = true
-	}
+	buff := &bytes.Buffer{}
+	dlog.DefaultLogger.SetOutput(buff)
 	dlog.ErrorCheck(nil)
-	if called {
+	if buff.Len() != 0 {
 		t.Fatal("error should not have been called on nil error")
 	}
 	dlog.ErrorCheck(fmt.Errorf("err"))
-	if !called {
+	if buff.Len() == 0 {
 		t.Fatal("error should have been called on real error")
 	}
-	dlog.Error = func(...interface{}) {}
+	dlog.DefaultLogger.SetOutput(os.Stdout)
 }
 
 func TestParseDebugLevel(t *testing.T) {
@@ -44,15 +44,12 @@ func TestParseDebugLevel(t *testing.T) {
 			in:       "ERROR",
 			outLevel: dlog.ERROR,
 		}, {
-			in:       "warN",
-			outLevel: dlog.WARN,
-		}, {
 			in:       "none",
 			outLevel: dlog.NONE,
 		}, {
 			in:          "other",
 			outErrors:   true,
-			outErrorStr: "parsing dlog level of \"OTHER\" failed",
+			outErrorStr: "invalid input: level",
 		},
 	}
 	for _, tc := range tcs {
@@ -75,4 +72,16 @@ func TestParseDebugLevel(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestDefaultFunctions(t *testing.T) {
+	// coverage tests, functionality tested elsewhere
+	dlog.Info("test")
+	dlog.Verb("test")
+	dlog.SetLogLevel(dlog.VERBOSE)
+	if dlog.GetLogLevel() != dlog.VERBOSE {
+		t.Fatalf("GetLogLevel did not match Set")
+	}
+	dlog.SetOutput(os.Stderr)
+	dlog.SetFilter(func(s string) bool { return false })
 }

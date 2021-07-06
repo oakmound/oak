@@ -383,11 +383,33 @@ func AddWindowMsg(fn func(hwnd HWND, uMsg uint32, wParam, lParam uintptr)) uint3
 	return uMsg
 }
 
+// src: https://wiki.winehq.org/List_Of_Windows_Messages
+// var unusedMessages = map[uint32]string{
+// 	2:   "DESTROY",
+// 	6:   "ACTIVATE",
+// 	28:  "ACTIVATE_APP",
+// 	32:  "SETCURSOR",
+// 	70:  "WINDOWPOSCHANGING",
+// 	130: "NCDESTROY",
+// 	132: "NCHITTEST",
+// 	134: "NCACTIVATE",
+// 	144: "", // we get this, but its not documented in the source list
+// 	160: "NCMOUSEMOVE",
+// 	161: "NCLBUTTONDOWN",
+// 	273: "COMMAND",
+// 	274: "SYSCOMMAND",
+// 	533: "CAPTURECHANGED",
+// 	641: "IME_SETCONTEXT",
+// 	642: "IME_NOTIFY",
+// 	674: "NCMOUSELEAVE",
+// }
+
 func windowWndProc(hwnd HWND, uMsg uint32, wParam uintptr, lParam uintptr) (lResult uintptr) {
 	fn := windowMsgs[uMsg]
 	if fn != nil {
 		return fn(hwnd, uMsg, wParam, lParam)
 	}
+	//fmt.Printf("unused message %d, 0x%x, %v\n", uMsg, uMsg, unusedMessages[uMsg])
 	lResult, _ = DefWindowProc(hwnd, uMsg, wParam, lParam)
 	return lResult
 }

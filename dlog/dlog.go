@@ -1,23 +1,23 @@
 package dlog
 
 import (
-	"errors"
-	"strings"
+	"io"
 )
 
 // A Logger is a minimal log interface for the content oak wants to log:
 // four levels of logging.
 type Logger interface {
 	Error(...interface{})
-	Warn(...interface{})
 	Info(...interface{})
 	Verb(...interface{})
+	SetFilter(func(string) bool)
+	GetLogLevel() Level
+	SetLogLevel(l Level) error
+	SetOutput(io.Writer)
 }
 
-// OakLogger is the Logger which all oak log functions are passed through.
-// If this is not manually set through SetLogger, oak will initialize this
-// to the an instance of the private logger type
-var oakLogger Logger
+// DefaultLogger is the Logger which all oak log messages are passed through.
+var DefaultLogger Logger = NewLogger()
 
 // ErrorCheck checks that the input is not nil, then calls Error on it if it is
 // not. Otherwise it does nothing.
@@ -30,61 +30,36 @@ func ErrorCheck(in error) error {
 }
 
 // Error will write a log if the debug level is not NONE
-var Error = func(...interface{}) {}
-
-// Warn will write a log if the debug level is higher than ERROR
-var Warn = func(...interface{}) {}
-
-// Info will write a log if the debug level is higher than WARN
-var Info = func(...interface{}) {}
-
-// Verb will write a log if the debug level is higher than INFO
-var Verb = func(...interface{}) {}
-
-// SetLogger defines what logger should be used for oak's internal logging.
-// If this is NOT called before oak.Init is called (assuming this is being
-// used with oak), then it will be called with the default logger as a part
-// of oak.Init.
-func SetLogger(l Logger) {
-	_, isDefault := l.(*logger)
-	if isDefault && oakLogger != nil {
-		// The user set the logger themselves,
-		// don't reset to the default logger
-		return
-	}
-	oakLogger = l
-	Error = l.Error
-	Warn = l.Warn
-	Info = l.Info
-	Verb = l.Verb
-	// If this logger supports the additional functionality described
-	// by the FullLogger interface, enable those functions. Otherwise
-	// they are NOPs. (the default logger supports these functions.)
-	if fl, ok := l.(FullLogger); ok {
-		fullOakLogger = fl
-		FileWrite = fl.FileWrite
-		GetLogLevel = fl.GetLogLevel
-		SetDebugFilter = fl.SetDebugFilter
-		SetDebugLevel = fl.SetDebugLevel
-		CreateLogFile = fl.CreateLogFile
-	}
+func Error(vs ...interface{}) {
+	DefaultLogger.Error(vs...)
 }
 
-// ParseDebugLevel parses the input string as a known debug levels
-func ParseDebugLevel(s string) (Level, error) {
-	s = strings.ToUpper(s)
-	switch s {
-	case "INFO":
-		return INFO, nil
-	case "VERBOSE":
-		return VERBOSE, nil
-	case "ERROR":
-		return ERROR, nil
-	case "WARN":
-		return WARN, nil
-	case "NONE":
-		return NONE, nil
-	default:
-		return ERROR, errors.New("parsing dlog level of \"" + s + "\" failed")
-	}
+// Info will write a log if the debug level is higher than ERROR
+func Info(vs ...interface{}) {
+	DefaultLogger.Info(vs...)
+}
+
+// Verb will write a log if the debug level is higher than INFO
+func Verb(vs ...interface{}) {
+	DefaultLogger.Verb(vs...)
+}
+
+// GetLogLevel returns the set logger's log level
+func GetLogLevel() Level {
+	return DefaultLogger.GetLogLevel()
+}
+
+// SetFilter defines a custom filter function. Log lines that
+// return false when passed to this function will not be output.
+func SetFilter(filter func(string) bool) {
+	DefaultLogger.SetFilter(filter)
+}
+
+// SetLogLevel sets the log level of the default logger.
+func SetLogLevel(l Level) error {
+	return DefaultLogger.SetLogLevel(l)
+}
+
+func SetOutput(w io.Writer) {
+	DefaultLogger.SetOutput(w)
 }

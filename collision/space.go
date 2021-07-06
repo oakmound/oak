@@ -1,9 +1,6 @@
 package collision
 
 import (
-	"fmt"
-	"strconv"
-
 	"github.com/oakmound/oak/v3/alg/floatgeom"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/physics"
@@ -12,8 +9,8 @@ import (
 // ID Types constant
 const (
 	NONE = iota
-	CID
-	PID
+	IDTypeCID
+	IDTypePID
 )
 
 // A Space is a rectangle
@@ -194,14 +191,6 @@ func (s *Space) SubtractRect(x2, y2, w2, h2 float64) []*Space {
 	return spaces
 }
 
-func (s *Space) String() string {
-	return strconv.FormatFloat(s.X(), 'f', 2, 32) + "," +
-		strconv.FormatFloat(s.Y(), 'f', 2, 32) + "," +
-		strconv.FormatFloat(s.GetW(), 'f', 2, 32) + "," +
-		strconv.FormatFloat(s.GetH(), 'f', 2, 32) + "::" +
-		strconv.Itoa(int(s.CID)) + "::" + fmt.Sprintf("%p", s)
-}
-
 // NewUnassignedSpace returns a space that just has a rectangle
 func NewUnassignedSpace(x, y, w, h float64) *Space {
 	return NewLabeledSpace(x, y, w, h, NilLabel)
@@ -229,9 +218,7 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 		rect,
 		l,
 		cID,
-		CID, // todo: This is hard to read as distinct from cID
-		// todo: a way to generate non-CID typed spaces that isn't
-		// package specific (see render/particle)
+		IDTypeCID,
 	}
 }
 
@@ -246,7 +233,7 @@ func NewRectSpace(rect floatgeom.Rect3, l Label, cID event.CID) *Space {
 		rect,
 		l,
 		cID,
-		CID,
+		IDTypeCID,
 	}
 }
 
@@ -266,4 +253,9 @@ func NewRect(x, y, w, h float64) floatgeom.Rect3 {
 		h = 1
 	}
 	return floatgeom.NewRect3WH(x, y, 0, w, h, 1)
+}
+
+func (s *Space) SetZLayer(z float64) {
+	s.Location.Min[2] = z
+	s.Location.Max[2] = z
 }

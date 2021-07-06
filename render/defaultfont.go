@@ -9,9 +9,9 @@ import (
 // so storing the result and calling these functions on the stored Font is
 // recommended in cases where performance is a concern.
 
-// NewText creates a text element using the default font.
-func NewText(str fmt.Stringer, x, y float64) *Text {
-	return DefaultFont().NewText(str, x, y)
+// NewStringerText creates a text element using the default font and a stringer.
+func NewStringerText(str fmt.Stringer, x, y float64) *Text {
+	return DefaultFont().NewStringerText(str, x, y)
 }
 
 // NewIntText wraps the given int pointer in a stringer interface and creates
@@ -20,9 +20,9 @@ func NewIntText(str *int, x, y float64) *Text {
 	return DefaultFont().NewIntText(str, x, y)
 }
 
-// NewStrText is a helper to take in a string instead of a Stringer for NewText
-func NewStrText(str string, x, y float64) *Text {
-	return DefaultFont().NewStrText(str, x, y)
+// NewText is a helper to create a text element with the default font and a string.
+func NewText(str string, x, y float64) *Text {
+	return DefaultFont().NewText(str, x, y)
 }
 
 // NewStrPtrText is a helper to take in a string pointer for NewText

@@ -15,41 +15,57 @@ type Background interface {
 // 2. draw all visible rendered elements onto the temporary buffer.
 // 3. draw the buffer's data at the viewport's position to the screen.
 // 4. publish the screen to display in window.
-func (c *Controller) drawLoop() {
-	<-c.drawCh
+func (w *Window) drawLoop() {
+	<-w.drawCh
 
-	draw.Draw(c.winBuffer.RGBA(), c.winBuffer.Bounds(), c.bkgFn(), zeroPoint, draw.Src)
-	c.publish()
+	draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+	w.publish()
 
 	for {
 	drawSelect:
 		select {
-		case <-c.drawCh:
-			<-c.drawCh
+		case <-w.quitCh:
+			return
+		case <-w.drawCh:
+			<-w.drawCh
 			for {
 				select {
-				case <-c.drawCh:
+				case <-w.ParentContext.Done():
+					return
+				case <-w.quitCh:
+					return
+				case <-w.drawCh:
 					break drawSelect
-				case <-c.DrawTicker.C:
-					draw.Draw(c.winBuffer.RGBA(), c.winBuffer.Bounds(), c.bkgFn(), zeroPoint, draw.Src)
-					if c.LoadingR != nil {
-						c.LoadingR.Draw(c.winBuffer.RGBA(), 0, 0)
+				case <-w.DrawTicker.C:
+					draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+					if w.LoadingR != nil {
+						w.LoadingR.Draw(w.winBuffer.RGBA(), 0, 0)
 					}
-					c.publish()
+					w.publish()
 				}
 			}
-		case <-c.DrawTicker.C:
-			draw.Draw(c.winBuffer.RGBA(), c.winBuffer.Bounds(), c.bkgFn(), zeroPoint, draw.Src)
-			c.DrawStack.PreDraw()
-			c.DrawStack.DrawToScreen(c.winBuffer.RGBA(), c.viewPos, c.ScreenWidth, c.ScreenHeight)
-			c.publish()
+		case f := <-w.betweenDrawCh:
+			f()
+		case <-w.DrawTicker.C:
+			draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+			w.DrawStack.PreDraw()
+			p := w.viewPos
+			w.DrawStack.DrawToScreen(w.winBuffer.RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
+			w.publish()
 		}
 	}
 }
 
-func (c *Controller) publish() {
-	c.prePublish(c, c.windowTexture)
-	c.windowTexture.Upload(zeroPoint, c.winBuffer, c.winBuffer.Bounds())
-	c.windowControl.Scale(c.windowRect, c.windowTexture, c.windowTexture.Bounds(), draw.Src)
-	c.windowControl.Publish()
+func (w *Window) publish() {
+	w.prePublish(w, w.windowTexture)
+	w.windowTexture.Upload(zeroPoint, w.winBuffer, w.winBuffer.Bounds())
+	w.windowControl.Scale(w.windowRect, w.windowTexture, w.windowTexture.Bounds(), draw.Src)
+	w.windowControl.Publish()
+}
+
+// DoBetweenDraws will execute the given function in-between draw frames
+func (w *Window) DoBetweenDraws(f func()) {
+	go func() {
+		w.betweenDrawCh <- f
+	}()
 }

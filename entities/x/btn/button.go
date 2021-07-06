@@ -17,32 +17,32 @@ import (
 
 // A Generator defines the variables used to create buttons from optional arguments
 type Generator struct {
-	X, Y           float64
-	W, H           float64
-	TxtX, TxtY     float64
-	Color          color.Color
-	Color2         color.Color
-	ProgressFunc   func(x, y, w, h int) float64
-	Mod            mod.Transform
-	R              render.Modifiable
-	R1             render.Modifiable
-	R2             render.Modifiable
-	RS             []render.Modifiable
-	Cid            event.CID
-	Font           *render.Font
-	Layers         []int
-	Text           string
-	TextPtr        *string
-	TextStringer   fmt.Stringer
-	Children       []Generator
-	Bindings       map[string][]event.Bindable
-	Trigger        string
-	Toggle         *bool
-	ListChoice     *int
-	Group          *Group
-	DisallowRevert bool
-	Shape          shape.Shape
-	Label          collision.Label
+	X, Y         float64
+	W, H         float64
+	TxtX, TxtY   float64
+	Color        color.Color
+	Color2       color.Color
+	ProgressFunc func(x, y, w, h int) float64
+	Mod          mod.Transform
+	R            render.Modifiable
+	R1           render.Modifiable
+	R2           render.Modifiable
+	RS           []render.Modifiable
+	Cid          event.CID
+	Font         *render.Font
+	Layers       []int
+	Text         string
+	TextPtr      *string
+	TextStringer fmt.Stringer
+	Children     []Generator
+	Bindings     map[string][]event.Bindable
+	Trigger      string
+	Toggle       *bool
+	ListChoice   *int
+	Group        *Group
+	AllowRevert  bool
+	Shape        shape.Shape
+	Label        collision.Label
 }
 
 func defGenerator() Generator {
@@ -126,7 +126,7 @@ func (g Generator) generate(parent *Generator) Btn {
 		}
 	}
 
-	if !g.DisallowRevert {
+	if g.AllowRevert {
 		box = render.NewReverting(box)
 	}
 
@@ -186,7 +186,7 @@ func (g Generator) generate(parent *Generator) Btn {
 			g.Bindings[k] = []event.Bindable{
 				func(id event.CID, button interface{}) int {
 					btn := id.E().(Btn)
-					mEvent, ok := button.(mouse.Event)
+					mEvent, ok := button.(*mouse.Event)
 					// If the passed event is not a mouse event dont filter on location.
 					// Main current use case is for nil events passed via simulated clicks.
 					if !ok {
@@ -271,7 +271,7 @@ func listFxn(g Generator) func(id event.CID, button interface{}) int {
 	return func(id event.CID, button interface{}) int {
 		btn := event.GetEntity(id).(Btn)
 		i := *g.ListChoice
-		mEvent := button.(mouse.Event)
+		mEvent := button.(*mouse.Event)
 
 		if mEvent.Button == mouse.ButtonLeft {
 			i++

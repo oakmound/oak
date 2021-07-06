@@ -1,8 +1,6 @@
 package entities
 
 import (
-	"strconv"
-
 	"github.com/oakmound/oak/v3/collision"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/render"
@@ -25,10 +23,11 @@ func NewReactive(x, y, w, h float64, r render.Renderable, tree *collision.Tree, 
 	rct.Doodad = *NewDoodad(x, y, r, cid)
 	rct.W = w
 	rct.H = h
-	rct.RSpace = collision.NewEmptyReactiveSpace(collision.NewSpace(x, y, w, h, cid))
+	rct.RSpace = collision.NewReactiveSpace(collision.NewSpace(x, y, w, h, cid), map[collision.Label]collision.OnHit{})
 	if tree == nil {
 		tree = collision.DefaultTree
 	}
+	rct.RSpace.Tree = tree
 	rct.Tree = tree
 	rct.Tree.Add(rct.RSpace.Space)
 	return &rct
@@ -98,17 +97,4 @@ func (r *Reactive) SetPos(x, y float64) {
 func (r *Reactive) Destroy() {
 	r.Tree.Remove(r.RSpace.Space)
 	r.Doodad.Destroy()
-}
-
-func (r *Reactive) String() string {
-	st := "Reactive:\n{"
-	st += r.Doodad.String()
-	st += " }, \n"
-	w := strconv.FormatFloat(r.W, 'f', 2, 32)
-	h := strconv.FormatFloat(r.H, 'f', 2, 32)
-	st += "W: " + w + ", H: " + h
-	st += ",\nS:{ "
-	st += r.RSpace.String()
-	st += "}"
-	return st
 }

@@ -39,7 +39,7 @@ func PhaseCollision(s *collision.Space) error {
 }
 
 // MouseCollisionStart/Stop: see collision Start/Stop, for mouse collision
-// Payload: (mouse.Event)
+// Payload: (*mouse.Event)
 const (
 	Start = "MouseCollisionStart"
 	Stop  = "MouseCollisionStop"
@@ -54,15 +54,18 @@ func phaseCollisionEnter(id event.CID, nothing interface{}) int {
 	if ev == nil {
 		ev = &LastEvent
 	}
+	if ev.StopPropagation {
+		return 0
+	}
 
 	if oc.OnCollisionS.Contains(ev.ToSpace()) {
 		if !oc.wasTouching {
-			id.Trigger(Start, *ev)
+			id.Trigger(Start, ev)
 			oc.wasTouching = true
 		}
 	} else {
 		if oc.wasTouching {
-			id.Trigger(Stop, *ev)
+			id.Trigger(Stop, ev)
 			oc.wasTouching = false
 		}
 	}

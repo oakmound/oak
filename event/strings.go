@@ -6,10 +6,10 @@ package event
 //   Payload: (collision.Label) the label the entity has started/stopped touching
 //
 // - MouseCollisionStart/Stop: as above, for mouse collision
-//   Payload: (mouse.Event)
+//   Payload: (*mouse.Event)
 //
 // - Mouse events: MousePress, MouseRelease, MouseScrollDown, MouseScrollUp, MouseDrag
-//   Payload: (mouse.Event) details on the mouse event
+//   Payload: (*mouse.Event) details on the mouse event
 //
 // - KeyDown, KeyDown$a: when any key is pressed down, when key $a is pressed down.
 //   Payload: (key.Event) the key pressed
@@ -20,7 +20,7 @@ package event
 // And the following:
 const (
 	// Enter : the beginning of every logical frame.
-	// Payload: (int) frames passed since this scene started
+	// Payload: (EnterPayload) details on the frame and time since last tick
 	Enter = "EnterFrame"
 	// AnimationEnd: Triggered on animations CIDs when they loop from the last to the first frame
 	// Payload: nil
@@ -31,12 +31,15 @@ const (
 	// OnStop: Triggered when the engine is stopped.
 	// Payload: nil
 	OnStop = "OnStop"
-	// FocusGain: Triggered when the window gains focus 
+	// FocusGain: Triggered when the window gains focus
 	// Payload: nil
 	FocusGain = "FocusGain"
-	// FocusLoss: Triggered when the window loses focus 
+	// FocusLoss: Triggered when the window loses focus
 	// Payload: nil
 	FocusLoss = "FocusLoss"
+	// InputChange: triggered when the most recent input device changes (e.g. keyboard to joystick or vice versa)
+	// Payload: oak.InputType
+	InputChange = "InputChange"
 )
 
 //

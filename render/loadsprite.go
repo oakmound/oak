@@ -116,7 +116,6 @@ func LoadSprite(directory, fileName string) (*Sprite, error) {
 	}
 	r, err := loadSprite(directory, fileName, 0)
 	if err != nil {
-		dlog.Error(err)
 		return nil, err
 	}
 	return NewSprite(0, 0, r), nil

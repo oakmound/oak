@@ -6,12 +6,11 @@ package event
 var (
 	// DefaultBus is a bus that has additional operations for CIDs, and can
 	// be called via event.Call as opposed to bus.Call
-	DefaultBus = NewBus()
+	DefaultBus = NewBus(DefaultCallerMap)
 )
 
 // Trigger an event, but only for one ID, on the default bus
 func (cid CID) Trigger(eventName string, data interface{}) {
-
 	go func(eventName string, data interface{}) {
 		DefaultBus.mutex.RLock()
 		if idMap, ok := DefaultBus.bindingMap[eventName]; ok {
@@ -21,6 +20,10 @@ func (cid CID) Trigger(eventName string, data interface{}) {
 		}
 		DefaultBus.mutex.RUnlock()
 	}(eventName, data)
+}
+
+func (cid CID) TriggerBus(eventName string, data interface{}, bus Handler) chan struct{} {
+	return bus.TriggerCIDBack(cid, eventName, data)
 }
 
 // Bind on a CID is shorthand for bus.Bind(name, cid, fn), on the default bus.
@@ -94,9 +97,9 @@ func Reset() {
 	DefaultBus.Reset()
 }
 
-// ResolvePending calls ResolvePending on the DefaultBus
-func ResolvePending() {
-	DefaultBus.ResolvePending()
+// ResolveChanges calls ResolveChanges on the DefaultBus
+func ResolveChanges() {
+	DefaultBus.ResolveChanges()
 }
 
 // SetTick calls SetTick on the DefaultBus
