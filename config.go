@@ -125,7 +125,7 @@ type Screen struct {
 	Y      int `json:"Y"`
 	Height int `json:"height"`
 	Width  int `json:"width"`
-	Scale  int `json:"scale"`
+	Scale  float64 `json:"scale"`
 	// Target sets the expected dimensions of the monitor the game will be opened on, in pixels.
 	// If Fullscreen is false, then a scaling will be applied to correct the game screen size to be
 	// appropriate for the Target size. If no TargetWidth or Height is provided, scaling will not

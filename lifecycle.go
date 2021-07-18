@@ -25,9 +25,9 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 	err = w.newWindow(
 		int32(w.config.Screen.X),
 		int32(w.config.Screen.Y),
-		w.ScreenWidth*w.config.Screen.Scale,
-		w.ScreenHeight*w.config.Screen.Scale,
-	)
+		int(float64(w.ScreenWidth)*w.config.Screen.Scale),
+		int(float64(w.ScreenHeight)*w.config.Screen.Scale),
+	) 
 	if err != nil {
 		go w.exitWithError(err)
 		return
