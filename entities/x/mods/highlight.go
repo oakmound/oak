@@ -142,6 +142,25 @@ func Darker(c color.Color, f float64) color.Color {
 	return color.RGBA64{uint16(r), uint16(g), uint16(b), uint16(a)}
 }
 
+// Lighter produces a lighter color by f percentage (0 to 1) difference
+func Lighter(c color.Color, f float64) color.Color {
+	r, g, b, a := c.RGBA()
+	diff := uint32(65535 * f)
+	r += diff
+	g += diff
+	b += diff
+	if r > 65535 {
+		r = 65535
+	}
+	if g > 65535 {
+		g = 65535
+	}
+	if b > 65535 {
+		b = 65535
+	}
+	return color.RGBA64{uint16(r), uint16(g), uint16(b), uint16(a)}
+}
+
 // Fade produces a color with more transparency by f percentage (0 to 1)
 func Fade(c color.Color, f float64) color.Color {
 	r, g, b, a := c.RGBA()
