@@ -1,50 +1,39 @@
 package render
 
 import (
+	"fmt"
 	"image"
+	"path/filepath"
 
 	"github.com/oakmound/oak/v3/oakerr"
 )
 
-// LoadSprites calls LoadSheet and then Sheet.ToSprites.
-func LoadSprites(directory, fileName string, w, h, pad int) ([][]*Sprite, error) {
-	sh, err := LoadSheet(directory, fileName, w, h, pad)
-	if sh != nil {
-		return sh.ToSprites(), err
-	}
-	return nil, err
-}
-
 // LoadSheet loads a file in some directory with sheets of (w,h) sized sprites,
 // where there is pad pixels of vertical/horizontal empty space between each sprite.
 // This will blow away any cached sheet with the same fileName.
-func LoadSheet(directory, fileName string, w, h, pad int) (*Sheet, error) {
-
+func (c *Cache) LoadSheet(file string, cellW, cellH, padding int) (*Sheet, error) {
 	var rgba *image.RGBA
 	var ok bool
 	var err error
 
-	imageLock.RLock()
-	rgba, ok = loadedImages[fileName]
-	imageLock.RUnlock()
-
 	if !ok {
-		rgba, err = loadSprite(directory, fileName, 0)
+		rgba, err = c.loadSprite(file, 0)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	sheet, err := MakeSheet(rgba, w, h, pad)
+	sheet, err := MakeSheet(rgba, cellW, cellH, padding)
 	if err != nil {
 		return nil, err
 	}
 
-	sheetLock.Lock()
-	defer sheetLock.Unlock()
-	loadedSheets[fileName] = sheet
+	c.sheetLock.Lock()
+	c.loadedSheets[file] = sheet
+	c.loadedSheets[filepath.Base(file)] = sheet
+	c.sheetLock.Unlock()
 
-	return loadedSheets[fileName], nil
+	return sheet, nil
 }
 
 // MakeSheet converts an image into a sheet with (w,h) sized sprites,
@@ -101,30 +90,23 @@ func MakeSheet(rgba *image.RGBA, w, h, pad int) (*Sheet, error) {
 // GetSheet tries to find the given file in the set of loaded sheets.
 // If SheetIsLoaded(filename) is not true, this returns an error.
 // Otherwise it will return the sheet as a 2d array of sprites
-func GetSheet(fileName string) (*Sheet, error) {
-	sheetLock.RLock()
-	sh, ok := loadedSheets[fileName]
-	sheetLock.RUnlock()
+func (c *Cache) GetSheet(fileName string) (*Sheet, error) {
+	c.sheetLock.RLock()
+	fmt.Println(c.loadedSheets)
+	sh, ok := c.loadedSheets[fileName]
+	c.sheetLock.RUnlock()
 	if !ok {
 		return nil, oakerr.NotFound{InputName: fileName}
 	}
 	return sh, nil
 }
 
-// LoadSheetSequence loads a sheet and then calls LoadSequence on that sheet
-func LoadSheetSequence(fileName string, w, h, pad int, fps float64, frames ...int) (*Sequence, error) {
-	sheet, err := LoadSheet(dir, fileName, w, h, pad)
-	if err != nil {
-		return nil, err
+func subImage(rgba *image.RGBA, x, y, w, h int) *image.RGBA {
+	out := image.NewRGBA(image.Rect(0, 0, w, h))
+	for i := 0; i < w; i++ {
+		for j := 0; j < h; j++ {
+			out.Set(i, j, rgba.At(x+i, y+j))
+		}
 	}
-	return NewSheetSequence(sheet, fps, frames...)
-}
-
-// SheetIsLoaded returns whether when LoadSheet is called, a cached sheet will
-// be used, or if false that a new file will attempt to be loaded and stored
-func SheetIsLoaded(fileName string) bool {
-	sheetLock.RLock()
-	_, ok := loadedSheets[fileName]
-	sheetLock.RUnlock()
-	return ok
+	return out
 }

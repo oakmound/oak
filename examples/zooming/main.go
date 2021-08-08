@@ -3,7 +3,6 @@ package main
 import (
 	"image/color"
 	"image/draw"
-	"path/filepath"
 
 	oak "github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/dlog"
@@ -23,7 +22,7 @@ func main() {
 		render.Draw(render.NewText("Controls: Arrow keys", 500, 440))
 
 		// Get an image that we will illustrate zooming with later
-		s, err := render.LoadSprite("assets", filepath.Join("raw", "mona-lisa.jpg"))
+		s, err := render.LoadSprite("mona-lisa.jpg")
 		dlog.ErrorCheck(err)
 
 		// See the zoomR definition lower, wrap your renderable with a definition of how to zoom.

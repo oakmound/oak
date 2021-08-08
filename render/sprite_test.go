@@ -227,33 +227,6 @@ func TestOverlaySprites(t *testing.T) {
 	}
 }
 
-// Can't test ParseSubSprite without loading in something for it to return,
-// ParseSubSprite also ignores an error for no good reason?
-func TestParseSubSprite(t *testing.T) {
-	loadedImages["test"] = NewColorBox(100, 100, color.RGBA{255, 0, 0, 255}).GetRGBA()
-	sp := ParseSubSprite("test", 0, 0, 25, 25, 0)
-	rgba := sp.GetRGBA()
-	for x := 0; x < 25; x++ {
-		for y := 0; y < 25; y++ {
-			c := rgba.At(x, y)
-			r, g, b, a := c.RGBA()
-			if r != uint32(65535) {
-				t.Fatalf("reds did not match")
-			}
-			if g != uint32(0) {
-				t.Fatalf("greens did not match")
-			}
-			if b != uint32(0) {
-				t.Fatalf("blues did not match")
-			}
-			if a != uint32(65535) {
-				t.Fatalf("alphas did not match")
-			}
-		}
-	}
-
-}
-
 func TestModifySprite(t *testing.T) {
 	s := NewColorBox(10, 10, color.RGBA{255, 0, 0, 255})
 	s2 := s.Modify(mod.Cut(5, 5))

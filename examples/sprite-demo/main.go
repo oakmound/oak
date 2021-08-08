@@ -46,7 +46,7 @@ func main() {
 			// Generate a rotation cache for comparison
 			// Compare the use of the cache against the use of a reverting type below
 			for i := 0; i < 360; i++ {
-				s, err := render.LoadSprite(filepath.Join("assets", "images"), filepath.Join("raw", "gopher11.png"))
+				s, err := render.LoadSprite(filepath.Join("assets", "images", "raw", "gopher11.png"))
 				if err != nil {
 					fmt.Println(err)
 					return

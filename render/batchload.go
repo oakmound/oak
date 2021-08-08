@@ -19,6 +19,7 @@ var (
 	regexpTwoNumbers   = regexp.MustCompile(`^\d+x\d+$`)
 )
 
+
 // BatchLoad loads subdirectories from the given base folder and imports all files,
 // using alias rules to automatically determine the size of sprites and sheets in
 // subfolders.
@@ -65,9 +66,9 @@ func BlankBatchLoad(baseFolder string, maxFileSize int64) error {
 							warnFiles = append(warnFiles, relativePath)
 						}
 						wg.Add(1)
-						go func(baseFolder, relativePath string, possibleSheet bool, frameW, frameH int) {
+						go func(file string, possibleSheet bool, frameW, frameH int) {
 							defer wg.Done()
-							buff, err := loadSprite(baseFolder, relativePath, maxFileSize)
+							buff, err := DefaultCache.loadSprite(file, maxFileSize)
 							if err != nil {
 								dlog.Error(err)
 								return
@@ -86,11 +87,12 @@ func BlankBatchLoad(baseFolder string, maxFileSize int64) error {
 
 								// Load this as a sheet if it is greater
 								// than the folder size's frame size
-							} else if w != frameW || h != frameH {
-								_, err = LoadSheet(baseFolder, relativePath, frameW, frameH, defaultPad)
+							} else if w != frameW || h != frameH {/
+								const defaultPad = 0
+								_, err = DefaultCache.LoadSheet(file, frameW, frameH, defaultPad)
 								dlog.ErrorCheck(err)
 							}
-						}(baseFolder, relativePath, possibleSheet, frameW, frameH)
+						}(filepath.Join(baseFolder, relativePath), possibleSheet, frameW, frameH)
 					} else {
 						dlog.Error("Unsupported file ending for batchLoad: ", name)
 					}

@@ -17,7 +17,7 @@ func TestSheetSequence(t *testing.T) {
 		t.Fatalf("new sheet sequence with no sheet should fail")
 	}
 
-	sheet, err := LoadSheet(dir, filepath.Join("16", "jeremy.png"), 16, 16, 0)
+	sheet, err := LoadSheet(filepath.Join("assets", "images", "16", "jeremy.png"), 16, 16, 0)
 	if err != nil {
 		t.Fatalf("loading jeremy sheet should not fail")
 	}

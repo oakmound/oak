@@ -91,9 +91,7 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 		w.config.Assets.AssetPath,
 		w.config.Assets.AudioPath)
 
-	// TODO: languages
 	go w.sceneLoop(firstScene, w.config.TrackInputChanges)
-	render.SetAssetPaths(imageDir)
 	go w.loadAssets(imageDir, audioDir)
 	if w.config.EnableDebugConsole {
 		go w.debugConsole(os.Stdin, os.Stdout)

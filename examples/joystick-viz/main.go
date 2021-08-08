@@ -60,7 +60,7 @@ var initialOffsets = map[string]floatgeom.Point2{
 }
 
 func newRenderer(ctx *scene.Context, joy *joystick.Joystick) error {
-	outline, err := render.LoadSprite("", "controllerOutline.png")
+	outline, err := render.LoadSprite("controllerOutline.png")
 	if err != nil {
 		return err
 	}
@@ -259,14 +259,12 @@ func main() {
 			for joy := range jCh {
 				err := newRenderer(ctx, joy)
 				if err != nil {
-					fmt.Println(err)
+					fmt.Println("renderer:", err)
 				}
 			}
 		}()
 	}})
 	oak.Init("viz", func(c oak.Config) (oak.Config, error) {
-		c.Assets.ImagePath = "."
-		c.Assets.AssetPath = "."
 		c.TrackInputChanges = true
 		return c, nil
 	})

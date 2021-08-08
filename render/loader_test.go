@@ -1,6 +1,7 @@
 package render
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -18,14 +19,14 @@ func TestBatchLoad(t *testing.T) {
 	if BatchLoad(filepath.Join("assets", "images")) != nil {
 		t.Fatalf("batch load failed")
 	}
-	sh, err := GetSheet(imgPath1)
+	sh, err := GetSheet("jeremy.png")
 	if err != nil {
 		t.Fatalf("get sheet failed: %v", err)
 	}
 	if len(sh.ToSprites()) != 8 {
 		t.Fatalf("sheet did not contain 8 sprites")
 	}
-	_, err = loadSprite("dir", "dummy.jpg", 0)
+	_, err = DefaultCache.loadSprite(filepath.Join("dir", "dummy.jpg"), 0)
 	if err == nil {
 		t.Fatalf("load sprite should have failed")
 	}
@@ -36,61 +37,54 @@ func TestBatchLoad(t *testing.T) {
 	if err == nil {
 		t.Fatalf("get sprite should have failed")
 	}
-	sp, err = GetSprite(imgPath1)
+	sp, err = GetSprite("jeremy.png")
 	if sp == nil {
 		t.Fatalf("get sprite failed")
 	}
 	if err != nil {
 		t.Fatalf("get sprite failed: %v", err)
 	}
-	UnloadAll()
+	DefaultCache.ClearAll()
 }
 
 func TestSetAssetPath(t *testing.T) {
 	fileutil.BindataDir = AssetDir
 	fileutil.BindataFn = Asset
-	_, err := LoadSheet(dir, imgPath1, 16, 16, 0)
+	_, err := LoadSheet(filepath.Join("assets", "images", imgPath1), 16, 16, 0)
 	if err != nil {
-		t.Fatalf("load sheet failed: %v", err)
+		t.Fatalf("load sheet 1 failed: %v", err)
 	}
-	UnloadAll()
-	SetAssetPaths(wd)
-	_, err = LoadSheet(dir, imgPath1, 16, 16, 0)
+	DefaultCache.ClearAll()
+	wd, _ := os.Getwd()
+	_, err = LoadSheet(filepath.Join(wd, imgPath1), 16, 16, 0)
 	if err == nil {
 		t.Fatalf("load sheet should have failed")
 	}
-	UnloadAll()
-	SetAssetPaths(
-		filepath.Join(
-			wd,
-			"assets",
-			"images"),
-	)
-	_, err = LoadSheet(dir, imgPath1, 16, 16, 0)
+	DefaultCache.ClearAll()
+	_, err = LoadSheet(filepath.Join(wd, "assets", "images", imgPath1), 16, 16, 0)
 	if err != nil {
-		t.Fatalf("load sheet failed: %v", err)
+		t.Fatalf("load sheet 2 failed: %v", err)
 	}
-	UnloadAll()
-
+	DefaultCache.ClearAll()
 }
 
 func TestBadSheetParams(t *testing.T) {
 	fileutil.BindataDir = AssetDir
 	fileutil.BindataFn = Asset
 
-	_, err := LoadSheet(dir, imgPath1, 0, 16, 0)
+	_, err := LoadSheet(filepath.Join("assets", "images", imgPath1), 0, 16, 0)
 	if err == nil {
 		t.Fatalf("load sheet should have failed")
 	}
-	_, err = LoadSheet(dir, imgPath1, 16, 0, 0)
+	_, err = LoadSheet(filepath.Join("assets", "images", imgPath1), 16, 0, 0)
 	if err == nil {
 		t.Fatalf("load sheet should have failed")
 	}
-	_, err = LoadSheet(dir, imgPath1, 16, 16, -1)
+	_, err = LoadSheet(filepath.Join("assets", "images", imgPath1), 16, 16, -1)
 	if err == nil {
 		t.Fatalf("load sheet should have failed")
 	}
-	_, err = LoadSheet(dir, imgPath1, 16, 16, 1000)
+	_, err = LoadSheet(filepath.Join("assets", "images", imgPath1), 16, 16, 1000)
 	if err == nil {
 		t.Fatalf("load sheet should have failed")
 	}
@@ -100,47 +94,15 @@ func TestSheetStorage(t *testing.T) {
 	fileutil.BindataDir = AssetDir
 	fileutil.BindataFn = Asset
 
-	if SheetIsLoaded(imgPath1) {
+	if _, err := GetSheet("jeremy.png"); err == nil {
 		t.Fatalf("sheets should not be loaded at startup")
 	}
-	_, err := GetSheet(imgPath1)
-	if err == nil {
-		t.Fatalf("get sheet should have failed")
-	}
-	_, err = LoadSheet(dir, imgPath1, 16, 16, 0)
+	_, err := LoadSheet(filepath.Join("assets", "images", imgPath1), 16, 16, 0)
 	if err != nil {
 		t.Fatalf("load sheet failed: %v", err)
 	}
-	if !SheetIsLoaded(imgPath1) {
-		t.Fatalf("sheet did not load")
+	if _, err := GetSheet("jeremy.png"); err != nil {
+		t.Fatalf("sheet did not load: %v", err)
 	}
-	_, err = GetSheet(imgPath1)
-	if err != nil {
-		t.Fatalf("get sheet failed: %v", err)
-	}
-	UnloadAll()
-}
-
-func TestSheetUtility(t *testing.T) {
-
-	fileutil.BindataDir = AssetDir
-	fileutil.BindataFn = Asset
-	_, err := LoadSprites(dir, imgPath1, 16, 16, 0)
-	if err != nil {
-		t.Fatalf("load sprites failed: %v", err)
-	}
-	_, err = LoadSprites(dir, badImgPath1, 16, 16, 0)
-	if err == nil {
-		t.Fatalf("load sprites should have failed")
-	}
-
-	_, err = LoadSheetSequence(imgPath1, 16, 16, 0, 1, 0, 0)
-	if err != nil {
-		t.Fatalf("load sprite sequence failed: %v", err)
-	}
-	_, err = LoadSheetSequence(badImgPath1, 16, 16, 0, 1, 0, 0)
-	if err == nil {
-		t.Fatalf("load sprite sequence should have failed")
-	}
-
+	DefaultCache.ClearAll()
 }

@@ -2,10 +2,7 @@ package render
 
 import (
 	"image/color"
-	"path/filepath"
 	"testing"
-
-	"github.com/oakmound/oak/v3/fileutil"
 )
 
 func ExampleDraw() {
@@ -17,25 +14,7 @@ func ExampleDraw() {
 }
 
 func TestDrawHelpers(t *testing.T) {
-	r, err := LoadSpriteAndDraw("Not a sprite", 0)
-	if err == nil {
-		t.Fatalf("load sprite should have failed")
-	}
-	if r != nil {
-		t.Fatalf("failed load sprite should give nil renderable")
-	}
-
-	fileutil.BindataDir = AssetDir
-	fileutil.BindataFn = Asset
-	r, err = LoadSpriteAndDraw(filepath.Join("16", "jeremy.png"), 0)
-	if err != nil {
-		t.Fatalf("load sprite should not have failed")
-	}
-	if r == nil {
-		t.Fatalf("load sprite should not give nil renderable")
-	}
-
-	r, err = DrawColor(color.RGBA{255, 255, 255, 255}, 0, 0, 10, 10, 0, 0)
+	r, err := DrawColor(color.RGBA{255, 255, 255, 255}, 0, 0, 10, 10, 0, 0)
 	if err != nil {
 		t.Fatalf("draw color should not have failed")
 	}

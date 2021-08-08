@@ -8,50 +8,34 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/fileutil"
 	"github.com/oakmound/oak/v3/oakerr"
 )
 
-func loadSprite(directory, fileName string, maxFileSize int64) (*image.RGBA, error) {
-
-	imageLock.RLock()
-	if img, ok := loadedImages[fileName]; ok {
-		imageLock.RUnlock()
-		return img, nil
-	}
-	imageLock.RUnlock()
-
-	fullPath := filepath.Join(directory, fileName)
-
-	imgFile, err := fileutil.Open(fullPath)
+func loadSpriteNoCache(file string, maxFileSize int64) (*image.RGBA, error) {
+	imgFile, err := fileutil.Open(file)
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		dlog.ErrorCheck(imgFile.Close())
-	}()
+	defer imgFile.Close()
 
-	ext := filepath.Ext(fileName)
+	ext := filepath.Ext(file)
 	ext = strings.ToLower(ext)
 
-	cfgDecoder, ok := cfgDecoders[ext]
-	if maxFileSize != 0 && ok {
-		// This can't reasonably error as we already loaded the file above
-		info, _ := os.Lstat(fullPath)
-		if info.Size() > maxFileSize {
-			// construct a blank image of the correct dimensions
-			cfg, err := cfgDecoder(imgFile)
-			if err != nil {
-				return nil, err
+	if maxFileSize != 0 {
+		cfgDecoder, ok := cfgDecoders[ext]
+		if ok {
+			// This can't reasonably error as we already loaded the file above
+			info, _ := os.Lstat(file)
+			if info.Size() > maxFileSize {
+				// construct a blank image of the correct dimensions
+				cfg, err := cfgDecoder(imgFile)
+				if err != nil {
+					return nil, err
+				}
+				rgba := image.NewRGBA(image.Rect(0, 0, cfg.Width, cfg.Height))
+				return rgba, nil
 			}
-			rgba := image.NewRGBA(image.Rect(0, 0, cfg.Width, cfg.Height))
-			imageLock.Lock()
-			loadedImages[fileName] = rgba
-			imageLock.Unlock()
-
-			dlog.Verb("Blank loaded filename: ", fileName)
-			return rgba, nil
 		}
 	}
 
@@ -60,7 +44,6 @@ func loadSprite(directory, fileName string, maxFileSize int64) (*image.RGBA, err
 		return nil, errors.New("No decoder available for file type: " + ext)
 	}
 	img, err := decoder(imgFile)
-
 	if err != nil {
 		return nil, err
 	}
@@ -77,44 +60,38 @@ func loadSprite(directory, fileName string, maxFileSize int64) (*image.RGBA, err
 		}
 	}
 
-	imageLock.Lock()
-	loadedImages[fileName] = rgba
-	imageLock.Unlock()
-
-	dlog.Verb("Loaded filename: ", fileName)
 	return rgba, nil
 }
 
-// SpriteIsLoaded returns whether, when LoadSprite is called, a cached sheet will
-// be used, or if false that a new file will attempt to be loaded and stored
-func SpriteIsLoaded(fileName string) bool {
-	imageLock.RLock()
-	_, ok := loadedImages[fileName]
-	imageLock.RUnlock()
-	return ok
+func (c *Cache) loadSprite(file string, maxFileSize int64) (*image.RGBA, error) {
+	rgba, err := loadSpriteNoCache(file, maxFileSize)
+	if err != nil {
+		return nil, err
+	}
+	c.imageLock.Lock()
+	c.loadedImages[file] = rgba
+	c.loadedImages[filepath.Base(file)] = rgba
+	c.imageLock.Unlock()
+	return rgba, nil
 }
 
 // GetSprite tries to find the given file in a private set of
 // loaded sprites. If that file isn't cached, it will return an error.
-func GetSprite(fileName string) (*Sprite, error) {
-	imageLock.RLock()
-	r, ok := loadedImages[fileName]
-	imageLock.RUnlock()
+func (c *Cache) GetSprite(file string) (*Sprite, error) {
+	c.imageLock.RLock()
+	r, ok := c.loadedImages[file]
+	c.imageLock.RUnlock()
 	if !ok {
-		return nil, oakerr.NotFound{InputName: fileName}
+		return nil, oakerr.NotFound{InputName: file}
 	}
 	return NewSprite(0, 0, r), nil
 }
 
 // LoadSprite will load the given file as an image by combining directory and fileName.
-// The resulting image, if found, will be cached under fileName for
-// later access through GetSprite. If the empty string is passed in for directory,
-// the directory defined by oak.SetupConfig.Assets.Images will be used.
-func LoadSprite(directory, fileName string) (*Sprite, error) {
-	if directory == "" {
-		directory = dir
-	}
-	r, err := loadSprite(directory, fileName, 0)
+// The resulting image, if found, will be cached under its last path element for
+// later access through GetSprite.
+func (c *Cache) LoadSprite(file string) (*Sprite, error) {
+	r, err := c.loadSprite(file, 0)
 	if err != nil {
 		return nil, err
 	}

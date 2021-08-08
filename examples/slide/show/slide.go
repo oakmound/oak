@@ -62,6 +62,7 @@ func Start(width, height int, slides ...Slide) {
 			Start: func(*scene.Context) { sl.Init() },
 			Loop: func() bool {
 				cont := sl.Continue() && !skip
+				fmt.Println("continue: ", sl.Continue(), skip)
 				// This should be disable-able
 				if !cont {
 					oak.SetLoadingRenderable(render.NewSprite(0, 0, oak.ScreenShot()))
@@ -69,7 +70,7 @@ func Start(width, height int, slides ...Slide) {
 				return cont
 			},
 			End: func() (string, *scene.Result) {
-
+				fmt.Println("ending")
 				if skip {
 					skip = false
 					return "slide" + skipTo, slideResult(sl)
@@ -80,6 +81,7 @@ func Start(width, height int, slides ...Slide) {
 					}
 					return "slide0", slideResult(sl)
 				}
+				fmt.Println("new slide", strconv.Itoa(i+1))
 				return "slide" + strconv.Itoa(i+1), slideResult(sl)
 			},
 		})
