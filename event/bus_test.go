@@ -21,10 +21,9 @@ func TestBusStop(t *testing.T) {
 		}
 		wait <- struct{}{}
 	}()
-	b.updateCh <- struct{}{}
-	<-b.doneCh
 	phase = 1
-	b.doneCh <- struct{}{}
+
+	<-b.doneCh
 	<-wait
 	if topErr != nil {
 		t.Fatal(topErr)

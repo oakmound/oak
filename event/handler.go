@@ -56,17 +56,14 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan struct{}) error {
 	// In order, it waits on receiving a signal to begin a logical frame.
 	// It then runs any functions bound to when a frame begins.
 	// It then allows a scene to perform it's loop operation.
-	ch := make(chan struct{})
 	eb.framesElapsed = 0
-	eb.doneCh = ch
-	eb.updateCh = updateCh
 	eb.framerate = framerate
 	frameDelay := timing.FPSToFrameDelay(framerate)
 	if eb.Ticker == nil {
 		eb.Ticker = time.NewTicker(frameDelay)
 	}
 	go eb.ResolveChanges()
-	go func(doneCh chan struct{}) {
+	go func() {
 		eb.Ticker.Reset(frameDelay)
 		frameDelayF64 := float64(frameDelay)
 		lastTick := time.Now()
@@ -81,14 +78,16 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan struct{}) error {
 					TickPercent:    float64(deltaTime) / frameDelayF64,
 				})
 				eb.framesElapsed++
-				eb.updateCh <- struct{}{}
-			case <-doneCh:
-				eb.Ticker.Stop()
-				doneCh <- struct{}{}
+				select {
+				case updateCh <- struct{}{}:
+				case <-eb.doneCh:
+					return
+				}
+			case <-eb.doneCh:
 				return
 			}
 		}
-	}(ch)
+	}()
 	return nil
 }
 
@@ -136,14 +135,9 @@ func (eb *Bus) Flush() error {
 // Stop ceases anything spawned by an ongoing UpdateLoop
 func (eb *Bus) Stop() error {
 	if eb.Ticker != nil {
-		eb.Ticker.Reset(math.MaxInt32 * time.Second)
+		eb.Ticker.Stop()
 	}
-	select {
-	case eb.doneCh <- struct{}{}:
-	case <-eb.updateCh:
-		eb.doneCh <- struct{}{}
-	}
-	<-eb.doneCh
+	eb.doneCh <- struct{}{}
 	return nil
 }
 

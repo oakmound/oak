@@ -30,7 +30,6 @@ type bindableList struct {
 type Bus struct {
 	bindingMap          map[string]map[CID]*bindableList
 	doneCh              chan struct{}
-	updateCh            chan struct{}
 	framesElapsed       int
 	Ticker              *time.Ticker
 	binds               []UnbindOption
@@ -56,7 +55,6 @@ func NewBus(callerMap *CallerMap) *Bus {
 	}
 	return &Bus{
 		bindingMap: make(map[string]map[CID]*bindableList),
-		updateCh:   make(chan struct{}),
 		doneCh:     make(chan struct{}),
 		callerMap:  callerMap,
 	}
