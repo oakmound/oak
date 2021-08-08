@@ -7,6 +7,11 @@ import (
 
 const defaultFontKey = "def"
 
+// DefaultFont is the font used for default functions. It can be publicly
+// modified to apply a default font to generated audios through def
+// methods. If it is not modified, it is a font of zero filters.
+var DefaultFont = font.New()
+
 // A FontManager is a map of names to Fonts that has a built in
 // default font at name 'def'.
 type FontManager map[string]*font.Font

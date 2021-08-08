@@ -5,9 +5,9 @@ import (
 	"github.com/oakmound/oak/v3/dlog"
 )
 
-// Play is shorthand for Get followed by Play.
+// Play is shorthand for Get followed by Play on the DefaultCache.
 func Play(f *font.Font, filename string) error {
-	ad, err := Get(filename)
+	ad, err := DefaultCache.Get(filename)
 	if err == nil {
 		a := New(f, ad)
 		a.Play()
