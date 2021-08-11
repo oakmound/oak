@@ -68,6 +68,16 @@ func SetScreen(x, y int) {
 	defaultWindow.SetScreen(x, y)
 }
 
+func MoveWindow(x, y, w, h int) error {
+	initDefaultWindow()
+	return defaultWindow.MoveWindow(x, y, w, h)
+}
+
+func UpdateViewSize(w, h int) error {
+	initDefaultWindow()
+	return defaultWindow.UpdateViewSize(w, h)
+}
+
 func SetFullScreen(fs bool) error {
 	initDefaultWindow()
 	return defaultWindow.SetFullScreen(fs)
@@ -76,6 +86,26 @@ func SetFullScreen(fs bool) error {
 func SetBorderless(bs bool) error {
 	initDefaultWindow()
 	return defaultWindow.SetBorderless(bs)
+}
+
+func SetTopMost(on bool) error {
+	initDefaultWindow()
+	return defaultWindow.SetTopMost(on)
+}
+
+func SetTitle(title string) error {
+	initDefaultWindow()
+	return defaultWindow.SetTitle(title)
+}
+
+func SetTrayIcon(icon string) error {
+	initDefaultWindow()
+	return defaultWindow.SetTrayIcon(icon)
+}
+
+func ShowNotification(title, msg string, icon bool) error {
+	initDefaultWindow()
+	return defaultWindow.ShowNotification(title, msg, icon)
 }
 
 func ScreenShot() *image.RGBA {
