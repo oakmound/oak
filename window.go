@@ -299,11 +299,15 @@ func (w *Window) SetLogicHandler(h event.Handler) {
 }
 
 func (w *Window) NextScene() {
-	w.skipSceneCh <- ""
+	go func() {
+		w.skipSceneCh <- ""
+	}()
 }
 
 func (w *Window) GoToScene(nextScene string) {
-	w.skipSceneCh <- nextScene
+	go func() {
+		w.skipSceneCh <- nextScene
+	}()
 }
 
 func (w *Window) InFocus() bool {
