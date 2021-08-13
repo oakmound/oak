@@ -1,6 +1,7 @@
 package oak
 
 import (
+	"os"
 	"testing"
 
 	"github.com/oakmound/oak/v3/scene"
@@ -48,6 +49,6 @@ func TestBatchLoad_Blank(t *testing.T) {
 }
 
 func TestSetBinaryPayload(t *testing.T) {
-	// coverage test, these utilities are effectively tested in the render package
-	SetBinaryPayload(nil, nil)
+	// coverage test, this utility is effectively tested in the render package
+	SetFS(os.DirFS("."))
 }
