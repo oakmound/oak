@@ -1,23 +1,29 @@
 package render
 
 import (
-	"path/filepath"
+	"embed"
+	"os"
 	"testing"
 
+	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/fileutil"
 )
 
+//go:embed testdata/assets/*
+var testfs embed.FS
+
+func TestMain(m *testing.M) {
+	fileutil.FS = testfs
+	os.Exit(m.Run())
+}
+
 func TestSheetSequence(t *testing.T) {
-
-	fileutil.BindataDir = AssetDir
-	fileutil.BindataFn = Asset
-
 	_, err := NewSheetSequence(nil, 10, 0)
 	if err == nil {
 		t.Fatalf("new sheet sequence with no sheet should fail")
 	}
 
-	sheet, err := LoadSheet(filepath.Join("assets", "images", "16", "jeremy.png"), 16, 16, 0)
+	sheet, err := LoadSheet("testdata/assets/images/16x16/jeremy.png", intgeom.Point2{16, 16})
 	if err != nil {
 		t.Fatalf("loading jeremy sheet should not fail")
 	}

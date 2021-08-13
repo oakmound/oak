@@ -1,17 +1,16 @@
 package render
 
 import (
-	"fmt"
 	"image"
 	"path/filepath"
 
+	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/oakerr"
 )
 
-// LoadSheet loads a file in some directory with sheets of (w,h) sized sprites,
-// where there is pad pixels of vertical/horizontal empty space between each sprite.
+// LoadSheet loads a file in some directory with sheets of (w,h) sized sprites.
 // This will blow away any cached sheet with the same fileName.
-func (c *Cache) LoadSheet(file string, cellW, cellH, padding int) (*Sheet, error) {
+func (c *Cache) LoadSheet(file string, cellSize intgeom.Point2) (*Sheet, error) {
 	var rgba *image.RGBA
 	var ok bool
 	var err error
@@ -23,7 +22,7 @@ func (c *Cache) LoadSheet(file string, cellW, cellH, padding int) (*Sheet, error
 		}
 	}
 
-	sheet, err := MakeSheet(rgba, cellW, cellH, padding)
+	sheet, err := MakeSheet(rgba, cellSize)
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +35,11 @@ func (c *Cache) LoadSheet(file string, cellW, cellH, padding int) (*Sheet, error
 	return sheet, nil
 }
 
-// MakeSheet converts an image into a sheet with (w,h) sized sprites,
-// where there is pad pixels of vertical/horizontal empty space between each sprite.
-func MakeSheet(rgba *image.RGBA, w, h, pad int) (*Sheet, error) {
+// MakeSheet converts an image into a sheet with (w,h) sized sprites
+func MakeSheet(rgba *image.RGBA, cellSize intgeom.Point2) (*Sheet, error) {
+
+	w := cellSize.X()
+	h := cellSize.Y()
 
 	if w <= 0 {
 		return nil, oakerr.InvalidInput{InputName: "w"}
@@ -46,38 +47,22 @@ func MakeSheet(rgba *image.RGBA, w, h, pad int) (*Sheet, error) {
 	if h <= 0 {
 		return nil, oakerr.InvalidInput{InputName: "h"}
 	}
-	if pad < 0 {
-		return nil, oakerr.InvalidInput{InputName: "pad"}
-	}
 
 	bounds := rgba.Bounds()
 
 	sheetW := bounds.Max.X / w
-	remainderW := bounds.Max.X % w
 	sheetH := bounds.Max.Y / h
-	remainderH := bounds.Max.Y % h
 
-	var widthBuffers, heightBuffers int
-	if pad != 0 {
-		widthBuffers = remainderW / pad
-		heightBuffers = remainderH / pad
-	} else {
-		widthBuffers = sheetW - 1
-		heightBuffers = sheetH - 1
-	}
-
-	if sheetW < 1 || sheetH < 1 ||
-		widthBuffers != sheetW-1 ||
-		heightBuffers != sheetH-1 {
+	if sheetW < 1 || sheetH < 1 {
 		return nil, oakerr.InvalidInput{InputName: "w,h"}
 	}
 
 	sheet := make(Sheet, sheetW)
 	i := 0
-	for x := 0; x < bounds.Max.X; x += (w + pad) {
+	for x := 0; x < bounds.Max.X; x += w {
 		sheet[i] = make([]*image.RGBA, sheetH)
 		j := 0
-		for y := 0; y < bounds.Max.Y; y += (h + pad) {
+		for y := 0; y < bounds.Max.Y; y += h {
 			sheet[i][j] = subImage(rgba, x, y, w, h)
 			j++
 		}
@@ -92,7 +77,6 @@ func MakeSheet(rgba *image.RGBA, w, h, pad int) (*Sheet, error) {
 // Otherwise it will return the sheet as a 2d array of sprites
 func (c *Cache) GetSheet(fileName string) (*Sheet, error) {
 	c.sheetLock.RLock()
-	fmt.Println(c.loadedSheets)
 	sh, ok := c.loadedSheets[fileName]
 	c.sheetLock.RUnlock()
 	if !ok {

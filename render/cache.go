@@ -3,6 +3,8 @@ package render
 import (
 	"image"
 	"sync"
+
+	"github.com/oakmound/oak/v3/alg/intgeom"
 )
 
 // The DefaultCache is the receiver for package level sprite and sheet loading operations.
@@ -61,6 +63,6 @@ func GetSheet(file string) (*Sheet, error) {
 }
 
 // LoadSheet calls LoadSheet on the Default Cache.
-func LoadSheet(file string, cellW, cellH, padding int) (*Sheet, error) {
-	return DefaultCache.LoadSheet(file, cellW, cellH, padding)
+func LoadSheet(file string, cellSize intgeom.Point2) (*Sheet, error) {
+	return DefaultCache.LoadSheet(file, cellSize)
 }
