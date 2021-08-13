@@ -1,8 +1,6 @@
 package filter
 
 import (
-	"fmt"
-
 	"github.com/oakmound/oak/v3/audio/klang/filter/supports"
 )
 
@@ -11,7 +9,6 @@ import (
 func Speed(ratio float64, pitchShifter PitchShifter) Encoding {
 	return func(senc supports.Encoding) {
 		r := ratio
-		fmt.Println(ratio)
 		for r < .5 {
 			r *= 2
 			pitchShifter.PitchShift(.5)(senc)
