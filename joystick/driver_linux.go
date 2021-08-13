@@ -13,8 +13,7 @@ import (
 	"github.com/oakmound/oak/v3/timing"
 
 	"encoding/binary"
-	"fmt"
-	"path/filepath"
+	"path"
 	"regexp"
 
 	"github.com/oakmound/libudev"
