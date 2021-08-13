@@ -22,12 +22,12 @@ func (w *Window) drawLoop() {
 	w.publish()
 
 	for {
-	drawSelect:
 		select {
 		case <-w.quitCh:
 			return
 		case <-w.drawCh:
 			<-w.drawCh
+		loadingSelect:
 			for {
 				select {
 				case <-w.ParentContext.Done():
@@ -35,7 +35,7 @@ func (w *Window) drawLoop() {
 				case <-w.quitCh:
 					return
 				case <-w.drawCh:
-					break drawSelect
+					break loadingSelect
 				case <-w.DrawTicker.C:
 					draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
 					if w.LoadingR != nil {
