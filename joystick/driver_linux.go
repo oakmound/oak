@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/oakmound/oak/v3/dlog" 
+	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/timing"
 	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v3/timing"
 
 	"encoding/binary"
 	"fmt"
@@ -168,7 +168,7 @@ func (j *Joystick) getState() (*State, error) {
 }
 
 func (j *Joystick) vibrate(left, right uint16) error {
-	return oakerr.UnsupportedPlatform{Operation:"joystick-vibrate"}
+	return oakerr.UnsupportedPlatform{Operation: "joystick-vibrate"}
 }
 
 func (j *Joystick) close() error {
@@ -185,10 +185,10 @@ func getJoysticks() []*Joystick {
 	sc := libudev.NewScanner()
 	err, dvs := sc.ScanDevices()
 	if err != nil {
-		fmt.Println(err)
+		dlog.Error(err)
 		return nil
 	}
-	
+
 	filtered := []*types.Device{}
 
 	for _, d := range dvs {
@@ -213,7 +213,7 @@ func getJoysticks() []*Joystick {
 			id = uint32(idint)
 			dlog.ErrorCheck(err)
 		}
-		joys[i] = newJoystick(filepath.Join("/", "dev", f.Env["DEVNAME"]), id)
+		joys[i] = newJoystick(path.Join("/", "dev", f.Env["DEVNAME"]), id)
 	}
 	return joys
 }
