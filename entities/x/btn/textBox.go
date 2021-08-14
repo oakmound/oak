@@ -33,7 +33,7 @@ func NewTextBox(cid event.CID, x, y, w, h, txtX, txtY float64,
 
 	b.Box = *NewBox(cid, x, y, w, h, r, layers...)
 	b.Text = f.NewText("Init", 0, 0)
-	b.Text.Vector = b.Text.Attach(b.Box.Vector, txtX, txtY)
+	b.Text.Attach(b.Box.Vector, txtX, txtY)
 
 	// We dont want to modify the input's layers but we do want the text to show up on top of the base renderable.
 	txtLayers := make([]int, len(layers))
@@ -79,7 +79,7 @@ func (b *TextBox) SetPos(x, y float64) {
 
 // SetOffsets changes the text position within the box
 func (b *TextBox) SetOffsets(txtX, txtY float64) {
-	b.Text.Vector = b.Text.Attach(b.Box.Vector, txtX, -txtY+b.H)
+	b.Text.Attach(b.Box.Vector, txtX, -txtY+b.H)
 }
 
 func (b *TextBox) Destroy() {
