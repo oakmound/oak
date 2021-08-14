@@ -13,8 +13,8 @@ func TestScopedCommands(t *testing.T) {
 	if len(sc.commands) != 1 {
 		t.Fatalf("scoped commands failed to create with one scope: had %v", len(sc.commands))
 	}
-	if len(sc.commands[0]) != 2 {
-		t.Fatalf("scoped commands failed to create with two commands: had %v", len(sc.commands[0]))
+	if len(sc.commands[0]) != 3 {
+		t.Fatalf("scoped commands failed to create with three commands: had %v", len(sc.commands[0]))
 	}
 }
 
@@ -59,6 +59,7 @@ func TestScopedCommands_Help(t *testing.T) {
 Active Scopes: [0]
 Current Assumed Scope: 0
 General Commands:
+  fade: fade the specified renderable by the given int if given. Renderable must be registered in debugtools
   help
   scope: provide a scopeID to use commands without a scopeID prepended
 
@@ -66,6 +67,7 @@ help <scopeID> to see commands linked to a given window
 Active Scopes: [0]
 Current Assumed Scope: 0
 General Commands:
+  fade: fade the specified renderable by the given int if given. Renderable must be registered in debugtools
   help
   scope: provide a scopeID to use commands without a scopeID prepended
 
