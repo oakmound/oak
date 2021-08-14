@@ -8,7 +8,7 @@ import (
 type Language int
 
 var (
-	currentLanguage Language = EN
+	currentLanguage Language
 )
 
 func SetLanguage(l Language) {
@@ -20,22 +20,25 @@ func SetLanguageString(language string) error {
 	language = strings.ToUpper(language)
 	switch language {
 	case "EN", "ENGLISH":
-		currentLanguage = EN
+		currentLanguage = ENG
 	case "DE", "GERMAN", "DEUTSCH":
-		currentLanguage = DE
+		currentLanguage = DEU
 	case "JP", "JAPANESE", "日本語":
-		currentLanguage = JP
+		currentLanguage = JPN
 	default:
 		return InvalidInput{InputName: language}
 	}
 	return nil
 }
 
-// Valid languages, approximately matching ISO 639-1
+// Valid languages, uppercase ISO 639-2
 const (
-	EN Language = iota
-	DE
-	JP
+	// English
+	ENG Language = iota
+	// German
+	DEU
+	// Japanese
+	JPN
 )
 
 // Q: Why these languages?
