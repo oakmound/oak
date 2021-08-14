@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image/color"
 	"math/rand"
-	"path/filepath"
 	"time"
 
 	"github.com/oakmound/oak/v3/render/mod"
@@ -45,12 +44,12 @@ func main() {
 	oak.AddScene("tds", scene.Scene{Start: func(ctx *scene.Context) {
 		// Initialization
 		playerAlive = true
-		sprites, err := render.GetSheet(filepath.Join("16x16", "sheet.png"))
+		sprites, err := render.GetSheet("sheet.png")
 		dlog.ErrorCheck(err)
 		sheet = sprites.ToSprites()
 
 		// Player setup
-		eggplant, err := render.GetSprite(filepath.Join("character", "eggplant-fish.png"))
+		eggplant, err := render.GetSprite("eggplant-fish.png")
 		playerR := render.NewSwitch("left", map[string]render.Modifiable{
 			"left": eggplant,
 			// We must copy the sprite before we modify it, or "left"
@@ -123,9 +122,9 @@ func main() {
 
 		// Create enemies periodically
 		event.GlobalBind(event.Enter, func(_ event.CID, frames interface{}) int {
-			f := frames.(int)
-			if f%EnemyRefresh == 0 {
-				NewEnemy(ctx)
+			enterPayload := frames.(event.EnterPayload)
+			if enterPayload.FramesElapsed%EnemyRefresh == 0 {
+				go NewEnemy(ctx)
 			}
 			return 0
 		})
@@ -150,6 +149,8 @@ func main() {
 		// files local to the project before starting any scene.
 		c.BatchLoad = true
 		c.Debug.Level = "Verbose"
+		c.Assets.ImagePath = "assets/images"
+
 		return c, nil
 	})
 }
