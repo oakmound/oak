@@ -5,6 +5,7 @@ import (
 
 	"github.com/oakmound/oak/v3/collision"
 	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/window"
 )
@@ -22,4 +23,5 @@ type Context struct {
 	CallerMap     *event.CallerMap
 	MouseTree     *collision.Tree
 	CollisionTree *collision.Tree
+	KeyState      *key.State
 }
