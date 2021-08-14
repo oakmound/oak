@@ -18,16 +18,10 @@ func main() {
 
 			const fontHeight = 16
 
-			// By not specifying "File", we use the default
-			// font built into the engine
-
-			fg := render.FontGenerator{
-				Color:   image.NewUniform(color.RGBA{255, 0, 0, 255}),
-				Size:    fontHeight,
-				Hinting: "",
-			}
+			fg := render.DefFontGenerator
+			fg.Color = image.NewUniform(color.RGBA{255, 0, 0, 255})
+			fg.FontOptions.Size = fontHeight
 			font, _ := fg.Generate()
-			font.Unsafe = true
 
 			fallbackFonts := []string{
 				"Arial.ttf",
@@ -43,11 +37,11 @@ func main() {
 					continue
 				}
 				fg := render.FontGenerator{
-					Absolute: true, // TODO: this shouldn't be required
-					File:     fontPath,
-					Color:    image.NewUniform(color.RGBA{255, 0, 0, 255}),
-					Size:     fontHeight,
-					Hinting:  "",
+					File:  fontPath,
+					Color: image.NewUniform(color.RGBA{255, 0, 0, 255}),
+					FontOptions: render.FontOptions{
+						Size: fontHeight,
+					},
 				}
 				fallbackFont, err := fg.Generate()
 				if err != nil {

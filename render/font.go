@@ -156,18 +156,17 @@ func (f *Font) MeasureString(s string) fixed.Int26_6 {
 		if prevC >= 0 {
 			f.Drawer.Dot.X += f.Drawer.Face.Kern(prevC, c)
 		}
-		_, _, maskp, advance, ok := f.Drawer.Face.Glyph(f.Drawer.Dot, c)
-		if _, empty := emptyboxYValues[maskp.Y]; !ok || empty {
+		_, _, _, advance, ok := f.Drawer.Face.Glyph(f.Drawer.Dot, c)
+		if idx := f.ttfnt.Index(c); !ok || idx == 0 {
+			found := false
 			for _, fallback := range f.Fallbacks {
-				_, _, maskp, advance, ok = fallback.Drawer.Face.Glyph(f.Drawer.Dot, c)
-				if _, empty := emptyboxYValues[maskp.Y]; !empty && ok {
+				_, _, _, advance, ok = fallback.Drawer.Face.Glyph(f.Drawer.Dot, c)
+				if idx := fallback.ttfnt.Index(c); ok && idx != 0 {
+					found = true
 					break
 				}
 			}
-			if _, empty := emptyboxYValues[maskp.Y]; !ok || empty {
-				// TODO: is falling back on the U+FFFD glyph the responsibility of
-				// the Drawer or the Face?
-				// TODO: set prevC = '\ufffd'?
+			if !found {
 				continue
 			}
 		}
@@ -176,29 +175,6 @@ func (f *Font) MeasureString(s string) fixed.Int26_6 {
 	}
 	return width
 }
-
-var (
-	// In testing, these are the locations where Glyph will return it found a glyph,
-	// but return an empty box.
-	// TODO: more research--
-	// 1. why do the fonts say these characters exist when they don't
-	// 2. can we just say < 100 = undefined?
-	emptyboxYValues = map[int]struct{}{
-		0:  {},
-		20: {},
-		23: {},
-		40: {},
-		60: {},
-		69: {},
-		81: {},
-		75: {},
-		46: {},
-		54: {},
-		50: {},
-		27: {},
-		25: {},
-	}
-)
 
 func (f *Font) drawString(s string) {
 	f.mutex.Lock()
@@ -209,17 +185,16 @@ func (f *Font) drawString(s string) {
 			f.Drawer.Dot.X += f.Drawer.Face.Kern(prevC, c)
 		}
 		dr, mask, maskp, advance, ok := f.Drawer.Face.Glyph(f.Drawer.Dot, c)
-		if _, empty := emptyboxYValues[maskp.Y]; !ok || empty {
+		if idx := f.ttfnt.Index(c); !ok || idx == 0 {
+			found := false
 			for _, fallback := range f.Fallbacks {
 				dr, mask, maskp, advance, ok = fallback.Drawer.Face.Glyph(f.Drawer.Dot, c)
-				if _, empty := emptyboxYValues[maskp.Y]; !empty && ok {
+				if idx := fallback.ttfnt.Index(c); ok && idx != 0 {
+					found = true
 					break
 				}
 			}
-			if _, empty := emptyboxYValues[maskp.Y]; !ok || empty {
-				// TODO: is falling back on the U+FFFD glyph the responsibility of
-				// the Drawer or the Face?
-				// TODO: set prevC = '\ufffd'?
+			if !found {
 				continue
 			}
 		}
