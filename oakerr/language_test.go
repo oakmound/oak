@@ -10,19 +10,19 @@ func TestSetLanguageString(t *testing.T) {
 		t.Fatal("Setting to language Gibberish did not error")
 	}
 	SetLanguageString("German")
-	if currentLanguage != DEU {
+	if CurrentLanguage != DEU {
 		t.Fatalf("German did not set language to Deutsch")
 	}
 	SetLanguageString("English")
-	if currentLanguage != ENG {
+	if CurrentLanguage != ENG {
 		t.Fatalf("English did not set language to English")
 	}
 	SetLanguageString("Japanese")
-	if currentLanguage != JPN {
+	if CurrentLanguage != JPN {
 		t.Fatalf("Japanese did not set language to 日本語")
 	}
 	SetLanguageString("日本語")
-	if currentLanguage != JPN {
+	if CurrentLanguage != JPN {
 		t.Fatalf("日本語 did not set language to 日本語")
 	}
 }

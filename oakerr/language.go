@@ -8,23 +8,19 @@ import (
 type Language int
 
 var (
-	currentLanguage Language
+	CurrentLanguage Language
 )
-
-func SetLanguage(l Language) {
-	currentLanguage = l
-}
 
 // SetLanguageString parses a string as a language
 func SetLanguageString(language string) error {
 	language = strings.ToUpper(language)
 	switch language {
 	case "EN", "ENGLISH":
-		currentLanguage = ENG
+		CurrentLanguage = ENG
 	case "DE", "GERMAN", "DEUTSCH":
-		currentLanguage = DEU
+		CurrentLanguage = DEU
 	case "JP", "JAPANESE", "日本語":
-		currentLanguage = JPN
+		CurrentLanguage = JPN
 	default:
 		return InvalidInput{InputName: language}
 	}

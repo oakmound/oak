@@ -96,8 +96,6 @@ func batchLoad(baseFolder string, blankOut bool) error {
 					}
 					return nil
 				})
-			default:
-				dlog.Error("Unsupported file ending for batchLoad: ", fileName)
 			}
 		}
 	}

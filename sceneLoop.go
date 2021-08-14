@@ -41,10 +41,10 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		w.setViewport(intgeom.Point2{0, 0})
 		w.RemoveViewportBounds()
 
-		dlog.Info("Scene Start: ", w.SceneMap.CurrentScene)
+		dlog.Info(dlog.SceneStarting, w.SceneMap.CurrentScene)
 		scen, ok := w.SceneMap.GetCurrent()
 		if !ok {
-			dlog.Error("Unknown scene: ", w.SceneMap.CurrentScene)
+			dlog.Error(dlog.UnknownScene, w.SceneMap.CurrentScene)
 			if w.ErrorScene != "" {
 				w.SceneMap.CurrentScene = w.ErrorScene
 				scen, ok = w.SceneMap.GetCurrent()
@@ -62,7 +62,6 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		}
 		gctx, cancel := context.WithCancel(w.ParentContext)
 		go func() {
-			dlog.Verb("Starting scene in goroutine", w.SceneMap.CurrentScene)
 			scen.Start(&scene.Context{
 				Context:       gctx,
 				PreviousScene: prevScene,
@@ -81,15 +80,12 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		w.sceneTransition(result)
 
 		// Post transition, begin loading animation
-		dlog.Verb("Starting load animation")
 		w.drawCh <- struct{}{}
-		dlog.Verb("Getting Transition Signal")
 		<-w.transitionCh
-		dlog.Verb("Resume Drawing")
 		// Send a signal to resume (or begin) drawing
 		w.drawCh <- struct{}{}
 
-		dlog.Info("Looping Scene")
+		dlog.Info(dlog.SceneLooping)
 		cont := true
 
 		dlog.ErrorCheck(w.logicHandler.UpdateLoop(w.FrameRate, w.sceneCh))
@@ -109,7 +105,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 			}
 		}
 		cancel()
-		dlog.Info("Scene End", w.SceneMap.CurrentScene)
+		dlog.Info(dlog.SceneEnding, w.SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
 		dlog.ErrorCheck(w.logicHandler.Stop())
@@ -118,7 +114,6 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		// Send a signal to stop drawing
 		w.drawCh <- struct{}{}
 
-		dlog.Verb("Resetting Engine")
 		// Reset transient portions of the engine
 		// We start by clearing the event bus to
 		// remove most ongoing code
@@ -127,7 +122,6 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		// because otherwise collision function calls
 		// on non-entities (i.e. particles) can still
 		// be triggered and attempt to access an entity
-		dlog.Verb("Event Bus Reset")
 		w.CollisionTree.Clear()
 		w.MouseTree.Clear()
 		if w.CallerMap == event.DefaultCallerMap {
@@ -138,7 +132,6 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		}
 		w.DrawStack.Clear()
 		w.DrawStack.PreDraw()
-		dlog.Verb("Engine Reset")
 
 		// Todo: Add in customizable loading scene between regular scenes,
 		// In addition to the existing customizable loading renderable?

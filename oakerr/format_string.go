@@ -17,7 +17,7 @@ const (
 )
 
 func errorString(code errCode, inputs ...interface{}) string {
-	format, ok := errFmtStrings[currentLanguage][code]
+	format, ok := errFmtStrings[CurrentLanguage][code]
 	if !ok {
 		format = errFmtStrings[ENG][code]
 	}

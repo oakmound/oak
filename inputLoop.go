@@ -20,7 +20,7 @@ func (w *Window) inputLoop() {
 		case lifecycle.Event:
 			switch e.To {
 			case lifecycle.StageDead:
-				dlog.Info("Window closed.")
+				dlog.Info(dlog.WindowClosed)
 				// OnStop needs to be sent through TriggerBack, otherwise the
 				// program will close before the stop events get propagated.
 				<-w.logicHandler.TriggerBack(event.OnStop, nil)

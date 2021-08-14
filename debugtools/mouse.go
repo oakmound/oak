@@ -1,8 +1,6 @@
 package debugtools
 
 import (
-	"fmt"
-
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/mouse"
@@ -13,11 +11,7 @@ import (
 // key is held down at the time. If no key is given, it will always be printed
 func DebugMouseRelease(ctx *scene.Context, k string) {
 	event.GlobalBind(mouse.Release, func(_ event.CID, ev interface{}) int {
-		mev, ok := ev.(*mouse.Event)
-		if !ok {
-			dlog.Error("got wrong event", fmt.Sprintf("%T", mev))
-			return 0
-		}
+		mev, _ := ev.(*mouse.Event)
 		if ctx.KeyState.IsDown(k) || k == "" {
 			dlog.Info(mev)
 		}
