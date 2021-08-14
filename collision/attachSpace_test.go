@@ -46,6 +46,7 @@ func TestAttachSpace(t *testing.T) {
 	if err != nil {
 		t.Fatalf("detach failed: %v", err)
 	}
+	time.Sleep(200 * time.Millisecond)
 	v.SetPos(4, 4)
 	time.Sleep(200 * time.Millisecond)
 	if s.X() != 9 {
