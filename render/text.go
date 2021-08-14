@@ -69,8 +69,8 @@ func (f *Font) NewStrPtrText(str *string, x, y float64) *Text {
 
 func (t *Text) drawWithFont(buff draw.Image, xOff, yOff float64, fnt *Font) {
 	fnt.Drawer.Dst = buff
-	fnt.Drawer.Dot = fixed.P(int(t.X()+xOff), int(t.Y()+yOff)+int(t.d.FontGenerator.Size))
-	fnt.DrawString(t.text.String())
+	fnt.Drawer.Dot = fixed.P(int(t.X()+xOff), int(t.Y()+yOff)+int(t.d.gen.Size))
+	fnt.drawString(t.text.String())
 }
 
 // Draw for a text draws the text at its layeredPoint position
@@ -89,7 +89,7 @@ func (t *Text) GetDims() (int, int) {
 	// bounds, adv := t.d.BoundString(t.text.String())
 	// return adv.Round(), bounds.Max.Y.Round()
 	textWidth := t.d.MeasureString(t.text.String()).Round()
-	return textWidth, alg.RoundF64(t.d.Size)
+	return textWidth, alg.RoundF64(t.d.gen.Size)
 }
 
 // Center will shift the text so that the existing leftmost point

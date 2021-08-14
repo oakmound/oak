@@ -45,11 +45,6 @@ func NewScopedCommands() *ScopedCommands {
 		Usage:     explainAssumeScope,
 		Operation: sc.assumeScope,
 	})
-	sc.AddCommand(Command{
-		Name:      "fade",
-		Usage:     explainFade,
-		Operation: fadeCommands,
-	})
 	return sc
 }
 

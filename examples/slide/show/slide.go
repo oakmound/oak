@@ -62,7 +62,6 @@ func Start(width, height int, slides ...Slide) {
 			Start: func(*scene.Context) { sl.Init() },
 			Loop: func() bool {
 				cont := sl.Continue() && !skip
-				fmt.Println("continue: ", sl.Continue(), skip)
 				// This should be disable-able
 				if !cont {
 					oak.SetLoadingRenderable(render.NewSprite(0, 0, oak.ScreenShot()))

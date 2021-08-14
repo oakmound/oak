@@ -13,113 +13,23 @@ import (
 	"golang.org/x/image/math/fixed"
 
 	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/fileutil"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
 var (
-	fontdir string
-
-	defaultHinting              = font.HintingNone
-	defaultSize                 = 12.0
-	defaultDPI                  = 72.0
-	defaultColor    image.Image = image.White
-	defaultFontFile string
-
-	// DefFontGenerator is a default font generator of no options
-	DefFontGenerator = FontGenerator{}
-
-	loadedFonts = make(map[string]*truetype.Font)
+	// DefFontGenerator is a default font generator, using an internally
+	// compiled font colored white by default.
+	DefFontGenerator = FontGenerator{
+		Color:   image.White,
+		RawFile: luxisrTTF,
+	}
 )
 
-// A FontGenerator stores information that can be used to create a font
-type FontGenerator struct {
-	File     string
-	RawFile  []byte
-	Color    image.Image
-	Size     float64
-	Hinting  string
-	DPI      float64
-	Absolute bool
-}
-
-// DefaultFont returns a font built of the parameters set by SetFontDefaults.
-func DefaultFont() *Font {
-	fnt, _ := DefFontGenerator.Generate()
-	return fnt
-}
-
-// Generate creates a font from the FontGenerator. Any parameters not supplied
-// will be filled in with defaults set through SetFontDefaults.
-func (fg *FontGenerator) Generate() (*Font, error) {
-
-	// Replace zero values with defaults
-	var fnt *truetype.Font
-	var err error
-	if fg.File == "" && len(fg.RawFile) == 0 {
-		if defaultFontFile != "" {
-			fg.File = defaultFontFile
-		} else {
-			fg.RawFile = luxisrTTF
-		}
-	}
-	if len(fg.RawFile) != 0 {
-		fnt, err = truetype.Parse(fg.RawFile)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		dir := fontdir
-		if fg.Absolute {
-			dir = ""
-		}
-		fnt, err = LoadFont(dir, fg.File)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if fg.Size == 0 {
-		fg.Size = defaultSize
-	}
-	if fg.DPI == 0 {
-		fg.DPI = defaultDPI
-	}
-	if fg.Color == nil {
-		fg.Color = defaultColor
-	}
-
-	// This logic is copied from truetype for their face scaling
-	scl := fixed.Int26_6(0.5 + (fg.Size * fg.DPI * 64 / 72))
-	bds := fnt.Bounds(scl)
-	intBds := intgeom.NewRect2(
-		bds.Min.X.Round(),
-		bds.Min.Y.Round(),
-		bds.Max.X.Round(),
-		bds.Max.Y.Round(),
-	)
-
-	return &Font{
-		FontGenerator: *fg,
-		Drawer: font.Drawer{
-			// Color and hinting zero values are replaced
-			// by their respective parse functions in the
-			// zero case.
-			Src: fg.Color,
-			Face: truetype.NewFace(fnt, &truetype.Options{
-				Size:    fg.Size,
-				DPI:     fg.DPI,
-				Hinting: parseFontHinting(fg.Hinting),
-			}),
-		},
-		ttfnt:  fnt,
-		bounds: intBds,
-	}, nil
-}
-
-// A Font is obtained as the result of FontGenerator.Generate(). It's used to
-// create text type renderables.
+// A Font can create text renderables. It should be constructed from
+// FontGenerator.Generate().
 type Font struct {
-	FontGenerator
+	gen FontGenerator
 	font.Drawer
 	ttfnt  *truetype.Font
 	bounds intgeom.Rect2
@@ -129,37 +39,142 @@ type Font struct {
 	Fallbacks []*Font
 }
 
+// A FontGenerator stores information that can be used to create a font
+type FontGenerator struct {
+	Cache   *Cache
+	File    string
+	RawFile []byte
+	Color   image.Image
+	// FontOptions holds all optional font components. Reasonable defaults
+	// will be used if these are not provided.
+	FontOptions
+}
+
+type FontOptions = truetype.Options
+
+// DefaultFont returns a font built from DefFontGenerator.
+func DefaultFont() *Font {
+	fnt, _ := DefFontGenerator.Generate()
+	return fnt
+}
+
+func (fg FontGenerator) validate() error {
+	if len(fg.File) == 0 && len(fg.RawFile) == 0 {
+		return oakerr.InvalidInput{InputName: "File"}
+	}
+	if fg.Color == nil {
+		return oakerr.InvalidInput{InputName: "Color"}
+	}
+	return nil
+}
+
+// Generate generates a font. File or RawFile and Color must be provided.
+// If Cache and File are provided, the generated font will be stored in the provided cache.
+// If Cache is not provided, it will default to DefaultCache.
+func (fg *FontGenerator) Generate() (*Font, error) {
+	if err := fg.validate(); err != nil {
+		return nil, err
+	}
+	if fg.Cache == nil {
+		fg.Cache = DefaultCache
+	}
+
+	var fnt *truetype.Font
+	var err error
+	if len(fg.RawFile) != 0 {
+		fnt, err = truetype.Parse(fg.RawFile)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		fnt, err = fg.Cache.LoadFont(fg.File)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// This logic is copied from truetype for their face scaling
+	size := 12.0
+	if fg.FontOptions.Size != 0 {
+		size = fg.FontOptions.Size
+	}
+	dpi := 12.0
+	if fg.FontOptions.DPI != 0 {
+		dpi = fg.FontOptions.DPI
+	}
+	scl := fixed.Int26_6(0.5 + (size * dpi * 64 / 72))
+	bds := fnt.Bounds(scl)
+	intBds := intgeom.NewRect2(
+		bds.Min.X.Round(),
+		bds.Min.Y.Round(),
+		bds.Max.X.Round(),
+		bds.Max.Y.Round(),
+	)
+
+	return &Font{
+		gen: *fg,
+		Drawer: font.Drawer{
+			Src:  fg.Color,
+			Face: truetype.NewFace(fnt, &fg.FontOptions),
+		},
+		ttfnt:  fnt,
+		bounds: intBds,
+	}, nil
+}
+
+// RegenerateWith creates a new font based on this font after changing its generation settings.
+func (f *Font) RegenerateWith(fgFunc func(FontGenerator) FontGenerator) (*Font, error) {
+	gen := fgFunc(f.gen)
+	return gen.Generate()
+}
+
 // Copy returns a copy of this font
 func (f *Font) Copy() *Font {
 	if f.Unsafe {
 		return f
 	}
 	f2 := &Font{
-		FontGenerator: f.FontGenerator,
-		Drawer:        f.Drawer,
-		ttfnt:         f.ttfnt,
-		bounds:        f.bounds,
-		Unsafe:        f.Unsafe,
-		mutex:         sync.Mutex{},
-		Fallbacks:     f.Fallbacks,
+		gen:       f.gen,
+		Drawer:    f.Drawer,
+		ttfnt:     f.ttfnt,
+		bounds:    f.bounds,
+		Unsafe:    f.Unsafe,
+		Fallbacks: f.Fallbacks,
 	}
-	f2.Drawer.Face = truetype.NewFace(f.ttfnt, &truetype.Options{
-		Size:    f.FontGenerator.Size,
-		DPI:     f.FontGenerator.DPI,
-		Hinting: parseFontHinting(f.FontGenerator.Hinting),
-	})
+	f2.Drawer.Face = truetype.NewFace(f.ttfnt, &f.gen.FontOptions)
 	return f2
 }
 
-// TODO: Implement MeasureString manually with font fallback
-// This is non-trivial, as we currently detect empty boxes with
-// y values which we would not get using the algorithm MeasureString
-// calls.
-
+// MeasureString calculates the width of a rendered text this font would draw from
+// the given input string.
 func (f *Font) MeasureString(s string) fixed.Int26_6 {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
-	return f.Drawer.MeasureString(s)
+	prevC := rune(-1)
+	var width fixed.Int26_6
+	for _, c := range s {
+		if prevC >= 0 {
+			f.Drawer.Dot.X += f.Drawer.Face.Kern(prevC, c)
+		}
+		_, _, maskp, advance, ok := f.Drawer.Face.Glyph(f.Drawer.Dot, c)
+		if _, empty := emptyboxYValues[maskp.Y]; !ok || empty {
+			for _, fallback := range f.Fallbacks {
+				_, _, maskp, advance, ok = fallback.Drawer.Face.Glyph(f.Drawer.Dot, c)
+				if _, empty := emptyboxYValues[maskp.Y]; !empty && ok {
+					break
+				}
+			}
+			if _, empty := emptyboxYValues[maskp.Y]; !ok || empty {
+				// TODO: is falling back on the U+FFFD glyph the responsibility of
+				// the Drawer or the Face?
+				// TODO: set prevC = '\ufffd'?
+				continue
+			}
+		}
+		width += advance
+		prevC = c
+	}
+	return width
 }
 
 var (
@@ -185,7 +200,7 @@ var (
 	}
 )
 
-func (f *Font) DrawString(s string) {
+func (f *Font) drawString(s string) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 	prevC := rune(-1)
@@ -214,61 +229,42 @@ func (f *Font) DrawString(s string) {
 	}
 }
 
-// SetFontDefaults updates the default font parameters with the passed in arguments
-func SetFontDefaults(wd, assetPath, fontPath, hinting, color, file string, size, dpi float64) {
-	fontdir = filepath.Join(
-		wd,
-		assetPath,
-		fontPath)
-	defaultHinting = parseFontHinting(hinting)
-	defaultSize = size
-	defaultDPI = dpi
-	defaultColor = FontColor(color)
-	defaultFontFile = file
+// FontColor returns an image.Image color matching the SVG 1.1 spec.
+// If the string does not align to a color in the spec, it will error.
+func FontColor(s string) (image.Image, error) {
+	if c, ok := colornames.Map[strings.ToLower(s)]; ok {
+		return image.NewUniform(c), nil
+	}
+	return nil, oakerr.NotFound{InputName: "s"}
 }
 
-func parseFontHinting(hintType string) (faceHinting font.Hinting) {
-	hintType = strings.ToLower(hintType)
-	switch hintType {
-	default:
-		dlog.Error("Unable to parse font hinting: ", hintType)
-		fallthrough
-	case "", "none":
-		faceHinting = font.HintingNone
-	case "vertical":
-		faceHinting = font.HintingVertical
-	case "full":
-		faceHinting = font.HintingFull
+// GetFont returns a cached font, or an error if the font is not
+// cached.
+func (c *Cache) GetFont(file string) (*truetype.Font, error) {
+	c.fontLock.RLock()
+	f, ok := c.loadedFonts[file]
+	c.fontLock.RUnlock()
+	if !ok {
+		return nil, oakerr.NotFound{InputName: "file"}
 	}
-	return faceHinting
+	return f, nil
 }
 
-// FontColor accesses x/image/colornames and returns an image.Image for the input
-// string. If the string is not defined in x/image/colornames, it will return defaultColor
-// as defined by SetFontDefaults. The set of colors as defined by x/image/colornames matches
-// the set of colors as defined by the SVG 1.1 spec.
-func FontColor(s string) image.Image {
-	s = strings.ToLower(s)
-	if c, ok := colornames.Map[s]; ok {
-		return image.NewUniform(c)
+// LoadFont loads the given font file, parses it, and caches it under
+// its full path and its final path element.
+func (c *Cache) LoadFont(file string) (*truetype.Font, error) {
+	fontBytes, err := fileutil.ReadFile(file)
+	if err != nil {
+		return nil, err
 	}
-	return defaultColor
-}
+	font, err := truetype.Parse(fontBytes)
+	if err != nil {
+		return nil, err
+	}
+	c.fontLock.Lock()
+	c.loadedFonts[file] = font
+	c.loadedFonts[filepath.Base(file)] = font
+	c.fontLock.Unlock()
 
-// LoadFont loads in a font file and stores it with the given fontFile name.
-// This is necessary before using that file in a generator, otherwise the default
-// directory will be tried at generation time.
-func LoadFont(dir, fontFile string) (*truetype.Font, error) {
-	if _, ok := loadedFonts[fontFile]; !ok {
-		fontBytes, err := fileutil.ReadFile(filepath.Join(dir, fontFile))
-		if err != nil {
-			return nil, err
-		}
-		font, err := truetype.Parse(fontBytes)
-		if err != nil {
-			return nil, err
-		}
-		loadedFonts[fontFile] = font
-	}
-	return loadedFonts[fontFile], nil
+	return font, nil
 }

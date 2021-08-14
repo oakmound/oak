@@ -23,19 +23,19 @@ const (
 )
 
 var (
-	Express28  = show.FontSize(28)(show.Express)
-	Gnuolane28 = show.FontSize(28)(show.Gnuolane)
-	Libel28    = show.FontSize(28)(show.Libel)
+	Express28, _  = show.Express.RegenerateWith(show.FontSize(28))
+	Gnuolane28, _ = show.Gnuolane.RegenerateWith(show.FontSize(28))
+	Libel28, _    = show.Libel.RegenerateWith(show.FontSize(28))
 
-	RLibel28 = show.FontColor(colornames.Blue)(Libel28)
+	RLibel28, _ = Libel28.RegenerateWith(show.FontColor(colornames.Blue))
 
-	Express44  = show.FontSize(44)(show.Express)
-	Gnuolane44 = show.FontSize(44)(show.Gnuolane)
-	Libel44    = show.FontSize(44)(show.Libel)
+	Express44, _  = show.Express.RegenerateWith(show.FontSize(44))
+	Gnuolane44, _ = show.Gnuolane.RegenerateWith(show.FontSize(44))
+	Libel44, _    = show.Libel.RegenerateWith(show.FontSize(44))
 
-	Express72  = show.FontSize(72)(show.Express)
-	Gnuolane72 = show.FontSize(72)(show.Gnuolane)
-	Libel72    = show.FontSize(72)(show.Libel)
+	Express72, _  = show.Express.RegenerateWith(show.FontSize(72))
+	Gnuolane72, _ = show.Gnuolane.RegenerateWith(show.FontSize(72))
+	Libel72, _    = show.Libel.RegenerateWith(show.FontSize(72))
 )
 
 func main() {

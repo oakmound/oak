@@ -8,7 +8,6 @@ import (
 
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/window"
 )
 
@@ -100,28 +99,6 @@ func TestQuitCommands(t *testing.T) {
 	}
 	if fw.quitCalls != 1 {
 		t.Fatal("expected 1 quit, got:", fw.quitCalls)
-	}
-}
-
-func TestFadeCommands(t *testing.T) {
-	sc := NewScopedCommands()
-	fw := &fakeWindow{}
-	sc.AddDefaultsForScope(1, fw)
-
-	render.UpdateDebugMap("test-r", render.EmptyRenderable())
-
-	in := bytes.NewBufferString("fade test-r\nfade test-r 200\nfade\nfade bad-r")
-	out := new(bytes.Buffer)
-
-	sc.AttachToStream(context.Background(), in, out)
-
-	time.Sleep(100 * time.Millisecond)
-
-	expected := "Must supply at least 1 arguments\nCould not fade input bad-r\nPossible inputs are 'test-r'\n"
-
-	got := out.String()
-	if got != expected {
-		t.Fatal("got:\n" + got + "\nexpected:\n" + expected)
 	}
 }
 

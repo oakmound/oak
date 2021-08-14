@@ -5,13 +5,11 @@ import (
 	"image"
 	"math/rand"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/oakerr"
-	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/timing"
 )
 
@@ -53,8 +51,6 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 		return err
 	}
 
-	// TODO: languages
-
 	w.ScreenWidth = w.config.Screen.Width
 	w.ScreenHeight = w.config.Screen.Height
 	w.FrameRate = w.config.FrameRate
@@ -64,12 +60,6 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 	w.inFocus = true
 
 	w.DrawTicker = time.NewTicker(timing.FPSToFrameDelay(w.DrawFrameRate))
-
-	wd, _ := os.Getwd()
-
-	render.SetFontDefaults(wd, w.config.Assets.AssetPath, w.config.Assets.FontPath,
-		w.config.Font.Hinting, w.config.Font.Color, w.config.Font.File, w.config.Font.Size,
-		w.config.Font.DPI)
 
 	if w.config.TrackInputChanges {
 		trackJoystickChanges(w.logicHandler)
@@ -84,15 +74,8 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 		rand.Seed(time.Now().UTC().UnixNano())
 	}
 
-	imageDir := filepath.Join(wd,
-		w.config.Assets.AssetPath,
-		w.config.Assets.ImagePath)
-	audioDir := filepath.Join(wd,
-		w.config.Assets.AssetPath,
-		w.config.Assets.AudioPath)
-
 	go w.sceneLoop(firstScene, w.config.TrackInputChanges)
-	go w.loadAssets(imageDir, audioDir)
+	go w.loadAssets(w.config.Assets.ImagePath, w.config.Assets.AudioPath)
 	if w.config.EnableDebugConsole {
 		go w.debugConsole(os.Stdin, os.Stdout)
 	}

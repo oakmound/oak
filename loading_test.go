@@ -16,7 +16,8 @@ func TestBatchLoad_HappyPath(t *testing.T) {
 	})
 	c1.Init("1", func(c Config) (Config, error) {
 		c.BatchLoad = true
-		c.Assets.AssetPath = "testdata"
+		c.Assets.AudioPath = "testdata/audio"
+		c.Assets.ImagePath = "testdata/images"
 		return c, nil
 	})
 }

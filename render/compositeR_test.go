@@ -65,3 +65,16 @@ func TestCompositeR_Add(t *testing.T) {
 		t.Fatalf("add did not add to composite r's toPush: %v", len(cmp.toPush))
 	}
 }
+
+func TestCompositeR_ToSprite(t *testing.T) {
+	cmp4 := NewCompositeR(
+		NewColorBox(2, 2, color.RGBA{0, 0, 0, 255}),
+		NewColorBox(1, 1, color.RGBA{0, 0, 0, 255}),
+		NewColorBox(3, 3, color.RGBA{0, 0, 0, 255}),
+	)
+
+	cSprite := cmp4.ToSprite()
+	if (color.RGBA{0, 0, 0, 255}) != cSprite.At(1, 1).(color.RGBA) {
+		t.Fatalf("composite did not combine 0,0,0,0 3 times into 0,0,0,0")
+	}
+}

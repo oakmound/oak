@@ -3,6 +3,7 @@ package render
 import (
 	"io/fs"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"sync"
@@ -35,6 +36,11 @@ func BlankBatchLoad(baseFolder string, maxFileSize int64) error {
 		wg.Add(1)
 		go func(file string) {
 			defer wg.Done()
+			ext := filepath.Ext(file)
+			if _, ok := fileDecoders[ext]; !ok {
+				// Ignore files we know we can't parse
+				return
+			}
 			_, err := DefaultCache.loadSprite(file, maxFileSize)
 			if err != nil {
 				dlog.Error(err)

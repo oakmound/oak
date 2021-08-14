@@ -35,17 +35,17 @@ func (c *Cache) LoadSheet(file string, cellSize intgeom.Point2) (*Sheet, error) 
 	return sheet, nil
 }
 
-// MakeSheet converts an image into a sheet with (w,h) sized sprites
+// MakeSheet converts an image into a sheet with cellSize sized sprites
 func MakeSheet(rgba *image.RGBA, cellSize intgeom.Point2) (*Sheet, error) {
 
 	w := cellSize.X()
 	h := cellSize.Y()
 
 	if w <= 0 {
-		return nil, oakerr.InvalidInput{InputName: "w"}
+		return nil, oakerr.InvalidInput{InputName: "cellSize.X"}
 	}
 	if h <= 0 {
-		return nil, oakerr.InvalidInput{InputName: "h"}
+		return nil, oakerr.InvalidInput{InputName: "cellSize.Y"}
 	}
 
 	bounds := rgba.Bounds()
@@ -54,7 +54,7 @@ func MakeSheet(rgba *image.RGBA, cellSize intgeom.Point2) (*Sheet, error) {
 	sheetH := bounds.Max.Y / h
 
 	if sheetW < 1 || sheetH < 1 {
-		return nil, oakerr.InvalidInput{InputName: "w,h"}
+		return nil, oakerr.InvalidInput{InputName: "cellSize"}
 	}
 
 	sheet := make(Sheet, sheetW)

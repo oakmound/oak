@@ -3,15 +3,12 @@ package debugstream
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/oakmound/oak/v3/collision"
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/mouse"
 	"github.com/oakmound/oak/v3/oakerr"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/render/mod"
 	"github.com/oakmound/oak/v3/window"
 )
 
@@ -114,26 +111,6 @@ func skipCommands(w window.Window) func([]string) string {
 		w.NextScene()
 		return ""
 	}
-}
-
-const explainFade = "fade the specified renderable by the given int if given. Renderable must be registered in debug"
-
-func fadeCommands(tokenString []string) (out string) {
-	if len(tokenString) == 0 {
-		return oakerr.InsufficientInputs{
-			AtLeast:   1,
-			InputName: "arguments",
-		}.Error() + "\n"
-	}
-	toFade, ok := render.GetDebugRenderable(tokenString[0])
-	if ok {
-		fadeVal := parseTokenAsInt(tokenString, 1, 255)
-		toFade.(render.Modifiable).Filter(mod.Fade(fadeVal))
-		return
-	}
-	out += fmt.Sprintf("Could not fade input %s\n", tokenString[0]) +
-		fmt.Sprintf("Possible inputs are '%s'\n", strings.Join(render.EnumerateDebugRenderableKeys(), ", "))
-	return
 }
 
 func parseTokenAsInt(tokenString []string, arrIndex int, defaultVal int) int {

@@ -6,8 +6,6 @@ import (
 )
 
 func TestTextFns(t *testing.T) {
-	initTestFont()
-
 	txt := DefaultFont().NewText("Test", 0, 0)
 
 	fg := FontGenerator{
@@ -23,10 +21,10 @@ func TestTextFns(t *testing.T) {
 	}
 
 	txt.SetString("Test2")
-	if "Test2" != txt.text.String() {
+	if txt.text.String() != "Test2" {
 		t.Fatalf("text SetString failed")
 	}
-	if "Test2" != txt.StringLiteral() {
+	if txt.StringLiteral() != "Test2" {
 		t.Fatalf("text SetString failed")
 	}
 
@@ -69,13 +67,12 @@ func TestTextFns(t *testing.T) {
 	}
 
 	txt.Center()
-	if txt.X() != float64(-2) {
-		t.Fatalf("center did not move text's x value")
+	if txt.X() != float64(-20) {
+		t.Fatalf("center did not move text's x value: expected %v got %v", -20, txt.X())
 	}
 }
 
 func TestText_StringPtr(t *testing.T) {
-	initTestFont()
 	s := new(string)
 	*s = "hello"
 	txt := NewStrPtrText(s, 0, 0)
