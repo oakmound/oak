@@ -98,7 +98,7 @@ func (fg *FontGenerator) Generate() (*Font, error) {
 	if fg.FontOptions.Size != 0 {
 		size = fg.FontOptions.Size
 	}
-	dpi := 12.0
+	dpi := 72.0
 	if fg.FontOptions.DPI != 0 {
 		dpi = fg.FontOptions.DPI
 	}
@@ -122,10 +122,15 @@ func (fg *FontGenerator) Generate() (*Font, error) {
 	}, nil
 }
 
+// RegenerateWith creates a new font off of this generator after changing its generation settings.
+func (fg FontGenerator) RegenerateWith(fgFunc func(FontGenerator) FontGenerator) (*Font, error) {
+	g := fgFunc(fg)
+	return g.Generate()
+}
+
 // RegenerateWith creates a new font based on this font after changing its generation settings.
 func (f *Font) RegenerateWith(fgFunc func(FontGenerator) FontGenerator) (*Font, error) {
-	gen := fgFunc(f.gen)
-	return gen.Generate()
+	return f.gen.RegenerateWith(fgFunc)
 }
 
 // Copy returns a copy of this font
@@ -202,6 +207,11 @@ func (f *Font) drawString(s string) {
 		f.Drawer.Dot.X += advance
 		prevC = c
 	}
+}
+
+// Height returns the height or size of the font
+func (f *Font) Height() float64 {
+	return f.gen.Size
 }
 
 // FontColor returns an image.Image color matching the SVG 1.1 spec.
