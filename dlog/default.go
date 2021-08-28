@@ -38,11 +38,6 @@ func NewLogger() Logger {
 	}
 }
 
-// GetLogLevel returns the current log level, i.e WARN or INFO...
-func (l *logger) GetLogLevel() Level {
-	return l.debugLevel
-}
-
 // dLog, the primary function of the package,
 // prints out and writes to file a string
 // containing the logged data separated by spaces,

@@ -11,7 +11,6 @@ type Logger interface {
 	Info(...interface{})
 	Verb(...interface{})
 	SetFilter(func(string) bool)
-	GetLogLevel() Level
 	SetLogLevel(l Level) error
 	SetOutput(io.Writer)
 }
@@ -42,11 +41,6 @@ func Info(vs ...interface{}) {
 // Verb will write a log if the debug level is higher than INFO
 func Verb(vs ...interface{}) {
 	DefaultLogger.Verb(vs...)
-}
-
-// GetLogLevel returns the set logger's log level
-func GetLogLevel() Level {
-	return DefaultLogger.GetLogLevel()
 }
 
 // SetFilter defines a custom filter function. Log lines that

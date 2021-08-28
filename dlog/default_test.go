@@ -11,11 +11,6 @@ import (
 func TestLogger(t *testing.T) {
 	lgr := dlog.NewLogger()
 
-	defaultLevel := lgr.GetLogLevel()
-	if defaultLevel != dlog.ERROR {
-		t.Fatalf("expected default log level to be ERROR, was: %v", defaultLevel)
-	}
-
 	err := lgr.SetLogLevel(-1)
 	if err == nil {
 		t.Fatalf("expected -1 log level to error")
