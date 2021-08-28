@@ -1,6 +1,6 @@
 package physics
 
-// Attachable represents things that can be attached to Vectors
+// An Attachable can be attached to static or moving vectors.
 type Attachable interface {
 	Detach()
 	Attach(Vecer, float64, float64)
@@ -9,6 +9,7 @@ type Attachable interface {
 	Vecer
 }
 
+// A Vecer can be converted into a Vector
 type Vecer interface {
 	Vec() Vector
 }
@@ -19,8 +20,7 @@ func (v Vector) Vec() Vector {
 }
 
 // Attach takes in something for this vector to attach to and a set of
-// offsets. The resulting combined vector with the offsets is then returned,
-// and needs to be assigned to the calling vector.
+// offsets.
 func (v *Vector) Attach(a Vecer, offX, offY float64) {
 	v2 := a.Vec()
 	v.x = v2.x
@@ -43,9 +43,7 @@ func (v *Vector) AttachY(a Vecer, offY float64) {
 	v.offY = offY
 }
 
-// Detach returns a vector no longer attached to anything. The returned vector
-// needs to be assigned to the caller for the caller to be replaced (vectors
-// do not use pointer receivers)
+// Detach modified a vector to no longer be attached to anything.
 func (v *Vector) Detach() {
 	v2 := NewVector(v.X(), v.Y())
 	*v = v2
