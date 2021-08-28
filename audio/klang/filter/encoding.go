@@ -3,7 +3,7 @@ package filter
 import (
 	"github.com/oakmound/oak/v3/audio/klang"
 	"github.com/oakmound/oak/v3/audio/klang/filter/supports"
-	"github.com/oakmound/oak/v3/audio/klang/manip"
+	"github.com/oakmound/oak/v3/audio/klang/internal/manip"
 )
 
 // Encoding filters are functions on any combination of the values
