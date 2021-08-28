@@ -33,10 +33,10 @@ func TestLogger(t *testing.T) {
 	}
 	calllogger()
 
-	expectedOut := `[default_test:39]  ERROR: error
-[default_test:39]  INFO: info
-[default_test:39]  VERBOSE: verb
-[default_test:39]  VERBOSE: foo
+	expectedOut := `[default_test:34]  ERROR: error
+[default_test:34]  INFO: info
+[default_test:34]  VERBOSE: verb
+[default_test:34]  VERBOSE: foo
 `
 	out := buff.String()
 
