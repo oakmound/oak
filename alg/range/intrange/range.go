@@ -1,4 +1,4 @@
-// Package intrange holds distributions that return ints
+// Package intrange provides distributions that return ints.
 package intrange
 
 // Range represents a range of integer numbers

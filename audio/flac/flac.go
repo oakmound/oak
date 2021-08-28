@@ -1,4 +1,4 @@
-// Package flac provides functionality to handle .flac files and .flac encoded data
+// Package flac provides functionality to handle .flac files and .flac encoded data.
 package flac
 
 import (

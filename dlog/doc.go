@@ -1,4 +1,4 @@
-// Package dlog provides basic logging functions
+// Package dlog provides basic logging functions.
 //
 // It is not intended to be a fully featured or fully optimized logger-- it is
 // just enough of a logger for oak's needs. A program utilizing oak, if it wants

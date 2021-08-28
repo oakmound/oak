@@ -1,4 +1,4 @@
-// Package dls contains data structures for DLS (.dls) file types
+// Package dls contains data structures for DLS (.dls) file types.
 package dls
 
 import "github.com/oakmound/oak/v3/audio/font/riff"

@@ -1,3 +1,4 @@
+// Package noop provides a nonfunctional testing driver for accessing a screen.
 package noop
 
 import (
