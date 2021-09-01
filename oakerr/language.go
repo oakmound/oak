@@ -8,6 +8,7 @@ import (
 type Language int
 
 var (
+	// CurrentLanguage is the current language for error and log strings
 	CurrentLanguage Language
 )
 

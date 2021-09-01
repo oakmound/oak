@@ -91,6 +91,7 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan struct{}) error {
 	return nil
 }
 
+// EnterPayload is the payload sent down to Enter bindings
 type EnterPayload struct {
 	FramesElapsed  int
 	SinceLastFrame time.Duration

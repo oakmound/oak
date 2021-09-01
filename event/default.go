@@ -22,6 +22,7 @@ func (cid CID) Trigger(eventName string, data interface{}) {
 	}(eventName, data)
 }
 
+// TriggerBus triggers an event with some payload for this cid against the provided bus.
 func (cid CID) TriggerBus(eventName string, data interface{}, bus Handler) chan struct{} {
 	return bus.TriggerCIDBack(cid, eventName, data)
 }

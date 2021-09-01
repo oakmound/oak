@@ -204,7 +204,7 @@ func (sc *ScopedCommands) RemoveScope(scope int32) {
 	}
 }
 
-// GetDebugKeys returns the current debug console commands as a string array
+// CommandsInScope returns the current debug console commands as a string array
 func (sc *ScopedCommands) CommandsInScope(scope int32, showUsage bool) []string {
 
 	cmds, ok := sc.commands[scope]

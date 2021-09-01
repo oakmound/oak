@@ -5,6 +5,8 @@ import (
 	"image/draw"
 )
 
+// A Background can be used as a background draw layer. Backgrounds will be drawn as the first
+// element in each frame, and are expected to cover up data drawn on the previous frame.
 type Background interface {
 	GetRGBA() *image.RGBA
 }

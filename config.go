@@ -35,10 +35,12 @@ type Config struct {
 // A Duration is a wrapper around time.Duration that allows for easier json formatting.
 type Duration time.Duration
 
+// MarshalJSON writes a duration as json.
 func (d Duration) MarshalJSON() ([]byte, error) {
 	return json.Marshal(time.Duration(d).String())
 }
 
+// UnmarshalJSON extracts a duration from a json byte slice.
 func (d *Duration) UnmarshalJSON(b []byte) error {
 	var v interface{}
 	if err := json.Unmarshal(b, &v); err != nil {
@@ -60,6 +62,7 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 	}
 }
 
+// NewConfig creates a config from a set of transformation options.
 func NewConfig(opts ...ConfigOption) (Config, error) {
 	c := Config{}
 	c = c.setDefaults()
@@ -129,7 +132,7 @@ type BatchLoadOptions struct {
 	MaxImageFileSize int64 `json:"maxImageFileSize"`
 }
 
-// LoadConf loads a config file, that could exist inside
+// FileConfig loads a config file, that could exist inside
 // oak's binary data storage (see fileutil), to SetupConfig
 func FileConfig(filePath string) ConfigOption {
 	return func(c Config) (Config, error) {
@@ -142,8 +145,10 @@ func FileConfig(filePath string) ConfigOption {
 	}
 }
 
+// A ConfigOption transforms a Config object.
 type ConfigOption func(Config) (Config, error)
 
+// ReaderConfig reads a Config as json from the given reader.
 func ReaderConfig(r io.Reader) ConfigOption {
 	return func(c Config) (Config, error) {
 		c2 := Config{}

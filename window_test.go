@@ -32,8 +32,8 @@ func TestMouseClicksRelative(t *testing.T) {
 	c1 := NewWindow()
 	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
 	var triggered bool
-	go c1.logicHandler.(*event.Bus).ResolveChanges()
-	c1.logicHandler.GlobalBind(mouse.ClickOn+"Relative", func(event.CID, interface{}) int {
+	go c1.eventHandler.(*event.Bus).ResolveChanges()
+	c1.eventHandler.GlobalBind(mouse.ClickOn+"Relative", func(event.CID, interface{}) int {
 		triggered = true
 		return 0
 	})

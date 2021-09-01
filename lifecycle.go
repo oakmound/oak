@@ -27,7 +27,7 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 		int32(w.config.Screen.Y),
 		int(float64(w.ScreenWidth)*w.config.Screen.Scale),
 		int(float64(w.ScreenHeight)*w.config.Screen.Scale),
-	) 
+	)
 	if err != nil {
 		go w.exitWithError(err)
 		return
@@ -103,6 +103,7 @@ func (w *Window) ChangeWindow(width, height int) error {
 	return nil
 }
 
+// UpdateViewSize updates the size of this window's viewport.
 func (w *Window) UpdateViewSize(width, height int) error {
 	w.ScreenWidth = width
 	w.ScreenHeight = height

@@ -1,4 +1,4 @@
-// Package audio provides audio playing and encoding support
+// Package klang provides audio playing and encoding support
 package klang
 
 import (

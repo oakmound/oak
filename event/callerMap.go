@@ -35,6 +35,8 @@ func NewCallerMap() *CallerMap {
 	}
 }
 
+// DefaultCallerMap is the caller map used by all event package caller
+// functions.
 var DefaultCallerMap = NewCallerMap()
 
 // NextID finds the next available caller id

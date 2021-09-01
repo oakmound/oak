@@ -9,6 +9,7 @@ import (
 )
 
 var (
+	// FS is the filesystem that Open, ReadFile and ReadDir will query.
 	FS fs.FS = os.DirFS(".")
 	// FixWindowsPaths will reset all file paths loaded to replace windows style slashes
 	// with unix style slashes. This is important when using io/fs or embed, because the

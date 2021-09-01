@@ -4,8 +4,11 @@ import (
 	"golang.org/x/mobile/event/mouse"
 )
 
+// Button represents a mouse interaction type, like a left button or
+// mouse wheel movement.
 type Button = mouse.Button
 
+// Valid Button event types
 const (
 	ButtonLeft       = mouse.ButtonLeft
 	ButtonMiddle     = mouse.ButtonMiddle

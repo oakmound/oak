@@ -62,10 +62,10 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 	w.DrawTicker = time.NewTicker(timing.FPSToFrameDelay(w.DrawFrameRate))
 
 	if w.config.TrackInputChanges {
-		trackJoystickChanges(w.logicHandler)
+		trackJoystickChanges(w.eventHandler)
 	}
 	if w.config.EventRefreshRate != 0 {
-		w.logicHandler.SetRefreshRate(time.Duration(w.config.EventRefreshRate))
+		w.eventHandler.SetRefreshRate(time.Duration(w.config.EventRefreshRate))
 	}
 
 	if !w.config.SkipRNGSeed {

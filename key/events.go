@@ -14,4 +14,5 @@ const (
 	Held = "KeyHeld"
 )
 
+// An Event is sent as the payload for all key bindings.
 type Event = key.Event

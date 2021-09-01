@@ -120,7 +120,7 @@ type Window struct {
 	// as well, it will fall back to panicking.
 	ErrorScene string
 
-	logicHandler  event.Handler
+	eventHandler  event.Handler
 	CallerMap     *event.CallerMap
 	MouseTree     *collision.Tree
 	CollisionTree *collision.Tree
@@ -165,6 +165,7 @@ var (
 	nextControllerID = new(int32)
 )
 
+// NewWindow creates a window with defauklt settings.
 func NewWindow() *Window {
 	c := &Window{
 		State:         key.NewState(),
@@ -183,7 +184,7 @@ func NewWindow() *Window {
 		return image.Black
 	}
 	c.startupLoading = true
-	c.logicHandler = event.DefaultBus
+	c.eventHandler = event.DefaultBus
 	c.MouseTree = mouse.DefaultTree
 	c.CollisionTree = collision.DefaultTree
 	c.CallerMap = event.DefaultCallerMap
@@ -205,7 +206,7 @@ func (w *Window) Propagate(eventName string, me mouse.Event) {
 		return hits[i].Location.Min.Z() < hits[i].Location.Max.Z()
 	})
 	for _, sp := range hits {
-		<-sp.CID.TriggerBus(eventName, &me, w.logicHandler)
+		<-sp.CID.TriggerBus(eventName, &me, w.eventHandler)
 		if me.StopPropagation {
 			break
 		}
@@ -226,8 +227,8 @@ func (w *Window) Propagate(eventName string, me mouse.Event) {
 				for _, sp1 := range pressHits {
 					for _, sp2 := range hits {
 						if sp1.CID == sp2.CID {
-							w.logicHandler.Trigger(mouse.Click, &me)
-							<-sp1.CID.TriggerBus(mouse.ClickOn, &me, w.logicHandler)
+							w.eventHandler.Trigger(mouse.Click, &me)
+							<-sp1.CID.TriggerBus(mouse.ClickOn, &me, w.eventHandler)
 							if me.StopPropagation {
 								return
 							}
@@ -256,38 +257,51 @@ func (w *Window) Propagate(eventName string, me mouse.Event) {
 	}
 }
 
+// Width returns the absolute width of the window in pixels.
 func (w *Window) Width() int {
 	return w.ScreenWidth
 }
 
+// Height returns the absolute height of the window in pixels.
 func (w *Window) Height() int {
 	return w.ScreenHeight
 }
 
+// Viewport returns the viewport's position. Its width and height are the window's
+// width and height. This position plus width/height cannot exceed ViewportBounds.
 func (w *Window) Viewport() intgeom.Point2 {
 	return w.viewPos
 }
 
+// ViewportBounds returns the boundary of this window's viewport, or the rectangle
+// that the viewport is not allowed to exit as it moves around. It often represents
+// the total size of the world within a given scene.
 func (w *Window) ViewportBounds() intgeom.Rect2 {
 	return w.viewBounds
 }
 
+// SetLoadingRenderable sets what renderable should display between scenes
+// during loading phases.
 func (w *Window) SetLoadingRenderable(r render.Renderable) {
 	w.LoadingR = r
 }
 
+// SetBackground sets this window's background.
 func (w *Window) SetBackground(b Background) {
 	w.bkgFn = func() image.Image {
 		return b.GetRGBA()
 	}
 }
 
+// SetColorBackground sets this window's background to be a standar image.Image,
+// commonly a uniform color.
 func (w *Window) SetColorBackground(img image.Image) {
 	w.bkgFn = func() image.Image {
 		return img
 	}
 }
 
+// GetBackgroundImage returns the image this window will display as its background
 func (w *Window) GetBackgroundImage() image.Image {
 	return w.bkgFn()
 }
@@ -295,21 +309,24 @@ func (w *Window) GetBackgroundImage() image.Image {
 // SetLogicHandler swaps the logic system of the engine with some other
 // implementation. If this is never called, it will use event.DefaultBus
 func (w *Window) SetLogicHandler(h event.Handler) {
-	w.logicHandler = h
+	w.eventHandler = h
 }
 
+// NextScene  causes this window to immediately end the current scene.
 func (w *Window) NextScene() {
 	go func() {
 		w.skipSceneCh <- ""
 	}()
 }
 
+// GoToScene causes this window to skip directly to the given scene.
 func (w *Window) GoToScene(nextScene string) {
 	go func() {
 		w.skipSceneCh <- nextScene
 	}()
 }
 
+// InFocus returns whether this window is currently in focus.
 func (w *Window) InFocus() bool {
 	return w.inFocus
 }
@@ -320,8 +337,9 @@ func (w *Window) CollisionTrees() (mouseTree, collisionTree *collision.Tree) {
 	return w.MouseTree, w.CollisionTree
 }
 
+// EventHandler returns this window's event handler.
 func (w *Window) EventHandler() event.Handler {
-	return w.logicHandler
+	return w.eventHandler
 }
 
 // MostRecentInput returns the most recent input type (e.g keyboard/mouse or joystick)

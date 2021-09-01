@@ -18,6 +18,7 @@ func (eb *Bus) GlobalBind(name string, fn Bindable) {
 	eb.Bind(name, 0, fn)
 }
 
+// Empty is a helper to convert a func() into a Bindable function signature.
 func Empty(f func()) Bindable {
 	return func(CID, interface{}) int {
 		f()

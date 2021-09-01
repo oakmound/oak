@@ -36,6 +36,7 @@ func (eb *Bus) Trigger(eventName string, data interface{}) {
 	}(eb, eventName, data)
 }
 
+// TriggerCIDBack acts like trigger back, but triggers for a specific cid only.
 func (eb *Bus) TriggerCIDBack(cid CID, eventName string, data interface{}) chan struct{} {
 	ch := make(chan struct{})
 	go func() {

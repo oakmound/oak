@@ -67,7 +67,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 				PreviousScene: prevScene,
 				SceneInput:    result.NextSceneInput,
 				DrawStack:     w.DrawStack,
-				EventHandler:  w.logicHandler,
+				EventHandler:  w.eventHandler,
 				CallerMap:     w.CallerMap,
 				MouseTree:     w.MouseTree,
 				CollisionTree: w.CollisionTree,
@@ -88,7 +88,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		dlog.Info(dlog.SceneLooping)
 		cont := true
 
-		dlog.ErrorCheck(w.logicHandler.UpdateLoop(w.FrameRate, w.sceneCh))
+		dlog.ErrorCheck(w.eventHandler.UpdateLoop(w.FrameRate, w.sceneCh))
 
 		nextSceneOverride := ""
 
@@ -108,7 +108,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		dlog.Info(dlog.SceneEnding, w.SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
-		dlog.ErrorCheck(w.logicHandler.Stop())
+		dlog.ErrorCheck(w.eventHandler.Stop())
 		prevScene = w.SceneMap.CurrentScene
 
 		// Send a signal to stop drawing
@@ -117,7 +117,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		// Reset transient portions of the engine
 		// We start by clearing the event bus to
 		// remove most ongoing code
-		w.logicHandler.Reset()
+		w.eventHandler.Reset()
 		// We follow by clearing collision areas
 		// because otherwise collision function calls
 		// on non-entities (i.e. particles) can still

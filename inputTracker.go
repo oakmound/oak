@@ -21,24 +21,24 @@ const (
 )
 
 func (w *Window) trackInputChanges() {
-	w.logicHandler.GlobalBind(key.Down, func(event.CID, interface{}) int {
+	w.eventHandler.GlobalBind(key.Down, func(event.CID, interface{}) int {
 		old := atomic.SwapInt32(&w.mostRecentInput, InputKeyboardMouse)
 		if old != InputKeyboardMouse {
-			w.logicHandler.Trigger(event.InputChange, InputKeyboardMouse)
+			w.eventHandler.Trigger(event.InputChange, InputKeyboardMouse)
 		}
 		return 0
 	})
-	w.logicHandler.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
+	w.eventHandler.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
 		old := atomic.SwapInt32(&w.mostRecentInput, InputKeyboardMouse)
 		if old != InputKeyboardMouse {
-			w.logicHandler.Trigger(event.InputChange, InputKeyboardMouse)
+			w.eventHandler.Trigger(event.InputChange, InputKeyboardMouse)
 		}
 		return 0
 	})
-	w.logicHandler.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
+	w.eventHandler.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
 		old := atomic.SwapInt32(&w.mostRecentInput, InputJoystick)
 		if old != InputJoystick {
-			w.logicHandler.Trigger(event.InputChange, InputJoystick)
+			w.eventHandler.Trigger(event.InputChange, InputJoystick)
 		}
 		return 0
 	})
