@@ -4,6 +4,8 @@ import "github.com/oakmound/oak/v3/oakerr"
 
 type logCode int
 
+// Constant log string identifiers. All log strings output by oak
+// should be enumerated here.
 const (
 	WindowClosed logCode = iota
 	SceneStarting

@@ -41,7 +41,7 @@ type ID struct {
 // if a user wanted access to a DLSID it would no longer be there to get.
 type Wave struct {
 	Dlid ID        `riff:"dlid"`
-	Guid []byte    `riff:"guid"`
+	GUID []byte    `riff:"guid"`
 	Wavu []byte    `riff:"wavu"`
 	Fmt  PCMFormat `riff:"fmt "`
 	Wavh []byte    `riff:"wavh"`

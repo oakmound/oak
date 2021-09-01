@@ -33,21 +33,26 @@ var (
 	}
 )
 
+// A ShiftPoser can have its position shifted by an x,y pair
 type ShiftPoser interface {
 	ShiftPos(x, y float64)
-	SetPos(x, y float64)
 }
 
+// Shake shakes a ShiftPoser for the given duration. It uses the settings
+// in DefaultShaker to determine the quality of the shake.
 func Shake(sp ShiftPoser, dur time.Duration) {
 	DefaultShaker.Shake(sp, dur)
 }
 
+// Shake shakes a ShiftPoser for the given duration.
 func (sk *Shaker) Shake(sp ShiftPoser, dur time.Duration) {
 	sk.ShakeContext(context.Background(), sp, dur)
 }
 
+// ShakeContext shakes a ShiftPoser for the given duration or until the context is done,
+// whichever comes first.
 func (sk *Shaker) ShakeContext(ctx context.Context, sp ShiftPoser, dur time.Duration) {
-	ctx, cancel := context.WithDeadline(ctx, time.Now().Add(dur))
+	ctx, cancel := context.WithTimeout(ctx, dur)
 	mag := sk.Magnitude
 	delta := floatgeom.Point2{}
 
@@ -108,14 +113,13 @@ func (stp screenToPoser) ShiftPos(x, y float64) {
 	stp.ShiftScreen(int(x), int(y))
 }
 
-func (stp screenToPoser) SetPos(x, y float64) {
-	stp.SetScreen(int(x), int(y))
-}
-
-func ShakeScreen(ctx *scene.Context, dur time.Duration) {
+// Screen shakes the screen that the context controls for the given duration.
+// It uses the settings in DefaultShaker to determine the quality of the shake.
+func Screen(ctx *scene.Context, dur time.Duration) {
 	DefaultShaker.ShakeScreen(ctx, dur)
 }
 
+// ShakeScreen shakes the screen that the context controls for the given duration.
 func (sk *Shaker) ShakeScreen(ctx *scene.Context, dur time.Duration) {
 	poser := screenToPoser{ctx.Window}
 	sk.ShakeContext(ctx, poser, dur)

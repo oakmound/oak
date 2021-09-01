@@ -60,22 +60,23 @@ var FlipX = GiftTransform(gift.FlipHorizontal())
 // over the vertical axis.
 var FlipY = GiftTransform(gift.FlipVertical())
 
+// A Resampling is a strategy for image resizing.
 type Resampling = gift.Resampling
 
 // NearestNeighborResampling is a nearest neighbor resampling filter.
-var NearestNeighborResampling Resampling = gift.NearestNeighborResampling
+var NearestNeighborResampling = gift.NearestNeighborResampling
 
 // BoxResampling is a box resampling filter (average of surrounding pixels).
-var BoxResampling Resampling = gift.BoxResampling
+var BoxResampling = gift.BoxResampling
 
 // LinearResampling is a bilinear resampling filter.
-var LinearResampling Resampling = gift.LinearResampling
+var LinearResampling = gift.LinearResampling
 
 // CubicResampling is a bicubic resampling filter (Catmull-Rom).
-var CubicResampling Resampling = gift.CubicResampling
+var CubicResampling = gift.CubicResampling
 
 // LanczosResampling is a Lanczos resampling filter (3 lobes).
-var LanczosResampling Resampling = gift.LanczosResampling
+var LanczosResampling = gift.LanczosResampling
 
 // Resize will transform images to match the input dimensions. See gift.Resize.
 func Resize(width, height int, resampling Resampling) Mod {

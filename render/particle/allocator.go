@@ -1,11 +1,14 @@
 package particle
 
-import "github.com/oakmound/oak/v3/event"
+import (
+	"github.com/oakmound/oak/v3/event"
+)
 
 const (
 	blockSize = 2048
 )
 
+// An Allocator can allocate ids for particles
 type Allocator struct {
 	particleBlocks map[int]event.CID
 	nextOpenCh     chan int
@@ -16,6 +19,7 @@ type Allocator struct {
 	stopCh         chan struct{}
 }
 
+// NewAllocator creates a new allocator
 func NewAllocator() *Allocator {
 	return &Allocator{
 		particleBlocks: make(map[int]event.CID),
@@ -28,6 +32,8 @@ func NewAllocator() *Allocator {
 	}
 }
 
+// Run spins up an allocator to accept allocation requests. It will run until
+// Stop is called. This is a blocking call.
 func (a *Allocator) Run() {
 	lastOpen := 0
 	for {
@@ -61,6 +67,7 @@ func (a *Allocator) Run() {
 	}
 }
 
+// DefaultAllocator is an allocator that starts running as soon as this package is imported.
 var DefaultAllocator = NewAllocator()
 
 // This is an always-called init instead of Init because oak does not import this

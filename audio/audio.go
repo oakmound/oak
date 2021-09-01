@@ -55,7 +55,10 @@ func (a *Audio) Play() <-chan error {
 		return errChannel(err)
 	}
 	a.toStop = a4
-	a.toStop.SetVolume(a.setVolume)
+	err = a.toStop.SetVolume(a.setVolume)
+	if err != nil {
+		return errChannel(err)
+	}
 	return a4.Play()
 }
 

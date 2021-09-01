@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// The DefaultCache is the receiver for package level loading operations.
+// DefaultCache is the receiver for package level loading operations.
 var DefaultCache = NewCache()
 
 // Cache is a simple audio data cache

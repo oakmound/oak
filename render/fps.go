@@ -45,6 +45,7 @@ func NewDrawFPS(smoothing float64, font *Font, x, y float64) *DrawFPS {
 	return df
 }
 
+// Draw renders a DrawFPS to a buffer.
 func (df *DrawFPS) Draw(buff draw.Image, xOff, yOff float64) {
 	t := time.Now()
 	df.fps = int((timing.FPS(df.lastTime, t) * df.Smoothing) + (float64(df.fps) * (1 - df.Smoothing)))

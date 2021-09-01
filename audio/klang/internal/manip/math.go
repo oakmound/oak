@@ -26,7 +26,7 @@ func GetFloat64(d []byte, i int, byteDepth uint16) float64 {
 	return 0.0
 }
 
-func SetInt16_f64(d []byte, i int, in float64) {
+func SetInt16F64(d []byte, i int, in float64) {
 	SetInt16(d, i, int64(in*32768))
 }
 

@@ -8,7 +8,7 @@ import (
 	"github.com/oakmound/oak/v3/alg/intgeom"
 )
 
-// The DefaultCache is the receiver for package level sprites, sheets, and font loading operations.
+// DefaultCache is the receiver for package level sprites, sheets, and font loading operations.
 var DefaultCache = NewCache()
 
 // Cache is a simple image data cache

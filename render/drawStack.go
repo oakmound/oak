@@ -19,7 +19,8 @@ type DrawStack struct {
 	toPop  int
 }
 
-// An Stackable manages Renderables
+// A Stackable can be put onto a draw stack. It usually manages how a subset of renderables
+// are drawn.
 type Stackable interface {
 	PreDraw()
 	Add(Renderable, ...int) Renderable
@@ -29,6 +30,7 @@ type Stackable interface {
 	Clear()
 }
 
+// NewDrawStack creates a DrawStack with the given stackable items, drawn in descending index order.
 func NewDrawStack(stack ...Stackable) *DrawStack {
 	return &DrawStack{
 		as: stack,
@@ -42,6 +44,8 @@ func SetDrawStack(stackLayers ...Stackable) {
 	GlobalDrawStack = NewDrawStack(stackLayers...)
 }
 
+// Clear clears all stackables in a draw stack. This should revert the stack to contain
+// no renderable components.
 func (ds *DrawStack) Clear() {
 	for _, stackable := range ds.as {
 		stackable.Clear()
@@ -72,21 +76,23 @@ func Draw(r Renderable, layers ...int) (Renderable, error) {
 	return GlobalDrawStack.Draw(r, layers...)
 }
 
-func (d *DrawStack) Draw(r Renderable, layers ...int) (Renderable, error) {
+// Draw adds the given renderable to the draw stack at the appropriate position based
+// on the input layers. See render.Draw.
+func (ds *DrawStack) Draw(r Renderable, layers ...int) (Renderable, error) {
 	if r == nil {
 		return nil, oakerr.NilInput{InputName: "r"}
 	}
-	if len(d.as) == 1 {
-		return d.as[0].Add(r, layers...), nil
+	if len(ds.as) == 1 {
+		return ds.as[0].Add(r, layers...), nil
 	}
 	if len(layers) > 0 {
 		stackLayer := layers[0]
 		if stackLayer < 0 || stackLayer >= len(d.as) {
 			return nil, oakerr.InvalidInput{InputName: "layers"}
 		}
-		return d.as[stackLayer].Add(r, layers[1:]...), nil
+		return ds.as[stackLayer].Add(r, layers[1:]...), nil
 	}
-	return d.as[0].Add(r), nil
+	return ds.as[0].Add(r), nil
 }
 
 // Push appends a Stackable to the draw stack during the next PreDraw.

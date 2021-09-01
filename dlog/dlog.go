@@ -16,7 +16,7 @@ type Logger interface {
 }
 
 // DefaultLogger is the Logger which all oak log messages are passed through.
-var DefaultLogger Logger = NewLogger()
+var DefaultLogger = NewLogger()
 
 // ErrorCheck checks that the input is not nil, then calls Error on it if it is
 // not. Otherwise it does nothing.
@@ -54,6 +54,8 @@ func SetLogLevel(l Level) error {
 	return DefaultLogger.SetLogLevel(l)
 }
 
+// SetOutput will output logs on the default logger to be written to
+// the given writer.
 func SetOutput(w io.Writer) {
 	DefaultLogger.SetOutput(w)
 }

@@ -10,6 +10,10 @@ import (
 	"github.com/oakmound/oak/v3/window"
 )
 
+// A Context contains all transient engine components used in a scene, including
+// the draw stack, event bus, known event callers, collision trees, keyboard state,
+// and a reference to the OS window itself. When a scene ends, modifications made
+// to these structures will be reset, excluding window modifications.
 type Context struct {
 	// This context will be canceled when the scene ends
 	context.Context

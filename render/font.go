@@ -50,6 +50,7 @@ type FontGenerator struct {
 	FontOptions
 }
 
+// FontOptions are optional options used in font generation.
 type FontOptions = truetype.Options
 
 // DefaultFont returns a font built from DefFontGenerator.

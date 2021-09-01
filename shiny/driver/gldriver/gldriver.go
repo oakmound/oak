@@ -28,18 +28,6 @@ func Main(f func(screen.Screen)) {
 	}
 }
 
-func mul(a, b f64.Aff3) f64.Aff3 {
-	return f64.Aff3{
-		a[0]*b[0] + a[1]*b[3],
-		a[0]*b[1] + a[1]*b[4],
-		a[0]*b[2] + a[1]*b[5] + a[2],
-
-		a[3]*b[0] + a[4]*b[3],
-		a[3]*b[1] + a[4]*b[4],
-		a[3]*b[2] + a[4]*b[5] + a[5],
-	}
-}
-
 // writeAff3 must only be called while holding windowImpl.glctxMu.
 func writeAff3(glctx gl.Context, u gl.Uniform, a f64.Aff3) {
 	var m [9]float32

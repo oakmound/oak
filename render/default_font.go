@@ -1,6 +1,7 @@
 package render
 
 import (
+	// embed is used here to embed our default font file.
 	_ "embed"
 	"fmt"
 )

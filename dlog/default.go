@@ -108,9 +108,8 @@ func (l *logger) SetFilter(filter func(string) bool) {
 func (l *logger) SetLogLevel(level Level) error {
 	if level < NONE || level > VERBOSE {
 		return oakerr.InvalidInput{}
-	} else {
-		l.debugLevel = level
 	}
+	l.debugLevel = level
 	return nil
 }
 

@@ -32,6 +32,8 @@ func NewThickColoredRTree(ctx *scene.Context, t *collision.Tree, thickness int, 
 	return rt
 }
 
+// An Rtree wraps around a collision tree and can draw debug rectangles for every entity in
+// the tree.
 type Rtree struct {
 	*collision.Tree
 	Thickness int
