@@ -87,7 +87,7 @@ func (ds *DrawStack) Draw(r Renderable, layers ...int) (Renderable, error) {
 	}
 	if len(layers) > 0 {
 		stackLayer := layers[0]
-		if stackLayer < 0 || stackLayer >= len(d.as) {
+		if stackLayer < 0 || stackLayer >= len(ds.as) {
 			return nil, oakerr.InvalidInput{InputName: "layers"}
 		}
 		return ds.as[stackLayer].Add(r, layers[1:]...), nil
