@@ -48,6 +48,9 @@ const (
 func phaseCollisionEnter(id event.CID, nothing interface{}) int {
 	e := id.E().(collisionPhase)
 	oc := e.getCollisionPhase()
+	if oc == nil || oc.OnCollisionS == nil {
+		return 0
+	}
 
 	// TODO: think about how this can more cleanly work with multiple controllers
 	ev := oc.LastEvent
