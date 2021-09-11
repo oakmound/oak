@@ -14,6 +14,7 @@
 package mtldriver
 
 import (
+	"image"
 	"runtime"
 	"unsafe"
 
@@ -143,6 +144,13 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, moveWin
 		moveWindowCh:    moveWindowCh,
 		ml:              ml,
 		cq:              device.MakeCommandQueue(),
+		rgba:            image.NewRGBA(image.Rectangle{Max: image.Point{X: opts.Width, Y: opts.Height}}),
+		texture: device.MakeTexture(mtl.TextureDescriptor{
+			PixelFormat: mtl.PixelFormatRGBA8UNorm,
+			Width:       opts.Width,
+			Height:      opts.Height,
+			StorageMode: mtl.StorageModeManaged,
+		}),
 	}
 
 	// Set callbacks.
