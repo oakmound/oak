@@ -17,6 +17,7 @@ var (
 // TODO V3: consider breaking down the bus into smaller components
 // for easier composition for external handler implementations
 type Handler interface {
+	WaitForEvent(name string) <-chan interface{}
 	// <Handler>
 	UpdateLoop(framerate int, updateCh chan struct{}) error
 	FramesElapsed() int
