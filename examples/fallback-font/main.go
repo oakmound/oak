@@ -39,7 +39,7 @@ func main() {
 			for _, fontname := range fallbackFonts {
 				fontPath, err := findfont.Find(fontname)
 				if err != nil {
-					fmt.Println("Do you have ", fontPath, "installed?")
+					fmt.Println("Do you have ", fontname, "installed?")
 					continue
 				}
 				fg := render.FontGenerator{

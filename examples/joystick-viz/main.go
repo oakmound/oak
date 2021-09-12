@@ -240,7 +240,7 @@ func main() {
 	oak.AddScene("viz", scene.Scene{Start: func(ctx *scene.Context) {
 		joystick.Init()
 		latestInput := new(string)
-		*latestInput = "Latest Input: None"
+		*latestInput = "Latest Input: Keyboard+Mouse"
 		ctx.DrawStack.Draw(render.NewStrPtrText(latestInput, 10, 460), 4)
 		ctx.DrawStack.Draw(render.NewText("Space to Vibrate", 10, 440), 4)
 		ctx.EventHandler.GlobalBind(event.InputChange, func(_ event.CID, payload interface{}) int {
