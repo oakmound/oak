@@ -83,6 +83,7 @@ func (eb *Bus) UpdateLoop(framerate int, updateCh chan struct{}) error {
 				eb.framesElapsed++
 				eb.updateCh <- struct{}{}
 			case <-doneCh:
+				close(eb.updateCh)
 				eb.Ticker.Stop()
 				doneCh <- struct{}{}
 				return
@@ -138,12 +139,13 @@ func (eb *Bus) Stop() error {
 	if eb.Ticker != nil {
 		eb.Ticker.Reset(math.MaxInt32 * time.Second)
 	}
-	select {
-	case eb.doneCh <- struct{}{}:
-	case <-eb.updateCh:
-		eb.doneCh <- struct{}{}
-	}
+	go func() {
+		for range eb.updateCh {
+		}
+	}()
+	eb.doneCh <- struct{}{}
 	<-eb.doneCh
+	close(eb.doneCh)
 	return nil
 }
 

@@ -91,6 +91,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		dlog.Info("Looping Scene")
 		cont := true
 
+		w.sceneCh = make(chan struct{})
 		dlog.ErrorCheck(w.logicHandler.UpdateLoop(w.FrameRate, w.sceneCh))
 
 		nextSceneOverride := ""
