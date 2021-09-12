@@ -26,18 +26,24 @@ import (
 
 // windowImpl implements screen.Window.
 type windowImpl struct {
-	device          mtl.Device
-	window          *glfw.Window
-	releaseWindowCh chan releaseWindowReq
-	moveWindowCh    chan moveWindowReq
-	ml              coreanim.MetalLayer
-	cq              mtl.CommandQueue
+	device mtl.Device
+	window *glfw.Window
+	chans  windowRequestChannels
+	ml     coreanim.MetalLayer
+	cq     mtl.CommandQueue
 
 	event.Deque
 	lifecycler lifecycler.State
 
 	rgba    *image.RGBA
 	texture mtl.Texture // Used in Publish.
+
+	title      string
+	fullscreen bool
+	borderless bool
+
+	w, h int
+	x, y int
 }
 
 func (w *windowImpl) HideCursor() error {
@@ -45,14 +51,62 @@ func (w *windowImpl) HideCursor() error {
 	return nil
 }
 
+func (w *windowImpl) SetBorderless(borderless bool) error {
+	if w.borderless == borderless {
+		return nil
+	}
+	w.borderless = borderless
+	respCh := make(chan struct{})
+	w.chans.updateCh <- updateWindowReq{
+		setBorderless: &borderless,
+		window:        w.window,
+		x:             w.x,
+		y:             w.y,
+		width:         w.w,
+		height:        w.h,
+		respCh:        respCh,
+	}
+	glfw.PostEmptyEvent()
+	<-respCh
+	return nil
+}
+
+func (w *windowImpl) SetFullScreen(full bool) error {
+	if w.fullscreen == full {
+		return nil
+	}
+	w.fullscreen = full
+	if full {
+		w.x, w.y = w.window.GetPos()
+	}
+	respCh := make(chan struct{})
+	w.chans.updateCh <- updateWindowReq{
+		setFullscreen: &full,
+		window:        w.window,
+		x:             w.x,
+		y:             w.y,
+		width:         w.w,
+		height:        w.h,
+		respCh:        respCh,
+	}
+	glfw.PostEmptyEvent()
+	<-respCh
+	return nil
+}
+
 func (w *windowImpl) MoveWindow(x, y, width, height int32) error {
 	respCh := make(chan struct{})
-	w.moveWindowCh <- moveWindowReq{
+	w.x = int(x)
+	w.y = int(y)
+	w.w = int(width)
+	w.h = int(height)
+	w.chans.updateCh <- updateWindowReq{
 		window: w.window,
-		x:      int(x),
-		y:      int(y),
-		width:  int(width),
-		height: int(height),
+		setPos: true,
+		x:      w.x,
+		y:      w.y,
+		width:  w.w,
+		height: w.h,
 		respCh: respCh,
 	}
 	glfw.PostEmptyEvent()
@@ -66,7 +120,7 @@ func (w *windowImpl) GetCursorPosition() (x, y float64) {
 
 func (w *windowImpl) Release() {
 	respCh := make(chan struct{})
-	w.releaseWindowCh <- releaseWindowReq{
+	w.chans.releaseCh <- releaseWindowReq{
 		window: w.window,
 		respCh: respCh,
 	}
@@ -125,8 +179,7 @@ func (w *windowImpl) Publish() screen.PublishResult {
 }
 
 func (w *windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
-	// This panics
-	//draw.Draw(w.rgba, sr.Sub(sr.Min).Add(dp), src.RGBA(), sr.Min, draw.Src)
+	draw.Draw(w.rgba, sr.Sub(sr.Min).Add(dp), src.RGBA(), sr.Min, draw.Src)
 }
 
 func (w *windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
