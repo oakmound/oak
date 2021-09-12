@@ -64,14 +64,16 @@ func main(f func(screen.Screen)) error {
 		glfw.PostEmptyEvent()
 	}
 	var (
-		done            = make(chan struct{})
-		newWindowCh     = make(chan newWindowReq, 1)
-		releaseWindowCh = make(chan releaseWindowReq, 1)
-		moveWindowCh    = make(chan moveWindowReq, 1)
+		done  = make(chan struct{})
+		chans = windowRequestChannels{
+			newCh:     make(chan newWindowReq, 1),
+			releaseCh: make(chan releaseWindowReq, 1),
+			updateCh:  make(chan updateWindowReq, 1),
+		}
 	)
 	go func() {
 		f(&screenImpl{
-			newWindowCh: newWindowCh,
+			newWindowCh: chans.newCh,
 		})
 		close(done)
 		glfw.PostEmptyEvent() // Break main loop out of glfw.WaitEvents so it can receive on done.
@@ -80,15 +82,36 @@ func main(f func(screen.Screen)) error {
 		select {
 		case <-done:
 			return nil
-		case req := <-newWindowCh:
-			w, err := newWindow(device, releaseWindowCh, moveWindowCh, req.opts)
+		case req := <-chans.newCh:
+			w, err := newWindow(device, chans, req.opts)
 			req.respCh <- newWindowResp{w, err}
-		case req := <-releaseWindowCh:
+		case req := <-chans.releaseCh:
 			req.window.Destroy()
 			req.respCh <- struct{}{}
-		case req := <-moveWindowCh:
-			req.window.SetPos(int(req.x), int(req.y))
-			req.window.SetSize(int(req.width), int(req.height))
+		case req := <-chans.updateCh:
+			// this is not functionalized to prevent methods from accidentally
+			// calling this outside of the main thread
+			if req.setPos {
+				req.window.SetPos(int(req.x), int(req.y))
+				req.window.SetSize(int(req.width), int(req.height))
+				req.respCh <- struct{}{}
+			}
+			if req.setBorderless != nil {
+				if *req.setBorderless {
+					req.window.SetAttrib(glfw.Decorated, 0)
+				} else {
+					req.window.SetAttrib(glfw.Decorated, 1)
+				}
+			}
+			if req.setFullscreen != nil {
+				// TODO: this constant should be configurable
+				const refreshRate = 60
+				if *req.setFullscreen {
+					req.window.SetMonitor(glfw.GetPrimaryMonitor(), 0, 0, req.width, req.height, refreshRate)
+				} else {
+					req.window.SetMonitor(nil, req.x, req.y, req.width, req.height, refreshRate)
+				}
+			}
 			req.respCh <- struct{}{}
 		default:
 			glfw.WaitEvents()
@@ -105,22 +128,37 @@ type newWindowResp struct {
 	w   screen.Window
 	err error
 }
-type moveWindowReq struct {
-	window              *glfw.Window
-	x, y, width, height int
-	respCh              chan struct{}
-}
 
 type releaseWindowReq struct {
 	window *glfw.Window
 	respCh chan struct{}
 }
 
+type updateWindowReq struct {
+	window              *glfw.Window
+	setFullscreen       *bool
+	setBorderless       *bool
+	setPos              bool
+	x, y, width, height int
+	respCh              chan struct{}
+}
+
+type windowRequestChannels struct {
+	newCh     chan newWindowReq
+	releaseCh chan releaseWindowReq
+	updateCh  chan updateWindowReq
+}
+
 // newWindow creates a new GLFW window.
 // It must be called on the main thread.
-func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, moveWindowCh chan moveWindowReq, opts screen.WindowGenerator) (screen.Window, error) {
+func newWindow(device mtl.Device, chans windowRequestChannels, opts screen.WindowGenerator) (screen.Window, error) {
 	width, height := optsSize(opts)
-	window, err := glfw.CreateWindow(width, height, opts.Title, nil, nil)
+	// TODO: explicit monitor choice
+	var monitor *glfw.Monitor
+	if opts.Fullscreen {
+		monitor = glfw.GetPrimaryMonitor()
+	}
+	window, err := glfw.CreateWindow(width, height, opts.Title, monitor, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -138,19 +176,22 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, moveWin
 	}
 
 	w := &windowImpl{
-		device:          device,
-		window:          window,
-		releaseWindowCh: releaseWindowCh,
-		moveWindowCh:    moveWindowCh,
-		ml:              ml,
-		cq:              device.MakeCommandQueue(),
-		rgba:            image.NewRGBA(image.Rectangle{Max: image.Point{X: opts.Width, Y: opts.Height}}),
+		device: device,
+		window: window,
+		chans:  chans,
+		ml:     ml,
+		cq:     device.MakeCommandQueue(),
+		rgba:   image.NewRGBA(image.Rectangle{Max: image.Point{X: opts.Width, Y: opts.Height}}),
 		texture: device.MakeTexture(mtl.TextureDescriptor{
 			PixelFormat: mtl.PixelFormatRGBA8UNorm,
 			Width:       opts.Width,
 			Height:      opts.Height,
 			StorageMode: mtl.StorageModeManaged,
 		}),
+		title:      opts.Title,
+		w:          opts.Width,
+		h:          opts.Height,
+		borderless: opts.Borderless,
 	}
 
 	// Set callbacks.
@@ -228,6 +269,8 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, moveWin
 	// Send the initial size and paint events.
 	width, height = window.GetFramebufferSize()
 	framebufferSizeCallback(window, width, height)
+
+	w.x, w.y = window.GetPos()
 
 	return w, nil
 }
