@@ -191,28 +191,29 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, moveWin
 			X: float32(x * scale), Y: float32(y * scale),
 			Button:    btn,
 			Direction: glfwMouseDirection(a),
-			// TODO(dmitshur): set Modifiers
+			Modifiers: glfwKeyMods(mods),
 		})
 	})
+	// TODO: can we combine the following two callbacks into a single event? Signs point to no.
 	window.SetKeyCallback(func(_ *glfw.Window, k glfw.Key, _ int, a glfw.Action, mods glfw.ModifierKey) {
 		code := glfwKeyCode(k)
 		if code == key.CodeUnknown {
 			return
 		}
-		w.Send(key.Event{
+		ev := key.Event{
 			Code:      code,
 			Direction: glfwKeyDirection(a),
-			// TODO(dmitshur): set Modifiers
-		})
+			Modifiers: glfwKeyMods(mods),
+		}
+		w.Send(ev)
 	})
+	// TODO: some characters will repeat when held down, but not all of them,
+	// and not any consistent type of character (e.g. 'n' will repeat, 'b' will not)
 	window.SetCharCallback(func(_ *glfw.Window, char rune) {
 		w.Send(key.Event{
-			Direction: key.DirPress,
-			Rune:      char,
+			Rune: char,
 		})
 	})
-	// TODO(dmitshur): set CharModsCallback to catch text (runes) that are typed,
-	//                 and perhaps try to unify key pressed + character typed into single event
 	window.SetCloseCallback(func(*glfw.Window) {
 		w.lifecycler.SetDead(true)
 		w.lifecycler.SendEvent(w, nil)
@@ -266,20 +267,131 @@ func glfwMouseDirection(action glfw.Action) mouse.Direction {
 	}
 }
 
+var keyMap = map[glfw.Key]key.Code{
+	glfw.KeyEscape:    key.CodeEscape,
+	glfw.KeyEnter:     key.CodeReturnEnter,
+	glfw.KeyTab:       key.CodeTab,
+	glfw.KeyBackspace: key.CodeDeleteBackspace,
+	glfw.KeyInsert:    key.CodeInsert,
+	// note not differentiated from backspace
+	glfw.KeyDelete:       key.CodeDeleteBackspace,
+	glfw.KeyRight:        key.CodeRightArrow,
+	glfw.KeyLeft:         key.CodeLeftArrow,
+	glfw.KeyDown:         key.CodeDownArrow,
+	glfw.KeyUp:           key.CodeUpArrow,
+	glfw.KeyPageUp:       key.CodePageUp,
+	glfw.KeyPageDown:     key.CodePageDown,
+	glfw.KeyHome:         key.CodeHome,
+	glfw.KeyEnd:          key.CodeEnd,
+	glfw.KeyCapsLock:     key.CodeCapsLock,
+	glfw.KeyNumLock:      key.CodeKeypadNumLock,
+	glfw.KeyPause:        key.CodePause,
+	glfw.KeyF1:           key.CodeF1,
+	glfw.KeyF2:           key.CodeF2,
+	glfw.KeyF3:           key.CodeF3,
+	glfw.KeyF4:           key.CodeF4,
+	glfw.KeyF5:           key.CodeF5,
+	glfw.KeyF6:           key.CodeF6,
+	glfw.KeyF7:           key.CodeF7,
+	glfw.KeyF8:           key.CodeF8,
+	glfw.KeyF9:           key.CodeF9,
+	glfw.KeyF10:          key.CodeF10,
+	glfw.KeyF11:          key.CodeF11,
+	glfw.KeyF12:          key.CodeF12,
+	glfw.KeyF13:          key.CodeF13,
+	glfw.KeyF14:          key.CodeF14,
+	glfw.KeyF15:          key.CodeF15,
+	glfw.KeyF16:          key.CodeF16,
+	glfw.KeyF17:          key.CodeF17,
+	glfw.KeyF18:          key.CodeF18,
+	glfw.KeyF19:          key.CodeF19,
+	glfw.KeyF20:          key.CodeF20,
+	glfw.KeyF21:          key.CodeF21,
+	glfw.KeyF22:          key.CodeF22,
+	glfw.KeyF23:          key.CodeF23,
+	glfw.KeyF24:          key.CodeF24,
+	glfw.KeyKPDecimal:    key.CodeKeypadFullStop,
+	glfw.KeyKPEnter:      key.CodeKeypadEnter,
+	glfw.KeyLeftShift:    key.CodeLeftShift,
+	glfw.KeyLeftControl:  key.CodeLeftControl,
+	glfw.KeyLeftAlt:      key.CodeLeftAlt,
+	glfw.KeyLeftSuper:    key.CodeLeftGUI,
+	glfw.KeyRightShift:   key.CodeRightShift,
+	glfw.KeyRightControl: key.CodeRightControl,
+	glfw.KeyRightAlt:     key.CodeRightAlt,
+	glfw.KeyRightSuper:   key.CodeRightGUI,
+	glfw.KeySpace:        key.CodeSpacebar,
+	glfw.KeyApostrophe:   key.CodeApostrophe,
+	glfw.KeyComma:        key.CodeComma,
+	glfw.KeyMinus:        key.CodeHyphenMinus,
+	glfw.KeyPeriod:       key.CodeFullStop,
+	glfw.KeySlash:        key.CodeSlash,
+	glfw.Key0:            key.Code0,
+	glfw.Key1:            key.Code1,
+	glfw.Key2:            key.Code2,
+	glfw.Key3:            key.Code3,
+	glfw.Key4:            key.Code4,
+	glfw.Key5:            key.Code5,
+	glfw.Key6:            key.Code6,
+	glfw.Key7:            key.Code7,
+	glfw.Key8:            key.Code8,
+	glfw.Key9:            key.Code9,
+	glfw.KeySemicolon:    key.CodeUnknown,
+	glfw.KeyEqual:        key.CodeUnknown,
+	glfw.KeyA:            key.CodeA,
+	glfw.KeyB:            key.CodeB,
+	glfw.KeyC:            key.CodeC,
+	glfw.KeyD:            key.CodeD,
+	glfw.KeyE:            key.CodeE,
+	glfw.KeyF:            key.CodeF,
+	glfw.KeyG:            key.CodeG,
+	glfw.KeyH:            key.CodeH,
+	glfw.KeyI:            key.CodeI,
+	glfw.KeyJ:            key.CodeJ,
+	glfw.KeyK:            key.CodeK,
+	glfw.KeyL:            key.CodeL,
+	glfw.KeyM:            key.CodeM,
+	glfw.KeyN:            key.CodeN,
+	glfw.KeyO:            key.CodeO,
+	glfw.KeyP:            key.CodeP,
+	glfw.KeyQ:            key.CodeQ,
+	glfw.KeyR:            key.CodeR,
+	glfw.KeyS:            key.CodeS,
+	glfw.KeyT:            key.CodeT,
+	glfw.KeyU:            key.CodeU,
+	glfw.KeyV:            key.CodeV,
+	glfw.KeyW:            key.CodeW,
+	glfw.KeyX:            key.CodeX,
+	glfw.KeyY:            key.CodeY,
+	glfw.KeyZ:            key.CodeZ,
+	glfw.KeyLeftBracket:  key.CodeLeftSquareBracket,
+	glfw.KeyBackslash:    key.CodeBackslash,
+	glfw.KeyRightBracket: key.CodeRightSquareBracket,
+	glfw.KeyGraveAccent:  key.CodeGraveAccent,
+	glfw.KeyScrollLock:   key.CodeUnknown,
+	glfw.KeyPrintScreen:  key.CodeUnknown,
+	glfw.KeyKP0:          key.CodeKeypad0,
+	glfw.KeyKP1:          key.CodeKeypad1,
+	glfw.KeyKP2:          key.CodeKeypad2,
+	glfw.KeyKP3:          key.CodeKeypad3,
+	glfw.KeyKP4:          key.CodeKeypad4,
+	glfw.KeyKP5:          key.CodeKeypad5,
+	glfw.KeyKP6:          key.CodeKeypad6,
+	glfw.KeyKP7:          key.CodeKeypad7,
+	glfw.KeyKP8:          key.CodeKeypad8,
+	glfw.KeyKP9:          key.CodeKeypad9,
+	glfw.KeyKPDivide:     key.CodeKeypadSlash,
+	glfw.KeyKPMultiply:   key.CodeKeypadAsterisk,
+	glfw.KeyKPSubtract:   key.CodeKeypadHyphenMinus,
+	glfw.KeyKPAdd:        key.CodeKeypadPlusSign,
+	glfw.KeyKPEqual:      key.CodeKeypadEqualSign,
+}
+
 func glfwKeyCode(k glfw.Key) key.Code {
-	// TODO(dmitshur): support more keys
-	switch k {
-	case glfw.KeyEnter:
-		return key.CodeReturnEnter
-	case glfw.KeyEscape:
-		return key.CodeEscape
-	case glfw.KeyBackspace:
-		return key.CodeDeleteBackspace
-	case glfw.KeyTab:
-		return key.CodeTab
-	default:
-		return key.CodeUnknown
+	if kc, ok := keyMap[k]; ok {
+		return kc
 	}
+	return key.CodeUnknown
 }
 
 func glfwKeyDirection(action glfw.Action) key.Direction {
@@ -293,4 +405,20 @@ func glfwKeyDirection(action glfw.Action) key.Direction {
 	default:
 		panic("unreachable")
 	}
+}
+
+func glfwKeyMods(m glfw.ModifierKey) (mod key.Modifiers) {
+	if m&glfw.ModAlt == glfw.ModAlt {
+		mod |= key.ModAlt
+	}
+	if m&glfw.ModShift == glfw.ModShift {
+		mod |= key.ModShift
+	}
+	if m&glfw.ModControl == glfw.ModControl {
+		mod |= key.ModControl
+	}
+	if m&glfw.ModSuper == glfw.ModSuper {
+		mod |= key.ModMeta
+	}
+	return mod
 }
