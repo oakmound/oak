@@ -40,6 +40,11 @@ type windowImpl struct {
 	texture mtl.Texture // Used in Publish.
 }
 
+func (w *windowImpl) HideCursor() error {
+	w.window.SetInputMode(glfw.CursorMode, glfw.CursorHidden)
+	return nil
+}
+
 func (w *windowImpl) MoveWindow(x, y, width, height int32) error {
 	respCh := make(chan struct{})
 	w.moveWindowCh <- moveWindowReq{
