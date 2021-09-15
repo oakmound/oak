@@ -37,6 +37,7 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 	go w.inputLoop()
 
 	<-w.quitCh
+	w.windowControl.Release()
 }
 
 // Quit sends a signal to the window to close itself, closing the window and
