@@ -11,7 +11,12 @@ import (
 )
 
 var keyLock sync.Mutex
-var keys = map[rune]struct{}{}
+var keys = map[string]struct{}{}
+
+func keyCodeString(c key.Code) string {
+	s := c.String()
+	return s[4:]
+}
 
 func main() {
 	oak.AddScene("keyboard-test", scene.Scene{Start: func(*scene.Context) {
@@ -20,7 +25,7 @@ func main() {
 		event.GlobalBind(key.Down, func(_ event.CID, k interface{}) int {
 			kValue := k.(key.Event)
 			keyLock.Lock()
-			keys[kValue.Rune] = struct{}{}
+			keys[keyCodeString(kValue.Code)] = struct{}{}
 			txt := ""
 			for k := range keys {
 				txt += string(k) + " "
@@ -32,7 +37,7 @@ func main() {
 		event.GlobalBind(key.Up, func(_ event.CID, k interface{}) int {
 			kValue := k.(key.Event)
 			keyLock.Lock()
-			delete(keys, kValue.Rune)
+			delete(keys, keyCodeString(kValue.Code))
 			txt := ""
 			for k := range keys {
 				txt += string(k) + " "

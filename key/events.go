@@ -15,3 +15,6 @@ const (
 )
 
 type Event = key.Event
+
+// A code is a unique integer code for a given common key
+type Code = key.Code
