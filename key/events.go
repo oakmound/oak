@@ -16,3 +16,6 @@ const (
 
 // An Event is sent as the payload for all key bindings.
 type Event = key.Event
+
+// A code is a unique integer code for a given common key
+type Code = key.Code
