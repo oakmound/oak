@@ -6,17 +6,12 @@ import (
 
 	"github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/examples/multi-window/oscheck"
 	"github.com/oakmound/oak/v3/mouse"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
 )
 
 func main() {
-	if oscheck.IsOSX {
-		fmt.Println("Driver panic on OSX, uncomment this skip to investigate")
-		return
-	}
 	c1 := oak.NewWindow()
 	c1.DrawStack = render.NewDrawStack(render.NewDynamicHeap())
 
