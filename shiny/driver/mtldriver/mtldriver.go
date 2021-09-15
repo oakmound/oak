@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"image"
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"dmitri.shuralyov.com/gpu/mtl"
@@ -31,10 +32,6 @@ import (
 	"golang.org/x/mobile/event/size"
 )
 
-func init() {
-	runtime.LockOSThread()
-}
-
 // Main is called by the program's main function to run the graphical
 // application.
 //
@@ -47,77 +44,102 @@ func Main(f func(screen.Screen)) {
 	}
 }
 
+var initLock sync.Mutex
+
+func init() {
+	runtime.LockOSThread()
+}
+
+var glfwChans windowRequestChannels
+
+var windowCt = 0
+
 func main(f func(screen.Screen)) error {
-	device, err := mtl.CreateSystemDefaultDevice()
-	if err != nil {
-		return err
-	}
-	err = glfw.Init()
-	if err != nil {
-		return err
-	}
-	defer glfw.Terminate()
-	glfw.WindowHint(glfw.ClientAPI, glfw.NoAPI)
-	{
-		// TODO(dmitshur): Delete this when https://github.com/go-gl/glfw/issues/272 is resolved.
-		// Post an empty event from the main thread before it can happen in a non-main thread,
-		// to work around https://github.com/glfw/glfw/issues/1649.
-		glfw.PostEmptyEvent()
-	}
-	var (
-		done  = make(chan struct{})
-		chans = windowRequestChannels{
+	initLock.Lock()
+	windowCt++
+	if windowCt == 1 {
+		// primary window, must initalize glfw.
+		// this must occur here. It must not occur inside init.
+		// glfw.PostEmptyEvent from within init, or within a goroutine spawned
+		// by init, regardless of LockOSThread calls, hangs.
+		glfwChans = windowRequestChannels{
 			newCh:     make(chan newWindowReq, 1),
 			releaseCh: make(chan releaseWindowReq, 1),
 			updateCh:  make(chan updateWindowReq, 1),
 		}
-	)
-	go func() {
-		f(&screenImpl{
-			newWindowCh: chans.newCh,
-		})
-		close(done)
-		glfw.PostEmptyEvent() // Break main loop out of glfw.WaitEvents so it can receive on done.
-	}()
-	for {
-		select {
-		case <-done:
-			return nil
-		case req := <-chans.newCh:
-			w, err := newWindow(device, chans, req.opts)
-			req.respCh <- newWindowResp{w, err}
-		case req := <-chans.releaseCh:
-			req.window.Destroy()
-			req.respCh <- struct{}{}
-		case req := <-chans.updateCh:
-			// this is not functionalized to prevent methods from accidentally
-			// calling this outside of the main thread
-			if req.setPos {
-				req.window.SetPos(int(req.x), int(req.y))
-				req.window.SetSize(int(req.width), int(req.height))
+		device, err := mtl.CreateSystemDefaultDevice()
+		if err != nil {
+			return err
+		}
+		err = glfw.Init()
+		if err != nil {
+			return err
+		}
+		glfw.WindowHint(glfw.ClientAPI, glfw.NoAPI)
+		{
+			// TODO(dmitshur): Delete this when https://github.com/go-gl/glfw/issues/272 is resolved.
+			// Post an empty event from the main thread before it can happen in a non-main thread,
+			// to work around https://github.com/glfw/glfw/issues/1649.
+			glfw.PostEmptyEvent()
+		}
+		initLock.Unlock()
+		go func() {
+			f(&screenImpl{
+				newWindowCh: glfwChans.newCh,
+			})
+		}()
+		for {
+			select {
+			case req := <-glfwChans.newCh:
+				w, err := newWindow(device, glfwChans, req.opts)
+				req.respCh <- newWindowResp{w, err}
+			case req := <-glfwChans.releaseCh:
+				req.window.Destroy()
 				req.respCh <- struct{}{}
-			}
-			if req.setBorderless != nil {
-				if *req.setBorderless {
-					req.window.SetAttrib(glfw.Decorated, 0)
-				} else {
-					req.window.SetAttrib(glfw.Decorated, 1)
+				initLock.Lock()
+				windowCt--
+				if windowCt == 0 {
+					glfw.Terminate()
+					initLock.Unlock()
+					return nil
 				}
-			}
-			if req.setFullscreen != nil {
-				// TODO: this constant should be configurable
-				const refreshRate = 60
-				if *req.setFullscreen {
-					req.window.SetMonitor(glfw.GetPrimaryMonitor(), 0, 0, req.width, req.height, refreshRate)
-				} else {
-					req.window.SetMonitor(nil, req.x, req.y, req.width, req.height, refreshRate)
+				initLock.Unlock()
+			case req := <-glfwChans.updateCh:
+				// this is not functionalized to prevent methods from accidentally
+				// calling this outside of the main thread
+				if req.setPos {
+					req.window.SetPos(int(req.x), int(req.y))
+					req.window.SetSize(int(req.width), int(req.height))
+					req.respCh <- struct{}{}
 				}
+				if req.setBorderless != nil {
+					if *req.setBorderless {
+						req.window.SetAttrib(glfw.Decorated, 0)
+					} else {
+						req.window.SetAttrib(glfw.Decorated, 1)
+					}
+				}
+				if req.setFullscreen != nil {
+					// TODO: this constant should be configurable
+					const refreshRate = 60
+					if *req.setFullscreen {
+						req.window.SetMonitor(glfw.GetPrimaryMonitor(), 0, 0, req.width, req.height, refreshRate)
+					} else {
+						req.window.SetMonitor(nil, req.x, req.y, req.width, req.height, refreshRate)
+					}
+				}
+				req.respCh <- struct{}{}
+			default:
+				glfw.WaitEvents()
 			}
-			req.respCh <- struct{}{}
-		default:
-			glfw.WaitEvents()
 		}
 	}
+	initLock.Unlock()
+	// secondary window, does not need to initalize glfw
+	f(&screenImpl{
+		newWindowCh: glfwChans.newCh,
+	})
+	return nil
 }
 
 type newWindowReq struct {
