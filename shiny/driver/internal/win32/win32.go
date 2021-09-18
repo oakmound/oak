@@ -42,7 +42,7 @@ const (
 	msgLast // WM_USER value https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-user
 )
 
-var msgCallbacks *uint32 = func() *uint32 {
+var msgCallbacks = func() *uint32 {
 	u := new(uint32)
 	*u = msgLast + 1
 	return u

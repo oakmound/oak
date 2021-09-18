@@ -20,28 +20,28 @@ func (w *Window) inputLoop() {
 		case lifecycle.Event:
 			switch e.To {
 			case lifecycle.StageDead:
-				dlog.Info("Window closed.")
+				dlog.Info(dlog.WindowClosed)
 				// OnStop needs to be sent through TriggerBack, otherwise the
 				// program will close before the stop events get propagated.
-				<-w.logicHandler.TriggerBack(event.OnStop, nil)
+				<-w.eventHandler.TriggerBack(event.OnStop, nil)
 				close(w.quitCh)
 				return
 			case lifecycle.StageFocused:
 				w.inFocus = true
 				// If you are in focused state, we don't care how you got there
 				w.DrawTicker.Reset(timing.FPSToFrameDelay(w.DrawFrameRate))
-				w.logicHandler.Trigger(event.FocusGain, nil)
+				w.eventHandler.Trigger(event.FocusGain, nil)
 			case lifecycle.StageVisible:
 				// If the last state was focused, this means the app is out of focus
 				// otherwise, we're visible for the first time
 				if e.From > e.To {
 					w.inFocus = false
 					w.DrawTicker.Reset(timing.FPSToFrameDelay(w.IdleDrawFrameRate))
-					w.logicHandler.Trigger(event.FocusLoss, nil)
+					w.eventHandler.Trigger(event.FocusLoss, nil)
 				} else {
 					w.inFocus = true
 					w.DrawTicker.Reset(timing.FPSToFrameDelay(w.DrawFrameRate))
-					w.logicHandler.Trigger(event.FocusGain, nil)
+					w.eventHandler.Trigger(event.FocusGain, nil)
 				}
 			}
 		// Send key events
@@ -104,8 +104,8 @@ func (w *Window) inputLoop() {
 func (w *Window) TriggerKeyDown(e okey.Event) {
 	k := e.Code.String()[4:]
 	w.SetDown(k)
-	w.logicHandler.Trigger(okey.Down, e)
-	w.logicHandler.Trigger(okey.Down+k, e)
+	w.eventHandler.Trigger(okey.Down, e)
+	w.eventHandler.Trigger(okey.Down+k, e)
 }
 
 // TriggerKeyUp triggers a software-emulated key release.
@@ -115,8 +115,8 @@ func (w *Window) TriggerKeyDown(e okey.Event) {
 func (w *Window) TriggerKeyUp(e okey.Event) {
 	k := e.Code.String()[4:]
 	w.SetUp(k)
-	w.logicHandler.Trigger(okey.Up, e)
-	w.logicHandler.Trigger(okey.Up+k, e)
+	w.eventHandler.Trigger(okey.Up, e)
+	w.eventHandler.Trigger(okey.Up+k, e)
 }
 
 // TriggerKeyHeld triggers a software-emulated key hold signal.
@@ -125,8 +125,8 @@ func (w *Window) TriggerKeyUp(e okey.Event) {
 // from a real key hold signal.
 func (w *Window) TriggerKeyHeld(e okey.Event) {
 	k := e.Code.String()[4:]
-	w.logicHandler.Trigger(okey.Held, e)
-	w.logicHandler.Trigger(okey.Held+k, e)
+	w.eventHandler.Trigger(okey.Held, e)
+	w.eventHandler.Trigger(okey.Held+k, e)
 }
 
 // TriggerMouseEvent triggers a software-emulated mouse event.
@@ -135,7 +135,7 @@ func (w *Window) TriggerKeyHeld(e okey.Event) {
 // from a real key mouse press or movement.
 func (w *Window) TriggerMouseEvent(mevent omouse.Event) {
 	w.Propagate(mevent.Event+"On", mevent)
-	w.logicHandler.Trigger(mevent.Event, &mevent)
+	w.eventHandler.Trigger(mevent.Event, &mevent)
 
 	relativeEvent := mevent
 	relativeEvent.Point2[0] += float64(w.viewPos[0])

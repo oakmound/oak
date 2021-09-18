@@ -5,6 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/dlog"
 
 	"image"
 
@@ -21,11 +22,11 @@ const (
 )
 
 var (
-	font       *render.Font
-	r, g, b, a float64
-	diff       = floatrange.NewSpread(0, 10)
-	limit      = floatrange.NewLinear(0, 255)
-	strs       []*render.Text
+	font    *render.Font
+	r, g, b float64
+	diff    = floatrange.NewSpread(0, 10)
+	limit   = floatrange.NewLinear(0, 255)
+	strs    []*render.Text
 )
 
 func randomStr(chars int) string {
@@ -43,14 +44,15 @@ func main() {
 			render.Draw(render.NewDrawFPS(.25, nil, 10, 10))
 
 			r = 255
-			// By not specifying "File", we use the default
-			// font built into the engine
-			fg := render.FontGenerator{
-				Color:   image.NewUniform(color.RGBA{255, 0, 0, 255}),
-				Size:    strSize,
-				Hinting: "",
+			fg := render.DefFontGenerator
+			fg.Color = image.NewUniform(color.RGBA{255, 0, 0, 255})
+			fg.FontOptions = render.FontOptions{
+				Size: strSize,
 			}
-			font, _ = fg.Generate()
+
+			var err error
+			font, err = fg.Generate()
+			dlog.ErrorCheck(err)
 			font.Unsafe = true
 
 			for y := 0.0; y <= 480; y += strSize {

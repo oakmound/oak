@@ -5,9 +5,9 @@ import (
 )
 
 func TestErrorsAreErrors(t *testing.T) {
-	languages := []Language{EN, DE}
+	languages := []Language{ENG, DEU}
 	for _, lang := range languages {
-		SetLanguage(lang)
+		CurrentLanguage = lang
 		var err error = NotFound{}
 		if err.Error() == "" {
 			t.Fatalf("NotFound error was empty")
@@ -49,7 +49,7 @@ func TestErrorsAreErrors(t *testing.T) {
 }
 
 func TestErrorFallback(t *testing.T) {
-	SetLanguage(JP)
+	CurrentLanguage = JPN
 	s := errorString(codeIndivisibleInput, "a", "b")
 	if s != "a was not divisible by b" {
 		t.Fatalf("language fallback to english failed")

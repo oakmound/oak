@@ -1,6 +1,8 @@
 package oak
 
 import (
+	"io/fs"
+
 	"github.com/oakmound/oak/v3/audio"
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/fileutil"
@@ -42,10 +44,8 @@ func (w *Window) endLoad() {
 	w.startupLoading = false
 }
 
-// SetBinaryPayload changes how oak will load files-- instead of loading from the filesystem,
-// they'll be loaded from the provided two functions: one to load bytes from a path,
-// and one to list paths underneath a directory.
-func SetBinaryPayload(payloadFn func(string) ([]byte, error), dirFn func(string) ([]string, error)) {
-	fileutil.BindataDir = dirFn
-	fileutil.BindataFn = payloadFn
+// SetFS updates all calls oak or oak's subpackages will make to read from the given filesystem.
+// By default, this is set to os.DirFS(".")
+func SetFS(filesystem fs.FS) {
+	fileutil.FS = filesystem
 }

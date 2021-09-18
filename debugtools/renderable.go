@@ -1,29 +1,32 @@
-package render
+package debugtools
 
-import "golang.org/x/sync/syncmap"
+import (
+	"github.com/oakmound/oak/v3/render"
+	"golang.org/x/sync/syncmap"
+)
 
-// TODO: move this to a debug tools package
 var (
 	debugMap syncmap.Map
 )
 
-// UpdateDebugMap stores a renderable under a name in a package global map.
+// SetDebugRenderable stores a renderable under a name in a package global map.
 // this is used by some built in debugConsole helper functions.
-func UpdateDebugMap(rName string, r Renderable) {
+func SetDebugRenderable(rName string, r render.Renderable) {
 	debugMap.Store(rName, r)
 }
 
 // GetDebugRenderable returns whatever renderable is stored under the input
 // string, if any.
-func GetDebugRenderable(rName string) (Renderable, bool) {
+func GetDebugRenderable(rName string) (render.Renderable, bool) {
 	r, ok := debugMap.Load(rName)
 	if r == nil {
 		return nil, false
 	}
-	return r.(Renderable), ok
+	return r.(render.Renderable), ok
 }
 
-// EnumerateDebugRenderableKeys which does not check to see if the associated renderables are still extant
+// EnumerateDebugRenderableKeys lists all registered renderables by key.
+// It does not check to see if the associated renderables are still valid in any respect.
 func EnumerateDebugRenderableKeys() []string {
 	keys := []string{}
 	debugMap.Range(func(k, v interface{}) bool {

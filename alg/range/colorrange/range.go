@@ -1,4 +1,4 @@
-// Package colorrange holds distributions that accept and return color.Colors
+// Package colorrange provides distributions that accept and return color.Colors.
 package colorrange
 
 import (

@@ -1,4 +1,4 @@
-// Package riff reads and umarshalls RIFF files
+// Package riff reads and umarshalls RIFF files.
 package riff
 
 import (

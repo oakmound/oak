@@ -5,6 +5,8 @@ import (
 	"image/draw"
 )
 
+// A Background can be used as a background draw layer. Backgrounds will be drawn as the first
+// element in each frame, and are expected to cover up data drawn on the previous frame.
 type Background interface {
 	GetRGBA() *image.RGBA
 }
@@ -22,12 +24,12 @@ func (w *Window) drawLoop() {
 	w.publish()
 
 	for {
-	drawSelect:
 		select {
 		case <-w.quitCh:
 			return
 		case <-w.drawCh:
 			<-w.drawCh
+		loadingSelect:
 			for {
 				select {
 				case <-w.ParentContext.Done():
@@ -35,7 +37,7 @@ func (w *Window) drawLoop() {
 				case <-w.quitCh:
 					return
 				case <-w.drawCh:
-					break drawSelect
+					break loadingSelect
 				case <-w.DrawTicker.C:
 					draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
 					if w.LoadingR != nil {

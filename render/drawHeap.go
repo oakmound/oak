@@ -48,6 +48,7 @@ func NewStaticHeap() *RenderableHeap {
 	return newHeap(true)
 }
 
+// Clear empties out the heap.
 func (rh *RenderableHeap) Clear() {
 	*rh = *newHeap(rh.static)
 }
@@ -96,6 +97,7 @@ func (rh *RenderableHeap) Copy() Stackable {
 	return newHeap(rh.static)
 }
 
+// DrawToScreen draws all elements in the heap to the screen.
 func (rh *RenderableHeap) DrawToScreen(world draw.Image, viewPos *intgeom.Point2, screenW, screenH int) {
 	newRh := &RenderableHeap{}
 	if rh.static {

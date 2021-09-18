@@ -31,9 +31,8 @@ type ExistingElement struct {
 func (ee ExistingElement) Error() string {
 	if ee.Overwritten {
 		return errorString(codeExistingElementOverwritten, ee.InputName, ee.InputType)
-	} else {
-		return errorString(codeExistingElement, ee.InputName, ee.InputType)
 	}
+	return errorString(codeExistingElement, ee.InputName, ee.InputType)
 }
 
 // InsufficientInputs is returned when something requires at least some number

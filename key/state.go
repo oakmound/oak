@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+// A State tracks what keys of a keyboard are currently pressed and for how long they have been
+// pressed if they are held down.
 type State struct {
 	state        map[string]bool
 	durations    map[string]time.Time
@@ -12,6 +14,7 @@ type State struct {
 	durationLock sync.RWMutex
 }
 
+// NewState creates a state object for tracking keyboard state.
 func NewState() State {
 	return State{
 		state:     make(map[string]bool),

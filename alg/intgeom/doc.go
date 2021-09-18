@@ -1,2 +1,2 @@
-// Package intgeom stores primitives for integer geometry
+// Package intgeom provides primitives for integer geometry.
 package intgeom

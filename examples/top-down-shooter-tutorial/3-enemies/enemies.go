@@ -87,9 +87,9 @@ func main() {
 		})
 
 		event.GlobalBind(event.Enter, func(_ event.CID, frames interface{}) int {
-			f := frames.(int)
-			if f%EnemyRefresh == 0 {
-				NewEnemy(ctx)
+			enterPayload := frames.(event.EnterPayload)
+			if enterPayload.FramesElapsed%EnemyRefresh == 0 {
+				go NewEnemy(ctx)
 			}
 			return 0
 		})

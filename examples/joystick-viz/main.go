@@ -60,7 +60,7 @@ var initialOffsets = map[string]floatgeom.Point2{
 }
 
 func newRenderer(ctx *scene.Context, joy *joystick.Joystick) error {
-	outline, err := render.LoadSprite("", "controllerOutline.png")
+	outline, err := render.LoadSprite("controllerOutline.png")
 	if err != nil {
 		return err
 	}
@@ -240,7 +240,7 @@ func main() {
 	oak.AddScene("viz", scene.Scene{Start: func(ctx *scene.Context) {
 		joystick.Init()
 		latestInput := new(string)
-		*latestInput = "Latest Input: None"
+		*latestInput = "Latest Input: Keyboard+Mouse"
 		ctx.DrawStack.Draw(render.NewStrPtrText(latestInput, 10, 460), 4)
 		ctx.DrawStack.Draw(render.NewText("Space to Vibrate", 10, 440), 4)
 		ctx.EventHandler.GlobalBind(event.InputChange, func(_ event.CID, payload interface{}) int {
@@ -259,14 +259,12 @@ func main() {
 			for joy := range jCh {
 				err := newRenderer(ctx, joy)
 				if err != nil {
-					fmt.Println(err)
+					fmt.Println("renderer:", err)
 				}
 			}
 		}()
 	}})
 	oak.Init("viz", func(c oak.Config) (oak.Config, error) {
-		c.Assets.ImagePath = "."
-		c.Assets.AssetPath = "."
 		c.TrackInputChanges = true
 		return c, nil
 	})

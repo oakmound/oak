@@ -58,7 +58,10 @@ func TestAudioFuncs(t *testing.T) {
 	a.Play()
 	time.Sleep(a.PlayLength())
 	// Assert yet quieter audio is playing
-	a.SetVolume(-2000)
+	err = a.SetVolume(-2000)
+	if err != nil {
+		t.Fatalf("unexpected error on set volume: %v", err)
+	}
 	a.Play()
 	time.Sleep(a.PlayLength())
 	// Assert yet quieter audio is playing

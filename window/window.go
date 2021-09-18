@@ -1,3 +1,4 @@
+// Package window provides a common interface for oak-created windows.
 package window
 
 import (
@@ -16,9 +17,6 @@ type Window interface {
 	ShowNotification(title, msg string, icon bool) error
 	MoveWindow(x, y, w, h int) error
 	HideCursor() error
-
-	//GetMonitorSize() (int, int)
-	//Close() error
 
 	Width() int
 	Height() int

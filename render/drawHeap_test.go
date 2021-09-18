@@ -11,7 +11,6 @@ import (
 const heapLoops = 2000
 
 func TestDrawHeapLoop(t *testing.T) {
-	initTestFont()
 	h := NewDynamicHeap()
 	h2 := NewStaticHeap()
 

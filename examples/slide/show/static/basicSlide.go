@@ -1,6 +1,7 @@
 package static
 
 import (
+	"fmt"
 	"os"
 
 	oak "github.com/oakmound/oak/v3"
@@ -23,10 +24,12 @@ func (ss *Slide) Init() {
 	oak.SetFullScreen(true)
 	render.Draw(ss.Rs, 0)
 	event.GlobalBind("KeyUp"+ss.ContinueKey, func(event.CID, interface{}) int {
+		fmt.Println("continue key pressed")
 		ss.cont = true
 		return 0
 	})
 	event.GlobalBind("KeyUp"+ss.PrevKey, func(event.CID, interface{}) int {
+		fmt.Println("prev key pressed")
 		ss.prev = true
 		return 0
 	})

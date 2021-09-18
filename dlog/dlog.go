@@ -11,13 +11,12 @@ type Logger interface {
 	Info(...interface{})
 	Verb(...interface{})
 	SetFilter(func(string) bool)
-	GetLogLevel() Level
 	SetLogLevel(l Level) error
 	SetOutput(io.Writer)
 }
 
 // DefaultLogger is the Logger which all oak log messages are passed through.
-var DefaultLogger Logger = NewLogger()
+var DefaultLogger = NewLogger()
 
 // ErrorCheck checks that the input is not nil, then calls Error on it if it is
 // not. Otherwise it does nothing.
@@ -44,11 +43,6 @@ func Verb(vs ...interface{}) {
 	DefaultLogger.Verb(vs...)
 }
 
-// GetLogLevel returns the set logger's log level
-func GetLogLevel() Level {
-	return DefaultLogger.GetLogLevel()
-}
-
 // SetFilter defines a custom filter function. Log lines that
 // return false when passed to this function will not be output.
 func SetFilter(filter func(string) bool) {
@@ -60,6 +54,8 @@ func SetLogLevel(l Level) error {
 	return DefaultLogger.SetLogLevel(l)
 }
 
+// SetOutput will output logs on the default logger to be written to
+// the given writer.
 func SetOutput(w io.Writer) {
 	DefaultLogger.SetOutput(w)
 }

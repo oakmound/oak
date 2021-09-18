@@ -23,7 +23,7 @@ func TestTrackInputChanges(t *testing.T) {
 	expectedType := new(InputType)
 	*expectedType = InputKeyboardMouse
 	failed := false
-	c1.logicHandler.GlobalBind(event.InputChange, func(_ event.CID, payload interface{}) int {
+	c1.eventHandler.GlobalBind(event.InputChange, func(_ event.CID, payload interface{}) int {
 		mode := payload.(InputType)
 		if mode != *expectedType {
 			failed = true
@@ -36,7 +36,7 @@ func TestTrackInputChanges(t *testing.T) {
 		t.Fatalf("keyboard change failed")
 	}
 	*expectedType = InputJoystick
-	c1.logicHandler.Trigger("Tracking"+joystick.Change, &joystick.State{})
+	c1.eventHandler.Trigger("Tracking"+joystick.Change, &joystick.State{})
 	time.Sleep(2 * time.Second)
 	if failed {
 		t.Fatalf("joystick change failed")

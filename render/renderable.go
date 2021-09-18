@@ -20,7 +20,7 @@ type Renderable interface {
 	physics.Attachable
 }
 
-// Positional types have 2d positions on a screen and can be manipulated
+// Positional types have 2D positions on a screen and can be manipulated
 // to be in a certain position on that screen.
 //
 // Basic Implementing struct: physics.Vector

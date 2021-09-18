@@ -14,7 +14,6 @@ type Config struct {
 	Assets              Assets           `json:"assets"`
 	Debug               Debug            `json:"debug"`
 	Screen              Screen           `json:"screen"`
-	Font                Font             `json:"font"`
 	BatchLoadOptions    BatchLoadOptions `json:"batchLoadOptions"`
 	FrameRate           int              `json:"frameRate"`
 	DrawFrameRate       int              `json:"drawFrameRate"`
@@ -36,10 +35,12 @@ type Config struct {
 // A Duration is a wrapper around time.Duration that allows for easier json formatting.
 type Duration time.Duration
 
+// MarshalJSON writes a duration as json.
 func (d Duration) MarshalJSON() ([]byte, error) {
 	return json.Marshal(time.Duration(d).String())
 }
 
+// UnmarshalJSON extracts a duration from a json byte slice.
 func (d *Duration) UnmarshalJSON(b []byte) error {
 	var v interface{}
 	if err := json.Unmarshal(b, &v); err != nil {
@@ -61,6 +62,7 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 	}
 }
 
+// NewConfig creates a config from a set of transformation options.
 func NewConfig(opts ...ConfigOption) (Config, error) {
 	c := Config{}
 	c = c.setDefaults()
@@ -76,10 +78,8 @@ func NewConfig(opts ...ConfigOption) (Config, error) {
 
 func (c Config) setDefaults() Config {
 	c.Assets = Assets{
-		AssetPath: "assets/",
-		AudioPath: "audio/",
-		ImagePath: "images/",
-		FontPath:  "font/",
+		AudioPath: "assets/audio/",
+		ImagePath: "assets/images/",
 	}
 	c.Debug = Debug{
 		Level: "ERROR",
@@ -88,13 +88,6 @@ func (c Config) setDefaults() Config {
 		Height: 480,
 		Width:  640,
 		Scale:  1,
-	}
-	c.Font = Font{
-		Hinting: "none",
-		Size:    12.0,
-		DPI:     72.0,
-		File:    "",
-		Color:   "white",
 	}
 	c.FrameRate = 60
 	c.DrawFrameRate = 60
@@ -107,10 +100,8 @@ func (c Config) setDefaults() Config {
 
 // Assets is a json type storing paths to different asset folders
 type Assets struct {
-	AssetPath string `json:"assetPath"`
 	AudioPath string `json:"audioPath"`
 	ImagePath string `json:"imagePath"`
-	FontPath  string `json:"fontPath"`
 }
 
 // Debug is a json type storing the starting debug filter and level
@@ -121,26 +112,17 @@ type Debug struct {
 
 // Screen is a json type storing the starting screen width and height
 type Screen struct {
-	X      int `json:"X"`
-	Y      int `json:"Y"`
-	Height int `json:"height"`
-	Width  int `json:"width"`
-	Scale  int `json:"scale"`
+	X      int     `json:"X"`
+	Y      int     `json:"Y"`
+	Height int     `json:"height"`
+	Width  int     `json:"width"`
+	Scale  float64 `json:"scale"`
 	// Target sets the expected dimensions of the monitor the game will be opened on, in pixels.
 	// If Fullscreen is false, then a scaling will be applied to correct the game screen size to be
 	// appropriate for the Target size. If no TargetWidth or Height is provided, scaling will not
 	// be adjusted.
 	TargetWidth  int `json:"targetHeight"`
 	TargetHeight int `json:"targetWidth"`
-}
-
-// Font is a json type storing the default font settings
-type Font struct {
-	Hinting string  `json:"hinting"`
-	Size    float64 `json:"size"`
-	DPI     float64 `json:"dpi"`
-	File    string  `json:"file"`
-	Color   string  `json:"color"`
 }
 
 // BatchLoadOptions is a json type storing customizations for batch loading.
@@ -150,7 +132,7 @@ type BatchLoadOptions struct {
 	MaxImageFileSize int64 `json:"maxImageFileSize"`
 }
 
-// LoadConf loads a config file, that could exist inside
+// FileConfig loads a config file, that could exist inside
 // oak's binary data storage (see fileutil), to SetupConfig
 func FileConfig(filePath string) ConfigOption {
 	return func(c Config) (Config, error) {
@@ -163,8 +145,10 @@ func FileConfig(filePath string) ConfigOption {
 	}
 }
 
+// A ConfigOption transforms a Config object.
 type ConfigOption func(Config) (Config, error)
 
+// ReaderConfig reads a Config as json from the given reader.
 func ReaderConfig(r io.Reader) ConfigOption {
 	return func(c Config) (Config, error) {
 		c2 := Config{}
@@ -182,17 +166,11 @@ func ReaderConfig(r io.Reader) ConfigOption {
 func (c Config) overwriteFrom(c2 Config) Config {
 	// TODO: is this the right place for these configuration pieces?
 	// TODO: is there other configuration that should go here?
-	if c2.Assets.AssetPath != "" {
-		c.Assets.AssetPath = c2.Assets.AssetPath
-	}
 	if c2.Assets.AudioPath != "" {
 		c.Assets.AudioPath = c2.Assets.AudioPath
 	}
 	if c2.Assets.ImagePath != "" {
 		c.Assets.ImagePath = c2.Assets.ImagePath
-	}
-	if c2.Assets.FontPath != "" {
-		c.Assets.FontPath = c2.Assets.FontPath
 	}
 	if c2.Debug.Filter != "" {
 		c.Debug.Filter = c2.Debug.Filter
@@ -220,21 +198,6 @@ func (c Config) overwriteFrom(c2 Config) Config {
 	}
 	if c2.Screen.TargetHeight != 0 {
 		c.Screen.TargetHeight = c2.Screen.TargetHeight
-	}
-	if c2.Font.Hinting != "" {
-		c.Font.Hinting = c2.Font.Hinting
-	}
-	if c2.Font.Size != 0 {
-		c.Font.Size = c2.Font.Size
-	}
-	if c2.Font.DPI != 0 {
-		c.Font.DPI = c2.Font.DPI
-	}
-	if c2.Font.File != "" {
-		c.Font.File = c2.Font.File
-	}
-	if c2.Font.Color != "" {
-		c.Font.Color = c2.Font.Color
 	}
 	c.BatchLoadOptions.BlankOutAudio = c2.BatchLoadOptions.BlankOutAudio
 	if c2.BatchLoadOptions.MaxImageFileSize != 0 {

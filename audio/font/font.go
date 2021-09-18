@@ -1,5 +1,5 @@
 // Package font provides utilities to package together audio manipulations as
-// a 'font'
+// a 'font'.
 package font
 
 import audio "github.com/oakmound/oak/v3/audio/klang"

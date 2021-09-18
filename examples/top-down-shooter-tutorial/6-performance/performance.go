@@ -3,7 +3,6 @@ package main
 import (
 	"image/color"
 	"math/rand"
-	"path/filepath"
 	"time"
 
 	"github.com/oakmound/oak/v3/render/mod"
@@ -49,17 +48,18 @@ func main() {
 	oak.AddScene("tds", scene.Scene{Start: func(ctx *scene.Context) {
 		render.Draw(render.NewDrawFPS(0, nil, 10, 10), 2, 0)
 		render.Draw(render.NewLogicFPS(0, nil, 10, 20), 2, 0)
+		// render.Draw(debugtools.NewThickRTree(ctx, collision.DefaultTree, 5), 2, 3)
 
 		// Initialization
 		playerAlive = true
-		sprites, err := render.GetSheet(filepath.Join("16x16", "sheet.png"))
+		sprites, err := render.GetSheet("sheet.png")
 		dlog.ErrorCheck(err)
 		sheet = sprites.ToSprites()
 
 		oak.SetViewportBounds(intgeom.NewRect2(0, 0, fieldWidth, fieldHeight))
 
 		// Player setup
-		eggplant, err := render.GetSprite(filepath.Join("character", "eggplant-fish.png"))
+		eggplant, err := render.GetSprite("eggplant-fish.png")
 		dlog.ErrorCheck(err)
 		playerR := render.NewSwitch("left", map[string]render.Modifiable{
 			"left": eggplant,
@@ -188,6 +188,7 @@ func main() {
 
 	oak.Init("tds", func(c oak.Config) (oak.Config, error) {
 		c.BatchLoad = true
+		c.Assets.ImagePath = "assets/images"
 		//c.FrameRate = 30
 		return c, nil
 	})

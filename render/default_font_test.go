@@ -5,7 +5,6 @@ import (
 )
 
 func TestLegacyFont(t *testing.T) {
-	initTestFont()
 	if NewStringerText(dummyStringer{}, 0, 0) == nil {
 		t.Fatalf("NewStringerText failed")
 	}

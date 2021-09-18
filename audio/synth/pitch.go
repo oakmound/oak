@@ -396,8 +396,8 @@ type Step int
 // Step values
 const (
 	HalfStep  Step = 1
-	WholeStep      = 2
-	Octave         = 12
+	WholeStep Step = 2
+	Octave    Step = 12
 )
 
 // Up raises a pitch s steps

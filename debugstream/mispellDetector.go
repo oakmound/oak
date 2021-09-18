@@ -3,7 +3,6 @@ package debugstream
 const (
 	unmatched          = iota
 	potentialDuplicate = iota
-	transposed         = iota
 	matched            = iota
 )
 

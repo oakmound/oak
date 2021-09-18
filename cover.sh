@@ -1,14 +1,22 @@
 #!/usr/bin/env bash
-set -e
+
 echo "" > coverage.txt
-# go test -coverprofile=profile.out -covermode=atomic .
-# if [ -f profile.out ]; then
-#     cat profile.out >> coverage.txt
-#     rm profile.out
-# fi
-#
-# Don't run coverage on examples, just test that they compile
-go test ./examples/...
+
+examples=$(find ./examples | grep main.go$)
+for ex in $examples 
+do
+    echo $ex
+    dir=$(dirname $ex)
+    cd $dir
+    timeout 5 go run --tags=nooswindow $(basename $ex)
+    if [ $? -ne 124 ]
+    then
+        exit 1
+    fi
+    cd ../..
+done
+
+set -e
 go test -coverprofile=profile.out -covermode=atomic ./alg
 if [ -f profile.out ]; then
     cat profile.out >> coverage.txt

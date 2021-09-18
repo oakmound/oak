@@ -38,11 +38,6 @@ func NewLogger() Logger {
 	}
 }
 
-// GetLogLevel returns the current log level, i.e WARN or INFO...
-func (l *logger) GetLogLevel() Level {
-	return l.debugLevel
-}
-
 // dLog, the primary function of the package,
 // prints out and writes to file a string
 // containing the logged data separated by spaces,
@@ -113,9 +108,8 @@ func (l *logger) SetFilter(filter func(string) bool) {
 func (l *logger) SetLogLevel(level Level) error {
 	if level < NONE || level > VERBOSE {
 		return oakerr.InvalidInput{}
-	} else {
-		l.debugLevel = level
 	}
+	l.debugLevel = level
 	return nil
 }
 

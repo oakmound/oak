@@ -14,7 +14,9 @@
 package mtldriver
 
 import (
+	"image"
 	"runtime"
+	"sync"
 	"unsafe"
 
 	"dmitri.shuralyov.com/gpu/mtl"
@@ -29,10 +31,6 @@ import (
 	"golang.org/x/mobile/event/size"
 )
 
-func init() {
-	runtime.LockOSThread()
-}
-
 // Main is called by the program's main function to run the graphical
 // application.
 //
@@ -45,54 +43,102 @@ func Main(f func(screen.Screen)) {
 	}
 }
 
+var initLock sync.Mutex
+
+func init() {
+	runtime.LockOSThread()
+}
+
+var glfwChans windowRequestChannels
+
+var windowCt = 0
+
 func main(f func(screen.Screen)) error {
-	device, err := mtl.CreateSystemDefaultDevice()
-	if err != nil {
-		return err
-	}
-	err = glfw.Init()
-	if err != nil {
-		return err
-	}
-	defer glfw.Terminate()
-	glfw.WindowHint(glfw.ClientAPI, glfw.NoAPI)
-	{
-		// TODO(dmitshur): Delete this when https://github.com/go-gl/glfw/issues/272 is resolved.
-		// Post an empty event from the main thread before it can happen in a non-main thread,
-		// to work around https://github.com/glfw/glfw/issues/1649.
-		glfw.PostEmptyEvent()
-	}
-	var (
-		done            = make(chan struct{})
-		newWindowCh     = make(chan newWindowReq, 1)
-		releaseWindowCh = make(chan releaseWindowReq, 1)
-		moveWindowCh    = make(chan moveWindowReq, 1)
-	)
-	go func() {
-		f(&screenImpl{
-			newWindowCh: newWindowCh,
-		})
-		close(done)
-		glfw.PostEmptyEvent() // Break main loop out of glfw.WaitEvents so it can receive on done.
-	}()
-	for {
-		select {
-		case <-done:
-			return nil
-		case req := <-newWindowCh:
-			w, err := newWindow(device, releaseWindowCh, moveWindowCh, req.opts)
-			req.respCh <- newWindowResp{w, err}
-		case req := <-releaseWindowCh:
-			req.window.Destroy()
-			req.respCh <- struct{}{}
-		case req := <-moveWindowCh:
-			req.window.SetPos(int(req.x), int(req.y))
-			req.window.SetSize(int(req.width), int(req.height))
-			req.respCh <- struct{}{}
-		default:
-			glfw.WaitEvents()
+	initLock.Lock()
+	windowCt++
+	if windowCt == 1 {
+		// primary window, must initalize glfw.
+		// this must occur here. It must not occur inside init.
+		// glfw.PostEmptyEvent from within init, or within a goroutine spawned
+		// by init, regardless of LockOSThread calls, hangs.
+		glfwChans = windowRequestChannels{
+			newCh:     make(chan newWindowReq, 1),
+			releaseCh: make(chan releaseWindowReq, 1),
+			updateCh:  make(chan updateWindowReq, 1),
+		}
+		device, err := mtl.CreateSystemDefaultDevice()
+		if err != nil {
+			return err
+		}
+		err = glfw.Init()
+		if err != nil {
+			return err
+		}
+		glfw.WindowHint(glfw.ClientAPI, glfw.NoAPI)
+		{
+			// TODO(dmitshur): Delete this when https://github.com/go-gl/glfw/issues/272 is resolved.
+			// Post an empty event from the main thread before it can happen in a non-main thread,
+			// to work around https://github.com/glfw/glfw/issues/1649.
+			glfw.PostEmptyEvent()
+		}
+		initLock.Unlock()
+		go func() {
+			f(&screenImpl{
+				newWindowCh: glfwChans.newCh,
+			})
+		}()
+		for {
+			select {
+			case req := <-glfwChans.newCh:
+				w, err := newWindow(device, glfwChans, req.opts)
+				req.respCh <- newWindowResp{w, err}
+			case req := <-glfwChans.releaseCh:
+				req.window.Destroy()
+				req.respCh <- struct{}{}
+				initLock.Lock()
+				windowCt--
+				if windowCt == 0 {
+					glfw.Terminate()
+					initLock.Unlock()
+					return nil
+				}
+				initLock.Unlock()
+			case req := <-glfwChans.updateCh:
+				// this is not functionalized to prevent methods from accidentally
+				// calling this outside of the main thread
+				if req.setPos {
+					req.window.SetPos(int(req.x), int(req.y))
+					req.window.SetSize(int(req.width), int(req.height))
+					req.respCh <- struct{}{}
+				}
+				if req.setBorderless != nil {
+					if *req.setBorderless {
+						req.window.SetAttrib(glfw.Decorated, 0)
+					} else {
+						req.window.SetAttrib(glfw.Decorated, 1)
+					}
+				}
+				if req.setFullscreen != nil {
+					// TODO: this constant should be configurable
+					const refreshRate = 60
+					if *req.setFullscreen {
+						req.window.SetMonitor(glfw.GetPrimaryMonitor(), 0, 0, req.width, req.height, refreshRate)
+					} else {
+						req.window.SetMonitor(nil, req.x, req.y, req.width, req.height, refreshRate)
+					}
+				}
+				req.respCh <- struct{}{}
+			default:
+				glfw.WaitEvents()
+			}
 		}
 	}
+	initLock.Unlock()
+	// secondary window, does not need to initalize glfw
+	f(&screenImpl{
+		newWindowCh: glfwChans.newCh,
+	})
+	return nil
 }
 
 type newWindowReq struct {
@@ -104,22 +150,37 @@ type newWindowResp struct {
 	w   screen.Window
 	err error
 }
-type moveWindowReq struct {
-	window              *glfw.Window
-	x, y, width, height int
-	respCh              chan struct{}
-}
 
 type releaseWindowReq struct {
 	window *glfw.Window
 	respCh chan struct{}
 }
 
+type updateWindowReq struct {
+	window              *glfw.Window
+	setFullscreen       *bool
+	setBorderless       *bool
+	setPos              bool
+	x, y, width, height int
+	respCh              chan struct{}
+}
+
+type windowRequestChannels struct {
+	newCh     chan newWindowReq
+	releaseCh chan releaseWindowReq
+	updateCh  chan updateWindowReq
+}
+
 // newWindow creates a new GLFW window.
 // It must be called on the main thread.
-func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, moveWindowCh chan moveWindowReq, opts screen.WindowGenerator) (screen.Window, error) {
+func newWindow(device mtl.Device, chans windowRequestChannels, opts screen.WindowGenerator) (screen.Window, error) {
 	width, height := optsSize(opts)
-	window, err := glfw.CreateWindow(width, height, opts.Title, nil, nil)
+	// TODO: explicit monitor choice
+	var monitor *glfw.Monitor
+	if opts.Fullscreen {
+		monitor = glfw.GetPrimaryMonitor()
+	}
+	window, err := glfw.CreateWindow(width, height, opts.Title, monitor, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -137,12 +198,22 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, moveWin
 	}
 
 	w := &windowImpl{
-		device:          device,
-		window:          window,
-		releaseWindowCh: releaseWindowCh,
-		moveWindowCh:    moveWindowCh,
-		ml:              ml,
-		cq:              device.MakeCommandQueue(),
+		device: device,
+		window: window,
+		chans:  chans,
+		ml:     ml,
+		cq:     device.MakeCommandQueue(),
+		rgba:   image.NewRGBA(image.Rectangle{Max: image.Point{X: opts.Width, Y: opts.Height}}),
+		texture: device.MakeTexture(mtl.TextureDescriptor{
+			PixelFormat: mtl.PixelFormatRGBA8UNorm,
+			Width:       opts.Width,
+			Height:      opts.Height,
+			StorageMode: mtl.StorageModeManaged,
+		}),
+		title:      opts.Title,
+		w:          opts.Width,
+		h:          opts.Height,
+		borderless: opts.Borderless,
 	}
 
 	// Set callbacks.
@@ -183,28 +254,29 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, moveWin
 			X: float32(x * scale), Y: float32(y * scale),
 			Button:    btn,
 			Direction: glfwMouseDirection(a),
-			// TODO(dmitshur): set Modifiers
+			Modifiers: glfwKeyMods(mods),
 		})
 	})
+	// TODO: can we combine the following two callbacks into a single event? Signs point to no.
 	window.SetKeyCallback(func(_ *glfw.Window, k glfw.Key, _ int, a glfw.Action, mods glfw.ModifierKey) {
 		code := glfwKeyCode(k)
 		if code == key.CodeUnknown {
 			return
 		}
-		w.Send(key.Event{
+		ev := key.Event{
 			Code:      code,
 			Direction: glfwKeyDirection(a),
-			// TODO(dmitshur): set Modifiers
-		})
+			Modifiers: glfwKeyMods(mods),
+		}
+		w.Send(ev)
 	})
+	// TODO: some characters will repeat when held down, but not all of them,
+	// and not any consistent type of character (e.g. 'n' will repeat, 'b' will not)
 	window.SetCharCallback(func(_ *glfw.Window, char rune) {
 		w.Send(key.Event{
-			Direction: key.DirPress,
-			Rune:      char,
+			Rune: char,
 		})
 	})
-	// TODO(dmitshur): set CharModsCallback to catch text (runes) that are typed,
-	//                 and perhaps try to unify key pressed + character typed into single event
 	window.SetCloseCallback(func(*glfw.Window) {
 		w.lifecycler.SetDead(true)
 		w.lifecycler.SendEvent(w, nil)
@@ -219,6 +291,8 @@ func newWindow(device mtl.Device, releaseWindowCh chan releaseWindowReq, moveWin
 	// Send the initial size and paint events.
 	width, height = window.GetFramebufferSize()
 	framebufferSizeCallback(window, width, height)
+
+	w.x, w.y = window.GetPos()
 
 	return w, nil
 }
@@ -258,20 +332,131 @@ func glfwMouseDirection(action glfw.Action) mouse.Direction {
 	}
 }
 
+var keyMap = map[glfw.Key]key.Code{
+	glfw.KeyEscape:    key.CodeEscape,
+	glfw.KeyEnter:     key.CodeReturnEnter,
+	glfw.KeyTab:       key.CodeTab,
+	glfw.KeyBackspace: key.CodeDeleteBackspace,
+	glfw.KeyInsert:    key.CodeInsert,
+	// note not differentiated from backspace
+	glfw.KeyDelete:       key.CodeDeleteBackspace,
+	glfw.KeyRight:        key.CodeRightArrow,
+	glfw.KeyLeft:         key.CodeLeftArrow,
+	glfw.KeyDown:         key.CodeDownArrow,
+	glfw.KeyUp:           key.CodeUpArrow,
+	glfw.KeyPageUp:       key.CodePageUp,
+	glfw.KeyPageDown:     key.CodePageDown,
+	glfw.KeyHome:         key.CodeHome,
+	glfw.KeyEnd:          key.CodeEnd,
+	glfw.KeyCapsLock:     key.CodeCapsLock,
+	glfw.KeyNumLock:      key.CodeKeypadNumLock,
+	glfw.KeyPause:        key.CodePause,
+	glfw.KeyF1:           key.CodeF1,
+	glfw.KeyF2:           key.CodeF2,
+	glfw.KeyF3:           key.CodeF3,
+	glfw.KeyF4:           key.CodeF4,
+	glfw.KeyF5:           key.CodeF5,
+	glfw.KeyF6:           key.CodeF6,
+	glfw.KeyF7:           key.CodeF7,
+	glfw.KeyF8:           key.CodeF8,
+	glfw.KeyF9:           key.CodeF9,
+	glfw.KeyF10:          key.CodeF10,
+	glfw.KeyF11:          key.CodeF11,
+	glfw.KeyF12:          key.CodeF12,
+	glfw.KeyF13:          key.CodeF13,
+	glfw.KeyF14:          key.CodeF14,
+	glfw.KeyF15:          key.CodeF15,
+	glfw.KeyF16:          key.CodeF16,
+	glfw.KeyF17:          key.CodeF17,
+	glfw.KeyF18:          key.CodeF18,
+	glfw.KeyF19:          key.CodeF19,
+	glfw.KeyF20:          key.CodeF20,
+	glfw.KeyF21:          key.CodeF21,
+	glfw.KeyF22:          key.CodeF22,
+	glfw.KeyF23:          key.CodeF23,
+	glfw.KeyF24:          key.CodeF24,
+	glfw.KeyKPDecimal:    key.CodeKeypadFullStop,
+	glfw.KeyKPEnter:      key.CodeKeypadEnter,
+	glfw.KeyLeftShift:    key.CodeLeftShift,
+	glfw.KeyLeftControl:  key.CodeLeftControl,
+	glfw.KeyLeftAlt:      key.CodeLeftAlt,
+	glfw.KeyLeftSuper:    key.CodeLeftGUI,
+	glfw.KeyRightShift:   key.CodeRightShift,
+	glfw.KeyRightControl: key.CodeRightControl,
+	glfw.KeyRightAlt:     key.CodeRightAlt,
+	glfw.KeyRightSuper:   key.CodeRightGUI,
+	glfw.KeySpace:        key.CodeSpacebar,
+	glfw.KeyApostrophe:   key.CodeApostrophe,
+	glfw.KeyComma:        key.CodeComma,
+	glfw.KeyMinus:        key.CodeHyphenMinus,
+	glfw.KeyPeriod:       key.CodeFullStop,
+	glfw.KeySlash:        key.CodeSlash,
+	glfw.Key0:            key.Code0,
+	glfw.Key1:            key.Code1,
+	glfw.Key2:            key.Code2,
+	glfw.Key3:            key.Code3,
+	glfw.Key4:            key.Code4,
+	glfw.Key5:            key.Code5,
+	glfw.Key6:            key.Code6,
+	glfw.Key7:            key.Code7,
+	glfw.Key8:            key.Code8,
+	glfw.Key9:            key.Code9,
+	glfw.KeySemicolon:    key.CodeUnknown,
+	glfw.KeyEqual:        key.CodeUnknown,
+	glfw.KeyA:            key.CodeA,
+	glfw.KeyB:            key.CodeB,
+	glfw.KeyC:            key.CodeC,
+	glfw.KeyD:            key.CodeD,
+	glfw.KeyE:            key.CodeE,
+	glfw.KeyF:            key.CodeF,
+	glfw.KeyG:            key.CodeG,
+	glfw.KeyH:            key.CodeH,
+	glfw.KeyI:            key.CodeI,
+	glfw.KeyJ:            key.CodeJ,
+	glfw.KeyK:            key.CodeK,
+	glfw.KeyL:            key.CodeL,
+	glfw.KeyM:            key.CodeM,
+	glfw.KeyN:            key.CodeN,
+	glfw.KeyO:            key.CodeO,
+	glfw.KeyP:            key.CodeP,
+	glfw.KeyQ:            key.CodeQ,
+	glfw.KeyR:            key.CodeR,
+	glfw.KeyS:            key.CodeS,
+	glfw.KeyT:            key.CodeT,
+	glfw.KeyU:            key.CodeU,
+	glfw.KeyV:            key.CodeV,
+	glfw.KeyW:            key.CodeW,
+	glfw.KeyX:            key.CodeX,
+	glfw.KeyY:            key.CodeY,
+	glfw.KeyZ:            key.CodeZ,
+	glfw.KeyLeftBracket:  key.CodeLeftSquareBracket,
+	glfw.KeyBackslash:    key.CodeBackslash,
+	glfw.KeyRightBracket: key.CodeRightSquareBracket,
+	glfw.KeyGraveAccent:  key.CodeGraveAccent,
+	glfw.KeyScrollLock:   key.CodeUnknown,
+	glfw.KeyPrintScreen:  key.CodeUnknown,
+	glfw.KeyKP0:          key.CodeKeypad0,
+	glfw.KeyKP1:          key.CodeKeypad1,
+	glfw.KeyKP2:          key.CodeKeypad2,
+	glfw.KeyKP3:          key.CodeKeypad3,
+	glfw.KeyKP4:          key.CodeKeypad4,
+	glfw.KeyKP5:          key.CodeKeypad5,
+	glfw.KeyKP6:          key.CodeKeypad6,
+	glfw.KeyKP7:          key.CodeKeypad7,
+	glfw.KeyKP8:          key.CodeKeypad8,
+	glfw.KeyKP9:          key.CodeKeypad9,
+	glfw.KeyKPDivide:     key.CodeKeypadSlash,
+	glfw.KeyKPMultiply:   key.CodeKeypadAsterisk,
+	glfw.KeyKPSubtract:   key.CodeKeypadHyphenMinus,
+	glfw.KeyKPAdd:        key.CodeKeypadPlusSign,
+	glfw.KeyKPEqual:      key.CodeKeypadEqualSign,
+}
+
 func glfwKeyCode(k glfw.Key) key.Code {
-	// TODO(dmitshur): support more keys
-	switch k {
-	case glfw.KeyEnter:
-		return key.CodeReturnEnter
-	case glfw.KeyEscape:
-		return key.CodeEscape
-	case glfw.KeyBackspace:
-		return key.CodeDeleteBackspace
-	case glfw.KeyTab:
-		return key.CodeTab
-	default:
-		return key.CodeUnknown
+	if kc, ok := keyMap[k]; ok {
+		return kc
 	}
+	return key.CodeUnknown
 }
 
 func glfwKeyDirection(action glfw.Action) key.Direction {
@@ -285,4 +470,20 @@ func glfwKeyDirection(action glfw.Action) key.Direction {
 	default:
 		panic("unreachable")
 	}
+}
+
+func glfwKeyMods(m glfw.ModifierKey) (mod key.Modifiers) {
+	if m&glfw.ModAlt == glfw.ModAlt {
+		mod |= key.ModAlt
+	}
+	if m&glfw.ModShift == glfw.ModShift {
+		mod |= key.ModShift
+	}
+	if m&glfw.ModControl == glfw.ModControl {
+		mod |= key.ModControl
+	}
+	if m&glfw.ModSuper == glfw.ModSuper {
+		mod |= key.ModMeta
+	}
+	return mod
 }

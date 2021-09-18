@@ -136,6 +136,7 @@ func (cs *CompositeR) Copy() Stackable {
 	return cs2
 }
 
+// DrawToScreen draws the elements in this composite to the given screen image.
 func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos *intgeom.Point2, screenW, screenH int) {
 	realLength := len(cs.rs)
 	for i := 0; i < realLength; i++ {
@@ -163,6 +164,7 @@ func (cs *CompositeR) DrawToScreen(world draw.Image, viewPos *intgeom.Point2, sc
 	cs.rs = cs.rs[0:realLength]
 }
 
+// Clear resets a composite to be empty.
 func (cs *CompositeR) Clear() {
 	*cs = *NewCompositeR()
 }

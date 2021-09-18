@@ -66,6 +66,7 @@ type titler interface {
 	SetTitle(string) error
 }
 
+// SetTitle sets this window's title.
 func (w *Window) SetTitle(title string) error {
 	if t, ok := w.windowControl.(titler); ok {
 		return t.SetTitle(title)
@@ -79,6 +80,7 @@ type trayIconer interface {
 	SetTrayIcon(string) error
 }
 
+// SetTrayIcon sets a application tray icon for this program.
 func (w *Window) SetTrayIcon(icon string) error {
 	if t, ok := w.windowControl.(trayIconer); ok {
 		return t.SetTrayIcon(icon)
@@ -92,6 +94,8 @@ type trayNotifier interface {
 	ShowNotification(title, msg string, icon bool) error
 }
 
+// ShowNotification shows a text notification, optionally using a previously set
+// tray icon.
 func (w *Window) ShowNotification(title, msg string, icon bool) error {
 	if t, ok := w.windowControl.(trayNotifier); ok {
 		return t.ShowNotification(title, msg, icon)
@@ -105,6 +109,7 @@ type cursorHider interface {
 	HideCursor() error
 }
 
+// HideCursor disables showing the cursor when it is over this window.
 func (w *Window) HideCursor() error {
 	if t, ok := w.windowControl.(cursorHider); ok {
 		return t.HideCursor()
@@ -118,6 +123,7 @@ type getCursorPositioner interface {
 	GetCursorPosition() (x, y float64)
 }
 
+// GetCursorPosition returns the cusor position relative to the top left corner of this window.
 func (w *Window) GetCursorPosition() (x, y float64, err error) {
 	if wp, ok := w.windowControl.(getCursorPositioner); ok {
 		x, y := wp.GetCursorPosition()

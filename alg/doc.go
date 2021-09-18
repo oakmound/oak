@@ -1,2 +1,2 @@
-// Package alg stores useful algorithms and math functions
+// Package alg provides algorithms and math utilities.
 package alg

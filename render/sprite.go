@@ -117,9 +117,3 @@ func OverlaySprites(sps []*Sprite) *Sprite {
 	}
 	return tmpSprite
 }
-
-// ParseSubSprite pulls a sprite from a loaded sheet
-func ParseSubSprite(sheet string, x, y, w, h, pad int) *Sprite {
-	sh, _ := LoadSheet(dir, sheet, w, h, pad)
-	return sh.SubSprite(x, y)
-}

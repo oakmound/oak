@@ -1,3 +1,2 @@
-// Package shape provides types to satisfy the Shape interface, which allows
-// for containment and outline checks on two dimensional shapes.
+// Package shape provides 2D shaping utilities.
 package shape

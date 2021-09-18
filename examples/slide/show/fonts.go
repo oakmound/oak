@@ -3,54 +3,43 @@ package show
 import (
 	"image"
 	"image/color"
-	"path/filepath"
+	"path"
 
 	"github.com/oakmound/oak/v3/render"
 )
 
 // Loaded Fonts
 var (
-	// Default size 12
-	// Default color white
-
 	Express, _ = (&render.FontGenerator{
-		File: fpFilter("expressway rg.ttf"),
+		File:  fpFilter("expressway rg.ttf"),
+		Color: image.NewUniform(color.RGBA{255, 255, 255, 255}),
 	}).Generate()
 	Gnuolane, _ = (&render.FontGenerator{
-		File: fpFilter("gnuolane rg.ttf"),
+		File:  fpFilter("gnuolane rg.ttf"),
+		Color: image.NewUniform(color.RGBA{255, 255, 255, 255}),
 	}).Generate()
 	Libel, _ = (&render.FontGenerator{
-		File: fpFilter("libel-suit-rg.ttf"),
+		File:  fpFilter("libel-suit-rg.ttf"),
+		Color: image.NewUniform(color.RGBA{255, 255, 255, 255}),
 	}).Generate()
 )
 
-// FontMod modifies a font
-type FontMod func(*render.Font) *render.Font
-
-// FontSet applies
-func FontSet(set func(*render.Font)) FontMod {
-	return func(f *render.Font) *render.Font {
-		f = f.Copy()
-		set(f)
-		f2, _ := f.Generate()
-		return f2
+//FontSize sets size on a font
+func FontSize(size float64) func(render.FontGenerator) render.FontGenerator {
+	return func(f render.FontGenerator) render.FontGenerator {
+		f.Size = size
+		return f
 	}
 }
 
-//FontSize sets size on a font
-func FontSize(size float64) FontMod {
-	return FontSet(func(f *render.Font) {
-		f.Size = size
-	})
-}
-
 //FontColor sets the color on a font
-func FontColor(c color.Color) FontMod {
-	return FontSet(func(f *render.Font) {
+func FontColor(c color.Color) func(render.FontGenerator) render.FontGenerator {
+	return func(f render.FontGenerator) render.FontGenerator {
 		f.Color = image.NewUniform(c)
-	})
+		return f
+	}
 }
 
 func fpFilter(file string) string {
-	return filepath.Join("assets", "font", file)
+	return path.Join("assets", "font", file)
 }

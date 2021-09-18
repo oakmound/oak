@@ -76,6 +76,8 @@ func Borderless(on bool) WindowOption {
 	}
 }
 
+// TopMost sets the starting topmost boolean of the new window, determining
+// whether the window should appear above other windows even when unfocused.
 func TopMost(on bool) WindowOption {
 	return func(g *WindowGenerator) {
 		g.TopMost = on

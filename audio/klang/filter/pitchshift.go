@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/oakmound/oak/v3/audio/klang/filter/supports"
-	"github.com/oakmound/oak/v3/audio/klang/manip"
+	"github.com/oakmound/oak/v3/audio/klang/internal/manip"
 )
 
 /*****************************************************************************
@@ -239,7 +239,7 @@ func (ps FFTShifter) PitchShift(shiftBy float64) Encoding {
 			}
 			// remap this f64in to the output
 			for i := c * int(byteDepth); i < len(data); i += int(byteDepth * 2) {
-				manip.SetInt16_f64(out, i, f64in[i/int(byteDepth*2)])
+				manip.SetInt16F64(out, i, f64in[i/int(byteDepth*2)])
 			}
 		}
 		datap := senc.GetData()

@@ -1,4 +1,4 @@
-// Package wav provides functionality to handle .wav files and .wav encoded data
+// Package wav provides functionality to handle .wav files and .wav encoded data.
 package wav
 
 import (

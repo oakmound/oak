@@ -48,9 +48,6 @@ func TestConfig_overwriteFrom(t *testing.T) {
 			TargetWidth:  1,
 			TargetHeight: 1,
 		},
-		Font: Font{
-			File: "lusixr.ttf",
-		},
 		BatchLoadOptions: BatchLoadOptions{
 			MaxImageFileSize: 10000,
 		},

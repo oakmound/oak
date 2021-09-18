@@ -1,4 +1,4 @@
-// Package mp3 provides functionality to handle .mp3 files and .mp3 encoded data
+// Package mp3 provides functionality to handle .mp3 files and .mp3 encoded data.
 package mp3
 
 import (

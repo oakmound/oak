@@ -69,7 +69,7 @@ func Start(width, height int, slides ...Slide) {
 				return cont
 			},
 			End: func() (string, *scene.Result) {
-
+				fmt.Println("ending")
 				if skip {
 					skip = false
 					return "slide" + skipTo, slideResult(sl)
@@ -80,6 +80,7 @@ func Start(width, height int, slides ...Slide) {
 					}
 					return "slide0", slideResult(sl)
 				}
+				fmt.Println("new slide", strconv.Itoa(i+1))
 				return "slide" + strconv.Itoa(i+1), slideResult(sl)
 			},
 		})

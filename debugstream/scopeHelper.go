@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/debugtools"
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/mouse"
@@ -116,7 +117,7 @@ func skipCommands(w window.Window) func([]string) string {
 	}
 }
 
-const explainFade = "fade the specified renderable by the given int if given. Renderable must be registered in debug"
+const explainFade = "fade the specified renderable by the given int if given. Renderable must be registered in debugtools"
 
 func fadeCommands(tokenString []string) (out string) {
 	if len(tokenString) == 0 {
@@ -125,14 +126,14 @@ func fadeCommands(tokenString []string) (out string) {
 			InputName: "arguments",
 		}.Error() + "\n"
 	}
-	toFade, ok := render.GetDebugRenderable(tokenString[0])
+	toFade, ok := debugtools.GetDebugRenderable(tokenString[0])
 	if ok {
 		fadeVal := parseTokenAsInt(tokenString, 1, 255)
 		toFade.(render.Modifiable).Filter(mod.Fade(fadeVal))
 		return
 	}
 	out += fmt.Sprintf("Could not fade input %s\n", tokenString[0]) +
-		fmt.Sprintf("Possible inputs are '%s'\n", strings.Join(render.EnumerateDebugRenderableKeys(), ", "))
+		fmt.Sprintf("Possible inputs are '%s'\n", strings.Join(debugtools.EnumerateDebugRenderableKeys(), ", "))
 	return
 }
 

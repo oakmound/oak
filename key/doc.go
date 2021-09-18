@@ -1,2 +1,2 @@
-// Package key enumerates keystrings for use in bindings
+// Package key enumerates keystrings for use in bindings.
 package key

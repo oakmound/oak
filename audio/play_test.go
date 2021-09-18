@@ -1,20 +1,21 @@
 package audio
 
 import (
+	"path/filepath"
 	"testing"
 	"time"
 )
 
 func TestPlayAndLoad(t *testing.T) {
-	_, err := Load("testdata", "test.wav")
+	_, err := Load(filepath.Join("testdata", "test.wav"))
 	if err != nil {
 		t.Fatalf("failed to load test.wav")
 	}
-	_, err = Load(".", "badfile.wav")
+	_, err = Load("badfile.wav")
 	if err == nil {
 		t.Fatalf("expected loading badfile to fail")
 	}
-	_, err = Load(".", "play_test.go")
+	_, err = Load("play_test.go")
 	if err == nil {
 		t.Fatalf("expected loading non-wav file to fail")
 	}
@@ -29,15 +30,7 @@ func TestPlayAndLoad(t *testing.T) {
 	}
 	time.Sleep(1 * time.Second)
 	// Assert something was played twice
-	_, err = GetSounds("test.wav")
-	if err != nil {
-		t.Fatalf("failed to get test.wav")
-	}
-	_, err = GetSounds("badfile.wav")
-	if err == nil {
-		t.Fatalf("expected getting badfile to fail")
-	}
-	Unload("test.wav")
+	DefaultCache.Clear("test.wav")
 	err = Play(DefaultFont, "test.wav")
 	if err == nil {
 		t.Fatalf("expected playing unloaded test.wav to fail")
