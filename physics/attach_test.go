@@ -51,6 +51,24 @@ func TestAttach(t *testing.T) {
 	if v.Y() == v5.Y()-5 {
 		t.Fatalf("expected %v and %v to differ", v.Y(), v5.Y()-5)
 	}
+
+	// DetachX DetachY
+	v6 := NewVector(0, 0)
+	v6.AttachX(v, 5)
+	v6.DetachY()
+	v.SetPos(6, 6)
+	if v.X() != v6.X()-5 {
+		t.Fatalf("expected %v got %v", v.X(), v6.X()-5)
+	}
+	v6.DetachX()
+	if v.X() != v6.X()-5 {
+		t.Fatalf("expected %v got %v", v.X(), v6.X()-5)
+	}
+	v.SetPos(7, 7)
+	if v.X() == v6.X()-5 {
+		t.Fatalf("expected %v and %v to differ", v.Y(), v6.Y()-5)
+	}
+
 }
 
 func ExampleAttachable() {
