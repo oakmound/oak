@@ -9,7 +9,7 @@ import (
 )
 
 func sleep() {
-	// TODO V3: test how far we can bring this down and get consistent results
+	// TODO: test how far we can bring this down and get consistent results
 	time.Sleep(300 * time.Millisecond)
 }
 

@@ -43,8 +43,6 @@ func NewLogger() Logger {
 // containing the logged data separated by spaces,
 // prepended with file and line information.
 // It only includes logs which pass the current filters.
-// Todo: use io.Multiwriter to simplify the writing to
-// both logfiles and stdout
 func (l *logger) dLog(level Level, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
 	_, f, line, ok := runtime.Caller(2)

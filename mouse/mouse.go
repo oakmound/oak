@@ -20,8 +20,6 @@ const (
 	ButtonNone       = mouse.ButtonNone
 )
 
-//TODO V3: should event names be strings?
-
 // GetEventName returns a string event name given some mobile/mouse information
 func GetEventName(d mouse.Direction, b mouse.Button) string {
 	switch d {
