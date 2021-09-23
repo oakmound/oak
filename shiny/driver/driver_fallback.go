@@ -8,6 +8,7 @@
 // +build !dragonfly
 // +build !openbsd
 // +build !nooswindow
+// +build !js
 
 package driver
 

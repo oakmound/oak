@@ -1,0 +1,73 @@
+package jsdriver
+
+import (
+	"fmt"
+	"image"
+	"syscall/js"
+
+	"github.com/oakmound/oak/v3/shiny/screen"
+	"golang.org/x/mobile/event/key"
+	"golang.org/x/mobile/event/mouse"
+)
+
+func Main(f func(screen.Screen)) {
+	f(&screenImpl{})
+}
+
+type screenImpl struct {
+	windows []*windowImpl
+}
+
+func (s *screenImpl) NewImage(size image.Point) (screen.Image, error) {
+	return imageImpl{
+		screen: s,
+		size:   size,
+		rgba:   image.NewRGBA(image.Rect(0, 0, size.X, size.Y)),
+	}, nil
+}
+
+func (s *screenImpl) NewTexture(size image.Point) (screen.Texture, error) {
+	return &textureImpl{
+		screen: s,
+		size:   size,
+	}, nil
+}
+
+func (s *screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, error) {
+	cvs := NewCanvas2d(opts.Width, opts.Height)
+
+	w := &windowImpl{
+		cvs:    cvs,
+		screen: s,
+	}
+
+	s.windows = append(s.windows, w)
+
+	cvs.canvas.Call("addEventListener", "mousemove", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		w.sendMouseEvent(args[0], mouse.DirNone)
+		//fmt.Println("mousemove")
+		return nil
+	}))
+	cvs.canvas.Call("addEventListener", "mousedown", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		w.sendMouseEvent(args[0], mouse.DirPress)
+		fmt.Println("mousedown", args)
+		return nil
+	}))
+	cvs.canvas.Call("addEventListener", "mouseup", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		w.sendMouseEvent(args[0], mouse.DirRelease)
+		fmt.Println("mouseup", args)
+		return nil
+	}))
+	cvs.doc.Call("addEventListener", "keydown", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		w.sendKeyEvent(args[0], key.DirPress)
+		fmt.Println("keydown")
+		return nil
+	}))
+	cvs.doc.Call("addEventListener", "keyup", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		w.sendKeyEvent(args[0], key.DirRelease)
+		fmt.Println("keyup")
+		return nil
+	}))
+
+	return w, nil
+}
