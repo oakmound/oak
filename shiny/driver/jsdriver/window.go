@@ -39,7 +39,20 @@ func (w *windowImpl) Publish() screen.PublishResult {
 
 func (w *windowImpl) sendMouseEvent(mouseEvent js.Value, dir mouse.Direction) {
 	x, y := mouseEvent.Get("offsetX"), mouseEvent.Get("offsetY")
+	button := mouseEvent.Get("button")
+	var mButton mouse.Button
+	switch button.Int() {
+	case 0:
+		mButton = mouse.ButtonLeft
+	case 1:
+		mButton = mouse.ButtonMiddle
+	case 2:
+		mButton = mouse.ButtonRight
+	default:
+		mButton = mouse.ButtonNone
+	}
 	w.Send(mouse.Event{
+		Button:    mButton,
 		X:         float32(x.Float()),
 		Y:         float32(y.Float()),
 		Direction: dir,
@@ -73,6 +86,14 @@ func (w *windowImpl) sendKeyEvent(keyEvent js.Value, dir key.Direction) {
 
 func parseKeyCode(cd string) key.Code {
 	switch cd {
+	case "ArrowLeft":
+		return key.CodeLeftArrow
+	case "ArrowRight":
+		return key.CodeRightArrow
+	case "ArrowUp":
+		return key.CodeUpArrow
+	case "ArrowDown":
+		return key.CodeDownArrow
 	case "KeyA":
 		return key.CodeA
 	case "KeyB":
@@ -125,6 +146,10 @@ func parseKeyCode(cd string) key.Code {
 		return key.CodeY
 	case "KeyZ":
 		return key.CodeZ
+	case "Enter":
+		return key.CodeReturnEnter
+	case "Escape":
+		return key.CodeEscape
 	// TODO: more keys
 	default:
 		fmt.Println("unknown key", cd)
