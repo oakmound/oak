@@ -150,6 +150,8 @@ func parseKeyCode(cd string) key.Code {
 		return key.CodeReturnEnter
 	case "Escape":
 		return key.CodeEscape
+	case "Space":
+		return key.CodeSpacebar
 	// TODO: more keys
 	default:
 		fmt.Println("unknown key", cd)
