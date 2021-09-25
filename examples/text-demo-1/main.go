@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"image/color"
 	"path"
 	"strconv"
@@ -79,5 +80,9 @@ func main() {
 				return true
 			},
 		})
+	oak.SetFS(assets)
 	oak.Init("demo")
 }
+
+//go:embed assets
+var assets embed.FS

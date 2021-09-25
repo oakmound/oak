@@ -1,8 +1,10 @@
 package main
 
 import (
+	"embed"
 	"image/color"
 	"image/draw"
+	"path/filepath"
 
 	oak "github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/dlog"
@@ -22,15 +24,15 @@ func main() {
 		render.Draw(render.NewText("Controls: Arrow keys", 500, 440))
 
 		// Get an image that we will illustrate zooming with later
-		s, err := render.LoadSprite("mona-lisa.jpg")
+		s, err := render.LoadSprite(filepath.Join("assets", "mona-lisa.jpg"))
 		dlog.ErrorCheck(err)
 
 		// See the zoomR definition lower, wrap your renderable with a definition of how to zoom.
 		zoomer := &zoomR{
 			Renderable: s,
 			SetFn: func(buff draw.Image, x, y int, c color.Color) {
-				x = int(float64(x) / zoomOutFactorX)
-				y = int(float64(y) / zoomOutFactorY)
+				x = int(float64(x) * zoomOutFactorX)
+				y = int(float64(y) * zoomOutFactorY)
 				buff.Set(x, y, c)
 			},
 		}
@@ -39,23 +41,28 @@ func main() {
 		// To illustrate zooming allow for arrow keys to control the main zoomable renderable.
 		event.GlobalBind(event.Enter, func(i event.CID, _ interface{}) int {
 			if oak.IsDown(key.UpArrow) {
-				zoomOutFactorY -= .10
+				zoomOutFactorY *= .98
 			}
 			if oak.IsDown(key.DownArrow) {
-				zoomOutFactorY += .10
+				zoomOutFactorY *= 1.02
 			}
 			if oak.IsDown(key.RightArrow) {
-				zoomOutFactorX += .10
+				zoomOutFactorX *= 1.02
 			}
 			if oak.IsDown(key.LeftArrow) {
-				zoomOutFactorX -= .10
+				zoomOutFactorX *= .98
 			}
+
 			return 0
 		})
 
 	}})
+	oak.SetFS(assets)
 	oak.Init("demo")
 }
+
+//go:embed assets
+var assets embed.FS
 
 // zoomR wraps a renderable with a function that details
 type zoomR struct {
