@@ -1,7 +1,6 @@
 package jsdriver
 
 import (
-	"fmt"
 	"image"
 	"syscall/js"
 
@@ -45,27 +44,22 @@ func (s *screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, erro
 
 	cvs.canvas.Call("addEventListener", "mousemove", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		w.sendMouseEvent(args[0], mouse.DirNone)
-		//fmt.Println("mousemove")
 		return nil
 	}))
 	cvs.canvas.Call("addEventListener", "mousedown", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		w.sendMouseEvent(args[0], mouse.DirPress)
-		fmt.Println("mousedown", args)
 		return nil
 	}))
 	cvs.canvas.Call("addEventListener", "mouseup", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		w.sendMouseEvent(args[0], mouse.DirRelease)
-		fmt.Println("mouseup", args)
 		return nil
 	}))
 	cvs.doc.Call("addEventListener", "keydown", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		w.sendKeyEvent(args[0], key.DirPress)
-		fmt.Println("keydown")
 		return nil
 	}))
 	cvs.doc.Call("addEventListener", "keyup", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		w.sendKeyEvent(args[0], key.DirRelease)
-		fmt.Println("keyup")
 		return nil
 	}))
 

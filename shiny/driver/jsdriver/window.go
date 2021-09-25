@@ -1,7 +1,6 @@
 package jsdriver
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -154,7 +153,6 @@ func parseKeyCode(cd string) key.Code {
 		return key.CodeSpacebar
 	// TODO: more keys
 	default:
-		fmt.Println("unknown key", cd)
 		return key.CodeUnknown
 	}
 }
