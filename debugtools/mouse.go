@@ -12,7 +12,7 @@ import (
 func DebugMouseRelease(ctx *scene.Context, k string) {
 	event.GlobalBind(mouse.Release, func(_ event.CID, ev interface{}) int {
 		mev, _ := ev.(*mouse.Event)
-		if ctx.KeyState.IsDown(k) || k == "" {
+		if k == "" || ctx.KeyState.IsDown(k) {
 			dlog.Info(mev)
 		}
 		return 0
