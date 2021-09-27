@@ -282,7 +282,6 @@ func (j *Joystick) Listen(opts *ListenOptions) (cancel func()) {
 				t.Stop()
 				err := j.Close()
 				dlog.ErrorCheck(err)
-				close(stop)
 				return
 			}
 			state, err := j.GetState()
@@ -301,7 +300,7 @@ func (j *Joystick) Listen(opts *ListenOptions) (cancel func()) {
 		}
 	}()
 	cancel = func() {
-		stop <- struct{}{}
+		close(stop)
 	}
 	return cancel
 }
