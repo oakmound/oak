@@ -14,322 +14,118 @@ type KeyboardLayout interface {
 	KeyRect(k string) floatgeom.Rect2
 }
 
-type LayoutQWERTY struct {
-	Bounds floatgeom.Rect2
+type LayoutKey interface {
+	Pos() LayoutPosition
 }
 
-func (l LayoutQWERTY) KeyRect(k string) floatgeom.Rect2 {
-	// max row = 5.1, drawn down to 6
-	row := 0.0
-	// max col = 21.2, drawn right to 22.1
-	col := 0.0
-	width := 0.9
-	height := 0.9
-	switch k {
-	case key.Escape:
-	case key.F1:
-		col = 2.0
-	case key.F2:
-		col = 3.0
-	case key.F3:
-		col = 4.0
-	case key.F4:
-		col = 5.0
-	case key.F5:
-		col = 6.5
-	case key.F6:
-		col = 7.5
-	case key.F7:
-		col = 8.5
-	case key.F8:
-		col = 9.5
-	case key.F9:
-		col = 11.0
-	case key.F10:
-		col = 12.0
-	case key.F11:
-		col = 13.0
-	case key.F12:
-		col = 14.0
-	// key.PrintScreen
-	// key.ScrollLock
-	case key.Pause:
-		col = 17.1
-	//case key.Tilde:
-	//	row = 1.1
-	case key.One:
-		row = 1.1
-		col = 1.0
-	case key.Two:
-		row = 1.1
-		col = 2.0
-	case key.Three:
-		row = 1.1
-		col = 3.0
-	case key.Four:
-		row = 1.1
-		col = 4.0
-	case key.Five:
-		row = 1.1
-		col = 5.0
-	case key.Six:
-		row = 1.1
-		col = 6.0
-	case key.Seven:
-		row = 1.1
-		col = 7.0
-	case key.Eight:
-		row = 1.1
-		col = 8.0
-	case key.Nine:
-		row = 1.1
-		col = 9.0
-	case key.Zero:
-		row = 1.1
-		col = 10.0
-	case key.HyphenMinus:
-		row = 1.1
-		col = 11.0
-	case key.EqualSign:
-		row = 1.1
-		col = 12.0
-	case key.DeleteBackspace:
-		row = 1.1
-		col = 13.0
-		width = 1.9
-	case key.Insert:
-		row = 1.1
-		col = 15.1
-	case key.Home:
-		row = 1.1
-		col = 16.1
-	case key.PageUp:
-		row = 1.1
-		col = 17.1
-	case key.KeypadNumLock:
-		row = 1.1
-		col = 18.2
-	case key.KeypadSlash:
-		row = 1.1
-		col = 19.2
-	case key.KeypadAsterisk:
-		row = 1.1
-		col = 20.2
-	case key.KeypadHyphenMinus:
-		row = 1.1
-		col = 21.2
-	case key.Tab:
-		row = 2.1
-		width = 1.4
-	case key.Q:
-		row = 2.1
-		col = 1.5
-	case key.W:
-		row = 2.1
-		col = 2.5
-	case key.E:
-		row = 2.1
-		col = 3.5
-	case key.R:
-		row = 2.1
-		col = 4.5
-	case key.T:
-		row = 2.1
-		col = 5.5
-	case key.Y:
-		row = 2.1
-		col = 6.5
-	case key.U:
-		row = 2.1
-		col = 7.5
-	case key.I:
-		row = 2.1
-		col = 8.5
-	case key.O:
-		row = 2.1
-		col = 9.5
-	case key.P:
-		row = 2.1
-		col = 10.5
-	case key.LeftSquareBracket:
-		row = 2.1
-		col = 11.5
-	case key.RightSquareBracket:
-		row = 2.1
-		col = 12.5
-	case key.Backslash:
-		row = 2.1
-		col = 13.5
-		width = 1.4
-	case key.DeleteForward:
-		row = 2.1
-		col = 15.1
-	case key.End:
-		row = 2.1
-		col = 16.1
-	case key.PageDown:
-		row = 2.1
-		col = 17.1
-	case key.Keypad7:
-		row = 2.1
-		col = 18.2
-	case key.Keypad8:
-		row = 2.1
-		col = 19.2
-	case key.Keypad9:
-		row = 2.1
-		col = 20.2
-	case key.KeypadPlusSign:
-		row = 2.1
-		col = 21.2
-		height = 1.9
-	case key.CapsLock:
-		row = 3.1
-		width = 1.4
-	case key.A:
-		row = 3.1
-		col = 1.5
-	case key.S:
-		row = 3.1
-		col = 2.5
-	case key.D:
-		row = 3.1
-		col = 3.5
-	case key.F:
-		row = 3.1
-		col = 4.5
-	case key.G:
-		row = 3.1
-		col = 5.5
-	case key.H:
-		row = 3.1
-		col = 6.5
-	case key.J:
-		row = 3.1
-		col = 7.5
-	case key.K:
-		row = 3.1
-		col = 8.5
-	case key.L:
-		row = 3.1
-		col = 9.5
-	case key.Semicolon:
-		row = 3.1
-		col = 10.5
-	case key.Apostrophe:
-		row = 3.1
-		col = 11.5
-	case key.ReturnEnter:
-		row = 3.1
-		col = 12.5
-		width = 2.4
-	case key.Keypad4:
-		row = 3.1
-		col = 18.2
-	case key.Keypad5:
-		row = 3.1
-		col = 19.2
-	case key.Keypad6:
-		row = 3.1
-		col = 20.2
-	case key.LeftShift:
-		row = 4.1
-		width = 1.9
-	case key.Z:
-		row = 4.1
-		col = 2.0
-	case key.X:
-		row = 4.1
-		col = 3.0
-	case key.C:
-		row = 4.1
-		col = 4.0
-	case key.V:
-		row = 4.1
-		col = 5.0
-	case key.B:
-		row = 4.1
-		col = 6.0
-	case key.N:
-		row = 4.1
-		col = 7.0
-	case key.M:
-		row = 4.1
-		col = 8.0
-	case key.Comma:
-		row = 4.1
-		col = 9.0
-	case key.FullStop:
-		row = 4.1
-		col = 10.0
-	case key.Slash:
-		row = 4.1
-		col = 11.0
-	case key.RightShift:
-		row = 4.1
-		col = 12.0
-		width = 2.9
-	case key.UpArrow:
-		row = 4.1
-		col = 16.1
-	case key.Keypad1:
-		row = 4.1
-		col = 18.2
-	case key.Keypad2:
-		row = 4.1
-		col = 19.2
-	case key.Keypad3:
-		row = 4.1
-		col = 20.2
-	case key.KeypadEnter:
-		row = 4.1
-		col = 21.2
-		height = 1.9
-	case key.LeftControl:
-		row = 5.1
-		width = 1.4
-	case key.LeftGUI:
-		row = 5.1
-		col = 1.5
-	case key.LeftAlt:
-		row = 5.1
-		col = 2.5
-		width = 1.4
-	case key.Spacebar:
-		row = 5.1
-		col = 4.0
-		width = 6.9
-	case key.RightAlt:
-		row = 5.1
-		col = 11.0
-		width = 1.4
-	case key.RightGUI:
-		row = 5.1
-		col = 12.5
-	case key.RightControl:
-		row = 5.1
-		col = 13.5
-		width = 1.4
-	case key.LeftArrow:
-		row = 5.1
-		col = 15.1
-	case key.DownArrow:
-		row = 5.1
-		col = 16.1
-	case key.RightArrow:
-		row = 5.1
-		col = 17.1
-	case key.Keypad0:
-		row = 5.1
-		col = 18.2
-		width = 1.9
-	case key.KeypadPeriod:
-		row = 5.1
-		col = 20.2
-	default:
+type LayoutPosition struct {
+	Key    string
+	Gap    bool
+	Width  float64
+	Height float64
+	Row    float64
+	Col    float64
+}
+
+type gap float64
+
+func (g gap) Pos() LayoutPosition {
+	return LayoutPosition{
+		Gap:   true,
+		Width: float64(g),
+	}
+}
+
+type standardKey string
+
+func (s standardKey) Pos() LayoutPosition {
+	return LayoutPosition{
+		Key:    string(s),
+		Width:  1,
+		Height: 1,
+	}
+}
+
+type wideKey struct {
+	k string
+	w float64
+}
+
+func (w wideKey) Pos() LayoutPosition {
+	return LayoutPosition{
+		Key:    string(w.k),
+		Width:  w.w,
+		Height: 1,
+	}
+}
+
+type tallKey struct {
+	k string
+	h float64
+}
+
+func (h tallKey) Pos() LayoutPosition {
+	return LayoutPosition{
+		Key:    string(h.k),
+		Width:  1,
+		Height: h.h,
+	}
+}
+
+type LayoutQWERTY struct {
+	Bounds    floatgeom.Rect2
+	layoutMap map[string]LayoutPosition
+}
+
+func (l *LayoutQWERTY) init() {
+	if l.layoutMap != nil {
+		return
+	}
+	type sk = standardKey
+
+	l.layoutMap = make(map[string]LayoutPosition)
+	qwertyRows := [][]LayoutKey{
+		{sk(key.Escape), gap(1), sk(key.F1), sk(key.F2), sk(key.F3), sk(key.F4), gap(.5), sk(key.F5), sk(key.F6), sk(key.F7), sk(key.F8), gap(.5), sk(key.F9), sk(key.F10), sk(key.F11), sk(key.F12), gap(2.1), sk(key.Pause)},
+		{gap(1), sk(key.One), sk(key.Two), sk(key.Three), sk(key.Four), sk(key.Five), sk(key.Six), sk(key.Seven), sk(key.Eight), sk(key.Nine), sk(key.Zero), sk(key.HyphenMinus), sk(key.EqualSign), wideKey{key.DeleteBackspace, 2.0}, gap(.1), sk(key.Insert), sk(key.Home), sk(key.PageUp), gap(.1), sk(key.KeypadNumLock), sk(key.KeypadSlash), sk(key.KeypadAsterisk), sk(key.KeypadHyphenMinus)},
+		{wideKey{key.Tab, 1.5}, sk(key.Q), sk(key.W), sk(key.E), sk(key.R), sk(key.T), sk(key.Y), sk(key.U), sk(key.I), sk(key.O), sk(key.P), sk(key.LeftSquareBracket), sk(key.RightSquareBracket), wideKey{key.Backslash, 1.5}, gap(.1), sk(key.DeleteForward), sk(key.End), sk(key.PageDown), gap(.1), sk(key.Keypad7), sk(key.Keypad8), sk(key.Keypad9), tallKey{key.KeypadPlusSign, 2}},
+		{wideKey{key.CapsLock, 1.5}, sk(key.A), sk(key.S), sk(key.D), sk(key.F), sk(key.G), sk(key.H), sk(key.J), sk(key.K), sk(key.L), sk(key.Semicolon), sk(key.Apostrophe), wideKey{key.ReturnEnter, 2.5}, gap(3.2), sk(key.Keypad4), sk(key.Keypad5), sk(key.Keypad6)},
+		{wideKey{key.LeftShift, 2.0}, sk(key.Z), sk(key.X), sk(key.C), sk(key.V), sk(key.B), sk(key.N), sk(key.M), sk(key.Comma), sk(key.FullStop), sk(key.Slash), wideKey{key.RightShift, 3.0}, gap(1.1), sk(key.UpArrow), gap(1.1), sk(key.Keypad1), sk(key.Keypad2), sk(key.Keypad3), tallKey{key.KeypadEnter, 2.0}},
+		{wideKey{key.LeftControl, 1.5}, sk(key.LeftGUI), wideKey{key.LeftAlt, 1.5}, wideKey{key.Spacebar, 7.0}, wideKey{key.RightAlt, 1.5}, sk(key.RightGUI), wideKey{key.RightControl, 1.5}, gap(.1), sk(key.LeftArrow), sk(key.DownArrow), sk(key.RightArrow), gap(.1), wideKey{key.Keypad0, 2.0}, sk(key.KeypadPeriod)},
+	}
+	rowFloats := []float64{0.0, 1.1, 2.1, 3.1, 4.1, 5.1}
+	for row, cols := range qwertyRows {
+		rf := rowFloats[row]
+		cf := 0.0
+		for _, v := range cols {
+			ps := v.Pos()
+			if ps.Key != "" {
+				l.layoutMap[ps.Key] = LayoutPosition{
+					Row:    rf,
+					Col:    cf,
+					Width:  ps.Width - .1,
+					Height: ps.Height - .1,
+				}
+			}
+			cf += ps.Width
+		}
+	}
+}
+
+func (l *LayoutQWERTY) KeyRect(k string) floatgeom.Rect2 {
+	l.init()
+
+	pos, ok := l.layoutMap[k]
+	if !ok {
 		return floatgeom.Rect2{}
 	}
+	row := pos.Row
+	col := pos.Col
+	width := pos.Width
+	height := pos.Height
+
 	w, h := l.Bounds.W(), l.Bounds.H()
+	// max row = 5.1, drawn down to 6
+	// max col = 21.2, drawn right to 22.1
 	rowHeight := h / 6.0
 	colWidth := w / 22.1
 
@@ -368,7 +164,7 @@ func (k *Keyboard) RenderAndListen(ctx *scene.Context, layer int) error {
 		k.Rect.Max = k.Rect.Min.Add(floatgeom.Point2{320, 180})
 	}
 	if k.KeyboardLayout == nil {
-		k.KeyboardLayout = LayoutQWERTY{
+		k.KeyboardLayout = &LayoutQWERTY{
 			Bounds: k.Rect,
 		}
 	}
@@ -405,7 +201,6 @@ func (k *Keyboard) RenderAndListen(ctx *scene.Context, layer int) error {
 		kb, _ := k.ctx.CallerMap.GetEntity(id).(*Keyboard)
 		btn := ev.Code.String()[4:]
 		if kb.rs[btn] == nil {
-
 			return 0
 		}
 		kb.rs[btn].Set("pressed")
