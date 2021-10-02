@@ -3,7 +3,6 @@ package inputviz
 import (
 	"bytes"
 	_ "embed"
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -43,6 +42,8 @@ type Joystick struct {
 	// be rendered.
 	StickDeadzone int16
 
+	BaseLayer int
+
 	ctx *scene.Context
 	event.CID
 	joy          *joystick.Joystick
@@ -54,9 +55,9 @@ type Joystick struct {
 	cancel       func()
 }
 
-func (r *Joystick) Init() event.CID {
-	r.CID = event.NextID(r)
-	return r.CID
+func (j *Joystick) Init() event.CID {
+	j.CID = j.ctx.CallerMap.NextID(j)
+	return j.CID
 }
 
 func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, layer int) error {
@@ -135,13 +136,19 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		r.SetPos(offset.X(), offset.Y())
 		r.ShiftX(j.Rect.Min.X())
 		r.ShiftY(j.Rect.Min.Y())
+		var l int
 		if k == "LtTrigger" || k == "RtTrigger" {
-			ctx.DrawStack.Draw(r, layer)
+			l = layer
 			rend.triggerY = r.Y()
 		} else if k == "Outline" {
-			ctx.DrawStack.Draw(r, layer+1)
+			l = layer + 1
 		} else {
-			ctx.DrawStack.Draw(r, layer+2)
+			l = layer + 2
+		}
+		if j.BaseLayer == -1 {
+			ctx.DrawStack.Draw(r, l)
+		} else {
+			ctx.DrawStack.Draw(r, j.BaseLayer, l)
 		}
 	}
 
@@ -175,7 +182,6 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 	}
 
 	rend.CheckedIDBind(joystick.Disconnected, func(rend *Joystick, _ uint32) {
-		fmt.Println("destroying")
 		rend.Destroy()
 	})
 
@@ -232,7 +238,6 @@ func (j *Joystick) CheckedIDBind(ev string, f func(*Joystick, uint32)) {
 	j.Bind(ev, func(id event.CID, jid interface{}) int {
 		joy, ok := event.GetEntity(id).(*Joystick)
 		if !ok {
-			fmt.Println("checked bind failed")
 			return 0
 		}
 		n, ok := jid.(uint32)
@@ -248,7 +253,6 @@ func (j *Joystick) CheckedBind(ev string, f func(*Joystick, *joystick.State)) {
 	j.Bind(ev, func(id event.CID, state interface{}) int {
 		joy, ok := event.GetEntity(id).(*Joystick)
 		if !ok {
-			fmt.Println("checked bind failed")
 			return 0
 		}
 		st, ok := state.(*joystick.State)

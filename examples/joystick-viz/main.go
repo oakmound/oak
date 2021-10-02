@@ -54,6 +54,7 @@ func main() {
 				jrend := inputviz.Joystick{
 					Rect:          floatgeom.NewRect2WH(x, y, rWidth, rHeight),
 					StickDeadzone: 4000,
+					BaseLayer:     -1,
 				}
 				err := jrend.RenderAndListen(ctx, joy, 1)
 				if err != nil {
