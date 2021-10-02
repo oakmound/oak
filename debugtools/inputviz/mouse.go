@@ -162,3 +162,11 @@ type posStringer struct {
 func (ps *posStringer) String() string {
 	return fmt.Sprintf("(%d,%d)", int(ps.X()), int(ps.Y()))
 }
+
+func (m *Mouse) Destroy() {
+	m.UnbindAll()
+	for _, r := range m.rs {
+		r.Undraw()
+	}
+	m.posText.Undraw()
+}
