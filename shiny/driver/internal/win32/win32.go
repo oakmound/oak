@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 // Package win32 implements a partial shiny screen driver using the Win32 API.
@@ -367,8 +368,9 @@ var windowMsgs = map[uint32]func(hwnd HWND, uMsg uint32, wParam, lParam uintptr)
 	_WM_MOUSEMOVE:   sendMouseEvent,
 	_WM_MOUSEWHEEL:  sendMouseEvent,
 
-	_WM_KEYDOWN: sendKeyEvent,
-	_WM_KEYUP:   sendKeyEvent,
+	_WM_KEYDOWN:         sendKeyEvent,
+	_WM_KEYUP:           sendKeyEvent,
+	_WM_INPUTLANGCHANGE: updateKeyboardLayout,
 	// TODO case _WM_SYSKEYDOWN, _WM_SYSKEYUP:
 }
 
@@ -536,6 +538,7 @@ func NewScreen() (HWND, error) {
 }
 
 func Main(screenHWND HWND, f func()) error {
+	keyboardLayout = _GetKeyboardLayout(0)
 	defer func() {
 		// TODO(andlabs): log an error if this fails?
 		DestroyWindow(screenHWND)

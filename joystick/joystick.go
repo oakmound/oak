@@ -9,6 +9,26 @@ import (
 	"github.com/oakmound/oak/v3/dlog"
 )
 
+type Input string
+
+// Button or input names
+const (
+	InputA             Input = "A"
+	InputB             Input = "B"
+	InputX             Input = "X"
+	InputY             Input = "Y"
+	InputUp            Input = "Up"
+	InputDown          Input = "Down"
+	InputLeft          Input = "Left"
+	InputRight         Input = "Right"
+	InputBack          Input = "Back"
+	InputStart         Input = "Start"
+	InputLeftShoulder  Input = "LeftShoulder"
+	InputRightShoulder Input = "RightShoulder"
+	InputLeftStick     Input = "LeftStick"
+	InputRightStick    Input = "RightStick"
+)
+
 // Events. All events include a *State payload.
 const (
 	Change          = "JoystickChange"
@@ -282,7 +302,6 @@ func (j *Joystick) Listen(opts *ListenOptions) (cancel func()) {
 				t.Stop()
 				err := j.Close()
 				dlog.ErrorCheck(err)
-				close(stop)
 				return
 			}
 			state, err := j.GetState()
@@ -301,7 +320,7 @@ func (j *Joystick) Listen(opts *ListenOptions) (cancel func()) {
 		}
 	}()
 	cancel = func() {
-		stop <- struct{}{}
+		close(stop)
 	}
 	return cancel
 }

@@ -20,10 +20,15 @@ import (
 var (
 	// DefFontGenerator is a default font generator, using an internally
 	// compiled font colored white by default.
+	//
+	// Deprecated: use DefaultFontGenerator instead
 	DefFontGenerator = FontGenerator{
 		Color:   image.White,
 		RawFile: luxisrTTF,
 	}
+	// DefaultFontGenerator is a default font generator, using an internally
+	// compiled font colored white by default.
+	DefaultFontGenerator = DefFontGenerator
 )
 
 // A Font can create text renderables. It should be constructed from
