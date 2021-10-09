@@ -9,6 +9,7 @@ package win32
 
 import (
 	"fmt"
+	"syscall"
 	"unicode/utf16"
 
 	"golang.org/x/mobile/event/key"
@@ -309,6 +310,8 @@ func convVirtualKeyCode(vKey uint32) key.Code {
 	return key.CodeUnknown
 }
 
+var keyboardLayout syscall.Handle
+
 func readRune(vKey uint32, scanCode uint8) rune {
 	var (
 		keystate [256]byte
@@ -317,13 +320,18 @@ func readRune(vKey uint32, scanCode uint8) rune {
 	if err := _GetKeyboardState(&keystate[0]); err != nil {
 		panic(fmt.Sprintf("win32: %v", err))
 	}
-	// TODO: cache GetKeyboardLayout result, update on WM_INPUTLANGCHANGE
-	layout := _GetKeyboardLayout(0)
-	ret := _ToUnicodeEx(vKey, uint32(scanCode), &keystate[0], &buf[0], int32(len(buf)), 0, layout)
+	ret := _ToUnicodeEx(vKey, uint32(scanCode), &keystate[0], &buf[0], int32(len(buf)), 0, keyboardLayout)
 	if ret < 1 {
 		return -1
 	}
 	return utf16.Decode(buf[:ret])[0]
+}
+
+func updateKeyboardLayout(hwnd HWND, uMsg uint32, wParam, lParam uintptr) (lResult uintptr) {
+	// This assumes a single language / keyboard in use
+	keyboardLayout = _GetKeyboardLayout(0)
+	// TODO: propagate this message down
+	return 0
 }
 
 func sendKeyEvent(hwnd HWND, uMsg uint32, wParam, lParam uintptr) (lResult uintptr) {
@@ -345,7 +353,6 @@ func sendKeyEvent(hwnd HWND, uMsg uint32, wParam, lParam uintptr) (lResult uintp
 	default:
 		panic(fmt.Sprintf("win32: unexpected key message: %d", uMsg))
 	}
-
 	KeyEvent(hwnd, e)
 	return 0
 }
