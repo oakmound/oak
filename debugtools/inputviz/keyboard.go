@@ -1,7 +1,6 @@
 package inputviz
 
 import (
-	"fmt"
 	"image/color"
 
 	"github.com/oakmound/oak/v3/alg/floatgeom"
@@ -87,7 +86,7 @@ func (l *LayoutQWERTY) init() {
 	l.layoutMap = make(map[string]LayoutPosition)
 	qwertyRows := [][]LayoutKey{
 		{sk(key.Escape), gap(1), sk(key.F1), sk(key.F2), sk(key.F3), sk(key.F4), gap(.5), sk(key.F5), sk(key.F6), sk(key.F7), sk(key.F8), gap(.5), sk(key.F9), sk(key.F10), sk(key.F11), sk(key.F12), gap(2.1), sk(key.Pause)},
-		{gap(1), sk(key.One), sk(key.Two), sk(key.Three), sk(key.Four), sk(key.Five), sk(key.Six), sk(key.Seven), sk(key.Eight), sk(key.Nine), sk(key.Zero), sk(key.HyphenMinus), sk(key.EqualSign), wideKey{key.DeleteBackspace, 2.0}, gap(.1), sk(key.Insert), sk(key.Home), sk(key.PageUp), gap(.1), sk(key.KeypadNumLock), sk(key.KeypadSlash), sk(key.KeypadAsterisk), sk(key.KeypadHyphenMinus)},
+		{sk(key.GraveAccent), sk(key.One), sk(key.Two), sk(key.Three), sk(key.Four), sk(key.Five), sk(key.Six), sk(key.Seven), sk(key.Eight), sk(key.Nine), sk(key.Zero), sk(key.HyphenMinus), sk(key.EqualSign), wideKey{key.DeleteBackspace, 2.0}, gap(.1), sk(key.Insert), sk(key.Home), sk(key.PageUp), gap(.1), sk(key.KeypadNumLock), sk(key.KeypadSlash), sk(key.KeypadAsterisk), sk(key.KeypadHyphenMinus)},
 		{wideKey{key.Tab, 1.5}, sk(key.Q), sk(key.W), sk(key.E), sk(key.R), sk(key.T), sk(key.Y), sk(key.U), sk(key.I), sk(key.O), sk(key.P), sk(key.LeftSquareBracket), sk(key.RightSquareBracket), wideKey{key.Backslash, 1.5}, gap(.1), sk(key.DeleteForward), sk(key.End), sk(key.PageDown), gap(.1), sk(key.Keypad7), sk(key.Keypad8), sk(key.Keypad9), tallKey{key.KeypadPlusSign, 2}},
 		{wideKey{key.CapsLock, 1.5}, sk(key.A), sk(key.S), sk(key.D), sk(key.F), sk(key.G), sk(key.H), sk(key.J), sk(key.K), sk(key.L), sk(key.Semicolon), sk(key.Apostrophe), wideKey{key.ReturnEnter, 2.5}, gap(3.2), sk(key.Keypad4), sk(key.Keypad5), sk(key.Keypad6)},
 		{wideKey{key.LeftShift, 2.0}, sk(key.Z), sk(key.X), sk(key.C), sk(key.V), sk(key.B), sk(key.N), sk(key.M), sk(key.Comma), sk(key.FullStop), sk(key.Slash), wideKey{key.RightShift, 3.0}, gap(1.1), sk(key.UpArrow), gap(1.1), sk(key.Keypad1), sk(key.Keypad2), sk(key.Keypad3), tallKey{key.KeypadEnter, 2.0}},
@@ -198,7 +197,6 @@ func (k *Keyboard) RenderAndListen(ctx *scene.Context, layer int) error {
 		r.SetPos(rect.Min.X(), rect.Min.Y())
 		k.rs[kv] = r
 		if k.RenderCharacters {
-			fmt.Println("kv:", kv)
 			x, y := rect.Min.X(), rect.Min.Y()
 			txt := k.Font.NewText(kv, x, y)
 			tw, th := txt.GetDims()
