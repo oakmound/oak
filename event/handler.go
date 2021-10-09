@@ -38,7 +38,10 @@ type Handler interface {
 	UnbindAll(Event)
 	UnbindAllAndRebind(Event, []Bindable, CID, []string)
 	UnbindBindable(UnbindOption)
+}
 
+// A CallerMapper has an internal caller map that can be set.
+type CallerMapper interface {
 	SetCallerMap(*CallerMap)
 }
 
