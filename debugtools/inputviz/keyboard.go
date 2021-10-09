@@ -1,6 +1,7 @@
 package inputviz
 
 import (
+	"fmt"
 	"image/color"
 
 	"github.com/oakmound/oak/v3/alg/floatgeom"
@@ -145,6 +146,9 @@ type Keyboard struct {
 	Colors    map[string]color.Color
 	KeyboardLayout
 
+	RenderCharacters bool
+	Font             *render.Font
+
 	event.CID
 	ctx *scene.Context
 
@@ -171,6 +175,9 @@ func (k *Keyboard) RenderAndListen(ctx *scene.Context, layer int) error {
 	if k.Colors == nil {
 		k.Colors = defaultColors
 	}
+	if k.Font == nil {
+		k.Font = render.DefaultFont()
+	}
 
 	k.rs = make(map[string]*render.Switch)
 
@@ -190,6 +197,24 @@ func (k *Keyboard) RenderAndListen(ctx *scene.Context, layer int) error {
 		})
 		r.SetPos(rect.Min.X(), rect.Min.Y())
 		k.rs[kv] = r
+		if k.RenderCharacters {
+			fmt.Println("kv:", kv)
+			x, y := rect.Min.X(), rect.Min.Y()
+			txt := k.Font.NewText(kv, x, y)
+			tw, th := txt.GetDims()
+			xBuffer := rect.W() - float64(tw)
+			yBuffer := rect.H() - float64(th)
+			// Only render strings that will stay inside their boundaries
+			if xBuffer >= 0 {
+				txt.ShiftX(xBuffer / 2)
+				txt.ShiftY(yBuffer / 2)
+				if k.BaseLayer == -1 {
+					ctx.DrawStack.Draw(txt, layer+1)
+				} else {
+					ctx.DrawStack.Draw(txt, k.BaseLayer, layer+1)
+				}
+			}
+		}
 		if k.BaseLayer == -1 {
 			ctx.DrawStack.Draw(r, layer)
 		} else {
