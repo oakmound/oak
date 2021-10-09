@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package win32
@@ -72,6 +73,7 @@ func convVirtualKeyCode(vKey uint32) key.Code {
 	case 0x2B: // VK_EXECUTE
 	case 0x2C: // VK_SNAPSHOT
 	case 0x2D: // VK_INSERT
+		return key.CodeInsert
 	case 0x2E: // VK_DELETE
 		return key.CodeDeleteForward
 	case 0x2F: // VK_HELP
