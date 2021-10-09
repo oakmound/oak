@@ -164,8 +164,6 @@ func ReaderConfig(r io.Reader) ConfigOption {
 }
 
 func (c Config) overwriteFrom(c2 Config) Config {
-	// TODO: is this the right place for these configuration pieces?
-	// TODO: is there other configuration that should go here?
 	if c2.Assets.AudioPath != "" {
 		c.Assets.AudioPath = c2.Assets.AudioPath
 	}

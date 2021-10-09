@@ -14,8 +14,6 @@ var (
 // Handler represents the necessary exported functions from an event.Bus
 // for use in oak internally, and thus the functions that need to be replaced
 // by alternative event handlers.
-// TODO V3: consider breaking down the bus into smaller components
-// for easier composition for external handler implementations
 type Handler interface {
 	WaitForEvent(name string) <-chan interface{}
 	// <Handler>
@@ -40,6 +38,11 @@ type Handler interface {
 	UnbindAll(Event)
 	UnbindAllAndRebind(Event, []Bindable, CID, []string)
 	UnbindBindable(UnbindOption)
+}
+
+// A CallerMapper has an internal caller map that can be set.
+type CallerMapper interface {
+	SetCallerMap(*CallerMap)
 }
 
 // UpdateLoop is expected to internally call Update()

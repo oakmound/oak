@@ -60,6 +60,11 @@ func NewBus(callerMap *CallerMap) *Bus {
 	}
 }
 
+// SetCallerMap updates a bus to use a specific set of callers.
+func (b *Bus) SetCallerMap(cm *CallerMap) {
+	b.callerMap = cm
+}
+
 // An Event is an event name and an associated caller id
 type Event struct {
 	Name     string

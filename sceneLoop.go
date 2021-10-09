@@ -130,6 +130,9 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		} else {
 			w.CallerMap = event.NewCallerMap()
 		}
+		if cmr, ok := w.eventHandler.(event.CallerMapper); ok {
+			cmr.SetCallerMap(w.CallerMap)
+		}
 		w.DrawStack.Clear()
 		w.DrawStack.PreDraw()
 
