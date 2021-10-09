@@ -42,6 +42,8 @@ type Joystick struct {
 	// be rendered.
 	StickDeadzone int16
 
+	// BaseLayer is the base layer to render the resulting renderables to
+	// if -1, it will render only to the layer provided to RenderAndListen.
 	BaseLayer int
 
 	ctx *scene.Context
@@ -70,31 +72,29 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 	}
 
 	outline := render.NewSprite(0, 0, rgba)
-	rend := &Joystick{
-		joy:       joy,
-		rs:        make(map[string]render.Modifiable),
-		lastState: &joystick.State{},
-		ctx:       ctx,
-	}
-	rend.Init()
-	rend.rs["Outline"] = outline
-	rend.rs["LtStick"] = render.NewCircle(color.RGBA{255, 255, 255, 255}, 15, 12)
-	rend.rs["RtStick"] = render.NewCircle(color.RGBA{255, 255, 255, 255}, 15, 12)
-	rend.rs[string(joystick.InputUp)] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["Down"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["Left"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["Right"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["Back"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["Start"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["X"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["Y"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["A"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["B"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["LeftShoulder"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
-	rend.rs["RightShoulder"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.joy = joy
+	j.rs = make(map[string]render.Modifiable)
+	j.lastState = &joystick.State{}
+	j.ctx = ctx
+	j.Init()
+	j.rs["Outline"] = outline
+	j.rs["LtStick"] = render.NewCircle(color.RGBA{255, 255, 255, 255}, 15, 12)
+	j.rs["RtStick"] = render.NewCircle(color.RGBA{255, 255, 255, 255}, 15, 12)
+	j.rs[string(joystick.InputUp)] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.rs["Down"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.rs["Left"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.rs["Right"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.rs["Back"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.rs["Start"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.rs["X"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.rs["Y"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.rs["A"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.rs["B"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.rs["LeftShoulder"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
+	j.rs["RightShoulder"] = render.NewReverting(render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}))
 	// Draw the triggers behind the outline to simulate pressing down
-	rend.rs["LtTrigger"] = render.NewColorBox(40, 30, color.RGBA{255, 255, 255, 255})
-	rend.rs["RtTrigger"] = render.NewColorBox(40, 30, color.RGBA{255, 255, 255, 255})
+	j.rs["LtTrigger"] = render.NewColorBox(40, 30, color.RGBA{255, 255, 255, 255})
+	j.rs["RtTrigger"] = render.NewColorBox(40, 30, color.RGBA{255, 255, 255, 255})
 
 	var offsets = map[string]floatgeom.Point2{
 		"Outline":       {0, 0},
@@ -131,7 +131,7 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		}
 	}
 
-	for k, r := range rend.rs {
+	for k, r := range j.rs {
 		offset := offsets[k]
 		r.SetPos(offset.X(), offset.Y())
 		r.ShiftX(j.Rect.Min.X())
@@ -139,7 +139,7 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		var l int
 		if k == "LtTrigger" || k == "RtTrigger" {
 			l = layer
-			rend.triggerY = r.Y()
+			j.triggerY = r.Y()
 		} else if k == "Outline" {
 			l = layer + 1
 		} else {
@@ -152,10 +152,9 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		}
 	}
 
-	rend.lStickCenter = floatgeom.Point2{rend.rs["LtStick"].X(), rend.rs["LtStick"].Y()}
-	rend.rStickCenter = floatgeom.Point2{rend.rs["RtStick"].X(), rend.rs["RtStick"].Y()}
+	j.lStickCenter = floatgeom.Point2{j.rs["LtStick"].X(), j.rs["LtStick"].Y()}
+	j.rStickCenter = floatgeom.Point2{j.rs["RtStick"].X(), j.rs["RtStick"].Y()}
 
-	joy.Handler = rend
 	opts := &joystick.ListenOptions{
 		JoystickChanges: true,
 		StickChanges:    true,
@@ -164,7 +163,7 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		StickDeadzoneRX: j.StickDeadzone,
 		StickDeadzoneRY: j.StickDeadzone,
 	}
-	rend.cancel = joy.Listen(opts)
+	j.cancel = joy.Listen(opts)
 
 	bts := []joystick.Input{
 		joystick.InputA,
@@ -181,55 +180,55 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		joystick.InputRightShoulder,
 	}
 
-	rend.CheckedIDBind(joystick.Disconnected, func(rend *Joystick, _ uint32) {
-		rend.Destroy()
+	j.CheckedIDBind(joystick.Disconnected, func(rend *Joystick, _ uint32) {
+		j.Destroy()
 	})
 
-	rend.CheckedBind(key.Down+key.Spacebar, func(rend *Joystick, st *joystick.State) {
-		rend.joy.Vibrate(math.MaxUint16, math.MaxUint16)
+	j.CheckedBind(key.Down+key.Spacebar, func(rend *Joystick, st *joystick.State) {
+		j.joy.Vibrate(math.MaxUint16, math.MaxUint16)
 		go func() {
 			time.Sleep(1 * time.Second)
-			rend.joy.Vibrate(0, 0)
+			j.joy.Vibrate(0, 0)
 		}()
 	})
 
-	rend.CheckedBind(joystick.Change, func(rend *Joystick, st *joystick.State) {
+	j.CheckedBind(joystick.Change, func(rend *Joystick, st *joystick.State) {
 		for _, inputB := range bts {
 			b := string(inputB)
-			r := rend.rs[b]
-			if st.Buttons[b] && !rend.lastState.Buttons[b] {
+			r := j.rs[b]
+			if st.Buttons[b] && !j.lastState.Buttons[b] {
 				r.Filter(mod.Brighten(-40))
-			} else if !st.Buttons[b] && rend.lastState.Buttons[b] {
+			} else if !st.Buttons[b] && j.lastState.Buttons[b] {
 				r.(*render.Reverting).Revert(1)
 			}
 		}
-		rend.lastState = st
+		j.lastState = st
 
 		tgr := "LtTrigger"
-		x := rend.rs[tgr].X()
-		rend.rs[tgr].SetPos(x, rend.triggerY+float64(st.TriggerL/16))
+		x := j.rs[tgr].X()
+		j.rs[tgr].SetPos(x, j.triggerY+float64(st.TriggerL/16))
 
 		tgr = "RtTrigger"
-		x = rend.rs[tgr].X()
-		rend.rs[tgr].SetPos(x, rend.triggerY+float64(st.TriggerR/16))
+		x = j.rs[tgr].X()
+		j.rs[tgr].SetPos(x, j.triggerY+float64(st.TriggerR/16))
 	})
 
-	rend.CheckedBind(joystick.LtStickChange, func(rend *Joystick, st *joystick.State) {
-		pos := rend.lStickCenter
+	j.CheckedBind(joystick.LtStickChange, func(rend *Joystick, st *joystick.State) {
+		pos := j.lStickCenter
 		pos = pos.Add(floatgeom.Point2{
 			float64(st.StickLX / 2048),
 			-float64(st.StickLY / 2048),
 		})
-		rend.rs["LtStick"].SetPos(pos.X(), pos.Y())
+		j.rs["LtStick"].SetPos(pos.X(), pos.Y())
 	})
 
-	rend.CheckedBind(joystick.RtStickChange, func(rend *Joystick, st *joystick.State) {
-		pos := rend.rStickCenter
+	j.CheckedBind(joystick.RtStickChange, func(rend *Joystick, st *joystick.State) {
+		pos := j.rStickCenter
 		pos = pos.Add(floatgeom.Point2{
 			float64(st.StickRX / 2048),
 			-float64(st.StickRY / 2048),
 		})
-		rend.rs["RtStick"].SetPos(pos.X(), pos.Y())
+		j.rs["RtStick"].SetPos(pos.X(), pos.Y())
 	})
 	return nil
 }
