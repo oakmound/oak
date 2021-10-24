@@ -69,7 +69,11 @@ func (f *Font) NewStrPtrText(str *string, x, y float64) *Text {
 
 func (t *Text) drawWithFont(buff draw.Image, xOff, yOff float64, fnt *Font) {
 	fnt.Drawer.Dst = buff
-	fnt.Drawer.Dot = fixed.P(int(t.X()+xOff), int(t.Y()+yOff)+int(t.d.gen.Size))
+	sz := 12.0
+	if t.d.gen.Size != 0 {
+		sz = t.d.gen.Size
+	}
+	fnt.Drawer.Dot = fixed.P(int(t.X()+xOff), int(t.Y()+yOff)+int(sz))
 	fnt.drawString(t.text.String())
 }
 
