@@ -36,7 +36,7 @@ func NewCanvas2d(width int, height int) *Canvas2D {
 	c.canvas = canvas
 
 	// Setup the 2D Drawing context
-	c.ctx = c.canvas.Call("getContext", "2d")
+	c.ctx = c.canvas.Call("getContext", "2d", map[string]interface{}{"alpha": false})
 	c.imgData = c.ctx.Call("createImageData", width, height) // Note Width, then Height
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	c.copybuff = js.Global().Get("Uint8Array").New(len(img.Pix)) // Static JS buffer for copying data out to JS. Defined once and re-used to save on un-needed allocations
