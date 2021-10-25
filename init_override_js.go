@@ -12,6 +12,10 @@ func overrideInit(w *Window) {
 	if w.DrawFrameRate != 60 {
 		dlog.Info("Ignoring draw frame rate in JS")
 	}
+	if w.config.EnableDebugConsole {
+		dlog.Info("Debug console is not supported in JS")
+		w.config.EnableDebugConsole = false 
+	}
 	w.animationFrame = make(chan struct{})
 	js.Global().Call("requestAnimationFrame", js.FuncOf(w.requestFrame))
 }

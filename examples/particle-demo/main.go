@@ -301,10 +301,11 @@ func main() {
 		render.NewCompositeR(),
 	)
 
-	err := oak.Init("demo", oak.FileConfig("oak.config"), func(c oak.Config) (oak.Config, error) {
+	err := oak.Init("demo", func(c oak.Config) (oak.Config, error) {
 		c.Debug.Level = "VERBOSE"
 		c.DrawFrameRate = 1200
 		c.FrameRate = 60
+		c.Title = "Particle Demo"
 		c.EnableDebugConsole = true
 		return c, nil
 	})

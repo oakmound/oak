@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"image/color"
 	"log"
-	"time"
 
 	"github.com/oakmound/oak/v3/alg/range/floatrange"
 	"github.com/oakmound/oak/v3/alg/range/intrange"
@@ -159,11 +158,6 @@ func main() {
 		setup.add(nextStart, sslides)
 		nextStart += setup.len
 	}
-
-	go func() {
-		time.Sleep(5 * time.Second)
-		panic("timeout")
-	}()
 
 	slides := make([]show.Slide, len(sslides))
 	for i, s := range sslides {
