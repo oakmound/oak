@@ -11,32 +11,29 @@ import (
 )
 
 func (w *Window) loadAssets(imageDir, audioDir string) {
-	if w.config.BatchLoad {
-		var eg errgroup.Group
-		eg.Go(func() error {
-			err := render.BlankBatchLoad(imageDir, w.config.BatchLoadOptions.MaxImageFileSize)
-			if err != nil {
-				return err
-			}
-			dlog.Verb("Done Loading Images")
-			return nil
-		})
-		eg.Go(func() error {
-			var err error
-			if w.config.BatchLoadOptions.BlankOutAudio {
-				err = audio.BlankBatchLoad(audioDir)
-			} else {
-				err = audio.BatchLoad(audioDir)
-			}
-			if err != nil {
-				return err
-			}
-			dlog.Verb("Done Loading Audio")
-			return nil
-		})
-		dlog.ErrorCheck(eg.Wait())
-	}
-	w.endLoad()
+	var eg errgroup.Group
+	eg.Go(func() error {
+		err := render.BlankBatchLoad(imageDir, w.config.BatchLoadOptions.MaxImageFileSize)
+		if err != nil {
+			return err
+		}
+		dlog.Verb("Done Loading Images")
+		return nil
+	})
+	eg.Go(func() error {
+		var err error
+		if w.config.BatchLoadOptions.BlankOutAudio {
+			err = audio.BlankBatchLoad(audioDir)
+		} else {
+			err = audio.BatchLoad(audioDir)
+		}
+		if err != nil {
+			return err
+		}
+		dlog.Verb("Done Loading Audio")
+		return nil
+	})
+	dlog.ErrorCheck(eg.Wait())
 }
 
 func (w *Window) endLoad() {

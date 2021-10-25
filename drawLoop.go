@@ -38,6 +38,12 @@ func (w *Window) drawLoop() {
 					return
 				case <-w.drawCh:
 					break loadingSelect
+				case <-w.animationFrame:
+					draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+					if w.LoadingR != nil {
+						w.LoadingR.Draw(w.winBuffer.RGBA(), 0, 0)
+					}
+					w.publish()
 				case <-w.DrawTicker.C:
 					draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
 					if w.LoadingR != nil {
@@ -48,6 +54,12 @@ func (w *Window) drawLoop() {
 			}
 		case f := <-w.betweenDrawCh:
 			f()
+		case <-w.animationFrame:
+			draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+			w.DrawStack.PreDraw()
+			p := w.viewPos
+			w.DrawStack.DrawToScreen(w.winBuffer.RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
+			w.publish()
 		case <-w.DrawTicker.C:
 			draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
 			w.DrawStack.PreDraw()

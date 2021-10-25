@@ -74,8 +74,16 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 		rand.Seed(time.Now().UTC().UnixNano())
 	}
 
+	overrideInit(w)
+
 	go w.sceneLoop(firstScene, w.config.TrackInputChanges)
-	go w.loadAssets(w.config.Assets.ImagePath, w.config.Assets.AudioPath)
+	if w.config.BatchLoad {
+		w.startupLoading = true
+		go func() {
+			w.loadAssets(w.config.Assets.ImagePath, w.config.Assets.AudioPath)
+			w.endLoad()
+		}()
+	}
 	if w.config.EnableDebugConsole {
 		go w.debugConsole(os.Stdin, os.Stdout)
 	}
