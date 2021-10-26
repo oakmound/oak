@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	_ "embed"
 	"fmt"
 	"image"
 
@@ -11,12 +13,15 @@ import (
 	"github.com/srwiley/rasterx"
 )
 
+//go:embed assets/images/TestShapes.svg
+var testShapes []byte
+
 func main() {
 	oak.AddScene("svg", scene.Scene{
 		Start: func(*scene.Context) {
 			// load svg
 			// svg from oksvg testdata
-			icon, err := oksvg.ReadIcon("./assets/images/TestShapes.svg")
+			icon, err := oksvg.ReadIconStream(bytes.NewBuffer(testShapes))
 			if err != nil {
 				fmt.Println(err)
 			}

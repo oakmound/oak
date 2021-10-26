@@ -4,6 +4,9 @@
 *.so
 *.dylib
 
+# WASM test output files
+main.wasm
+
 # Test binary, build with `go test -c`
 *.test
 

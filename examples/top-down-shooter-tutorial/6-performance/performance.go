@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"image/color"
 	"math/rand"
 	"time"
@@ -186,6 +187,7 @@ func main() {
 		render.NewStaticHeap(),
 	)
 
+	oak.SetFS(assets)
 	oak.Init("tds", func(c oak.Config) (oak.Config, error) {
 		c.BatchLoad = true
 		c.Assets.ImagePath = "assets/images"
@@ -193,6 +195,9 @@ func main() {
 		return c, nil
 	})
 }
+
+//go:embed assets
+var assets embed.FS
 
 // Top down shooter consts
 const (

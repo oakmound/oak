@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"image"
 	"math/rand"
@@ -61,8 +62,12 @@ func main() {
 		render.NewCompositeR(),
 	)
 
+	oak.SetFS(assets)
 	oak.Init("demo")
 }
+
+//go:embed assets
+var assets embed.FS
 
 // Gopher is a basic bouncing renderable
 type Gopher struct {

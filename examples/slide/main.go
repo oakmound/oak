@@ -1,8 +1,10 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"image/color"
+	"log"
 
 	"github.com/oakmound/oak/v3/alg/range/floatrange"
 	"github.com/oakmound/oak/v3/alg/range/intrange"
@@ -22,26 +24,74 @@ const (
 	height = 1080
 )
 
+func initFonts() (err error) {
+	err = show.InitFonts()
+	if err != nil {
+		return
+	}
+	Express28, err = show.Express.RegenerateWith(show.FontSize(28))
+	if err != nil {
+		return
+	}
+	Gnuolane28, err = show.Gnuolane.RegenerateWith(show.FontSize(28))
+	if err != nil {
+		return
+	}
+	Libel28, err = show.Libel.RegenerateWith(show.FontSize(28))
+	if err != nil {
+		return
+	}
+	RLibel28, err = Libel28.RegenerateWith(show.FontColor(colornames.Blue))
+	if err != nil {
+		return
+	}
+	Express44, err = show.Express.RegenerateWith(show.FontSize(44))
+	if err != nil {
+		return
+	}
+	Gnuolane44, err = show.Gnuolane.RegenerateWith(show.FontSize(44))
+	if err != nil {
+		return
+	}
+	Libel44, err = show.Libel.RegenerateWith(show.FontSize(44))
+	if err != nil {
+		return
+	}
+
+	Express72, err = show.Express.RegenerateWith(show.FontSize(72))
+	if err != nil {
+		return
+	}
+	Gnuolane72, err = show.Gnuolane.RegenerateWith(show.FontSize(72))
+	if err != nil {
+		return
+	}
+	Libel72, err = show.Libel.RegenerateWith(show.FontSize(72))
+	if err != nil {
+		return
+	}
+	return nil
+}
+
 var (
-	Express28, _  = show.Express.RegenerateWith(show.FontSize(28))
-	Gnuolane28, _ = show.Gnuolane.RegenerateWith(show.FontSize(28))
-	Libel28, _    = show.Libel.RegenerateWith(show.FontSize(28))
-
-	RLibel28, _ = Libel28.RegenerateWith(show.FontColor(colornames.Blue))
-
-	Express44, _  = show.Express.RegenerateWith(show.FontSize(44))
-	Gnuolane44, _ = show.Gnuolane.RegenerateWith(show.FontSize(44))
-	Libel44, _    = show.Libel.RegenerateWith(show.FontSize(44))
-
-	Express72, _  = show.Express.RegenerateWith(show.FontSize(72))
-	Gnuolane72, _ = show.Gnuolane.RegenerateWith(show.FontSize(72))
-	Libel72, _    = show.Libel.RegenerateWith(show.FontSize(72))
+	Express28  *render.Font
+	Gnuolane28 *render.Font
+	Libel28    *render.Font
+	RLibel28   *render.Font
+	Express44  *render.Font
+	Gnuolane44 *render.Font
+	Libel44    *render.Font
+	Express72  *render.Font
+	Gnuolane72 *render.Font
+	Libel72    *render.Font
 )
+
+//go:embed assets
+var assets embed.FS
 
 func main() {
 
 	show.SetDims(width, height)
-	show.SetTitleFont(Gnuolane72)
 
 	bz1, _ := shape.BezierCurve(
 		width/15, height/5,
@@ -72,6 +122,12 @@ func main() {
 	)
 
 	oak.SetLoadingRenderable(bkg)
+	oak.SetFS(assets)
+	err := initFonts()
+	if err != nil {
+		log.Fatal(err)
+	}
+	show.SetTitleFont(Gnuolane72)
 
 	setups := []slideSetup{
 		intro,

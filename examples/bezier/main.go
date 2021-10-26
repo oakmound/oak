@@ -64,7 +64,9 @@ func main() {
 				// Perform any other click to reset the drawn curve
 			} else {
 				mouseFloats = []float64{}
-				cmp.Undraw()
+				if cmp != nil {
+					cmp.Undraw()
+				}
 			}
 			return 0
 		})

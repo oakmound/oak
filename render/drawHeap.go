@@ -13,6 +13,7 @@ type RenderableHeap struct {
 	layerHeap
 	toPush   []Renderable
 	toUndraw []Renderable
+	swap     layerHeap
 	static   bool
 	addLock  sync.RWMutex
 }
@@ -20,6 +21,7 @@ type RenderableHeap struct {
 func newHeap(static bool) *RenderableHeap {
 	rh := new(RenderableHeap)
 	rh.rs = make([]Renderable, 0)
+	rh.swap.rs = make([]Renderable, 0)
 	rh.toPush = make([]Renderable, 0)
 	rh.toUndraw = make([]Renderable, 0)
 	rh.static = static
@@ -99,7 +101,6 @@ func (rh *RenderableHeap) Copy() Stackable {
 
 // DrawToScreen draws all elements in the heap to the screen.
 func (rh *RenderableHeap) DrawToScreen(world draw.Image, viewPos *intgeom.Point2, screenW, screenH int) {
-	newRh := &RenderableHeap{}
 	if rh.static {
 		var r Renderable
 		// Undraws will all come first, loop to remove them
@@ -111,12 +112,12 @@ func (rh *RenderableHeap) DrawToScreen(world draw.Image, viewPos *intgeom.Point2
 		}
 		for len(rh.rs) > 0 {
 			r.Draw(world, 0, 0)
-			newRh.heapPush(r)
+			rh.swap.heapPush(r)
 			r = rh.heapPop()
 		}
 		if r != nil && r.GetLayer() != Undraw {
 			r.Draw(world, 0, 0)
-			newRh.heapPush(r)
+			rh.swap.heapPush(r)
 		}
 	} else {
 		// TODO: test if we can remove these bounds checks (because draw.Draw already does them)
@@ -134,11 +135,12 @@ func (rh *RenderableHeap) DrawToScreen(world draw.Image, viewPos *intgeom.Point2
 					x2 < viewPos[0]+screenW && y2 < viewPos[1]+screenH {
 					r.Draw(world, vx, vy)
 				}
-				newRh.heapPush(r)
+				rh.swap.heapPush(r)
 			}
 		}
 	}
-	rh.rs = newRh.rs
+	// This swapping and [:0] is intended to reuse two allocated slices of approximately the same size
+	rh.rs, rh.swap.rs = rh.swap.rs, rh.rs[:0]
 }
 
 type layerHeap struct {

@@ -89,6 +89,8 @@ type Window struct {
 
 	// DrawTicker is the parallel to LogicTicker to set the draw framerate
 	DrawTicker *time.Ticker
+	// animationFrame is used by the javascript driver instead of DrawTicker
+	animationFrame chan struct{}
 
 	bkgFn func() image.Image
 
@@ -183,7 +185,6 @@ func NewWindow() *Window {
 	c.bkgFn = func() image.Image {
 		return image.Black
 	}
-	c.startupLoading = true
 	c.eventHandler = event.DefaultBus
 	c.MouseTree = mouse.DefaultTree
 	c.CollisionTree = collision.DefaultTree

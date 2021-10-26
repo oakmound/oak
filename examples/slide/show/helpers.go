@@ -26,6 +26,9 @@ var (
 
 // SetTitleFont on the presentation
 func SetTitleFont(f *render.Font) {
+	if f == nil {
+		fmt.Println("title font nil")
+	}
 	titleFont = f
 }
 
