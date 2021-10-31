@@ -18,8 +18,9 @@
 | osx (darwin) | Yes                  | Yes        | Yes        | No          | Yes        | No            | Yes         | No                | No            |
 | wasm+js      | No                   | No         | N/A        | N/A         | N/A        | N/A           | No          | No                | No            |
 
-* This refers to asking the OS where the cursor is, which can inform the absolute position of the cursor even if it is outside of the Oak window. Oak can always tell you where the cursor is if it is within the Oak window.
-** Changing the title of the window after it is created.
+\* This refers to asking the OS where the cursor is, which can inform the absolute position of the cursor even if it is outside of the Oak window. Oak can always tell you where the cursor is if it is within the Oak window.
+
+\*\* Changing the title of the window after it is created.
 
 ## Other Compatibility Issues
 
