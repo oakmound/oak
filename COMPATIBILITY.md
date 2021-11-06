@@ -5,7 +5,7 @@
 | windows      | Yes         | Yes          | Yes         | XInput            | No           |
 | linux        | Yes         | Yes          | Yes         | XBox 360 (#133)   | No           |
 | osx (darwin) | Yes         | Yes          | No (#89)    | No (#87)          | Yes (#175)   |
-| wasm+js      | Yes         | N/A          | No (#174)   | No (#173)         | No           |
+| wasm+js      | Yes         | N/A          | No (#174)   | Standard Mapping  | No           |
 | android      | No (#49)    | N/A          | N/A         | N/A               | N/A          |
 | ios          | No (#49)    | N/A          | N/A         | N/A               | N/A          |
 

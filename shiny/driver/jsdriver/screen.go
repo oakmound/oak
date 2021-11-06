@@ -1,6 +1,7 @@
 package jsdriver
 
 import (
+	"fmt"
 	"image"
 	"syscall/js"
 
@@ -33,6 +34,9 @@ func (s *screenImpl) NewTexture(size image.Point) (screen.Texture, error) {
 }
 
 func (s *screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, error) {
+	if opts.Width == 0 || opts.Height == 0 {
+		return nil, fmt.Errorf("invalid width/height: %d/%d", opts.Width, opts.Height)
+	}
 	cvs := NewCanvas2d(opts.Width, opts.Height)
 
 	w := &windowImpl{
