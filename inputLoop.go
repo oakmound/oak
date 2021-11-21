@@ -134,11 +134,14 @@ func (w *Window) TriggerKeyHeld(e okey.Event) {
 // From the perspective of the event handler this is indistinguishable
 // from a real key mouse press or movement.
 func (w *Window) TriggerMouseEvent(mevent omouse.Event) {
+	w.LastMouseEvent = mevent
+	omouse.LastEvent = mevent
 	w.Propagate(mevent.Event+"On", mevent)
 	w.eventHandler.Trigger(mevent.Event, &mevent)
 
 	relativeEvent := mevent
 	relativeEvent.Point2[0] += float64(w.viewPos[0])
 	relativeEvent.Point2[1] += float64(w.viewPos[1])
+	w.LastRelativeMouseEvent = relativeEvent
 	w.Propagate(relativeEvent.Event+"OnRelative", relativeEvent)
 }
