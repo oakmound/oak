@@ -39,7 +39,7 @@ func main() {
 }
 
 func newBall(x, y float64) {
-	b := entities.NewMoving(x, y, 10, 10, render.NewColorBox(10, 10, color.RGBA{255, 255, 255, 255}), nil, 0, 0)
+	b := entities.NewMoving(x, y, 10, 10, render.NewColorBoxR(10, 10, color.RGBA{255, 255, 255, 255}), nil, 0, 0)
 	render.Draw(b.R, 2)
 	b.Bind(event.Enter, func(id event.CID, nothing interface{}) int {
 		if b.Delta.X() == 0 && b.Delta.Y() == 0 {
@@ -71,7 +71,7 @@ func newBall(x, y float64) {
 }
 
 func newPaddle(x, y float64, player int) {
-	p := entities.NewMoving(x, y, 20, 100, render.NewColorBox(20, 100, color.RGBA{255, 255, 255, 255}), nil, 0, 0)
+	p := entities.NewMoving(x, y, 20, 100, render.NewColorBoxR(20, 100, color.RGBA{255, 255, 255, 255}), nil, 0, 0)
 	p.Speed.SetY(8)
 	render.Draw(p.R, 1)
 	p.Space.UpdateLabel(hitPaddle)
