@@ -58,6 +58,7 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 	w.IdleDrawFrameRate = w.config.IdleDrawFrameRate
 	// assume we are in focus on window creation
 	w.inFocus = true
+	w.Driver = w.config.Driver
 
 	w.DrawTicker = time.NewTicker(timing.FPSToFrameDelay(w.DrawFrameRate))
 

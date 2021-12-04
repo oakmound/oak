@@ -7,10 +7,12 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/v3/fileutil"
+	"github.com/oakmound/oak/v3/shiny/driver"
 )
 
 // Config stores initialization settings for oak.
 type Config struct {
+	Driver              Driver           `json:"-"`
 	Assets              Assets           `json:"assets"`
 	Debug               Debug            `json:"debug"`
 	Screen              Screen           `json:"screen"`
@@ -77,6 +79,7 @@ func NewConfig(opts ...ConfigOption) (Config, error) {
 }
 
 func (c Config) setDefaults() Config {
+	c.Driver = driver.Main
 	c.Assets = Assets{
 		AudioPath: "assets/audio/",
 		ImagePath: "assets/images/",
@@ -164,6 +167,9 @@ func ReaderConfig(r io.Reader) ConfigOption {
 }
 
 func (c Config) overwriteFrom(c2 Config) Config {
+	if c2.Driver != nil {
+		c.Driver = c2.Driver
+	}
 	if c2.Assets.AudioPath != "" {
 		c.Assets.AudioPath = c2.Assets.AudioPath
 	}
