@@ -124,7 +124,7 @@ func (pg Polygon2) OverlappingRectCollides(r Rect2) bool {
 	return false
 }
 
-// RectCollides returns whehter a Rect2 intersects or is contained by this Polygon
+// RectCollides returns whether a Rect2 intersects or is contained by this Polygon
 func (pg Polygon2) RectCollides(r Rect2) bool {
 	x := float64(r.Min.X())
 	y := float64(r.Min.Y())
