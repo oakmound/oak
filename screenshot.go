@@ -19,7 +19,7 @@ func (w *Window) ScreenShot() *image.RGBA {
 	// We know the screen has everything drawn on it when it is published
 	w.prePublish = func(w *Window, tx screen.Texture) {
 		// Copy the buffer
-		rgba := w.winBuffer.RGBA()
+		rgba := w.winBuffers[w.bufferIdx].RGBA()
 		bds := rgba.Bounds()
 		copy := image.NewRGBA(bds)
 		for x := bds.Min.X; x < bds.Max.X; x++ {
@@ -41,7 +41,7 @@ func (w *Window) gifShot() *image.Paletted {
 	// We know the screen has everything drawn on it when it is published
 	w.prePublish = func(w *Window, tx screen.Texture) {
 		// Copy the buffer
-		rgba := w.winBuffer.RGBA()
+		rgba := w.winBuffers[w.bufferIdx].RGBA()
 		bds := rgba.Bounds()
 		copy := image.NewPaletted(bds, palette.Plan9)
 		draw.Draw(copy, bds, rgba, zeroPoint, draw.Src)

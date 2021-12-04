@@ -17,7 +17,7 @@ func (w *Window) SetPalette(palette color.Palette) {
 // to publishing the screen's rgba to be displayed.
 func (w *Window) SetScreenFilter(screenFilter mod.Filter) {
 	w.prePublish = func(w *Window, tx screen.Texture) {
-		screenFilter(w.winBuffer.RGBA())
+		screenFilter(w.winBuffers[w.bufferIdx].RGBA())
 	}
 }
 

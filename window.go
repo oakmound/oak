@@ -81,9 +81,11 @@ type Window struct {
 
 	// The window buffer represents the subsection of the world which is available to
 	// be shown in a window.
-	winBuffer     screen.Image
-	screenControl screen.Screen
-	windowControl screen.Window
+	winBuffers     [2]screen.Image
+	screenControl  screen.Screen
+	windowControl  screen.Window
+	windowTextures [2]screen.Texture
+	bufferIdx      uint8
 
 	windowRect image.Rectangle
 
@@ -144,8 +146,6 @@ type Window struct {
 	commands map[string]func([]string)
 
 	ControllerID int32
-
-	windowTexture screen.Texture
 
 	config Config
 

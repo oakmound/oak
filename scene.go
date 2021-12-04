@@ -20,7 +20,7 @@ func (w *Window) sceneTransition(result *scene.Result) {
 		for cont {
 			// TODO: Transition should take in the amount of time passed, not number of frames,
 			// to account for however long the transition itself takes.
-			cont = result.Transition(w.winBuffer.RGBA(), i)
+			cont = result.Transition(w.winBuffers[w.bufferIdx].RGBA(), i)
 			w.publish()
 			i++
 			time.Sleep(frameDelay)
