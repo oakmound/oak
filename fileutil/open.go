@@ -22,7 +22,7 @@ var (
 	OSFallback = true
 )
 
-// Open is a wrapper around os.Open that will also check BindataFn to access
+// Open is a wrapper around os.Open that will also check FS to access
 // embedded data. The intended use is to use the an embedding library to create an
 // Asset function that matches this signature.
 func Open(file string) (io.ReadCloser, error) {
@@ -38,7 +38,7 @@ func Open(file string) (io.ReadCloser, error) {
 	return f, readErr
 }
 
-// ReadFile replaces ioutil.ReadFile, trying to use the BindataFn if it exists.
+// ReadFile replaces ioutil.ReadFile, trying to use FS.
 func ReadFile(file string) ([]byte, error) {
 	fixedPath := fixWindowsPath(file)
 	data, readErr := fs.ReadFile(FS, fixedPath)
@@ -48,7 +48,7 @@ func ReadFile(file string) ([]byte, error) {
 	return data, readErr
 }
 
-// ReadDir replaces ioutil.ReadDir, trying to use the BinaryDir if it exists.
+// ReadDir replaces ioutil.ReadDir, trying to use FS.
 func ReadDir(file string) ([]fs.DirEntry, error) {
 	fixedPath := fixWindowsPath(file)
 	return fs.ReadDir(FS, fixedPath)
