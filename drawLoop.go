@@ -61,7 +61,7 @@ func (w *Window) drawLoop() {
 			p := w.viewPos
 			w.DrawStack.DrawToScreen(w.winBuffers[w.bufferIdx].RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
 		case <-w.DrawTicker.C:
-			// Theory: publish what was drawn last frame to screen, then work on preparing the next frame.
+			// Publish what was drawn last frame to screen, then work on preparing the next frame.
 			w.publish()
 			draw.Draw(w.winBuffers[w.bufferIdx].RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
 			w.DrawStack.PreDraw()
