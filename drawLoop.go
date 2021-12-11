@@ -71,6 +71,9 @@ func (w *Window) drawLoop() {
 	}
 }
 
+// bufferCount defines how many buffers this draw loop rotates between.
+const bufferCt = 2
+
 func (w *Window) publish() {
 	w.prePublish(w, w.windowTextures[w.bufferIdx])
 	w.windowTextures[w.bufferIdx].Upload(zeroPoint, w.winBuffers[w.bufferIdx], w.winBuffers[w.bufferIdx].Bounds())
@@ -78,7 +81,7 @@ func (w *Window) publish() {
 	w.windowControl.Publish()
 	// every frame, swap buffers. This enables drivers which might hold on to the rgba buffers we publish as if they
 	// were immutable.
-	w.bufferIdx = (w.bufferIdx + 1) % 2
+	w.bufferIdx = (w.bufferIdx + 1) % bufferCt
 }
 
 // DoBetweenDraws will execute the given function in-between draw frames

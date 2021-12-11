@@ -108,7 +108,7 @@ func (w *Window) ChangeWindow(width, height int) error {
 func (w *Window) UpdateViewSize(width, height int) error {
 	w.ScreenWidth = width
 	w.ScreenHeight = height
-	for i := 0; i < 2; i++ {
+	for i := 0; i < bufferCt; i++ {
 		newBuffer, err := w.screenControl.NewImage(image.Point{width, height})
 		if err != nil {
 			return err

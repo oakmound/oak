@@ -81,10 +81,10 @@ type Window struct {
 
 	// The window buffer represents the subsection of the world which is available to
 	// be shown in a window.
-	winBuffers     [2]screen.Image
+	winBuffers     [bufferCt]screen.Image
 	screenControl  screen.Screen
 	windowControl  screen.Window
-	windowTextures [2]screen.Texture
+	windowTextures [bufferCt]screen.Texture
 	bufferIdx      uint8
 
 	windowRect image.Rectangle
@@ -111,7 +111,7 @@ type Window struct {
 	// Driver is the driver oak will call during initialization
 	Driver Driver
 
-	// prePublish is a function called each draw frame prior to
+	// prePublish is a function called each draw frame prior to publishing
 	prePublish func(w *Window, tx screen.Texture)
 
 	// LoadingR is a renderable that is displayed during loading screens.
