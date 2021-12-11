@@ -6,7 +6,7 @@ import (
 	"github.com/oakmound/oak/v3/event"
 )
 
-// Window is an interface of methods on an oak.Controller used
+// Window is an interface of methods on an oak.Window used
 // to avoid circular imports
 type Window interface {
 	SetFullScreen(bool) error

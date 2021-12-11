@@ -340,3 +340,12 @@ func (r Rect2) Intersects(r2 Rect2) bool {
 	return !((r2.Max.X() <= r.Min.X() || r.Max.X() <= r2.Min.X()) ||
 		(r2.Max.Y() <= r.Min.Y() || r.Max.Y() <= r2.Min.Y()))
 }
+
+// ProjectZ projects the Rect3 onto the z axis, removing it's
+// z component and returning a Rect2
+func (r Rect3) ProjectZ() Rect2 {
+	return Rect2{
+		Min: r.Min.ProjectZ(),
+		Max: r.Max.ProjectZ(),
+	}
+}

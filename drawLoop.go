@@ -20,7 +20,7 @@ type Background interface {
 func (w *Window) drawLoop() {
 	<-w.drawCh
 
-	draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+	draw.Draw(w.winBuffers[w.bufferIdx].RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
 	w.publish()
 
 	for {
@@ -39,42 +39,46 @@ func (w *Window) drawLoop() {
 				case <-w.drawCh:
 					break loadingSelect
 				case <-w.animationFrame:
-					draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
-					if w.LoadingR != nil {
-						w.LoadingR.Draw(w.winBuffer.RGBA(), 0, 0)
-					}
 					w.publish()
+					draw.Draw(w.winBuffers[w.bufferIdx].RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+					if w.LoadingR != nil {
+						w.LoadingR.Draw(w.winBuffers[w.bufferIdx].RGBA(), 0, 0)
+					}
 				case <-w.DrawTicker.C:
-					draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
-					if w.LoadingR != nil {
-						w.LoadingR.Draw(w.winBuffer.RGBA(), 0, 0)
-					}
 					w.publish()
+					draw.Draw(w.winBuffers[w.bufferIdx].RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+					if w.LoadingR != nil {
+						w.LoadingR.Draw(w.winBuffers[w.bufferIdx].RGBA(), 0, 0)
+					}
 				}
 			}
 		case f := <-w.betweenDrawCh:
 			f()
 		case <-w.animationFrame:
-			draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+			w.publish()
+			draw.Draw(w.winBuffers[w.bufferIdx].RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
 			w.DrawStack.PreDraw()
 			p := w.viewPos
-			w.DrawStack.DrawToScreen(w.winBuffer.RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
-			w.publish()
+			w.DrawStack.DrawToScreen(w.winBuffers[w.bufferIdx].RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
 		case <-w.DrawTicker.C:
-			draw.Draw(w.winBuffer.RGBA(), w.winBuffer.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+			// Publish what was drawn last frame to screen, then work on preparing the next frame.
+			w.publish()
+			draw.Draw(w.winBuffers[w.bufferIdx].RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
 			w.DrawStack.PreDraw()
 			p := w.viewPos
-			w.DrawStack.DrawToScreen(w.winBuffer.RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
-			w.publish()
+			w.DrawStack.DrawToScreen(w.winBuffers[w.bufferIdx].RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
 		}
 	}
 }
 
 func (w *Window) publish() {
-	w.prePublish(w, w.windowTexture)
-	w.windowTexture.Upload(zeroPoint, w.winBuffer, w.winBuffer.Bounds())
-	w.windowControl.Scale(w.windowRect, w.windowTexture, w.windowTexture.Bounds(), draw.Src)
+	w.prePublish(w, w.windowTextures[w.bufferIdx])
+	w.windowTextures[w.bufferIdx].Upload(zeroPoint, w.winBuffers[w.bufferIdx], w.winBuffers[w.bufferIdx].Bounds())
+	w.windowControl.Scale(w.windowRect, w.windowTextures[w.bufferIdx], w.windowTextures[w.bufferIdx].Bounds(), draw.Src)
 	w.windowControl.Publish()
+	// every frame, swap buffers. This enables drivers which might hold on to the rgba buffers we publish as if they
+	// were immutable.
+	w.bufferIdx = (w.bufferIdx + 1) % 2
 }
 
 // DoBetweenDraws will execute the given function in-between draw frames

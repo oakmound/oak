@@ -81,9 +81,11 @@ type Window struct {
 
 	// The window buffer represents the subsection of the world which is available to
 	// be shown in a window.
-	winBuffer     screen.Image
-	screenControl screen.Screen
-	windowControl screen.Window
+	winBuffers     [2]screen.Image
+	screenControl  screen.Screen
+	windowControl  screen.Window
+	windowTextures [2]screen.Texture
+	bufferIdx      uint8
 
 	windowRect image.Rectangle
 
@@ -131,8 +133,9 @@ type Window struct {
 	// LastMouseEvent is the last triggered mouse event,
 	// tracked for continuous mouse responsiveness on events
 	// that don't take in a mouse event
-	LastMouseEvent    mouse.Event
-	lastRelativePress mouse.Event
+	LastMouseEvent         mouse.Event
+	LastRelativeMouseEvent mouse.Event
+	lastRelativePress      mouse.Event
 	// LastPress is the last triggered mouse event,
 	// where the mouse event was a press.
 	// If TrackMouseClicks is set to false then this will not be tracked
@@ -143,8 +146,6 @@ type Window struct {
 	commands map[string]func([]string)
 
 	ControllerID int32
-
-	windowTexture screen.Texture
 
 	config Config
 
@@ -199,9 +200,6 @@ func NewWindow() *Window {
 
 // Propagate triggers direct mouse events on entities which are clicked
 func (w *Window) Propagate(eventName string, me mouse.Event) {
-	w.LastMouseEvent = me
-	mouse.LastEvent = me
-
 	hits := w.MouseTree.SearchIntersect(me.ToSpace().Bounds())
 	sort.Slice(hits, func(i, j int) bool {
 		return hits[i].Location.Min.Z() < hits[i].Location.Max.Z()
