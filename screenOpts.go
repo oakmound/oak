@@ -133,3 +133,18 @@ func (w *Window) GetCursorPosition() (x, y float64, err error) {
 		Operation: "GetCursorPosition",
 	}
 }
+
+type getDesktopPositioner interface {
+	GetDesktopPosition() (x, y float64)
+}
+
+// GetDesktopPosition returns the position of this window on the OS' desktop.
+func (w *Window) GetDesktopPosition() (x, y float64, err error) {
+	if wp, ok := w.windowControl.(getDesktopPositioner); ok {
+		x, y := wp.GetDesktopPosition()
+		return x, y, nil
+	}
+	return 0, 0, oakerr.UnsupportedPlatform{
+		Operation: "GetDesktopPosition",
+	}
+}

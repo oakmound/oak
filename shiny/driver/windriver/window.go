@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package windriver
@@ -499,4 +500,9 @@ func (w *windowImpl) GetCursorPosition() (x, y float64) {
 	w.windowRect, _ = win32.GetWindowRect(w.hwnd)
 	xint, yint, _ := win32.GetCursorPos()
 	return float64(xint) - float64(w.windowRect.Left), float64(yint) - float64(w.windowRect.Top)
+}
+
+func (w *windowImpl) GetDesktopPosition() (x, y float64) {
+	w.windowRect, _ = win32.GetWindowRect(w.hwnd)
+	return float64(w.windowRect.Left), float64(w.windowRect.Top)
 }
