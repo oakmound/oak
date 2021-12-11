@@ -2,6 +2,7 @@ package floatgeom
 
 import (
 	"testing"
+	"testing/quick"
 )
 
 func TestRectConstructors(t *testing.T) {
@@ -254,4 +255,17 @@ func TestRect3GreaterOf(t *testing.T) {
 			t.Fatalf("expected %v got %v", e, r3.GreaterOf(c))
 		}
 	}
+}
+
+func TestRect3ProjectZ(t *testing.T) {
+	if err := quick.Check(projectZHolds, nil); err != nil {
+		t.Error(err)
+	}
+}
+
+func projectZHolds(x1, y1, z1, x2, y2, z2 float64) bool {
+	r := NewRect3(x1, y1, z1, x2, y2, z2)
+	expected := NewRect2(x1, y1, x2, y2)
+	projected := r.ProjectZ()
+	return expected == projected
 }

@@ -48,6 +48,85 @@ func TestPolygon_getSide(t *testing.T) {
 	}
 }
 
+func TestPolygon2_RectCollides(t *testing.T) {
+	type testCase struct {
+		poly          Polygon2
+		rect          Rect2
+		shouldCollide bool
+	}
+	tcs := []testCase{
+		{
+			poly: NewPolygon2(
+				Point2{0, 0},
+				Point2{0, 1},
+				Point2{1, 1},
+				Point2{1, 0},
+			),
+			rect:          NewRect2(0, 0, 1, 1),
+			shouldCollide: true,
+		},
+		{
+			poly: NewPolygon2(
+				Point2{0, 0},
+				Point2{0, 1},
+				Point2{1, 1},
+			),
+			rect:          NewRect2(0, 0, 1, 1),
+			shouldCollide: true,
+		},
+		{
+			poly: NewPolygon2(
+				Point2{-1, -1},
+				Point2{-1, 2},
+				Point2{2, 2},
+			),
+			rect:          NewRect2(0, 0, 1, 1),
+			shouldCollide: true,
+		},
+		{
+			poly: NewPolygon2(
+				Point2{1.1, -1},
+				Point2{3.1, -1},
+				Point2{3.1, 1},
+			),
+			rect:          NewRect2(0, 0, 2, 2),
+			shouldCollide: false,
+		},
+		{
+			poly: NewPolygon2(
+				Point2{-1.1, -1.1},
+				Point2{-1.1, -1.1},
+				Point2{-1.1, -1.1},
+			),
+			rect:          NewRect2(0, 0, 2, 2),
+			shouldCollide: false,
+		},
+		{
+			poly: NewPolygon2(
+				Point2{4.1, 4.1},
+				Point2{4.1, 4.1},
+				Point2{4.1, 4.1},
+			),
+			rect:          NewRect2(0, 0, 2, 2),
+			shouldCollide: false,
+		},
+		{
+			poly: NewPolygon2(
+				Point2{1.1, 1.1},
+				Point2{1.1, 1.1},
+				Point2{1.1, 1.1},
+			),
+			rect:          NewRect2(0, 0, 2, 2),
+			shouldCollide: true,
+		},
+	}
+	for i, tc := range tcs {
+		if tc.poly.RectCollides(tc.rect) != tc.shouldCollide {
+			t.Errorf("test case %d failed", i)
+		}
+	}
+}
+
 var benchContains bool
 
 func BenchmarkPolygonContains(b *testing.B) {

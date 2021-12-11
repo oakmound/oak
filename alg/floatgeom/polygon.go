@@ -31,7 +31,6 @@ func NewPolygon2(p1, p2, p3 Point2, pn ...Point2) Polygon2 {
 // If it is known that the polygon is convex, ConvexContains should be preferred for
 // performance.
 func (pg Polygon2) Contains(x, y float64) (contains bool) {
-
 	if !pg.Bounding.Contains(Point2{x, y}) {
 		return
 	}
@@ -92,6 +91,7 @@ func getSide(a, b Point2) int {
 
 // OverlappingRectCollides returns whether a Rect2 intersects or is contained by this Polygon.
 // This method differs from RectCollides because it assumes that we already know r overlaps with pg.Bounding.
+// It is only valid for convex polygons.
 func (pg Polygon2) OverlappingRectCollides(r Rect2) bool {
 	if pg.rectangular {
 		return true
@@ -124,7 +124,8 @@ func (pg Polygon2) OverlappingRectCollides(r Rect2) bool {
 	return false
 }
 
-// RectCollides returns whether a Rect2 intersects or is contained by this Polygon
+// RectCollides returns whether a Rect2 intersects or is contained by this Polygon.
+// It is only valid for convex polygons.
 func (pg Polygon2) RectCollides(r Rect2) bool {
 	x := float64(r.Min.X())
 	y := float64(r.Min.Y())
@@ -136,29 +137,25 @@ func (pg Polygon2) RectCollides(r Rect2) bool {
 	dx2 := pg.Bounding.Max.X()
 	dy2 := pg.Bounding.Max.Y()
 
-	dimOverlap := false
 	if x > dx {
 		if x < dx2 {
-			dimOverlap = true
+			return pg.OverlappingRectCollides(r)
 		}
 	} else {
 		if dx < x2 {
-			dimOverlap = true
+			return pg.OverlappingRectCollides(r)
 		}
 	}
 	if y > dy {
 		if y < dy2 {
-			dimOverlap = true
+			return pg.OverlappingRectCollides(r)
 		}
 	} else {
 		if dy < y2 {
-			dimOverlap = true
+			return pg.OverlappingRectCollides(r)
 		}
 	}
-	if !dimOverlap {
-		return false
-	}
-	return pg.OverlappingRectCollides(r)
+	return false
 }
 
 func isRectangular(pts ...Point2) bool {
