@@ -148,3 +148,45 @@ func (w *Window) GetDesktopPosition() (x, y float64, err error) {
 		Operation: "GetDesktopPosition",
 	}
 }
+
+type Minimizer interface {
+	Minimize() error
+}
+
+// Minimize minimizes the window.
+func (w *Window) Minimize() (err error) {
+	if wp, ok := w.windowControl.(Minimizer); ok {
+		return wp.Minimize()
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "Minimize",
+	}
+}
+
+type Maximizer interface {
+	Maximize() error
+}
+
+// Maximize maximizes the window without making it fullscreen
+func (w *Window) Maximize() (err error) {
+	if wp, ok := w.windowControl.(Maximizer); ok {
+		return wp.Maximize()
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "Maximize",
+	}
+}
+
+type Normalizer interface {
+	Normalize() error
+}
+
+// Normalize undoes any maximizing on the window
+func (w *Window) Normalize() (err error) {
+	if wp, ok := w.windowControl.(Normalizer); ok {
+		return wp.Normalize()
+	}
+	return oakerr.UnsupportedPlatform{
+		Operation: "Normalize",
+	}
+}

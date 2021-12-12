@@ -1,6 +1,7 @@
 package oak
 
 import (
+	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/timing"
 
@@ -91,9 +92,26 @@ func (w *Window) inputLoop() {
 
 		// Size events update what we scale the screen to
 		case size.Event:
+			if e.WidthPx == 0 || e.HeightPx == 0 {
+				// The window has likely been minimized
+				continue
+			}
+			w.eventHandler.Trigger(WindowSizeChange, intgeom.Point2{e.WidthPx, e.HeightPx})
 			err := w.ChangeWindow(e.WidthPx, e.HeightPx)
 			dlog.ErrorCheck(err)
 		}
+	}
+}
+
+const WindowSizeChange = "WindowSizeChange"
+
+func SizeChangeEvent(f func(c event.CID, pt intgeom.Point2) int) event.Bindable {
+	return func(c event.CID, ptData interface{}) int {
+		pt, ok := ptData.(intgeom.Point2)
+		if !ok {
+			return event.UnbindSingle
+		}
+		return f(c, pt)
 	}
 }
 
