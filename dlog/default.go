@@ -43,12 +43,9 @@ func NewLogger() Logger {
 // containing the logged data separated by spaces,
 // prepended with file and line information.
 // It only includes logs which pass the current filters.
-func (l *logger) dLog(level Level, in ...interface{}) {
+func (l *logger) dLog(level Level, depth int, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
-	_, f, line, ok := runtime.Caller(2)
-	if strings.Contains(f, "dlog") {
-		_, f, line, ok = runtime.Caller(3)
-	}
+	_, f, line, ok := runtime.Caller(depth)
 	if ok {
 		f = truncateFileName(f)
 		if !l.checkFilter(f, in) {
@@ -114,21 +111,21 @@ func (l *logger) SetLogLevel(level Level) error {
 // Error will write a dlog if the debug level is not NONE
 func (l *logger) Error(in ...interface{}) {
 	if l.debugLevel > NONE {
-		l.dLog(ERROR, in...)
+		l.dLog(ERROR, 2, in...)
 	}
 }
 
 // Info will write a dLog if the debug level is higher than WARN
 func (l *logger) Info(in ...interface{}) {
 	if l.debugLevel > ERROR {
-		l.dLog(INFO, in...)
+		l.dLog(INFO, 2, in...)
 	}
 }
 
 // Verb will write a dLog if the debug level is higher than INFO
 func (l *logger) Verb(in ...interface{}) {
 	if l.debugLevel > INFO {
-		l.dLog(VERBOSE, in...)
+		l.dLog(VERBOSE, 2, in...)
 	}
 }
 

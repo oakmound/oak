@@ -23,7 +23,13 @@ var DefaultLogger = NewLogger()
 // Emits the input error as is for additional processing if desired.
 func ErrorCheck(in error) error {
 	if in != nil {
-		Error(in)
+		if lg, ok := DefaultLogger.(*logger); ok {
+			if lg.debugLevel > NONE {
+				lg.dLog(ERROR, 2, in)
+			}
+		} else {
+			Error(in)
+		}
 	}
 	return in
 }
