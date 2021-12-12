@@ -87,6 +87,7 @@ func (w *Window) ChangeWindow(width, height int) error {
 	} else {
 		return err
 	}
+	buff.Release()
 	var x, y int
 	if w.UseAspectRatio {
 		inRatio := float64(width) / float64(height)
