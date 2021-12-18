@@ -69,8 +69,9 @@ func weightedMapChoice(weightMap map[int]float64, rngFxn func() float64) int {
 		values[idx] = value
 		idx++
 	}
+	cum := CumulativeWeights(values)
 
-	return keys[weightedChooseOne(values, rngFxn)]
+	return keys[weightedChooseOne(cum, rngFxn)]
 }
 
 // CumulativeWeights converts a slice of weights into
