@@ -119,6 +119,15 @@ func TestPolygon2_RectCollides(t *testing.T) {
 			rect:          NewRect2(0, 0, 2, 2),
 			shouldCollide: true,
 		},
+		{
+			poly: NewPolygon2(
+				Point2{1.1, 1.1},
+				Point2{1.1, 1.1},
+				Point2{1.1, 1.1},
+			),
+			rect:          NewRect2(0, 2, 2, 2),
+			shouldCollide: false,
+		},
 	}
 	for i, tc := range tcs {
 		if tc.poly.RectCollides(tc.rect) != tc.shouldCollide {
