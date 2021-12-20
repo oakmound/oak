@@ -137,14 +137,18 @@ func (pg Polygon2) RectCollides(r Rect2) bool {
 	dx2 := pg.Bounding.Max.X()
 	dy2 := pg.Bounding.Max.Y()
 
+	overlapX := false
 	if x > dx {
 		if x < dx2 {
-			return pg.OverlappingRectCollides(r)
+			overlapX = true
 		}
 	} else {
 		if dx < x2 {
-			return pg.OverlappingRectCollides(r)
+			overlapX = true
 		}
+	}
+	if !overlapX {
+		return false
 	}
 	if y > dy {
 		if y < dy2 {
