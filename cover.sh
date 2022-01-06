@@ -2,19 +2,25 @@
 
 echo "" > coverage.txt
 
+TAGS="${OAK_COVER_TAGS:-nooswindow}"
+
 examples=$(find ./examples | grep main.go$)
 for ex in $examples 
 do
     echo $ex
     dir=$(dirname $ex)
     cd $dir
-    timeout 5 go run --tags=nooswindow $(basename $ex)
+    timeout 5 go run --tags="${TAGS}" $(basename $ex)
     if [ $? -ne 124 ]
     then
         exit 1
     fi
     cd ../..
 done
+
+if [[ ! -z ${OAK_COVER_EXAMPLES_ONLY} ]]; then
+    exit 0  
+fi 
 
 set -e
 go test -coverprofile=profile.out -covermode=atomic ./alg

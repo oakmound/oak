@@ -1,16 +1,37 @@
 name: Go
 on: [push]
 jobs:
+  test-arm:
+    name: Test (arm)
+    runs-on: [self-hosted, linux, ARM64]
+    steps:
+
+    - name: Set up Go 1.17
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.17
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: Get dependencies
+      run: |
+        mkdir -p /home/runner/go/bin
+        go get -v -t -d ./...
+
+    - name: Test
+      run: OAK_COVER_EXAMPLES_ONLY=yes OAK_COVER_TAGS=override ./cover.sh
 
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up Go 1.16
+    - name: Set up Go 1.17
       uses: actions/setup-go@v1
       with:
-        go-version: 1.16
+        go-version: 1.17
       id: go
 
     - name: Check out code into the Go module directory
