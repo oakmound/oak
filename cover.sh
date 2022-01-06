@@ -10,7 +10,7 @@ do
     echo $ex
     dir=$(dirname $ex)
     cd $dir
-    timeout 5 go run --tags="${TAGS}" $(basename $ex)
+    timeout 10 go run --tags="${TAGS}" $(basename $ex)
     retVal=$?
     echo "exit status" $retVal
     if [ $retVal -ne 124 ]; then
