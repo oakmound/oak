@@ -11,8 +11,9 @@ do
     dir=$(dirname $ex)
     cd $dir
     timeout 5 go run --tags="${TAGS}" $(basename $ex)
-    if [ $? -ne 124 ]
-    then
+    retVal=$?
+    echo "exit status" $retVal
+    if [ $retVal -ne 124 ]; then
         exit 1
     fi
     cd ../..
