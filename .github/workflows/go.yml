@@ -17,7 +17,6 @@ jobs:
 
     - name: Get dependencies
       run: |
-        mkdir -p /home/runner/go/bin
         go get -v -t -d ./...
 
     - name: Test
