@@ -12,10 +12,10 @@ require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210410170116-ea3d685f79fb
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/hajimehoshi/go-mp3 v0.3.1
+	github.com/oakmound/alsa v0.0.2
 	github.com/oakmound/libudev v0.2.1
 	github.com/oakmound/w32 v2.1.0+incompatible
 	github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf
-	github.com/yobert/alsa v0.0.0-20200618200352-d079056f5370
 	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
 	golang.org/x/mobile v0.0.0-20210220033013-bdb1ca9a1e08
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
