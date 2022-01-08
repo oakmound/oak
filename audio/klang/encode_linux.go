@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/yobert/alsa"
+	"github.com/oakmound/alsa"
 )
 
 type alsaAudio struct {
