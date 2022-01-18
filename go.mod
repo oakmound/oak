@@ -19,5 +19,5 @@ require (
 	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
 	golang.org/x/mobile v0.0.0-20210220033013-bdb1ca9a1e08
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20190429190828-d89cdac9e872
+	golang.org/x/sys v0.0.0-20220111092808-5a964db01320
 )
