@@ -61,12 +61,15 @@ func (w *Window) drawLoop() {
 			p := w.viewPos
 			w.DrawStack.DrawToScreen(w.winBuffers[w.bufferIdx].RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
 		case <-w.DrawTicker.C:
-			// Publish what was drawn last frame to screen, then work on preparing the next frame.
-			w.publish()
-			draw.Draw(w.winBuffers[w.bufferIdx].RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
-			w.DrawStack.PreDraw()
-			p := w.viewPos
-			w.DrawStack.DrawToScreen(w.winBuffers[w.bufferIdx].RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
+			buff := w.winBuffers[w.bufferIdx]
+			if buff.RGBA() != nil {
+				// Publish what was drawn last frame to screen, then work on preparing the next frame.
+				w.publish()
+				draw.Draw(buff.RGBA(), buff.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+				w.DrawStack.PreDraw()
+				p := w.viewPos
+				w.DrawStack.DrawToScreen(buff.RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
+			}
 		}
 	}
 }

@@ -2,13 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build !darwin
-// +build !linux android
-// +build !windows
-// +build !dragonfly
-// +build !openbsd
-// +build !nooswindow
-// +build !js
+//go:build !darwin && !linux && !android && !windows && !dragonfly && !openbsd && !nooswindow && !js
+// +build !darwin,!linux,!android,!windows,!dragonfly,!openbsd,!nooswindow,!js
 
 package driver
 

@@ -1,5 +1,5 @@
 //go:build js && !nooswindow && !windows && !darwin && !linux
-// +build js,!nooswindow,!windows,!darwin,!linux
+// +build js,!nooswindow,!windows,!darwin,!linux,!android
 
 package driver
 
