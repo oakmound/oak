@@ -34,6 +34,9 @@ func (w *Window) windowController(s screen.Screen, x, y int32, width, height int
 	))
 }
 
+// the number of rgba buffers oak's draw loop swaps between
+const bufferCount = 2
+
 type Window struct {
 	key.State
 
@@ -81,10 +84,10 @@ type Window struct {
 
 	// The window buffer represents the subsection of the world which is available to
 	// be shown in a window.
-	winBuffers     [2]screen.Image
+	winBuffers     [bufferCount]screen.Image
 	screenControl  screen.Screen
 	windowControl  screen.Window
-	windowTextures [2]screen.Texture
+	windowTextures [bufferCount]screen.Texture
 	bufferIdx      uint8
 
 	windowRect image.Rectangle

@@ -81,7 +81,7 @@ func (w *Window) publish() {
 	w.windowControl.Publish()
 	// every frame, swap buffers. This enables drivers which might hold on to the rgba buffers we publish as if they
 	// were immutable.
-	w.bufferIdx = (w.bufferIdx + 1) % 2
+	w.bufferIdx = (w.bufferIdx + 1) % bufferCount
 }
 
 // DoBetweenDraws will execute the given function in-between draw frames
