@@ -12,14 +12,14 @@ import (
 	"golang.org/x/mobile/event/size"
 	"golang.org/x/mobile/event/touch"
 	"golang.org/x/mobile/exp/gl/glutil"
-	"golang.org/x/mobile/geom"
 	"golang.org/x/mobile/gl"
 )
 
 func Main(f func(screen.Screen)) {
 	app.Main(func(a app.App) {
-		var sz size.Event
-		s := &screenImpl{}
+		s := &screenImpl{
+			app: a,
+		}
 		screenOnce := sync.Once{}
 		for e := range a.Events() {
 			switch e := e.(type) {
@@ -40,35 +40,34 @@ func Main(f func(screen.Screen)) {
 					s.images.Release()
 				}
 			case size.Event:
-				sz = e
-				//fmt.Println("sending size event", e.HeightPx, e.WidthPx)
+				s.lastSz = e
 				s.Deque.Send(e)
-			case paint.Event:
-				// drop system driven paint events; oak dictates frame rate
-				if s.glctx == nil || e.External {
-					continue
-				}
-				s.glctx.ClearColor(0, 0, 0, 1)
-				s.glctx.Clear(gl.COLOR_BUFFER_BIT)
-				if s.activeImage != nil && !s.activeImage.dead {
-					s.activeImage.img.Upload()
-					s.activeImage.img.Draw(sz, geom.Point{}, geom.Point{X: sz.WidthPt}, geom.Point{Y: sz.HeightPt}, sz.Bounds())
-				}
-				s.Publish()
-				a.Publish()
-				// Drive the animation by preparing to paint the next frame
-				// after this one is shown.
-				a.Send(paint.Event{})
 			case touch.Event:
-				// for now, make this a left click
-				// have to worry about this later
-				//fmt.Println("sending left click at ", e.X, e.Y)
-				s.Deque.Send(mouse.Event{
-					X:         e.X,
-					Y:         e.Y,
-					Button:    mouse.ButtonLeft,
-					Direction: mouse.DirPress,
-				})
+				// TODO: expose touch events in a way an oak program can
+				// differentiate them from clicks
+				switch e.Type {
+				case touch.TypeBegin:
+					s.Deque.Send(mouse.Event{
+						X:         e.X,
+						Y:         e.Y,
+						Button:    mouse.ButtonLeft,
+						Direction: mouse.DirPress,
+					})
+				case touch.TypeEnd:
+					s.Deque.Send(mouse.Event{
+						X:         e.X,
+						Y:         e.Y,
+						Button:    mouse.ButtonLeft,
+						Direction: mouse.DirRelease,
+					})
+				case touch.TypeMove:
+					s.Deque.Send(mouse.Event{
+						X:         e.X,
+						Y:         e.Y,
+						Button:    mouse.ButtonLeft,
+						Direction: mouse.DirNone,
+					})
+				}
 			}
 		}
 	})
