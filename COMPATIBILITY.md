@@ -6,7 +6,7 @@
 | linux        | Yes         | Yes          | Yes         | XBox 360 (#133)   | No           | amd64, arm, arm64       |
 | osx (darwin) | Yes         | Yes          | No (#89)    | No (#87)          | Yes (#175)   | amd64                   |
 | js           | Yes         | N/A          | No (#174)   | Standard Mapping  | No           | wasm                    |
-| android      | Experimental| N/A          | No          | No                | Yes          | amd64                   |
+| android      | Experimental| N/A          | No          | No                | Yes          | arm64                   |
 | ios          | No (#49)    | N/A          | N/A         | N/A               | N/A          |                         |
 
 ## Window Options
