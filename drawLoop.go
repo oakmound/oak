@@ -44,6 +44,45 @@ func (w *Window) drawLoop() {
 		}
 	}
 
+	if w.config.UnlimitedDrawFrameRate {
+		// this code is duplicated as an optimization: it's much faster
+		// to have a 'default' case than to flood a channel, and we can't conditionally
+		// add a default case to a select.
+		for {
+			select {
+			case <-w.quitCh:
+				return
+			case <-w.drawCh:
+				<-w.drawCh
+			loadingSelectUnlimited:
+				for {
+					select {
+					case <-w.ParentContext.Done():
+						return
+					case <-w.quitCh:
+						return
+					case <-w.drawCh:
+						break loadingSelectUnlimited
+					case <-w.animationFrame:
+						drawLoadingFrame()
+					case <-w.DrawTicker.C:
+						drawLoadingFrame()
+					default:
+						drawLoadingFrame()
+					}
+				}
+			case f := <-w.betweenDrawCh:
+				f()
+			case <-w.animationFrame:
+				drawFrame()
+			case <-w.DrawTicker.C:
+				drawFrame()
+			default:
+				drawFrame()
+			}
+		}
+	}
+
 	for {
 		select {
 		case <-w.quitCh:

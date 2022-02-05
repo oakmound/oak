@@ -72,7 +72,6 @@ func BlankBatchLoad(baseFolder string) error {
 
 func batchLoad(baseFolder string, blankOut bool) error {
 	files, err := fileutil.ReadDir(baseFolder)
-
 	if err != nil {
 		return err
 	}
