@@ -23,6 +23,27 @@ func (w *Window) drawLoop() {
 	draw.Draw(w.winBuffers[w.bufferIdx].RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
 	w.publish()
 
+	drawFrame := func() {
+		buff := w.winBuffers[w.bufferIdx]
+		if buff.RGBA() != nil {
+			// Publish what was drawn last frame to screen, then work on preparing the next frame.
+			w.publish()
+			draw.Draw(buff.RGBA(), buff.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+			w.DrawStack.PreDraw()
+			p := w.viewPos
+			w.DrawStack.DrawToScreen(buff.RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
+		}
+	}
+
+	drawLoadingFrame := func() {
+		buff := w.winBuffers[w.bufferIdx]
+		w.publish()
+		draw.Draw(buff.RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
+		if w.LoadingR != nil {
+			w.LoadingR.Draw(w.winBuffers[w.bufferIdx].RGBA(), 0, 0)
+		}
+	}
+
 	for {
 		select {
 		case <-w.quitCh:
@@ -39,37 +60,17 @@ func (w *Window) drawLoop() {
 				case <-w.drawCh:
 					break loadingSelect
 				case <-w.animationFrame:
-					w.publish()
-					draw.Draw(w.winBuffers[w.bufferIdx].RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
-					if w.LoadingR != nil {
-						w.LoadingR.Draw(w.winBuffers[w.bufferIdx].RGBA(), 0, 0)
-					}
+					drawLoadingFrame()
 				case <-w.DrawTicker.C:
-					w.publish()
-					draw.Draw(w.winBuffers[w.bufferIdx].RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
-					if w.LoadingR != nil {
-						w.LoadingR.Draw(w.winBuffers[w.bufferIdx].RGBA(), 0, 0)
-					}
+					drawLoadingFrame()
 				}
 			}
 		case f := <-w.betweenDrawCh:
 			f()
 		case <-w.animationFrame:
-			w.publish()
-			draw.Draw(w.winBuffers[w.bufferIdx].RGBA(), w.winBuffers[w.bufferIdx].Bounds(), w.bkgFn(), zeroPoint, draw.Src)
-			w.DrawStack.PreDraw()
-			p := w.viewPos
-			w.DrawStack.DrawToScreen(w.winBuffers[w.bufferIdx].RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
+			drawFrame()
 		case <-w.DrawTicker.C:
-			buff := w.winBuffers[w.bufferIdx]
-			if buff.RGBA() != nil {
-				// Publish what was drawn last frame to screen, then work on preparing the next frame.
-				w.publish()
-				draw.Draw(buff.RGBA(), buff.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
-				w.DrawStack.PreDraw()
-				p := w.viewPos
-				w.DrawStack.DrawToScreen(buff.RGBA(), &p, w.ScreenWidth, w.ScreenHeight)
-			}
+			drawFrame()
 		}
 	}
 }
