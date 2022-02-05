@@ -171,7 +171,7 @@ var (
 	nextControllerID = new(int32)
 )
 
-// NewWindow creates a window with defauklt settings.
+// NewWindow creates a window with default settings.
 func NewWindow() *Window {
 	c := &Window{
 		State:         key.NewState(),
