@@ -17,7 +17,7 @@ require (
 	github.com/oakmound/w32 v2.1.0+incompatible
 	github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf
 	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
-	golang.org/x/mobile v0.0.0-20210220033013-bdb1ca9a1e08
+	golang.org/x/mobile v0.0.0-20220112015953-858099ff7816
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/sys v0.0.0-20220111092808-5a964db01320
 )

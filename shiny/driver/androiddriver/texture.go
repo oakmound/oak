@@ -1,7 +1,7 @@
-//go:build js
-// +build js
+//go:build android
+// +build android
 
-package jsdriver
+package androiddriver
 
 import (
 	"image"
@@ -14,7 +14,14 @@ import (
 type textureImpl struct {
 	screen *screenImpl
 	size   image.Point
-	rgba   *image.RGBA
+	img    *imageImpl
+}
+
+func NewTexture(s *screenImpl, size image.Point) *textureImpl {
+	return &textureImpl{
+		screen: s,
+		size:   size,
+	}
 }
 
 func (ti *textureImpl) Size() image.Point {
@@ -26,8 +33,7 @@ func (ti *textureImpl) Bounds() image.Rectangle {
 }
 
 func (ti *textureImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
-	rgba := src.RGBA()
-	ti.rgba = rgba
+	ti.img, _ = src.(*imageImpl)
 }
 func (*textureImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {}
 func (*textureImpl) Release()                                             {}

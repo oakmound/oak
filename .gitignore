@@ -3,6 +3,7 @@
 *.dll
 *.so
 *.dylib
+*.apk
 
 # WASM test output files
 *.wasm
@@ -14,7 +15,3 @@
 *.out
 
 coverage.txt
-
-# As a library we can't commit our vendor directory if it ever accidentally kept
-# around after updating dependencies
-vendor/*

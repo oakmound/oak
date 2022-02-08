@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/mouse"
 
 	oak "github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/collision"
@@ -106,6 +107,10 @@ func newFlappy(x, y float64) *Flappy {
 			f.SetY(0)
 			f.Delta.SetY(0)
 		}
+		return 0
+	})
+	f.Bind(mouse.Press, func(event.CID, interface{}) int {
+		f.Delta.ShiftY(-4)
 		return 0
 	})
 	f.Bind(key.Down+key.W, func(event.CID, interface{}) int {
