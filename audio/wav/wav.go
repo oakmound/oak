@@ -32,6 +32,21 @@ func Save(r io.ReadWriter, a audio.Audio) error {
 	return errors.New("Unsupported Functionality")
 }
 
+// Read reads a WAV header from the provided reader, returning the PCM format and
+// leaving the PCM data in the reader available for consumption.
+func ReadFormat(r io.Reader) (audio.Format, error) {
+	data, err := ReadData(r)
+	if err != nil {
+		return audio.Format{}, err
+	}
+
+	return audio.Format{
+		SampleRate: data.SampleRate,
+		Channels:   data.NumChannels,
+		Bits:       data.BitsPerSample,
+	}, nil
+}
+
 // The following is a "fork" of verdverm's go-wav library
 
 // Data stores the raw information contained in a wav file
@@ -55,67 +70,75 @@ type Data struct {
 	Data          []byte  // L
 }
 
+func ReadData(r io.Reader) (Data, error) {
+	data := Data{}
+
+	err := binary.Read(r, binary.BigEndian, &data.bChunkID)
+	if err != nil {
+		return data, err
+	}
+	err = binary.Read(r, binary.LittleEndian, &data.ChunkSize)
+	if err != nil {
+		return data, err
+	}
+	err = binary.Read(r, binary.BigEndian, &data.bFormat)
+	if err != nil {
+		return data, err
+	}
+
+	err = binary.Read(r, binary.BigEndian, &data.bSubchunk1ID)
+	if err != nil {
+		return data, err
+	}
+	err = binary.Read(r, binary.LittleEndian, &data.Subchunk1Size)
+	if err != nil {
+		return data, err
+	}
+	err = binary.Read(r, binary.LittleEndian, &data.AudioFormat)
+	if err != nil {
+		return data, err
+	}
+	err = binary.Read(r, binary.LittleEndian, &data.NumChannels)
+	if err != nil {
+		return data, err
+	}
+	err = binary.Read(r, binary.LittleEndian, &data.SampleRate)
+	if err != nil {
+		return data, err
+	}
+	err = binary.Read(r, binary.LittleEndian, &data.ByteRate)
+	if err != nil {
+		return data, err
+	}
+	err = binary.Read(r, binary.LittleEndian, &data.BlockAlign)
+	if err != nil {
+		return data, err
+	}
+	err = binary.Read(r, binary.LittleEndian, &data.BitsPerSample)
+	if err != nil {
+		return data, err
+	}
+
+	err = binary.Read(r, binary.BigEndian, &data.bSubchunk2ID)
+	if err != nil {
+		return data, err
+	}
+	err = binary.Read(r, binary.LittleEndian, &data.Subchunk2Size)
+	if err != nil {
+		return data, err
+	}
+	return data, nil
+}
+
 // Read returns raw wav data from an input reader
 func Read(r io.Reader) (Data, error) {
-	wav := Data{}
-
-	err := binary.Read(r, binary.BigEndian, &wav.bChunkID)
+	data, err := ReadData(r)
 	if err != nil {
-		return wav, err
-	}
-	err = binary.Read(r, binary.LittleEndian, &wav.ChunkSize)
-	if err != nil {
-		return wav, err
-	}
-	err = binary.Read(r, binary.BigEndian, &wav.bFormat)
-	if err != nil {
-		return wav, err
+		return data, err
 	}
 
-	err = binary.Read(r, binary.BigEndian, &wav.bSubchunk1ID)
-	if err != nil {
-		return wav, err
-	}
-	err = binary.Read(r, binary.LittleEndian, &wav.Subchunk1Size)
-	if err != nil {
-		return wav, err
-	}
-	err = binary.Read(r, binary.LittleEndian, &wav.AudioFormat)
-	if err != nil {
-		return wav, err
-	}
-	err = binary.Read(r, binary.LittleEndian, &wav.NumChannels)
-	if err != nil {
-		return wav, err
-	}
-	err = binary.Read(r, binary.LittleEndian, &wav.SampleRate)
-	if err != nil {
-		return wav, err
-	}
-	err = binary.Read(r, binary.LittleEndian, &wav.ByteRate)
-	if err != nil {
-		return wav, err
-	}
-	err = binary.Read(r, binary.LittleEndian, &wav.BlockAlign)
-	if err != nil {
-		return wav, err
-	}
-	err = binary.Read(r, binary.LittleEndian, &wav.BitsPerSample)
-	if err != nil {
-		return wav, err
-	}
+	data.Data = make([]byte, data.Subchunk2Size)
+	err = binary.Read(r, binary.LittleEndian, &data.Data)
 
-	err = binary.Read(r, binary.BigEndian, &wav.bSubchunk2ID)
-	if err != nil {
-		return wav, err
-	}
-	err = binary.Read(r, binary.LittleEndian, &wav.Subchunk2Size)
-	if err != nil {
-		return wav, err
-	}
-
-	wav.Data = make([]byte, wav.Subchunk2Size)
-	err = binary.Read(r, binary.LittleEndian, &wav.Data)
-
-	return wav, err
+	return data, err
 }
