@@ -20,6 +20,9 @@ var (
 )
 
 func init() {
+	// TODO: before merging; pcm and klang cannot both initialize dsound;
+	// they steal the device from one another
+	return
 	hasDefaultDevice := false
 	dsound.DirectSoundEnumerate(func(guid *dsound.GUID, description string, module string) bool {
 		if guid == nil {
