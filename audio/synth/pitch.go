@@ -472,6 +472,7 @@ func NoteFromIndex(i int) Pitch {
 	return allPitches[i]
 }
 
+// IsAccidental reports true if this pitch is represented with a single sharp or a flat, usually.
 func (p Pitch) IsAccidental() bool {
 	_, ok := accidentals[p]
 	return ok
