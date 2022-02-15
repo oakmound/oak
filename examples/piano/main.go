@@ -10,9 +10,9 @@ import (
 
 	"github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/audio/klang"
+	"github.com/oakmound/oak/v3/audio/pcm"
 	"github.com/oakmound/oak/v3/audio/synth"
 	"github.com/oakmound/oak/v3/entities"
-	"github.com/oakmound/oak/v3/audio/pcm"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/mouse"
@@ -131,10 +131,10 @@ type keyDef struct {
 var keycharOrder = []string{
 	"Z", "S", "X", "D", "C",
 	"V", "G", "B", "H", "N", "J", "M",
-	",", "L", ".", ";", "/",
+	key.Comma, "L", key.Period, key.Semicolon, key.Slash,
 	"Q", "2", "W", "3", "E", "4", "R",
 	"T", "6", "Y", "7", "U",
-	"I", "9", "O", "0", "P", "-", "[",
+	"I", "9", "O", "0", "P", key.HyphenMinus, key.LeftSquareBracket,
 }
 
 var playLock sync.Mutex
@@ -245,10 +245,23 @@ func main() {
 				}
 				return 0
 			})
-			help1 := render.NewText("Shift+([S]in/[T]ri/[P]ulse/sa[W]) to change wave style", 10, 600)
-			help2 := render.NewText("Keyboard / mouse to play", 10, 620)
+			help1 := render.NewText("Shift+([S]in/[T]ri/[P]ulse/sa[W]) to change wave style", 10, 500)
+			help2 := render.NewText("Keyboard / mouse to play", 10, 520)
 			render.Draw(help1)
 			render.Draw(help2)
+
+			event.GlobalBind(mouse.ScrollDown, func(c event.CID, i interface{}) int {
+				mag := globalMagnification - 0.05
+				if mag < 1 {
+					mag = 1
+				}
+				globalMagnification = mag
+				return 0
+			})
+			event.GlobalBind(mouse.ScrollUp, func(c event.CID, i interface{}) int {
+				globalMagnification += 0.05
+				return 0
+			})
 		},
 	})
 	oak.Init("piano", func(c oak.Config) (oak.Config, error) {
@@ -259,19 +272,29 @@ func main() {
 }
 
 type pcmMonitor struct {
+	event.CID
 	render.LayeredPoint
 	pcm.Writer
 	written []byte
 	at      int
 }
 
+var globalMagnification float64 = 1
+
 func newPCMMonitor(w pcm.Writer) *pcmMonitor {
 	fmt := w.PCMFormat()
-	return &pcmMonitor{
+	pm := &pcmMonitor{
 		Writer:       w,
 		LayeredPoint: render.NewLayeredPoint(0, 0, 0),
 		written:      make([]byte, fmt.BytesPerSecond()*pcm.WriterBufferLengthInSeconds),
 	}
+	pm.Init()
+	return pm
+}
+
+func (pm *pcmMonitor) Init() event.CID {
+	pm.CID = event.NextID(pm)
+	return pm.CID
 }
 
 func (pm *pcmMonitor) WritePCM(b []byte) (n int, err error) {
@@ -288,6 +311,7 @@ func (pm *pcmMonitor) Draw(buf draw.Image, xOff, yOff float64) {
 	const width = 640
 	const height = 200.0
 	xJump := len(pm.written) / width
+	xJump = int(float64(xJump) / globalMagnification)
 	c := color.RGBA{255, 255, 255, 255}
 	for x := 0.0; x < width; x++ {
 		wIndex := int(x) * xJump
