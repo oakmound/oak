@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"image/draw"
+	"math"
 	"os"
 	"sync"
 
@@ -193,9 +194,9 @@ func main() {
 			src.Format = klang.Format{
 				SampleRate: 40000,
 				Channels:   2,
-				Bits:       16,
+				Bits:       32,
 			}
-			synthKind = src.SawPCM
+			synthKind = src.SinPCM
 			pitch := synth.C3
 			kc := keyColorWhite
 			x := 20.0
@@ -275,6 +276,7 @@ type pcmMonitor struct {
 	event.CID
 	render.LayeredPoint
 	pcm.Writer
+	pcm.Format
 	written []byte
 	at      int
 }
@@ -285,6 +287,7 @@ func newPCMMonitor(w pcm.Writer) *pcmMonitor {
 	fmt := w.PCMFormat()
 	pm := &pcmMonitor{
 		Writer:       w,
+		Format:       w.PCMFormat(),
 		LayeredPoint: render.NewLayeredPoint(0, 0, 0),
 		written:      make([]byte, fmt.BytesPerSecond()*pcm.WriterBufferLengthInSeconds),
 	}
@@ -295,6 +298,10 @@ func newPCMMonitor(w pcm.Writer) *pcmMonitor {
 func (pm *pcmMonitor) Init() event.CID {
 	pm.CID = event.NextID(pm)
 	return pm.CID
+}
+
+func (pm *pcmMonitor) PCMFormat() pcm.Format {
+	return pm.Format
 }
 
 func (pm *pcmMonitor) WritePCM(b []byte) (n int, err error) {
@@ -316,15 +323,19 @@ func (pm *pcmMonitor) Draw(buf draw.Image, xOff, yOff float64) {
 	for x := 0.0; x < width; x++ {
 		wIndex := int(x) * xJump
 
-		// look for pair for this int16
 		var val int16
-		switch wIndex % 4 {
-		case 0, 2:
+		switch pm.Format.Bits {
+		case 16:
+			wIndex -= wIndex % 2
 			val = int16(pm.written[wIndex+1])<<8 +
 				int16(pm.written[wIndex])
-		case 1, 3:
-			val = int16(pm.written[wIndex])<<8 +
-				int16(pm.written[wIndex-1])
+		case 32:
+			wIndex = wIndex - wIndex%4
+			val32 := int32(pm.written[wIndex+3])<<24 +
+				int32(pm.written[wIndex+2])<<16 +
+				int32(pm.written[wIndex+1])<<8 +
+				int32(pm.written[wIndex])
+			val = int16(val32 / int32(math.Pow(2, 16)))
 		}
 
 		// -32768 -> 200
