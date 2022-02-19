@@ -33,14 +33,20 @@ func TestLogger(t *testing.T) {
 	}
 	calllogger()
 
-	expectedOut := `[default_test:34]  ERROR: error
-[default_test:34]  INFO: info
-[default_test:34]  VERBOSE: verb
-[default_test:34]  VERBOSE: foo
-`
 	out := buff.String()
+	expected := []string{
+		"ERROR: error",
+		"INFO: info",
+		"VERBOSE: verb",
+		"VERBOSE: foo",
+	}
 
-	if out != expectedOut {
-		t.Fatalf("logged output did not match: got %q expected %q", out, expectedOut)
+	lastIndexAt := 0
+	for _, s := range expected {
+		foundAt := strings.Index(out, s)
+		if foundAt < lastIndexAt {
+			t.Fatalf("did not find %v in correct order, was at index %v", s, foundAt)
+		}
+		lastIndexAt = foundAt
 	}
 }
