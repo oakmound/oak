@@ -202,20 +202,13 @@ func (s Source) SawPCM(opts ...Option) (pcm.Reader, error) {
 // v   v   v
 func (s Source) Triangle(opts ...Option) (audio.Audio, error) {
 	s = s.Update(opts...)
-
 	var b []byte
 	switch s.Bits {
 	case 16:
 		s.Volume *= math.MaxInt16
 		wave := make([]int16, int(s.Seconds*float64(s.SampleRate)))
 		for i := range wave {
-			p := math.Mod(s.Phase(i), 2*math.Pi)
-			m := int16(p * (2 * s.Volume / math.Pi))
-			if math.Sin(p) > 0 {
-				wave[i] = int16(-s.Volume) + m
-			} else {
-				wave[i] = 3*int16(s.Volume) - m
-			}
+			wave[i] = int16(s.triangleAtIndex(i))
 		}
 		b = bytesFromInts(wave, int(s.Channels))
 	}
@@ -230,12 +223,7 @@ func (s Source) TrianglePCM(opts ...Option) (pcm.Reader, error) {
 		return &Wave16Reader{
 			Source: s.Update(opts...),
 			waveFunc: func(s Source, idx int) int16 {
-				p := math.Mod(s.Phase(idx), 2*math.Pi)
-				m := int16(p * (2 * s.Volume / math.Pi))
-				if math.Sin(p) > 0 {
-					return int16(-s.Volume) + m
-				}
-				return 3*int16(s.Volume) - m
+				return int16(s.triangleAtIndex(idx))
 			},
 		}, nil
 	case 32:
@@ -243,16 +231,24 @@ func (s Source) TrianglePCM(opts ...Option) (pcm.Reader, error) {
 		return &Wave32Reader{
 			Source: s.Update(opts...),
 			waveFunc: func(s Source, idx int) int32 {
-				p := math.Mod(s.Phase(idx), 2*math.Pi)
-				m := int32(p * (2 * s.Volume / math.Pi))
-				if math.Sin(p) > 0 {
-					return int32(-s.Volume) + m
-				}
-				return 3*int32(s.Volume) - m
+				return int32(s.triangleAtIndex(idx))
 			},
 		}, nil
 	}
 	return nil, oakerr.InvalidInput{InputName: "s.Bits"}
+}
+
+func (s Source) triangleAtIndex(idx int) float64 {
+	p := s.modPhase(idx)
+	m := p * (2 * s.Volume / math.Pi)
+	if math.Sin(p) > 0 {
+		return -s.Volume + m
+	}
+	return 3*s.Volume - m
+}
+
+func (s Source) modPhase(idx int) float64 {
+	return math.Mod(s.Phase(idx), 2*math.Pi)
 }
 
 // Could have pulse triangle
