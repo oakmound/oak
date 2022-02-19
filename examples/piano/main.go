@@ -13,6 +13,7 @@ import (
 	"github.com/oakmound/oak/v3/audio/klang"
 	"github.com/oakmound/oak/v3/audio/pcm"
 	"github.com/oakmound/oak/v3/audio/synth"
+	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/entities"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/key"
@@ -268,6 +269,7 @@ func main() {
 	oak.Init("piano", func(c oak.Config) (oak.Config, error) {
 		c.Screen.Height = 600
 		c.Title = "Piano Example"
+		c.Debug.Level = dlog.INFO.String()
 		return c, nil
 	})
 }

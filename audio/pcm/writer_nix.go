@@ -1,19 +1,32 @@
-//go:build linux
+//go:build linux || darwin
 
 package pcm
 
 import (
-	"io"
-	"fmt"
 	"bytes"
+	"fmt"
+	"io"
 	"sync"
 
 	"github.com/jfreymuth/pulse"
 	"github.com/jfreymuth/pulse/proto"
+	"github.com/oakmound/oak/v3/oakerr"
 )
 
-
 func initOS() error {
+	// Sanity check that pulse is installed and a sink is defined
+	client, err := pulse.NewClient()
+	if err != nil {
+		// Try brew install pulseaudio on osx
+		return oakerr.UnsupportedPlatform{
+			Operation: "pcm.Init:pulseaudio",
+		}
+	}
+	defer client.Close()
+	_, err = client.DefaultSink()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -23,16 +36,16 @@ var newWriterMutex sync.Mutex
 func newWriter(f Format) (Writer, error) {
 	newWriterMutex.Lock()
 	defer newWriterMutex.Unlock()
-	// TODO: 
+	// TODO:
 	// 1. Volume scales with pitch-- lower pitches are quieter -- only happens for sin32 and tri32, so probably us
-	channelOpt := pulse.PlaybackStereo 
-	if f.Channels == 2 {
+	channelOpt := pulse.PlaybackStereo
+	if f.Channels == 1 {
 		channelOpt = pulse.PlaybackMono
-	} else {
+	} else if f.Channels != 2 {
 		return nil, fmt.Errorf("unsupported channel count")
 	}
 
-	var pfmt byte 
+	var pfmt byte
 	switch f.Bits {
 	case 8:
 		pfmt = proto.FormatUint8
@@ -45,36 +58,36 @@ func newWriter(f Format) (Writer, error) {
 	}
 	client, err := pulse.NewClient()
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
 	sink, err := client.DefaultSink()
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
 	handOver := bytes.NewBuffer([]byte{})
 	er := &eofFReader{Buffer: handOver}
-	pb, err := client.NewPlayback(pulse.NewReader(er, pfmt), 
+	pb, err := client.NewPlayback(pulse.NewReader(er, pfmt),
 		pulse.PlaybackSink(sink),
 		pulse.PlaybackSampleRate(int(f.SampleRate)),
-		channelOpt, 
+		channelOpt,
 		pulse.PlaybackLatency(0.025),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("pulse writer creation failed: %w", err) 
+		return nil, fmt.Errorf("pulse writer creation failed: %w", err)
 	}
 
 	return &pulseWriter{
-		Format: f,
-		handOver: er, 
-		playBack: pb,
-		client: client, 
+		Format:        f,
+		handOver:      er,
+		playBack:      pb,
+		client:        client,
 		startComplete: make(chan struct{}),
-	}, nil 
+	}, nil
 }
 
 type eofFReader struct {
 	*bytes.Buffer
-	eof bool 
+	eof bool
 }
 
 func (m *eofFReader) Read(b []byte) (n int, err error) {
@@ -95,11 +108,11 @@ func (m *eofFReader) Read(b []byte) (n int, err error) {
 type pulseWriter struct {
 	sync.Mutex
 	Format
-	handOver *eofFReader
-	playBack *pulse.PlaybackStream 
-	client *pulse.Client
-	startComplete chan(struct{})
-	playing bool
+	handOver      *eofFReader
+	playBack      *pulse.PlaybackStream
+	client        *pulse.Client
+	startComplete chan (struct{})
+	playing       bool
 }
 
 func (dsw *pulseWriter) Close() error {
@@ -131,11 +144,11 @@ func (dsw *pulseWriter) WritePCM(data []byte) (n int, err error) {
 	defer dsw.Unlock()
 	n, err = dsw.handOver.Write(data)
 	if !dsw.playing {
-		dsw.playing = true 
-		go func() {		
-			// this function blocks if it does not have enough data yet. 
+		dsw.playing = true
+		go func() {
+			// this function blocks if it does not have enough data yet.
 			// we don't want to structure our API around start/stop so far,
-			// so just start and wait for it to unblock once we've written 
+			// so just start and wait for it to unblock once we've written
 			// enough for the os to be happy. Signal to the rest of the system
 			// that this process has completed by closing startComplete after.
 			// (without this channel, close may be called while start is being called,
@@ -144,5 +157,5 @@ func (dsw *pulseWriter) WritePCM(data []byte) (n int, err error) {
 			close(dsw.startComplete)
 		}()
 	}
-	return n, err 
+	return n, err
 }
