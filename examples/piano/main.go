@@ -154,7 +154,7 @@ func playPitch(pitch synth.Pitch) {
 	format := toPlay.PCMFormat()
 	speaker, err := pcm.NewWriter(format)
 	if err != nil {
-		fmt.Println("writer failed:", err)
+		fmt.Println("new writer failed:", err)
 		return
 	}
 	monitor := newPCMMonitor(speaker)
