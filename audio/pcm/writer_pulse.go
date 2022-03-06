@@ -10,7 +10,6 @@ import (
 
 	"github.com/jfreymuth/pulse"
 	"github.com/jfreymuth/pulse/proto"
-	"github.com/oakmound/oak/v3/oakerr"
 )
 
 // This mutex may be unneeded
