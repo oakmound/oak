@@ -9,13 +9,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oakmound/oak/v3/audio/pcm"
 	"github.com/oakmound/oak/v3/audio/synth"
 	"github.com/oakmound/oak/v3/audio/wav"
-	"github.com/oakmound/oak/v3/audio/pcm"
 )
 
 func TestMain(m *testing.M) {
-	err := pcm.Init()
+	err := pcm.InitDefault()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

@@ -5,55 +5,33 @@ package pcm
 import (
 	"fmt"
 	"io"
-	"strings"
 	"sync"
-	"syscall"
 
-	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/audio/wininternal"
 	"github.com/oakmound/oak/v3/oakerr"
 	"github.com/oov/directsound-go/dsound"
 )
 
-var directSoundInterface *dsound.IDirectSound
-var devices map[*dsound.GUID]string
-
-func initOS() error {
-	if directSoundInterface != nil {
-		return nil
-	}
-	devices = make(map[*dsound.GUID]string)
-	dsound.DirectSoundEnumerate(func(guid *dsound.GUID, description string, module string) bool {
-		devices[guid] = description
-		return true
-	})
-	if len(devices) == 0 {
-		dlog.Error(dlog.NoAudioDevice)
+func initOS(driver Driver) error {
+	switch driver {
+	case DriverDefault:
+		fallthrough
+	case DriverDirectSound:
+		// OK
+	default:
 		return oakerr.UnsupportedPlatform{
-			Operation: "Init",
+			Operation: "pcm.Init:" + driver.String(),
 		}
 	}
-	// TODO: providing a GUID which is not nil appears to not succeed, even if those
-	// GUIDs were returned by Enumerate above
-	ds, err := dsound.DirectSoundCreate(nil)
+	cfg, err := wininternal.Init()
 	if err != nil {
 		return err
 	}
-
-	user32 := syscall.NewLazyDLL("user32")
-	getDesktopWindow := user32.NewProc("GetDesktopWindow")
-
-	// Call() can return "The operation was completed successfully" as an error
-	desktopWindow, _, err := getDesktopWindow.Call()
-	if !strings.Contains(err.Error(), "success") {
-		return err
-	}
-	err = ds.SetCooperativeLevel(syscall.Handle(desktopWindow), dsound.DSSCL_PRIORITY)
-	if err != nil {
-		return err
-	}
-	directSoundInterface = ds
+	directSoundInterface = cfg.Interface
 	return nil
 }
+
+var directSoundInterface *dsound.IDirectSound
 
 func newWriter(f Format) (Writer, error) {
 	if directSoundInterface == nil {

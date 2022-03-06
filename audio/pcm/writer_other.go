@@ -4,7 +4,7 @@ package pcm
 
 import "github.com/oakmound/oak/v3/oakerr"
 
-func initOS() error {
+func initOS(driver Driver) error {
 	return oakerr.UnsupportedPlatform{
 		Operation: "pcm.Init",
 	}

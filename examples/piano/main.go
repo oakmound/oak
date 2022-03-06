@@ -183,7 +183,7 @@ func releasePitch(pitch synth.Pitch) {
 }
 
 func main() {
-	err := pcm.Init()
+	err := pcm.InitDefault()
 	if err != nil {
 		fmt.Println("init failed:", err)
 		os.Exit(1)

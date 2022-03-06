@@ -12,9 +12,16 @@ import (
 // in a theoretical circular buffer.
 const WriterBufferLengthInSeconds = 1
 
-// Init initializes the pcm package to create writer objects.
-func Init() error {
-	return initOS()
+// InitDefault calls Init with the following value by OS:
+// windows: DriverDirectSound
+// linux,osx: DriverPulse
+func InitDefault() error {
+	return Init(DriverDefault)
+}
+
+// Init initializes the pcm package to create writer objects with a specific audio driver.
+func Init(d Driver) error {
+	return initOS(d)
 }
 
 // A PlayOption sets some value on a PlayOptions struct.

@@ -45,7 +45,7 @@ func (s Source) Sin(opts ...Option) (audio.Audio, error) {
 		s.Volume *= math.MaxInt16
 		wave := make([]int16, int(s.Seconds*float64(s.SampleRate)))
 		for i := 0; i < len(wave); i++ {
-			wave[i] = int16(s.Volume * math.Sin(s.Phase(i)))
+			wave[i] = int16(s.sinAtIndex(i))
 		}
 		b = bytesFromInts(wave, int(s.Channels))
 	}
@@ -60,7 +60,7 @@ func (s Source) SinPCM(opts ...Option) (pcm.Reader, error) {
 		return &Wave16Reader{
 			Source: s.Update(opts...),
 			waveFunc: func(s Source, idx int) int16 {
-				return int16(s.Volume * math.Sin(s.Phase(idx)))
+				return int16(s.sinAtIndex(idx))
 			},
 		}, nil
 	case 32:
@@ -68,12 +68,15 @@ func (s Source) SinPCM(opts ...Option) (pcm.Reader, error) {
 		return &Wave32Reader{
 			Source: s.Update(opts...),
 			waveFunc: func(s Source, idx int) int32 {
-				// already scaled -1 -> 1
-				return int32(s.Volume * math.Sin(s.Phase(idx)))
+				return int32(s.sinAtIndex(idx))
 			},
 		}, nil
 	}
 	return nil, oakerr.InvalidInput{InputName: "s.Bits"}
+}
+
+func (s Source) sinAtIndex(idx int) float64 {
+	return s.Volume * math.Sin(s.modPhase(idx))
 }
 
 // Pulse acts like Square when given a pulse of 2, when given any lesser

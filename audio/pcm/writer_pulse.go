@@ -13,23 +13,6 @@ import (
 	"github.com/oakmound/oak/v3/oakerr"
 )
 
-func initOS() error {
-	// Sanity check that pulse is installed and a sink is defined
-	client, err := pulse.NewClient()
-	if err != nil {
-		// Try brew install pulseaudio on osx
-		return oakerr.UnsupportedPlatform{
-			Operation: "pcm.Init:pulseaudio",
-		}
-	}
-	defer client.Close()
-	_, err = client.DefaultSink()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // This mutex may be unneeded
 var newWriterMutex sync.Mutex
 
