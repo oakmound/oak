@@ -1,51 +1,30 @@
 package event
 
 import (
-	"reflect"
 	"sync"
 	"time"
+
+	"github.com/oakmound/oak/v3/oakerr"
 )
-
-// Bindable is a way of saying "Any function
-// that takes a generic struct of data
-// and returns an error can be bound".
-type Bindable func(CID, interface{}) int
-
-// BindableList just stores other relevant data
-// that a list of bindables needs to
-// operate efficiently
-type bindableList struct {
-	sl []Bindable
-	// We keep track of where the next nil
-	// element in our list is, so we
-	// can let bindings know where they
-	// are by index, (we don't shift to
-	// fill empty spaces) and so we can
-	// fill that slot next when a
-	// new binding comes in.
-	nextEmpty int
-}
 
 // A Bus stores bindables to be triggered by events
 type Bus struct {
-	bindingMap          map[string]map[CID]*bindableList
-	doneCh              chan struct{}
-	framesElapsed       int
-	Ticker              *time.Ticker
-	binds               []UnbindOption
-	partUnbinds         []Event
-	fullUnbinds         []UnbindOption
-	unbinds             []binding
-	unbindAllAndRebinds []UnbindAllOption
-	persistentBinds     []UnbindOption
-	framerate           int
-	refreshRate         time.Duration
-	callerMap           *CallerMap
+	nextBindID         *int64
+	bindingMap         map[UnsafeEventID]map[CallerID]bindableList
+	persistentBindings []persistentBinding
+	doneCh             chan struct{}
+	framesElapsed      int
+	ticker             *time.Ticker
+	callerMap          *CallerMap
 
-	mutex        sync.RWMutex
-	pendingMutex sync.Mutex
+	mutex sync.RWMutex
+}
 
-	init sync.Once
+// a persistentBinding is rebound every time the bus is reset.
+type persistentBinding struct {
+	eventID  UnsafeEventID
+	callerID CallerID
+	fn       UnsafeBindable
 }
 
 // NewBus returns an empty event bus with an assigned caller map. If nil
@@ -55,125 +34,88 @@ func NewBus(callerMap *CallerMap) *Bus {
 		callerMap = DefaultCallerMap
 	}
 	return &Bus{
-		bindingMap: make(map[string]map[CID]*bindableList),
+		nextBindID: new(int64),
+		bindingMap: make(map[UnsafeEventID]map[CallerID]bindableList),
 		doneCh:     make(chan struct{}),
 		callerMap:  callerMap,
 	}
 }
 
 // SetCallerMap updates a bus to use a specific set of callers.
-func (b *Bus) SetCallerMap(cm *CallerMap) {
-	b.callerMap = cm
+func (bus *Bus) SetCallerMap(cm *CallerMap) {
+	bus.callerMap = cm
 }
 
-// An Event is an event name and an associated caller id
-type Event struct {
-	Name     string
-	CallerID CID
-}
-
-// UnbindOption stores information necessary
-// to unbind a bindable
-type UnbindOption struct {
-	Event
-	Fn Bindable
-}
-
-// binding stores data necessary
-// to trace back to a bindable function
-// and remove it from a Bus.
-type binding struct {
-	Event
-	index int
-}
-
-// Reset empties out all transient portions of the bus. It will not stop
-// an ongoing loop.
-func (eb *Bus) Reset() {
+// ClearPersistentBindings removes all persistent bindings. It will not unbind them
+// from the bus, but they will not be bound following the next bus reset.
+func (eb *Bus) ClearPersistentBindings() {
 	eb.mutex.Lock()
-	eb.pendingMutex.Lock()
-	eb.bindingMap = make(map[string]map[CID]*bindableList)
-	eb.binds = []UnbindOption{}
-	eb.partUnbinds = []Event{}
-	eb.fullUnbinds = []UnbindOption{}
-	eb.unbinds = []binding{}
-	eb.unbindAllAndRebinds = []UnbindAllOption{}
-	for _, bindSet := range eb.persistentBinds {
-		list := eb.getBindableList(bindSet.Event)
-		list.storeBindable(bindSet.Fn)
-	}
-	eb.pendingMutex.Unlock()
+	eb.persistentBindings = eb.persistentBindings[:0]
 	eb.mutex.Unlock()
 }
 
-// UnbindAllOption stores information needed to unbind and rebind
-type UnbindAllOption struct {
-	ub   Event
-	bs   []Event
-	bnds []Bindable
+// Reset unbinds all present, non-persistent bindings on the bus.
+func (bus *Bus) Reset() {
+	bus.mutex.Lock()
+	bus.bindingMap = make(map[UnsafeEventID]map[CallerID]bindableList)
+	for _, pb := range bus.persistentBindings {
+		bus.UnsafeBind(pb.eventID, pb.callerID, pb.fn)
+	}
+	bus.mutex.Unlock()
 }
 
-// Store a bindable into a BindableList.
-func (bl *bindableList) storeBindable(fn Bindable) int {
-
-	i := bl.nextEmpty
-	if len(bl.sl) == i {
-		bl.sl = append(bl.sl, fn)
-	} else {
-		bl.sl[i] = fn
+// EnterLoop triggers Enter events at the specified rate
+func (bus *Bus) EnterLoop(frameDelay time.Duration) {
+	// The logical loop.
+	// In order, it waits on receiving a signal to begin a logical frame.
+	// It then runs any functions bound to when a frame begins.
+	// It then allows a scene to perform it's loop operation.
+	bus.framesElapsed = 0
+	if bus.ticker == nil {
+		bus.ticker = time.NewTicker(frameDelay)
 	}
-
-	// Find the next empty space
-	for len(bl.sl) != bl.nextEmpty && bl.sl[bl.nextEmpty] != nil {
-		bl.nextEmpty++
-	}
-
-	return i
+	bus.doneCh = make(chan struct{})
+	go func() {
+		bus.ticker.Reset(frameDelay)
+		frameDelayF64 := float64(frameDelay)
+		lastTick := time.Now()
+		for {
+			select {
+			case now := <-bus.ticker.C:
+				deltaTime := now.Sub(lastTick)
+				lastTick = now
+				<-bus.Trigger(Enter.UnsafeEventID, EnterPayload{
+					FramesElapsed:  bus.framesElapsed,
+					SinceLastFrame: deltaTime,
+					TickPercent:    float64(deltaTime) / frameDelayF64,
+				})
+				bus.framesElapsed++
+			case <-bus.doneCh:
+				return
+			}
+		}
+	}()
 }
 
-// This scans linearly for the bindable
-// This will cause an issue with closures!
-// You can't unbind closures that don't have the
-// same variable reference because this compares
-// pointers!
-//
-// At all costs, this should be avoided, and
-// returning UnbindSingle from the function
-// itself is much safer!
-func (bl *bindableList) removeBindable(fn Bindable) {
-	v := reflect.ValueOf(fn)
-	for i := 0; i < len(bl.sl); i++ {
-		v2 := reflect.ValueOf(bl.sl[i])
-		if v2 == v {
-			bl.removeIndex(i)
-			return
+// Stop ceases anything spawned by an ongoing UpdateLoop
+func (bus *Bus) Stop() error {
+	if bus.ticker != nil {
+		bus.ticker.Stop()
+		bus.ticker = nil
+	}
+	close(bus.doneCh)
+	return nil
+}
+
+// SetTick optionally updates the Logical System’s tick rate
+// (while it is looping) to be frameRate. If this operation is not
+// supported, it should return an error.
+func (bus *Bus) SetEnterLoopRate(frameDelay time.Duration) error {
+	if bus.ticker == nil {
+		return oakerr.NotFound{
+			InputName: "bus.ticker",
 		}
 	}
-}
-
-// Remove a bindable from a BindableList
-func (bl *bindableList) removeBinding(b binding) {
-	bl.removeIndex(b.index)
-}
-
-func (bl *bindableList) removeIndex(i int) {
-	if len(bl.sl) <= i {
-		return
-	}
-
-	bl.sl[i] = nil
-
-	if i < bl.nextEmpty {
-		bl.nextEmpty = i
-	}
-}
-
-func (eb *Bus) getBindableList(opt Event) *bindableList {
-	if m := eb.bindingMap[opt.Name]; m == nil {
-		eb.bindingMap[opt.Name] = make(map[CID]*bindableList)
-	}
-	if m := eb.bindingMap[opt.Name][opt.CallerID]; m == nil {
-		eb.bindingMap[opt.Name][opt.CallerID] = new(bindableList)
-	}
-	return eb.bindingMap[opt.Name][opt.CallerID]
+	bus.ticker.Reset(frameDelay)
+	return nil
 }
