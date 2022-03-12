@@ -14,6 +14,8 @@ import (
 // the draw stack, event bus, known event callers, collision trees, keyboard state,
 // and a reference to the OS window itself. When a scene ends, modifications made
 // to these structures will be reset, excluding window modifications.
+// TODO oak v4: consider embedding these system objects on the context to change
+// ctx.DrawStack.Draw to ctx.Draw and ctx.EventHandler.Bind to ctx.Bind
 type Context struct {
 	// This context will be canceled when the scene ends
 	context.Context

@@ -45,6 +45,12 @@ type CallerMapper interface {
 	SetCallerMap(*CallerMap)
 }
 
+// A PersistentBinder can persist bindings through bus resets
+type PersistentBinder interface {
+	PersistentBind(string, CID, Bindable)
+	ClearPersistentBindings()
+}
+
 // UpdateLoop is expected to internally call Update()
 // or do something equivalent at the given frameRate,
 // sending signals to the sceneCh after each Update().

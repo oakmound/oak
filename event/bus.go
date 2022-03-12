@@ -37,6 +37,7 @@ type Bus struct {
 	fullUnbinds         []UnbindOption
 	unbinds             []binding
 	unbindAllAndRebinds []UnbindAllOption
+	persistentBinds     []UnbindOption
 	framerate           int
 	refreshRate         time.Duration
 	callerMap           *CallerMap
@@ -97,6 +98,10 @@ func (eb *Bus) Reset() {
 	eb.fullUnbinds = []UnbindOption{}
 	eb.unbinds = []binding{}
 	eb.unbindAllAndRebinds = []UnbindAllOption{}
+	for _, bindSet := range eb.persistentBinds {
+		list := eb.getBindableList(bindSet.Event)
+		list.storeBindable(bindSet.Fn)
+	}
 	eb.pendingMutex.Unlock()
 	eb.mutex.Unlock()
 }

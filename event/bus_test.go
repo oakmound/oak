@@ -29,3 +29,24 @@ func TestBusStop(t *testing.T) {
 		t.Fatal(topErr)
 	}
 }
+
+func TestBusPersistentBind(t *testing.T) {
+	t.Parallel()
+	b := NewBus(nil)
+	ev := "eventName"
+	calls := 0
+	b.PersistentBind(ev, 0, func(c CID, i interface{}) int {
+		calls++
+		return 0
+	})
+	b.Flush()
+	<-b.TriggerBack(ev, nil)
+	if calls != 1 {
+		t.Fatalf("expected binding to be called once, was called %d time(s)", calls)
+	}
+	b.Reset()
+	<-b.TriggerBack(ev, nil)
+	if calls != 2 {
+		t.Fatalf("expected binding to be called twice, was called %d time(s)", calls)
+	}
+}
