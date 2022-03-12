@@ -12,26 +12,27 @@ import (
 
 // Config stores initialization settings for oak.
 type Config struct {
-	Driver              Driver           `json:"-"`
-	Assets              Assets           `json:"assets"`
-	Debug               Debug            `json:"debug"`
-	Screen              Screen           `json:"screen"`
-	BatchLoadOptions    BatchLoadOptions `json:"batchLoadOptions"`
-	FrameRate           int              `json:"frameRate"`
-	DrawFrameRate       int              `json:"drawFrameRate"`
-	IdleDrawFrameRate   int              `json:"idleDrawFrameRate"`
-	Language            string           `json:"language"`
-	Title               string           `json:"title"`
-	EventRefreshRate    Duration         `json:"refreshRate"`
-	BatchLoad           bool             `json:"batchLoad"`
-	GestureSupport      bool             `json:"gestureSupport"`
-	LoadBuiltinCommands bool             `json:"loadBuiltinCommands"`
-	TrackInputChanges   bool             `json:"trackInputChanges"`
-	EnableDebugConsole  bool             `json:"enableDebugConsole"`
-	TopMost             bool             `json:"topmost"`
-	Borderless          bool             `json:"borderless"`
-	Fullscreen          bool             `json:"fullscreen"`
-	SkipRNGSeed         bool             `json:"skip_rng_seed"`
+	Driver                 Driver           `json:"-"`
+	Assets                 Assets           `json:"assets"`
+	Debug                  Debug            `json:"debug"`
+	Screen                 Screen           `json:"screen"`
+	BatchLoadOptions       BatchLoadOptions `json:"batchLoadOptions"`
+	FrameRate              int              `json:"frameRate"`
+	DrawFrameRate          int              `json:"drawFrameRate"`
+	IdleDrawFrameRate      int              `json:"idleDrawFrameRate"`
+	Language               string           `json:"language"`
+	Title                  string           `json:"title"`
+	EventRefreshRate       Duration         `json:"refreshRate"`
+	BatchLoad              bool             `json:"batchLoad"`
+	GestureSupport         bool             `json:"gestureSupport"`
+	LoadBuiltinCommands    bool             `json:"loadBuiltinCommands"`
+	TrackInputChanges      bool             `json:"trackInputChanges"`
+	EnableDebugConsole     bool             `json:"enableDebugConsole"`
+	TopMost                bool             `json:"topmost"`
+	Borderless             bool             `json:"borderless"`
+	Fullscreen             bool             `json:"fullscreen"`
+	SkipRNGSeed            bool             `json:"skip_rng_seed"`
+	UnlimitedDrawFrameRate bool             `json:"unlimitedDrawFrameRate`
 }
 
 // A Duration is a wrapper around time.Duration that allows for easier json formatting.
@@ -236,5 +237,6 @@ func (c Config) overwriteFrom(c2 Config) Config {
 	c.Borderless = c2.Borderless
 	c.Fullscreen = c2.Fullscreen
 	c.SkipRNGSeed = c2.SkipRNGSeed
+	c.UnlimitedDrawFrameRate = c2.UnlimitedDrawFrameRate
 	return c
 }

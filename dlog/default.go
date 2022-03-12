@@ -45,9 +45,13 @@ func NewLogger() Logger {
 // It only includes logs which pass the current filters.
 func (l *logger) dLog(level Level, in ...interface{}) {
 	//(pc uintptr, file string, line int, ok bool)
-	_, f, line, ok := runtime.Caller(2)
-	if strings.Contains(f, "dlog") {
-		_, f, line, ok = runtime.Caller(3)
+	// TODO: restructure so dlog functions work like t.Helper,
+	// incrementing this traceBack value for us
+	traceBack := 2
+	_, f, line, ok := runtime.Caller(traceBack)
+	for strings.Contains(f, "dlog") {
+		traceBack++
+		_, f, line, ok = runtime.Caller(traceBack)
 	}
 	if ok {
 		f = truncateFileName(f)

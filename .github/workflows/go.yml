@@ -20,7 +20,7 @@ jobs:
         go get -v -t -d ./...
 
     - name: Test
-      run: OAK_COVER_EXAMPLES_ONLY=yes OAK_COVER_TAGS=override ./cover.sh
+      run: ./test_examples.sh
 
   test:
     name: Test
@@ -42,7 +42,7 @@ jobs:
         go get -v -t -d ./...
 
     - name: Test
-      run: ./cover.sh
+      run: ./test_coverage.sh
 
     - name: Push to codecov
       uses: codecov/codecov-action@v1.0.2

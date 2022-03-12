@@ -55,9 +55,7 @@ func (eb *Bus) TriggerCIDBack(cid CID, eventName string, data interface{}) chan 
 func (eb *Bus) trigger(eventName string, data interface{}) {
 	eb.mutex.RLock()
 	for id, bs := range eb.bindingMap[eventName] {
-		if bs != nil {
-			eb.triggerDefault(bs.sl, id, eventName, data)
-		}
+		eb.triggerDefault(bs.sl, id, eventName, data)
 	}
 	eb.mutex.RUnlock()
 }

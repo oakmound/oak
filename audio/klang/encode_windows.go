@@ -4,63 +4,38 @@
 package klang
 
 import (
-	"errors"
-	"fmt"
-	"strings"
 	"syscall"
 
+	"github.com/oakmound/oak/v3/audio/wininternal"
 	"github.com/oov/directsound-go/dsound"
 )
 
 var (
 	user32           = syscall.NewLazyDLL("user32")
 	getDesktopWindow = user32.NewProc("GetDesktopWindow")
-	ds               *dsound.IDirectSound
-	err              error
+	dsoundInterface  *dsound.IDirectSound
+	initErr          error
 )
 
 func init() {
-	hasDefaultDevice := false
-	dsound.DirectSoundEnumerate(func(guid *dsound.GUID, description string, module string) bool {
-		if guid == nil {
-			hasDefaultDevice = true
-			return false
-		}
-		return true
-	})
-	if !hasDefaultDevice {
-		ds = nil
-		err = errors.New("No default device available to play audio off of")
+	cfg, err := wininternal.Init()
+	if err != nil {
+		initErr = err
 		return
 	}
-
-	ds, err = dsound.DirectSoundCreate(nil)
-	if err != nil {
-		return
-	}
-	// We don't check this error because Call() can return
-	// "The operation was completed successfully" as an error!
-	// Todo: type switch? Do we know the type of "success errors"?
-	desktopWindow, _, err := getDesktopWindow.Call()
-	if !strings.Contains(err.Error(), "success") {
-		fmt.Println("Dsound initialization result:", err)
-	}
-	err = ds.SetCooperativeLevel(syscall.Handle(desktopWindow), dsound.DSSCL_PRIORITY)
-	if err != nil {
-		ds = nil
-	}
+	dsoundInterface = cfg.Interface
 }
 
 // EncodeBytes converts an encoding to Audio
 func EncodeBytes(enc Encoding) (Audio, error) {
 	// An error here would be an error from init()
-	if err != nil {
-		return nil, err
+	if initErr != nil {
+		return nil, initErr
 	}
 
 	// Create the object which stores the wav data in a playable format
 	blockAlign := enc.Channels * enc.Bits / 8
-	dsbuff, err := ds.CreateSoundBuffer(&dsound.BufferDesc{
+	dsbuff, err := dsoundInterface.CreateSoundBuffer(&dsound.BufferDesc{
 		// These flags cover everything we should ever want to do
 		Flags: dsound.DSBCAPS_GLOBALFOCUS | dsound.DSBCAPS_GETCURRENTPOSITION2 | dsound.DSBCAPS_CTRLVOLUME | dsound.DSBCAPS_CTRLPAN | dsound.DSBCAPS_CTRLFREQUENCY | dsound.DSBCAPS_LOCDEFER,
 		Format: &dsound.WaveFormatEx{
