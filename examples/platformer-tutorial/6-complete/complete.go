@@ -38,7 +38,7 @@ func main() {
 
 		fallSpeed := .2
 
-		char.Bind(event.Enter, func(id event.CID, nothing interface{}) int {
+		char.Bind(event.Enter, func(id event.CallerID, nothing interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 
 			// Move left and right with A and D

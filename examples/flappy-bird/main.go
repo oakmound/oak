@@ -70,7 +70,7 @@ type Flappy struct {
 }
 
 // Init satisfies the event.Entity interface
-func (f *Flappy) Init() event.CID {
+func (f *Flappy) Init() event.CallerID {
 	return event.NextID(f)
 }
 
@@ -87,7 +87,7 @@ func newFlappy(x, y float64) *Flappy {
 	f.R.SetLayer(1)
 	render.Draw(f.R, 0)
 
-	f.Bind(event.Enter, func(event.CID, interface{}) int {
+	f.Bind(event.Enter, func(event.CallerID, interface{}) int {
 		f.ShiftPos(f.Delta.X(), f.Delta.Y())
 		f.Add(f.Delta)
 		if f.Delta.Y() > 10 {
@@ -109,11 +109,11 @@ func newFlappy(x, y float64) *Flappy {
 		}
 		return 0
 	})
-	f.Bind(mouse.Press, func(event.CID, interface{}) int {
+	f.Bind(mouse.Press, func(event.CallerID, interface{}) int {
 		f.Delta.ShiftY(-4)
 		return 0
 	})
-	f.Bind(key.Down+key.W, func(event.CID, interface{}) int {
+	f.Bind(key.Down+key.W, func(event.CallerID, interface{}) int {
 		f.Delta.ShiftY(-4)
 		return 0
 	})
@@ -127,7 +127,7 @@ type Pillar struct {
 }
 
 // Init satisfies the event.Entity interface
-func (p *Pillar) Init() event.CID {
+func (p *Pillar) Init() event.CallerID {
 	return event.NextID(p)
 }
 
@@ -159,7 +159,7 @@ func newPillarPair() {
 	newPillar(641, pos+span, 480-(pos+span), false)
 }
 
-func enterPillar(id event.CID, nothing interface{}) int {
+func enterPillar(id event.CallerID, nothing interface{}) int {
 	p := event.GetEntity(id).(*Pillar)
 	p.ShiftX(-2)
 	if p.X()+p.W < 0 {

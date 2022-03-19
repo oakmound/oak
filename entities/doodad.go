@@ -8,7 +8,7 @@ import (
 // A Doodad is an entity composed of a position, a renderable, and a CallerID.
 type Doodad struct {
 	Point
-	event.CID
+	event.CallerID
 	R render.Renderable
 }
 
@@ -17,7 +17,7 @@ type Doodad struct {
 // any other CID will assume that the struct containing this doodad has
 // already been initialized to the passed in CID.
 // This applies to ALL NewX functions in entities which take in a CID.
-func NewDoodad(x, y float64, r render.Renderable, cid event.CID) *Doodad {
+func NewDoodad(x, y float64, r render.Renderable, cid event.CallerID) *Doodad {
 	if r != nil {
 		r.SetPos(x, y)
 	}
@@ -29,14 +29,14 @@ func NewDoodad(x, y float64, r render.Renderable, cid event.CID) *Doodad {
 }
 
 // Init satisfies event.Entity
-func (d *Doodad) Init() event.CID {
+func (d *Doodad) Init() event.CallerID {
 	d.CID = event.NextID(d)
 	return d.CID
 }
 
 // GetID returns this Doodad's CID
 // Consider: are these getters needed?
-func (d *Doodad) GetID() event.CID {
+func (d *Doodad) GetID() event.CallerID {
 	return d.CID
 }
 

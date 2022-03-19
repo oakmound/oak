@@ -26,7 +26,7 @@ func main() {
 
 		collision.Attach(act.Vector, act.Space, nil, 0, 0)
 
-		act.Bind(event.Enter, func(event.CID, interface{}) int {
+		act.Bind(event.Enter, func(event.CallerID, interface{}) int {
 			if act.ShouldUpdate {
 				act.ShouldUpdate = false
 				act.R.Undraw()
@@ -56,7 +56,7 @@ func main() {
 		render.Draw(act.R, 0, 1)
 
 		collision.PhaseCollision(act.Space, nil)
-		act.Bind(collision.Start, func(id event.CID, label interface{}) int {
+		act.Bind(collision.Start, func(id event.CallerID, label interface{}) int {
 			l := label.(collision.Label)
 			switch l {
 			case RED:
@@ -75,7 +75,7 @@ func main() {
 			}
 			return 0
 		})
-		act.Bind(collision.Stop, func(id event.CID, label interface{}) int {
+		act.Bind(collision.Stop, func(id event.CallerID, label interface{}) int {
 			l := label.(collision.Label)
 			switch l {
 			case RED:
@@ -136,7 +136,7 @@ type AttachCollisionTest struct {
 	nextR        render.Renderable
 }
 
-func (act *AttachCollisionTest) Init() event.CID {
+func (act *AttachCollisionTest) Init() event.CallerID {
 	return event.NextID(act)
 }
 

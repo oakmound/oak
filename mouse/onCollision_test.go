@@ -13,7 +13,7 @@ type cphase struct {
 	CollisionPhase
 }
 
-func (cp *cphase) Init() event.CID {
+func (cp *cphase) Init() event.CallerID {
 	return event.NextID(cp)
 }
 
@@ -32,11 +32,11 @@ func TestCollisionPhase(t *testing.T) {
 		t.Fatalf("phase collision errored")
 	}
 	var active bool
-	cid.Bind("MouseCollisionStart", func(event.CID, interface{}) int {
+	cid.Bind("MouseCollisionStart", func(event.CallerID, interface{}) int {
 		active = true
 		return 0
 	})
-	cid.Bind("MouseCollisionStop", func(event.CID, interface{}) int {
+	cid.Bind("MouseCollisionStop", func(event.CallerID, interface{}) int {
 		active = false
 		return 0
 	})

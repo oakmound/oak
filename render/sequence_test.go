@@ -14,7 +14,7 @@ import (
 
 type Dummy struct{}
 
-func (d Dummy) Init() event.CID {
+func (d Dummy) Init() event.CallerID {
 	return event.NextID(d)
 }
 
@@ -26,7 +26,7 @@ func TestSequenceTrigger(t *testing.T) {
 	cid := Dummy{}.Init()
 	sq.SetTriggerID(cid)
 	triggerCh := make(chan struct{})
-	cid.Bind(event.AnimationEnd, func(event.CID, interface{}) int {
+	cid.Bind(event.AnimationEnd, func(event.CallerID, interface{}) int {
 		// This is a bad idea in real code, this will lock up
 		// unbindings because the function that triggered this owns
 		// the lock on the event bus until this function exits.

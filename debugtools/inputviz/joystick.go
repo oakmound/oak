@@ -47,7 +47,7 @@ type Joystick struct {
 	BaseLayer int
 
 	ctx *scene.Context
-	event.CID
+	event.CallerID
 	joy          *joystick.Joystick
 	rs           map[string]render.Modifiable
 	lastState    *joystick.State
@@ -57,7 +57,7 @@ type Joystick struct {
 	cancel       func()
 }
 
-func (j *Joystick) Init() event.CID {
+func (j *Joystick) Init() event.CallerID {
 	j.CID = j.ctx.CallerMap.NextID(j)
 	return j.CID
 }
@@ -234,7 +234,7 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 }
 
 func (j *Joystick) CheckedIDBind(ev string, f func(*Joystick, uint32)) {
-	j.Bind(ev, func(id event.CID, jid interface{}) int {
+	j.Bind(ev, func(id event.CallerID, jid interface{}) int {
 		joy, ok := event.GetEntity(id).(*Joystick)
 		if !ok {
 			return 0
@@ -249,7 +249,7 @@ func (j *Joystick) CheckedIDBind(ev string, f func(*Joystick, uint32)) {
 }
 
 func (j *Joystick) CheckedBind(ev string, f func(*Joystick, *joystick.State)) {
-	j.Bind(ev, func(id event.CID, state interface{}) int {
+	j.Bind(ev, func(id event.CallerID, state interface{}) int {
 		joy, ok := event.GetEntity(id).(*Joystick)
 		if !ok {
 			return 0

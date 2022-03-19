@@ -93,7 +93,7 @@ func newKey(note synth.Pitch, c keyColor, k string) *entities.Solid {
 		s.Space.Label = labelWhiteKey
 	}
 	mouse.UpdateSpace(s.X(), s.Y(), s.W, s.H, s.Space)
-	s.Bind(key.Down+k, func(c event.CID, i interface{}) int {
+	s.Bind(key.Down+k, func(c event.CallerID, i interface{}) int {
 		if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
 			return 0
 		}
@@ -101,7 +101,7 @@ func newKey(note synth.Pitch, c keyColor, k string) *entities.Solid {
 		sw.Set("down")
 		return 0
 	})
-	s.Bind(key.Up+k, func(c event.CID, i interface{}) int {
+	s.Bind(key.Up+k, func(c event.CallerID, i interface{}) int {
 		if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
 			return 0
 		}
@@ -109,14 +109,14 @@ func newKey(note synth.Pitch, c keyColor, k string) *entities.Solid {
 		sw.Set("up")
 		return 0
 	})
-	s.Bind(mouse.PressOn, func(c event.CID, i interface{}) int {
+	s.Bind(mouse.PressOn, func(c event.CallerID, i interface{}) int {
 		playPitch(note)
 		me := i.(*mouse.Event)
 		me.StopPropagation = true
 		sw.Set("down")
 		return 0
 	})
-	s.Bind(mouse.Release, func(c event.CID, i interface{}) int {
+	s.Bind(mouse.Release, func(c event.CallerID, i interface{}) int {
 		releasePitch(note)
 		sw.Set("up")
 		return 0
@@ -223,25 +223,25 @@ func main() {
 				i++
 			}
 			// Consider: Adding volume control
-			event.GlobalBind(key.Down+key.S, func(c event.CID, i interface{}) int {
+			event.GlobalBind(key.Down+key.S, func(c event.CallerID, i interface{}) int {
 				if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
 					synthKind = src.SinPCM
 				}
 				return 0
 			})
-			event.GlobalBind(key.Down+key.W, func(c event.CID, i interface{}) int {
+			event.GlobalBind(key.Down+key.W, func(c event.CallerID, i interface{}) int {
 				if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
 					synthKind = src.SawPCM
 				}
 				return 0
 			})
-			event.GlobalBind(key.Down+key.T, func(c event.CID, i interface{}) int {
+			event.GlobalBind(key.Down+key.T, func(c event.CallerID, i interface{}) int {
 				if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
 					synthKind = src.TrianglePCM
 				}
 				return 0
 			})
-			event.GlobalBind(key.Down+key.P, func(c event.CID, i interface{}) int {
+			event.GlobalBind(key.Down+key.P, func(c event.CallerID, i interface{}) int {
 				if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
 					synthKind = src.PulsePCM(2)
 				}
@@ -252,7 +252,7 @@ func main() {
 			render.Draw(help1)
 			render.Draw(help2)
 
-			event.GlobalBind(mouse.ScrollDown, func(c event.CID, i interface{}) int {
+			event.GlobalBind(mouse.ScrollDown, func(c event.CallerID, i interface{}) int {
 				mag := globalMagnification - 0.05
 				if mag < 1 {
 					mag = 1
@@ -260,7 +260,7 @@ func main() {
 				globalMagnification = mag
 				return 0
 			})
-			event.GlobalBind(mouse.ScrollUp, func(c event.CID, i interface{}) int {
+			event.GlobalBind(mouse.ScrollUp, func(c event.CallerID, i interface{}) int {
 				globalMagnification += 0.05
 				return 0
 			})
@@ -275,7 +275,7 @@ func main() {
 }
 
 type pcmMonitor struct {
-	event.CID
+	event.CallerID
 	render.LayeredPoint
 	pcm.Writer
 	pcm.Format
@@ -297,7 +297,7 @@ func newPCMMonitor(w pcm.Writer) *pcmMonitor {
 	return pm
 }
 
-func (pm *pcmMonitor) Init() event.CID {
+func (pm *pcmMonitor) Init() event.CallerID {
 	pm.CID = event.NextID(pm)
 	return pm.CID
 }

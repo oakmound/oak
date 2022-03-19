@@ -13,7 +13,7 @@ type DirectionSpace struct {
 }
 
 // Init initializes the DirectionSpace as an entity
-func (ds *DirectionSpace) Init() event.CID {
+func (ds *DirectionSpace) Init() event.CallerID {
 	return event.NextID(ds)
 }
 

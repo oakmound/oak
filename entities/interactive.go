@@ -15,7 +15,7 @@ type Interactive struct {
 
 // NewInteractive returns a new Interactive
 func NewInteractive(x, y, w, h float64, r render.Renderable, tree *collision.Tree,
-	cid event.CID, friction float64) *Interactive {
+	cid event.CallerID, friction float64) *Interactive {
 
 	i := Interactive{}
 	cid = cid.Parse(&i)
@@ -29,7 +29,7 @@ func NewInteractive(x, y, w, h float64, r render.Renderable, tree *collision.Tre
 }
 
 // Init satisfies event.Entity
-func (iv *Interactive) Init() event.CID {
+func (iv *Interactive) Init() event.CallerID {
 	cID := event.NextID(iv)
 	iv.CID = cID
 	return cID

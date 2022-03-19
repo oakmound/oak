@@ -37,7 +37,7 @@ func main() {
 		oak.SetViewportBounds(intgeom.NewRect2(0, 0, xLimit, yLimit))
 		moveRect := floatgeom.NewRect2(0, 0, xLimit, yLimit)
 
-		char.Bind(event.Enter, func(event.CID, interface{}) int {
+		char.Bind(event.Enter, func(event.CallerID, interface{}) int {
 			move.WASD(char)
 			move.Limit(char, moveRect)
 			move.CenterScreenOn(char)
@@ -87,7 +87,7 @@ type enemyOnRadar struct {
 	*entities.Moving
 }
 
-func (eor *enemyOnRadar) Init() event.CID {
+func (eor *enemyOnRadar) Init() event.CallerID {
 	return event.NextID(eor)
 }
 func newEnemyOnRadar(x, y float64) *enemyOnRadar {
@@ -98,7 +98,7 @@ func newEnemyOnRadar(x, y float64) *enemyOnRadar {
 	return eor
 }
 
-func standardEnemyMove(id event.CID, nothing interface{}) int {
+func standardEnemyMove(id event.CallerID, nothing interface{}) int {
 	eor := event.GetEntity(id).(*enemyOnRadar)
 	if eor.X() < 0 {
 		eor.Delta.SetPos(math.Abs(eor.Speed.X()), (eor.Speed.Y()))

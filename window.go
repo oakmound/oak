@@ -357,3 +357,7 @@ func (w *Window) debugConsole(input io.Reader, output io.Writer) {
 	debugstream.AttachToStream(w.ParentContext, input, output)
 	debugstream.AddDefaultsForScope(w.ControllerID, w)
 }
+
+func (w *Window) GetCallerMap() *event.CallerMap {
+	return w.CallerMap
+}

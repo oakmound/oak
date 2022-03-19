@@ -15,7 +15,7 @@ type Box struct {
 }
 
 // NewBox creates a new Box
-func NewBox(cid event.CID, x, y, w, h float64, r render.Renderable, layers ...int) *Box {
+func NewBox(cid event.CallerID, x, y, w, h float64, r render.Renderable, layers ...int) *Box {
 	b := Box{}
 	cid = cid.Parse(&b)
 	b.Solid = *entities.NewSolid(x, y, w, h, r, mouse.DefaultTree, cid)
@@ -27,7 +27,7 @@ func NewBox(cid event.CID, x, y, w, h float64, r render.Renderable, layers ...in
 }
 
 // Init intializes the Box
-func (b *Box) Init() event.CID {
+func (b *Box) Init() event.CallerID {
 	b.CID = event.NextID(b)
 	return b.CID
 }

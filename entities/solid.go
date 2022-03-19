@@ -17,7 +17,7 @@ type Solid struct {
 // NewSolid returns an initialized Solid that is not drawn and whose space
 // belongs to the given collision tree. If nil is given as the tree, it will
 // belong to collision.DefTree
-func NewSolid(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CID) *Solid {
+func NewSolid(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CallerID) *Solid {
 	s := Solid{}
 	cid = cid.Parse(&s)
 	s.Doodad = *NewDoodad(x, y, r, cid)
@@ -99,7 +99,7 @@ func (s *Solid) HitLabel(classtype collision.Label) *collision.Space {
 // Overwrites
 
 // Init satisfies event.Entity
-func (s *Solid) Init() event.CID {
+func (s *Solid) Init() event.CallerID {
 	s.CID = event.NextID(s)
 	return s.CID
 }

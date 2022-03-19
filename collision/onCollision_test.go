@@ -12,7 +12,7 @@ type cphase struct {
 	callers *event.CallerMap
 }
 
-func (cp *cphase) Init() event.CID {
+func (cp *cphase) Init() event.CallerID {
 	return cp.callers.NextID(cp)
 }
 
@@ -37,11 +37,11 @@ func TestCollisionPhase(t *testing.T) {
 		t.Fatalf("phase collision failed: %v", err)
 	}
 	var active bool
-	bus.Bind("CollisionStart", cid, func(event.CID, interface{}) int {
+	bus.Bind("CollisionStart", cid, func(event.CallerID, interface{}) int {
 		active = true
 		return 0
 	})
-	bus.Bind("CollisionStop", cid, func(event.CID, interface{}) int {
+	bus.Bind("CollisionStop", cid, func(event.CallerID, interface{}) int {
 		active = false
 		return 0
 	})

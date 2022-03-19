@@ -46,21 +46,20 @@ func PhaseCollisionWithBus(s *Space, tree *Tree, bus event.Handler, entities *ev
 		if oc.tree == nil {
 			oc.tree = DefaultTree
 		}
-		bus.Bind(event.Enter, s.CID, phaseCollisionEnter(entities))
+		event.Bind(bus, event.Enter, s.CID, phaseCollisionEnter(entities))
 		return nil
 	}
 	return errors.New("This space's entity does not implement collisionPhase")
 }
 
 // CollisionStart/Stop: when a PhaseCollision entity starts/stops touching some label.
-// Payload: (Label) the label the entity has started/stopped touching
-const (
-	Start = "CollisionStart"
-	Stop  = "CollisionStop"
+var (
+	Start = event.RegisterEvent[Label]()
+	Stop  = event.RegisterEvent[Label]()
 )
 
-func phaseCollisionEnter(entities *event.CallerMap) func(id event.CID, nothing interface{}) int {
-	return func(id event.CID, nothing interface{}) int {
+func phaseCollisionEnter(entities *event.CallerMap) func(id event.CallerID, nothing event.EnterPayload) event.Response {
+	return func(id event.CallerID, _ event.EnterPayload) event.Response {
 		e := entities.GetEntity(id).(collisionPhase)
 		oc := e.getCollisionPhase()
 
@@ -72,7 +71,7 @@ func phaseCollisionEnter(entities *event.CallerMap) func(id event.CID, nothing i
 		for _, h := range hits {
 			l := h.Label
 			if _, ok := oc.Touching[l]; !ok {
-				id.TriggerBus(Start, l, oc.bus)
+				event.TriggerForCallerOn(oc.bus, id, Start, l)
 			}
 			newTouching[l] = true
 		}
@@ -80,7 +79,7 @@ func phaseCollisionEnter(entities *event.CallerMap) func(id event.CID, nothing i
 		// if we lost any, trigger off collision
 		for l := range oc.Touching {
 			if _, ok := newTouching[l]; !ok {
-				id.TriggerBus(Stop, l, oc.bus)
+				event.TriggerForCallerOn(oc.bus, id, Stop, l)
 			}
 		}
 

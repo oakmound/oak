@@ -56,7 +56,7 @@ func parseShape(args []string) shape.Shape {
 func main() {
 
 	debugstream.AddCommand(debugstream.Command{Name: "followMouse", Operation: func(args []string) string {
-		event.GlobalBind(event.Enter, func(event.CID, interface{}) int {
+		event.GlobalBind(event.Enter, func(event.CallerID, interface{}) int {
 			// It'd be interesting to attach to the mouse position
 			src.SetPos(float64(mouse.LastEvent.X()), float64(mouse.LastEvent.Y()))
 			return 0

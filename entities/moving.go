@@ -14,7 +14,7 @@ type Moving struct {
 }
 
 // NewMoving returns a new Moving
-func NewMoving(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CID, friction float64) *Moving {
+func NewMoving(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CallerID, friction float64) *Moving {
 	m := Moving{}
 	cid = cid.Parse(&m)
 	m.Solid = *NewSolid(x, y, w, h, r, tree, cid)
@@ -27,7 +27,7 @@ func NewMoving(x, y, w, h float64, r render.Renderable, tree *collision.Tree, ci
 }
 
 // Init satisfies event.Entity
-func (m *Moving) Init() event.CID {
+func (m *Moving) Init() event.CallerID {
 	m.CID = event.NextID(m)
 	return m.CID
 }

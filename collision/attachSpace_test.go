@@ -12,7 +12,7 @@ type aspace struct {
 	AttachSpace
 }
 
-func (as *aspace) Init() event.CID {
+func (as *aspace) Init() event.CallerID {
 	return event.NextID(as)
 }
 

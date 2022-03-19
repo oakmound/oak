@@ -148,13 +148,13 @@ type Keyboard struct {
 	RenderCharacters bool
 	Font             *render.Font
 
-	event.CID
+	event.CallerID
 	ctx *scene.Context
 
 	rs map[string]*render.Switch
 }
 
-func (k *Keyboard) Init() event.CID {
+func (k *Keyboard) Init() event.CallerID {
 	k.CID = k.ctx.CallerMap.NextID(k)
 	return k.CID
 }
@@ -220,7 +220,7 @@ func (k *Keyboard) RenderAndListen(ctx *scene.Context, layer int) error {
 		}
 	}
 
-	k.Bind(key.Down, key.Binding(func(id event.CID, ev key.Event) int {
+	k.Bind(key.Down, key.Binding(func(id event.CallerID, ev key.Event) int {
 		kb, _ := k.ctx.CallerMap.GetEntity(id).(*Keyboard)
 		btn := ev.Code.String()[4:]
 		if kb.rs[btn] == nil {
@@ -229,7 +229,7 @@ func (k *Keyboard) RenderAndListen(ctx *scene.Context, layer int) error {
 		kb.rs[btn].Set("pressed")
 		return 0
 	}))
-	k.Bind(key.Up, key.Binding(func(id event.CID, ev key.Event) int {
+	k.Bind(key.Up, key.Binding(func(id event.CallerID, ev key.Event) int {
 		kb, _ := k.ctx.CallerMap.GetEntity(id).(*Keyboard)
 		btn := ev.Code.String()[4:]
 		if kb.rs[btn] == nil {

@@ -26,7 +26,7 @@ func RegisterEvent[T any]() EventID[T] {
 	}
 }
 
-type NoPayload struct{}
+type NoPayload = struct{}
 
 // EnterPayload is the payload sent down to Enter bindings
 type EnterPayload struct {
@@ -38,8 +38,6 @@ type EnterPayload struct {
 var (
 	// Enter: the beginning of every logical frame.
 	Enter = RegisterEvent[EnterPayload]()
-	// AnimationEnd: Triggered on animations CIDs when they loop from the last to the first frame
-	AnimationEnd = RegisterEvent[NoPayload]()
 	// ViewportUpdate: Triggered when the position of of the viewport changes
 	ViewportUpdate = RegisterEvent[intgeom.Point2]()
 	// OnStop: Triggered when the engine is stopped.

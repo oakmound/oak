@@ -34,13 +34,13 @@ func main() {
 }
 
 type hoverButton struct {
-	id event.CID
+	id event.CallerID
 
 	mouse.CollisionPhase
 	*changingColorBox
 }
 
-func (hb *hoverButton) Init() event.CID {
+func (hb *hoverButton) Init() event.CallerID {
 	hb.id = event.NextID(hb)
 	return hb.id
 }
@@ -57,7 +57,7 @@ func newHoverButton(x, y, w, h float64, clr color.RGBA, layer int) {
 	mouse.PhaseCollision(sp)
 
 	render.Draw(hb.changingColorBox, 0, layer)
-	hb.id.Bind(mouse.ClickOn, func(c event.CID, i interface{}) int {
+	hb.id.Bind(mouse.ClickOn, func(c event.CallerID, i interface{}) int {
 		hb := event.GetEntity(c).(*hoverButton)
 		me := i.(*mouse.Event)
 		fmt.Println(c, me.Point2)
@@ -65,7 +65,7 @@ func newHoverButton(x, y, w, h float64, clr color.RGBA, layer int) {
 		me.StopPropagation = true
 		return 0
 	})
-	hb.id.Bind(mouse.Start, func(c event.CID, i interface{}) int {
+	hb.id.Bind(mouse.Start, func(c event.CallerID, i interface{}) int {
 		fmt.Println("start")
 		hb := event.GetEntity(c).(*hoverButton)
 		me := i.(*mouse.Event)
@@ -73,7 +73,7 @@ func newHoverButton(x, y, w, h float64, clr color.RGBA, layer int) {
 		me.StopPropagation = true
 		return 0
 	})
-	hb.id.Bind(mouse.Stop, func(c event.CID, i interface{}) int {
+	hb.id.Bind(mouse.Stop, func(c event.CallerID, i interface{}) int {
 		fmt.Println("stop")
 		hb := event.GetEntity(c).(*hoverButton)
 		me := i.(*mouse.Event)

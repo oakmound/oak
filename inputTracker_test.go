@@ -23,7 +23,7 @@ func TestTrackInputChanges(t *testing.T) {
 	expectedType := new(InputType)
 	*expectedType = InputKeyboardMouse
 	failed := false
-	c1.eventHandler.GlobalBind(event.InputChange, func(_ event.CID, payload interface{}) int {
+	c1.eventHandler.GlobalBind(event.InputChange, func(_ event.CallerID, payload interface{}) int {
 		mode := payload.(InputType)
 		if mode != *expectedType {
 			failed = true

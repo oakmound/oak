@@ -35,7 +35,7 @@ func main() {
 		char.Speed = physics.NewVector(5, 5)
 		render.Draw(char.R)
 
-		char.Bind(event.Enter, func(id event.CID, _ interface{}) int {
+		char.Bind(event.Enter, func(id event.CallerID, _ interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			char.Delta.Zero()
 			if oak.IsDown(key.W) {
@@ -59,7 +59,7 @@ func main() {
 			return 0
 		})
 
-		char.Bind(mouse.Press, func(id event.CID, me interface{}) int {
+		char.Bind(mouse.Press, func(id event.CallerID, me interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			mevent := me.(*mouse.Event)
 			ctx.DrawForTime(

@@ -37,7 +37,7 @@ func main() {
 			render.Draw(layerTxt, 0)
 			NewGopher(layer)
 			layer++
-			event.GlobalBind(event.Enter, func(event.CID, interface{}) int {
+			event.GlobalBind(event.Enter, func(event.CallerID, interface{}) int {
 				if oak.IsDown("K") {
 					NewGopher(layer)
 					layer++
@@ -77,7 +77,7 @@ type Gopher struct {
 }
 
 // Init sets up a gophers CID
-func (g *Gopher) Init() event.CID {
+func (g *Gopher) Init() event.CallerID {
 	return event.NextID(g)
 }
 
@@ -98,7 +98,7 @@ func NewGopher(layer int) {
 	render.Draw(goph.R, 0)
 }
 
-func gophEnter(cid event.CID, nothing interface{}) int {
+func gophEnter(cid event.CallerID, nothing interface{}) int {
 	goph := event.GetEntity(cid).(*Gopher)
 
 	// Compare against this version of rotation

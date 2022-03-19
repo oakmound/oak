@@ -55,7 +55,7 @@ func main() {
 
 	oak.AddScene("bezier", scene.Scene{Start: func(*scene.Context) {
 		mouseFloats := []float64{}
-		event.GlobalBind(mouse.Press, func(_ event.CID, mouseEvent interface{}) int {
+		event.GlobalBind(mouse.Press, func(_ event.CallerID, mouseEvent interface{}) int {
 			me := mouseEvent.(*mouse.Event)
 			// Left click to add a point to the curve
 			if me.Button == mouse.ButtonLeft {

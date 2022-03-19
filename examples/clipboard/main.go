@@ -33,7 +33,7 @@ func newClipboardCopyText(text string, x, y float64) {
 		btn.Pos(x, y),
 		btn.Height(20),
 		btn.FitText(20),
-		btn.Click(func(event.CID, interface{}) int {
+		btn.Click(func(event.CallerID, interface{}) int {
 			err := clipboard.WriteAll(text)
 			if err != nil {
 				fmt.Println(err)
@@ -52,7 +52,7 @@ func newClipboardPaster(placeholder string, x, y float64) {
 		btn.Pos(x, y),
 		btn.Height(20),
 		btn.FitText(20),
-		btn.Binding(key.Down+key.V, func(_ event.CID, payload interface{}) int {
+		btn.Binding(key.Down+key.V, func(_ event.CallerID, payload interface{}) int {
 			kv := payload.(key.Event)
 			if kv.Modifiers&gokey.ModControl == gokey.ModControl {
 				got, err := clipboard.ReadAll()
@@ -64,7 +64,7 @@ func newClipboardPaster(placeholder string, x, y float64) {
 			}
 			return 0
 		}),
-		btn.Click(func(event.CID, interface{}) int {
+		btn.Click(func(event.CallerID, interface{}) int {
 			got, err := clipboard.ReadAll()
 			if err != nil {
 				fmt.Println(err)

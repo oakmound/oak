@@ -14,13 +14,13 @@ type TextBox struct {
 }
 
 // Init creates the CID
-func (b *TextBox) Init() event.CID {
+func (b *TextBox) Init() event.CallerID {
 	b.CID = event.NextID(b)
 	return b.CID
 }
 
 // NewTextBox creates a textbox
-func NewTextBox(cid event.CID, x, y, w, h, txtX, txtY float64,
+func NewTextBox(cid event.CallerID, x, y, w, h, txtX, txtY float64,
 	f *render.Font, r render.Renderable, layers ...int) *TextBox {
 
 	if f == nil {

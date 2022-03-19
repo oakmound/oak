@@ -23,22 +23,22 @@ type Slide struct {
 func (ss *Slide) Init() {
 	oak.SetFullScreen(true)
 	render.Draw(ss.Rs, 0)
-	event.GlobalBind("KeyUp"+ss.ContinueKey, func(event.CID, interface{}) int {
+	event.GlobalBind("KeyUp"+ss.ContinueKey, func(event.CallerID, interface{}) int {
 		fmt.Println("continue key pressed")
 		ss.cont = true
 		return 0
 	})
-	event.GlobalBind("KeyUp"+ss.PrevKey, func(event.CID, interface{}) int {
+	event.GlobalBind("KeyUp"+ss.PrevKey, func(event.CallerID, interface{}) int {
 		fmt.Println("prev key pressed")
 		ss.prev = true
 		return 0
 	})
-	event.GlobalBind("KeyUpEscape", func(event.CID, interface{}) int {
+	event.GlobalBind("KeyUpEscape", func(event.CallerID, interface{}) int {
 		os.Exit(0)
 		return 0
 	})
 	if ss.OnClick != nil {
-		event.GlobalBind("MousePress", func(event.CID, interface{}) int {
+		event.GlobalBind("MousePress", func(event.CallerID, interface{}) int {
 			ss.OnClick()
 			return 0
 		})

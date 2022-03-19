@@ -69,14 +69,13 @@ const explainMouseDetails = "the mext mouse click on the given window will print
 
 func mouseCommands(w window.Window) func([]string) string {
 	return func(tokenString []string) string {
-		w.EventHandler().GlobalBind("MouseRelease", mouseDetails(w))
+		event.Bind(w.EventHandler(), mouse.Release, event.Global, mouseDetails(w))
 		return ""
 	}
 }
 
-func mouseDetails(w window.Window) func(event.CID, interface{}) int {
-	return func(nothing event.CID, mevent interface{}) int {
-		me := mevent.(mouse.Event)
+func mouseDetails(w window.Window) func(event.CallerID, *mouse.Event) event.Response {
+	return func(nothing event.CallerID, me *mouse.Event) event.Response {
 		viewPos := w.Viewport()
 		x := int(me.X()) + viewPos[0]
 		y := int(me.Y()) + viewPos[1]
@@ -86,17 +85,19 @@ func mouseDetails(w window.Window) func(event.CID, interface{}) int {
 		if len(results) == 0 {
 			results = mouse.Hits(loc)
 		}
+		cm := w.GetCallerMap()
+
 		if len(results) > 0 {
-			i := int(results[0].CID)
-			if i > 0 && event.HasEntity(event.CID(i)) {
-				e := event.GetEntity(event.CID(i))
+			i := results[0].CID
+			if i > 0 && cm.HasEntity(i) {
+				e := cm.GetEntity(i)
 				fmt.Printf("%+v\n", e)
 			} else {
 				fmt.Println("No entity ", i)
 			}
 		}
 
-		return event.UnbindSingle
+		return event.UnbindThis
 	}
 }
 

@@ -20,7 +20,7 @@ type Sequence struct {
 	lastChange time.Time
 	sheetPos   int
 	frameTime  int64
-	cID        event.CID
+	event.CallerID
 }
 
 // NewSequence returns a new sequence from the input modifiables, playing at
@@ -68,18 +68,21 @@ func (sq *Sequence) Copy() Modifiable {
 	return newSq
 }
 
+var AnimationEnd = event.RegisterEvent[event.NoPayload]()
+
 // SetTriggerID sets the ID that AnimationEnd will be triggered on when this
 // sequence loops over from its last frame to its first
-func (sq *Sequence) SetTriggerID(id event.CID) {
-	sq.cID = id
+func (sq *Sequence) SetTriggerID(id event.CallerID) {
+	sq.CallerID = id
 }
 
 func (sq *Sequence) update() {
 	if sq.playing && time.Since(sq.lastChange).Nanoseconds() > sq.frameTime {
 		sq.lastChange = time.Now()
 		sq.sheetPos = (sq.sheetPos + 1) % len(sq.rs)
-		if sq.sheetPos == (len(sq.rs)-1) && sq.cID != 0 {
-			sq.cID.Trigger(event.AnimationEnd, nil)
+		if sq.sheetPos == (len(sq.rs)-1) && sq.CallerID != 0 {
+			// TODO: not default bus
+			event.TriggerForCallerOn(event.DefaultBus, sq.CallerID, AnimationEnd, event.NoPayload{})
 		}
 	}
 }

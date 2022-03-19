@@ -14,7 +14,7 @@ func TestMouseClicks(t *testing.T) {
 	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
 	var triggered bool
 	go event.ResolveChanges()
-	event.GlobalBind(mouse.Click, func(event.CID, interface{}) int {
+	event.GlobalBind(mouse.Click, func(event.CallerID, interface{}) int {
 		triggered = true
 		return 0
 	})
@@ -33,7 +33,7 @@ func TestMouseClicksRelative(t *testing.T) {
 	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
 	var triggered bool
 	go c1.eventHandler.(*event.Bus).ResolveChanges()
-	c1.eventHandler.GlobalBind(mouse.ClickOn+"Relative", func(event.CID, interface{}) int {
+	c1.eventHandler.GlobalBind(mouse.ClickOn+"Relative", func(event.CallerID, interface{}) int {
 		triggered = true
 		return 0
 	})
@@ -49,7 +49,7 @@ func TestMouseClicksRelative(t *testing.T) {
 
 type ent struct{}
 
-func (e ent) Init() event.CID {
+func (e ent) Init() event.CallerID {
 	return 0
 }
 
@@ -57,9 +57,9 @@ func TestPropagate(t *testing.T) {
 	c1 := NewWindow()
 	go event.ResolveChanges()
 	var triggered bool
-	cid := event.CID(0).Parse(ent{})
+	cid := event.CallerID(0).Parse(ent{})
 	s := collision.NewSpace(10, 10, 10, 10, cid)
-	s.CID.Bind("MouseDownOn", func(event.CID, interface{}) int {
+	s.CID.Bind("MouseDownOn", func(event.CallerID, interface{}) int {
 		triggered = true
 		return 0
 	})

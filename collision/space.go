@@ -197,7 +197,7 @@ func NewUnassignedSpace(x, y, w, h float64) *Space {
 }
 
 // NewSpace returns a space with an associated caller id
-func NewSpace(x, y, w, h float64, cID event.CID) *Space {
+func NewSpace(x, y, w, h float64, cID event.CallerID) *Space {
 	return NewFullSpace(x, y, w, h, NilLabel, cID)
 }
 
@@ -212,7 +212,7 @@ func NewLabeledSpace(x, y, w, h float64, l Label) *Space {
 }
 
 // NewFullSpace returns a space with both a label and a caller id
-func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
+func NewFullSpace(x, y, w, h float64, l Label, cID event.CallerID) *Space {
 	rect := NewRect(x, y, w, h)
 	return &Space{
 		rect,
@@ -223,12 +223,12 @@ func NewFullSpace(x, y, w, h float64, l Label, cID event.CID) *Space {
 }
 
 // NewRect2Space returns a space with an associated caller id from a rect2
-func NewRect2Space(rect floatgeom.Rect2, cID event.CID) *Space {
+func NewRect2Space(rect floatgeom.Rect2, cID event.CallerID) *Space {
 	return NewSpace(rect.Min.X(), rect.Min.Y(), rect.W(), rect.H(), cID)
 }
 
 // NewRectSpace creates a colliison space with the specified 3D rectangle
-func NewRectSpace(rect floatgeom.Rect3, l Label, cID event.CID) *Space {
+func NewRectSpace(rect floatgeom.Rect3, l Label, cID event.CallerID) *Space {
 	return &Space{
 		rect,
 		l,

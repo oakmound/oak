@@ -10,7 +10,7 @@ func TestAllocate(t *testing.T) {
 	a := NewAllocator()
 	go a.Run()
 	for i := 0; i < 100; i++ {
-		if a.Allocate(event.CID(i)) != i {
+		if a.Allocate(event.CallerID(i)) != i {
 			t.Fatalf("expected allocation of id %d to match id", i)
 		}
 	}

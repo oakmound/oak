@@ -64,7 +64,7 @@ func Offset(x, y float64) Option {
 }
 
 //CID sets the starting CID of the button to be generated
-func CID(c event.CID) Option {
+func CID(c event.CallerID) Option {
 	return func(g Generator) Generator {
 		g.Cid = c
 		return g

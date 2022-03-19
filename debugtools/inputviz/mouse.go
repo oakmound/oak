@@ -17,7 +17,7 @@ type Mouse struct {
 	Rect      floatgeom.Rect2
 	BaseLayer int
 
-	event.CID
+	event.CallerID
 	ctx *scene.Context
 
 	rs map[mouse.Button]*render.Switch
@@ -29,7 +29,7 @@ type Mouse struct {
 	stateInc     map[mouse.Button]int
 }
 
-func (m *Mouse) Init() event.CID {
+func (m *Mouse) Init() event.CallerID {
 	m.CID = m.ctx.CallerMap.NextID(m)
 	return m.CID
 }
@@ -98,7 +98,7 @@ func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 		ctx.DrawStack.Draw(m.posText, m.BaseLayer, layer+2)
 	}
 
-	m.Bind(mouse.Press, mouse.Binding(func(id event.CID, ev *mouse.Event) int {
+	m.Bind(mouse.Press, mouse.Binding(func(id event.CallerID, ev *mouse.Event) int {
 		m, _ := m.ctx.CallerMap.GetEntity(id).(*Mouse)
 		m.rs[ev.Button].Set("pressed")
 		m.stateIncLock.Lock()
@@ -106,7 +106,7 @@ func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 		m.stateIncLock.Unlock()
 		return 0
 	}))
-	m.Bind(mouse.Release, mouse.Binding(func(id event.CID, ev *mouse.Event) int {
+	m.Bind(mouse.Release, mouse.Binding(func(id event.CallerID, ev *mouse.Event) int {
 		m, _ := m.ctx.CallerMap.GetEntity(id).(*Mouse)
 		m.rs[ev.Button].Set("released")
 		m.stateIncLock.Lock()
@@ -114,7 +114,7 @@ func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 		m.stateIncLock.Unlock()
 		return 0
 	}))
-	m.Bind(mouse.ScrollDown, mouse.Binding(func(id event.CID, e *mouse.Event) int {
+	m.Bind(mouse.ScrollDown, mouse.Binding(func(id event.CallerID, e *mouse.Event) int {
 		m, _ := m.ctx.CallerMap.GetEntity(id).(*Mouse)
 		m.rs[mouse.ButtonMiddle].Set("scrolldown")
 		m.stateIncLock.Lock()
@@ -130,7 +130,7 @@ func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 		})
 		return 0
 	}))
-	m.Bind(mouse.ScrollUp, mouse.Binding(func(id event.CID, e *mouse.Event) int {
+	m.Bind(mouse.ScrollUp, mouse.Binding(func(id event.CallerID, e *mouse.Event) int {
 		m, _ := m.ctx.CallerMap.GetEntity(id).(*Mouse)
 		m.rs[mouse.ButtonMiddle].Set("scrollup")
 		m.stateIncLock.Lock()
@@ -146,7 +146,7 @@ func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 		})
 		return 0
 	}))
-	m.Bind(mouse.Drag, mouse.Binding(func(id event.CID, e *mouse.Event) int {
+	m.Bind(mouse.Drag, mouse.Binding(func(id event.CallerID, e *mouse.Event) int {
 		m, _ := m.ctx.CallerMap.GetEntity(id).(*Mouse)
 		m.lastMousePos.Point2 = e.Point2
 		return 0

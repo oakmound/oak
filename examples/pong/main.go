@@ -41,7 +41,7 @@ func main() {
 func newBall(x, y float64) {
 	b := entities.NewMoving(x, y, 10, 10, render.NewColorBoxR(10, 10, color.RGBA{255, 255, 255, 255}), nil, 0, 0)
 	render.Draw(b.R, 2)
-	b.Bind(event.Enter, func(id event.CID, nothing interface{}) int {
+	b.Bind(event.Enter, func(id event.CallerID, nothing interface{}) int {
 		if b.Delta.X() == 0 && b.Delta.Y() == 0 {
 			b.Delta.SetY((rand.Float64() - 0.5) * 4)
 			b.Delta.SetX((rand.Float64() - 0.5) * 16)
@@ -82,8 +82,8 @@ func newPaddle(x, y float64, player int) {
 	}
 }
 
-func enterPaddle(up, down string) func(event.CID, interface{}) int {
-	return func(id event.CID, nothing interface{}) int {
+func enterPaddle(up, down string) func(event.CallerID, interface{}) int {
+	return func(id event.CallerID, nothing interface{}) int {
 		p := id.E().(*entities.Moving)
 		p.Delta.SetY(0)
 		if oak.IsDown(up) {

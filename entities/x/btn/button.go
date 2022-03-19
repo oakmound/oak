@@ -28,7 +28,7 @@ type Generator struct {
 	R1           render.Modifiable
 	R2           render.Modifiable
 	RS           []render.Modifiable
-	Cid          event.CID
+	Cid          event.CallerID
 	Font         *render.Font
 	Layers       []int
 	Text         string
@@ -184,7 +184,7 @@ func (g Generator) generate(parent *Generator) Btn {
 			filteredK := "Filtered" + k
 			g.Bindings[filteredK] = g.Bindings[k]
 			g.Bindings[k] = []event.Bindable{
-				func(id event.CID, button interface{}) int {
+				func(id event.CallerID, button interface{}) int {
 					btn := id.E().(Btn)
 					mEvent, ok := button.(*mouse.Event)
 					// If the passed event is not a mouse event dont filter on location.
@@ -239,8 +239,8 @@ type switcher interface {
 }
 
 // toggleFxn sets up the mouseclick binding for toggle buttons created for goreport cyclo decrease
-func toggleFxn(g Generator) func(id event.CID, nothing interface{}) int {
-	return func(id event.CID, nothing interface{}) int {
+func toggleFxn(g Generator) func(id event.CallerID, nothing interface{}) int {
+	return func(id event.CallerID, nothing interface{}) int {
 		btn := event.GetEntity(id).(Btn)
 		if btn.GetRenderable().(switcher).Get() == "on" {
 			if g.Group != nil && g.Group.active == btn {
@@ -267,8 +267,8 @@ func toggleFxn(g Generator) func(id event.CID, nothing interface{}) int {
 }
 
 // listFxn sets up the mouseclick binding for list buttons created for goreport cyclo reduction
-func listFxn(g Generator) func(id event.CID, button interface{}) int {
-	return func(id event.CID, button interface{}) int {
+func listFxn(g Generator) func(id event.CallerID, button interface{}) int {
+	return func(id event.CallerID, button interface{}) int {
 		btn := event.GetEntity(id).(Btn)
 		i := *g.ListChoice
 		mEvent := button.(*mouse.Event)

@@ -102,7 +102,7 @@ func Start(width, height int, slides ...Slide) {
 						float64(ctx.Window.Height()-50),
 					),
 				)
-				event.GlobalBind("KeyDownSpacebar", func(event.CID, interface{}) int {
+				event.GlobalBind("KeyDownSpacebar", func(event.CallerID, interface{}) int {
 					reset = true
 					return 0
 				})

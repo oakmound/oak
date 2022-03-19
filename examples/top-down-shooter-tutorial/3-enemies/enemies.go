@@ -45,7 +45,7 @@ func main() {
 		playerPos = char.Point.Vector
 		render.Draw(char.R)
 
-		char.Bind(event.Enter, func(id event.CID, _ interface{}) int {
+		char.Bind(event.Enter, func(id event.CallerID, _ interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			char.Delta.Zero()
 			if oak.IsDown(key.W) {
@@ -69,7 +69,7 @@ func main() {
 			return 0
 		})
 
-		char.Bind(mouse.Press, func(id event.CID, me interface{}) int {
+		char.Bind(mouse.Press, func(id event.CallerID, me interface{}) int {
 			char := event.GetEntity(id).(*entities.Moving)
 			mevent := me.(*mouse.Event)
 			x := char.X() + char.W/2
@@ -86,7 +86,7 @@ func main() {
 			return 0
 		})
 
-		event.GlobalBind(event.Enter, func(_ event.CID, frames interface{}) int {
+		event.GlobalBind(event.Enter, func(_ event.CallerID, frames interface{}) int {
 			enterPayload := frames.(event.EnterPayload)
 			if enterPayload.FramesElapsed%EnemyRefresh == 0 {
 				go NewEnemy(ctx)
@@ -118,7 +118,7 @@ func NewEnemy(ctx *scene.Context) {
 
 	enemy.UpdateLabel(Enemy)
 
-	enemy.Bind(event.Enter, func(id event.CID, _ interface{}) int {
+	enemy.Bind(event.Enter, func(id event.CallerID, _ interface{}) int {
 		enemy := event.GetEntity(id).(*entities.Solid)
 		// move towards the player
 		x, y := enemy.GetPos()
@@ -129,7 +129,7 @@ func NewEnemy(ctx *scene.Context) {
 		return 0
 	})
 
-	enemy.Bind("Destroy", func(id event.CID, _ interface{}) int {
+	enemy.Bind("Destroy", func(id event.CallerID, _ interface{}) int {
 		enemy := event.GetEntity(id).(*entities.Solid)
 		enemy.Destroy()
 		return 0

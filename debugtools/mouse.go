@@ -10,8 +10,7 @@ import (
 // DebugMouseRelease will print the position and button pressed of the mouse when the mouse is released, if the given
 // key is held down at the time. If no key is given, it will always be printed
 func DebugMouseRelease(ctx *scene.Context, k string) {
-	ctx.EventHandler.GlobalBind(mouse.Release, func(_ event.CID, ev interface{}) int {
-		mev, _ := ev.(*mouse.Event)
+	event.Bind(ctx.EventHandler, mouse.Release, event.Global, func(_ event.CallerID, mev *mouse.Event) event.Response {
 		if k == "" || ctx.KeyState.IsDown(k) {
 			dlog.Info(mev)
 		}
