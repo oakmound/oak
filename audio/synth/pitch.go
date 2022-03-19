@@ -389,6 +389,54 @@ var (
 	}
 )
 
+var accidentals = map[Pitch]struct{}{
+	C0s: {},
+	D0s: {},
+	F0s: {},
+	G0s: {},
+	A0s: {},
+	C1s: {},
+	D1s: {},
+	F1s: {},
+	G1s: {},
+	A1s: {},
+	C2s: {},
+	D2s: {},
+	F2s: {},
+	G2s: {},
+	A2s: {},
+	C3s: {},
+	D3s: {},
+	F3s: {},
+	G3s: {},
+	A3s: {},
+	C4s: {},
+	D4s: {},
+	F4s: {},
+	G4s: {},
+	A4s: {},
+	C5s: {},
+	D5s: {},
+	F5s: {},
+	G5s: {},
+	A5s: {},
+	C6s: {},
+	D6s: {},
+	F6s: {},
+	G6s: {},
+	A6s: {},
+	C7s: {},
+	D7s: {},
+	F7s: {},
+	G7s: {},
+	A7s: {},
+	C8s: {},
+	D8s: {},
+	F8s: {},
+	G8s: {},
+	A8s: {},
+}
+
 // A Step is an index offset on a pitch
 // to raise or lower it to a relative new pitch
 type Step int
@@ -422,4 +470,10 @@ func (p Pitch) Down(s Step) Pitch {
 // integers representing their notes to get a pitch from said integer
 func NoteFromIndex(i int) Pitch {
 	return allPitches[i]
+}
+
+// IsAccidental reports true if this pitch is represented with a single sharp or a flat, usually.
+func (p Pitch) IsAccidental() bool {
+	_, ok := accidentals[p]
+	return ok
 }

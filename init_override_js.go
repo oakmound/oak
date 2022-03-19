@@ -17,6 +17,10 @@ func overrideInit(w *Window) {
 		dlog.Info("Debug console is not supported in JS")
 		w.config.EnableDebugConsole = false 
 	}
+	if w.config.UnlimitedDrawFrameRate {
+		dlog.Info("Unlimited draw frame rate is not supported in JS")
+		w.config.UnlimitedDrawFrameRate = false 
+	}
 	w.animationFrame = make(chan struct{})
 	js.Global().Call("requestAnimationFrame", js.FuncOf(w.requestFrame))
 }

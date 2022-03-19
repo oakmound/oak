@@ -12,6 +12,7 @@ const (
 	SceneLooping
 	SceneEnding
 	UnknownScene
+	NoAudioDevice
 )
 
 func (lc logCode) String() string {
@@ -29,6 +30,7 @@ var logstrings = map[oakerr.Language]map[logCode]string{
 		SceneLooping:  "Looping scene",
 		SceneEnding:   "Scene end:",
 		UnknownScene:  "Unknown scene:",
+		NoAudioDevice: "No default audio device available",
 	},
 	oakerr.DEU: {},
 	oakerr.JPN: {},

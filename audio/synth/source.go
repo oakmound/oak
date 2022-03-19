@@ -9,7 +9,8 @@ import (
 // A Source stores necessary information for generating audio and waveform data
 type Source struct {
 	audio.Format
-	Pitch   Pitch
+	Pitch Pitch
+	// Volume, between 0.0 -> 1.0
 	Volume  float64
 	Seconds float64
 }

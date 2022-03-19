@@ -154,6 +154,12 @@ func parseKeyCode(cd string) key.Code {
 		return key.CodeEscape
 	case "Space":
 		return key.CodeSpacebar
+	case "ShiftLeft":
+		return key.CodeLeftShift
+	case "ShiftRight":
+		return key.CodeRightShift
+	case "Backspace":
+		return key.CodeDeleteBackspace
 	// TODO: more keys
 	default:
 		return key.CodeUnknown

@@ -140,6 +140,19 @@ func TestWeightedMapChoice(t *testing.T) {
 	if chosen < 0 || chosen > 9 {
 		t.Fatalf("WeightedMapChoiceSeeded returned impossible value")
 	}
+
+	m2 := map[int]float64{
+		0: 0,
+		1: 0.5,
+		2: 0,
+		4: 0,
+		5: 0.5,
+	}
+	chosen = WeightedMapChoiceSeeded(m2, rand.New(rand.NewSource(0)))
+	if chosen != 1 && chosen != 5 {
+		t.Fatalf("WeightedMapChoiceSeeded returned impossible value")
+	}
+
 }
 
 func TestWeightedChooseOne(t *testing.T) {
