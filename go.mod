@@ -1,6 +1,6 @@
 module github.com/oakmound/oak/v3
 
-go 1.16
+go 1.18
 
 require (
 	dmitri.shuralyov.com/gpu/mtl v0.0.0-20201218220906-28db891af037

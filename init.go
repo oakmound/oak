@@ -65,9 +65,6 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 	if w.config.TrackInputChanges {
 		trackJoystickChanges(w.eventHandler)
 	}
-	if w.config.EventRefreshRate != 0 {
-		w.eventHandler.SetRefreshRate(time.Duration(w.config.EventRefreshRate))
-	}
 
 	if !w.config.SkipRNGSeed {
 		// seed math/rand with time.Now, useful for minimal examples

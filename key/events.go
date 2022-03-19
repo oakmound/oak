@@ -1,20 +1,22 @@
 package key
 
 import (
+	"sync"
+
 	"github.com/oakmound/oak/v3/event"
 	"golang.org/x/mobile/event/key"
 )
 
-const (
+var (
 	// Down is sent when a key is pressed. It is sent both as
 	// Down, and as Down + the key name.
-	Down = "KeyDown"
+	AnyDown = event.RegisterEvent[Event]()
 	// Up is sent when a key is released. It is sent both as
 	// Up, and as Up + the key name.
-	Up = "KeyUp"
+	AnyUp = event.RegisterEvent[Event]()
 	// Held is sent when a key is held down. It is sent both as
 	// Held, and as Held + the key name.
-	Held = "KeyHeld"
+	AnyHeld = event.RegisterEvent[Event]()
 )
 
 // An Event is sent as the payload for all key bindings.
@@ -23,16 +25,44 @@ type Event = key.Event
 // A code is a unique integer code for a given common key
 type Code = key.Code
 
-// Binding will convert a function that accepts a typecast key.Event into a generic event binding
-//
-// Example:
-// 		bus.Bind(key.Down, key.Binding(keyHandler))
-func Binding(fn func(event.CID, Event) int) func(event.CID, interface{}) int {
-	return func(cid event.CID, iface interface{}) int {
-		ke, ok := iface.(Event)
-		if !ok {
-			return event.UnbindSingle
-		}
-		return fn(cid, ke)
+var upEventsLock sync.Mutex
+var upEvents = map[Code]event.EventID[Event]{}
+
+func Up(code Code) event.EventID[Event] {
+	upEventsLock.Lock()
+	defer upEventsLock.Unlock()
+	if ev, ok := upEvents[code]; ok {
+		return ev
 	}
+	ev := event.RegisterEvent[Event]()
+	upEvents[code] = ev
+	return ev
+}
+
+var downEventsLock sync.Mutex
+var downEvents = map[Code]event.EventID[Event]{}
+
+func Down(code Code) event.EventID[Event] {
+	downEventsLock.Lock()
+	defer downEventsLock.Unlock()
+	if ev, ok := downEvents[code]; ok {
+		return ev
+	}
+	ev := event.RegisterEvent[Event]()
+	downEvents[code] = ev
+	return ev
+}
+
+var heldEventsLock sync.Mutex
+var heldEvents = map[Code]event.EventID[Event]{}
+
+func Held(code Code) event.EventID[Event] {
+	heldEventsLock.Lock()
+	defer heldEventsLock.Unlock()
+	if ev, ok := heldEvents[code]; ok {
+		return ev
+	}
+	ev := event.RegisterEvent[Event]()
+	heldEvents[code] = ev
+	return ev
 }

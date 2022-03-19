@@ -22,7 +22,6 @@ type Config struct {
 	IdleDrawFrameRate   int              `json:"idleDrawFrameRate"`
 	Language            string           `json:"language"`
 	Title               string           `json:"title"`
-	EventRefreshRate    Duration         `json:"refreshRate"`
 	BatchLoad           bool             `json:"batchLoad"`
 	GestureSupport      bool             `json:"gestureSupport"`
 	LoadBuiltinCommands bool             `json:"loadBuiltinCommands"`
@@ -97,7 +96,6 @@ func (c Config) setDefaults() Config {
 	c.IdleDrawFrameRate = 60
 	c.Language = "English"
 	c.Title = "Oak Window"
-	c.EventRefreshRate = Duration(50 * time.Millisecond)
 	return c
 }
 
@@ -221,9 +219,6 @@ func (c Config) overwriteFrom(c2 Config) Config {
 	}
 	if c2.Title != "" {
 		c.Title = c2.Title
-	}
-	if c2.EventRefreshRate != 0 {
-		c.EventRefreshRate = c2.EventRefreshRate
 	}
 	// Booleans can be directly overwritten-- all booleans in a Config
 	// default to false, if they were unset they will stay false.

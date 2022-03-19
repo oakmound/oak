@@ -4,9 +4,11 @@ package joystick
 
 import (
 	"math"
+	"sync"
 	"time"
 
 	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
 )
 
 type Input string
@@ -30,15 +32,15 @@ const (
 )
 
 // Events. All events include a *State payload.
-const (
-	Change          = "JoystickChange"
-	ButtonDown      = "ButtonDown"
-	ButtonUp        = "ButtonUp"
-	RtTriggerChange = "RtTriggerChange"
-	LtTriggerChange = "LtTriggerChange"
-	RtStickChange   = "RtStickChange"
-	LtStickChange   = "LtStickChange"
-	Disconnected    = "JoystickDisconnected"
+var (
+	Change          = event.RegisterEvent[*State]()
+	ButtonDown      = event.RegisterEvent[*State]()
+	ButtonUp        = event.RegisterEvent[*State]()
+	RtTriggerChange = event.RegisterEvent[*State]()
+	LtTriggerChange = event.RegisterEvent[*State]()
+	RtStickChange   = event.RegisterEvent[*State]()
+	LtStickChange   = event.RegisterEvent[*State]()
+	Disconnected    = event.RegisterEvent[*State]()
 )
 
 // Init calls any os functions necessary to detect joysticks
@@ -49,7 +51,7 @@ func Init() error {
 // A Triggerer can either be an event bus or event CID, allowing
 // joystick triggers to be listened to globally or sent to particular entities.
 type Triggerer interface {
-	Trigger(string, interface{})
+	Trigger(eventID event.UnsafeEventID, data interface{}) chan struct{}
 }
 
 // A Joystick represents a (usually) physical controller connected to the machine.
@@ -121,7 +123,7 @@ func (lo *ListenOptions) sendFn() func(Triggerer, *State, *State) {
 	var fn func(Triggerer, *State, *State)
 	if lo.JoystickChanges {
 		fn = func(h Triggerer, cur, last *State) {
-			h.Trigger(Change, cur)
+			h.Trigger(Change.UnsafeEventID, cur)
 		}
 	}
 	if lo.GenericButtonPresses {
@@ -134,13 +136,13 @@ func (lo *ListenOptions) sendFn() func(Triggerer, *State, *State) {
 				for k, v := range cur.Buttons {
 					if v != last.Buttons[k] {
 						if v && !downTriggered {
-							h.Trigger(ButtonDown, cur)
+							h.Trigger(ButtonDown.UnsafeEventID, cur)
 							downTriggered = true
 							if upTriggered {
 								return
 							}
 						} else if !v && !upTriggered {
-							h.Trigger(ButtonUp, cur)
+							h.Trigger(ButtonUp.UnsafeEventID, cur)
 							upTriggered = true
 							if downTriggered {
 								return
@@ -156,13 +158,13 @@ func (lo *ListenOptions) sendFn() func(Triggerer, *State, *State) {
 				for k, v := range cur.Buttons {
 					if v != last.Buttons[k] {
 						if v && !downTriggered {
-							h.Trigger(ButtonDown, cur)
+							h.Trigger(ButtonDown.UnsafeEventID, cur)
 							downTriggered = true
 							if upTriggered {
 								return
 							}
 						} else if !v && !upTriggered {
-							h.Trigger(ButtonUp, cur)
+							h.Trigger(ButtonUp.UnsafeEventID, cur)
 							upTriggered = true
 							if downTriggered {
 								return
@@ -181,9 +183,9 @@ func (lo *ListenOptions) sendFn() func(Triggerer, *State, *State) {
 				for k, v := range cur.Buttons {
 					if v != last.Buttons[k] {
 						if v {
-							h.Trigger(k+ButtonDown, cur)
+							h.Trigger(Down(k).UnsafeEventID, cur)
 						} else {
-							h.Trigger(k+ButtonUp, cur)
+							h.Trigger(Up(k).UnsafeEventID, cur)
 						}
 					}
 				}
@@ -193,9 +195,9 @@ func (lo *ListenOptions) sendFn() func(Triggerer, *State, *State) {
 				for k, v := range cur.Buttons {
 					if v != last.Buttons[k] {
 						if v {
-							h.Trigger(k+ButtonDown, cur)
+							h.Trigger(Down(k).UnsafeEventID, cur)
 						} else {
-							h.Trigger(k+ButtonUp, cur)
+							h.Trigger(Up(k).UnsafeEventID, cur)
 						}
 					}
 				}
@@ -209,22 +211,22 @@ func (lo *ListenOptions) sendFn() func(Triggerer, *State, *State) {
 				prevFn(h, cur, last)
 				if deltaExceedsThreshold(cur.StickLX, last.StickLX, lo.StickDeadzoneLX) ||
 					deltaExceedsThreshold(cur.StickLY, last.StickLY, lo.StickDeadzoneLY) {
-					h.Trigger(LtStickChange, cur)
+					h.Trigger(LtStickChange.UnsafeEventID, cur)
 				}
 				if deltaExceedsThreshold(cur.StickRX, last.StickRX, lo.StickDeadzoneRX) ||
 					deltaExceedsThreshold(cur.StickRY, last.StickRY, lo.StickDeadzoneRY) {
-					h.Trigger(RtStickChange, cur)
+					h.Trigger(RtStickChange.UnsafeEventID, cur)
 				}
 			}
 		} else {
 			fn = func(h Triggerer, cur, last *State) {
 				if deltaExceedsThreshold(cur.StickLX, last.StickLX, lo.StickDeadzoneLX) ||
 					deltaExceedsThreshold(cur.StickLY, last.StickLY, lo.StickDeadzoneLY) {
-					h.Trigger(LtStickChange, cur)
+					h.Trigger(LtStickChange.UnsafeEventID, cur)
 				}
 				if deltaExceedsThreshold(cur.StickRX, last.StickRX, lo.StickDeadzoneRX) ||
 					deltaExceedsThreshold(cur.StickRY, last.StickRY, lo.StickDeadzoneRY) {
-					h.Trigger(RtStickChange, cur)
+					h.Trigger(RtStickChange.UnsafeEventID, cur)
 				}
 			}
 		}
@@ -235,24 +237,52 @@ func (lo *ListenOptions) sendFn() func(Triggerer, *State, *State) {
 			fn = func(h Triggerer, cur, last *State) {
 				prevFn(h, cur, last)
 				if cur.TriggerL != last.TriggerL {
-					h.Trigger(LtTriggerChange, cur)
+					h.Trigger(LtTriggerChange.UnsafeEventID, cur)
 				}
 				if cur.TriggerR != last.TriggerR {
-					h.Trigger(RtTriggerChange, cur)
+					h.Trigger(RtTriggerChange.UnsafeEventID, cur)
 				}
 			}
 		} else {
 			fn = func(h Triggerer, cur, last *State) {
 				if cur.TriggerL != last.TriggerL {
-					h.Trigger(LtTriggerChange, cur)
+					h.Trigger(LtTriggerChange.UnsafeEventID, cur)
 				}
 				if cur.TriggerR != last.TriggerR {
-					h.Trigger(RtTriggerChange, cur)
+					h.Trigger(RtTriggerChange.UnsafeEventID, cur)
 				}
 			}
 		}
 	}
 	return fn
+}
+
+var upEventsLock sync.Mutex
+var upEvents = map[string]event.EventID[*State]{}
+
+func Up(s string) event.EventID[*State] {
+	upEventsLock.Lock()
+	defer upEventsLock.Unlock()
+	if ev, ok := upEvents[s]; ok {
+		return ev
+	}
+	ev := event.RegisterEvent[*State]()
+	upEvents[s] = ev
+	return ev
+}
+
+var downEventsLock sync.Mutex
+var downEvents = map[string]event.EventID[*State]{}
+
+func Down(s string) event.EventID[*State] {
+	downEventsLock.Lock()
+	defer downEventsLock.Unlock()
+	if ev, ok := downEvents[s]; ok {
+		return ev
+	}
+	ev := event.RegisterEvent[*State]()
+	downEvents[s] = ev
+	return ev
 }
 
 func deltaExceedsThreshold(old, new, threshold int16) bool {
@@ -306,7 +336,7 @@ func (j *Joystick) Listen(opts *ListenOptions) (cancel func()) {
 			}
 			state, err := j.GetState()
 			if err != nil {
-				j.Handler.Trigger(Disconnected, j.id)
+				j.Handler.Trigger(Disconnected.UnsafeEventID, j.id)
 				dlog.Error(err)
 				t.Stop()
 				j.Close()

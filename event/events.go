@@ -48,6 +48,4 @@ var (
 	FocusGain = RegisterEvent[NoPayload]()
 	// FocusLoss: Triggered when the window loses focus
 	FocusLoss = RegisterEvent[NoPayload]()
-	// InputChange: triggered when the most recent input device changes (e.g. keyboard to joystick or vice versa)
-	InputChange = RegisterEvent[NoPayload]()
 )

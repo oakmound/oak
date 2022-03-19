@@ -152,14 +152,13 @@ type Window struct {
 
 	config Config
 
-	mostRecentInput InputType
+	mostRecentInput int32
 
 	exitError     error
 	ParentContext context.Context
 
-	TrackMouseClicks bool
-	startupLoading   bool
-	useViewBounds    bool
+	startupLoading bool
+	useViewBounds  bool
 	// UseAspectRatio determines whether new window changes will distort or
 	// maintain the relative width to height ratio of the screen buffer.
 	UseAspectRatio bool
@@ -194,7 +193,6 @@ func NewWindow() *Window {
 	c.CollisionTree = collision.DefaultTree
 	c.CallerMap = event.DefaultCallerMap
 	c.DrawStack = render.GlobalDrawStack
-	c.TrackMouseClicks = true
 	c.commands = make(map[string]func([]string))
 	c.ControllerID = atomic.AddInt32(nextControllerID, 1)
 	c.ParentContext = context.Background()
@@ -202,55 +200,54 @@ func NewWindow() *Window {
 }
 
 // Propagate triggers direct mouse events on entities which are clicked
-func (w *Window) Propagate(eventName string, me mouse.Event) {
+func (w *Window) Propagate(ev event.EventID[*mouse.Event], me mouse.Event) {
 	hits := w.MouseTree.SearchIntersect(me.ToSpace().Bounds())
 	sort.Slice(hits, func(i, j int) bool {
 		return hits[i].Location.Min.Z() < hits[i].Location.Max.Z()
 	})
 	for _, sp := range hits {
-		<-sp.CID.TriggerBus(eventName, &me, w.eventHandler)
+		<-event.TriggerForCallerOn(w.eventHandler, sp.CID, ev, &me)
 		if me.StopPropagation {
 			break
 		}
 	}
 	me.StopPropagation = false
 
-	if w.TrackMouseClicks {
-		if eventName == mouse.PressOn+"Relative" {
-			w.lastRelativePress = me
-		} else if eventName == mouse.PressOn {
-			w.LastMousePress = me
-		} else if eventName == mouse.ReleaseOn {
-			if me.Button == w.LastMousePress.Button {
-				pressHits := w.MouseTree.SearchIntersect(w.LastMousePress.ToSpace().Bounds())
-				sort.Slice(pressHits, func(i, j int) bool {
-					return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
-				})
-				for _, sp1 := range pressHits {
-					for _, sp2 := range hits {
-						if sp1.CID == sp2.CID {
-							w.eventHandler.Trigger(mouse.Click, &me)
-							<-sp1.CID.TriggerBus(mouse.ClickOn, &me, w.eventHandler)
-							if me.StopPropagation {
-								return
-							}
+	if ev == mouse.RelativePressOn {
+		w.lastRelativePress = me
+	} else if ev == mouse.PressOn {
+		w.LastMousePress = me
+	} else if ev == mouse.ReleaseOn {
+		if me.Button == w.LastMousePress.Button {
+			event.TriggerOn(w.eventHandler, mouse.Click, &me)
+
+			pressHits := w.MouseTree.SearchIntersect(w.LastMousePress.ToSpace().Bounds())
+			sort.Slice(pressHits, func(i, j int) bool {
+				return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
+			})
+			for _, sp1 := range pressHits {
+				for _, sp2 := range hits {
+					if sp1.CID == sp2.CID {
+						<-event.TriggerForCallerOn(w.eventHandler, sp1.CID, mouse.ClickOn, &me)
+						if me.StopPropagation {
+							return
 						}
 					}
 				}
 			}
-		} else if eventName == mouse.ReleaseOn+"Relative" {
-			if me.Button == w.lastRelativePress.Button {
-				pressHits := w.MouseTree.SearchIntersect(w.lastRelativePress.ToSpace().Bounds())
-				sort.Slice(pressHits, func(i, j int) bool {
-					return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
-				})
-				for _, sp1 := range pressHits {
-					for _, sp2 := range hits {
-						if sp1.CID == sp2.CID {
-							sp1.CID.Trigger(mouse.ClickOn+"Relative", &me)
-							if me.StopPropagation {
-								return
-							}
+		}
+	} else if ev == mouse.RelativeReleaseOn {
+		if me.Button == w.lastRelativePress.Button {
+			pressHits := w.MouseTree.SearchIntersect(w.lastRelativePress.ToSpace().Bounds())
+			sort.Slice(pressHits, func(i, j int) bool {
+				return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
+			})
+			for _, sp1 := range pressHits {
+				for _, sp2 := range hits {
+					if sp1.CID == sp2.CID {
+						<-event.TriggerForCallerOn(w.eventHandler, sp1.CID, mouse.RelativeClickOn, &me)
+						if me.StopPropagation {
+							return
 						}
 					}
 				}
@@ -345,10 +342,10 @@ func (w *Window) EventHandler() event.Handler {
 }
 
 // MostRecentInput returns the most recent input type (e.g keyboard/mouse or joystick)
-// recognized by the window. This value will only change if the controller's Config is
+// recognized by the window. This value will only change if the window is
 // set to TrackInputChanges
 func (w *Window) MostRecentInput() InputType {
-	return w.mostRecentInput
+	return InputType(w.mostRecentInput)
 }
 
 func (w *Window) exitWithError(err error) {

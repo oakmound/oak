@@ -5,12 +5,12 @@ import (
 	"sync/atomic"
 )
 
-// A CID is a caller ID that entities use to trigger and bind functionality
+// A CallerID is a caller ID that entities use to trigger and bind functionality
 type CallerID int64
 
 const Global CallerID = 0
 
-// A CallerMap tracks CID mappings to Entities.
+// A CallerMap tracks CallerID mappings to Entities.
 // This is an alternative to passing in the entity via closure scoping,
 // and allows for more general bindings as simple top level functions.
 type CallerMap struct {
@@ -27,10 +27,6 @@ func NewCallerMap() *CallerMap {
 		callers:   map[CallerID]interface{}{},
 	}
 }
-
-// DefaultCallerMap is the caller map used by all event package caller
-// functions.
-var DefaultCallerMap = NewCallerMap()
 
 // NextID finds the next available caller id
 // and returns it, after adding the given entity to
@@ -64,5 +60,13 @@ func (cm *CallerMap) HasEntity(id CallerID) bool {
 func (cm *CallerMap) DestroyEntity(id CallerID) {
 	cm.callersLock.Lock()
 	delete(cm.callers, id)
+	cm.callersLock.Unlock()
+}
+
+// Reset clears the caller map to forget all registered callers.
+func (cm *CallerMap) Reset() {
+	cm.callersLock.Lock()
+	*cm.highestID = 0
+	cm.callers = map[CallerID]interface{}{}
 	cm.callersLock.Unlock()
 }

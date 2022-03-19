@@ -23,7 +23,7 @@ type Space struct {
 	Label Label
 	// A CID can be used to get the exact
 	// entity which this rectangle belongs to.
-	CID event.CID
+	CID event.CallerID
 	// Type represents which ID space the above ID
 	// corresponds to.
 	Type int

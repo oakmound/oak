@@ -5,9 +5,9 @@ import (
 
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/oakerr"
 	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 // the oak loading scene is a reserved scene
@@ -88,7 +88,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		dlog.Info(dlog.SceneLooping)
 		cont := true
 
-		dlog.ErrorCheck(w.eventHandler.UpdateLoop(w.FrameRate, w.sceneCh))
+		w.eventHandler.EnterLoop(timing.FPSToFrameDelay(w.FrameRate))
 
 		nextSceneOverride := ""
 
@@ -124,15 +124,8 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		// be triggered and attempt to access an entity
 		w.CollisionTree.Clear()
 		w.MouseTree.Clear()
-		if w.CallerMap == event.DefaultCallerMap {
-			event.ResetCallerMap()
-			w.CallerMap = event.DefaultCallerMap
-		} else {
-			w.CallerMap = event.NewCallerMap()
-		}
-		if cmr, ok := w.eventHandler.(event.CallerMapper); ok {
-			cmr.SetCallerMap(w.CallerMap)
-		}
+		w.CallerMap.Reset()
+		w.eventHandler.SetCallerMap(w.CallerMap)
 		w.DrawStack.Clear()
 		w.DrawStack.PreDraw()
 
