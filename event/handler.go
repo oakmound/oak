@@ -21,4 +21,5 @@ type Handler interface {
 	UnsafeBind(UnsafeEventID, CallerID, UnsafeBindable) Binding
 	Unbind(Binding)
 	SetCallerMap(*CallerMap)
+	GetCallerMap() *CallerMap
 }

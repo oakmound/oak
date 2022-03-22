@@ -39,7 +39,7 @@ func (bus *Bus) trigger(binds bindableList, eventID UnsafeEventID, callerID Call
 		}
 		go func() {
 			if callerID == Global || bus.callerMap.HasEntity(callerID) {
-				response := bnd(callerID, data)
+				response := bnd(callerID, bus, data)
 				switch response {
 				case UnbindThis:
 					// Q: Why does this call bus.Unbind when it already has the event index to delete?

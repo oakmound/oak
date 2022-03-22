@@ -81,20 +81,31 @@ func (bus *Bus) Unbind(loc Binding) {
 
 // A Bindable is a strongly typed callback function to be executed on Trigger. It must be paired
 // with an event registered via RegisterEvent.
-type Bindable[T any] func(CallerID, T) Response
+type Bindable[Payload any, C any] func(C, Payload) Response
 
-func Bind[T any](b Handler, ev EventID[T], c CallerID, fn Bindable[T]) Binding {
-	return b.UnsafeBind(ev.UnsafeEventID, c, func(c CallerID, f interface{}) Response {
-		tf := f.(T)
-		return fn(c, tf)
+func Bind[Payload any, C Caller](b Handler, ev EventID[Payload], c C, fn Bindable[Payload, C]) Binding {
+	return b.UnsafeBind(ev.UnsafeEventID, c.CID(), func(c CallerID, h Handler, payload interface{}) Response {
+		typedPayload := payload.(Payload)
+		ent := h.GetCallerMap().GetEntity(c)
+		typedEntity := ent.(C)
+		return fn(typedEntity, typedPayload)
+	})
+}
+
+type GlobalBindable[Payload any] func(Payload) Response
+
+func GlobalBind[Payload any](b Handler, ev EventID[Payload], fn GlobalBindable[Payload]) Binding {
+	return b.UnsafeBind(ev.UnsafeEventID, Global, func(c CallerID, h Handler, payload interface{}) Response {
+		typedPayload := payload.(Payload)
+		return fn(typedPayload)
 	})
 }
 
 // UnsafeBindable defines the underlying signature of all bindings.
-type UnsafeBindable func(CallerID, interface{}) Response
+type UnsafeBindable func(CallerID, Handler, interface{}) Response
 
 func EmptyBinding(f func()) UnsafeBindable {
-	return func(ci CallerID, i interface{}) Response {
+	return func(CallerID, Handler, interface{}) Response {
 		f()
 		return NoResponse
 	}

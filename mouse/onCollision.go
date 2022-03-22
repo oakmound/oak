@@ -37,7 +37,7 @@ func PhaseCollision(s *collision.Space, callerMap *event.CallerMap, handler even
 		oc := cp.getCollisionPhase()
 		oc.OnCollisionS = s
 		oc.CallerMap = callerMap
-		event.Bind(handler, event.Enter, s.CID, phaseCollisionEnter(callerMap, handler))
+		handler.UnsafeBind(event.Enter.UnsafeEventID, s.CID, phaseCollisionEnter)
 		return nil
 	}
 	return errors.New("This space's entity does not implement collisionPhase")
@@ -49,35 +49,35 @@ var (
 	Stop  = event.RegisterEvent[*Event]()
 )
 
-func phaseCollisionEnter(callerMap *event.CallerMap, handler event.Handler) func(id event.CallerID, payload event.EnterPayload) event.Response {
-	return func(id event.CallerID, payload event.EnterPayload) event.Response {
-
-		e := callerMap.GetEntity(id).(collisionPhase)
-		oc := e.getCollisionPhase()
-		if oc == nil || oc.OnCollisionS == nil {
-			return 0
-		}
-
-		// TODO: think about how this can more cleanly work with multiple windows
-		ev := oc.LastEvent
-		if ev == nil {
-			ev = &LastEvent
-		}
-		if ev.StopPropagation {
-			return 0
-		}
-
-		if oc.OnCollisionS.Contains(ev.ToSpace()) {
-			if !oc.wasTouching {
-				event.TriggerForCallerOn(handler, id, Start, ev)
-				oc.wasTouching = true
-			}
-		} else {
-			if oc.wasTouching {
-				event.TriggerForCallerOn(handler, id, Stop, ev)
-				oc.wasTouching = false
-			}
-		}
+func phaseCollisionEnter(id event.CallerID, handler event.Handler, _ interface{}) event.Response {
+	e, ok := handler.GetCallerMap().GetEntity(id).(collisionPhase)
+	if !ok {
+		return event.UnbindThis
+	}
+	oc := e.getCollisionPhase()
+	if oc == nil || oc.OnCollisionS == nil {
 		return 0
 	}
+
+	// TODO: think about how this can more cleanly work with multiple windows
+	ev := oc.LastEvent
+	if ev == nil {
+		ev = &LastEvent
+	}
+	if ev.StopPropagation {
+		return 0
+	}
+
+	if oc.OnCollisionS.Contains(ev.ToSpace()) {
+		if !oc.wasTouching {
+			event.TriggerForCallerOn(handler, id, Start, ev)
+			oc.wasTouching = true
+		}
+	} else {
+		if oc.wasTouching {
+			event.TriggerForCallerOn(handler, id, Stop, ev)
+			oc.wasTouching = false
+		}
+	}
+	return 0
 }

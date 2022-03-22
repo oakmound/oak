@@ -27,21 +27,21 @@ const (
 )
 
 func (w *Window) trackInputChanges() {
-	event.Bind(w.eventHandler, key.AnyDown, event.Global, func(event.CallerID, key.Event) event.Response {
+	event.GlobalBind(w.eventHandler, key.AnyDown, func(key.Event) event.Response {
 		old := atomic.SwapInt32(&w.mostRecentInput, int32(InputKeyboard))
 		if InputType(old) != InputKeyboard {
 			event.TriggerOn(w.eventHandler, InputChange, InputKeyboard)
 		}
 		return 0
 	})
-	event.Bind(w.eventHandler, mouse.Press, event.Global, func(event.CallerID, *mouse.Event) event.Response {
+	event.GlobalBind(w.eventHandler, mouse.Press, func(*mouse.Event) event.Response {
 		old := atomic.SwapInt32(&w.mostRecentInput, int32(InputMouse))
 		if InputType(old) != InputMouse {
 			event.TriggerOn(w.eventHandler, InputChange, InputMouse)
 		}
 		return 0
 	})
-	event.Bind(w.eventHandler, trackingJoystickChange, event.Global, func(event.CallerID, event.NoPayload) event.Response {
+	event.GlobalBind(w.eventHandler, trackingJoystickChange, func(event.NoPayload) event.Response {
 		old := atomic.SwapInt32(&w.mostRecentInput, int32(InputMouse))
 		if InputType(old) != InputJoystick {
 			event.TriggerOn(w.eventHandler, InputChange, InputJoystick)

@@ -152,16 +152,17 @@ type Keyboard struct {
 	ctx *scene.Context
 
 	rs map[string]*render.Switch
+
+	bindings []event.Binding
 }
 
-func (k *Keyboard) Init() event.CallerID {
-	k.CID = k.ctx.CallerMap.NextID(k)
-	return k.CID
+func (k *Keyboard) CID() event.CallerID {
+	return k.CallerID
 }
 
 func (k *Keyboard) RenderAndListen(ctx *scene.Context, layer int) error {
 	k.ctx = ctx
-	k.Init()
+	k.CallerID = k.ctx.CallerMap.Register(k)
 
 	if k.Rect.W() == 0 || k.Rect.H() == 0 {
 		k.Rect.Max = k.Rect.Min.Add(floatgeom.Point2{320, 180})
@@ -220,30 +221,30 @@ func (k *Keyboard) RenderAndListen(ctx *scene.Context, layer int) error {
 		}
 	}
 
-	k.Bind(key.Down, key.Binding(func(id event.CallerID, ev key.Event) int {
-		kb, _ := k.ctx.CallerMap.GetEntity(id).(*Keyboard)
+	b1 := event.Bind(ctx.EventHandler, key.AnyDown, k, func(kb *Keyboard, ev key.Event) event.Response {
 		btn := ev.Code.String()[4:]
 		if kb.rs[btn] == nil {
 			return 0
 		}
 		kb.rs[btn].Set("pressed")
 		return 0
-	}))
-	k.Bind(key.Up, key.Binding(func(id event.CallerID, ev key.Event) int {
-		kb, _ := k.ctx.CallerMap.GetEntity(id).(*Keyboard)
+	})
+	b2 := event.Bind(ctx.EventHandler, key.AnyUp, k, func(kb *Keyboard, ev key.Event) event.Response {
 		btn := ev.Code.String()[4:]
 		if kb.rs[btn] == nil {
 			return 0
 		}
 		kb.rs[btn].Set("released")
 		return 0
-	}))
-
+	})
+	k.bindings = []event.Binding{b1, b2}
 	return nil
 }
 
 func (k *Keyboard) Destroy() {
-	k.UnbindAll()
+	for _, b := range k.bindings {
+		b.Unbind()
+	}
 	for _, r := range k.rs {
 		r.Undraw()
 	}

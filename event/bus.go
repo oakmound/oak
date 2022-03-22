@@ -119,3 +119,7 @@ func (bus *Bus) SetEnterLoopRate(frameDelay time.Duration) error {
 	bus.ticker.Reset(frameDelay)
 	return nil
 }
+
+func (b *Bus) GetCallerMap() *CallerMap {
+	return b.callerMap
+}

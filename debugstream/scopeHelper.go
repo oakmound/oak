@@ -69,13 +69,13 @@ const explainMouseDetails = "the mext mouse click on the given window will print
 
 func mouseCommands(w window.Window) func([]string) string {
 	return func(tokenString []string) string {
-		event.Bind(w.EventHandler(), mouse.Release, event.Global, mouseDetails(w))
+		event.GlobalBind(w.EventHandler(), mouse.Release, mouseDetails(w))
 		return ""
 	}
 }
 
-func mouseDetails(w window.Window) func(event.CallerID, *mouse.Event) event.Response {
-	return func(nothing event.CallerID, me *mouse.Event) event.Response {
+func mouseDetails(w window.Window) func(*mouse.Event) event.Response {
+	return func(me *mouse.Event) event.Response {
 		viewPos := w.Viewport()
 		x := int(me.X()) + viewPos[0]
 		y := int(me.Y()) + viewPos[1]

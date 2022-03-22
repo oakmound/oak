@@ -26,7 +26,14 @@ func (as *AttachSpace) getAttachSpace() *AttachSpace {
 	return as
 }
 
+func (as *AttachSpace) CID() event.CallerID {
+	return (*as.aSpace).CID
+}
+
+var _ attachSpace = &AttachSpace{}
+
 type attachSpace interface {
+	event.Caller
 	getAttachSpace() *AttachSpace
 }
 
@@ -41,7 +48,7 @@ func Attach(v physics.Vector, s *Space, tree *Tree, offsets ...float64) error {
 		if as.tree == nil {
 			as.tree = DefaultTree
 		}
-		as.binding = event.Bind(event.DefaultBus, event.Enter, s.CID, attachSpaceEnter)
+		as.binding = event.Bind(event.DefaultBus, event.Enter, t, attachSpaceEnter)
 		if len(offsets) > 0 {
 			as.offX = offsets[0]
 			if len(offsets) > 1 {
@@ -64,13 +71,11 @@ func Detach(s *Space) error {
 	return errors.New("this space's entity is not composed of AttachSpace")
 }
 
-func attachSpaceEnter(id event.CallerID, _ event.EnterPayload) event.Response {
-	asIface := event.DefaultCallerMap.GetEntity(id)
+func attachSpaceEnter(asIface attachSpace, _ event.EnterPayload) event.Response {
 	as := asIface.(attachSpace).getAttachSpace()
 	x, y := as.follow.X()+as.offX, as.follow.Y()+as.offY
 	if x != (*as.aSpace).X() ||
 		y != (*as.aSpace).Y() {
-
 		as.tree.UpdateSpace(x, y, (*as.aSpace).GetW(), (*as.aSpace).GetH(), *as.aSpace)
 	}
 	return 0

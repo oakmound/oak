@@ -10,13 +10,17 @@ type CallerID int64
 
 const Global CallerID = 0
 
+type Caller interface {
+	CID() CallerID
+}
+
 // A CallerMap tracks CallerID mappings to Entities.
 // This is an alternative to passing in the entity via closure scoping,
 // and allows for more general bindings as simple top level functions.
 type CallerMap struct {
 	highestID   *int64
 	callersLock sync.RWMutex
-	callers     map[CallerID]interface{}
+	callers     map[CallerID]Caller
 }
 
 // NewCallerMap creates a caller map. A CallerMap
@@ -24,14 +28,14 @@ type CallerMap struct {
 func NewCallerMap() *CallerMap {
 	return &CallerMap{
 		highestID: new(int64),
-		callers:   map[CallerID]interface{}{},
+		callers:   map[CallerID]Caller{},
 	}
 }
 
 // NextID finds the next available caller id
 // and returns it, after adding the given entity to
 // the caller map.
-func (cm *CallerMap) Register(e interface{}) CallerID {
+func (cm *CallerMap) Register(e Caller) CallerID {
 	nextID := atomic.AddInt64(cm.highestID, 1)
 	cm.callersLock.Lock()
 	cm.callers[CallerID(nextID)] = e
@@ -41,7 +45,7 @@ func (cm *CallerMap) Register(e interface{}) CallerID {
 
 // GetEntity returns the entity corresponding to the given ID within
 // the caller map. If no entity is found, it returns nil.
-func (cm *CallerMap) GetEntity(id CallerID) interface{} {
+func (cm *CallerMap) GetEntity(id CallerID) Caller {
 	cm.callersLock.RLock()
 	defer cm.callersLock.RUnlock()
 	return cm.callers[id]
@@ -67,6 +71,6 @@ func (cm *CallerMap) DestroyEntity(id CallerID) {
 func (cm *CallerMap) Reset() {
 	cm.callersLock.Lock()
 	*cm.highestID = 0
-	cm.callers = map[CallerID]interface{}{}
+	cm.callers = map[CallerID]Caller{}
 	cm.callersLock.Unlock()
 }

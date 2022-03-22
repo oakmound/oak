@@ -21,9 +21,9 @@ type Source struct {
 
 	rotateBinding event.Binding
 
-	particles    [blockSize]Particle
-	nextPID      int
-	CID          event.CallerID
+	particles [blockSize]Particle
+	nextPID   int
+	event.CallerID
 	pIDBlock     int
 	stackLevel   int
 	EndFunc      func()
@@ -39,20 +39,18 @@ func NewSource(g Generator, stackLevel int) *Source {
 	ps.Generator = g
 	ps.stackLevel = stackLevel
 	ps.Allocator = DefaultAllocator
-	ps.Init()
-	return ps
-}
-
-// Init allows a source to be considered as an entity, and initializes it
-func (ps *Source) Init() event.CallerID {
-	CID := event.DefaultCallerMap.Register(ps)
+	cid := event.DefaultCallerMap.Register(ps)
 	ps.stopRotateAt = time.Now().Add(
 		time.Duration(ps.Generator.GetBaseGenerator().Duration.Poll()) * time.Millisecond)
 
-	ps.rotateBinding = event.Bind(event.DefaultBus, event.Enter, CID, rotateParticles)
-	ps.CID = CID
-	ps.pIDBlock = ps.Allocate(ps.CID)
-	return CID
+	ps.rotateBinding = event.Bind(event.DefaultBus, event.Enter, ps, rotateParticles)
+	ps.CallerID = cid
+	ps.pIDBlock = ps.Allocate(ps.CallerID)
+	return ps
+}
+
+func (ps *Source) CID() event.CallerID {
+	return ps.CallerID
 }
 
 func (ps *Source) cycleParticles() bool {
@@ -179,8 +177,7 @@ func (ps *Source) addParticles() {
 
 // rotateParticles updates particles over time as long
 // as a Source is active.
-func rotateParticles(id event.CallerID, _ event.EnterPayload) event.Response {
-	ps := event.DefaultCallerMap.GetEntity(id).(*Source)
+func rotateParticles(ps *Source, _ event.EnterPayload) event.Response {
 	if ps.stopped {
 		return 0
 	}
@@ -200,25 +197,20 @@ func rotateParticles(id event.CallerID, _ event.EnterPayload) event.Response {
 
 // clearParticles is used after a Source has been stopped
 // to continue moving old particles for as long as they exist.
-func clearParticles(id event.CallerID, _ event.EnterPayload) event.Response {
-	iface := event.DefaultCallerMap.GetEntity(id)
-	if ps, ok := iface.(*Source); ok {
-		if !ps.paused {
-			if ps.cycleParticles() {
-			} else {
-				if ps.EndFunc != nil {
-					ps.EndFunc()
-				}
-				// TODO: not default
-				event.DefaultCallerMap.DestroyEntity(id)
-				ps.Deallocate(ps.pIDBlock)
-				return event.UnbindThis
+func clearParticles(ps *Source, _ event.EnterPayload) event.Response {
+	if !ps.paused {
+		if ps.cycleParticles() {
+		} else {
+			if ps.EndFunc != nil {
+				ps.EndFunc()
 			}
+			// TODO: not default
+			event.DefaultCallerMap.DestroyEntity(ps.CID())
+			ps.Deallocate(ps.pIDBlock)
+			return event.UnbindThis
 		}
-
-		return 0
 	}
-	return event.UnbindThis
+	return 0
 }
 
 // Stop manually stops a Source, if its duration is infinite
@@ -229,7 +221,7 @@ func (ps *Source) Stop() {
 	}
 	ps.stopped = true
 	ps.rotateBinding.Unbind()
-	event.Bind(event.DefaultBus, event.Enter, ps.CID, clearParticles)
+	event.Bind(event.DefaultBus, event.Enter, ps, clearParticles)
 }
 
 // Pause on a Source just stops the repetition

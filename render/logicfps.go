@@ -17,12 +17,8 @@ type LogicFPS struct {
 	Smoothing float64
 }
 
-// Init satisfies event.Entity
-func (lf *LogicFPS) Init() event.CallerID {
-	// TODO: not default caller map
-	id := event.DefaultCallerMap.Register(lf)
-	lf.CallerID = id
-	return id
+func (lf LogicFPS) CID() event.CallerID {
+	return lf.CallerID
 }
 
 // NewLogicFPS returns a LogicFPS, which will render a counter of how fast it receives event.Enter events.
@@ -39,17 +35,14 @@ func NewLogicFPS(smoothing float64, font *Font, x, y float64) *LogicFPS {
 		lastTime:  time.Now(),
 	}
 	lf.Text = font.NewIntText(&lf.fps, x, y)
-	lf.Init()
+	lf.CallerID = event.DefaultCallerMap.Register(lf)
 	// TODO: not default bus
-	event.Bind(event.DefaultBus, event.Enter, lf.CallerID, logicFPSBind)
+	event.Bind(event.DefaultBus, event.Enter, lf, logicFPSBind)
 
 	return lf
 }
 
-func logicFPSBind(id event.CallerID, _ event.EnterPayload) event.Response {
-	// TODO v4: should bindings give you an interface instead of a callerID, so bindings don't need to
-	// know what caller map to look up the caller from?
-	lf := event.DefaultCallerMap.GetEntity(id).(*LogicFPS)
+func logicFPSBind(lf *LogicFPS, _ event.EnterPayload) event.Response {
 	t := time.Now()
 	lf.fps = int((timing.FPS(lf.lastTime, t) * lf.Smoothing) + (float64(lf.fps) * (1 - lf.Smoothing)))
 	lf.lastTime = t
