@@ -18,9 +18,13 @@ type Reactive struct {
 // NewReactive returns a new Reactive struct. The added space will
 // be added to the input tree, or DefTree if none is given.
 func NewReactive(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CallerID) *Reactive {
-	rct := Reactive{}
-	cid = cid.Parse(&rct)
-	rct.Doodad = *NewDoodad(x, y, r, cid)
+	rct := &Reactive{}
+	if cid == 0 {
+		rct.CallerID = event.DefaultCallerMap.Register(rct)
+	} else {
+		rct.CallerID = cid
+	}
+	rct.Doodad = *NewDoodad(x, y, r, rct.CallerID)
 	rct.W = w
 	rct.H = h
 	rct.RSpace = collision.NewReactiveSpace(collision.NewSpace(x, y, w, h, cid), map[collision.Label]collision.OnHit{})
@@ -30,7 +34,7 @@ func NewReactive(x, y, w, h float64, r render.Renderable, tree *collision.Tree, 
 	rct.RSpace.Tree = tree
 	rct.Tree = tree
 	rct.Tree.Add(rct.RSpace.Space)
-	return &rct
+	return rct
 }
 
 // SetDim sets the dimensions of this reactive's space and it's logical dimensions
@@ -72,10 +76,8 @@ func (r *Reactive) GetReactiveSpace() *collision.ReactiveSpace {
 
 // Overwrites
 
-// Init satisfies event.Entity
-func (r *Reactive) Init() event.CallerID {
-	r.CID = event.NextID(r)
-	return r.CID
+func (r *Reactive) CID() event.CallerID {
+	return r.CallerID
 }
 
 // ShiftPos acts like SetPos if given r.X()+x, r.Y()+y

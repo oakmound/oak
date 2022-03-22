@@ -17,20 +17,21 @@ type Interactive struct {
 func NewInteractive(x, y, w, h float64, r render.Renderable, tree *collision.Tree,
 	cid event.CallerID, friction float64) *Interactive {
 
-	i := Interactive{}
-	cid = cid.Parse(&i)
-	i.Reactive = *NewReactive(x, y, w, h, r, tree, cid)
+	i := &Interactive{}
+	if cid == 0 {
+		i.CallerID = event.DefaultCallerMap.Register(i)
+	} else {
+		i.CallerID = cid
+	}
+	i.Reactive = *NewReactive(x, y, w, h, r, tree, i.CallerID)
 	i.vMoving = vMoving{
 		Delta:    physics.NewVector(0, 0),
 		Speed:    physics.NewVector(0, 0),
 		Friction: friction,
 	}
-	return &i
+	return i
 }
 
-// Init satisfies event.Entity
-func (iv *Interactive) Init() event.CallerID {
-	cID := event.NextID(iv)
-	iv.CID = cID
-	return cID
+func (i *Interactive) CID() event.CallerID {
+	return i.CallerID
 }

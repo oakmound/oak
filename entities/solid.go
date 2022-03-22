@@ -18,9 +18,13 @@ type Solid struct {
 // belongs to the given collision tree. If nil is given as the tree, it will
 // belong to collision.DefTree
 func NewSolid(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CallerID) *Solid {
-	s := Solid{}
-	cid = cid.Parse(&s)
-	s.Doodad = *NewDoodad(x, y, r, cid)
+	s := &Solid{}
+	if cid == 0 {
+		s.CallerID = event.DefaultCallerMap.Register(s)
+	} else {
+		s.CallerID = cid
+	}
+	s.Doodad = *NewDoodad(x, y, r, s.CallerID)
 	s.W = w
 	s.H = h
 	if tree == nil {
@@ -29,7 +33,11 @@ func NewSolid(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid
 	s.Tree = tree
 	s.Space = collision.NewSpace(x, y, w, h, cid)
 	s.Tree.Add(s.Space)
-	return &s
+	return s
+}
+
+func (s *Solid) CID() event.CallerID {
+	return s.CallerID
 }
 
 // SetDim sets the logical dimensions of the solid and the real
@@ -97,12 +105,6 @@ func (s *Solid) HitLabel(classtype collision.Label) *collision.Space {
 }
 
 // Overwrites
-
-// Init satisfies event.Entity
-func (s *Solid) Init() event.CallerID {
-	s.CID = event.NextID(s)
-	return s.CID
-}
 
 // SetPos sets the position of the collision space, the logical position,
 // and the renderable position of the solid.
