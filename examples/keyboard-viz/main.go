@@ -8,6 +8,7 @@ import (
 	"github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/alg/floatgeom"
 	"github.com/oakmound/oak/v3/debugtools/inputviz"
+	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
 )
@@ -15,6 +16,7 @@ import (
 func main() {
 	oak.AddScene("keyviz", scene.Scene{
 		Start: func(ctx *scene.Context) {
+			fmt.Println("start")
 			fnt, _ := render.DefFontGenerator.RegenerateWith(func(fg render.FontGenerator) render.FontGenerator {
 				fg.Color = image.NewUniform(color.RGBA{0, 0, 0, 255})
 				fg.Size = 13
@@ -30,6 +32,7 @@ func main() {
 		},
 	})
 	err := oak.Init("keyviz", func(c oak.Config) (oak.Config, error) {
+		c.Debug.Level = dlog.VERBOSE.String()
 		c.Screen.Width = 800
 		c.Screen.Height = 300
 		return c, nil

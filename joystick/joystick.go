@@ -31,7 +31,7 @@ const (
 	InputRightStick    Input = "RightStick"
 )
 
-// Events. All events include a *State payload.
+// Events. All events but Disconnected include a *State payload.
 var (
 	Change          = event.RegisterEvent[*State]()
 	ButtonDown      = event.RegisterEvent[*State]()
@@ -40,7 +40,8 @@ var (
 	LtTriggerChange = event.RegisterEvent[*State]()
 	RtStickChange   = event.RegisterEvent[*State]()
 	LtStickChange   = event.RegisterEvent[*State]()
-	Disconnected    = event.RegisterEvent[*State]()
+	// Disconnected includes the ID of the joystick that disconnected.
+	Disconnected = event.RegisterEvent[uint32]()
 )
 
 // Init calls any os functions necessary to detect joysticks

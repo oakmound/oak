@@ -12,9 +12,6 @@ type Scene struct {
 	// what scene came before this one and a direct reference to clean data structures
 	// for event handling and rendering
 	Start func(ctx *Context)
-	// If Loop returns true, the scene will continue
-	// If Loop returns false, End will be called to determine the next scene
-	Loop func() (cont bool)
 	// End is a function returning the next scene and a SceneResult of
 	// input settings for the next scene.
 	End func() (nextScene string, result *Result)
@@ -25,19 +22,6 @@ type Scene struct {
 type Result struct {
 	NextSceneInput interface{}
 	Transition
-}
-
-// BooleanLoop returns a Loop function that will end a scene as soon as the
-// input boolean is false, resetting it to true in the process for the
-// next scene
-func BooleanLoop(b *bool) func() (cont bool) {
-	return func() bool {
-		if !(*b) {
-			*b = true
-			return false
-		}
-		return true
-	}
 }
 
 // GoTo returns an End function that, without any other customization possible,

@@ -14,10 +14,17 @@ import (
 // for preloading assets
 const oakLoadingScene = "oak:loading"
 
-func (w *Window) sceneLoop(first string, trackingInputs bool) {
+func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 	w.SceneMap.AddScene(oakLoadingScene, scene.Scene{
-		Loop: func() bool {
-			return w.startupLoading
+		Start: func(ctx *scene.Context) {
+			if batchLoad {
+				go func() {
+					w.loadAssets(w.config.Assets.ImagePath, w.config.Assets.AudioPath)
+					w.endLoad()
+				}()
+			} else {
+				go w.endLoad()
+			}
 		},
 		End: func() (string, *scene.Result) {
 			return w.firstScene, &scene.Result{
@@ -98,8 +105,6 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 			case <-w.quitCh:
 				cancel()
 				return
-			case <-w.sceneCh:
-				cont = scen.Loop()
 			case nextSceneOverride = <-w.skipSceneCh:
 				cont = false
 			}

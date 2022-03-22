@@ -43,11 +43,6 @@ type Window struct {
 	// TODO: most of these channels are not closed cleanly
 	transitionCh chan struct{}
 
-	// The Scene channel receives a signal
-	// when a scene's .loop() function should
-	// be called.
-	sceneCh chan struct{}
-
 	// The skip scene channel receives a debug
 	// signal to forcibly go to the next
 	// scene.
@@ -157,8 +152,7 @@ type Window struct {
 	exitError     error
 	ParentContext context.Context
 
-	startupLoading bool
-	useViewBounds  bool
+	useViewBounds bool
 	// UseAspectRatio determines whether new window changes will distort or
 	// maintain the relative width to height ratio of the screen buffer.
 	UseAspectRatio bool
@@ -175,7 +169,6 @@ func NewWindow() *Window {
 	c := &Window{
 		State:         key.NewState(),
 		transitionCh:  make(chan struct{}),
-		sceneCh:       make(chan struct{}),
 		skipSceneCh:   make(chan string),
 		quitCh:        make(chan struct{}),
 		drawCh:        make(chan struct{}),

@@ -38,7 +38,7 @@ func (w *Window) loadAssets(imageDir, audioDir string) {
 
 func (w *Window) endLoad() {
 	dlog.Verb("Done Loading")
-	w.startupLoading = false
+	w.NextScene()
 }
 
 // SetFS updates all calls oak or oak's subpackages will make to read from the given filesystem.
