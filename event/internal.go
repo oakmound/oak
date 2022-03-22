@@ -21,7 +21,7 @@ func (eb *Bus) getBindableList(eventID UnsafeEventID, callerID CallerID) bindabl
 	}
 	bl := eb.bindingMap[eventID][callerID]
 	if bl == nil {
-		bl := make(bindableList)
+		bl = make(bindableList)
 		eb.bindingMap[eventID][callerID] = bl
 	}
 	return bl

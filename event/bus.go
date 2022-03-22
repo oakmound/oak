@@ -73,10 +73,11 @@ func (bus *Bus) EnterLoop(frameDelay time.Duration) {
 	bus.framesElapsed = 0
 	if bus.ticker == nil {
 		bus.ticker = time.NewTicker(frameDelay)
+	} else {
+		bus.ticker.Reset(frameDelay)
 	}
 	bus.doneCh = make(chan struct{})
 	go func() {
-		bus.ticker.Reset(frameDelay)
 		frameDelayF64 := float64(frameDelay)
 		lastTick := time.Now()
 		for {
@@ -101,7 +102,6 @@ func (bus *Bus) EnterLoop(frameDelay time.Duration) {
 func (bus *Bus) Stop() error {
 	if bus.ticker != nil {
 		bus.ticker.Stop()
-		bus.ticker = nil
 	}
 	close(bus.doneCh)
 	return nil

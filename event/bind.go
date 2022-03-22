@@ -110,3 +110,13 @@ func EmptyBinding(f func()) UnsafeBindable {
 		return NoResponse
 	}
 }
+
+func (bus *Bus) UnbindAllFrom(c CallerID) {
+	go func() {
+		bus.mutex.Lock()
+		for _, callerMap := range bus.bindingMap {
+			delete(callerMap, c)
+		}
+		bus.mutex.Unlock()
+	}()
+}

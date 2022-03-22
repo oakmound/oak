@@ -25,10 +25,10 @@ const (
 
 func main() {
 	oak.AddScene("pong",
-		scene.Scene{Start: func(*scene.Context) {
-			newPaddle(20, 200, 1)
-			newPaddle(600, 200, 2)
-			newBall(320, 240)
+		scene.Scene{Start: func(ctx *scene.Context) {
+			newPaddle(ctx, 20, 200, 1)
+			newPaddle(ctx, 600, 200, 2)
+			newBall(ctx, 320, 240)
 			render.Draw(render.DefaultFont().NewIntText(&score2, 200, 20), 3)
 			render.Draw(render.DefaultFont().NewIntText(&score1, 400, 20), 3)
 		}})
@@ -38,10 +38,10 @@ func main() {
 	})
 }
 
-func newBall(x, y float64) {
+func newBall(ctx *scene.Context, x, y float64) {
 	b := entities.NewMoving(x, y, 10, 10, render.NewColorBoxR(10, 10, color.RGBA{255, 255, 255, 255}), nil, 0, 0)
 	render.Draw(b.R, 2)
-	b.Bind(event.Enter, func(id event.CallerID, nothing interface{}) int {
+	event.GlobalBind(ctx.EventHandler, event.Enter, func(_ event.EnterPayload) event.Response {
 		if b.Delta.X() == 0 && b.Delta.Y() == 0 {
 			b.Delta.SetY((rand.Float64() - 0.5) * 4)
 			b.Delta.SetX((rand.Float64() - 0.5) * 16)
@@ -70,21 +70,20 @@ func newBall(x, y float64) {
 	})
 }
 
-func newPaddle(x, y float64, player int) {
+func newPaddle(ctx *scene.Context, x, y float64, player int) {
 	p := entities.NewMoving(x, y, 20, 100, render.NewColorBoxR(20, 100, color.RGBA{255, 255, 255, 255}), nil, 0, 0)
 	p.Speed.SetY(8)
 	render.Draw(p.R, 1)
 	p.Space.UpdateLabel(hitPaddle)
 	if player == 1 {
-		p.Bind(event.Enter, enterPaddle(key.UpArrow, key.DownArrow))
+		event.Bind(ctx.EventHandler, event.Enter, p, enterPaddle(key.UpArrow, key.DownArrow))
 	} else {
-		p.Bind(event.Enter, enterPaddle(key.W, key.S))
+		event.Bind(ctx.EventHandler, event.Enter, p, enterPaddle(key.W, key.S))
 	}
 }
 
-func enterPaddle(up, down string) func(event.CallerID, interface{}) int {
-	return func(id event.CallerID, nothing interface{}) int {
-		p := id.E().(*entities.Moving)
+func enterPaddle(up, down string) func(*entities.Moving, event.EnterPayload) event.Response {
+	return func(p *entities.Moving, _ event.EnterPayload) event.Response {
 		p.Delta.SetY(0)
 		if oak.IsDown(up) {
 			p.Delta.SetY(-p.Speed.Y())

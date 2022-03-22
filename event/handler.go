@@ -20,6 +20,7 @@ type Handler interface {
 	Trigger(event UnsafeEventID, data interface{}) chan struct{}
 	UnsafeBind(UnsafeEventID, CallerID, UnsafeBindable) Binding
 	Unbind(Binding)
+	UnbindAllFrom(CallerID)
 	SetCallerMap(*CallerMap)
 	GetCallerMap() *CallerMap
 }
