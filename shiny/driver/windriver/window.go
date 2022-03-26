@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package windriver
@@ -34,11 +35,13 @@ import (
 
 var (
 	windowLock sync.RWMutex
-	allWindows = make(map[win32.HWND]*windowImpl)
+	allWindows = make(map[win32.HWND]*Window)
 )
 
-type windowImpl struct {
+type Window struct {
 	hwnd win32.HWND
+
+	changeLock sync.RWMutex
 
 	event.Deque
 
@@ -50,6 +53,7 @@ type windowImpl struct {
 	fullscreen     bool
 	borderless     bool
 	maximized      bool
+	topMost        bool
 	windowRect     *win32.RECT
 	clientRect     *win32.RECT
 
@@ -59,7 +63,7 @@ type windowImpl struct {
 	trayGUID *win32.GUID
 }
 
-func (w *windowImpl) Release() {
+func (w *Window) Release() {
 	if w.trayGUID != nil {
 		iconData := win32.NOTIFYICONDATA{}
 		iconData.CbSize = uint32(unsafe.Sizeof(iconData))
@@ -71,7 +75,7 @@ func (w *windowImpl) Release() {
 	win32.Release(win32.HWND(w.hwnd))
 }
 
-func (w *windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
+func (w *Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
 	src.(*bufferImpl).preUpload()
 	defer src.(*bufferImpl).postUpload()
 
@@ -83,7 +87,7 @@ func (w *windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle
 	})
 }
 
-func (w *windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
+func (w *Window) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
 	w.execCmd(&cmd{
 		id:    cmdFill,
 		dr:    dr,
@@ -92,7 +96,7 @@ func (w *windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
 	})
 }
 
-func (w *windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	if op != draw.Src && op != draw.Over {
 		// TODO:
 		return
@@ -106,7 +110,7 @@ func (w *windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectang
 	})
 }
 
-func (w *windowImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
+func (w *Window) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
 	if op != draw.Src && op != draw.Over {
 		return
 	}
@@ -119,12 +123,12 @@ func (w *windowImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rec
 	})
 }
 
-func (w *windowImpl) SetTitle(title string) error {
+func (w *Window) SetTitle(title string) error {
 	win32.SetWindowText(w.hwnd, title)
 	return nil
 }
 
-func (w *windowImpl) SetBorderless(borderless bool) error {
+func (w *Window) SetBorderless(borderless bool) error {
 	// Don't set borderless if currently fullscreen.
 	if !w.fullscreen && borderless != w.borderless {
 		if !w.borderless {
@@ -169,7 +173,7 @@ func (w *windowImpl) SetBorderless(borderless bool) error {
 	return nil
 }
 
-func (w *windowImpl) SetFullScreen(fullscreen bool) error {
+func (w *Window) SetFullScreen(fullscreen bool) error {
 	if w.borderless {
 		return errors.New("cannot combine borderless and fullscreen")
 	}
@@ -232,7 +236,7 @@ func (w *windowImpl) SetFullScreen(fullscreen bool) error {
 }
 
 // HideCursor turns the OS cursor into a 1x1 transparent image.
-func (w *windowImpl) HideCursor() error {
+func (w *Window) HideCursor() error {
 	emptyCursor := win32.GetEmptyCursor()
 	success := win32.SetClassLongPtr(w.hwnd, win32.GCLP_HCURSOR, uintptr(emptyCursor))
 	if !success {
@@ -241,7 +245,7 @@ func (w *windowImpl) HideCursor() error {
 	return nil
 }
 
-func (w *windowImpl) SetTrayIcon(iconPath string) error {
+func (w *Window) SetTrayIcon(iconPath string) error {
 	if w.trayGUID == nil {
 		if err := w.createTrayItem(); err != nil {
 			return err
@@ -269,7 +273,7 @@ func (w *windowImpl) SetTrayIcon(iconPath string) error {
 	return nil
 }
 
-func (w *windowImpl) ShowNotification(title, msg string, icon bool) error {
+func (w *Window) ShowNotification(title, msg string, icon bool) error {
 	if w.trayGUID == nil {
 		if err := w.createTrayItem(); err != nil {
 			return err
@@ -292,7 +296,7 @@ func (w *windowImpl) ShowNotification(title, msg string, icon bool) error {
 	return nil
 }
 
-func (w *windowImpl) createTrayItem() error {
+func (w *Window) createTrayItem() error {
 	w.trayGUID = new(win32.GUID)
 	*w.trayGUID = win32.MakeGUID(w.guid)
 	iconData := win32.NOTIFYICONDATA{}
@@ -307,8 +311,8 @@ func (w *windowImpl) createTrayItem() error {
 	return nil
 }
 
-func (w *windowImpl) MoveWindow(x, y, wd, ht int32) error {
-	return win32.MoveWindow(w.hwnd, x, y, wd, ht, true)
+func (w *Window) MoveWindow(x, y, wd, ht int) error {
+	return win32.MoveWindow(w.hwnd, int32(x), int32(y), int32(wd), int32(ht), true)
 }
 
 func drawWindow(dc win32.HDC, src2dst f64.Aff3, src interface{}, sr image.Rectangle, op draw.Op) (retErr error) {
@@ -377,16 +381,16 @@ func drawWindow(dc win32.HDC, src2dst f64.Aff3, src interface{}, sr image.Rectan
 	return fmt.Errorf("unsupported type %T", src)
 }
 
-func (w *windowImpl) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	drawer.Copy(w, dp, src, sr, op)
 }
 
-func (w *windowImpl) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	drawer.Scale(w, dr, src, sr, op)
 }
 
-func (w *windowImpl) Publish() screen.PublishResult {
-	// TODO
+func (w *Window) Publish() screen.PublishResult {
+	// NOP
 	return screen.PublishResult{}
 }
 
@@ -462,7 +466,7 @@ const (
 // msgCmd is the stored value for our handleCmd function for syscalls.
 var msgCmd = win32.AddWindowMsg(handleCmd)
 
-func (w *windowImpl) execCmd(c *cmd) {
+func (w *Window) execCmd(c *cmd) {
 	win32.SendMessage(win32.HWND(w.hwnd), msgCmd, 0, uintptr(unsafe.Pointer(c)))
 	if c.err != nil {
 		panic(fmt.Sprintf("execCmd faild for cmd.id=%d: %v", c.id, c.err)) // TODO handle errors
@@ -495,8 +499,37 @@ func handleCmd(hwnd win32.HWND, uMsg uint32, wParam, lParam uintptr) {
 	}
 }
 
-func (w *windowImpl) GetCursorPosition() (x, y float64) {
+func (w *Window) GetCursorPosition() (x, y float64) {
+	w.changeLock.RLock()
+	defer w.changeLock.RUnlock()
+
 	w.windowRect, _ = win32.GetWindowRect(w.hwnd)
 	xint, yint, _ := win32.GetCursorPos()
 	return float64(xint) - float64(w.windowRect.Left), float64(yint) - float64(w.windowRect.Top)
+}
+
+func (w *Window) SetTopMost(topMost bool) error {
+	w.changeLock.Lock()
+	defer w.changeLock.Unlock()
+
+	if w.topMost == topMost {
+		return nil
+	}
+
+	// Note: although you can change a window's ex style to include EX_TOPMOST
+	// this will not work after window creation. The following is what you need to
+	// do instead.
+
+	var ok bool
+	if topMost {
+		ok = win32.SetWindowPos(w.hwnd, win32.HWND_TOPMOST, 0, 0, 0, 0, win32.SWP_NOMOVE|win32.SWP_NOSIZE)
+	} else {
+		ok = win32.SetWindowPos(w.hwnd, win32.HWND_NOTOPMOST, 0, 0, 0, 0, win32.SWP_NOMOVE|win32.SWP_NOSIZE)
+	}
+	if !ok {
+		// TODO: extract and parse os error
+		return fmt.Errorf("failed to set top most")
+	}
+	w.topMost = topMost
+	return nil
 }

@@ -175,7 +175,7 @@ func HideCursor() error {
 }
 
 // GetCursorPosition calls GetCursorPosition on the default window.
-func GetCursorPosition() (x, y float64, err error) {
+func GetCursorPosition() (x, y float64) {
 	initDefaultWindow()
 	return defaultWindow.GetCursorPosition()
 }

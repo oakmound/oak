@@ -13,18 +13,21 @@ import (
 const (
 	borderlessAtStart = false
 	fullscreenAtStart = false
+	topMostAtStart    = false
 )
 
 func main() {
 	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
-		txt := render.NewText("Press F to toggle fullscreen. Press B to toggle borderless.", 50, 50)
+		txt := render.NewText("Press F to toggle fullscreen. Press B to toggle borderless. Press T to toggle topmost", 50, 50)
 		render.Draw(txt)
 
 		borderless := borderlessAtStart
 		fullscreen := fullscreenAtStart
+		topMost := topMostAtStart
 
 		event.GlobalBind(key.Down+key.F, func(event.CID, interface{}) int {
 			fullscreen = !fullscreen
+			fmt.Println("Setting fullscreen:", fullscreen)
 			err := oak.SetFullScreen(fullscreen)
 			if err != nil {
 				fullscreen = !fullscreen
@@ -34,9 +37,20 @@ func main() {
 		})
 		event.GlobalBind(key.Down+key.B, func(event.CID, interface{}) int {
 			borderless = !borderless
+			fmt.Println("Setting borderless:", borderless)
 			err := oak.SetBorderless(borderless)
 			if err != nil {
 				borderless = !borderless
+				fmt.Println(err)
+			}
+			return 0
+		})
+		event.GlobalBind(key.Down+key.T, func(event.CID, interface{}) int {
+			topMost = !topMost
+			fmt.Println("Setting top most:", topMost)
+			err := oak.SetTopMost(topMost)
+			if err != nil {
+				topMost = !topMost
 				fmt.Println(err)
 			}
 			return 0
@@ -45,6 +59,7 @@ func main() {
 	}})
 
 	oak.Init("demo", func(c oak.Config) (oak.Config, error) {
+		c.TopMost = topMostAtStart
 		// Both cannot be true at once!
 		c.Borderless = borderlessAtStart
 		c.Fullscreen = fullscreenAtStart

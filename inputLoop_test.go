@@ -12,15 +12,15 @@ import (
 func TestInputLoop(t *testing.T) {
 	c1 := blankScene(t)
 	c1.SetLogicHandler(event.NewBus(nil))
-	c1.windowControl.Send(okey.Event{
+	c1.Window.Send(okey.Event{
 		Direction: key.DirPress,
 		Code:      key.Code0,
 	})
-	c1.windowControl.Send(okey.Event{
+	c1.Window.Send(okey.Event{
 		Direction: key.DirNone,
 		Code:      key.Code0,
 	})
-	c1.windowControl.Send(okey.Event{
+	c1.Window.Send(okey.Event{
 		Direction: key.DirRelease,
 		Code:      key.Code0,
 	})

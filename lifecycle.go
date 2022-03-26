@@ -37,7 +37,7 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 	go w.inputLoop()
 
 	<-w.quitCh
-	w.windowControl.Release()
+	w.Window.Release()
 }
 
 // Quit sends a signal to the window to close itself, closing the window and
@@ -45,10 +45,10 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 // it must not be called again.
 func (w *Window) Quit() {
 	// We could have hit this before the window was created
-	if w.windowControl == nil {
+	if w.Window == nil {
 		close(w.quitCh)
 	} else {
-		w.windowControl.Send(lifecycle.Event{To: lifecycle.StageDead})
+		w.Window.Send(lifecycle.Event{To: lifecycle.StageDead})
 	}
 	if w.config.EnableDebugConsole {
 		debugstream.DefaultCommands.RemoveScope(w.ControllerID)
@@ -62,7 +62,7 @@ func (w *Window) newWindow(x, y int32, width, height int) error {
 	if err != nil {
 		return err
 	}
-	w.windowControl = wC
+	w.Window = wC
 	return w.ChangeWindow(width, height)
 }
 
@@ -83,7 +83,7 @@ func (w *Window) ChangeWindow(width, height int) error {
 	buff, err := w.screenControl.NewImage(image.Point{width, height})
 	if err == nil {
 		draw.Draw(buff.RGBA(), buff.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
-		w.windowControl.Upload(zeroPoint, buff, buff.Bounds())
+		w.Window.Upload(zeroPoint, buff, buff.Bounds())
 	} else {
 		return err
 	}
