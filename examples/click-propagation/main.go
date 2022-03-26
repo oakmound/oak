@@ -26,7 +26,7 @@ func main() {
 			for x := 20.0; x < 400; x += 20 {
 				z++
 				y -= 20
-				newHoverButton(x, y, 35, 35, color.RGBA{200, 200, 200, 200}, z)
+				newHoverButton(ctx, x, y, 35, 35, color.RGBA{200, 200, 200, 200}, z)
 			}
 		},
 	})
@@ -40,44 +40,38 @@ type hoverButton struct {
 	*changingColorBox
 }
 
-func (hb *hoverButton) Init() event.CallerID {
-	hb.id = event.NextID(hb)
+func (hb *hoverButton) CID() event.CallerID {
 	return hb.id
 }
 
-func newHoverButton(x, y, w, h float64, clr color.RGBA, layer int) {
+func newHoverButton(ctx *scene.Context, x, y, w, h float64, clr color.RGBA, layer int) {
 	hb := &hoverButton{}
-	hb.Init()
+	hb.id = ctx.CallerMap.Register(hb)
 	hb.changingColorBox = newChangingColorBox(x, y, int(w), int(h), clr)
 
 	sp := collision.NewSpace(x, y, w, h, hb.id)
 	sp.SetZLayer(float64(layer))
 
 	mouse.Add(sp)
-	mouse.PhaseCollision(sp)
+	mouse.PhaseCollision(sp, ctx.EventHandler.GetCallerMap(), ctx.EventHandler)
 
 	render.Draw(hb.changingColorBox, 0, layer)
-	hb.id.Bind(mouse.ClickOn, func(c event.CallerID, i interface{}) int {
-		hb := event.GetEntity(c).(*hoverButton)
-		me := i.(*mouse.Event)
-		fmt.Println(c, me.Point2)
-		hb.changingColorBox.c = color.RGBA{128, 128, 128, 128}
+
+	event.Bind(ctx.EventHandler, mouse.Click, hb, func(box *hoverButton, me *mouse.Event) event.Response {
+		fmt.Println(box, me.Point2)
+		box.changingColorBox.c = color.RGBA{128, 128, 128, 128}
 		me.StopPropagation = true
 		return 0
 	})
-	hb.id.Bind(mouse.Start, func(c event.CallerID, i interface{}) int {
+	event.Bind(ctx.EventHandler, mouse.Start, hb, func(box *hoverButton, me *mouse.Event) event.Response {
 		fmt.Println("start")
-		hb := event.GetEntity(c).(*hoverButton)
-		me := i.(*mouse.Event)
-		hb.changingColorBox.c = color.RGBA{50, 50, 50, 50}
+		box.changingColorBox.c = color.RGBA{50, 50, 50, 50}
 		me.StopPropagation = true
 		return 0
 	})
-	hb.id.Bind(mouse.Stop, func(c event.CallerID, i interface{}) int {
+	event.Bind(ctx.EventHandler, mouse.Stop, hb, func(box *hoverButton, me *mouse.Event) event.Response {
 		fmt.Println("stop")
-		hb := event.GetEntity(c).(*hoverButton)
-		me := i.(*mouse.Event)
-		hb.changingColorBox.c = clr
+		box.changingColorBox.c = clr
 		me.StopPropagation = true
 		return 0
 	})
