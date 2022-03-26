@@ -57,19 +57,19 @@ func newHoverButton(ctx *scene.Context, x, y, w, h float64, clr color.RGBA, laye
 
 	render.Draw(hb.changingColorBox, 0, layer)
 
-	event.Bind(ctx.Handler, mouse.Click, hb, func(box *hoverButton, me *mouse.Event) event.Response {
+	event.Bind(ctx, mouse.Click, hb, func(box *hoverButton, me *mouse.Event) event.Response {
 		fmt.Println(box, me.Point2)
 		box.changingColorBox.c = color.RGBA{128, 128, 128, 128}
 		me.StopPropagation = true
 		return 0
 	})
-	event.Bind(ctx.Handler, mouse.Start, hb, func(box *hoverButton, me *mouse.Event) event.Response {
+	event.Bind(ctx, mouse.Start, hb, func(box *hoverButton, me *mouse.Event) event.Response {
 		fmt.Println("start")
 		box.changingColorBox.c = color.RGBA{50, 50, 50, 50}
 		me.StopPropagation = true
 		return 0
 	})
-	event.Bind(ctx.Handler, mouse.Stop, hb, func(box *hoverButton, me *mouse.Event) event.Response {
+	event.Bind(ctx, mouse.Stop, hb, func(box *hoverButton, me *mouse.Event) event.Response {
 		fmt.Println("stop")
 		box.changingColorBox.c = clr
 		me.StopPropagation = true

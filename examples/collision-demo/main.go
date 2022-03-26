@@ -26,7 +26,7 @@ func main() {
 
 		collision.Attach(act.Vector, act.Space, nil, 0, 0)
 
-		event.Bind(ctx.Handler, event.Enter, act, func(act *AttachCollisionTest, ev event.EnterPayload) event.Response {
+		event.Bind(ctx, event.Enter, act, func(act *AttachCollisionTest, ev event.EnterPayload) event.Response {
 			if act.ShouldUpdate {
 				act.ShouldUpdate = false
 				act.R.Undraw()
@@ -57,7 +57,7 @@ func main() {
 
 		collision.PhaseCollision(act.Space, nil)
 
-		event.Bind(ctx.Handler, collision.Start, act, func(act *AttachCollisionTest, l collision.Label) event.Response {
+		event.Bind(ctx, collision.Start, act, func(act *AttachCollisionTest, l collision.Label) event.Response {
 			switch l {
 			case RED:
 				act.r += 125
@@ -75,7 +75,7 @@ func main() {
 			}
 			return 0
 		})
-		event.Bind(ctx.Handler, collision.Stop, act, func(act *AttachCollisionTest, l collision.Label) event.Response {
+		event.Bind(ctx, collision.Stop, act, func(act *AttachCollisionTest, l collision.Label) event.Response {
 			switch l {
 			case RED:
 				act.r -= 125

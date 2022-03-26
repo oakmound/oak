@@ -72,8 +72,8 @@ func (cm *CallerMap) DestroyEntity(id CallerID) {
 	cm.callersLock.Unlock()
 }
 
-// Reset clears the caller map to forget all registered callers.
-func (cm *CallerMap) Reset() {
+// Clear clears the caller map to forget all registered callers.
+func (cm *CallerMap) Clear() {
 	cm.callersLock.Lock()
 	*cm.highestID = 0
 	cm.callers = map[CallerID]Caller{}

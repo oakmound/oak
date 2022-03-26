@@ -221,7 +221,7 @@ func (k *Keyboard) RenderAndListen(ctx *scene.Context, layer int) error {
 		}
 	}
 
-	b1 := event.Bind(ctx.Handler, key.AnyDown, k, func(kb *Keyboard, ev key.Event) event.Response {
+	b1 := event.Bind(ctx, key.AnyDown, k, func(kb *Keyboard, ev key.Event) event.Response {
 		btn := ev.Code.String()[4:]
 		if kb.rs[btn] == nil {
 			return 0
@@ -229,7 +229,7 @@ func (k *Keyboard) RenderAndListen(ctx *scene.Context, layer int) error {
 		kb.rs[btn].Set("pressed")
 		return 0
 	})
-	b2 := event.Bind(ctx.Handler, key.AnyUp, k, func(kb *Keyboard, ev key.Event) event.Response {
+	b2 := event.Bind(ctx, key.AnyUp, k, func(kb *Keyboard, ev key.Event) event.Response {
 		btn := ev.Code.String()[4:]
 		if kb.rs[btn] == nil {
 			return 0
