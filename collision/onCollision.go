@@ -22,6 +22,10 @@ func (cp *Phase) getCollisionPhase() *Phase {
 	return cp
 }
 
+func (cp *Phase) CID() event.CallerID {
+	return cp.OnCollisionS.CID
+}
+
 type collisionPhase interface {
 	getCollisionPhase() *Phase
 }
@@ -31,13 +35,12 @@ type collisionPhase interface {
 // entities begin to collide or stop colliding with the space.
 // If tree is nil, it uses DefTree
 func PhaseCollision(s *Space, tree *Tree) error {
-	return PhaseCollisionWithBus(s, tree, event.DefaultBus, event.DefaultCallerMap)
+	return PhaseCollisionWithBus(s, tree, event.DefaultBus)
 }
 
-// PhaseCollisionWithBus allows for a non-default bus and non-default entity mapping
-// in a phase collision binding.
-func PhaseCollisionWithBus(s *Space, tree *Tree, bus event.Handler, entities *event.CallerMap) error {
-	en := entities.GetEntity(s.CID)
+// PhaseCollisionWithBus allows for a non-default bus in a phase collision binding.
+func PhaseCollisionWithBus(s *Space, tree *Tree, bus event.Handler) error {
+	en := bus.GetCallerMap().GetEntity(s.CID)
 	if cp, ok := en.(collisionPhase); ok {
 		oc := cp.getCollisionPhase()
 		oc.OnCollisionS = s

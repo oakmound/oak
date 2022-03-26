@@ -39,7 +39,11 @@ type attachSpace interface {
 
 // Attach attaches v to the given space with optional x,y offsets. See AttachSpace.
 func Attach(v physics.Vector, s *Space, tree *Tree, offsets ...float64) error {
-	en := event.DefaultCallerMap.GetEntity(s.CID)
+	return AttachWithBus(v, s, tree, event.DefaultBus, offsets...)
+}
+
+func AttachWithBus(v physics.Vector, s *Space, tree *Tree, bus event.Handler, offsets ...float64) error {
+	en := bus.GetCallerMap().GetEntity(s.CID)
 	if t, ok := en.(attachSpace); ok {
 		as := t.getAttachSpace()
 		as.aSpace = &s
@@ -48,7 +52,7 @@ func Attach(v physics.Vector, s *Space, tree *Tree, offsets ...float64) error {
 		if as.tree == nil {
 			as.tree = DefaultTree
 		}
-		as.binding = event.Bind(event.DefaultBus, event.Enter, t, attachSpaceEnter)
+		as.binding = event.Bind(bus, event.Enter, t, attachSpaceEnter)
 		if len(offsets) > 0 {
 			as.offX = offsets[0]
 			if len(offsets) > 1 {
@@ -63,7 +67,11 @@ func Attach(v physics.Vector, s *Space, tree *Tree, offsets ...float64) error {
 // Detach removes the attachSpaceEnter binding from an entity composed with
 // AttachSpace
 func Detach(s *Space) error {
-	en := event.DefaultCallerMap.GetEntity(s.CID)
+	return DetachWithBus(s, event.DefaultBus)
+}
+
+func DetachWithBus(s *Space, bus event.Handler) error {
+	en := bus.GetCallerMap().GetEntity(s.CID)
 	if as, ok := en.(attachSpace); ok {
 		as.getAttachSpace().binding.Unbind()
 		return nil
