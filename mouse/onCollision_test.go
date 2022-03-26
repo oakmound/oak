@@ -11,51 +11,56 @@ import (
 
 type cphase struct {
 	CollisionPhase
-}
-
-func (cp *cphase) Init() event.CallerID {
-	return event.NextID(cp)
+	callers *event.CallerMap
 }
 
 func TestCollisionPhase(t *testing.T) {
+	b := event.NewBus(event.NewCallerMap())
 	go func() {
 		for {
 			<-time.After(5 * time.Millisecond)
-			<-event.TriggerBack(event.Enter, nil)
+			<-event.TriggerOn(b, event.Enter, event.EnterPayload{})
 		}
 	}()
-	cp := cphase{}
-	cid := cp.Init()
+	cp := &cphase{}
+	cid := b.GetCallerMap().Register(cp)
 	s := collision.NewSpace(10, 10, 10, 10, cid)
-	if PhaseCollision(s) != nil {
-		t.Fatalf("phase collision errored")
+	err := PhaseCollision(s, b)
+	if err != nil {
+		t.Fatalf("phase collision failed: %v", err)
 	}
-	var active bool
-	cid.Bind("MouseCollisionStart", func(event.CallerID, interface{}) int {
-		active = true
+	activeCh := make(chan bool, 5)
+	b1 := event.Bind(b, Start, cp, func(_ *cphase, _ *Event) event.Response {
+		activeCh <- true
 		return 0
 	})
-	cid.Bind("MouseCollisionStop", func(event.CallerID, interface{}) int {
-		active = false
+	b2 := event.Bind(b, Stop, cp, func(_ *cphase, _ *Event) event.Response {
+		activeCh <- false
 		return 0
 	})
-	time.Sleep(200 * time.Millisecond)
+	<-b1.Bound
+	<-b2.Bound
 	LastEvent = Event{
 		Point2: floatgeom.Point2{10, 10},
 	}
-	time.Sleep(200 * time.Millisecond)
-	if !active {
-		t.Fatalf("phase collision did not trigger")
+	if active := <-activeCh; !active {
+		t.Fatalf("collision should be active")
 	}
+
 	LastEvent = Event{
 		Point2: floatgeom.Point2{21, 21},
 	}
 	time.Sleep(200 * time.Millisecond)
-	if active {
-		t.Fatalf("phase collision triggered innapropriately")
+	if active := <-activeCh; active {
+		t.Fatalf("collision should be inactive")
 	}
-	s = collision.NewSpace(10, 10, 10, 10, 5)
-	if PhaseCollision(s) == nil {
-		t.Fatalf("phase collision did not error on invalid space")
+}
+
+func TestPhaseCollision_Unembedded(t *testing.T) {
+	t.Parallel()
+	s3 := collision.NewSpace(10, 10, 10, 10, 5)
+	err := PhaseCollision(s3, event.DefaultBus)
+	if err == nil {
+		t.Fatalf("phase collision should have failed")
 	}
 }

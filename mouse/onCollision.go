@@ -21,6 +21,10 @@ func (cp *CollisionPhase) getCollisionPhase() *CollisionPhase {
 	return cp
 }
 
+func (cp *CollisionPhase) CID() event.CallerID {
+	return cp.OnCollisionS.CID
+}
+
 type collisionPhase interface {
 	getCollisionPhase() *CollisionPhase
 }
@@ -28,15 +32,12 @@ type collisionPhase interface {
 // PhaseCollision binds to the entity behind the space's CID so that it will
 // receive MouseCollisionStart and MouseCollisionStop events, appropriately when
 // the mouse begins to hover or stops hovering over the input space.
-func PhaseCollision(s *collision.Space, callerMap *event.CallerMap, handler event.Handler) error {
-	if callerMap == nil {
-		callerMap = event.DefaultCallerMap
-	}
-	en := callerMap.GetEntity(s.CID)
+func PhaseCollision(s *collision.Space, handler event.Handler) error {
+	en := handler.GetCallerMap().GetEntity(s.CID)
 	if cp, ok := en.(collisionPhase); ok {
 		oc := cp.getCollisionPhase()
 		oc.OnCollisionS = s
-		oc.CallerMap = callerMap
+		oc.CallerMap = handler.GetCallerMap()
 		handler.UnsafeBind(event.Enter.UnsafeEventID, s.CID, phaseCollisionEnter)
 		return nil
 	}
