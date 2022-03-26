@@ -20,13 +20,13 @@ const (
 )
 
 func main() {
-	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
+	oak.AddScene("demo", scene.Scene{Start: func(ctx *scene.Context) {
 		act := &AttachCollisionTest{}
-		act.Solid = entities.NewSolid(50, 50, 50, 50, render.NewColorBox(50, 50, color.RGBA{0, 0, 0, 255}), nil, act.Init())
+		act.Solid = entities.NewSolid(50, 50, 50, 50, render.NewColorBox(50, 50, color.RGBA{0, 0, 0, 255}), nil, ctx.CallerMap.Register(act))
 
 		collision.Attach(act.Vector, act.Space, nil, 0, 0)
 
-		act.Bind(event.Enter, func(event.CallerID, interface{}) int {
+		event.Bind(ctx.EventHandler, event.Enter, act, func(act *AttachCollisionTest, ev event.EnterPayload) event.Response {
 			if act.ShouldUpdate {
 				act.ShouldUpdate = false
 				act.R.Undraw()
@@ -56,8 +56,8 @@ func main() {
 		render.Draw(act.R, 0, 1)
 
 		collision.PhaseCollision(act.Space, nil)
-		act.Bind(collision.Start, func(id event.CallerID, label interface{}) int {
-			l := label.(collision.Label)
+
+		event.Bind(ctx.EventHandler, collision.Start, act, func(act *AttachCollisionTest, l collision.Label) event.Response {
 			switch l {
 			case RED:
 				act.r += 125
@@ -75,8 +75,7 @@ func main() {
 			}
 			return 0
 		})
-		act.Bind(collision.Stop, func(id event.CallerID, label interface{}) int {
-			l := label.(collision.Label)
+		event.Bind(ctx.EventHandler, collision.Stop, act, func(act *AttachCollisionTest, l collision.Label) event.Response {
 			switch l {
 			case RED:
 				act.r -= 125
@@ -136,10 +135,12 @@ type AttachCollisionTest struct {
 	nextR        render.Renderable
 }
 
-func (act *AttachCollisionTest) Init() event.CallerID {
-	return event.NextID(act)
+// CID returns the event.CallerID so that this can be bound to.
+func (act *AttachCollisionTest) CID() event.CallerID {
+	return act.CallerID
 }
 
+// UpdateR with the rgb set on the act.
 func (act *AttachCollisionTest) UpdateR() {
 	act.nextR = render.NewColorBox(50, 50, color.RGBA{uint8(act.r), uint8(act.g), uint8(act.b), 255})
 	act.nextR.SetPos(act.X(), act.Y())
