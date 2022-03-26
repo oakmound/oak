@@ -74,7 +74,7 @@ func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 				PreviousScene: prevScene,
 				SceneInput:    result.NextSceneInput,
 				DrawStack:     w.DrawStack,
-				EventHandler:  w.eventHandler,
+				Handler:       w.eventHandler,
 				CallerMap:     w.CallerMap,
 				MouseTree:     w.MouseTree,
 				CollisionTree: w.CollisionTree,

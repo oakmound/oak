@@ -41,7 +41,7 @@ func main() {
 func newBall(ctx *scene.Context, x, y float64) {
 	b := entities.NewMoving(x, y, 10, 10, render.NewColorBoxR(10, 10, color.RGBA{255, 255, 255, 255}), nil, 0, 0)
 	render.Draw(b.R, 2)
-	event.GlobalBind(ctx.EventHandler, event.Enter, func(_ event.EnterPayload) event.Response {
+	event.GlobalBind(ctx.Handler, event.Enter, func(_ event.EnterPayload) event.Response {
 		if b.Delta.X() == 0 && b.Delta.Y() == 0 {
 			b.Delta.SetY((rand.Float64() - 0.5) * 4)
 			b.Delta.SetX((rand.Float64() - 0.5) * 16)
@@ -76,9 +76,9 @@ func newPaddle(ctx *scene.Context, x, y float64, player int) {
 	render.Draw(p.R, 1)
 	p.Space.UpdateLabel(hitPaddle)
 	if player == 1 {
-		event.Bind(ctx.EventHandler, event.Enter, p, enterPaddle(key.UpArrow, key.DownArrow))
+		event.Bind(ctx.Handler, event.Enter, p, enterPaddle(key.UpArrow, key.DownArrow))
 	} else {
-		event.Bind(ctx.EventHandler, event.Enter, p, enterPaddle(key.W, key.S))
+		event.Bind(ctx.Handler, event.Enter, p, enterPaddle(key.W, key.S))
 	}
 }
 

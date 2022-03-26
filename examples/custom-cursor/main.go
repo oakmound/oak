@@ -37,7 +37,7 @@ func main() {
 			)
 			ctx.DrawStack.Draw(box)
 
-			ctx.EventHandler.GlobalBind(mouse.Drag, func(_ event.CallerID, me interface{}) int {
+			ctx.Handler.GlobalBind(mouse.Drag, func(_ event.CallerID, me interface{}) int {
 				mouseEvent := me.(*mouse.Event)
 				box.SetPos(mouseEvent.X(), mouseEvent.Y())
 				return 0

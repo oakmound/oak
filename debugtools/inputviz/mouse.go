@@ -37,7 +37,7 @@ func (m *Mouse) CID() event.CallerID {
 
 func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 	m.ctx = ctx
-	handler := ctx.EventHandler
+	handler := ctx.Handler
 	m.CallerID = handler.GetCallerMap().Register(m)
 
 	if m.Rect.W() == 0 || m.Rect.H() == 0 {
