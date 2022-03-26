@@ -22,7 +22,6 @@ func TestSequenceTrigger(t *testing.T) {
 	sq := NewSequence(5,
 		NewColorBox(10, 10, color.RGBA{255, 0, 0, 255}),
 		NewColorBox(10, 10, color.RGBA{0, 255, 0, 255}))
-	go event.ResolveChanges()
 	cid := Dummy{}.Init()
 	sq.SetTriggerID(cid)
 	triggerCh := make(chan struct{})

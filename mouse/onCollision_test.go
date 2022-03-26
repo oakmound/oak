@@ -18,7 +18,6 @@ func (cp *cphase) Init() event.CallerID {
 }
 
 func TestCollisionPhase(t *testing.T) {
-	go event.ResolveChanges()
 	go func() {
 		for {
 			<-time.After(5 * time.Millisecond)

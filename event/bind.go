@@ -22,6 +22,9 @@ type Binding struct {
 	EventID  UnsafeEventID
 	CallerID CallerID
 	BindID   BindID
+	// Bound is closed once the binding has been applied. Wait on this condition carefully; bindings
+	// will not take effect while an event is being triggered (e.g. in a even callback's returning thread)
+	Bound <-chan struct{}
 }
 
 // Unbind unbinds the callback associated with this binding from it's own event handler. If this binding
@@ -39,16 +42,19 @@ type BindID int64
 // call is 'unsafe' because UnsafeBindables use bare interface{} types.
 func (bus *Bus) UnsafeBind(eventID UnsafeEventID, callerID CallerID, fn UnsafeBindable) Binding {
 	bindID := BindID(atomic.AddInt64(bus.nextBindID, 1))
+	ch := make(chan struct{})
 	go func() {
 		bus.mutex.Lock()
 		bus.getBindableList(eventID, callerID).storeBindable(fn, bindID)
 		bus.mutex.Unlock()
+		close(ch)
 	}()
 	return Binding{
 		Handler:  bus,
 		EventID:  eventID,
 		CallerID: callerID,
 		BindID:   bindID,
+		Bound:    ch,
 	}
 }
 
@@ -81,12 +87,12 @@ func (bus *Bus) Unbind(loc Binding) {
 
 // A Bindable is a strongly typed callback function to be executed on Trigger. It must be paired
 // with an event registered via RegisterEvent.
-type Bindable[Payload any, C any] func(C, Payload) Response
+type Bindable[C any, Payload any] func(C, Payload) Response
 
-func Bind[Payload any, C Caller](b Handler, ev EventID[Payload], c C, fn Bindable[Payload, C]) Binding {
-	return b.UnsafeBind(ev.UnsafeEventID, c.CID(), func(c CallerID, h Handler, payload interface{}) Response {
+func Bind[C Caller, Payload any](h Handler, ev EventID[Payload], caller C, fn Bindable[C, Payload]) Binding {
+	return h.UnsafeBind(ev.UnsafeEventID, caller.CID(), func(cid CallerID, h Handler, payload interface{}) Response {
 		typedPayload := payload.(Payload)
-		ent := h.GetCallerMap().GetEntity(c)
+		ent := h.GetCallerMap().GetEntity(cid)
 		typedEntity := ent.(C)
 		return fn(typedEntity, typedPayload)
 	})
@@ -94,8 +100,8 @@ func Bind[Payload any, C Caller](b Handler, ev EventID[Payload], c C, fn Bindabl
 
 type GlobalBindable[Payload any] func(Payload) Response
 
-func GlobalBind[Payload any](b Handler, ev EventID[Payload], fn GlobalBindable[Payload]) Binding {
-	return b.UnsafeBind(ev.UnsafeEventID, Global, func(c CallerID, h Handler, payload interface{}) Response {
+func GlobalBind[Payload any](h Handler, ev EventID[Payload], fn GlobalBindable[Payload]) Binding {
+	return h.UnsafeBind(ev.UnsafeEventID, Global, func(cid CallerID, h Handler, payload interface{}) Response {
 		typedPayload := payload.(Payload)
 		return fn(typedPayload)
 	})

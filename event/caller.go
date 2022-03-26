@@ -5,8 +5,13 @@ import (
 	"sync/atomic"
 )
 
-// A CallerID is a caller ID that entities use to trigger and bind functionality
+// A CallerID is a caller ID that Callers use to bind themselves to receive callback
+// signals when given events are triggered
 type CallerID int64
+
+func (c CallerID) CID() CallerID {
+	return c
+}
 
 const Global CallerID = 0
 

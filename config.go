@@ -2,9 +2,7 @@ package oak
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
-	"time"
 
 	"github.com/oakmound/oak/v3/fileutil"
 	"github.com/oakmound/oak/v3/shiny/driver"
@@ -31,37 +29,7 @@ type Config struct {
 	Borderless             bool             `json:"borderless"`
 	Fullscreen             bool             `json:"fullscreen"`
 	SkipRNGSeed            bool             `json:"skip_rng_seed"`
-	UnlimitedDrawFrameRate bool             `json:"unlimitedDrawFrameRate`
-}
-
-// A Duration is a wrapper around time.Duration that allows for easier json formatting.
-type Duration time.Duration
-
-// MarshalJSON writes a duration as json.
-func (d Duration) MarshalJSON() ([]byte, error) {
-	return json.Marshal(time.Duration(d).String())
-}
-
-// UnmarshalJSON extracts a duration from a json byte slice.
-func (d *Duration) UnmarshalJSON(b []byte) error {
-	var v interface{}
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	switch value := v.(type) {
-	case float64:
-		*d = Duration(time.Duration(value))
-		return nil
-	case string:
-		tmp, err := time.ParseDuration(value)
-		if err != nil {
-			return err
-		}
-		*d = Duration(tmp)
-		return nil
-	default:
-		return errors.New("invalid duration type")
-	}
+	UnlimitedDrawFrameRate bool             `json:"unlimitedDrawFrameRate"`
 }
 
 // NewConfig creates a config from a set of transformation options.

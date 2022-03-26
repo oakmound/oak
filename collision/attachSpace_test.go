@@ -18,7 +18,6 @@ func (as *aspace) Init() event.CallerID {
 
 func TestAttachSpace(t *testing.T) {
 	Clear()
-	go event.ResolveChanges()
 	go func() {
 		for {
 			<-time.After(5 * time.Millisecond)
