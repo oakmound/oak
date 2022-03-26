@@ -81,9 +81,9 @@ func (bus *Bus) Unbind(loc Binding) {
 
 // A Bindable is a strongly typed callback function to be executed on Trigger. It must be paired
 // with an event registered via RegisterEvent.
-type Bindable[Payload any, C any] func(C, Payload) Response
+type Bindable[C any, Payload any] func(C, Payload) Response
 
-func Bind[Payload any, C Caller](b Handler, ev EventID[Payload], c C, fn Bindable[Payload, C]) Binding {
+func Bind[C Caller, Payload any](b Handler, ev EventID[Payload], c C, fn Bindable[C, Payload]) Binding {
 	return b.UnsafeBind(ev.UnsafeEventID, c.CID(), func(c CallerID, h Handler, payload interface{}) Response {
 		typedPayload := payload.(Payload)
 		ent := h.GetCallerMap().GetEntity(c)
