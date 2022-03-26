@@ -48,9 +48,9 @@ func TestSource(t *testing.T) {
 	}
 
 	for i := 0; i < 1000; i++ {
-		rotateParticles(src.CID, nil)
+		rotateParticles(src, event.EnterPayload{})
 	}
-	for clearParticles(src.CID, nil) != event.UnbindEvent {
+	for clearParticles(src, event.EnterPayload{}) != event.UnbindThis {
 	}
 
 	if !ended {
@@ -86,15 +86,4 @@ func TestSource(t *testing.T) {
 
 	var src2 *Source
 	src2.Stop()
-}
-
-func TestClearParticles(t *testing.T) {
-	t.Parallel()
-	t.Run("BadTypeBinding", func(t *testing.T) {
-		t.Parallel()
-		result := clearParticles(10000, nil)
-		if result != event.UnbindEvent {
-			t.Fatalf("expected UnbindEvent result, got %v", result)
-		}
-	})
 }
