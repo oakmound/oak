@@ -14,22 +14,23 @@ type Box struct {
 	metadata map[string]string
 }
 
+func (b Box) CID() event.CallerID {
+	return b.Solid.CID()
+}
+
 // NewBox creates a new Box
 func NewBox(cid event.CallerID, x, y, w, h float64, r render.Renderable, layers ...int) *Box {
 	b := Box{}
-	cid = cid.Parse(&b)
+	if cid == 0 {
+		// TODO: not default
+		cid = event.DefaultCallerMap.Register(b)
+	}
 	b.Solid = *entities.NewSolid(x, y, w, h, r, mouse.DefaultTree, cid)
 	if b.R != nil && len(layers) > 0 {
 		render.Draw(b.R, layers...)
 	}
 	b.metadata = make(map[string]string)
 	return &b
-}
-
-// Init intializes the Box
-func (b *Box) Init() event.CallerID {
-	b.CID = event.NextID(b)
-	return b.CID
 }
 
 // GetRenderable returns the box's renderable
@@ -54,7 +55,8 @@ func (b *Box) Metadata(k string) (v string, ok bool) {
 }
 
 func (b *Box) Destroy() {
-	b.UnbindAll()
+	// TODO: not default
+	event.DefaultBus.UnbindAllFrom(b.CallerID)
 	b.R.Undraw()
 	mouse.Remove(b.GetSpace())
 }
