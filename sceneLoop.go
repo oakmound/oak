@@ -74,7 +74,7 @@ func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 				PreviousScene: prevScene,
 				SceneInput:    result.NextSceneInput,
 				DrawStack:     w.DrawStack,
-				EventHandler:  w.eventHandler,
+				Handler:       w.eventHandler,
 				CallerMap:     w.CallerMap,
 				MouseTree:     w.MouseTree,
 				CollisionTree: w.CollisionTree,
@@ -129,7 +129,7 @@ func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 		// be triggered and attempt to access an entity
 		w.CollisionTree.Clear()
 		w.MouseTree.Clear()
-		w.CallerMap.Reset()
+		w.CallerMap.Clear()
 		w.eventHandler.SetCallerMap(w.CallerMap)
 		w.DrawStack.Clear()
 		w.DrawStack.PreDraw()

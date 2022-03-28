@@ -183,13 +183,13 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		joystick.InputRightShoulder,
 	}
 
-	b1 := event.Bind(ctx.EventHandler, joystick.Disconnected, j, func(rend *Joystick, _ uint32) event.Response {
+	b1 := event.Bind(ctx, joystick.Disconnected, j, func(rend *Joystick, _ uint32) event.Response {
 		j.Destroy()
 		return 0
 	})
 
 	// TODO: it is bad that you need to import two 'key' packages
-	b2 := event.Bind(ctx.EventHandler, key.Down(mkey.CodeSpacebar), j, func(j *Joystick, _ key.Event) event.Response {
+	b2 := event.Bind(ctx, key.Down(mkey.CodeSpacebar), j, func(j *Joystick, _ key.Event) event.Response {
 		j.joy.Vibrate(math.MaxUint16, math.MaxUint16)
 		go func() {
 			time.Sleep(1 * time.Second)
@@ -198,7 +198,7 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		return 0
 	})
 
-	b3 := event.Bind(ctx.EventHandler, joystick.Change, j, func(j *Joystick, st *joystick.State) event.Response {
+	b3 := event.Bind(ctx, joystick.Change, j, func(j *Joystick, st *joystick.State) event.Response {
 		for _, inputB := range bts {
 			b := string(inputB)
 			r := j.rs[b]
@@ -220,7 +220,7 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		return 0
 	})
 
-	b4 := event.Bind(ctx.EventHandler, joystick.LtStickChange, j, func(j *Joystick, st *joystick.State) event.Response {
+	b4 := event.Bind(ctx, joystick.LtStickChange, j, func(j *Joystick, st *joystick.State) event.Response {
 		pos := j.lStickCenter
 		pos = pos.Add(floatgeom.Point2{
 			float64(st.StickLX / 2048),
@@ -230,7 +230,7 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		return 0
 	})
 
-	b5 := event.Bind(ctx.EventHandler, joystick.RtStickChange, j, func(j *Joystick, st *joystick.State) event.Response {
+	b5 := event.Bind(ctx, joystick.RtStickChange, j, func(j *Joystick, st *joystick.State) event.Response {
 		pos := j.rStickCenter
 		pos = pos.Add(floatgeom.Point2{
 			float64(st.StickRX / 2048),

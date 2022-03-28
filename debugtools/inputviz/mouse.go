@@ -37,8 +37,7 @@ func (m *Mouse) CID() event.CallerID {
 
 func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 	m.ctx = ctx
-	handler := ctx.EventHandler
-	m.CallerID = handler.GetCallerMap().Register(m)
+	m.CallerID = ctx.Handler.GetCallerMap().Register(m)
 
 	if m.Rect.W() == 0 || m.Rect.H() == 0 {
 		m.Rect.Max = m.Rect.Min.Add(floatgeom.Point2{60, 100})
@@ -100,21 +99,21 @@ func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 		ctx.DrawStack.Draw(m.posText, m.BaseLayer, layer+2)
 	}
 
-	b1 := event.Bind(handler, mouse.Press, m, func(m *Mouse, ev *mouse.Event) event.Response {
+	b1 := event.Bind(ctx, mouse.Press, m, func(m *Mouse, ev *mouse.Event) event.Response {
 		m.rs[ev.Button].Set("pressed")
 		m.stateIncLock.Lock()
 		m.stateInc[ev.Button]++
 		m.stateIncLock.Unlock()
 		return 0
 	})
-	b2 := event.Bind(handler, mouse.Release, m, func(m *Mouse, ev *mouse.Event) event.Response {
+	b2 := event.Bind(ctx, mouse.Release, m, func(m *Mouse, ev *mouse.Event) event.Response {
 		m.rs[ev.Button].Set("released")
 		m.stateIncLock.Lock()
 		m.stateInc[ev.Button]++
 		m.stateIncLock.Unlock()
 		return 0
 	})
-	b3 := event.Bind(handler, mouse.ScrollDown, m, func(m *Mouse, ev *mouse.Event) event.Response {
+	b3 := event.Bind(ctx, mouse.ScrollDown, m, func(m *Mouse, ev *mouse.Event) event.Response {
 		m.rs[mouse.ButtonMiddle].Set("scrolldown")
 		m.stateIncLock.Lock()
 		m.stateInc[mouse.ButtonMiddle]++
@@ -129,7 +128,7 @@ func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 		})
 		return 0
 	})
-	b4 := event.Bind(handler, mouse.ScrollUp, m, func(m *Mouse, ev *mouse.Event) event.Response {
+	b4 := event.Bind(ctx, mouse.ScrollUp, m, func(m *Mouse, ev *mouse.Event) event.Response {
 		m.rs[mouse.ButtonMiddle].Set("scrollup")
 		m.stateIncLock.Lock()
 		m.stateInc[mouse.ButtonMiddle]++
@@ -144,7 +143,7 @@ func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 		})
 		return 0
 	})
-	b5 := event.Bind(handler, mouse.Drag, m, func(m *Mouse, ev *mouse.Event) event.Response {
+	b5 := event.Bind(ctx, mouse.Drag, m, func(m *Mouse, ev *mouse.Event) event.Response {
 		m.lastMousePos.Point2 = ev.Point2
 		return 0
 	})
