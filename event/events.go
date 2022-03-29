@@ -7,8 +7,10 @@ import (
 	"github.com/oakmound/oak/v3/alg/intgeom"
 )
 
+// An UnsafeEventID is a non-typed eventID. EventIDs are just these, with type information attached.
 type UnsafeEventID int64
 
+// A EventID represents an event associated with a given payload type.
 type EventID[T any] struct {
 	UnsafeEventID
 }
@@ -17,8 +19,8 @@ var (
 	nextEventID int64
 )
 
-const NoEvent = 0
-
+// RegisterEvent returns a unique ID to associate an event with. EventIDs not created through RegisterEvent are
+// not valid for use in type-safe bindings.
 func RegisterEvent[T any]() EventID[T] {
 	id := atomic.AddInt64(&nextEventID, 1)
 	return EventID[T]{
@@ -26,6 +28,7 @@ func RegisterEvent[T any]() EventID[T] {
 	}
 }
 
+// NoPayload is an alias for the empty struct.
 type NoPayload = struct{}
 
 // EnterPayload is the payload sent down to Enter bindings

@@ -7,7 +7,7 @@ import (
 	"github.com/oakmound/oak/v3/oakerr"
 )
 
-// A Bus stores bindables to be triggered by events
+// A Bus stores bindables to be triggered by events.
 type Bus struct {
 	nextBindID         *int64
 	bindingMap         map[UnsafeEventID]map[CallerID]bindableList
@@ -98,7 +98,8 @@ func (bus *Bus) EnterLoop(frameDelay time.Duration) {
 	}()
 }
 
-// Stop ceases anything spawned by an ongoing UpdateLoop
+// Stop ceases anything spawned by an ongoing EnterLoop. It will panic if called without EnterLoop being called first,
+// or if called twice without an EnterLoop between the two calls.
 func (bus *Bus) Stop() error {
 	if bus.ticker != nil {
 		bus.ticker.Stop()
@@ -120,6 +121,7 @@ func (bus *Bus) SetEnterLoopRate(frameDelay time.Duration) error {
 	return nil
 }
 
+// GetCallerMap returns this bus's caller map.
 func (b *Bus) GetCallerMap() *CallerMap {
 	return b.callerMap
 }

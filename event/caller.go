@@ -13,6 +13,9 @@ func (c CallerID) CID() CallerID {
 	return c
 }
 
+// Global is the CallerID associated with global bindings. A caller must not be assigned
+// this ID. Global may be used to manually create bindings scoped to no callers, but the GlobalBind function
+// should be preferred when possible for type safety.
 const Global CallerID = 0
 
 type Caller interface {

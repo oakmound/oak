@@ -6,7 +6,8 @@ import "sync/atomic"
 // A: For concurrent safety, most operations on a bus lock the bus. Triggers acquire a read lock on the bus,
 //    as they iterate over internal bus components. Most logic within an event bus will happen from within
 //    a Trigger call-- when an entity is destroyed by some collision, for example, all of its bindings should
-//    be unregistered. If one were to call Unbind from within a
+//    be unregistered. If one were to call Unbind from within a call to Trigger, the trigger would never release
+//    its lock-- so the unbind would never be able to take the lock-- so the bus would be unrecoverably stuck.
 
 // Q: Why not trust users to call Bind / Unbind / etc with `go`, to allow the caller to decide when to use
 //    concurrency?
@@ -89,6 +90,9 @@ func (bus *Bus) Unbind(loc Binding) {
 // with an event registered via RegisterEvent.
 type Bindable[C any, Payload any] func(C, Payload) Response
 
+// Bind will cause the function fn to be called whenever the event ev is triggered on the given event handler. The function
+// will be called with the provided caller as its first argument, and will also be called when the provided event is specifically
+// triggered on the caller's ID.
 func Bind[C Caller, Payload any](h Handler, ev EventID[Payload], caller C, fn Bindable[C, Payload]) Binding {
 	return h.UnsafeBind(ev.UnsafeEventID, caller.CID(), func(cid CallerID, h Handler, payload interface{}) Response {
 		typedPayload := payload.(Payload)
@@ -98,8 +102,10 @@ func Bind[C Caller, Payload any](h Handler, ev EventID[Payload], caller C, fn Bi
 	})
 }
 
+// A GlobalBindable is a bindable that is not bound to a specific caller.
 type GlobalBindable[Payload any] func(Payload) Response
 
+// GlobalBind will cause the function fn to be called whenever the event ev is triggered on the given event handler.
 func GlobalBind[Payload any](h Handler, ev EventID[Payload], fn GlobalBindable[Payload]) Binding {
 	return h.UnsafeBind(ev.UnsafeEventID, Global, func(cid CallerID, h Handler, payload interface{}) Response {
 		typedPayload := payload.(Payload)
@@ -110,6 +116,7 @@ func GlobalBind[Payload any](h Handler, ev EventID[Payload], fn GlobalBindable[P
 // UnsafeBindable defines the underlying signature of all bindings.
 type UnsafeBindable func(CallerID, Handler, interface{}) Response
 
+// EmptyBinding is shorthand for an UnsafeBindable that does not accept or return anything.
 func EmptyBinding(f func()) UnsafeBindable {
 	return func(CallerID, Handler, interface{}) Response {
 		f()
@@ -117,6 +124,7 @@ func EmptyBinding(f func()) UnsafeBindable {
 	}
 }
 
+// UnbindAllFrom unbinds all bindings currently bound to the provided caller via ID.
 func (bus *Bus) UnbindAllFrom(c CallerID) {
 	go func() {
 		bus.mutex.Lock()

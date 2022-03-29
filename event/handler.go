@@ -13,7 +13,6 @@ var (
 // by alternative event handlers.
 type Handler interface {
 	EnterLoop(time.Duration)
-	SetEnterLoopRate(time.Duration) error
 	Stop() error
 	Reset()
 	TriggerForCaller(cid CallerID, event UnsafeEventID, data interface{}) chan struct{}
