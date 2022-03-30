@@ -11,7 +11,7 @@ import "sync/atomic"
 
 // Q: Why not trust users to call Bind / Unbind / etc with `go`, to allow the caller to decide when to use
 //    concurrency?
-// A: It is almost never correct to not call these functions with `go`, and it is a bad user experience for
+// A: It is almost never correct to not call such a function with `go`, and it is a bad user experience for
 //    the engine to deadlock unexpectedly because you forgot to begin some call with a goroutine.
 
 // A Binding, returned from calls to Bind, references the details of a binding and where that binding is
@@ -24,7 +24,7 @@ type Binding struct {
 	CallerID CallerID
 	BindID   BindID
 	// Bound is closed once the binding has been applied. Wait on this condition carefully; bindings
-	// will not take effect while an event is being triggered (e.g. in a even callback's returning thread)
+	// will not take effect while an event is being triggered (e.g. in a event callback's returning thread)
 	Bound <-chan struct{}
 }
 
@@ -46,7 +46,8 @@ func (bus *Bus) UnsafeBind(eventID UnsafeEventID, callerID CallerID, fn UnsafeBi
 	ch := make(chan struct{})
 	go func() {
 		bus.mutex.Lock()
-		bus.getBindableList(eventID, callerID).storeBindable(fn, bindID)
+		bl := bus.getBindableList(eventID, callerID)
+		bl[bindID] = fn
 		bus.mutex.Unlock()
 		close(ch)
 	}()
@@ -81,7 +82,8 @@ func (bus *Bus) PersistentBind(eventID UnsafeEventID, callerID CallerID, fn Unsa
 func (bus *Bus) Unbind(loc Binding) {
 	go func() {
 		bus.mutex.Lock()
-		bus.getBindableList(loc.EventID, loc.CallerID).remove(loc.BindID)
+		l := bus.getBindableList(loc.EventID, loc.CallerID)
+		delete(l, loc.BindID)
 		bus.mutex.Unlock()
 	}()
 }
@@ -115,14 +117,6 @@ func GlobalBind[Payload any](h Handler, ev EventID[Payload], fn GlobalBindable[P
 
 // UnsafeBindable defines the underlying signature of all bindings.
 type UnsafeBindable func(CallerID, Handler, interface{}) Response
-
-// EmptyBinding is shorthand for an UnsafeBindable that does not accept or return anything.
-func EmptyBinding(f func()) UnsafeBindable {
-	return func(CallerID, Handler, interface{}) Response {
-		f()
-		return NoResponse
-	}
-}
 
 // UnbindAllFrom unbinds all bindings currently bound to the provided caller via ID.
 func (bus *Bus) UnbindAllFrom(c CallerID) {

@@ -4,14 +4,6 @@ import "sync"
 
 type bindableList map[BindID]UnsafeBindable
 
-func (bl bindableList) storeBindable(fn UnsafeBindable, bindID BindID) {
-	bl[bindID] = fn
-}
-
-func (bl bindableList) remove(bindID BindID) {
-	delete(bl, bindID)
-}
-
 func (eb *Bus) getBindableList(eventID UnsafeEventID, callerID CallerID) bindableList {
 	if m := eb.bindingMap[eventID]; m == nil {
 		eb.bindingMap[eventID] = make(map[CallerID]bindableList)
@@ -33,10 +25,6 @@ func (bus *Bus) trigger(binds bindableList, eventID UnsafeEventID, callerID Call
 	for bindID, bnd := range binds {
 		bindID := bindID
 		bnd := bnd
-		if bnd == nil {
-			wg.Done()
-			continue
-		}
 		go func() {
 			if callerID == Global || bus.callerMap.HasEntity(callerID) {
 				response := bnd(callerID, bus, data)
