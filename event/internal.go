@@ -1,6 +1,8 @@
 package event
 
-import "sync"
+import (
+	"sync"
+)
 
 type bindableList map[BindID]UnsafeBindable
 
@@ -29,12 +31,14 @@ func (bus *Bus) trigger(binds bindableList, eventID UnsafeEventID, callerID Call
 			if callerID == Global || bus.callerMap.HasEntity(callerID) {
 				response := bnd(callerID, bus, data)
 				switch response {
-				case UnbindThis:
+				case ResponseUnbindThisBinding:
 					// Q: Why does this call bus.Unbind when it already has the event index to delete?
 					// A: This goroutine does not own a write lock on the bus, and should therefore
 					//    not modify its contents. We do not have a simple way of promoting our read lock
 					//    to a write lock.
 					bus.Unbind(Binding{EventID: eventID, CallerID: callerID, BindID: bindID})
+				case ResponseUnbindThisCaller:
+					bus.UnbindAllFrom(callerID)
 				}
 			}
 			wg.Done()

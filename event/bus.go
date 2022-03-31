@@ -3,19 +3,22 @@ package event
 import (
 	"sync"
 	"time"
-
-	"github.com/oakmound/oak/v3/oakerr"
 )
 
 // A Bus stores bindables to be triggered by events.
 type Bus struct {
-	nextBindID         *int64
+	// nextBindID is an atomically incrementing value to track bindings within this structure
+	nextBindID *int64
+
+	// resetCount increments every time the bus is reset. bindings and unbindings make sure that
+	// they are called on a bus with an unchanged reset count, and become NOPs if performed on
+	// a bus with a different reset count to ensure they do not interfere with a bus using different
+	// bind IDs.
+	resetCount         int64
 	bindingMap         map[UnsafeEventID]map[CallerID]bindableList
 	persistentBindings []persistentBinding
-	doneCh             chan struct{}
-	framesElapsed      int
-	ticker             *time.Ticker
-	callerMap          *CallerMap
+
+	callerMap *CallerMap
 
 	mutex sync.RWMutex
 }
@@ -36,7 +39,6 @@ func NewBus(callerMap *CallerMap) *Bus {
 	return &Bus{
 		nextBindID: new(int64),
 		bindingMap: make(map[UnsafeEventID]map[CallerID]bindableList),
-		doneCh:     make(chan struct{}),
 		callerMap:  callerMap,
 	}
 }
@@ -44,6 +46,11 @@ func NewBus(callerMap *CallerMap) *Bus {
 // SetCallerMap updates a bus to use a specific set of callers.
 func (bus *Bus) SetCallerMap(cm *CallerMap) {
 	bus.callerMap = cm
+}
+
+// GetCallerMap returns this bus's caller map.
+func (b *Bus) GetCallerMap() *CallerMap {
+	return b.callerMap
 }
 
 // ClearPersistentBindings removes all persistent bindings. It will not unbind them
@@ -54,74 +61,54 @@ func (eb *Bus) ClearPersistentBindings() {
 	eb.mutex.Unlock()
 }
 
-// Reset unbinds all present, non-persistent bindings on the bus.
+// Reset unbinds all present, non-persistent bindings on the bus. It will block until
+// persistent bindings are in place.
 func (bus *Bus) Reset() {
 	bus.mutex.Lock()
+	bus.resetCount++
 	bus.bindingMap = make(map[UnsafeEventID]map[CallerID]bindableList)
-	for _, pb := range bus.persistentBindings {
-		bus.UnsafeBind(pb.eventID, pb.callerID, pb.fn)
+	repersist := make([]Binding, len(bus.persistentBindings))
+	for i, pb := range bus.persistentBindings {
+		repersist[i] = bus.UnsafeBind(pb.eventID, pb.callerID, pb.fn)
 	}
 	bus.mutex.Unlock()
+	for _, bnd := range repersist {
+		<-bnd.Bound
+	}
 }
 
-// EnterLoop triggers Enter events at the specified rate
-func (bus *Bus) EnterLoop(frameDelay time.Duration) {
-	// The logical loop.
-	// In order, it waits on receiving a signal to begin a logical frame.
-	// It then runs any functions bound to when a frame begins.
-	// It then allows a scene to perform it's loop operation.
-	bus.framesElapsed = 0
-	if bus.ticker == nil {
-		bus.ticker = time.NewTicker(frameDelay)
-	} else {
-		bus.ticker.Reset(frameDelay)
-	}
-	bus.doneCh = make(chan struct{})
+// EnterLoop triggers Enter events at the specified rate until the returned cancel is called.
+func EnterLoop(bus Handler, frameDelay time.Duration) (cancel func()) {
+	ch := make(chan struct{})
 	go func() {
+		ticker := time.NewTicker(frameDelay)
 		frameDelayF64 := float64(frameDelay)
 		lastTick := time.Now()
+		framesElapsed := 0
 		for {
 			select {
-			case now := <-bus.ticker.C:
+			case now := <-ticker.C:
 				deltaTime := now.Sub(lastTick)
 				lastTick = now
 				<-bus.Trigger(Enter.UnsafeEventID, EnterPayload{
-					FramesElapsed:  bus.framesElapsed,
+					FramesElapsed:  framesElapsed,
 					SinceLastFrame: deltaTime,
 					TickPercent:    float64(deltaTime) / frameDelayF64,
 				})
-				bus.framesElapsed++
-			case <-bus.doneCh:
+				framesElapsed++
+			case <-ch:
+				ticker.Stop()
 				return
 			}
 		}
 	}()
-}
-
-// Stop ceases anything spawned by an ongoing EnterLoop. It will panic if called without EnterLoop being called first,
-// or if called twice without an EnterLoop between the two calls.
-func (bus *Bus) Stop() error {
-	if bus.ticker != nil {
-		bus.ticker.Stop()
+	return func() {
+		// Q: why send here as well as close
+		// A: to ensure that no more ticks are sent, the above goroutine has to
+		//    acknowledge that it should stop and return-- just closing would
+		//    enable code following this cancel function to assume no enters were
+		//    being triggered when they still are.
+		ch <- struct{}{}
+		close(ch)
 	}
-	close(bus.doneCh)
-	return nil
-}
-
-// SetTick optionally updates the Logical System’s tick rate
-// (while it is looping) to be frameRate. If this operation is not
-// supported, it should return an error.
-func (bus *Bus) SetEnterLoopRate(frameDelay time.Duration) error {
-	if bus.ticker == nil {
-		return oakerr.NotFound{
-			InputName: "bus.ticker",
-		}
-	}
-	bus.ticker.Reset(frameDelay)
-	return nil
-}
-
-// GetCallerMap returns this bus's caller map.
-func (b *Bus) GetCallerMap() *CallerMap {
-	return b.callerMap
 }

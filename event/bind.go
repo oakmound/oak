@@ -23,6 +23,9 @@ type Binding struct {
 	EventID  UnsafeEventID
 	CallerID CallerID
 	BindID   BindID
+
+	busResetCount int64
+
 	// Bound is closed once the binding has been applied. Wait on this condition carefully; bindings
 	// will not take effect while an event is being triggered (e.g. in a event callback's returning thread)
 	Bound <-chan struct{}
@@ -42,21 +45,27 @@ type BindID int64
 // available to be triggered. When Reset is called on a Bus, all prior bindings are unbound. This
 // call is 'unsafe' because UnsafeBindables use bare interface{} types.
 func (bus *Bus) UnsafeBind(eventID UnsafeEventID, callerID CallerID, fn UnsafeBindable) Binding {
+	expectedResetCount := bus.resetCount
 	bindID := BindID(atomic.AddInt64(bus.nextBindID, 1))
 	ch := make(chan struct{})
 	go func() {
+		defer close(ch)
 		bus.mutex.Lock()
+		defer bus.mutex.Unlock()
+		if bus.resetCount != expectedResetCount {
+			// The event bus has reset while we we were waiting to bind this
+			return
+		}
 		bl := bus.getBindableList(eventID, callerID)
 		bl[bindID] = fn
-		bus.mutex.Unlock()
-		close(ch)
 	}()
 	return Binding{
-		Handler:  bus,
-		EventID:  eventID,
-		CallerID: callerID,
-		BindID:   bindID,
-		Bound:    ch,
+		Handler:       bus,
+		EventID:       eventID,
+		CallerID:      callerID,
+		BindID:        bindID,
+		Bound:         ch,
+		busResetCount: bus.resetCount,
 	}
 }
 
@@ -82,9 +91,13 @@ func (bus *Bus) PersistentBind(eventID UnsafeEventID, callerID CallerID, fn Unsa
 func (bus *Bus) Unbind(loc Binding) {
 	go func() {
 		bus.mutex.Lock()
+		defer bus.mutex.Unlock()
+		if bus.resetCount != loc.busResetCount {
+			// This binding is not valid for this bus (in this state)
+			return
+		}
 		l := bus.getBindableList(loc.EventID, loc.CallerID)
 		delete(l, loc.BindID)
-		bus.mutex.Unlock()
 	}()
 }
 

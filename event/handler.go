@@ -1,9 +1,5 @@
 package event
 
-import (
-	"time"
-)
-
 var (
 	_ Handler = &Bus{}
 )
@@ -12,8 +8,6 @@ var (
 // for use in oak internally, and thus the functions that need to be replaced
 // by alternative event handlers.
 type Handler interface {
-	EnterLoop(time.Duration)
-	Stop() error
 	Reset()
 	TriggerForCaller(cid CallerID, event UnsafeEventID, data interface{}) chan struct{}
 	Trigger(event UnsafeEventID, data interface{}) chan struct{}

@@ -24,7 +24,7 @@ func TestSequenceTrigger(t *testing.T) {
 	d.CallerID = event.DefaultCallerMap.Register(d)
 	sq.SetTriggerID(d.CallerID)
 	triggerCh := make(chan struct{})
-	event.Bind(event.DefaultBus, AnimationEnd, d, func(_ Dummy, _ event.NoPayload) event.Response {
+	event.Bind(event.DefaultBus, AnimationEnd, d, func(_ Dummy, _ struct{}) event.Response {
 		triggerCh <- struct{}{}
 		return 0
 	})

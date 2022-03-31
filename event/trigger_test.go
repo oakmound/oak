@@ -43,7 +43,6 @@ func TestBus_TriggerForCaller(t *testing.T) {
 			}
 			return 0
 		})
-		_ = binding
 		select {
 		case <-time.After(50 * time.Millisecond):
 			t.Fatal("timeout waiting for bind to close channel")
