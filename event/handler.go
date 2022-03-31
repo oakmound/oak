@@ -12,8 +12,8 @@ type Handler interface {
 	TriggerForCaller(cid CallerID, event UnsafeEventID, data interface{}) chan struct{}
 	Trigger(event UnsafeEventID, data interface{}) chan struct{}
 	UnsafeBind(UnsafeEventID, CallerID, UnsafeBindable) Binding
-	Unbind(Binding)
-	UnbindAllFrom(CallerID)
+	Unbind(Binding) chan struct{}
+	UnbindAllFrom(CallerID) chan struct{}
 	SetCallerMap(*CallerMap)
 	GetCallerMap() *CallerMap
 }

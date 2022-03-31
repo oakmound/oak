@@ -33,8 +33,8 @@ type Binding struct {
 
 // Unbind unbinds the callback associated with this binding from it's own event handler. If this binding
 // does not belong to its handler or has already been unbound, this will do nothing.
-func (b Binding) Unbind() {
-	b.Handler.Unbind(b)
+func (b Binding) Unbind() chan struct{} {
+	return b.Handler.Unbind(b)
 }
 
 // A BindID is a unique identifier for a binding within a bus.
@@ -71,7 +71,8 @@ func (bus *Bus) UnsafeBind(eventID UnsafeEventID, callerID CallerID, fn UnsafeBi
 
 // PersistentBind acts like UnsafeBind, but cause Bind to be called with these inputs after a Bus is Reset, i.e.
 // persisting the binding through bus resets. Unbinding this will not stop it from being rebound on the next
-// Bus Reset-- ClearPersistentBindings will.
+// Bus Reset-- ClearPersistentBindings will. If called concurrently during a bus Reset, the request may not be
+// bound until the next bus Reset.
 func (bus *Bus) PersistentBind(eventID UnsafeEventID, callerID CallerID, fn UnsafeBindable) Binding {
 	binding := bus.UnsafeBind(eventID, callerID, fn)
 	go func() {
@@ -88,7 +89,8 @@ func (bus *Bus) PersistentBind(eventID UnsafeEventID, callerID CallerID, fn Unsa
 
 // Unbind unregisters a binding from a bus concurrently. Once complete, triggers that would
 // have previously caused the Bindable callback to execute will no longer do so.
-func (bus *Bus) Unbind(loc Binding) {
+func (bus *Bus) Unbind(loc Binding) chan struct{} {
+	ch := make(chan struct{})
 	go func() {
 		bus.mutex.Lock()
 		defer bus.mutex.Unlock()
@@ -98,7 +100,9 @@ func (bus *Bus) Unbind(loc Binding) {
 		}
 		l := bus.getBindableList(loc.EventID, loc.CallerID)
 		delete(l, loc.BindID)
+		close(ch)
 	}()
+	return ch
 }
 
 // A Bindable is a strongly typed callback function to be executed on Trigger. It must be paired
@@ -132,12 +136,15 @@ func GlobalBind[Payload any](h Handler, ev EventID[Payload], fn GlobalBindable[P
 type UnsafeBindable func(CallerID, Handler, interface{}) Response
 
 // UnbindAllFrom unbinds all bindings currently bound to the provided caller via ID.
-func (bus *Bus) UnbindAllFrom(c CallerID) {
+func (bus *Bus) UnbindAllFrom(c CallerID) chan struct{} {
+	ch := make(chan struct{})
 	go func() {
 		bus.mutex.Lock()
 		for _, callerMap := range bus.bindingMap {
 			delete(callerMap, c)
 		}
 		bus.mutex.Unlock()
+		close(ch)
 	}()
+	return ch
 }
