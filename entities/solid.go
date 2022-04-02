@@ -31,7 +31,7 @@ func NewSolid(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid
 		tree = collision.DefaultTree
 	}
 	s.Tree = tree
-	s.Space = collision.NewSpace(x, y, w, h, cid)
+	s.Space = collision.NewSpace(x, y, w, h, s.CallerID)
 	s.Tree.Add(s.Space)
 	return s
 }
