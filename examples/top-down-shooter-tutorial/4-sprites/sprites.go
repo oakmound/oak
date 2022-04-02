@@ -36,7 +36,7 @@ var (
 	// the player's position vector
 	playerPos physics.Vector
 
-	destroy = event.RegisterEvent[event.NoPayload]()
+	destroy = event.RegisterEvent[struct{}]()
 
 	sheet [][]*render.Sprite
 )
@@ -109,7 +109,7 @@ func main() {
 			ray.DefaultCaster.CastDistance = floatgeom.Point2{x, y}.Sub(floatgeom.Point2{mevent.X(), mevent.Y()}).Magnitude()
 			hits := ray.CastTo(floatgeom.Point2{x, y}, floatgeom.Point2{mevent.X(), mevent.Y()})
 			for _, hit := range hits {
-				event.TriggerForCallerOn(ctx, hit.Zone.CID, destroy, event.NoPayload{})
+				event.TriggerForCallerOn(ctx, hit.Zone.CID, destroy, struct{}{})
 			}
 			ctx.DrawForTime(
 				render.NewLine(x, y, mevent.X(), mevent.Y(), color.RGBA{0, 128, 0, 128}),
@@ -195,7 +195,7 @@ func NewEnemy(ctx *scene.Context) {
 		return 0
 	})
 
-	event.Bind(ctx, destroy, enemy, func(e *entities.Solid, nothing event.NoPayload) event.Response {
+	event.Bind(ctx, destroy, enemy, func(e *entities.Solid, nothing struct{}) event.Response {
 		e.Destroy()
 		return 0
 	})
