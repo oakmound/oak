@@ -53,7 +53,7 @@ func newHoverButton(ctx *scene.Context, x, y, w, h float64, clr color.RGBA, laye
 	sp.SetZLayer(float64(layer))
 
 	mouse.Add(sp)
-	mouse.PhaseCollision(sp, ctx.GetCallerMap(), ctx.Handler)
+	mouse.PhaseCollision(sp, ctx.Handler)
 
 	render.Draw(hb.changingColorBox, 0, layer)
 

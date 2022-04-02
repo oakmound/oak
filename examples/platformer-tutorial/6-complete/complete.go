@@ -26,7 +26,7 @@ const (
 )
 
 func main() {
-	oak.AddScene("platformer", scene.Scene{Start: func(*scene.Context) {
+	oak.AddScene("platformer", scene.Scene{Start: func(ctx *scene.Context) {
 
 		char := entities.NewMoving(100, 100, 16, 32,
 			render.NewColorBox(16, 32, color.RGBA{255, 0, 0, 255}),
@@ -38,13 +38,12 @@ func main() {
 
 		fallSpeed := .2
 
-		char.Bind(event.Enter, func(id event.CallerID, nothing interface{}) int {
-			char := event.GetEntity(id).(*entities.Moving)
+		event.Bind(ctx, event.Enter, char, func(c *entities.Moving, ev event.EnterPayload) event.Response {
 
 			// Move left and right with A and D
-			if oak.IsDown(key.A) {
+			if oak.IsDown(key.AStr) {
 				char.Delta.SetX(-char.Speed.X())
-			} else if oak.IsDown(key.D) {
+			} else if oak.IsDown(key.DStr) {
 				char.Delta.SetX(char.Speed.X())
 			} else {
 				char.Delta.SetX(0)
@@ -64,7 +63,7 @@ func main() {
 				// Stop falling
 				char.Delta.SetY(0)
 				// Jump with Space when on the ground
-				if oak.IsDown(key.Spacebar) {
+				if oak.IsDown(key.SpacebarStr) {
 					char.Delta.ShiftY(-char.Speed.Y())
 				}
 				aboveGround = true

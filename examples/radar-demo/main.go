@@ -26,6 +26,8 @@ const (
 // This example demonstrates making a basic radar or other custom renderable
 // type. The radar here acts as a UI element, staying on screen, and follows
 // around a player character.
+//TODO: Remove and or link to grove radar as it is cleaner
+// https://github.com/oakmound/grove/tree/master/components/radar
 
 func main() {
 	oak.AddScene("demo", scene.Scene{Start: func(ctx *scene.Context) {
@@ -36,8 +38,7 @@ func main() {
 
 		oak.SetViewportBounds(intgeom.NewRect2(0, 0, xLimit, yLimit))
 		moveRect := floatgeom.NewRect2(0, 0, xLimit, yLimit)
-
-		char.Bind(event.Enter, func(event.CallerID, interface{}) int {
+		event.Bind(ctx, event.Enter, char, func(char *entities.Moving, ev event.EnterPayload) event.Response {
 			move.WASD(char)
 			move.Limit(char, moveRect)
 			move.CenterScreenOn(char)
@@ -55,8 +56,8 @@ func main() {
 
 		for i := 0; i < 5; i++ {
 			x, y := rand.Float64()*400, rand.Float64()*400
-			enemy := newEnemyOnRadar(x, y)
-			enemy.CID.Bind(event.Enter, standardEnemyMove)
+			enemy := newEnemyOnRadar(ctx, x, y)
+			event.Bind(ctx, event.Enter, enemy, standardEnemyMove)
 			render.Draw(enemy.R, 1, 1)
 			r.AddPoint(radar.Point{X: enemy.Xp(), Y: enemy.Yp()}, color.RGBA{255, 255, 0, 255})
 		}
@@ -87,19 +88,15 @@ type enemyOnRadar struct {
 	*entities.Moving
 }
 
-func (eor *enemyOnRadar) Init() event.CallerID {
-	return event.NextID(eor)
-}
-func newEnemyOnRadar(x, y float64) *enemyOnRadar {
+func newEnemyOnRadar(ctx *scene.Context, x, y float64) *enemyOnRadar {
 	eor := new(enemyOnRadar)
-	eor.Moving = entities.NewMoving(50, y, 50, 50, render.NewColorBox(25, 25, color.RGBA{0, 200, 0, 0}), nil, eor.Init(), 0)
+	eor.Moving = entities.NewMoving(50, y, 50, 50, render.NewColorBox(25, 25, color.RGBA{0, 200, 0, 0}), nil, ctx.Register(eor), 0)
 	eor.Speed = physics.NewVector(-1*(rand.Float64()*2+1), rand.Float64()*2-1)
 	eor.Delta = eor.Speed
 	return eor
 }
 
-func standardEnemyMove(id event.CallerID, nothing interface{}) int {
-	eor := event.GetEntity(id).(*enemyOnRadar)
+func standardEnemyMove(eor *enemyOnRadar, ev event.EnterPayload) event.Response {
 	if eor.X() < 0 {
 		eor.Delta.SetPos(math.Abs(eor.Speed.X()), (eor.Speed.Y()))
 	}

@@ -24,7 +24,7 @@ const (
 )
 
 func main() {
-	oak.AddScene("platformer", scene.Scene{Start: func(*scene.Context) {
+	oak.AddScene("platformer", scene.Scene{Start: func(ctx *scene.Context) {
 
 		char := entities.NewMoving(100, 100, 16, 32,
 			render.NewColorBox(16, 32, color.RGBA{255, 0, 0, 255}),
@@ -36,27 +36,26 @@ func main() {
 
 		fallSpeed := .1
 
-		char.Bind(event.Enter, func(id event.CallerID, nothing interface{}) int {
-			char := event.GetEntity(id).(*entities.Moving)
+		event.Bind(ctx, event.Enter, char, func(c *entities.Moving, ev event.EnterPayload) event.Response {
 			// Move left and right with A and D
-			if oak.IsDown(key.A) {
-				char.ShiftX(-char.Speed.X())
+			if oak.IsDown(key.AStr) {
+				c.ShiftX(-c.Speed.X())
 			}
-			if oak.IsDown(key.D) {
-				char.ShiftX(char.Speed.X())
+			if oak.IsDown(key.DStr) {
+				c.ShiftX(c.Speed.X())
 			}
-			hit := collision.HitLabel(char.Space, Ground)
+			hit := collision.HitLabel(c.Space, Ground)
 			if hit == nil {
 				// Fall if there's no ground
-				char.Delta.ShiftY(fallSpeed)
+				c.Delta.ShiftY(fallSpeed)
 			} else {
-				char.Delta.SetY(0)
+				c.Delta.SetY(0)
 				// Jump with Space
-				if oak.IsDown(key.Spacebar) {
-					char.Delta.ShiftY(-char.Speed.Y())
+				if oak.IsDown(key.SpacebarStr) {
+					c.Delta.ShiftY(-c.Speed.Y())
 				}
 			}
-			char.ShiftY(char.Delta.Y())
+			c.ShiftY(c.Delta.Y())
 			return 0
 		})
 

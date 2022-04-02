@@ -3,16 +3,15 @@ package main
 import (
 	"fmt"
 
-	gokey "golang.org/x/mobile/event/key"
-
+	"github.com/atotto/clipboard"
 	"github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/entities/x/btn"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v3/mouse"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
-
-	"github.com/atotto/clipboard"
+	gokey "golang.org/x/mobile/event/key"
 )
 
 func main() {
@@ -33,7 +32,7 @@ func newClipboardCopyText(text string, x, y float64) {
 		btn.Pos(x, y),
 		btn.Height(20),
 		btn.FitText(20),
-		btn.Click(func(event.CallerID, interface{}) int {
+		btn.Click(func(b btn.Btn, me *mouse.Event) event.Response {
 			err := clipboard.WriteAll(text)
 			if err != nil {
 				fmt.Println(err)
@@ -46,14 +45,15 @@ func newClipboardCopyText(text string, x, y float64) {
 func newClipboardPaster(placeholder string, x, y float64) {
 	textPtr := new(string)
 	*textPtr = placeholder
+
 	btn.New(
 		btn.Font(render.DefaultFont()),
 		btn.TextPtr(textPtr),
 		btn.Pos(x, y),
 		btn.Height(20),
 		btn.FitText(20),
-		btn.Binding(key.Down+key.V, func(_ event.CallerID, payload interface{}) int {
-			kv := payload.(key.Event)
+		btn.Binding(key.Down(key.V), func(b btn.Btn, kv key.Event) event.Response {
+
 			if kv.Modifiers&gokey.ModControl == gokey.ModControl {
 				got, err := clipboard.ReadAll()
 				if err != nil {
@@ -64,7 +64,7 @@ func newClipboardPaster(placeholder string, x, y float64) {
 			}
 			return 0
 		}),
-		btn.Click(func(event.CallerID, interface{}) int {
+		btn.Click(func(b btn.Btn, me *mouse.Event) event.Response {
 			got, err := clipboard.ReadAll()
 			if err != nil {
 				fmt.Println(err)

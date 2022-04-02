@@ -76,9 +76,9 @@ func newPaddle(ctx *scene.Context, x, y float64, player int) {
 	render.Draw(p.R, 1)
 	p.Space.UpdateLabel(hitPaddle)
 	if player == 1 {
-		event.Bind(ctx, event.Enter, p, enterPaddle(key.UpArrow, key.DownArrow))
+		event.Bind(ctx, event.Enter, p, enterPaddle(key.UpArrowStr, key.DownArrowStr))
 	} else {
-		event.Bind(ctx, event.Enter, p, enterPaddle(key.W, key.S))
+		event.Bind(ctx, event.Enter, p, enterPaddle(key.WStr, key.SStr))
 	}
 }
 

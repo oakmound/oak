@@ -1,6 +1,6 @@
 module github.com/oakmound/oak/examples/svg
 
-go 1.16
+go 1.18
 
 require (
 	github.com/oakmound/oak/v3 v3.0.0-alpha.1
