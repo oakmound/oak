@@ -32,7 +32,7 @@ func TestAllocatorLookup(t *testing.T) {
 	a := NewAllocator()
 	go a.Run()
 
-	src := NewSource(NewColorGenerator(), 0)
+	src := NewDefaultSource(NewColorGenerator(), 0)
 	cid := src.CID()
 	pidBlock := a.Allocate(cid)
 	src2 := a.LookupSource(pidBlock * blockSize)

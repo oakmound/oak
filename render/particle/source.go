@@ -33,22 +33,29 @@ type Source struct {
 	stopped      bool
 }
 
-// NewSource creates a new source
-func NewSource(g Generator, stackLevel int) *Source {
+// NewDefaultSource creates a new sourceattached to the default event bus.
+func NewDefaultSource(g Generator, stackLevel int) *Source {
+	return NewSource(event.DefaultBus, g, stackLevel)
+}
+
+// NewSource for particles constructed from a generator with specifications on how the particles should be handled.
+func NewSource(handler event.Handler, g Generator, stackLevel int) *Source {
 	ps := new(Source)
 	ps.Generator = g
 	ps.stackLevel = stackLevel
 	ps.Allocator = DefaultAllocator
-	cid := event.DefaultCallerMap.Register(ps)
+	cid := handler.GetCallerMap().Register(ps)
 	ps.stopRotateAt = time.Now().Add(
 		time.Duration(ps.Generator.GetBaseGenerator().Duration.Poll()) * time.Millisecond)
 
-	ps.rotateBinding = event.Bind(event.DefaultBus, event.Enter, ps, rotateParticles)
-	ps.CallerID = cid
+	ps.CallerID = cid // cid must be set before the following bind call
+	ps.rotateBinding = event.Bind(handler, event.Enter, ps, rotateParticles)
+
 	ps.pIDBlock = ps.Allocate(ps.CallerID)
 	return ps
 }
 
+// CID of our particle source
 func (ps *Source) CID() event.CallerID {
 	return ps.CallerID
 }
