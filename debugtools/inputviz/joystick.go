@@ -9,8 +9,6 @@ import (
 	"math"
 	"time"
 
-	mkey "golang.org/x/mobile/event/key"
-
 	"github.com/oakmound/oak/v3/alg/floatgeom"
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
@@ -189,7 +187,7 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 	})
 
 	// TODO: it is bad that you need to import two 'key' packages
-	b2 := event.Bind(ctx, key.Down(mkey.CodeSpacebar), j, func(j *Joystick, _ key.Event) event.Response {
+	b2 := event.Bind(ctx, key.Down(key.Spacebar), j, func(j *Joystick, _ key.Event) event.Response {
 		j.joy.Vibrate(math.MaxUint16, math.MaxUint16)
 		go func() {
 			time.Sleep(1 * time.Second)

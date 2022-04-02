@@ -37,7 +37,7 @@ func (m *Mouse) CID() event.CallerID {
 
 func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 	m.ctx = ctx
-	m.CallerID = ctx.Handler.GetCallerMap().Register(m)
+	m.CallerID = ctx.Register(m)
 
 	if m.Rect.W() == 0 || m.Rect.H() == 0 {
 		m.Rect.Max = m.Rect.Min.Add(floatgeom.Point2{60, 100})
