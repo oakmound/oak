@@ -36,16 +36,16 @@ func main() {
 		event.Bind(ctx, event.Enter, char, func(c *entities.Moving, ev event.EnterPayload) event.Response {
 
 			char.Delta.Zero()
-			if oak.IsDown(key.WStr) {
+			if oak.IsDown(key.W) {
 				char.Delta.ShiftY(-char.Speed.Y())
 			}
-			if oak.IsDown(key.AStr) {
+			if oak.IsDown(key.A) {
 				char.Delta.ShiftX(-char.Speed.X())
 			}
-			if oak.IsDown(key.SStr) {
+			if oak.IsDown(key.S) {
 				char.Delta.ShiftY(char.Speed.Y())
 			}
-			if oak.IsDown(key.DStr) {
+			if oak.IsDown(key.D) {
 				char.Delta.ShiftX(char.Speed.X())
 			}
 			char.ShiftPos(char.Delta.X(), char.Delta.Y())
