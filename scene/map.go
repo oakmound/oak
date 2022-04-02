@@ -48,9 +48,6 @@ func (m *Map) AddScene(name string, s Scene) error {
 	if s.Start == nil {
 		s.Start = func(*Context) {}
 	}
-	if s.Loop == nil {
-		s.Loop = func() bool { return true }
-	}
 	if s.End == nil {
 		s.End = GoTo(name)
 	}

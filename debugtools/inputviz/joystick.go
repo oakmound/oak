@@ -47,7 +47,7 @@ type Joystick struct {
 	BaseLayer int
 
 	ctx *scene.Context
-	event.CID
+	event.CallerID
 	joy          *joystick.Joystick
 	rs           map[string]render.Modifiable
 	lastState    *joystick.State
@@ -55,11 +55,12 @@ type Joystick struct {
 	lStickCenter floatgeom.Point2
 	rStickCenter floatgeom.Point2
 	cancel       func()
+
+	bindings []event.Binding
 }
 
-func (j *Joystick) Init() event.CID {
-	j.CID = j.ctx.CallerMap.NextID(j)
-	return j.CID
+func (j *Joystick) CID() event.CallerID {
+	return j.CallerID
 }
 
 func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, layer int) error {
@@ -76,7 +77,7 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 	j.rs = make(map[string]render.Modifiable)
 	j.lastState = &joystick.State{}
 	j.ctx = ctx
-	j.Init()
+	j.CallerID = ctx.CallerMap.Register(j)
 	j.rs["Outline"] = outline
 	j.rs["LtStick"] = render.NewCircle(color.RGBA{255, 255, 255, 255}, 15, 12)
 	j.rs["RtStick"] = render.NewCircle(color.RGBA{255, 255, 255, 255}, 15, 12)
@@ -180,19 +181,22 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		joystick.InputRightShoulder,
 	}
 
-	j.CheckedIDBind(joystick.Disconnected, func(rend *Joystick, _ uint32) {
+	b1 := event.Bind(ctx, joystick.Disconnected, j, func(rend *Joystick, _ uint32) event.Response {
 		j.Destroy()
+		return 0
 	})
 
-	j.CheckedBind(key.Down+key.Spacebar, func(rend *Joystick, st *joystick.State) {
+	// TODO: it is bad that you need to import two 'key' packages
+	b2 := event.Bind(ctx, key.Down(key.Spacebar), j, func(j *Joystick, _ key.Event) event.Response {
 		j.joy.Vibrate(math.MaxUint16, math.MaxUint16)
 		go func() {
 			time.Sleep(1 * time.Second)
 			j.joy.Vibrate(0, 0)
 		}()
+		return 0
 	})
 
-	j.CheckedBind(joystick.Change, func(rend *Joystick, st *joystick.State) {
+	b3 := event.Bind(ctx, joystick.Change, j, func(j *Joystick, st *joystick.State) event.Response {
 		for _, inputB := range bts {
 			b := string(inputB)
 			r := j.rs[b]
@@ -211,60 +215,36 @@ func (j *Joystick) RenderAndListen(ctx *scene.Context, joy *joystick.Joystick, l
 		tgr = "RtTrigger"
 		x = j.rs[tgr].X()
 		j.rs[tgr].SetPos(x, j.triggerY+float64(st.TriggerR/16))
+		return 0
 	})
 
-	j.CheckedBind(joystick.LtStickChange, func(rend *Joystick, st *joystick.State) {
+	b4 := event.Bind(ctx, joystick.LtStickChange, j, func(j *Joystick, st *joystick.State) event.Response {
 		pos := j.lStickCenter
 		pos = pos.Add(floatgeom.Point2{
 			float64(st.StickLX / 2048),
 			-float64(st.StickLY / 2048),
 		})
 		j.rs["LtStick"].SetPos(pos.X(), pos.Y())
+		return 0
 	})
 
-	j.CheckedBind(joystick.RtStickChange, func(rend *Joystick, st *joystick.State) {
+	b5 := event.Bind(ctx, joystick.RtStickChange, j, func(j *Joystick, st *joystick.State) event.Response {
 		pos := j.rStickCenter
 		pos = pos.Add(floatgeom.Point2{
 			float64(st.StickRX / 2048),
 			-float64(st.StickRY / 2048),
 		})
 		j.rs["RtStick"].SetPos(pos.X(), pos.Y())
+		return 0
 	})
+	j.bindings = []event.Binding{b1, b2, b3, b4, b5}
 	return nil
 }
 
-func (j *Joystick) CheckedIDBind(ev string, f func(*Joystick, uint32)) {
-	j.Bind(ev, func(id event.CID, jid interface{}) int {
-		joy, ok := event.GetEntity(id).(*Joystick)
-		if !ok {
-			return 0
-		}
-		n, ok := jid.(uint32)
-		if !ok {
-			return 0
-		}
-		f(joy, n)
-		return 0
-	})
-}
-
-func (j *Joystick) CheckedBind(ev string, f func(*Joystick, *joystick.State)) {
-	j.Bind(ev, func(id event.CID, state interface{}) int {
-		joy, ok := event.GetEntity(id).(*Joystick)
-		if !ok {
-			return 0
-		}
-		st, ok := state.(*joystick.State)
-		if !ok {
-			return 0
-		}
-		f(joy, st)
-		return 0
-	})
-}
-
 func (j *Joystick) Destroy() {
-	j.UnbindAll()
+	for _, b := range j.bindings {
+		b.Unbind()
+	}
 	for _, r := range j.rs {
 		r.Undraw()
 	}

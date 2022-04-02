@@ -70,11 +70,11 @@ func (st *Statistics) trackStats(name string, val int) {
 }
 
 // TrackStats records a stat event to the Statistics map and creates the statistic if it does not already exist
-func (st *Statistics) TrackStats(no int, data interface{}) int {
+func (st *Statistics) TrackStats(no int, data interface{}) event.Response {
 	stat, ok := data.(stat)
 	if !ok {
 		dlog.Error("TrackStats called with a non-stat payload")
-		return event.UnbindEvent
+		return event.ResponseUnbindThisBinding
 	}
 	st.trackStats(stat.name, stat.inc)
 	return 0
@@ -83,11 +83,11 @@ func (st *Statistics) TrackStats(no int, data interface{}) int {
 // TrackTimeStats acts like TrackStats, but tracks durations of events. If the
 // event has not started, it logs a start time, and then when the event ends
 // it will log the delta since the start.
-func (st *Statistics) TrackTimeStats(no int, data interface{}) int {
+func (st *Statistics) TrackTimeStats(no int, data interface{}) event.Response {
 	timed, ok := data.(timedStat)
 	if !ok {
 		dlog.Error("TrackTimeStats called with a non-timedStat payload")
-		return event.UnbindEvent
+		return event.ResponseUnbindThisBinding
 	}
 	if timed.on { //Turning on a thing to time track
 		st.statTimeLock.Lock()

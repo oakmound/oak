@@ -32,4 +32,5 @@ type Window interface {
 	Quit()
 
 	EventHandler() event.Handler
+	GetCallerMap() *event.CallerMap
 }

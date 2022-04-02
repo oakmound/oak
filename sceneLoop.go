@@ -8,16 +8,24 @@ import (
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/oakerr"
 	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v3/timing"
 )
 
 // the oak loading scene is a reserved scene
 // for preloading assets
 const oakLoadingScene = "oak:loading"
 
-func (w *Window) sceneLoop(first string, trackingInputs bool) {
+func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 	w.SceneMap.AddScene(oakLoadingScene, scene.Scene{
-		Loop: func() bool {
-			return w.startupLoading
+		Start: func(ctx *scene.Context) {
+			if batchLoad {
+				go func() {
+					w.loadAssets(w.config.Assets.ImagePath, w.config.Assets.AudioPath)
+					w.endLoad()
+				}()
+			} else {
+				go w.endLoad()
+			}
 		},
 		End: func() (string, *scene.Result) {
 			return w.firstScene, &scene.Result{
@@ -67,7 +75,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 				PreviousScene: prevScene,
 				SceneInput:    result.NextSceneInput,
 				DrawStack:     w.DrawStack,
-				EventHandler:  w.eventHandler,
+				Handler:       w.eventHandler,
 				CallerMap:     w.CallerMap,
 				MouseTree:     w.MouseTree,
 				CollisionTree: w.CollisionTree,
@@ -88,7 +96,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		dlog.Info(dlog.SceneLooping)
 		cont := true
 
-		dlog.ErrorCheck(w.eventHandler.UpdateLoop(w.FrameRate, w.sceneCh))
+		enterCancel := event.EnterLoop(w.eventHandler, timing.FPSToFrameDelay(w.FrameRate))
 
 		nextSceneOverride := ""
 
@@ -98,8 +106,6 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 			case <-w.quitCh:
 				cancel()
 				return
-			case <-w.sceneCh:
-				cont = scen.Loop()
 			case nextSceneOverride = <-w.skipSceneCh:
 				cont = false
 			}
@@ -108,7 +114,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		dlog.Info(dlog.SceneEnding, w.SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
-		dlog.ErrorCheck(w.eventHandler.Stop())
+		enterCancel()
 		prevScene = w.SceneMap.CurrentScene
 
 		// Send a signal to stop drawing
@@ -124,15 +130,8 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		// be triggered and attempt to access an entity
 		w.CollisionTree.Clear()
 		w.MouseTree.Clear()
-		if w.CallerMap == event.DefaultCallerMap {
-			event.ResetCallerMap()
-			w.CallerMap = event.DefaultCallerMap
-		} else {
-			w.CallerMap = event.NewCallerMap()
-		}
-		if cmr, ok := w.eventHandler.(event.CallerMapper); ok {
-			cmr.SetCallerMap(w.CallerMap)
-		}
+		w.CallerMap.Clear()
+		w.eventHandler.SetCallerMap(w.CallerMap)
 		w.DrawStack.Clear()
 		w.DrawStack.PreDraw()
 

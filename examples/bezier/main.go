@@ -53,23 +53,23 @@ func main() {
 		return ""
 	}})
 
-	oak.AddScene("bezier", scene.Scene{Start: func(*scene.Context) {
+	oak.AddScene("bezier", scene.Scene{Start: func(ctx *scene.Context) {
 		mouseFloats := []float64{}
-		event.GlobalBind(mouse.Press, func(_ event.CID, mouseEvent interface{}) int {
-			me := mouseEvent.(*mouse.Event)
-			// Left click to add a point to the curve
-			if me.Button == mouse.ButtonLeft {
-				mouseFloats = append(mouseFloats, float64(me.X()), float64(me.Y()))
-				renderCurve(mouseFloats)
-				// Perform any other click to reset the drawn curve
-			} else {
-				mouseFloats = []float64{}
-				if cmp != nil {
-					cmp.Undraw()
+		event.GlobalBind(ctx,
+			mouse.Press, func(me *mouse.Event) event.Response {
+				// Left click to add a point to the curve
+				if me.Button == mouse.ButtonLeft {
+					mouseFloats = append(mouseFloats, float64(me.X()), float64(me.Y()))
+					renderCurve(mouseFloats)
+					// Perform any other click to reset the drawn curve
+				} else {
+					mouseFloats = []float64{}
+					if cmp != nil {
+						cmp.Undraw()
+					}
 				}
-			}
-			return 0
-		})
+				return 0
+			})
 	}})
 	oak.Init("bezier", func(c oak.Config) (oak.Config, error) {
 		c.EnableDebugConsole = true

@@ -12,33 +12,39 @@ import (
 )
 
 // InputType expresses some form of input to the engine to represent a player
-type InputType = int32
+type InputType int32
+
+// InputChange is triggered when the most recent input device changes (e.g. keyboard to joystick or vice versa)
+var InputChange = event.RegisterEvent[InputType]()
+
+var trackingJoystickChange = event.RegisterEvent[struct{}]()
 
 // Supported Input Types
 const (
-	InputKeyboardMouse InputType = iota
-	InputJoystick      InputType = iota
+	InputKeyboard InputType = iota
+	InputMouse
+	InputJoystick
 )
 
 func (w *Window) trackInputChanges() {
-	w.eventHandler.GlobalBind(key.Down, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&w.mostRecentInput, InputKeyboardMouse)
-		if old != InputKeyboardMouse {
-			w.eventHandler.Trigger(event.InputChange, InputKeyboardMouse)
+	event.GlobalBind(w.eventHandler, key.AnyDown, func(key.Event) event.Response {
+		old := atomic.SwapInt32(&w.mostRecentInput, int32(InputKeyboard))
+		if InputType(old) != InputKeyboard {
+			event.TriggerOn(w.eventHandler, InputChange, InputKeyboard)
 		}
 		return 0
 	})
-	w.eventHandler.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&w.mostRecentInput, InputKeyboardMouse)
-		if old != InputKeyboardMouse {
-			w.eventHandler.Trigger(event.InputChange, InputKeyboardMouse)
+	event.GlobalBind(w.eventHandler, mouse.Press, func(*mouse.Event) event.Response {
+		old := atomic.SwapInt32(&w.mostRecentInput, int32(InputMouse))
+		if InputType(old) != InputMouse {
+			event.TriggerOn(w.eventHandler, InputChange, InputMouse)
 		}
 		return 0
 	})
-	w.eventHandler.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&w.mostRecentInput, InputJoystick)
-		if old != InputJoystick {
-			w.eventHandler.Trigger(event.InputChange, InputJoystick)
+	event.GlobalBind(w.eventHandler, trackingJoystickChange, func(struct{}) event.Response {
+		old := atomic.SwapInt32(&w.mostRecentInput, int32(InputMouse))
+		if InputType(old) != InputJoystick {
+			event.TriggerOn(w.eventHandler, InputChange, InputJoystick)
 		}
 		return 0
 	})
@@ -48,8 +54,11 @@ type joyHandler struct {
 	handler event.Handler
 }
 
-func (jh *joyHandler) Trigger(ev string, state interface{}) {
-	jh.handler.Trigger("Tracking"+ev, state)
+func (jh *joyHandler) Trigger(eventID event.UnsafeEventID, data interface{}) chan struct{} {
+	jh.handler.Trigger(trackingJoystickChange.UnsafeEventID, struct{}{})
+	ch := make(chan struct{})
+	close(ch)
+	return ch
 }
 
 func trackJoystickChanges(handler event.Handler) {

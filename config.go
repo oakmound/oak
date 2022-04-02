@@ -2,9 +2,7 @@ package oak
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
-	"time"
 
 	"github.com/oakmound/oak/v3/fileutil"
 	"github.com/oakmound/oak/v3/shiny/driver"
@@ -22,7 +20,6 @@ type Config struct {
 	IdleDrawFrameRate      int              `json:"idleDrawFrameRate"`
 	Language               string           `json:"language"`
 	Title                  string           `json:"title"`
-	EventRefreshRate       Duration         `json:"refreshRate"`
 	BatchLoad              bool             `json:"batchLoad"`
 	GestureSupport         bool             `json:"gestureSupport"`
 	LoadBuiltinCommands    bool             `json:"loadBuiltinCommands"`
@@ -32,37 +29,7 @@ type Config struct {
 	Borderless             bool             `json:"borderless"`
 	Fullscreen             bool             `json:"fullscreen"`
 	SkipRNGSeed            bool             `json:"skip_rng_seed"`
-	UnlimitedDrawFrameRate bool             `json:"unlimitedDrawFrameRate`
-}
-
-// A Duration is a wrapper around time.Duration that allows for easier json formatting.
-type Duration time.Duration
-
-// MarshalJSON writes a duration as json.
-func (d Duration) MarshalJSON() ([]byte, error) {
-	return json.Marshal(time.Duration(d).String())
-}
-
-// UnmarshalJSON extracts a duration from a json byte slice.
-func (d *Duration) UnmarshalJSON(b []byte) error {
-	var v interface{}
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	switch value := v.(type) {
-	case float64:
-		*d = Duration(time.Duration(value))
-		return nil
-	case string:
-		tmp, err := time.ParseDuration(value)
-		if err != nil {
-			return err
-		}
-		*d = Duration(tmp)
-		return nil
-	default:
-		return errors.New("invalid duration type")
-	}
+	UnlimitedDrawFrameRate bool             `json:"unlimitedDrawFrameRate"`
 }
 
 // NewConfig creates a config from a set of transformation options.
@@ -98,7 +65,6 @@ func (c Config) setDefaults() Config {
 	c.IdleDrawFrameRate = 60
 	c.Language = "English"
 	c.Title = "Oak Window"
-	c.EventRefreshRate = Duration(50 * time.Millisecond)
 	return c
 }
 
@@ -222,9 +188,6 @@ func (c Config) overwriteFrom(c2 Config) Config {
 	}
 	if c2.Title != "" {
 		c.Title = c2.Title
-	}
-	if c2.EventRefreshRate != 0 {
-		c.EventRefreshRate = c2.EventRefreshRate
 	}
 	// Booleans can be directly overwritten-- all booleans in a Config
 	// default to false, if they were unset they will stay false.

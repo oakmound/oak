@@ -1,6 +1,7 @@
 package oak
 
 import (
+	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/timing"
 
@@ -13,6 +14,17 @@ import (
 	"golang.org/x/mobile/event/size"
 )
 
+var (
+	// ViewportUpdate: Triggered when the position of of the viewport changes
+	ViewportUpdate = event.RegisterEvent[intgeom.Point2]()
+	// OnStop: Triggered when the engine is stopped.
+	OnStop = event.RegisterEvent[struct{}]()
+	// FocusGain: Triggered when the window gains focus
+	FocusGain = event.RegisterEvent[struct{}]()
+	// FocusLoss: Triggered when the window loses focus
+	FocusLoss = event.RegisterEvent[struct{}]()
+)
+
 func (w *Window) inputLoop() {
 	for {
 		switch e := w.windowControl.NextEvent().(type) {
@@ -21,27 +33,25 @@ func (w *Window) inputLoop() {
 			switch e.To {
 			case lifecycle.StageDead:
 				dlog.Info(dlog.WindowClosed)
-				// OnStop needs to be sent through TriggerBack, otherwise the
-				// program will close before the stop events get propagated.
-				<-w.eventHandler.TriggerBack(event.OnStop, nil)
+				<-event.TriggerOn(w.eventHandler, OnStop, struct{}{})
 				close(w.quitCh)
 				return
 			case lifecycle.StageFocused:
 				w.inFocus = true
 				// If you are in focused state, we don't care how you got there
 				w.DrawTicker.Reset(timing.FPSToFrameDelay(w.DrawFrameRate))
-				w.eventHandler.Trigger(event.FocusGain, nil)
+				event.TriggerOn(w.eventHandler, FocusGain, struct{}{})
 			case lifecycle.StageVisible:
 				// If the last state was focused, this means the app is out of focus
 				// otherwise, we're visible for the first time
 				if e.From > e.To {
 					w.inFocus = false
 					w.DrawTicker.Reset(timing.FPSToFrameDelay(w.IdleDrawFrameRate))
-					w.eventHandler.Trigger(event.FocusLoss, nil)
+					event.TriggerOn(w.eventHandler, FocusLoss, struct{}{})
 				} else {
 					w.inFocus = true
 					w.DrawTicker.Reset(timing.FPSToFrameDelay(w.DrawFrameRate))
-					w.eventHandler.Trigger(event.FocusGain, nil)
+					event.TriggerOn(w.eventHandler, FocusGain, struct{}{})
 				}
 			}
 		// Send key events
@@ -76,7 +86,7 @@ func (w *Window) inputLoop() {
 		// Mouse events all receive an x, y, and button string.
 		case mouse.Event:
 			button := omouse.Button(e.Button)
-			eventName := omouse.GetEventName(e.Direction, e.Button)
+			ev := omouse.GetEvent(e.Direction, e.Button)
 			// The event triggered for mouse events has the same scaling as the
 			// render and collision space. I.e. if the viewport is at 0, the mouse's
 			// position is exactly the same as the position of a visible entity
@@ -85,7 +95,7 @@ func (w *Window) inputLoop() {
 				float64((((e.X - float32(w.windowRect.Min.X)) / float32(w.windowRect.Max.X-w.windowRect.Min.X)) * float32(w.ScreenWidth))),
 				float64((((e.Y - float32(w.windowRect.Min.Y)) / float32(w.windowRect.Max.Y-w.windowRect.Min.Y)) * float32(w.ScreenHeight))),
 				button,
-				eventName,
+				ev,
 			)
 			w.TriggerMouseEvent(mevent)
 
@@ -102,10 +112,9 @@ func (w *Window) inputLoop() {
 // From the perspective of the event handler this is indistinguishable
 // from a real keypress.
 func (w *Window) TriggerKeyDown(e okey.Event) {
-	k := e.Code.String()[4:]
-	w.SetDown(k)
-	w.eventHandler.Trigger(okey.Down, e)
-	w.eventHandler.Trigger(okey.Down+k, e)
+	w.State.SetDown(e.Code)
+	event.TriggerOn(w.eventHandler, okey.AnyDown, e)
+	event.TriggerOn(w.eventHandler, okey.Down(e.Code), e)
 }
 
 // TriggerKeyUp triggers a software-emulated key release.
@@ -113,10 +122,9 @@ func (w *Window) TriggerKeyDown(e okey.Event) {
 // From the perspective of the event handler this is indistinguishable
 // from a real key release.
 func (w *Window) TriggerKeyUp(e okey.Event) {
-	k := e.Code.String()[4:]
-	w.SetUp(k)
-	w.eventHandler.Trigger(okey.Up, e)
-	w.eventHandler.Trigger(okey.Up+k, e)
+	w.State.SetUp(e.Code)
+	event.TriggerOn(w.eventHandler, okey.AnyUp, e)
+	event.TriggerOn(w.eventHandler, okey.Up(e.Code), e)
 }
 
 // TriggerKeyHeld triggers a software-emulated key hold signal.
@@ -124,9 +132,8 @@ func (w *Window) TriggerKeyUp(e okey.Event) {
 // From the perspective of the event handler this is indistinguishable
 // from a real key hold signal.
 func (w *Window) TriggerKeyHeld(e okey.Event) {
-	k := e.Code.String()[4:]
-	w.eventHandler.Trigger(okey.Held, e)
-	w.eventHandler.Trigger(okey.Held+k, e)
+	event.TriggerOn(w.eventHandler, okey.AnyHeld, e)
+	event.TriggerOn(w.eventHandler, okey.Held(e.Code), e)
 }
 
 // TriggerMouseEvent triggers a software-emulated mouse event.
@@ -136,12 +143,21 @@ func (w *Window) TriggerKeyHeld(e okey.Event) {
 func (w *Window) TriggerMouseEvent(mevent omouse.Event) {
 	w.LastMouseEvent = mevent
 	omouse.LastEvent = mevent
-	w.Propagate(mevent.Event+"On", mevent)
-	w.eventHandler.Trigger(mevent.Event, &mevent)
+	on, onOk := omouse.EventOn(mevent.EventType)
+	if onOk {
+		w.Propagate(on, mevent)
+	}
+	event.TriggerOn(w.eventHandler, mevent.EventType, &mevent)
 
-	relativeEvent := mevent
-	relativeEvent.Point2[0] += float64(w.viewPos[0])
-	relativeEvent.Point2[1] += float64(w.viewPos[1])
-	w.LastRelativeMouseEvent = relativeEvent
-	w.Propagate(relativeEvent.Event+"OnRelative", relativeEvent)
+	if onOk {
+		rel, ok := omouse.EventRelative(on)
+		if ok {
+			relativeEvent := mevent
+			relativeEvent.Point2[0] += float64(w.viewPos[0])
+			relativeEvent.Point2[1] += float64(w.viewPos[1])
+			w.LastRelativeMouseEvent = relativeEvent
+
+			w.Propagate(rel, relativeEvent)
+		}
+	}
 }

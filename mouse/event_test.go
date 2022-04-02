@@ -7,7 +7,7 @@ import (
 )
 
 func TestEventConversions(t *testing.T) {
-	me := NewZeroEvent(1.0, 1.0)
+	me := NewEvent(1.0, 1.0, ButtonLeft, Drag)
 	s := me.ToSpace()
 	Add(collision.NewUnassignedSpace(1.0, 1.0, .1, .1))
 	if len(Hits(s)) == 0 {

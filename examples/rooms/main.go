@@ -49,7 +49,7 @@ func main() {
 		var transitioning bool
 		var totalTransitionDelta intgeom.Point2
 		var transitionDelta intgeom.Point2
-		char.Bind(event.Enter, func(event.CID, interface{}) int {
+		event.Bind(ctx, event.Enter, char, func(c *entities.Moving, ev event.EnterPayload) event.Response {
 			dir, ok := isOffScreen(ctx, char)
 			if !transitioning && ok {
 				transitioning = true

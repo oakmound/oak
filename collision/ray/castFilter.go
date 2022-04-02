@@ -46,7 +46,7 @@ func IgnoreLabels(ls ...collision.Label) CastOption {
 }
 
 // AcceptIDs is equivalent to AcceptLabels, but for CIDs.
-func AcceptIDs(ids ...event.CID) CastOption {
+func AcceptIDs(ids ...event.CallerID) CastOption {
 	return AddFilter(func(s *collision.Space) bool {
 		for _, id := range ids {
 			if s.CID == id {
@@ -58,7 +58,7 @@ func AcceptIDs(ids ...event.CID) CastOption {
 }
 
 // IgnoreIDs is equivalent to IgnoreLabels, but for CIDs.
-func IgnoreIDs(ids ...event.CID) CastOption {
+func IgnoreIDs(ids ...event.CallerID) CastOption {
 	return AddFilter(func(s *collision.Space) bool {
 		for _, id := range ids {
 			if s.CID == id {

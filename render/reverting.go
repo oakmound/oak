@@ -119,7 +119,7 @@ func (rv *Reverting) update() {
 }
 
 // SetTriggerID sets the ID AnimationEnd will trigger on for animating subtypes.
-func (rv *Reverting) SetTriggerID(cid event.CID) {
+func (rv *Reverting) SetTriggerID(cid event.CallerID) {
 	if t, ok := rv.Modifiable.(Triggerable); ok {
 		t.SetTriggerID(cid)
 	}

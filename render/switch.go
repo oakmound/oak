@@ -187,7 +187,7 @@ func (c *Switch) IsStatic() bool {
 // Todo: standardize this with the other interface Set functions so that it
 // also only acts on the current subRenderable, or the other way around, or
 // somehow offer both options
-func (c *Switch) SetTriggerID(cid event.CID) {
+func (c *Switch) SetTriggerID(cid event.CallerID) {
 	c.lock.RLock()
 	for _, r := range c.subRenderables {
 		if t, ok := r.(Triggerable); ok {

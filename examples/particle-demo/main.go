@@ -56,7 +56,7 @@ func parseShape(args []string) shape.Shape {
 func main() {
 
 	debugstream.AddCommand(debugstream.Command{Name: "followMouse", Operation: func(args []string) string {
-		event.GlobalBind(event.Enter, func(event.CID, interface{}) int {
+		event.GlobalBind(event.DefaultBus, event.Enter, func(ev event.EnterPayload) event.Response {
 			// It'd be interesting to attach to the mouse position
 			src.SetPos(float64(mouse.LastEvent.X()), float64(mouse.LastEvent.Y()))
 			return 0
@@ -284,6 +284,7 @@ func main() {
 		endColor = color.RGBA{255, 255, 255, 255}
 		endColorRand = color.RGBA{0, 0, 0, 0}
 		shape := shape.Square
+
 		src = pt.NewColorGenerator(
 			pt.Pos(x, y),
 			pt.Duration(pt.Inf),

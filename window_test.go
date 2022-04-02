@@ -11,69 +11,83 @@ import (
 
 func TestMouseClicks(t *testing.T) {
 	c1 := NewWindow()
-	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
-	var triggered bool
-	go event.ResolveChanges()
-	event.GlobalBind(mouse.Click, func(event.CID, interface{}) int {
-		triggered = true
+	c1.MouseTree = collision.NewTree()
+	ch := make(chan struct{})
+	c1.eventHandler = event.NewBus(event.NewCallerMap())
+	bnd := event.GlobalBind(c1.eventHandler, mouse.Click, func(_ *mouse.Event) event.Response {
+		close(ch)
 		return 0
 	})
-	time.Sleep(2 * time.Second)
-	mouse.DefaultTree.Add(sp)
+	select {
+	case <-time.After(2 * time.Second):
+		t.Fatalf("click binding never bound")
+	case <-bnd.Bound:
+	}
+	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
+	c1.MouseTree.Add(sp)
 	c1.Propagate(mouse.PressOn, mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.PressOn))
 	c1.Propagate(mouse.ReleaseOn, mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.ReleaseOn))
-	time.Sleep(2 * time.Second)
-	if !triggered {
+	select {
+	case <-time.After(2 * time.Second):
 		t.Fatalf("propagation failed to trigger click binding")
+	case <-ch:
 	}
 }
 
 func TestMouseClicksRelative(t *testing.T) {
 	c1 := NewWindow()
-	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
-	var triggered bool
-	go c1.eventHandler.(*event.Bus).ResolveChanges()
-	c1.eventHandler.GlobalBind(mouse.ClickOn+"Relative", func(event.CID, interface{}) int {
-		triggered = true
+	c1.MouseTree = collision.NewTree()
+	ch := make(chan struct{})
+	c1.eventHandler = event.NewBus(event.NewCallerMap())
+	bnd := event.GlobalBind(c1.eventHandler, mouse.RelativeClickOn, func(_ *mouse.Event) event.Response {
+		close(ch)
 		return 0
 	})
-	time.Sleep(2 * time.Second)
+	select {
+	case <-time.After(2 * time.Second):
+		t.Fatalf("click binding never bound")
+	case <-bnd.Bound:
+	}
+	sp := collision.NewFullSpace(0, 0, 100, 100, 1, 0)
 	c1.MouseTree.Add(sp)
-	c1.Propagate(mouse.PressOn+"Relative", mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.PressOn))
-	c1.Propagate(mouse.ReleaseOn+"Relative", mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.ReleaseOn))
-	time.Sleep(3 * time.Second)
-	if !triggered {
+	defer c1.MouseTree.Clear()
+	c1.Propagate(mouse.RelativePressOn, mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.PressOn))
+	c1.Propagate(mouse.RelativeReleaseOn, mouse.NewEvent(5, 5, mouse.ButtonLeft, mouse.ReleaseOn))
+	select {
+	case <-time.After(2 * time.Second):
 		t.Fatalf("propagation failed to trigger click binding")
+	case <-ch:
 	}
 }
 
-type ent struct{}
-
-func (e ent) Init() event.CID {
-	return 0
+type ent struct {
+	event.CallerID
 }
 
 func TestPropagate(t *testing.T) {
 	c1 := NewWindow()
-	go event.ResolveChanges()
-	var triggered bool
-	cid := event.CID(0).Parse(ent{})
-	s := collision.NewSpace(10, 10, 10, 10, cid)
-	s.CID.Bind("MouseDownOn", func(event.CID, interface{}) int {
-		triggered = true
+	c1.eventHandler = event.NewBus(event.NewCallerMap())
+
+	thisEnt := ent{}
+	thisEnt.CallerID = c1.eventHandler.GetCallerMap().Register(thisEnt)
+	ch := make(chan struct{})
+	s := collision.NewSpace(10, 10, 10, 10, thisEnt.CallerID)
+	event.Bind(c1.eventHandler, mouse.PressOn, thisEnt, func(ent, *mouse.Event) event.Response {
+		close(ch)
 		return 0
 	})
-	mouse.Add(s)
-	time.Sleep(200 * time.Millisecond)
-	c1.Propagate("MouseUpOn", mouse.NewEvent(15, 15, mouse.ButtonLeft, "MouseUp"))
-	time.Sleep(200 * time.Millisecond)
-	if triggered {
-		t.Fatalf("mouse up triggered binding")
+	c1.MouseTree = collision.NewTree()
+	c1.MouseTree.Add(s)
+	c1.Propagate(mouse.ReleaseOn, mouse.NewEvent(15, 15, mouse.ButtonLeft, mouse.Release))
+	select {
+	case <-ch:
+		t.Fatalf("release propagation triggered press binding")
+	case <-time.After(1 * time.Second):
 	}
-	time.Sleep(200 * time.Millisecond)
-	c1.Propagate("MouseDownOn", mouse.NewEvent(15, 15, mouse.ButtonLeft, "MouseDown"))
-	time.Sleep(200 * time.Millisecond)
-	if !triggered {
-		t.Fatalf("mouse down failed to trigger binding")
+	c1.Propagate(mouse.PressOn, mouse.NewEvent(15, 15, mouse.ButtonLeft, mouse.Press))
+	select {
+	case <-time.After(2 * time.Second):
+		t.Fatalf("propagation failed to trigger press binding")
+	case <-ch:
 	}
 }

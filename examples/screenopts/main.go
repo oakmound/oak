@@ -16,14 +16,13 @@ const (
 )
 
 func main() {
-	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
+	oak.AddScene("demo", scene.Scene{Start: func(ctx *scene.Context) {
 		txt := render.NewText("Press F to toggle fullscreen. Press B to toggle borderless.", 50, 50)
 		render.Draw(txt)
 
 		borderless := borderlessAtStart
 		fullscreen := fullscreenAtStart
-
-		event.GlobalBind(key.Down+key.F, func(event.CID, interface{}) int {
+		event.GlobalBind(ctx, key.Down(key.W), func(k key.Event) event.Response {
 			fullscreen = !fullscreen
 			err := oak.SetFullScreen(fullscreen)
 			if err != nil {
@@ -32,7 +31,7 @@ func main() {
 			}
 			return 0
 		})
-		event.GlobalBind(key.Down+key.B, func(event.CID, interface{}) int {
+		event.GlobalBind(ctx, key.Down(key.B), func(k key.Event) event.Response {
 			borderless = !borderless
 			err := oak.SetBorderless(borderless)
 			if err != nil {

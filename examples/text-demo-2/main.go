@@ -60,26 +60,28 @@ func main() {
 				strs = append(strs, font.NewText(str, 0, y))
 				render.Draw(strs[len(strs)-1], 0)
 			}
-		},
-			Loop: func() bool {
-				r = limit.EnforceRange(r + diff.Poll())
-				g = limit.EnforceRange(g + diff.Poll())
-				b = limit.EnforceRange(b + diff.Poll())
-				// This should be a function in oak to just set color source
-				// (or texture source)
-				font.Drawer.Src = image.NewUniform(
-					color.RGBA{
-						uint8(r),
-						uint8(g),
-						uint8(b),
-						255,
-					},
-				)
-				for _, st := range strs {
-					st.SetString(randomStr(strlen))
+
+			go func() {
+				for {
+					r = limit.EnforceRange(r + diff.Poll())
+					g = limit.EnforceRange(g + diff.Poll())
+					b = limit.EnforceRange(b + diff.Poll())
+					// This should be a function in oak to just set color source
+					// (or texture source)
+					font.Drawer.Src = image.NewUniform(
+						color.RGBA{
+							uint8(r),
+							uint8(g),
+							uint8(b),
+							255,
+						},
+					)
+					for _, st := range strs {
+						st.SetString(randomStr(strlen))
+					}
 				}
-				return true
-			},
+			}()
+		},
 		})
 	render.SetDrawStack(
 		render.NewDynamicHeap(),

@@ -47,7 +47,7 @@ func StopAtLabel(ls ...collision.Label) CastOption {
 
 // StopAtID will cause a caster to cease casting as soon as it
 // hits one of the input CIDs.
-func StopAtID(ids ...event.CID) CastOption {
+func StopAtID(ids ...event.CallerID) CastOption {
 	return AddLimit(func(ps []collision.Point) bool {
 		z := ps[len(ps)-1].Zone
 		for _, id := range ids {

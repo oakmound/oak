@@ -37,11 +37,11 @@ func main() {
 			)
 			ctx.DrawStack.Draw(box)
 
-			ctx.EventHandler.GlobalBind(mouse.Drag, func(_ event.CID, me interface{}) int {
-				mouseEvent := me.(*mouse.Event)
-				box.SetPos(mouseEvent.X(), mouseEvent.Y())
-				return 0
-			})
+			event.GlobalBind(ctx,
+				mouse.Drag, func(mouseEvent *mouse.Event) event.Response {
+					box.SetPos(mouseEvent.X(), mouseEvent.Y())
+					return 0
+				})
 		},
 	})
 	oak.Init("customcursor")
