@@ -12,6 +12,10 @@ func (c CallerID) CID() CallerID {
 	return c
 }
 
+func (c *CallerID) SetCID(c2 CallerID) {
+	*c = c2
+}
+
 // Global is the CallerID associated with global bindings. A caller must not be assigned
 // this ID. Global may be used to manually create bindings scoped to no callers, but the GlobalBind function
 // should be preferred when possible for type safety.
@@ -19,6 +23,7 @@ const Global CallerID = 0
 
 type Caller interface {
 	CID() CallerID
+	SetCID(CallerID)
 }
 
 // A CallerMap tracks CallerID mappings to Entities.
@@ -41,7 +46,7 @@ func NewCallerMap() *CallerMap {
 // NextID finds the next available caller id
 // and returns it, after adding the given entity to
 // the caller map.
-func (cm *CallerMap) Register(e Caller) CallerID {
+func (cm *CallerMap) Register(e Caller) {
 	cm.callersLock.Lock()
 	defer cm.callersLock.Unlock()
 	// Q: Why not use atomic?
@@ -58,7 +63,7 @@ func (cm *CallerMap) Register(e Caller) CallerID {
 	// Increment before assigning to preserve Global == caller 0
 	cm.highestID++
 	cm.callers[cm.highestID] = e
-	return cm.highestID
+	e.SetCID(cm.highestID)
 }
 
 // Get returns the entity corresponding to the given ID within

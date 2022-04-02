@@ -56,10 +56,10 @@ func TestBus_Unbind(t *testing.T) {
 func TestBind(t *testing.T) {
 	t.Run("SuperficialCoverage", func(t *testing.T) {
 		b := event.NewBus(event.NewCallerMap())
-		var cid event.CallerID
-		id := b.GetCallerMap().Register(cid)
+		cid := randomCallerID()
+		b.GetCallerMap().Register(cid)
 		var calls int32
-		b1 := event.Bind(b, event.Enter, id, func(event.CallerID, event.EnterPayload) event.Response {
+		b1 := event.Bind(b, event.Enter, cid, func(*event.CallerID, event.EnterPayload) event.Response {
 			atomic.AddInt32(&calls, 1)
 			return 0
 		})
@@ -90,30 +90,31 @@ func TestGlobalBind(t *testing.T) {
 func TestBus_UnbindAllFrom(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		b := event.NewBus(event.NewCallerMap())
-		var cid event.CallerID
-		id := b.GetCallerMap().Register(cid)
+		var cid = new(event.CallerID)
+		b.GetCallerMap().Register(cid)
 		var calls int32
 		for i := 0; i < 5; i++ {
-			b1 := event.Bind(b, event.Enter, id, func(event.CallerID, event.EnterPayload) event.Response {
+			b1 := event.Bind(b, event.Enter, cid, func(*event.CallerID, event.EnterPayload) event.Response {
 				atomic.AddInt32(&calls, 1)
 				return 0
 			})
 			<-b1.Bound
 		}
-		id2 := b.GetCallerMap().Register(cid)
-		b1 := event.Bind(b, event.Enter, id2, func(event.CallerID, event.EnterPayload) event.Response {
+		oldID := *cid
+		b.GetCallerMap().Register(cid)
+		b1 := event.Bind(b, event.Enter, cid, func(*event.CallerID, event.EnterPayload) event.Response {
 			atomic.AddInt32(&calls, 1)
 			return 0
 		})
 		<-b1.Bound
 		<-event.TriggerOn(b, event.Enter, event.EnterPayload{})
 		if calls != 6 {
-			t.Fatal(expectedError("calls", 1, calls))
+			t.Fatal(expectedError("calls", 6, calls))
 		}
-		<-b.UnbindAllFrom(id)
+		<-b.UnbindAllFrom(oldID)
 		<-event.TriggerOn(b, event.Enter, event.EnterPayload{})
 		if calls != 7 {
-			t.Fatal(expectedError("calls", 1, calls))
+			t.Fatal(expectedError("calls", 7, calls))
 		}
 	})
 }
