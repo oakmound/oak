@@ -27,7 +27,7 @@ var cache = [360]*image.RGBA{}
 func main() {
 	oak.AddScene(
 		"demo",
-		scene.Scene{Start: func(*scene.Context) {
+		scene.Scene{Start: func(ctx *scene.Context) {
 			render.Draw(render.NewDrawFPS(0.03, nil, 10, 10))
 			render.Draw(render.NewLogicFPS(0.03, nil, 10, 20))
 
@@ -35,11 +35,11 @@ func main() {
 			layerTxt := render.DefaultFont().NewIntText(&layer, 30, 20)
 			layerTxt.SetLayer(100000000)
 			render.Draw(layerTxt, 0)
-			NewGopher(layer)
+			NewGopher(ctx, layer)
 			layer++
-			event.GlobalBind(event.Enter, func(event.CallerID, interface{}) int {
+			event.GlobalBind(ctx, event.Enter, func(ev event.EnterPayload) event.Response {
 				if oak.IsDown("K") {
-					NewGopher(layer)
+					NewGopher(ctx, layer)
 					layer++
 				}
 				return 0
@@ -76,31 +76,23 @@ type Gopher struct {
 	rotation       int
 }
 
-// Init sets up a gophers CID
-func (g *Gopher) Init() event.CallerID {
-	return event.NextID(g)
-}
-
 // NewGopher creates a gopher sprite to bounce around
-func NewGopher(layer int) {
-	goph := Gopher{}
+func NewGopher(ctx *scene.Context, layer int) {
+	goph := new(Gopher)
 	goph.Doodad = entities.NewDoodad(
 		rand.Float64()*576,
 		rand.Float64()*416,
 		render.NewSwitch("goph", map[string]render.Modifiable{"goph": render.EmptyRenderable()}),
-		//render.NewReverting(render.LoadSprite(filepath.Join("raw", "gopher11.png"))),
-		goph.Init())
+		ctx.Register(goph))
 	goph.R.SetLayer(layer)
-	goph.Bind("EnterFrame", gophEnter)
+	event.Bind(ctx, event.Enter, goph, gophEnter)
 	goph.deltaX = 4 * float64(rand.Intn(2)*2-1)
 	goph.deltaY = 4 * float64(rand.Intn(2)*2-1)
 	goph.rotation = rand.Intn(360)
 	render.Draw(goph.R, 0)
 }
 
-func gophEnter(cid event.CallerID, nothing interface{}) int {
-	goph := event.GetEntity(cid).(*Gopher)
-
+func gophEnter(goph *Gopher, ev event.EnterPayload) event.Response {
 	// Compare against this version of rotation
 	// (also swap the comments on lines in goph.Doodad's renderable)
 	//goph.R.(*render.Reverting).RevertAndModify(1, render.Rotate(goph.rotation))

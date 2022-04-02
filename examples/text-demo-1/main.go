@@ -64,21 +64,23 @@ func main() {
 			render.Draw(font2.NewText("r", 160, 260), 0)
 			render.Draw(font2.NewText("g", 280, 260), 0)
 			render.Draw(font2.NewText("b", 400, 260), 0)
+
+			go func() {
+				for {
+					r = limit.EnforceRange(r + diff.Poll())
+					g = limit.EnforceRange(g + diff.Poll())
+					b = limit.EnforceRange(b + diff.Poll())
+					font.Drawer.Src = image.NewUniform(
+						color.RGBA{
+							uint8(r),
+							uint8(g),
+							uint8(b),
+							255,
+						},
+					)
+				}
+			}()
 		},
-			Loop: func() bool {
-				r = limit.EnforceRange(r + diff.Poll())
-				g = limit.EnforceRange(g + diff.Poll())
-				b = limit.EnforceRange(b + diff.Poll())
-				font.Drawer.Src = image.NewUniform(
-					color.RGBA{
-						uint8(r),
-						uint8(g),
-						uint8(b),
-						255,
-					},
-				)
-				return true
-			},
 		})
 	oak.SetFS(assets)
 	oak.Init("demo")

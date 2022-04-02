@@ -29,7 +29,6 @@ const (
 )
 
 var (
-	playerAlive = true
 	// Vectors are backed by pointers,
 	// so despite this not being a pointer,
 	// this does update according to the player's
@@ -37,13 +36,15 @@ var (
 	// the player's position vector
 	playerPos physics.Vector
 
+	destroy = event.RegisterEvent[event.NoPayload]()
+
 	sheet [][]*render.Sprite
 )
 
 func main() {
 	oak.AddScene("tds", scene.Scene{Start: func(ctx *scene.Context) {
 		// Initialization
-		playerAlive = true
+
 		sprites, err := render.GetSheet("sheet.png")
 		dlog.ErrorCheck(err)
 		sheet = sprites.ToSprites()
@@ -67,25 +68,24 @@ func main() {
 		playerPos = char.Point.Vector
 		render.Draw(char.R, 2)
 
-		char.Bind(event.Enter, func(id event.CallerID, _ interface{}) int {
-			char := event.GetEntity(id).(*entities.Moving)
+		event.Bind(ctx, event.Enter, char, func(char *entities.Moving, ev event.EnterPayload) event.Response {
 			char.Delta.Zero()
-			if oak.IsDown(key.W) {
+			if oak.IsDown(key.WStr) {
 				char.Delta.ShiftY(-char.Speed.Y())
 			}
-			if oak.IsDown(key.A) {
+			if oak.IsDown(key.AStr) {
 				char.Delta.ShiftX(-char.Speed.X())
 			}
-			if oak.IsDown(key.S) {
+			if oak.IsDown(key.SStr) {
 				char.Delta.ShiftY(char.Speed.Y())
 			}
-			if oak.IsDown(key.D) {
+			if oak.IsDown(key.DStr) {
 				char.Delta.ShiftX(char.Speed.X())
 			}
 			char.ShiftPos(char.Delta.X(), char.Delta.Y())
 			hit := char.HitLabel(Enemy)
 			if hit != nil {
-				playerAlive = false
+				ctx.Window.NextScene()
 			}
 
 			// update animation
@@ -103,15 +103,13 @@ func main() {
 			return 0
 		})
 
-		char.Bind(mouse.Press, func(id event.CallerID, me interface{}) int {
-			char := event.GetEntity(id).(*entities.Moving)
-			mevent := me.(*mouse.Event)
+		event.Bind(ctx, mouse.Press, char, func(char *entities.Moving, mevent *mouse.Event) event.Response {
 			x := char.X() + char.W/2
 			y := char.Y() + char.H/2
 			ray.DefaultCaster.CastDistance = floatgeom.Point2{x, y}.Sub(floatgeom.Point2{mevent.X(), mevent.Y()}).Magnitude()
 			hits := ray.CastTo(floatgeom.Point2{x, y}, floatgeom.Point2{mevent.X(), mevent.Y()})
 			for _, hit := range hits {
-				hit.Zone.CID.Trigger("Destroy", nil)
+				event.TriggerForCallerOn(ctx, hit.Zone.CID, destroy, event.NoPayload{})
 			}
 			ctx.DrawForTime(
 				render.NewLine(x, y, mevent.X(), mevent.Y(), color.RGBA{0, 128, 0, 128}),
@@ -121,8 +119,7 @@ func main() {
 		})
 
 		// Create enemies periodically
-		event.GlobalBind(event.Enter, func(_ event.CallerID, frames interface{}) int {
-			enterPayload := frames.(event.EnterPayload)
+		event.GlobalBind(ctx, event.Enter, func(enterPayload event.EnterPayload) event.Response {
 			if enterPayload.FramesElapsed%EnemyRefresh == 0 {
 				go NewEnemy(ctx)
 			}
@@ -140,8 +137,6 @@ func main() {
 			}
 		}
 
-	}, Loop: func() bool {
-		return playerAlive
 	}})
 
 	oak.Init("tds", func(c oak.Config) (oak.Config, error) {
@@ -178,8 +173,7 @@ func NewEnemy(ctx *scene.Context) {
 
 	enemy.UpdateLabel(Enemy)
 
-	enemy.Bind(event.Enter, func(id event.CallerID, _ interface{}) int {
-		enemy := event.GetEntity(id).(*entities.Solid)
+	event.Bind(ctx, event.Enter, enemy, func(e *entities.Solid, ev event.EnterPayload) event.Response {
 		// move towards the player
 		x, y := enemy.GetPos()
 		pt := floatgeom.Point2{x, y}
@@ -201,9 +195,8 @@ func NewEnemy(ctx *scene.Context) {
 		return 0
 	})
 
-	enemy.Bind("Destroy", func(id event.CallerID, _ interface{}) int {
-		enemy := event.GetEntity(id).(*entities.Solid)
-		enemy.Destroy()
+	event.Bind(ctx, destroy, enemy, func(e *entities.Solid, nothing event.NoPayload) event.Response {
+		e.Destroy()
 		return 0
 	})
 }
