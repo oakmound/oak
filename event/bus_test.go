@@ -1,6 +1,7 @@
 package event_test
 
 import (
+	"math/rand"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -27,11 +28,11 @@ func TestBus_SetCallerMap(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		cm1 := event.NewCallerMap()
 		b := event.NewBus(cm1)
-		c1 := randomCallerID()
+		c1 := event.CallerID(rand.Intn(10000))
 		b.GetCallerMap().Register(c1)
 		cm2 := event.NewCallerMap()
 		b.SetCallerMap(cm2)
-		if b.GetCallerMap().HasEntity(c1.CID()) {
+		if b.GetCallerMap().HasEntity(c1) {
 			t.Fatal("event had old entity after changed caller map")
 		}
 	})

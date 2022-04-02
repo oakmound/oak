@@ -87,14 +87,14 @@ func TestBus_TriggerForCaller(t *testing.T) {
 	})
 	t.Run("WithValidCallerID", func(t *testing.T) {
 		b := event.NewBus(event.NewCallerMap())
-		var cid = new(event.CallerID)
-		b.GetCallerMap().Register(cid)
+		var cid event.CallerID
+		callerID := b.GetCallerMap().Register(cid)
 		id := event.UnsafeEventID(rand.Intn(100000))
 		errs := make(chan error)
-		binding := b.UnsafeBind(id, *cid, func(ci event.CallerID, h event.Handler, i interface{}) event.Response {
+		binding := b.UnsafeBind(id, callerID, func(ci event.CallerID, h event.Handler, i interface{}) event.Response {
 			defer close(errs)
-			if ci != *cid {
-				errs <- expectedError("callerID", *cid, ci)
+			if ci != callerID {
+				errs <- expectedError("callerID", callerID, ci)
 			}
 			if h != b {
 				errs <- expectedError("bus", b, h)
@@ -110,7 +110,7 @@ func TestBus_TriggerForCaller(t *testing.T) {
 			t.Fatal("timeout waiting for bind to close channel")
 		case <-binding.Bound:
 		}
-		ch := b.TriggerForCaller(*cid, id, nil)
+		ch := b.TriggerForCaller(callerID, id, nil)
 		select {
 		case <-time.After(50 * time.Millisecond):
 			t.Fatal("timeout waiting for trigger to close channel")
@@ -195,14 +195,14 @@ func TestBus_Trigger(t *testing.T) {
 	})
 	t.Run("WithValidCallerID", func(t *testing.T) {
 		b := event.NewBus(event.NewCallerMap())
-		var cid = new(event.CallerID)
-		b.GetCallerMap().Register(cid)
+		var cid event.CallerID
+		callerID := b.GetCallerMap().Register(cid)
 		id := event.UnsafeEventID(rand.Intn(100000))
 		errs := make(chan error)
-		binding := b.UnsafeBind(id, *cid, func(ci event.CallerID, h event.Handler, i interface{}) event.Response {
+		binding := b.UnsafeBind(id, event.CallerID(callerID), func(ci event.CallerID, h event.Handler, i interface{}) event.Response {
 			defer close(errs)
-			if ci != *cid {
-				errs <- expectedError("callerID", *cid, ci)
+			if ci != callerID {
+				errs <- expectedError("callerID", callerID, ci)
 			}
 			if h != b {
 				errs <- expectedError("bus", b, h)
