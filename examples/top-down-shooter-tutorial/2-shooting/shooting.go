@@ -21,13 +21,9 @@ const (
 	Player collision.Label = 2
 )
 
-var (
-	playerAlive = true
-)
-
 func main() {
 	oak.AddScene("tds", scene.Scene{Start: func(ctx *scene.Context) {
-		playerAlive = true
+
 		char := entities.NewMoving(100, 100, 32, 32,
 			render.NewColorBox(32, 32, color.RGBA{0, 255, 0, 255}),
 			nil, 0, 0)
@@ -35,8 +31,8 @@ func main() {
 		char.Speed = physics.NewVector(5, 5)
 		render.Draw(char.R)
 
-		char.Bind(event.Enter, func(id event.CallerID, _ interface{}) int {
-			char := event.GetEntity(id).(*entities.Moving)
+		event.Bind(ctx, event.Enter, char, func(char *entities.Moving, ev event.EnterPayload) event.Response {
+
 			char.Delta.Zero()
 			if oak.IsDown(key.W) {
 				char.Delta.ShiftY(-char.Speed.Y())
@@ -53,24 +49,20 @@ func main() {
 			char.ShiftPos(char.Delta.X(), char.Delta.Y())
 			hit := char.HitLabel(Enemy)
 			if hit != nil {
-				playerAlive = false
+				ctx.Window.NextScene()
 			}
 
 			return 0
 		})
-
-		char.Bind(mouse.Press, func(id event.CallerID, me interface{}) int {
-			char := event.GetEntity(id).(*entities.Moving)
-			mevent := me.(*mouse.Event)
+		event.Bind(ctx, mouse.Press, char, func(char *entities.Moving, mevent *mouse.Event) event.Response {
 			ctx.DrawForTime(
 				render.NewLine(char.X()+char.W/2, char.Y()+char.H/2, mevent.X(), mevent.Y(), color.RGBA{0, 128, 0, 128}),
 				time.Millisecond*50,
 				1)
+
 			return 0
 		})
 
-	}, Loop: func() bool {
-		return playerAlive
 	}})
 	oak.Init("tds")
 }

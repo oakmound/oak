@@ -7,6 +7,7 @@ import (
 	"github.com/oakmound/oak/v3/collision"
 	"github.com/oakmound/oak/v3/entities"
 	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
 )
@@ -33,20 +34,20 @@ func main() {
 				act.R = act.nextR
 				render.Draw(act.R, 0, 1)
 			}
-			if oak.IsDown("A") {
+			if oak.IsDown(key.A) {
 				// We could use attachment here to not have to shift both
 				// R and act but that is made more difficult by constantly
 				// changing the act's R
 				act.ShiftX(-3)
 				act.R.ShiftX(-3)
-			} else if oak.IsDown("D") {
+			} else if oak.IsDown(key.D) {
 				act.ShiftX(3)
 				act.R.ShiftX(3)
 			}
-			if oak.IsDown("W") {
+			if oak.IsDown(key.W) {
 				act.ShiftY(-3)
 				act.R.ShiftY(-3)
-			} else if oak.IsDown("S") {
+			} else if oak.IsDown(key.S) {
 				act.ShiftY(3)
 				act.R.ShiftY(3)
 			}

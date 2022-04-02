@@ -50,7 +50,7 @@ func TestSource(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		rotateParticles(src, event.EnterPayload{})
 	}
-	for clearParticles(src, event.EnterPayload{}) != event.UnbindThis {
+	for clearParticles(src, event.EnterPayload{}) != event.ResponseUnbindThisBinding {
 	}
 
 	if !ended {

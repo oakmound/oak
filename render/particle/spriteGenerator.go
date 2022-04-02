@@ -37,7 +37,7 @@ func (sg *SpriteGenerator) Generate(layer int) *Source {
 	if sg.Rotation != nil {
 		sg.Rotation = sg.Rotation.Mult(alg.DegToRad)
 	}
-	return NewSource(sg, layer)
+	return NewDefaultSource(sg, layer)
 }
 
 // GenerateParticle creates a particle from a generator

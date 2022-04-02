@@ -45,7 +45,7 @@ func (gg *GradientGenerator) Generate(layer int) *Source {
 	if gg.Rotation != nil {
 		gg.Rotation = gg.Rotation.Mult(alg.DegToRad)
 	}
-	return NewSource(gg, layer)
+	return NewDefaultSource(gg, layer)
 }
 
 // GenerateParticle creates a particle from a generator

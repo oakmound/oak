@@ -6,6 +6,7 @@ import (
 
 	oak "github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/entities"
+	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
@@ -48,69 +49,71 @@ func main() {
 		//tell the draw loop to draw titleText
 		render.Draw(titleText)
 
-		//do the same for the text with button instuctions, but this time Y position is not a placeholder (X still is)
+		//do the same for the text with button instructions, but this time Y position is not a placeholder (X still is)
 		instructionText := render.NewText("press Enter to start, or press Q to quit", 0, float64(ctx.Window.Height()*3/4))
 		//this time we only center the X axis, otherwise it would overlap titleText
 		center(ctx, instructionText, X)
 		render.Draw(instructionText)
-	}, Loop: func() bool {
-		//if the enter key is pressed, go to the next scene
-		if oak.IsDown(key.Enter) {
-			return false
-		}
-		//exit the program if the q key is pressed
-		if oak.IsDown(key.Q) {
+		event.GlobalBind(ctx, key.Down(key.ReturnEnter), func(key.Event) event.Response {
+			// Go to the next scene if enter is pressed. Next scene is the game
+			ctx.Window.NextScene()
+			return 0
+		})
+		event.GlobalBind(ctx, key.Down(key.Q), func(key.Event) event.Response {
+			// exit the game if q is pressed
 			os.Exit(0)
-		}
-		return true
+			return 0
+		})
+
 	}, End: func() (string, *scene.Result) {
 		return "game", nil //set the next scene to "game"
 	}})
 
-	//we declare this here so it can be accesed by the scene start and scene loop
+	//we declare this here so it can be accessed by the scene start and scene loop
 	var player *entities.Moving
 
 	//define the "game" (it's just a square that can be moved with WASD)
-	oak.AddScene("game", scene.Scene{Start: func(*scene.Context) {
+	oak.AddScene("game", scene.Scene{Start: func(ctx *scene.Context) {
 		//create the player, a blue 32x32 square at 100,100
 		player = entities.NewMoving(100, 100, 32, 32,
 			render.NewColorBox(32, 32, color.RGBA{0, 0, 255, 255}),
 			nil, 0, 0)
 		//because the player is more than visuals (it has a hitbox, even though we don't use it),
-		//we have to get the visual part specificaly, and not the whole thing.
+		//we have to get the visual part specifically, and not the whole thing.
 		render.Draw(player.R)
 
 		controlsText := render.NewText("WASD to move, ESC to return to titlescreen", 5, 20)
 		//we draw the text on layer 1 (instead of the default layer 0)
 		//because we want it to show up above the player
 		render.Draw(controlsText, 1)
-	}, Loop: func() bool {
-		//if escape is pressed, go to the next scene (titlescreen)
-		if oak.IsDown(key.Escape) {
-			return false
-		}
-		//controls
-		if oak.IsDown(key.S) {
-			//if S is pressed, set the player's vertical speed to 2 (positive == down)
-			player.Delta.SetY(2)
-		} else if oak.IsDown(key.W) {
-			player.Delta.SetY(-2)
-		} else {
-			//if the now buttons are pressed for vertical movement, don't move verticaly
-			player.Delta.SetY(0)
-		}
+		event.GlobalBind(ctx, key.Down(key.Escape), func(key.Event) event.Response {
+			// Go to the next scene if escape is pressed. Next scene is titlescreen
+			ctx.Window.NextScene()
+			return 0
+		})
+		event.GlobalBind(ctx, event.Enter, func(event.EnterPayload) event.Response {
+			if oak.IsDown(key.S) {
+				//if S is pressed, set the player's vertical speed to 2 (positive == down)
+				player.Delta.SetY(2)
+			} else if oak.IsDown(key.W) {
+				player.Delta.SetY(-2)
+			} else {
+				//if the now buttons are pressed for vertical movement, don't move vertically
+				player.Delta.SetY(0)
+			}
 
-		//do the same thing as before, but horizontaly
-		if oak.IsDown(key.D) {
-			player.Delta.SetX(2)
-		} else if oak.IsDown(key.A) {
-			player.Delta.SetX(-2)
-		} else {
-			player.Delta.SetX(0)
-		}
-		//apply the player's speed to their position
-		player.ShiftPos(player.Delta.X(), player.Delta.Y())
-		return true
+			//do the same thing as before, but horizontally
+			if oak.IsDown(key.D) {
+				player.Delta.SetX(2)
+			} else if oak.IsDown(key.A) {
+				player.Delta.SetX(-2)
+			} else {
+				player.Delta.SetX(0)
+			}
+			//apply the player's speed to their position
+			player.ShiftPos(player.Delta.X(), player.Delta.Y())
+			return 0
+		})
 	}, End: func() (string, *scene.Result) {
 		return "titlescreen", nil //set the next scene to be titlescreen
 	}})

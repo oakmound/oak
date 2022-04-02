@@ -68,7 +68,7 @@ func (sq *Sequence) Copy() Modifiable {
 	return newSq
 }
 
-var AnimationEnd = event.RegisterEvent[event.NoPayload]()
+var AnimationEnd = event.RegisterEvent[struct{}]()
 
 // SetTriggerID sets the ID that AnimationEnd will be triggered on when this
 // sequence loops over from its last frame to its first
@@ -82,7 +82,7 @@ func (sq *Sequence) update() {
 		sq.sheetPos = (sq.sheetPos + 1) % len(sq.rs)
 		if sq.sheetPos == (len(sq.rs)-1) && sq.CallerID != 0 {
 			// TODO: not default bus
-			event.TriggerForCallerOn(event.DefaultBus, sq.CallerID, AnimationEnd, event.NoPayload{})
+			event.TriggerForCallerOn(event.DefaultBus, sq.CallerID, AnimationEnd, struct{}{})
 		}
 	}
 }

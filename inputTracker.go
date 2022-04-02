@@ -17,7 +17,7 @@ type InputType int32
 // InputChange is triggered when the most recent input device changes (e.g. keyboard to joystick or vice versa)
 var InputChange = event.RegisterEvent[InputType]()
 
-var trackingJoystickChange = event.RegisterEvent[event.NoPayload]()
+var trackingJoystickChange = event.RegisterEvent[struct{}]()
 
 // Supported Input Types
 const (
@@ -41,7 +41,7 @@ func (w *Window) trackInputChanges() {
 		}
 		return 0
 	})
-	event.GlobalBind(w.eventHandler, trackingJoystickChange, func(event.NoPayload) event.Response {
+	event.GlobalBind(w.eventHandler, trackingJoystickChange, func(struct{}) event.Response {
 		old := atomic.SwapInt32(&w.mostRecentInput, int32(InputMouse))
 		if InputType(old) != InputJoystick {
 			event.TriggerOn(w.eventHandler, InputChange, InputJoystick)
@@ -55,7 +55,7 @@ type joyHandler struct {
 }
 
 func (jh *joyHandler) Trigger(eventID event.UnsafeEventID, data interface{}) chan struct{} {
-	jh.handler.Trigger(trackingJoystickChange.UnsafeEventID, event.NoPayload{})
+	jh.handler.Trigger(trackingJoystickChange.UnsafeEventID, struct{}{})
 	ch := make(chan struct{})
 	close(ch)
 	return ch

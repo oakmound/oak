@@ -53,7 +53,7 @@ var (
 func phaseCollisionEnter(id event.CallerID, handler event.Handler, _ interface{}) event.Response {
 	e, ok := handler.GetCallerMap().GetEntity(id).(collisionPhase)
 	if !ok {
-		return event.UnbindThis
+		return event.ResponseUnbindThisBinding
 	}
 	oc := e.getCollisionPhase()
 	if oc == nil || oc.OnCollisionS == nil {

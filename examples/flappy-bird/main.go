@@ -37,11 +37,11 @@ func main() {
 
 		score = 0
 		// 1. Make Player
-		newFlappy(90, 140)
+		newFlappy(ctx, 90, 140)
 		// 2. Make scrolling repeating pillars
 		var pillarLoop func()
 		pillarLoop = func() {
-			newPillarPair()
+			newPillarPair(ctx)
 			ctx.DoAfter(time.Duration(pillarFreq.Poll()*float64(time.Second)), pillarLoop)
 		}
 		go ctx.DoAfter(time.Duration(pillarFreq.Poll()*float64(time.Second)), pillarLoop)
@@ -49,12 +49,6 @@ func main() {
 		// 3. Make Score
 		t := render.DefaultFont().NewIntText(&score, 200, 30)
 		render.Draw(t, 0)
-	}, Loop: func() bool {
-		if playerHitPillar {
-			playerHitPillar = false
-			return false
-		}
-		return true
 	}, End: func() (string, *scene.Result) {
 		return "bounce", nil
 	}})
@@ -69,25 +63,24 @@ type Flappy struct {
 	*entities.Interactive
 }
 
-// Init satisfies the event.Entity interface
-func (f *Flappy) Init() event.CallerID {
-	return event.NextID(f)
+// CID returns the event.CallerID so that this can be bound to.
+func (flap *Flappy) CID() event.CallerID {
+	return flap.CallerID
 }
 
-func newFlappy(x, y float64) *Flappy {
+func newFlappy(ctx *scene.Context, x, y float64) *Flappy {
 	f := new(Flappy)
-	f.Interactive = entities.NewInteractive(x, y, 32, 32, render.NewColorBox(32, 32, color.RGBA{0, 255, 255, 255}), nil, f.Init(), 1)
+	f.Interactive = entities.NewInteractive(x, y, 32, 32, render.NewColorBox(32, 32, color.RGBA{0, 255, 255, 255}), nil, ctx.Register(f), 1)
 
 	f.RSpace.Add(pillar, func(s1, s2 *collision.Space) {
-		playerHitPillar = true
+		ctx.Window.NextScene()
 	})
 	f.RSpace.Space.Label = player
 	collision.Add(f.RSpace.Space)
 
 	f.R.SetLayer(1)
 	render.Draw(f.R, 0)
-
-	f.Bind(event.Enter, func(event.CallerID, interface{}) int {
+	event.Bind(ctx, event.Enter, f, func(f *Flappy, ev event.EnterPayload) event.Response {
 		f.ShiftPos(f.Delta.X(), f.Delta.Y())
 		f.Add(f.Delta)
 		if f.Delta.Y() > 10 {
@@ -101,7 +94,7 @@ func newFlappy(x, y float64) *Flappy {
 
 		<-f.RSpace.CallOnHits()
 		if f.Y()+f.H > 480 {
-			playerHitPillar = true
+			ctx.Window.NextScene()
 		}
 		if f.Y() < 0 {
 			f.SetY(0)
@@ -109,11 +102,12 @@ func newFlappy(x, y float64) *Flappy {
 		}
 		return 0
 	})
-	f.Bind(mouse.Press, func(event.CallerID, interface{}) int {
+
+	event.Bind(ctx, mouse.Press, f, func(f *Flappy, me *mouse.Event) event.Response {
 		f.Delta.ShiftY(-4)
 		return 0
 	})
-	f.Bind(key.Down+key.W, func(event.CallerID, interface{}) int {
+	event.Bind(ctx, key.Down(key.W), f, func(f *Flappy, k key.Event) event.Response {
 		f.Delta.ShiftY(-4)
 		return 0
 	})
@@ -126,17 +120,18 @@ type Pillar struct {
 	hasScored bool
 }
 
-// Init satisfies the event.Entity interface
-func (p *Pillar) Init() event.CallerID {
-	return event.NextID(p)
+// CID returns the event.CallerID so that this can be bound to.
+func (p *Pillar) CID() event.CallerID {
+	return p.CallerID
 }
 
-func newPillar(x, y, h float64, isAbove bool) {
+func newPillar(ctx *scene.Context, x, y, h float64, isAbove bool) {
 	p := new(Pillar)
-	p.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), nil, p.Init())
+	p.Solid = entities.NewSolid(x, y, 64, h, render.NewColorBox(64, int(h), color.RGBA{0, 255, 0, 255}), nil, ctx.Register(p))
 	p.Space.Label = pillar
 	collision.Add(p.Space)
-	p.Bind(event.Enter, enterPillar)
+	event.Bind(ctx, event.Enter, p, enterPillar)
+
 	p.R.SetLayer(1)
 	render.Draw(p.R, 0)
 	// Don't score one out of each two pillars
@@ -145,7 +140,7 @@ func newPillar(x, y, h float64, isAbove bool) {
 	}
 }
 
-func newPillarPair() {
+func newPillarPair(ctx *scene.Context) {
 	pos := gapPosition.Poll()
 	span := gapSpan.Poll()
 	if (pos + span) > 470 {
@@ -155,12 +150,11 @@ func newPillarPair() {
 		pos = 370
 		span = 100
 	}
-	newPillar(641, 0, pos, true)
-	newPillar(641, pos+span, 480-(pos+span), false)
+	newPillar(ctx, 641, 0, pos, true)
+	newPillar(ctx, 641, pos+span, 480-(pos+span), false)
 }
 
-func enterPillar(id event.CallerID, nothing interface{}) int {
-	p := event.GetEntity(id).(*Pillar)
+func enterPillar(p *Pillar, ev event.EnterPayload) event.Response {
 	p.ShiftX(-2)
 	if p.X()+p.W < 0 {
 		p.Destroy()
