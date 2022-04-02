@@ -4,8 +4,8 @@ package key
 // This list is not used internally by oak, but was generated from
 // the expected output from x/mobile/key.
 //
-// These strings are sent as payloads to Key.Down and Key.Up events,
-// and through "KeyDown"+$a, "KeyUp"+$a for any $a in the const.
+// These strings are sent as payloads to AnyDown and AnyUp events,
+// and through Down(k) and Up(k).
 const (
 	Unknown = "Unknown"
 
