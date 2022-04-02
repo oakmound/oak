@@ -38,10 +38,10 @@ func main() {
 
 		event.Bind(ctx, event.Enter, char, func(c *entities.Moving, ev event.EnterPayload) event.Response {
 			// Move left and right with A and D
-			if oak.IsDown(key.AStr) {
+			if oak.IsDown(key.A) {
 				char.ShiftX(-char.Speed.X())
 			}
-			if oak.IsDown(key.DStr) {
+			if oak.IsDown(key.D) {
 				char.ShiftX(char.Speed.X())
 			}
 			oldY := char.Y()
@@ -55,7 +55,7 @@ func main() {
 				char.SetY(hit.Y() - char.H)
 				char.Delta.SetY(0)
 				// Jump with Space
-				if oak.IsDown(key.SpacebarStr) {
+				if oak.IsDown(key.Spacebar) {
 					char.Delta.ShiftY(-char.Speed.Y())
 				}
 			} else {

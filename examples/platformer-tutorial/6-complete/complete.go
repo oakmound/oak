@@ -41,9 +41,9 @@ func main() {
 		event.Bind(ctx, event.Enter, char, func(c *entities.Moving, ev event.EnterPayload) event.Response {
 
 			// Move left and right with A and D
-			if oak.IsDown(key.AStr) {
+			if oak.IsDown(key.A) {
 				char.Delta.SetX(-char.Speed.X())
-			} else if oak.IsDown(key.DStr) {
+			} else if oak.IsDown(key.D) {
 				char.Delta.SetX(char.Speed.X())
 			} else {
 				char.Delta.SetX(0)
@@ -63,7 +63,7 @@ func main() {
 				// Stop falling
 				char.Delta.SetY(0)
 				// Jump with Space when on the ground
-				if oak.IsDown(key.SpacebarStr) {
+				if oak.IsDown(key.Spacebar) {
 					char.Delta.ShiftY(-char.Speed.Y())
 				}
 				aboveGround = true
