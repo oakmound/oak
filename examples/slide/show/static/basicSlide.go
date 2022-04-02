@@ -6,39 +6,45 @@ import (
 
 	oak "github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v3/mouse"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
 )
 
 type Slide struct {
 	Rs          *render.CompositeR
-	ContinueKey string
-	PrevKey     string
+	ContinueKey key.Code
+	PrevKey     key.Code
 	transition  scene.Transition
 	cont        bool
 	prev        bool
 	OnClick     func()
 }
 
-func (ss *Slide) Init() {
+func (ss *Slide) Init(ctx *scene.Context) {
 	oak.SetFullScreen(true)
 	render.Draw(ss.Rs, 0)
-	event.GlobalBind("KeyUp"+ss.ContinueKey, func(event.CallerID, interface{}) int {
+
+	event.GlobalBind(ctx, key.Up(ss.ContinueKey), func(key.Event) event.Response {
+
 		fmt.Println("continue key pressed")
 		ss.cont = true
 		return 0
 	})
-	event.GlobalBind("KeyUp"+ss.PrevKey, func(event.CallerID, interface{}) int {
+
+	event.GlobalBind(ctx, key.Up(ss.PrevKey), func(key.Event) event.Response {
 		fmt.Println("prev key pressed")
 		ss.prev = true
 		return 0
 	})
-	event.GlobalBind("KeyUpEscape", func(event.CallerID, interface{}) int {
+
+	event.GlobalBind(ctx, key.Up(key.Escape), func(key.Event) event.Response {
 		os.Exit(0)
 		return 0
 	})
 	if ss.OnClick != nil {
-		event.GlobalBind("MousePress", func(event.CallerID, interface{}) int {
+		event.GlobalBind(ctx, mouse.Press, func(*mouse.Event) event.Response {
 			ss.OnClick()
 			return 0
 		})
@@ -69,8 +75,8 @@ func (ss *Slide) Transition() scene.Transition {
 func NewSlide(rs ...render.Renderable) *Slide {
 	return &Slide{
 		Rs:          render.NewCompositeR(rs...),
-		ContinueKey: "RightArrow",
-		PrevKey:     "LeftArrow",
+		ContinueKey: key.RightArrow,
+		PrevKey:     key.LeftArrow,
 	}
 }
 
@@ -88,7 +94,7 @@ func Background(r render.Modifiable) SlideOption {
 	}
 }
 
-func ControlKeys(cont, prev string) SlideOption {
+func ControlKeys(cont, prev key.Code) SlideOption {
 	return func(s *Slide) *Slide {
 		s.ContinueKey = cont
 		s.PrevKey = prev
