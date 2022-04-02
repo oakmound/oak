@@ -10,6 +10,7 @@ import (
 	oak "github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/entities"
 	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/render/mod"
 	"github.com/oakmound/oak/v3/scene"
@@ -38,7 +39,7 @@ func main() {
 			NewGopher(ctx, layer)
 			layer++
 			event.GlobalBind(ctx, event.Enter, func(ev event.EnterPayload) event.Response {
-				if oak.IsDown("K") {
+				if oak.IsDown(key.K) {
 					NewGopher(ctx, layer)
 					layer++
 				}
