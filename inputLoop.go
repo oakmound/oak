@@ -103,7 +103,7 @@ func (w *Window) TriggerKeyDown(e okey.Event) {
 	k := e.Code.String()[4:]
 	w.SetDown(k)
 	event.TriggerOn(w.eventHandler, okey.AnyDown, e)
-	event.TriggerOn(w.eventHandler, okey.Down(e.Code), e)
+	event.TriggerOn(w.eventHandler, okey.Down(okey.Code(e.Code)), e)
 }
 
 // TriggerKeyUp triggers a software-emulated key release.
@@ -114,7 +114,7 @@ func (w *Window) TriggerKeyUp(e okey.Event) {
 	k := e.Code.String()[4:]
 	w.SetUp(k)
 	event.TriggerOn(w.eventHandler, okey.AnyUp, e)
-	event.TriggerOn(w.eventHandler, okey.Up(e.Code), e)
+	event.TriggerOn(w.eventHandler, okey.Up(okey.Code(e.Code)), e)
 }
 
 // TriggerKeyHeld triggers a software-emulated key hold signal.
@@ -123,7 +123,7 @@ func (w *Window) TriggerKeyUp(e okey.Event) {
 // from a real key hold signal.
 func (w *Window) TriggerKeyHeld(e okey.Event) {
 	event.TriggerOn(w.eventHandler, okey.AnyHeld, e)
-	event.TriggerOn(w.eventHandler, okey.Held(e.Code), e)
+	event.TriggerOn(w.eventHandler, okey.Held(okey.Code(e.Code)), e)
 }
 
 // TriggerMouseEvent triggers a software-emulated mouse event.

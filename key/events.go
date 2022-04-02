@@ -23,11 +23,12 @@ var (
 type Event = key.Event
 
 // A code is a unique integer code for a given common key
-type Code = key.Code
+const CodeA key.Code = key.Code(A)
 
 var upEventsLock sync.Mutex
 var upEvents = map[Code]event.EventID[Event]{}
 
+// Up checks
 func Up(code Code) event.EventID[Event] {
 	upEventsLock.Lock()
 	defer upEventsLock.Unlock()
