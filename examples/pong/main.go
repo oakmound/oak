@@ -76,13 +76,13 @@ func newPaddle(ctx *scene.Context, x, y float64, player int) {
 	render.Draw(p.R, 1)
 	p.Space.UpdateLabel(hitPaddle)
 	if player == 1 {
-		event.Bind(ctx, event.Enter, p, enterPaddle(key.UpArrowStr, key.DownArrowStr))
+		event.Bind(ctx, event.Enter, p, enterPaddle(key.UpArrow, key.DownArrow))
 	} else {
-		event.Bind(ctx, event.Enter, p, enterPaddle(key.WStr, key.SStr))
+		event.Bind(ctx, event.Enter, p, enterPaddle(key.W, key.S))
 	}
 }
 
-func enterPaddle(up, down string) func(*entities.Moving, event.EnterPayload) event.Response {
+func enterPaddle(up, down key.Code) func(*entities.Moving, event.EnterPayload) event.Response {
 	return func(p *entities.Moving, _ event.EnterPayload) event.Response {
 		p.Delta.SetY(0)
 		if oak.IsDown(up) {

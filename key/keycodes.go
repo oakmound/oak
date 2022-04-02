@@ -1,9 +1,11 @@
 package key
 
+import "golang.org/x/mobile/event/key"
+
 // Code is the identity of a key relative to a notional "standard" keyboard.
 // It is a straight copy of mobile package's key codes cleaned up for ease of binding in oak.
 // See AllKeys for string mappers.
-type Code uint32
+type Code = key.Code
 
 const (
 	Unknown Code = 0

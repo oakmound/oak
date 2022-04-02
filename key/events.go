@@ -20,10 +20,24 @@ var (
 )
 
 // An Event is sent as the payload for all key bindings.
-type Event = key.Event
+type Event key.Event
 
-// A code is a unique integer code for a given common key
-const CodeA key.Code = key.Code(A)
+type Modifiers = key.Modifiers
+
+const (
+	ModShift   Modifiers = 1 << 0
+	ModControl Modifiers = 1 << 1
+	ModAlt     Modifiers = 1 << 2
+	ModMeta    Modifiers = 1 << 3 // called "Command" on OS X
+)
+
+type Direction = key.Direction
+
+const (
+	DirNone    Direction = 0
+	DirPress   Direction = 1
+	DirRelease Direction = 2
+)
 
 var upEventsLock sync.Mutex
 var upEvents = map[Code]event.EventID[Event]{}

@@ -60,7 +60,7 @@ func (kc keyColor) Color() color.RGBA {
 	return color.RGBA{255, 255, 255, 255}
 }
 
-func newKey(ctx *scene.Context, note synth.Pitch, c keyColor, k string) *entities.Solid {
+func newKey(ctx *scene.Context, note synth.Pitch, c keyColor, k key.Code) *entities.Solid {
 	w := c.Width()
 	h := c.Height()
 	clr := c.Color()
@@ -93,16 +93,17 @@ func newKey(ctx *scene.Context, note synth.Pitch, c keyColor, k string) *entitie
 		s.Space.Label = labelWhiteKey
 	}
 	mouse.UpdateSpace(s.X(), s.Y(), s.W, s.H, s.Space)
-	event.GlobalBind(ctx, key.Down(key.AllKeys[k]), func(_ key.Event) event.Response {
-		if oak.IsDown(key.LeftShiftStr) || oak.IsDown(key.RightShiftStr) {
+	event.GlobalBind(ctx, key.Down(k), func(ev key.Event) event.Response {
+		// TODO: add helper function for this?
+		if ev.Modifiers&key.ModShift == key.ModShift {
 			return 0
 		}
 		playPitch(ctx, note)
 		sw.Set("down")
 		return 0
 	})
-	event.GlobalBind(ctx, key.Up(key.AllKeys[k]), func(_ key.Event) event.Response {
-		if oak.IsDown(key.LeftShiftStr) || oak.IsDown(key.RightShiftStr) {
+	event.GlobalBind(ctx, key.Up(k), func(ev key.Event) event.Response {
+		if ev.Modifiers&key.ModShift == key.ModShift {
 			return 0
 		}
 		releasePitch(note)
@@ -129,13 +130,13 @@ type keyDef struct {
 	x     float64
 }
 
-var keycharOrder = []string{
-	"Z", "S", "X", "D", "C",
-	"V", "G", "B", "H", "N", "J", "M",
-	key.CommaStr, "L", key.Period, key.SemicolonStr, key.SlashStr,
-	"Q", "2", "W", "3", "E", "4", "R",
-	"T", "6", "Y", "7", "U",
-	"I", "9", "O", "0", "P", key.HyphenMinusStr, key.LeftSquareBracketStr,
+var keycharOrder = []key.Code{
+	key.Z, key.S, key.X, key.D, key.C,
+	key.V, key.G, key.B, key.H, key.N, key.J, key.M,
+	key.Comma, key.L, key.FullStop, key.Semicolon, key.Slash,
+	key.Q, key.Num2, key.W, key.Num3, key.E, key.Num4, key.R,
+	key.T, key.Num6, key.Y, key.Num7, key.U,
+	key.I, key.Num9, key.O, key.Num0, key.P, key.HyphenMinus, key.LeftSquareBracket,
 }
 
 var playLock sync.Mutex
@@ -222,30 +223,21 @@ func main() {
 				i++
 			}
 			// Consider: Adding volume control
-			event.GlobalBind(ctx, key.Down(key.S), func(_ key.Event) event.Response {
-				if oak.IsDown(key.LeftShiftStr) || oak.IsDown(key.RightShiftStr) {
-					synthKind = src.SinPCM
-				}
-				return 0
-			})
-			event.GlobalBind(ctx, key.Down(key.W), func(_ key.Event) event.Response {
-				if oak.IsDown(key.LeftShiftStr) || oak.IsDown(key.RightShiftStr) {
-					synthKind = src.SawPCM
-				}
-				return 0
-			})
-			event.GlobalBind(ctx, key.Down(key.T), func(_ key.Event) event.Response {
-				if oak.IsDown(key.LeftShiftStr) || oak.IsDown(key.RightShiftStr) {
-					synthKind = src.TrianglePCM
-				}
-				return 0
-			})
-			event.GlobalBind(ctx, key.Down(key.P), func(_ key.Event) event.Response {
-				if oak.IsDown(key.LeftShiftStr) || oak.IsDown(key.RightShiftStr) {
-					synthKind = src.PulsePCM(2)
-				}
-				return 0
-			})
+			codeKinds := map[key.Code]func(...synth.Option) (pcm.Reader, error){
+				key.S: src.SinPCM,
+				key.W: src.SawPCM,
+				key.T: src.TrianglePCM,
+				key.P: src.PulsePCM(2),
+			}
+			for kc, synfn := range codeKinds {
+				event.GlobalBind(ctx, key.Down(kc), func(ev key.Event) event.Response {
+					if ev.Modifiers&key.ModShift == key.ModShift {
+						synthKind = synfn
+					}
+					return 0
+				})
+			}
+
 			help1 := render.NewText("Shift+([S]in/[T]ri/[P]ulse/sa[W]) to change wave style", 10, 500)
 			help2 := render.NewText("Keyboard / mouse to play", 10, 520)
 			render.Draw(help1)

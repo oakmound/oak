@@ -1,277 +1,135 @@
 package key
 
-// This lists the keys sent through oak's input events.
-// This list is not used internally by oak, but was generated from
-// the expected output from x/mobile/key.
-//
-// These strings are sent as payloads to Key.Down and Key.Up events,
-// and through "KeyDown"+$a, "KeyUp"+$a for any $a in the const.
-const (
-	UnknownStr = "Unknown"
+// AllKeys is the set of all defined key codes
+var AllKeys = map[Code]string{
+	Unknown: "Unknown",
 
-	AStr = "A"
-	BStr = "B"
-	CStr = "C"
-	DStr = "D"
-	EStr = "E"
-	FStr = "F"
-	GStr = "G"
-	HStr = "H"
-	IStr = "I"
-	JStr = "J"
-	KStr = "K"
-	LStr = "L"
-	MStr = "M"
-	NStr = "N"
-	OStr = "O"
-	PStr = "P"
-	QStr = "Q"
-	RStr = "R"
-	SStr = "S"
-	TStr = "T"
-	UStr = "U"
-	VStr = "V"
-	WStr = "W"
-	XStr = "X"
-	YStr = "Y"
-	ZStr = "Z"
+	A: "A",
+	B: "B",
+	C: "C",
+	D: "D",
+	E: "E",
+	F: "F",
+	G: "G",
+	H: "H",
+	I: "I",
+	J: "J",
+	K: "K",
+	L: "L",
+	M: "M",
+	N: "N",
+	O: "O",
+	P: "P",
+	Q: "Q",
+	R: "R",
+	S: "S",
+	T: "T",
+	U: "U",
+	V: "V",
+	W: "W",
+	X: "X",
+	Y: "Y",
+	Z: "Z",
 
-	OneStr   = "1"
-	TwoStr   = "2"
-	ThreeStr = "3"
-	FourStr  = "4"
-	FiveStr  = "5"
-	SixStr   = "6"
-	SevenStr = "7"
-	EightStr = "8"
-	NineStr  = "9"
-	ZeroStr  = "0"
+	Num1: "1",
+	Num2: "2",
+	Num3: "3",
+	Num4: "4",
+	Num5: "5",
+	Num6: "6",
+	Num7: "7",
+	Num8: "8",
+	Num9: "9",
+	Num0: "0",
 
-	ReturnEnterStr        = "ReturnEnter"
-	Enter                 = ReturnEnter
-	EscapeStr             = "Escape"
-	DeleteBackspaceStr    = "DeleteBackspace"
-	TabStr                = "Tab"
-	SpacebarStr           = "Spacebar"
-	HyphenMinusStr        = "HyphenMinus"        //-
-	EqualSignStr          = "EqualSign"          //=
-	LeftSquareBracketStr  = "LeftSquareBracket"  //[
-	RightSquareBracketStr = "RightSquareBracket" //]
-	BackslashStr          = "Backslash"          //\
-	SemicolonStr          = "Semicolon"          //;
-	ApostropheStr         = "Apostrophe"         //'
-	GraveAccentStr        = "GraveAccent"        //`
-	CommaStr              = "Comma"              //,
-	FullStopStr           = "FullStop"           //.
-	Period                = "FullStop"
-	SlashStr              = "Slash" ///
-	CapsLockStr           = "CapsLock"
+	ReturnEnter:        "ReturnEnter",
+	Escape:             "Escape",
+	DeleteBackspace:    "DeleteBackspace",
+	Tab:                "Tab",
+	Spacebar:           "Spacebar",
+	HyphenMinus:        "HyphenMinus",
+	EqualSign:          "EqualSign",
+	LeftSquareBracket:  "LeftSquareBracket",
+	RightSquareBracket: "RightSquareBracket",
+	Backslash:          "Backslash",
+	Semicolon:          "Semicolon",
+	Apostrophe:         "Apostrophe",
+	GraveAccent:        "GraveAccent",
+	Comma:              "Comma",
+	FullStop:           "FullStop",
+	Slash:              "Slash",
+	CapsLock:           "CapsLock",
 
-	F1Str  = "F1"
-	F2Str  = "F2"
-	F3Str  = "F3"
-	F4Str  = "F4"
-	F5Str  = "F5"
-	F6Str  = "F6"
-	F7Str  = "F7"
-	F8Str  = "F8"
-	F9Str  = "F9"
-	F10Str = "F10"
-	F11Str = "F11"
-	F12Str = "F12"
+	F1:  "F1",
+	F2:  "F2",
+	F3:  "F3",
+	F4:  "F4",
+	F5:  "F5",
+	F6:  "F6",
+	F7:  "F7",
+	F8:  "F8",
+	F9:  "F9",
+	F10: "F10",
+	F11: "F11",
+	F12: "F12",
 
-	PauseStr         = "Pause"
-	InsertStr        = "Insert"
-	HomeStr          = "Home"
-	PageUpStr        = "PageUp"
-	DeleteForwardStr = "DeleteForward"
-	EndStr           = "End"
-	PageDownStr      = "PageDown"
+	Pause:         "Pause",
+	Insert:        "Insert",
+	Home:          "Home",
+	PageUp:        "PageUp",
+	DeleteForward: "DeleteForward",
+	End:           "End",
+	PageDown:      "PageDown",
 
-	RightArrowStr = "RightArrow"
-	LeftArrowStr  = "LeftArrow"
-	DownArrowStr  = "DownArrow"
-	UpArrowStr    = "UpArrow"
+	RightArrow: "RightArrow",
+	LeftArrow:  "LeftArrow",
+	DownArrow:  "DownArrow",
+	UpArrow:    "UpArrow",
 
-	KeypadNumLockStr     = "KeypadNumLock"
-	KeypadSlashStr       = "KeypadSlash"       ///
-	KeypadAsteriskStr    = "KeypadAsterisk"    //*
-	KeypadHyphenMinusStr = "KeypadHyphenMinus" //-
-	KeypadPlusSignStr    = "KeypadPlusSign"    //+
-	KeypadEnterStr       = "KeypadEnter"
-	Keypad1Str           = "Keypad1"
-	Keypad2Str           = "Keypad2"
-	Keypad3Str           = "Keypad3"
-	Keypad4Str           = "Keypad4"
-	Keypad5Str           = "Keypad5"
-	Keypad6Str           = "Keypad6"
-	Keypad7Str           = "Keypad7"
-	Keypad8Str           = "Keypad8"
-	Keypad9Str           = "Keypad9"
-	Keypad0Str           = "Keypad0"
-	KeypadFullStopStr    = "KeypadFullStop" //.
-	KeypadPeriod         = "KeypadFullStop"
-	KeypadEqualSignStr   = "KeypadEqualSign" //=
+	KeypadNumLock:     "KeypadNumLock",
+	KeypadSlash:       "KeypadSlash",
+	KeypadAsterisk:    "KeypadAsterisk",
+	KeypadHyphenMinus: "KeypadHyphenMinus",
+	KeypadPlusSign:    "KeypadPlusSign",
+	KeypadEnter:       "KeypadEnter",
+	Keypad1:           "Keypad1",
+	Keypad2:           "Keypad2",
+	Keypad3:           "Keypad3",
+	Keypad4:           "Keypad4",
+	Keypad5:           "Keypad5",
+	Keypad6:           "Keypad6",
+	Keypad7:           "Keypad7",
+	Keypad8:           "Keypad8",
+	Keypad9:           "Keypad9",
+	Keypad0:           "Keypad0",
+	KeypadFullStop:    "KeypadFullStop",
+	KeypadEqualSign:   "KeypadEqualSign",
 
-	F13Str = "F13"
-	F14Str = "F14"
-	F15Str = "F15"
-	F16Str = "F16"
-	F17Str = "F17"
-	F18Str = "F18"
-	F19Str = "F19"
-	F20Str = "F20"
-	F21Str = "F21"
-	F22Str = "F22"
-	F23Str = "F23"
-	F24Str = "F24"
+	F13: "F13",
+	F14: "F14",
+	F15: "F15",
+	F16: "F16",
+	F17: "F17",
+	F18: "F18",
+	F19: "F19",
+	F20: "F20",
+	F21: "F21",
+	F22: "F22",
+	F23: "F23",
+	F24: "F24",
 
-	HelpStr = "Help"
+	Help: "Help",
 
-	MuteStr       = "Mute"
-	VolumeUpStr   = "VolumeUp"
-	VolumeDownStr = "VolumeDown"
+	Mute:       "Mute",
+	VolumeUp:   "VolumeUp",
+	VolumeDown: "VolumeDown",
 
-	LeftControlStr  = "LeftControl"
-	LeftShiftStr    = "LeftShift"
-	LeftAltStr      = "LeftAlt"
-	LeftGUIStr      = "LeftGUI"
-	RightControlStr = "RightControl"
-	RightShiftStr   = "RightShift"
-	RightAltStr     = "RightAlt"
-	RightGUIStr     = "RightGUI"
-)
-
-// AllKeys is the set of all defined key codes to their Codes
-var AllKeys = map[string]Code{
-	UnknownStr: Unknown,
-
-	AStr: A,
-	BStr: B,
-	CStr: C,
-	DStr: D,
-	EStr: E,
-	FStr: F,
-	GStr: G,
-	HStr: H,
-	IStr: I,
-	JStr: J,
-	KStr: K,
-	LStr: L,
-	MStr: M,
-	NStr: N,
-	OStr: O,
-	PStr: P,
-	QStr: Q,
-	RStr: R,
-	SStr: S,
-	TStr: T,
-	UStr: U,
-	VStr: V,
-	WStr: W,
-	XStr: X,
-	YStr: Y,
-	ZStr: Z,
-
-	OneStr:   Num1,
-	TwoStr:   Num2,
-	ThreeStr: Num3,
-	FourStr:  Num4,
-	FiveStr:  Num5,
-	SixStr:   Num6,
-	SevenStr: Num7,
-	EightStr: Num8,
-	NineStr:  Num9,
-	ZeroStr:  Num0,
-
-	ReturnEnterStr:        ReturnEnter,
-	EscapeStr:             Escape,
-	DeleteBackspaceStr:    DeleteBackspace,
-	TabStr:                Tab,
-	SpacebarStr:           Spacebar,
-	HyphenMinusStr:        HyphenMinus,
-	EqualSignStr:          EqualSign,
-	LeftSquareBracketStr:  LeftSquareBracket,
-	RightSquareBracketStr: RightSquareBracket,
-	BackslashStr:          Backslash,
-	SemicolonStr:          Semicolon,
-	ApostropheStr:         Apostrophe,
-	GraveAccentStr:        GraveAccent,
-	CommaStr:              Comma,
-	FullStopStr:           FullStop,
-	SlashStr:              Slash,
-	CapsLockStr:           CapsLock,
-
-	F1Str:  F1,
-	F2Str:  F2,
-	F3Str:  F3,
-	F4Str:  F4,
-	F5Str:  F5,
-	F6Str:  F6,
-	F7Str:  F7,
-	F8Str:  F8,
-	F9Str:  F9,
-	F10Str: F10,
-	F11Str: F11,
-	F12Str: F12,
-
-	PauseStr:         Pause,
-	InsertStr:        Insert,
-	HomeStr:          Home,
-	PageUpStr:        PageUp,
-	DeleteForwardStr: DeleteForward,
-	EndStr:           End,
-	PageDownStr:      PageDown,
-
-	RightArrowStr: RightArrow,
-	LeftArrowStr:  LeftArrow,
-	DownArrowStr:  DownArrow,
-	UpArrowStr:    UpArrow,
-
-	KeypadNumLockStr:     KeypadNumLock,
-	KeypadSlashStr:       KeypadSlash,
-	KeypadAsteriskStr:    KeypadAsterisk,
-	KeypadHyphenMinusStr: KeypadHyphenMinus,
-	KeypadPlusSignStr:    KeypadPlusSign,
-	KeypadEnterStr:       KeypadEnter,
-	Keypad1Str:           Keypad1,
-	Keypad2Str:           Keypad2,
-	Keypad3Str:           Keypad3,
-	Keypad4Str:           Keypad4,
-	Keypad5Str:           Keypad5,
-	Keypad6Str:           Keypad6,
-	Keypad7Str:           Keypad7,
-	Keypad8Str:           Keypad8,
-	Keypad9Str:           Keypad9,
-	Keypad0Str:           Keypad0,
-	KeypadFullStopStr:    KeypadFullStop,
-	KeypadEqualSignStr:   KeypadEqualSign,
-
-	F13Str: F13,
-	F14Str: F14,
-	F15Str: F15,
-	F16Str: F16,
-	F17Str: F17,
-	F18Str: F18,
-	F19Str: F19,
-	F20Str: F20,
-	F21Str: F21,
-	F22Str: F22,
-	F23Str: F23,
-	F24Str: F24,
-
-	HelpStr: Help,
-
-	MuteStr:       Mute,
-	VolumeUpStr:   VolumeUp,
-	VolumeDownStr: VolumeDown,
-
-	LeftControlStr:  LeftControl,
-	LeftShiftStr:    LeftShift,
-	LeftAltStr:      LeftAlt,
-	LeftGUIStr:      LeftGUI,
-	RightControlStr: RightControl,
-	RightShiftStr:   RightShift,
-	RightAltStr:     RightAlt,
-	RightGUIStr:     RightGUI,
+	LeftControl:  "LeftControl",
+	LeftShift:    "LeftShift",
+	LeftAlt:      "LeftAlt",
+	LeftGUI:      "LeftGUI",
+	RightControl: "RightControl",
+	RightShift:   "RightShift",
+	RightAlt:     "RightAlt",
+	RightGUI:     "RightGUI",
 }

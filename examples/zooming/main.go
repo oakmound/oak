@@ -39,7 +39,7 @@ func main() {
 		render.Draw(zoomer)
 
 		// To illustrate zooming allow for arrow keys to control the main zoomable renderable.
-		event.GlobalBind(event.Enter, func(i event.CallerID, _ interface{}) int {
+		event.GlobalBind(event.DefaultBus, event.Enter, func(event.EnterPayload) event.Response {
 			if oak.IsDown(key.UpArrow) {
 				zoomOutFactorY *= .98
 			}
@@ -52,7 +52,6 @@ func main() {
 			if oak.IsDown(key.LeftArrow) {
 				zoomOutFactorX *= .98
 			}
-
 			return 0
 		})
 

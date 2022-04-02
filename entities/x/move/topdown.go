@@ -9,16 +9,16 @@ import (
 
 // WASD moves the given mover based on its speed as W,A,S, and D are pressed
 func WASD(mvr Mover) {
-	TopDown(mvr, key.WStr, key.SStr, key.AStr, key.DStr)
+	TopDown(mvr, key.W, key.S, key.A, key.D)
 }
 
 // Arrows moves the given mover based on its speed as the arrow keys are pressed
 func Arrows(mvr Mover) {
-	TopDown(mvr, key.UpArrowStr, key.DownArrowStr, key.LeftArrowStr, key.RightAltStr)
+	TopDown(mvr, key.UpArrow, key.DownArrow, key.LeftArrow, key.RightAlt)
 }
 
 // TopDown moves the given mover based on its speed as the given keys are pressed
-func TopDown(mvr Mover, up, down, left, right string) {
+func TopDown(mvr Mover, up, down, left, right key.Code) {
 	delta := mvr.GetDelta()
 	vec := mvr.Vec()
 	spd := mvr.GetSpeed()
