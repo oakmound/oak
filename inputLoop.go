@@ -1,6 +1,7 @@
 package oak
 
 import (
+	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/timing"
 
@@ -13,6 +14,17 @@ import (
 	"golang.org/x/mobile/event/size"
 )
 
+var (
+	// ViewportUpdate: Triggered when the position of of the viewport changes
+	ViewportUpdate = event.RegisterEvent[intgeom.Point2]()
+	// OnStop: Triggered when the engine is stopped.
+	OnStop = event.RegisterEvent[struct{}]()
+	// FocusGain: Triggered when the window gains focus
+	FocusGain = event.RegisterEvent[struct{}]()
+	// FocusLoss: Triggered when the window loses focus
+	FocusLoss = event.RegisterEvent[struct{}]()
+)
+
 func (w *Window) inputLoop() {
 	for {
 		switch e := w.windowControl.NextEvent().(type) {
@@ -21,25 +33,25 @@ func (w *Window) inputLoop() {
 			switch e.To {
 			case lifecycle.StageDead:
 				dlog.Info(dlog.WindowClosed)
-				<-event.TriggerOn(w.eventHandler, event.OnStop, event.NoPayload{})
+				<-event.TriggerOn(w.eventHandler, OnStop, struct{}{})
 				close(w.quitCh)
 				return
 			case lifecycle.StageFocused:
 				w.inFocus = true
 				// If you are in focused state, we don't care how you got there
 				w.DrawTicker.Reset(timing.FPSToFrameDelay(w.DrawFrameRate))
-				event.TriggerOn(w.eventHandler, event.FocusGain, event.NoPayload{})
+				event.TriggerOn(w.eventHandler, FocusGain, struct{}{})
 			case lifecycle.StageVisible:
 				// If the last state was focused, this means the app is out of focus
 				// otherwise, we're visible for the first time
 				if e.From > e.To {
 					w.inFocus = false
 					w.DrawTicker.Reset(timing.FPSToFrameDelay(w.IdleDrawFrameRate))
-					event.TriggerOn(w.eventHandler, event.FocusLoss, event.NoPayload{})
+					event.TriggerOn(w.eventHandler, FocusLoss, struct{}{})
 				} else {
 					w.inFocus = true
 					w.DrawTicker.Reset(timing.FPSToFrameDelay(w.DrawFrameRate))
-					event.TriggerOn(w.eventHandler, event.FocusGain, event.NoPayload{})
+					event.TriggerOn(w.eventHandler, FocusGain, struct{}{})
 				}
 			}
 		// Send key events

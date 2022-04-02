@@ -74,7 +74,7 @@ func (st *Statistics) TrackStats(no int, data interface{}) event.Response {
 	stat, ok := data.(stat)
 	if !ok {
 		dlog.Error("TrackStats called with a non-stat payload")
-		return event.UnbindThis
+		return event.ResponseUnbindThisBinding
 	}
 	st.trackStats(stat.name, stat.inc)
 	return 0
@@ -87,7 +87,7 @@ func (st *Statistics) TrackTimeStats(no int, data interface{}) event.Response {
 	timed, ok := data.(timedStat)
 	if !ok {
 		dlog.Error("TrackTimeStats called with a non-timedStat payload")
-		return event.UnbindThis
+		return event.ResponseUnbindThisBinding
 	}
 	if timed.on { //Turning on a thing to time track
 		st.statTimeLock.Lock()

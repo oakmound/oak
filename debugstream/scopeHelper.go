@@ -90,14 +90,14 @@ func mouseDetails(w window.Window) func(*mouse.Event) event.Response {
 		if len(results) > 0 {
 			i := results[0].CID
 			if i > 0 && cm.HasEntity(i) {
-				e := cm.GetEntity(i)
+				e := cm.HasEntity(i)
 				fmt.Printf("%+v\n", e)
 			} else {
 				fmt.Println("No entity ", i)
 			}
 		}
 
-		return event.UnbindThis
+		return event.ResponseUnbindThisBinding
 	}
 }
 

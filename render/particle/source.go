@@ -212,9 +212,9 @@ func clearParticles(ps *Source, _ event.EnterPayload) event.Response {
 				ps.EndFunc()
 			}
 			// TODO: not default
-			event.DefaultCallerMap.DestroyEntity(ps.CID())
+			event.DefaultCallerMap.RemoveEntity(ps.CID())
 			ps.Deallocate(ps.pIDBlock)
-			return event.UnbindThis
+			return event.ResponseUnbindThisBinding
 		}
 	}
 	return 0

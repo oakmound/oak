@@ -5,6 +5,7 @@ import (
 
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/oakerr"
 	"github.com/oakmound/oak/v3/scene"
 	"github.com/oakmound/oak/v3/timing"
@@ -95,7 +96,7 @@ func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 		dlog.Info(dlog.SceneLooping)
 		cont := true
 
-		w.eventHandler.EnterLoop(timing.FPSToFrameDelay(w.FrameRate))
+		enterCancel := event.EnterLoop(w.eventHandler, timing.FPSToFrameDelay(w.FrameRate))
 
 		nextSceneOverride := ""
 
@@ -113,7 +114,7 @@ func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 		dlog.Info(dlog.SceneEnding, w.SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
-		dlog.ErrorCheck(w.eventHandler.Stop())
+		enterCancel()
 		prevScene = w.SceneMap.CurrentScene
 
 		// Send a signal to stop drawing

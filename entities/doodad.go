@@ -43,14 +43,14 @@ func (d *Doodad) Destroy() {
 		d.R.Undraw()
 	}
 	event.DefaultBus.UnbindAllFrom(d.CallerID)
-	event.DefaultCallerMap.DestroyEntity(d.CallerID)
+	event.DefaultCallerMap.RemoveEntity(d.CallerID)
 }
 
 // Overwrites
 
 // SetPos both Sets logical position and renderable position
 // The need for this sort of function is lessened with the introduction
-// of vector attachement.
+// of vector attachment.
 func (d *Doodad) SetPos(x, y float64) {
 	d.SetLogicPos(x, y)
 	if d.R != nil {
