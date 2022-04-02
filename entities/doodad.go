@@ -57,3 +57,10 @@ func (d *Doodad) SetPos(x, y float64) {
 		d.R.SetPos(x, y)
 	}
 }
+
+// GetRenmderable retrieves the renderable.
+// Mainly used to satisfy upper level interfaces.
+// TODO: remove along with entity rework
+func (d *Doodad) GetRenderable() render.Renderable {
+	return d.R
+}
