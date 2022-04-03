@@ -35,7 +35,7 @@ type windowImpl struct {
 	event.Deque
 	lifecycler lifecycler.State
 
-	rgba    *image.RGBA
+	bgra    *BGRA
 	texture mtl.Texture // Used in Publish.
 
 	title      string
@@ -136,7 +136,7 @@ func (w *windowImpl) NextEvent() interface{} {
 
 		// Set drawable size, create backing image and texture.
 		w.ml.SetDrawableSize(sz.WidthPx, sz.HeightPx)
-		w.rgba = image.NewRGBA(image.Rectangle{Max: image.Point{X: sz.WidthPx, Y: sz.HeightPx}})
+		w.bgra = NewBGRA(image.Rectangle{Max: image.Point{X: sz.WidthPx, Y: sz.HeightPx}})
 		w.texture = w.device.MakeTexture(mtl.TextureDescriptor{
 			PixelFormat: mtl.PixelFormatRGBA8UNorm,
 			Width:       sz.WidthPx,
@@ -151,7 +151,7 @@ func (w *windowImpl) Publish() screen.PublishResult {
 	// Copy w.rgba pixels into a texture.
 	region := mtl.RegionMake2D(0, 0, w.texture.Width, w.texture.Height)
 	bytesPerRow := 4 * w.texture.Width
-	w.texture.ReplaceRegion(region, 0, &w.rgba.Pix[0], uintptr(bytesPerRow))
+	w.texture.ReplaceRegion(region, 0, &w.bgra.Pix[0], uintptr(bytesPerRow))
 
 	drawable, err := w.ml.NextDrawable()
 	if err != nil {
@@ -178,26 +178,54 @@ func (w *windowImpl) Publish() screen.PublishResult {
 	return screen.PublishResult{}
 }
 
-func (w *windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
-	draw.Draw(w.rgba, sr.Sub(sr.Min).Add(dp), src.RGBA(), sr.Min, draw.Src)
+func (w *windowImpl) Upload(dp image.Point, srcImg screen.Image, sr image.Rectangle) {
+	dst := w.bgra
+	r := sr.Sub(sr.Min).Add(dp)
+	src := srcImg.RGBA()
+	sp := sr.Min
+	clip(dst, &r, src, &sp, nil, &image.Point{})
+	if r.Empty() {
+		return
+	}
+
+	i0 := (r.Min.X - dst.Rect.Min.X) * 4
+	i1 := (r.Max.X - dst.Rect.Min.X) * 4
+	si0 := (sp.X - src.Rect.Min.X) * 4
+	yMax := r.Max.Y - dst.Rect.Min.Y
+
+	y := r.Min.Y - dst.Rect.Min.Y
+	sy := sp.Y - src.Rect.Min.Y
+	for ; y != yMax; y, sy = y+1, sy+1 {
+		dpix := dst.Pix[y*dst.Stride:]
+		spix := src.Pix[sy*src.Stride:]
+
+		for i, si := i0, si0; i < i1; i, si = i+4, si+4 {
+			s := spix[si : si+4 : si+4] // Small cap improves performance, see https://golang.org/issue/27857
+			d := dpix[i : i+4 : i+4]
+			d[0] = s[2]
+			d[1] = s[1]
+			d[2] = s[0]
+			d[3] = s[3]
+		}
+	}
 }
 
 func (w *windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
-	draw.Draw(w.rgba, dr, &image.Uniform{src}, image.Point{}, op)
+	// Unimplemented
 }
 
 func (w *windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
-	draw.NearestNeighbor.Transform(w.rgba, src2dst, src.(*textureImpl).rgba, sr, op, nil)
+	nnInterpolator{}.Transform(w.bgra, src2dst, src.(*textureImpl).rgba, sr)
 }
 
 func (w *windowImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
-	draw.NearestNeighbor.Transform(w.rgba, src2dst, &image.Uniform{src}, sr, op, nil)
+	// Unimplemented
 }
 
 func (w *windowImpl) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
-	drawer.Copy(w, dp, src, sr, op)
+	drawer.Copy(w, dp, src, sr, draw.Over)
 }
 
 func (w *windowImpl) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
-	drawer.Scale(w, dr, src, sr, op)
+	drawer.Scale(w, dr, src, sr, draw.Over)
 }
