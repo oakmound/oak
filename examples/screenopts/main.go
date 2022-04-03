@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 
 	oak "github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/event"
@@ -20,6 +21,8 @@ func main() {
 	oak.AddScene("demo", scene.Scene{Start: func(ctx *scene.Context) {
 		txt := render.NewText("Press F to toggle fullscreen. Press B to toggle borderless. Press T to toggle topmost", 50, 50)
 		render.Draw(txt)
+		line2 := render.NewText("Press Q to change window title. Press N to show a notification", 50, 70)
+		render.Draw(line2)
 
 		borderless := borderlessAtStart
 		fullscreen := fullscreenAtStart
@@ -53,6 +56,16 @@ func main() {
 				topMost = !topMost
 				fmt.Println(err)
 			}
+			return 0
+		})
+		event.GlobalBind(ctx, key.Down(key.N), func(k key.Event) event.Response {
+			oak.ShowNotification("title", "message", false)
+			return 0
+		})
+		titleCt := 0
+		event.GlobalBind(ctx, key.Down(key.Q), func(k key.Event) event.Response {
+			titleCt++
+			oak.SetTitle("window title " + strconv.Itoa(titleCt))
 			return 0
 		})
 
