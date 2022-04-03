@@ -3,7 +3,7 @@ package event
 import (
 	"sync/atomic"
 
-	"github.com/oakmound/oak/dlog"
+	"github.com/oakmound/oak/v3/dlog"
 )
 
 // Q: Why do Bind / Unbind / etc not immediately take effect?
@@ -118,7 +118,7 @@ type Bindable[C any, Payload any] func(C, Payload) Response
 // triggered on the caller's ID.
 func Bind[C Caller, Payload any](h Handler, ev EventID[Payload], caller C, fn Bindable[C, Payload]) Binding {
 	if caller.CID() == 0 {
-		dlog.Warn("Bind called with CallerID 0; is this entity registered and set?")
+		dlog.Error("Bind called with CallerID 0; is this entity registered and set?")
 	}
 	return h.UnsafeBind(ev.UnsafeEventID, caller.CID(), func(cid CallerID, h Handler, payload interface{}) Response {
 		typedPayload := payload.(Payload)
