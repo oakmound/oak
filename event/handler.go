@@ -9,11 +9,11 @@ var (
 // by alternative event handlers.
 type Handler interface {
 	Reset()
-	TriggerForCaller(cid CallerID, event UnsafeEventID, data interface{}) chan struct{}
-	Trigger(event UnsafeEventID, data interface{}) chan struct{}
+	TriggerForCaller(cid CallerID, event UnsafeEventID, data interface{}) <-chan struct{}
+	Trigger(event UnsafeEventID, data interface{}) <-chan struct{}
 	UnsafeBind(UnsafeEventID, CallerID, UnsafeBindable) Binding
-	Unbind(Binding) chan struct{}
-	UnbindAllFrom(CallerID) chan struct{}
+	Unbind(Binding) <-chan struct{}
+	UnbindAllFrom(CallerID) <-chan struct{}
 	SetCallerMap(*CallerMap)
 	GetCallerMap() *CallerMap
 }

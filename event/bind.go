@@ -1,6 +1,10 @@
 package event
 
-import "sync/atomic"
+import (
+	"sync/atomic"
+
+	"github.com/oakmound/oak/dlog"
+)
 
 // Q: Why do Bind / Unbind / etc not immediately take effect?
 // A: For concurrent safety, most operations on a bus lock the bus. Triggers acquire a read lock on the bus,
@@ -33,7 +37,7 @@ type Binding struct {
 
 // Unbind unbinds the callback associated with this binding from it's own event handler. If this binding
 // does not belong to its handler or has already been unbound, this will do nothing.
-func (b Binding) Unbind() chan struct{} {
+func (b Binding) Unbind() <-chan struct{} {
 	return b.Handler.Unbind(b)
 }
 
@@ -89,7 +93,7 @@ func (bus *Bus) PersistentBind(eventID UnsafeEventID, callerID CallerID, fn Unsa
 
 // Unbind unregisters a binding from a bus concurrently. Once complete, triggers that would
 // have previously caused the Bindable callback to execute will no longer do so.
-func (bus *Bus) Unbind(loc Binding) chan struct{} {
+func (bus *Bus) Unbind(loc Binding) <-chan struct{} {
 	ch := make(chan struct{})
 	go func() {
 		bus.mutex.Lock()
@@ -113,6 +117,9 @@ type Bindable[C any, Payload any] func(C, Payload) Response
 // will be called with the provided caller as its first argument, and will also be called when the provided event is specifically
 // triggered on the caller's ID.
 func Bind[C Caller, Payload any](h Handler, ev EventID[Payload], caller C, fn Bindable[C, Payload]) Binding {
+	if caller.CID() == 0 {
+		dlog.Warn("Bind called with CallerID 0; is this entity registered and set?")
+	}
 	return h.UnsafeBind(ev.UnsafeEventID, caller.CID(), func(cid CallerID, h Handler, payload interface{}) Response {
 		typedPayload := payload.(Payload)
 		ent := h.GetCallerMap().GetEntity(cid)
@@ -136,7 +143,7 @@ func GlobalBind[Payload any](h Handler, ev EventID[Payload], fn GlobalBindable[P
 type UnsafeBindable func(CallerID, Handler, interface{}) Response
 
 // UnbindAllFrom unbinds all bindings currently bound to the provided caller via ID.
-func (bus *Bus) UnbindAllFrom(c CallerID) chan struct{} {
+func (bus *Bus) UnbindAllFrom(c CallerID) <-chan struct{} {
 	ch := make(chan struct{})
 	go func() {
 		bus.mutex.Lock()
