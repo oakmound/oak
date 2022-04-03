@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 )
 
 func TestDefaultConfigFileMatchesEmptyConfig(t *testing.T) {
@@ -47,7 +46,6 @@ func configEquals(c1, c2 Config) bool {
 		IdleDrawFrameRate      int              `json:"idleDrawFrameRate"`
 		Language               string           `json:"language"`
 		Title                  string           `json:"title"`
-		EventRefreshRate       Duration         `json:"refreshRate"`
 		BatchLoad              bool             `json:"batchLoad"`
 		GestureSupport         bool             `json:"gestureSupport"`
 		LoadBuiltinCommands    bool             `json:"loadBuiltinCommands"`
@@ -57,7 +55,7 @@ func configEquals(c1, c2 Config) bool {
 		Borderless             bool             `json:"borderless"`
 		Fullscreen             bool             `json:"fullscreen"`
 		SkipRNGSeed            bool             `json:"skip_rng_seed"`
-		UnlimitedDrawFrameRate bool             `json:"unlimitedDrawFrameRate`
+		UnlimitedDrawFrameRate bool             `json:"unlimitedDrawFrameRate"`
 	}
 	cc1 := comparableConfig{
 		Assets:                 c1.Assets,
@@ -69,7 +67,6 @@ func configEquals(c1, c2 Config) bool {
 		IdleDrawFrameRate:      c1.IdleDrawFrameRate,
 		Language:               c1.Language,
 		Title:                  c1.Title,
-		EventRefreshRate:       c1.EventRefreshRate,
 		BatchLoad:              c1.BatchLoad,
 		GestureSupport:         c1.GestureSupport,
 		LoadBuiltinCommands:    c1.LoadBuiltinCommands,
@@ -91,7 +88,6 @@ func configEquals(c1, c2 Config) bool {
 		IdleDrawFrameRate:      c2.IdleDrawFrameRate,
 		Language:               c2.Language,
 		Title:                  c2.Title,
-		EventRefreshRate:       c2.EventRefreshRate,
 		BatchLoad:              c2.BatchLoad,
 		GestureSupport:         c2.GestureSupport,
 		LoadBuiltinCommands:    c2.LoadBuiltinCommands,
@@ -143,60 +139,4 @@ func TestReaderConfigBadJSON(t *testing.T) {
 	}
 	// This error is an stdlib error, not ours, so we don't care
 	// about its type
-}
-
-func TestDuration_HappyPath(t *testing.T) {
-	d := Duration(time.Second)
-	marshalled, err := d.MarshalJSON()
-	if err != nil {
-		t.Fatalf("marshal duration failed: %v", err)
-	}
-	d2 := new(Duration)
-	err = d2.UnmarshalJSON(marshalled)
-	if err != nil {
-		t.Fatalf("unmarshal failed: %v", err)
-	}
-	marshalled2, err := d2.MarshalJSON()
-	if err != nil {
-		t.Fatalf("marshal duration 2 failed: %v", err)
-	}
-	if !bytes.Equal(marshalled, marshalled2) {
-		t.Fatalf("marshals not equal: %v vs %v", string(marshalled), string(marshalled2))
-	}
-}
-
-func TestDuration_UnmarshalJSON_Float(t *testing.T) {
-	f := []byte("10.0")
-	d2 := new(Duration)
-	err := d2.UnmarshalJSON(f)
-	if err != nil {
-		t.Fatalf("unmarshal failed: %v", err)
-	}
-}
-
-func TestDuration_UnmarshalJSON_Boolean(t *testing.T) {
-	f := []byte("false")
-	d2 := new(Duration)
-	err := d2.UnmarshalJSON(f)
-	if err == nil {
-		t.Fatalf("expected failure in unmarshal")
-	}
-}
-
-func TestDuration_UnmarshalJSON_BadString(t *testing.T) {
-	f := []byte("\"10mmmm\"")
-	d2 := new(Duration)
-	err := d2.UnmarshalJSON(f)
-	if err == nil {
-		t.Fatalf("expected failure in unmarshal")
-	}
-}
-
-func TestDuration_UnmarshalJSON_BadJSON(t *testing.T) {
-	f := []byte("\"1mm")
-	d2 := new(Duration)
-	err := d2.UnmarshalJSON(f)
-	if err == nil {
-		t.Fatalf("expected failure in unmarshal")
-	}
 }

@@ -157,7 +157,7 @@ func TestRevertingCascadeFns(t *testing.T) {
 		t.Fatalf("reverting unpause did not resume underlying sequence")
 	}
 	rv.SetTriggerID(1)
-	if sq.cID != 1 {
+	if sq.CallerID != 1 {
 		t.Fatalf("reverting cID did not set underlying squence cID")
 	}
 	rv.update()

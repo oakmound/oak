@@ -10,7 +10,7 @@ func TestAllocate(t *testing.T) {
 	a := NewAllocator()
 	go a.Run()
 	for i := 0; i < 100; i++ {
-		if a.Allocate(event.CID(i)) != i {
+		if a.Allocate(event.CallerID(i)) != i {
 			t.Fatalf("expected allocation of id %d to match id", i)
 		}
 	}
@@ -32,8 +32,8 @@ func TestAllocatorLookup(t *testing.T) {
 	a := NewAllocator()
 	go a.Run()
 
-	src := NewSource(NewColorGenerator(), 0)
-	cid := src.CID
+	src := NewDefaultSource(NewColorGenerator(), 0)
+	cid := src.CID()
 	pidBlock := a.Allocate(cid)
 	src2 := a.LookupSource(pidBlock * blockSize)
 	if src != src2 {

@@ -20,7 +20,7 @@ var (
 )
 
 func main() {
-	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
+	oak.AddScene("demo", scene.Scene{Start: func(ctx *scene.Context) {
 		render.Draw(render.NewText("Controls: Arrow keys", 500, 440))
 
 		// Get an image that we will illustrate zooming with later
@@ -39,7 +39,7 @@ func main() {
 		render.Draw(zoomer)
 
 		// To illustrate zooming allow for arrow keys to control the main zoomable renderable.
-		event.GlobalBind(event.Enter, func(i event.CID, _ interface{}) int {
+		event.GlobalBind(event.DefaultBus, event.Enter, func(event.EnterPayload) event.Response {
 			if oak.IsDown(key.UpArrow) {
 				zoomOutFactorY *= .98
 			}
@@ -52,7 +52,6 @@ func main() {
 			if oak.IsDown(key.LeftArrow) {
 				zoomOutFactorX *= .98
 			}
-
 			return 0
 		})
 

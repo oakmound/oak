@@ -11,7 +11,7 @@ type NonStatic interface {
 // Triggerable types can have an ID set so when their animations finish,
 // they trigger AnimationEnd on that ID.
 type Triggerable interface {
-	SetTriggerID(event.CID)
+	SetTriggerID(event.CallerID)
 }
 
 type updates interface {

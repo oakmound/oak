@@ -18,7 +18,7 @@ func Arrows(mvr Mover) {
 }
 
 // TopDown moves the given mover based on its speed as the given keys are pressed
-func TopDown(mvr Mover, up, down, left, right string) {
+func TopDown(mvr Mover, up, down, left, right key.Code) {
 	delta := mvr.GetDelta()
 	vec := mvr.Vec()
 	spd := mvr.GetSpeed()

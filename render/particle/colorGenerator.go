@@ -51,7 +51,7 @@ func (cg *ColorGenerator) Generate(layer int) *Source {
 	if cg.Rotation != nil {
 		cg.Rotation = cg.Rotation.Mult(alg.DegToRad)
 	}
-	return NewSource(cg, layer)
+	return NewDefaultSource(cg, layer)
 }
 
 // GenerateParticle creates a particle from a generator

@@ -10,11 +10,11 @@ import (
 type DirectionSpace struct {
 	*collision.Space
 	physics.ForceVector
+	event.CallerID
 }
 
-// Init initializes the DirectionSpace as an entity
-func (ds *DirectionSpace) Init() event.CID {
-	return event.NextID(ds)
+func (ds DirectionSpace) CID() event.CallerID {
+	return ds.CallerID
 }
 
 // NewDirectionSpace creates a DirectionSpace and initializes it as an entity.
@@ -23,6 +23,7 @@ func NewDirectionSpace(s *collision.Space, v physics.ForceVector) *DirectionSpac
 		Space:       s,
 		ForceVector: v,
 	}
-	s.CID = ds.Init()
+	// TODO: not default
+	s.CID = event.DefaultCallerMap.Register(ds)
 	return ds
 }

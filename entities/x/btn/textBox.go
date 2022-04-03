@@ -13,14 +13,8 @@ type TextBox struct {
 	*render.Text
 }
 
-// Init creates the CID
-func (b *TextBox) Init() event.CID {
-	b.CID = event.NextID(b)
-	return b.CID
-}
-
 // NewTextBox creates a textbox
-func NewTextBox(cid event.CID, x, y, w, h, txtX, txtY float64,
+func NewTextBox(cid event.CallerID, x, y, w, h, txtX, txtY float64,
 	f *render.Font, r render.Renderable, layers ...int) *TextBox {
 
 	if f == nil {
@@ -28,9 +22,9 @@ func NewTextBox(cid event.CID, x, y, w, h, txtX, txtY float64,
 	}
 
 	b := new(TextBox)
-
-	cid = cid.Parse(b)
-
+	if cid == 0 {
+		cid = event.DefaultCallerMap.Register(b)
+	}
 	b.Box = *NewBox(cid, x, y, w, h, r, layers...)
 	b.Text = f.NewText("Init", 0, 0)
 	b.Text.Attach(b.Box.Vector, txtX, txtY)

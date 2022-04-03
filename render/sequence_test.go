@@ -12,31 +12,19 @@ import (
 	"github.com/oakmound/oak/v3/render/mod"
 )
 
-type Dummy struct{}
-
-func (d Dummy) Init() event.CID {
-	return event.NextID(d)
+type Dummy struct {
+	event.CallerID
 }
 
 func TestSequenceTrigger(t *testing.T) {
 	sq := NewSequence(5,
 		NewColorBox(10, 10, color.RGBA{255, 0, 0, 255}),
 		NewColorBox(10, 10, color.RGBA{0, 255, 0, 255}))
-	go event.ResolveChanges()
-	cid := Dummy{}.Init()
-	sq.SetTriggerID(cid)
+	d := Dummy{}
+	d.CallerID = event.DefaultCallerMap.Register(d)
+	sq.SetTriggerID(d.CallerID)
 	triggerCh := make(chan struct{})
-	cid.Bind(event.AnimationEnd, func(event.CID, interface{}) int {
-		// This is a bad idea in real code, this will lock up
-		// unbindings because the function that triggered this owns
-		// the lock on the event bus until this function exits.
-		// It is for this reason that all triggers, bindings,
-		// and unbindings do nothing when they are called, just put
-		// off work to be done-- to make sure no one is expecting a
-		// result from one of those functions, from within a triggered
-		// function, causing a deadlock.
-		//
-		// For this test this is the easiest way to do this though
+	event.Bind(event.DefaultBus, AnimationEnd, d, func(_ Dummy, _ struct{}) event.Response {
 		triggerCh <- struct{}{}
 		return 0
 	})

@@ -65,9 +65,6 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 	if w.config.TrackInputChanges {
 		trackJoystickChanges(w.eventHandler)
 	}
-	if w.config.EventRefreshRate != 0 {
-		w.eventHandler.SetRefreshRate(time.Duration(w.config.EventRefreshRate))
-	}
 
 	if !w.config.SkipRNGSeed {
 		// seed math/rand with time.Now, useful for minimal examples
@@ -77,14 +74,7 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 
 	overrideInit(w)
 
-	go w.sceneLoop(firstScene, w.config.TrackInputChanges)
-	if w.config.BatchLoad {
-		w.startupLoading = true
-		go func() {
-			w.loadAssets(w.config.Assets.ImagePath, w.config.Assets.AudioPath)
-			w.endLoad()
-		}()
-	}
+	go w.sceneLoop(firstScene, w.config.TrackInputChanges, w.config.BatchLoad)
 	if w.config.EnableDebugConsole {
 		go w.debugConsole(os.Stdin, os.Stdout)
 	}

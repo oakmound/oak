@@ -7,6 +7,7 @@ import (
 
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
 )
@@ -37,27 +38,15 @@ func AddScene(name string, sc scene.Scene) error {
 }
 
 // IsDown calls IsDown on the default window.
-func IsDown(key string) bool {
+func IsDown(k key.Code) bool {
 	initDefaultWindow()
-	return defaultWindow.IsDown(key)
+	return defaultWindow.IsDown(k)
 }
 
 // IsHeld calls IsHeld on the default window.
-func IsHeld(key string) (bool, time.Duration) {
+func IsHeld(k key.Code) (bool, time.Duration) {
 	initDefaultWindow()
-	return defaultWindow.IsHeld(key)
-}
-
-// SetUp calls SetUp on the default window.
-func SetUp(key string) {
-	initDefaultWindow()
-	defaultWindow.SetUp(key)
-}
-
-// SetDown calls SetDown on the default window.
-func SetDown(key string) {
-	initDefaultWindow()
-	defaultWindow.SetDown(key)
+	return defaultWindow.IsHeld(k)
 }
 
 // SetViewportBounds calls SetViewportBounds on the default window.

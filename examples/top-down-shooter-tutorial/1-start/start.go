@@ -24,7 +24,7 @@ var (
 )
 
 func main() {
-	oak.AddScene("tds", scene.Scene{Start: func(*scene.Context) {
+	oak.AddScene("tds", scene.Scene{Start: func(ctx *scene.Context) {
 		playerAlive = true
 		char := entities.NewMoving(100, 100, 32, 32,
 			render.NewColorBox(32, 32, color.RGBA{0, 255, 0, 255}),
@@ -33,8 +33,8 @@ func main() {
 		char.Speed = physics.NewVector(5, 5)
 		render.Draw(char.R)
 
-		char.Bind(event.Enter, func(id event.CID, _ interface{}) int {
-			char := event.GetEntity(id).(*entities.Moving)
+		event.Bind(ctx, event.Enter, char, func(c *entities.Moving, ev event.EnterPayload) event.Response {
+
 			char.Delta.Zero()
 			if oak.IsDown(key.W) {
 				char.Delta.ShiftY(-char.Speed.Y())

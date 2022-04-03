@@ -64,7 +64,7 @@ func Offset(x, y float64) Option {
 }
 
 //CID sets the starting CID of the button to be generated
-func CID(c event.CID) Option {
+func CID(c event.CallerID) Option {
 	return func(g Generator) Generator {
 		g.Cid = c
 		return g
@@ -151,15 +151,18 @@ func ToggleList(chosen *int, rs ...render.Modifiable) Option {
 
 // Binding appends a function to be called when a specific event
 // is triggered.
-func Binding(s string, bnd event.Bindable) Option {
+func Binding[Payload any](ev event.EventID[Payload], bnd event.Bindable[Btn, Payload]) Option {
 	return func(g Generator) Generator {
-		g.Bindings[s] = append(g.Bindings[s], bnd)
+		g.Bindings = append(g.Bindings, func(caller Btn) event.Binding {
+			// TODO: not default
+			return event.Bind(event.DefaultBus, ev, caller, bnd)
+		})
 		return g
 	}
 }
 
 // Click appends a function to be called when the button is clicked on.
-func Click(bnd event.Bindable) Option {
+func Click(bnd event.Bindable[Btn, *mouse.Event]) Option {
 	return Binding(mouse.ClickOn, bnd)
 }
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image/color"
 	"strconv"
-	"strings"
 
 	"github.com/oakmound/oak/v3/collision"
 	"github.com/oakmound/oak/v3/dlog"
@@ -28,14 +27,14 @@ type Generator struct {
 	R1           render.Modifiable
 	R2           render.Modifiable
 	RS           []render.Modifiable
-	Cid          event.CID
+	Cid          event.CallerID
 	Font         *render.Font
 	Layers       []int
 	Text         string
 	TextPtr      *string
 	TextStringer fmt.Stringer
 	Children     []Generator
-	Bindings     map[string][]event.Bindable
+	Bindings     []func(caller Btn) event.Binding
 	Trigger      string
 	Toggle       *bool
 	ListChoice   *int
@@ -66,7 +65,6 @@ func defGenerator() Generator {
 		Font:     nil,
 		Layers:   []int{0},
 		Text:     "Button",
-		Bindings: make(map[string][]event.Bindable),
 		Trigger:  "MouseClickOn",
 
 		Toggle: nil,
@@ -98,7 +96,10 @@ func (g Generator) generate(parent *Generator) Btn {
 			"on":  g.R1,
 			"off": g.R2,
 		})
-		g.Bindings["MouseClickOn"] = append(g.Bindings["MouseClickOn"], toggleFxn(g))
+		g.Bindings = append(g.Bindings, func(caller Btn) event.Binding {
+			// TODO not default
+			return event.Bind(event.DefaultBus, mouse.ClickOn, caller, toggleFxn(g))
+		})
 	case g.ListChoice != nil:
 
 		start := "list" + strconv.Itoa(*g.ListChoice)
@@ -109,9 +110,13 @@ func (g Generator) generate(parent *Generator) Btn {
 			}
 			mp["list"+strconv.Itoa(i)] = r
 		}
+
 		box = render.NewSwitch(start, mp)
 
-		g.Bindings["MouseClickOn"] = append(g.Bindings["MouseClickOn"], listFxn(g))
+		g.Bindings = append(g.Bindings, func(caller Btn) event.Binding {
+			// TODO not default
+			return event.Bind(event.DefaultBus, mouse.ClickOn, caller, listFxn(g))
+		})
 	case g.R != nil:
 		box = g.R
 	case g.ProgressFunc != nil:
@@ -159,56 +164,56 @@ func (g Generator) generate(parent *Generator) Btn {
 		btn = bx
 	}
 
+	// TODO: this is impossible with how we've done generics
+
 	// Update underlying mousecollision binding to only respect clicks in the shape.
 	// If a finer control is needed then it may make sense to use this as a starting off point
 	// instead of expanding this section.
-	if g.Shape != nil {
+	// if g.Shape != nil {
+	// 	// extract keys prior to loop as the map will be permuted by the following operations
+	// 	keys := make([]string, 0, len(g.Bindings))
+	// 	for k := range g.Bindings {
+	// 		// We only really care about mouse events.
+	// 		// In some ways this is dangerous of an implementer has defined events that start with mouse...
+	// 		// but in that case they might not use g.Shape anyways.
+	// 		if !strings.HasPrefix(k, "Mouse") {
+	// 			continue
+	// 		}
+	// 		keys = append(keys, k)
+	// 	}
+	// 	for _, k := range keys {
+	// 		curBind := g.Bindings[k]
+	// 		if curBind == nil {
+	// 			continue
+	// 		}
+	// 		// This could cause issues with name collisions but its unlikely and documentation should help make it even more unlikely.
+	// 		filteredK := "Filtered" + k
+	// 		g.Bindings[filteredK] = g.Bindings[k]
+	// 		g.Bindings[k] = []event.Bindable{
+	// 			func(id event.CallerID, button interface{}) int {
+	// 				btn := id.E().(Btn)
+	// 				mEvent, ok := button.(*mouse.Event)
+	// 				// If the passed event is not a mouse event dont filter on location.
+	// 				// Main current use case is for nil events passed via simulated clicks.
+	// 				if !ok {
+	// 					btn.Trigger(filteredK, button)
+	// 				}
+	// 				bSpace := btn.GetSpace().Bounds()
+	// 				if g.Shape.In(int(mEvent.X()-bSpace.Min.X()), int(mEvent.Y()-bSpace.Min.Y()), int(bSpace.W()), int(bSpace.H())) {
+	// 					btn.Trigger(filteredK, mEvent)
+	// 				}
+	// 				return 0
+	// 			},
+	// 		}
+	// 	}
+	// }
 
-		// extract keys prior to loop as the map will be permuted by the following operations
-		keys := make([]string, 0, len(g.Bindings))
-		for k := range g.Bindings {
-			// We only really care about mouse events.
-			// In some ways this is dangerous of an implementer has defined events that start with mouse...
-			// but in that case they might not use g.Shape anyways.
-			if !strings.HasPrefix(k, "Mouse") {
-				continue
-			}
-			keys = append(keys, k)
-		}
-		for _, k := range keys {
-			curBind := g.Bindings[k]
-			if curBind == nil {
-				continue
-			}
-			// This could cause issues with name collisions but its unlikely and documentation should help make it even more unlikely.
-			filteredK := "Filtered" + k
-			g.Bindings[filteredK] = g.Bindings[k]
-			g.Bindings[k] = []event.Bindable{
-				func(id event.CID, button interface{}) int {
-					btn := id.E().(Btn)
-					mEvent, ok := button.(*mouse.Event)
-					// If the passed event is not a mouse event dont filter on location.
-					// Main current use case is for nil events passed via simulated clicks.
-					if !ok {
-						btn.Trigger(filteredK, button)
-					}
-					bSpace := btn.GetSpace().Bounds()
-					if g.Shape.In(int(mEvent.X()-bSpace.Min.X()), int(mEvent.Y()-bSpace.Min.Y()), int(bSpace.W()), int(bSpace.H())) {
-						btn.Trigger(filteredK, mEvent)
-					}
-					return 0
-				},
-			}
-		}
+	for _, binding := range g.Bindings {
+		binding(btn)
 	}
 
-	for k, v := range g.Bindings {
-		for _, b := range v {
-			btn.Bind(k, b)
-		}
-	}
-
-	err := mouse.PhaseCollision(btn.GetSpace())
+	// TODO: not default
+	err := mouse.PhaseCollision(btn.GetSpace(), event.DefaultBus)
 	dlog.ErrorCheck(err)
 
 	if g.Group != nil {
@@ -239,9 +244,8 @@ type switcher interface {
 }
 
 // toggleFxn sets up the mouseclick binding for toggle buttons created for goreport cyclo decrease
-func toggleFxn(g Generator) func(id event.CID, nothing interface{}) int {
-	return func(id event.CID, nothing interface{}) int {
-		btn := event.GetEntity(id).(Btn)
+func toggleFxn(g Generator) func(btn Btn, payload *mouse.Event) event.Response {
+	return func(btn Btn, payload *mouse.Event) event.Response {
 		if btn.GetRenderable().(switcher).Get() == "on" {
 			if g.Group != nil && g.Group.active == btn {
 				g.Group.active = nil
@@ -253,7 +257,7 @@ func toggleFxn(g Generator) func(id event.CID, nothing interface{}) int {
 				g.Group.active = btn
 				for _, b := range g.Group.members {
 					if b.GetRenderable().(switcher).Get() == "on" {
-						b.Trigger("MouseClickOn", nil)
+						event.TriggerForCallerOn(event.DefaultBus, b.CID(), mouse.ClickOn, payload)
 					}
 				}
 			}
@@ -267,19 +271,16 @@ func toggleFxn(g Generator) func(id event.CID, nothing interface{}) int {
 }
 
 // listFxn sets up the mouseclick binding for list buttons created for goreport cyclo reduction
-func listFxn(g Generator) func(id event.CID, button interface{}) int {
-	return func(id event.CID, button interface{}) int {
-		btn := event.GetEntity(id).(Btn)
+func listFxn(g Generator) func(btn Btn, payload *mouse.Event) event.Response {
+	return func(btn Btn, payload *mouse.Event) event.Response {
 		i := *g.ListChoice
-		mEvent := button.(*mouse.Event)
-
-		if mEvent.Button == mouse.ButtonLeft {
+		if payload.Button == mouse.ButtonLeft {
 			i++
 			if i == len(g.RS) {
 				i = 0
 			}
 
-		} else if mEvent.Button == mouse.ButtonRight {
+		} else if payload.Button == mouse.ButtonRight {
 			i--
 			if i < 0 {
 				i += len(g.RS)

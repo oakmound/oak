@@ -14,22 +14,24 @@ type Moving struct {
 }
 
 // NewMoving returns a new Moving
-func NewMoving(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CID, friction float64) *Moving {
-	m := Moving{}
-	cid = cid.Parse(&m)
-	m.Solid = *NewSolid(x, y, w, h, r, tree, cid)
+func NewMoving(x, y, w, h float64, r render.Renderable, tree *collision.Tree, cid event.CallerID, friction float64) *Moving {
+	m := &Moving{}
+	if cid == 0 {
+		m.CallerID = event.DefaultCallerMap.Register(m)
+	} else {
+		m.CallerID = cid
+	}
+	m.Solid = *NewSolid(x, y, w, h, r, tree, m.CallerID)
 	m.vMoving = vMoving{
 		Delta:    physics.NewVector(0, 0),
 		Speed:    physics.NewVector(0, 0),
 		Friction: friction,
 	}
-	return &m
+	return m
 }
 
-// Init satisfies event.Entity
-func (m *Moving) Init() event.CID {
-	m.CID = event.NextID(m)
-	return m.CID
+func (m *Moving) CID() event.CallerID {
+	return m.CallerID
 }
 
 // ShiftVector probably shouldn't be on moving but it lets you

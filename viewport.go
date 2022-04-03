@@ -34,7 +34,7 @@ func (w *Window) setViewport(pt intgeom.Point2) {
 	} else {
 		w.viewPos = pt
 	}
-	w.eventHandler.Trigger(event.ViewportUpdate, w.viewPos)
+	event.TriggerOn(w.eventHandler, ViewportUpdate, w.viewPos)
 }
 
 // GetViewportBounds reports what bounds the viewport has been set to, if any.

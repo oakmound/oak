@@ -60,7 +60,7 @@ func (kc keyColor) Color() color.RGBA {
 	return color.RGBA{255, 255, 255, 255}
 }
 
-func newKey(note synth.Pitch, c keyColor, k string) *entities.Solid {
+func newKey(ctx *scene.Context, note synth.Pitch, c keyColor, k key.Code) *entities.Solid {
 	w := c.Width()
 	h := c.Height()
 	clr := c.Color()
@@ -93,30 +93,30 @@ func newKey(note synth.Pitch, c keyColor, k string) *entities.Solid {
 		s.Space.Label = labelWhiteKey
 	}
 	mouse.UpdateSpace(s.X(), s.Y(), s.W, s.H, s.Space)
-	s.Bind(key.Down+k, func(c event.CID, i interface{}) int {
-		if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
+	event.GlobalBind(ctx, key.Down(k), func(ev key.Event) event.Response {
+		// TODO: add helper function for this?
+		if ev.Modifiers&key.ModShift == key.ModShift {
 			return 0
 		}
-		playPitch(note)
+		playPitch(ctx, note)
 		sw.Set("down")
 		return 0
 	})
-	s.Bind(key.Up+k, func(c event.CID, i interface{}) int {
-		if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
+	event.GlobalBind(ctx, key.Up(k), func(ev key.Event) event.Response {
+		if ev.Modifiers&key.ModShift == key.ModShift {
 			return 0
 		}
 		releasePitch(note)
 		sw.Set("up")
 		return 0
 	})
-	s.Bind(mouse.PressOn, func(c event.CID, i interface{}) int {
-		playPitch(note)
-		me := i.(*mouse.Event)
+	event.Bind(ctx, mouse.PressOn, s, func(_ *entities.Solid, me *mouse.Event) event.Response {
+		playPitch(ctx, note)
 		me.StopPropagation = true
 		sw.Set("down")
 		return 0
 	})
-	s.Bind(mouse.Release, func(c event.CID, i interface{}) int {
+	event.Bind(ctx, mouse.Release, s, func(_ *entities.Solid, me *mouse.Event) event.Response {
 		releasePitch(note)
 		sw.Set("up")
 		return 0
@@ -130,13 +130,13 @@ type keyDef struct {
 	x     float64
 }
 
-var keycharOrder = []string{
-	"Z", "S", "X", "D", "C",
-	"V", "G", "B", "H", "N", "J", "M",
-	key.Comma, "L", key.Period, key.Semicolon, key.Slash,
-	"Q", "2", "W", "3", "E", "4", "R",
-	"T", "6", "Y", "7", "U",
-	"I", "9", "O", "0", "P", key.HyphenMinus, key.LeftSquareBracket,
+var keycharOrder = []key.Code{
+	key.Z, key.S, key.X, key.D, key.C,
+	key.V, key.G, key.B, key.H, key.N, key.J, key.M,
+	key.Comma, key.L, key.FullStop, key.Semicolon, key.Slash,
+	key.Q, key.Num2, key.W, key.Num3, key.E, key.Num4, key.R,
+	key.T, key.Num6, key.Y, key.Num7, key.U,
+	key.I, key.Num9, key.O, key.Num0, key.P, key.HyphenMinus, key.LeftSquareBracket,
 }
 
 var playLock sync.Mutex
@@ -144,7 +144,7 @@ var cancelFuncs = map[synth.Pitch]func(){}
 
 var synthKind func(...synth.Option) (pcm.Reader, error)
 
-func playPitch(pitch synth.Pitch) {
+func playPitch(ctx *scene.Context, pitch synth.Pitch) {
 	playLock.Lock()
 	defer playLock.Unlock()
 	if cancel, ok := cancelFuncs[pitch]; ok {
@@ -158,12 +158,12 @@ func playPitch(pitch synth.Pitch) {
 		fmt.Println("new writer failed:", err)
 		return
 	}
-	monitor := newPCMMonitor(speaker)
+	monitor := newPCMMonitor(ctx, speaker)
 	monitor.SetPos(0, 0)
 	render.Draw(monitor)
-	ctx, cancel := context.WithCancel(context.Background())
+	gctx, cancel := context.WithCancel(ctx)
 	go func() {
-		err = pcm.Play(ctx, monitor, toPlay)
+		err = pcm.Play(gctx, monitor, toPlay)
 		if err != nil {
 			fmt.Println("play error:", err)
 		}
@@ -204,7 +204,7 @@ func main() {
 			y := 200.0
 			i := 0
 			for i < len(keycharOrder) && x+kc.Width() < float64(ctx.Window.Width()-10) {
-				ky := newKey(pitch, kc, keycharOrder[i])
+				ky := newKey(ctx, pitch, kc, keycharOrder[i])
 				ky.SetPos(x, y)
 				layer := 0
 				if kc == keyColorBlack {
@@ -223,36 +223,27 @@ func main() {
 				i++
 			}
 			// Consider: Adding volume control
-			event.GlobalBind(key.Down+key.S, func(c event.CID, i interface{}) int {
-				if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
-					synthKind = src.SinPCM
-				}
-				return 0
-			})
-			event.GlobalBind(key.Down+key.W, func(c event.CID, i interface{}) int {
-				if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
-					synthKind = src.SawPCM
-				}
-				return 0
-			})
-			event.GlobalBind(key.Down+key.T, func(c event.CID, i interface{}) int {
-				if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
-					synthKind = src.TrianglePCM
-				}
-				return 0
-			})
-			event.GlobalBind(key.Down+key.P, func(c event.CID, i interface{}) int {
-				if oak.IsDown(key.LeftShift) || oak.IsDown(key.RightShift) {
-					synthKind = src.PulsePCM(2)
-				}
-				return 0
-			})
+			codeKinds := map[key.Code]func(...synth.Option) (pcm.Reader, error){
+				key.S: src.SinPCM,
+				key.W: src.SawPCM,
+				key.T: src.TrianglePCM,
+				key.P: src.PulsePCM(2),
+			}
+			for kc, synfn := range codeKinds {
+				event.GlobalBind(ctx, key.Down(kc), func(ev key.Event) event.Response {
+					if ev.Modifiers&key.ModShift == key.ModShift {
+						synthKind = synfn
+					}
+					return 0
+				})
+			}
+
 			help1 := render.NewText("Shift+([S]in/[T]ri/[P]ulse/sa[W]) to change wave style", 10, 500)
 			help2 := render.NewText("Keyboard / mouse to play", 10, 520)
 			render.Draw(help1)
 			render.Draw(help2)
 
-			event.GlobalBind(mouse.ScrollDown, func(c event.CID, i interface{}) int {
+			event.GlobalBind(ctx, mouse.ScrollDown, func(_ *mouse.Event) event.Response {
 				mag := globalMagnification - 0.05
 				if mag < 1 {
 					mag = 1
@@ -260,7 +251,7 @@ func main() {
 				globalMagnification = mag
 				return 0
 			})
-			event.GlobalBind(mouse.ScrollUp, func(c event.CID, i interface{}) int {
+			event.GlobalBind(ctx, mouse.ScrollUp, func(_ *mouse.Event) event.Response {
 				globalMagnification += 0.05
 				return 0
 			})
@@ -275,7 +266,7 @@ func main() {
 }
 
 type pcmMonitor struct {
-	event.CID
+	event.CallerID
 	render.LayeredPoint
 	pcm.Writer
 	pcm.Format
@@ -285,7 +276,7 @@ type pcmMonitor struct {
 
 var globalMagnification float64 = 1
 
-func newPCMMonitor(w pcm.Writer) *pcmMonitor {
+func newPCMMonitor(ctx *scene.Context, w pcm.Writer) *pcmMonitor {
 	fmt := w.PCMFormat()
 	pm := &pcmMonitor{
 		Writer:       w,
@@ -293,13 +284,11 @@ func newPCMMonitor(w pcm.Writer) *pcmMonitor {
 		LayeredPoint: render.NewLayeredPoint(0, 0, 0),
 		written:      make([]byte, fmt.BytesPerSecond()*pcm.WriterBufferLengthInSeconds),
 	}
-	pm.Init()
 	return pm
 }
 
-func (pm *pcmMonitor) Init() event.CID {
-	pm.CID = event.NextID(pm)
-	return pm.CID
+func (pm *pcmMonitor) CID() event.CallerID {
+	return pm.CallerID
 }
 
 func (pm *pcmMonitor) PCMFormat() pcm.Format {

@@ -19,19 +19,32 @@ type AttachSpace struct {
 	aSpace     **Space
 	tree       *Tree
 	offX, offY float64
+	binding    event.Binding
 }
 
 func (as *AttachSpace) getAttachSpace() *AttachSpace {
 	return as
 }
 
+func (as *AttachSpace) CID() event.CallerID {
+	return (*as.aSpace).CID
+}
+
+var _ attachSpace = &AttachSpace{}
+
 type attachSpace interface {
+	event.Caller
 	getAttachSpace() *AttachSpace
 }
 
 // Attach attaches v to the given space with optional x,y offsets. See AttachSpace.
 func Attach(v physics.Vector, s *Space, tree *Tree, offsets ...float64) error {
-	if t, ok := s.CID.E().(attachSpace); ok {
+	return AttachWithBus(v, s, tree, event.DefaultBus, offsets...)
+}
+
+func AttachWithBus(v physics.Vector, s *Space, tree *Tree, bus event.Handler, offsets ...float64) error {
+	en := bus.GetCallerMap().GetEntity(s.CID)
+	if t, ok := en.(attachSpace); ok {
 		as := t.getAttachSpace()
 		as.aSpace = &s
 		as.follow = v
@@ -39,7 +52,7 @@ func Attach(v physics.Vector, s *Space, tree *Tree, offsets ...float64) error {
 		if as.tree == nil {
 			as.tree = DefaultTree
 		}
-		s.CID.Bind(event.Enter, attachSpaceEnter)
+		as.binding = event.Bind(bus, event.Enter, t, attachSpaceEnter)
 		if len(offsets) > 0 {
 			as.offX = offsets[0]
 			if len(offsets) > 1 {
@@ -54,30 +67,23 @@ func Attach(v physics.Vector, s *Space, tree *Tree, offsets ...float64) error {
 // Detach removes the attachSpaceEnter binding from an entity composed with
 // AttachSpace
 func Detach(s *Space) error {
-	en := s.CID.E()
-	if _, ok := en.(attachSpace); ok {
-		event.UnbindBindable(
-			event.UnbindOption{
-				Event: event.Event{
-					Name:     event.Enter,
-					CallerID: s.CID,
-				},
-				Fn: attachSpaceEnter,
-			},
-		)
+	return DetachWithBus(s, event.DefaultBus)
+}
+
+func DetachWithBus(s *Space, bus event.Handler) error {
+	en := bus.GetCallerMap().GetEntity(s.CID)
+	if as, ok := en.(attachSpace); ok {
+		as.getAttachSpace().binding.Unbind()
 		return nil
 	}
 	return errors.New("this space's entity is not composed of AttachSpace")
 }
 
-func attachSpaceEnter(id event.CID, _ interface{}) int {
-	as := id.E().(attachSpace).getAttachSpace()
+func attachSpaceEnter(asIface attachSpace, _ event.EnterPayload) event.Response {
+	as := asIface.(attachSpace).getAttachSpace()
 	x, y := as.follow.X()+as.offX, as.follow.Y()+as.offY
 	if x != (*as.aSpace).X() ||
 		y != (*as.aSpace).Y() {
-
-		// If this was a nil pointer it would have already crashed but as of release 2.2.0
-		// this could error from the space to delete not existing in the rtree.
 		as.tree.UpdateSpace(x, y, (*as.aSpace).GetW(), (*as.aSpace).GetH(), *as.aSpace)
 	}
 	return 0

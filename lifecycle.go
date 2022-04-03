@@ -77,9 +77,7 @@ func (w *Window) SetAspectRatio(xToY float64) {
 // ChangeWindow sets the width and height of the game window. Although exported,
 // calling it without a size event will probably not act as expected.
 func (w *Window) ChangeWindow(width, height int) error {
-	// Draw a black frame to cover up smears
-	// Todo: could restrict the black to -just- the area not covered by the
-	// scaled screen buffer
+	// Draw the background to cover up smears
 	buff, err := w.screenControl.NewImage(image.Point{width, height})
 	if err == nil {
 		draw.Draw(buff.RGBA(), buff.Bounds(), w.bkgFn(), zeroPoint, draw.Src)

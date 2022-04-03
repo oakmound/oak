@@ -10,14 +10,14 @@ import (
 	"github.com/oakmound/oak/v3/scene"
 )
 
-const (
-	borderlessAtStart = false
-	fullscreenAtStart = false
-	topMostAtStart    = false
-)
-
 func main() {
-	oak.AddScene("demo", scene.Scene{Start: func(*scene.Context) {
+	const (
+		borderlessAtStart = false
+		fullscreenAtStart = false
+		topMostAtStart    = false
+	)
+
+	oak.AddScene("demo", scene.Scene{Start: func(ctx *scene.Context) {
 		txt := render.NewText("Press F to toggle fullscreen. Press B to toggle borderless. Press T to toggle topmost", 50, 50)
 		render.Draw(txt)
 
@@ -25,7 +25,7 @@ func main() {
 		fullscreen := fullscreenAtStart
 		topMost := topMostAtStart
 
-		event.GlobalBind(key.Down+key.F, func(event.CID, interface{}) int {
+		event.GlobalBind(ctx, key.Down(key.F), func(k key.Event) event.Response {
 			fullscreen = !fullscreen
 			fmt.Println("Setting fullscreen:", fullscreen)
 			err := oak.SetFullScreen(fullscreen)
@@ -35,7 +35,7 @@ func main() {
 			}
 			return 0
 		})
-		event.GlobalBind(key.Down+key.B, func(event.CID, interface{}) int {
+		event.GlobalBind(ctx, key.Down(key.B), func(k key.Event) event.Response {
 			borderless = !borderless
 			fmt.Println("Setting borderless:", borderless)
 			err := oak.SetBorderless(borderless)
@@ -45,7 +45,7 @@ func main() {
 			}
 			return 0
 		})
-		event.GlobalBind(key.Down+key.T, func(event.CID, interface{}) int {
+		event.GlobalBind(ctx, key.Down(key.T), func(k key.Event) event.Response {
 			topMost = !topMost
 			fmt.Println("Setting top most:", topMost)
 			err := oak.SetTopMost(topMost)

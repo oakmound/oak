@@ -77,9 +77,6 @@ func TestAddScene(t *testing.T) {
 		t.Fatalf("getting test scene failed")
 	}
 
-	if !test1.Loop() {
-		t.Fatalf("test loop failed")
-	}
 	eStr, _ := test1.End()
 	if eStr != "test1" {
 		t.Fatalf("looping test end did not return test1, got %v", eStr)
