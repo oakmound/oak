@@ -9,18 +9,14 @@ package mtldriver
 
 import (
 	"image"
-	"image/color"
 	"log"
 
 	"dmitri.shuralyov.com/gpu/mtl"
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/oakmound/oak/v3/shiny/driver/internal/drawer"
 	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
 	"github.com/oakmound/oak/v3/shiny/driver/internal/lifecycler"
 	"github.com/oakmound/oak/v3/shiny/driver/mtldriver/internal/coreanim"
 	"github.com/oakmound/oak/v3/shiny/screen"
-	"golang.org/x/image/draw"
-	"golang.org/x/image/math/f64"
 	"golang.org/x/mobile/event/size"
 )
 
@@ -35,7 +31,7 @@ type windowImpl struct {
 	event.Deque
 	lifecycler lifecycler.State
 
-	rgba    *image.RGBA
+	bgra    *BGRA
 	texture mtl.Texture // Used in Publish.
 
 	title      string
@@ -136,7 +132,7 @@ func (w *windowImpl) NextEvent() interface{} {
 
 		// Set drawable size, create backing image and texture.
 		w.ml.SetDrawableSize(sz.WidthPx, sz.HeightPx)
-		w.rgba = image.NewRGBA(image.Rectangle{Max: image.Point{X: sz.WidthPx, Y: sz.HeightPx}})
+		w.bgra = NewBGRA(image.Rectangle{Max: image.Point{X: sz.WidthPx, Y: sz.HeightPx}})
 		w.texture = w.device.MakeTexture(mtl.TextureDescriptor{
 			PixelFormat: mtl.PixelFormatRGBA8UNorm,
 			Width:       sz.WidthPx,
@@ -151,7 +147,7 @@ func (w *windowImpl) Publish() screen.PublishResult {
 	// Copy w.rgba pixels into a texture.
 	region := mtl.RegionMake2D(0, 0, w.texture.Width, w.texture.Height)
 	bytesPerRow := 4 * w.texture.Width
-	w.texture.ReplaceRegion(region, 0, &w.rgba.Pix[0], uintptr(bytesPerRow))
+	w.texture.ReplaceRegion(region, 0, &w.bgra.Pix[0], uintptr(bytesPerRow))
 
 	drawable, err := w.ml.NextDrawable()
 	if err != nil {
@@ -176,28 +172,4 @@ func (w *windowImpl) Publish() screen.PublishResult {
 	cb.Commit()
 
 	return screen.PublishResult{}
-}
-
-func (w *windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
-	draw.Draw(w.rgba, sr.Sub(sr.Min).Add(dp), src.RGBA(), sr.Min, draw.Src)
-}
-
-func (w *windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
-	draw.Draw(w.rgba, dr, &image.Uniform{src}, image.Point{}, op)
-}
-
-func (w *windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
-	draw.NearestNeighbor.Transform(w.rgba, src2dst, src.(*textureImpl).rgba, sr, op, nil)
-}
-
-func (w *windowImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
-	draw.NearestNeighbor.Transform(w.rgba, src2dst, &image.Uniform{src}, sr, op, nil)
-}
-
-func (w *windowImpl) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
-	drawer.Copy(w, dp, src, sr, op)
-}
-
-func (w *windowImpl) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
-	drawer.Scale(w, dr, src, sr, op)
 }
