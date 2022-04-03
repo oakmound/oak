@@ -8,8 +8,10 @@
 package mtldriver
 
 import (
+	"fmt"
 	"image"
 	"log"
+	"os/exec"
 
 	"dmitri.shuralyov.com/gpu/mtl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -20,8 +22,8 @@ import (
 	"golang.org/x/mobile/event/size"
 )
 
-// windowImpl implements screen.Window.
-type windowImpl struct {
+// Window implements screen.Window.
+type Window struct {
 	device mtl.Device
 	window *glfw.Window
 	chans  windowRequestChannels
@@ -42,12 +44,12 @@ type windowImpl struct {
 	x, y int
 }
 
-func (w *windowImpl) HideCursor() error {
+func (w *Window) HideCursor() error {
 	w.window.SetInputMode(glfw.CursorMode, glfw.CursorHidden)
 	return nil
 }
 
-func (w *windowImpl) SetBorderless(borderless bool) error {
+func (w *Window) SetBorderless(borderless bool) error {
 	if w.borderless == borderless {
 		return nil
 	}
@@ -67,7 +69,7 @@ func (w *windowImpl) SetBorderless(borderless bool) error {
 	return nil
 }
 
-func (w *windowImpl) SetFullScreen(full bool) error {
+func (w *Window) SetFullScreen(full bool) error {
 	if w.fullscreen == full {
 		return nil
 	}
@@ -90,12 +92,12 @@ func (w *windowImpl) SetFullScreen(full bool) error {
 	return nil
 }
 
-func (w *windowImpl) MoveWindow(x, y, width, height int32) error {
+func (w *Window) MoveWindow(x, y, width, height int) error {
 	respCh := make(chan struct{})
-	w.x = int(x)
-	w.y = int(y)
-	w.w = int(width)
-	w.h = int(height)
+	w.x = x
+	w.y = y
+	w.w = width
+	w.h = height
 	w.chans.updateCh <- updateWindowReq{
 		window: w.window,
 		setPos: true,
@@ -110,11 +112,11 @@ func (w *windowImpl) MoveWindow(x, y, width, height int32) error {
 	return nil
 }
 
-func (w *windowImpl) GetCursorPosition() (x, y float64) {
+func (w *Window) GetCursorPosition() (x, y float64) {
 	return w.window.GetCursorPos()
 }
 
-func (w *windowImpl) Release() {
+func (w *Window) Release() {
 	respCh := make(chan struct{})
 	w.chans.releaseCh <- releaseWindowReq{
 		window: w.window,
@@ -124,7 +126,61 @@ func (w *windowImpl) Release() {
 	<-respCh
 }
 
-func (w *windowImpl) NextEvent() interface{} {
+func (w *Window) SetTitle(title string) error {
+	respCh := make(chan struct{})
+	w.chans.updateCh <- updateWindowReq{
+		window: w.window,
+		title:  &title,
+		respCh: respCh,
+	}
+	glfw.PostEmptyEvent() // Break main loop out of glfw.WaitEvents so it can receive on releaseWindowCh.
+	<-respCh
+	return nil
+}
+
+type attribPair struct {
+	key glfw.Hint
+	val int
+}
+
+func (w *Window) SetTopMost(topMost bool) error {
+	respCh := make(chan struct{})
+	val := glfw.True
+	if !topMost {
+		val = glfw.False
+	}
+	w.chans.updateCh <- updateWindowReq{
+		window: w.window,
+		attribs: []attribPair{{
+			key: glfw.Floating,
+			val: val,
+		}},
+		respCh: respCh,
+	}
+	glfw.PostEmptyEvent() // Break main loop out of glfw.WaitEvents so it can receive on releaseWindowCh.
+	<-respCh
+	return nil
+}
+
+func (w *Window) SetTrayIcon(path string) error {
+	// TODO: the problem here is that this ^ takes a path, because windows
+	// wants a path, where glfw wants an image.Image (or set of them).
+	// for v4, standardize this interface.
+	// w.window.SetIcon()
+	return fmt.Errorf("unimplemented")
+}
+
+func (w *Window) ShowNotification(title, msg string, icon bool) error {
+	// formed between beeep and stack overflow
+	osa, err := exec.LookPath("osascript")
+	if err != nil {
+		return err
+	}
+	cmd := exec.Command(osa, "-e", fmt.Sprintf("display notification %q with title %q", msg, title))
+	return cmd.Run()
+}
+
+func (w *Window) NextEvent() interface{} {
 	e := w.Deque.NextEvent()
 	if sz, ok := e.(size.Event); ok {
 		// TODO(dmitshur): this is the best place/time/frequency to do this
@@ -143,7 +199,7 @@ func (w *windowImpl) NextEvent() interface{} {
 	return e
 }
 
-func (w *windowImpl) Publish() screen.PublishResult {
+func (w *Window) Publish() screen.PublishResult {
 	// Copy w.rgba pixels into a texture.
 	region := mtl.RegionMake2D(0, 0, w.texture.Width, w.texture.Height)
 	bytesPerRow := 4 * w.texture.Width
