@@ -126,11 +126,11 @@ func ResizeClientRect(hwnd HWND, opts screen.WindowGenerator) error {
 	h := (wr.Bottom - wr.Top) - (cr.Bottom - int32(opts.Height))
 	x := wr.Left
 	if opts.X != 0 {
-		x = opts.X
+		x = int32(opts.X)
 	}
 	y := wr.Top
 	if opts.Y != 0 {
-		y = opts.Y
+		y = int32(opts.Y)
 	}
 	return MoveWindow(hwnd, x, y, w, h, false)
 }
