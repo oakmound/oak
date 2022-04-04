@@ -8,7 +8,6 @@ import (
 
 	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
 	"github.com/oakmound/oak/v3/shiny/screen"
-	"golang.org/x/image/math/f64"
 )
 
 func Main(f func(screen.Screen)) {
@@ -73,13 +72,9 @@ type Window struct {
 	event.Deque
 }
 
-func (*Window) Release()                                                                      {}
-func (*Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op)     {}
-func (*Window) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {}
-func (*Window) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op)       {}
-func (*Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op)  {}
-func (*Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle)                   {}
-func (*Window) Fill(dr image.Rectangle, src color.Color, op draw.Op)                          {}
+func (*Window) Release()                                                                     {}
+func (*Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {}
+func (*Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle)                  {}
 
 func (*Window) Publish() screen.PublishResult {
 	return screen.PublishResult{}

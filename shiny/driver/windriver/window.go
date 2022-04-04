@@ -91,15 +91,6 @@ func (w *Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
 	})
 }
 
-func (w *Window) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
-	w.execCmd(&cmd{
-		id:    cmdFill,
-		dr:    dr,
-		color: src,
-		op:    op,
-	})
-}
-
 func (w *Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	if op != draw.Src && op != draw.Over {
 		// TODO:
@@ -109,19 +100,6 @@ func (w *Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, 
 		id:      cmdDraw,
 		src2dst: src2dst,
 		texture: src.(*textureImpl).bitmap,
-		sr:      sr,
-		op:      op,
-	})
-}
-
-func (w *Window) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
-	if op != draw.Src && op != draw.Over {
-		return
-	}
-	w.execCmd(&cmd{
-		id:      cmdDrawUniform,
-		src2dst: src2dst,
-		color:   src,
 		sr:      sr,
 		op:      op,
 	})
@@ -376,10 +354,6 @@ func drawWindow(dc win32.HDC, src2dst f64.Aff3, src interface{}, sr image.Rectan
 		return fill(dc, dr, s, op)
 	}
 	return fmt.Errorf("unsupported type %T", src)
-}
-
-func (w *Window) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
-	drawer.Copy(w, dp, src, sr, op)
 }
 
 func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {

@@ -5,7 +5,6 @@ package mtldriver
 
 import (
 	"image"
-	"image/color"
 
 	"github.com/oakmound/oak/v3/shiny/driver/internal/drawer"
 	"github.com/oakmound/oak/v3/shiny/screen"
@@ -45,20 +44,8 @@ func (w *Window) Upload(dp image.Point, srcImg screen.Image, sr image.Rectangle)
 	}
 }
 
-func (w *Window) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
-	// Unimplemented
-}
-
 func (w *Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	nnInterpolator{}.Transform(w.bgra, src2dst, src.(*textureImpl).rgba, sr)
-}
-
-func (w *Window) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
-	// Unimplemented
-}
-
-func (w *Window) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
-	drawer.Copy(w, dp, src, sr, draw.Over)
 }
 
 func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {

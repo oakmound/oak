@@ -5,13 +5,11 @@ package jsdriver
 
 import (
 	"image"
-	"image/color"
 	"image/draw"
 	"syscall/js"
 
 	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
 	"github.com/oakmound/oak/v3/shiny/screen"
-	"golang.org/x/image/math/f64"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/mouse"
 )
@@ -22,10 +20,7 @@ type Window struct {
 	event.Deque
 }
 
-func (w *Window) Release()                                                                      {}
-func (w *Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op)     {}
-func (w *Window) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {}
-func (w *Window) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op)       {}
+func (w *Window) Release() {}
 func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	rgba := src.(*textureImpl).rgba
 	js.CopyBytesToJS(w.cvs.copybuff, rgba.Pix)
@@ -33,7 +28,6 @@ func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangl
 	w.cvs.ctx.Call("putImageData", w.cvs.imgData, 0, 0)
 }
 func (w *Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {}
-func (w *Window) Fill(dr image.Rectangle, src color.Color, op draw.Op)        {}
 
 func (w *Window) Publish() screen.PublishResult {
 	return screen.PublishResult{}
