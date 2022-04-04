@@ -20,7 +20,7 @@ import (
 
 func Main(f func(screen.Screen)) {
 	app.Main(func(a app.App) {
-		s := &screenImpl{
+		s := &Screen{
 			app: a,
 		}
 		screenOnce := sync.Once{}

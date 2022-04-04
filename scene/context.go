@@ -7,7 +7,6 @@ import (
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/window"
 )
 
 // A Context contains all transient engine components used in a scene, including
@@ -24,7 +23,7 @@ type Context struct {
 	event.Handler
 	PreviousScene string
 	SceneInput    interface{}
-	Window        window.Window
+	Window        Window
 
 	DrawStack *render.DrawStack
 

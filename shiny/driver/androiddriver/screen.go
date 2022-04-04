@@ -18,9 +18,9 @@ import (
 	"golang.org/x/mobile/gl"
 )
 
-var _ screen.Screen = &screenImpl{}
+var _ screen.Screen = &Screen{}
 
-type screenImpl struct {
+type Screen struct {
 	event.Deque
 
 	app   app.App
@@ -32,7 +32,7 @@ type screenImpl struct {
 	lastSz size.Event
 }
 
-func (s *screenImpl) NewImage(size image.Point) (screen.Image, error) {
+func (s *Screen) NewImage(size image.Point) (screen.Image, error) {
 	img := &imageImpl{
 		screen: s,
 		size:   size,
@@ -42,28 +42,28 @@ func (s *screenImpl) NewImage(size image.Point) (screen.Image, error) {
 	return img, nil
 }
 
-func (s *screenImpl) NewTexture(size image.Point) (screen.Texture, error) {
+func (s *Screen) NewTexture(size image.Point) (screen.Texture, error) {
 	return NewTexture(s, size), nil
 }
 
-var _ screen.Window = &screenImpl{}
+var _ screen.Window = &Screen{}
 
-func (s *screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, error) {
+func (s *Screen) NewWindow(opts screen.WindowGenerator) (screen.Window, error) {
 	// android does not support multiple windows
 	return s, nil
 }
 
-func (w *screenImpl) Publish() screen.PublishResult {
+func (w *Screen) Publish() screen.PublishResult {
 	return screen.PublishResult{}
 }
 
-func (w *screenImpl) Release()                                                                      {}
-func (w *screenImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle)                   {}
-func (w *screenImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op)                          {}
-func (w *screenImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op)     {}
-func (w *screenImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {}
-func (w *screenImpl) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op)       {}
-func (w *screenImpl) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Screen) Release()                                                                      {}
+func (w *Screen) Upload(dp image.Point, src screen.Image, sr image.Rectangle)                   {}
+func (w *Screen) Fill(dr image.Rectangle, src color.Color, op draw.Op)                          {}
+func (w *Screen) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op)     {}
+func (w *Screen) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {}
+func (w *Screen) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op)       {}
+func (w *Screen) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	t := src.(*textureImpl)
 	t.img.img.Draw(
 		w.lastSz,

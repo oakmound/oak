@@ -31,7 +31,7 @@ func (screenImpl) NewTexture(size image.Point) (screen.Texture, error) {
 }
 
 func (screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, error) {
-	return &windowImpl{}, nil
+	return &Window{}, nil
 }
 
 type imageImpl struct {
@@ -69,18 +69,18 @@ func (textureImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) 
 func (textureImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op)        {}
 func (textureImpl) Release()                                                    {}
 
-type windowImpl struct {
+type Window struct {
 	event.Deque
 }
 
-func (*windowImpl) Release()                                                                      {}
-func (*windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op)     {}
-func (*windowImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {}
-func (*windowImpl) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op)       {}
-func (*windowImpl) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op)  {}
-func (*windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle)                   {}
-func (*windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op)                          {}
+func (*Window) Release()                                                                      {}
+func (*Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op)     {}
+func (*Window) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {}
+func (*Window) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op)       {}
+func (*Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op)  {}
+func (*Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle)                   {}
+func (*Window) Fill(dr image.Rectangle, src color.Color, op draw.Op)                          {}
 
-func (*windowImpl) Publish() screen.PublishResult {
+func (*Window) Publish() screen.PublishResult {
 	return screen.PublishResult{}
 }

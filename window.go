@@ -21,7 +21,7 @@ import (
 	"github.com/oakmound/oak/v3/window"
 )
 
-var _ window.Window = &Window{}
+var _ window.App = &Window{}
 
 func (w *Window) windowController(s screen.Screen, x, y, width, height int) (*driver.Window, error) {
 	// TODO v4: can we update this interface to return our concrete driver.Window?
