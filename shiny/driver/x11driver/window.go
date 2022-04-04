@@ -207,6 +207,44 @@ func (w *Window) SetTopMost(topMost bool) error {
 	return x11.SetTopMost(w.s.XUtil, w.xw, topMost)
 }
 
+func (w *Window) HideCursor() error {
+	// ask X for a pixmap id
+	px, err := xproto.NewPixmapId(w.s.xc)
+	if err != nil {
+		return err
+	}
+
+	// Create a 1x1 pixmap with that pixmap id
+	// depth has to be 1, otherwise you get BadMatch
+	// the drawable has to be this root window. I don't know why.
+	// You can't make a pixmap with less than 1x1 dimensions.
+	// I don't even know if this pixmap is black or transparent
+	xproto.CreatePixmap(w.s.xc, 1, px, xproto.Drawable(w.s.XUtil.RootWin()), 1, 1)
+
+	// ask X for a cursor id
+	cursorId, err := xproto.NewCursorId(w.s.xc)
+	if err != nil {
+		return err
+	}
+
+	// create a cursor from the pixmap with that cursor id.
+	// the zeros are colors (r,g,b,r,g,b) and the hotspot of the cursor (x,y)
+	// the second px is a mask which we ignore.
+	xproto.CreateCursor(w.s.xc, cursorId, px, px, 0, 0, 0, 0, 0, 0, 0, 0)
+
+	// change the cursor of the window to be the created cursor.
+	xproto.ChangeWindowAttributes(w.s.xc, w.xw,
+		xproto.CwBackPixel|xproto.CwCursor, []uint32{0xffffffff, uint32(cursorId)})
+
+	// free the things we created
+	// it does not make sense to me that we can free these, and still persist our created
+	// cursor, but it works
+	xproto.FreeCursor(w.s.xc, cursorId)
+	xproto.FreePixmap(w.s.xc, px)
+
+	return nil
+}
+
 func (w *Window) SetIcon(icon image.Image) error {
 	bds := icon.Bounds()
 	wd := bds.Max.X
@@ -235,7 +273,9 @@ func (w *Window) SetIcon(icon image.Image) error {
 		}
 	}
 	const XA_CARDINAL = 6
-
+	// 32 here is the bit size of a cardinal, which is a bgra pixel
+	// we divide our length by 4 because we're sending a byte slice,
+	// not a cardinal slice
 	xproto.ChangeProperty(w.s.xc, xproto.PropModeReplace, w.xw,
 		w.s.atoms["_NET_WM_ICON"], XA_CARDINAL,
 		32, uint32(len(bgra))/4, bgra)
