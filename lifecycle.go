@@ -23,8 +23,8 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 	// Apply that factor to the scale
 
 	err = w.newWindow(
-		int32(w.config.Screen.X),
-		int32(w.config.Screen.Y),
+		w.config.Screen.X,
+		w.config.Screen.Y,
 		int(float64(w.ScreenWidth)*w.config.Screen.Scale),
 		int(float64(w.ScreenHeight)*w.config.Screen.Scale),
 	)
@@ -55,7 +55,7 @@ func (w *Window) Quit() {
 	}
 }
 
-func (w *Window) newWindow(x, y int32, width, height int) error {
+func (w *Window) newWindow(x, y, width, height int) error {
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
 	wC, err := w.windowController(w.screenControl, x, y, width, height)

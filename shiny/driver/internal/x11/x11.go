@@ -11,7 +11,7 @@ import (
 	"github.com/BurntSushi/xgbutil/motif"
 )
 
-func MoveWindow(xc *xgb.Conn, xw xproto.Window, x, y, width, height int32) (int32, int32, int32, int32) {
+func MoveWindow(xc *xgb.Conn, xw xproto.Window, x, y, width, height int) (int, int, int, int) {
 	vals := []uint32{}
 
 	flags := xproto.ConfigWindowHeight |
@@ -66,7 +66,7 @@ func SetTopMost(xutil *xgbutil.XUtil, win xproto.Window, topMost bool) error {
 func SetBorderless(xutil *xgbutil.XUtil, win xproto.Window, borderless bool) error {
 	hints := &motif.Hints{
 		Flags:      motif.HintDecorations,
-		Decoration: motif.DecorationNone, 
+		Decoration: motif.DecorationNone,
 	}
 	if !borderless {
 		hints.Decoration = motif.DecorationAll

@@ -30,7 +30,7 @@ import (
 	"golang.org/x/mobile/geom"
 )
 
-type windowImpl struct {
+type Window struct {
 	s *screenImpl
 
 	xw xproto.Window
@@ -48,11 +48,13 @@ type windowImpl struct {
 
 	mu sync.Mutex
 
+	lastMouseX, lastMouseY int16
+
 	x, y     uint32
 	released bool
 }
 
-func (w *windowImpl) Release() {
+func (w *Window) Release() {
 	w.mu.Lock()
 	released := w.released
 	w.released = true
@@ -69,31 +71,31 @@ func (w *windowImpl) Release() {
 	xproto.DestroyWindow(w.s.xc, w.xw)
 }
 
-func (w *windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
+func (w *Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
 	src.(*bufferImpl).upload(xproto.Drawable(w.xw), w.xg, w.s.xsi.RootDepth, dp, sr)
 }
 
-func (w *windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
+func (w *Window) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
 	fill(w.s.xc, w.xp, dr, src, op)
 }
 
-func (w *windowImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
+func (w *Window) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
 	w.s.drawUniform(w.xp, &src2dst, src, sr, op)
 }
 
-func (w *windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	src.(*textureImpl).draw(w.xp, &src2dst, sr, op)
 }
 
-func (w *windowImpl) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	drawer.Copy(w, dp, src, sr, op)
 }
 
-func (w *windowImpl) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	drawer.Scale(w, dr, src, sr, op)
 }
 
-func (w *windowImpl) Publish() screen.PublishResult {
+func (w *Window) Publish() screen.PublishResult {
 	// TODO: implement a back buffer, and copy or flip that here to the front
 	// buffer.
 
@@ -109,15 +111,15 @@ func (w *windowImpl) Publish() screen.PublishResult {
 	return screen.PublishResult{}
 }
 
-func (w *windowImpl) SetFullScreen(fullscreen bool) error {
+func (w *Window) SetFullScreen(fullscreen bool) error {
 	return x11.SetFullScreen(w.s.XUtil, w.xw, fullscreen)
 }
 
-func (w *windowImpl) SetBorderless(borderless bool) error {
+func (w *Window) SetBorderless(borderless bool) error {
 	return x11.SetBorderless(w.s.XUtil, w.xw, borderless)
 }
 
-func (w *windowImpl) handleConfigureNotify(ev xproto.ConfigureNotifyEvent) {
+func (w *Window) handleConfigureNotify(ev xproto.ConfigureNotifyEvent) {
 	// TODO: does the order of these lifecycle and size events matter? Should
 	// they really be a single, atomic event?
 	w.lifecycler.SetVisible((int(ev.X)+int(ev.Width)) > 0 && (int(ev.Y)+int(ev.Height)) > 0)
@@ -137,11 +139,11 @@ func (w *windowImpl) handleConfigureNotify(ev xproto.ConfigureNotifyEvent) {
 	})
 }
 
-func (w *windowImpl) handleExpose() {
+func (w *Window) handleExpose() {
 	w.Send(paint.Event{})
 }
 
-func (w *windowImpl) handleKey(detail xproto.Keycode, state uint16, dir key.Direction) {
+func (w *Window) handleKey(detail xproto.Keycode, state uint16, dir key.Direction) {
 	r, c := w.s.keysyms.Lookup(uint8(detail), state, w.s.numLockMod)
 	w.Send(key.Event{
 		Rune:      r,
@@ -151,7 +153,9 @@ func (w *windowImpl) handleKey(detail xproto.Keycode, state uint16, dir key.Dire
 	})
 }
 
-func (w *windowImpl) handleMouse(x, y int16, b xproto.Button, state uint16, dir mouse.Direction) {
+func (w *Window) handleMouse(x, y int16, b xproto.Button, state uint16, dir mouse.Direction) {
+	w.lastMouseX = x
+	w.lastMouseY = y
 	// TODO: should a mouse.Event have a separate MouseModifiers field, for
 	// which buttons are pressed during a mouse move?
 	btn := mouse.Button(b)
@@ -180,7 +184,7 @@ func (w *windowImpl) handleMouse(x, y int16, b xproto.Button, state uint16, dir 
 	})
 }
 
-func (w *windowImpl) MoveWindow(x, y, width, height int32) error {
+func (w *Window) MoveWindow(x, y, width, height int) error {
 	newX, newY, newW, newH := x11.MoveWindow(w.s.xc, w.xw, x, y, width, height)
 	w.x = uint32(newX)
 	w.y = uint32(newY)
@@ -280,4 +284,10 @@ func (w *Window) SetIcon(icon image.Image) error {
 		w.s.atoms["_NET_WM_ICON"], XA_CARDINAL,
 		32, uint32(len(bgra))/4, bgra)
 	return nil
+}
+
+func (w *Window) GetCursorPosition() (x, y float64) {
+	// it's really not easy to do this with X
+	// we're just caching the last values we got
+	return float64(w.lastMouseX), float64(w.lastMouseY)
 }

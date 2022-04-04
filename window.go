@@ -23,7 +23,7 @@ import (
 
 var _ window.Window = &Window{}
 
-func (w *Window) windowController(s screen.Screen, x, y int32, width, height int) (*driver.Window, error) {
+func (w *Window) windowController(s screen.Screen, x, y, width, height int) (*driver.Window, error) {
 	// TODO v4: can we update this interface to return our concrete driver.Window?
 	dwin, err := s.NewWindow(screen.NewWindowGenerator(
 		screen.Dimensions(width, height),
