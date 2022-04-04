@@ -1,5 +1,5 @@
-//go:build js || android
-// +build js android
+//go:build js || android || nooswindow
+// +build js android nooswindow
 
 package scene
 

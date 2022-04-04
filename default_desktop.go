@@ -1,7 +1,8 @@
-//go:build (windows || linux || osx) && !js && !android
+//go:build (windows || linux || osx) && !js && !android && !nooswindow
 // +build windows linux osx
 // +build !js
 // +build !android
+// +build !nooswindow
 
 package oak
 
