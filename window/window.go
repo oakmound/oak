@@ -2,19 +2,19 @@
 package window
 
 import (
+	"image"
+
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/event"
 )
 
-// Window is an interface of methods on an oak.Window used
-// to avoid circular imports
+// Window is an interface of methods on an oak.Window
 type Window interface {
 	SetFullScreen(bool) error
 	SetBorderless(bool) error
 	SetTopMost(bool) error
 	SetTitle(string) error
-	SetTrayIcon(string) error
-	ShowNotification(title, msg string, icon bool) error
+	SetIcon(image.Image) error
 	MoveWindow(x, y, w, h int) error
 	HideCursor() error
 

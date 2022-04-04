@@ -16,6 +16,10 @@ import (
 	"image/color"
 	"image/draw"
 	"math"
+	"math/rand"
+	"os"
+	"path/filepath"
+	"strconv"
 	"sync"
 	"syscall"
 	"unsafe"
@@ -245,70 +249,63 @@ func (w *Window) HideCursor() error {
 	return nil
 }
 
-func (w *Window) SetTrayIcon(iconPath string) error {
-	if w.trayGUID == nil {
-		if err := w.createTrayItem(); err != nil {
-			return err
-		}
+// SetIcon sets this window's taskbar (and top left corner) icon
+func (w *Window) SetIcon(icon image.Image) error {
+	// windows supports four modes of setting icons:
+	// 1. loading internal resources embedded into binaries in a windows-specific fashion
+	// 2. loading from file
+	// 3. using windows-os built in icons like question marks
+	// 4. hand crafting black and white icons via combining AND and XOR masks
+	//
+	// note, none of these are 'use an icon held in application memory'
+	//
+	// 1 is not an option for a multiplatform app.
+	// 3 is not an option because icons are usually not built in windows icons.
+	// 4 is not an option because icons are usually colorful.
+	//
+	// so we're left with 2: take the image given, write it as an icon to a temporary
+	// file, load that file, set it as the icon, delete that file.
+	iconPath := filepath.Join(os.TempDir(), "oakicon"+strconv.Itoa(rand.Int())+".ico")
+	f, err := os.Create(iconPath)
+	if err != nil {
+		return fmt.Errorf("failed to create icon: %w", err)
 	}
-	iconData := win32.NOTIFYICONDATA{}
-	iconData.CbSize = uint32(unsafe.Sizeof(iconData))
-	iconData.UFlags = win32.NIF_GUID | win32.NIF_MESSAGE
-	iconData.HWnd = w.hwnd
-	iconData.GUIDItem = *w.trayGUID
-	iconData.UFlags = win32.NIF_GUID | win32.NIF_ICON
-	var err error
-	iconData.HIcon, err = win32.LoadImage(
+	defer os.Remove(iconPath)
+	err = encodeIco(f, icon)
+	if err != nil {
+		return err
+	}
+	f.Close()
+
+	hicon, err := win32.LoadImage(
 		0,
 		windows.StringToUTF16Ptr(iconPath),
 		win32.IMAGE_ICON,
 		0, 0,
 		win32.LR_DEFAULTSIZE|win32.LR_LOADFROMFILE)
 	if err != nil {
-		return fmt.Errorf("failed to load icon: %w", err)
+		if isWindowsSuccessError(err) {
+			return fmt.Errorf("failed to reload image")
+		}
+		return fmt.Errorf("failed to reload image: %v", err)
 	}
-	if !win32.Shell_NotifyIcon(win32.NIM_MODIFY, &iconData) {
-		return fmt.Errorf("failed to create notification icon")
-	}
+
+	win32.SendMessage(w.hwnd, win32.WM_SETICON, win32.ICON_SMALL, hicon)
+	win32.SendMessage(w.hwnd, win32.WM_SETICON, win32.ICON_BIG, hicon)
 	return nil
 }
 
-func (w *Window) ShowNotification(title, msg string, icon bool) error {
-	if w.trayGUID == nil {
-		if err := w.createTrayItem(); err != nil {
-			return err
+func isWindowsSuccessError(err error) bool {
+	var errno syscall.Errno
+	if errors.As(err, &errno) {
+		if errno == 0 {
+			// we got a confusing 'this operation completed successfully'
+			// no, this does not actually mean the operation necessarily succeeded
+			// no, win32.GetLastError will not necessarily return a real error to clarify things
+			return true
 		}
 	}
-	iconData := win32.NOTIFYICONDATA{}
-	iconData.CbSize = uint32(unsafe.Sizeof(iconData))
-	iconData.UFlags = win32.NIF_GUID | win32.NIF_INFO
-	iconData.HWnd = w.hwnd
-	iconData.GUIDItem = *w.trayGUID
-	copy(iconData.SzInfoTitle[:], windows.StringToUTF16(title))
-	copy(iconData.SzInfo[:], windows.StringToUTF16(msg))
-	if icon {
-		iconData.DwInfoFlags = win32.NIIF_USER | win32.NIIF_LARGE_ICON
-	}
-
-	if !win32.Shell_NotifyIcon(win32.NIM_MODIFY, &iconData) {
-		return fmt.Errorf("failed to create notification icon")
-	}
-	return nil
-}
-
-func (w *Window) createTrayItem() error {
-	w.trayGUID = new(win32.GUID)
-	*w.trayGUID = win32.MakeGUID(w.guid)
-	iconData := win32.NOTIFYICONDATA{}
-	iconData.CbSize = uint32(unsafe.Sizeof(iconData))
-	iconData.UFlags = win32.NIF_GUID | win32.NIF_MESSAGE
-	iconData.HWnd = w.hwnd
-	iconData.GUIDItem = *w.trayGUID
-	iconData.UCallbackMessage = win32.WM_APP + 1
-	if !win32.Shell_NotifyIcon(win32.NIM_ADD, &iconData) {
-		return fmt.Errorf("failed to create notification")
-	}
-	return nil
+	return false
 }
 
 func (w *Window) MoveWindow(x, y, wd, ht int) error {

@@ -42,7 +42,7 @@ var (
 )
 
 var (
-	procShell_NotifyIconW = modshell32.NewProc("Shell_NotifyIconW")
+	procShell_NotifyIconW  = modshell32.NewProc("Shell_NotifyIconW")
 	procRegisterClass      = moduser32.NewProc("RegisterClassW")
 	procIsZoomed           = moduser32.NewProc("IsZoomed")
 	procLoadIcon           = moduser32.NewProc("LoadIconW")
@@ -60,6 +60,7 @@ var (
 	procPostMessage        = moduser32.NewProc("PostMessageW")
 	procSetWindowText      = moduser32.NewProc("SetWindowTextW")
 	procGetWindowRect      = moduser32.NewProc("GetWindowRect")
+	procGetWindow          = moduser32.NewProc("GetWindow")
 	procMoveWindow         = moduser32.NewProc("MoveWindow")
 	procScreenToClient     = moduser32.NewProc("ScreenToClient")
 	procSetWindowLong      = moduser32.NewProc("SetWindowLongW")
@@ -179,6 +180,11 @@ func DestroyWindow(hwnd HWND) bool {
 
 	return ret != 0
 }
+
+const (
+	ICON_BIG   = 1
+	ICON_SMALL = 0
+)
 
 func DefWindowProc(hwnd HWND, msg uint32, wParam, lParam uintptr) (uintptr, error) {
 	ret, _, err := procDefWindowProc.Call(

@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"image"
 	"log"
-	"os/exec"
 
 	"dmitri.shuralyov.com/gpu/mtl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -162,22 +161,12 @@ func (w *Window) SetTopMost(topMost bool) error {
 	return nil
 }
 
-func (w *Window) SetTrayIcon(path string) error {
+func (w *Window) SetIcon(image.Image) error {
 	// TODO: the problem here is that this ^ takes a path, because windows
 	// wants a path, where glfw wants an image.Image (or set of them).
 	// for v4, standardize this interface.
 	// w.window.SetIcon()
 	return fmt.Errorf("unimplemented")
-}
-
-func (w *Window) ShowNotification(title, msg string, icon bool) error {
-	// formed between beeep and stack overflow
-	osa, err := exec.LookPath("osascript")
-	if err != nil {
-		return err
-	}
-	cmd := exec.Command(osa, "-e", fmt.Sprintf("display notification %q with title %q", msg, title))
-	return cmd.Run()
 }
 
 func (w *Window) NextEvent() interface{} {

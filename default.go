@@ -103,16 +103,10 @@ func SetTitle(title string) error {
 	return defaultWindow.SetTitle(title)
 }
 
-// SetTrayIcon calls SetTrayIcon on the default window.
-func SetTrayIcon(icon string) error {
+// SetIcon calls SetIcon on the default window.
+func SetIcon(icon image.Image) error {
 	initDefaultWindow()
-	return defaultWindow.SetTrayIcon(icon)
-}
-
-// ShowNotification calls ShowNotification on the default window.
-func ShowNotification(title, msg string, icon bool) error {
-	initDefaultWindow()
-	return defaultWindow.ShowNotification(title, msg, icon)
+	return defaultWindow.SetIcon(icon)
 }
 
 // ScreenShot calls ScreenShot on the default window.

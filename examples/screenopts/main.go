@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"image"
+	"image/color"
+	"math/rand"
 	"strconv"
 
 	oak "github.com/oakmound/oak/v3"
@@ -21,12 +24,37 @@ func main() {
 	oak.AddScene("demo", scene.Scene{Start: func(ctx *scene.Context) {
 		txt := render.NewText("Press F to toggle fullscreen. Press B to toggle borderless. Press T to toggle topmost", 50, 50)
 		render.Draw(txt)
-		line2 := render.NewText("Press Q to change window title. Press N to show a notification", 50, 70)
+		line2 := render.NewText("Press Q to change window title. Press C to change the window icon", 50, 70)
 		render.Draw(line2)
 
 		borderless := borderlessAtStart
 		fullscreen := fullscreenAtStart
 		topMost := topMostAtStart
+
+		event.GlobalBind(ctx, key.Down(key.C), func(k key.Event) event.Response {
+			colors := []color.RGBA{
+				{255, 255, 0, 255},
+				{255, 0, 255, 255},
+				{0, 255, 255, 255},
+				{255, 0, 0, 255},
+				{0, 255, 0, 255},
+				{0, 0, 255, 255},
+			}
+			c := colors[rand.Intn(len(colors))]
+			rgba := image.NewRGBA(image.Rect(0, 0, 32, 32))
+			for x := 0; x < 32; x++ {
+				for y := 0; y < 32; y++ {
+					rgba.SetRGBA(x, y, c)
+				}
+			}
+
+			// TODO: this is silly
+			err := ctx.Window.(*oak.Window).Window.SetIcon(rgba)
+			if err != nil {
+				fmt.Println(err)
+			}
+			return 0
+		})
 
 		event.GlobalBind(ctx, key.Down(key.F), func(k key.Event) event.Response {
 			fullscreen = !fullscreen
@@ -56,10 +84,6 @@ func main() {
 				topMost = !topMost
 				fmt.Println(err)
 			}
-			return 0
-		})
-		event.GlobalBind(ctx, key.Down(key.N), func(k key.Event) event.Response {
-			oak.ShowNotification("title", "message", false)
 			return 0
 		})
 		titleCt := 0
