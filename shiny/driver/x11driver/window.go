@@ -202,3 +202,38 @@ func (w *Window) SetTitle(title string) error {
 		8, uint32(len(title)), []byte(title))
 	return nil
 }
+
+func (w *Window) SetIcon(icon image.Image) error {
+	bds := icon.Bounds()
+	wd := bds.Max.X
+	h := bds.Max.Y
+	u32w := uint32(wd)
+	u32h := uint32(h)
+	// 4 bytes, b/g/r/a, per pixel
+	bgra := make([]byte, 8, 8+wd*h*4)
+	// prepend width and height
+	bgra[0] = byte(u32w)
+	bgra[1] = byte(u32w >> 8)
+	bgra[2] = byte(u32w >> 16)
+	bgra[3] = byte(u32w >> 24)
+	bgra[4] = byte(u32h)
+	bgra[5] = byte(u32h >> 8)
+	bgra[6] = byte(u32h >> 16)
+	bgra[7] = byte(u32h >> 24)
+	for x := 0; x < wd; x++ {
+		for y := 0; y < h; y++ {
+			c := icon.At(x, (h-1)-y)
+			r, g, b, a := c.RGBA()
+			bgra = append(bgra, byte(b>>8))
+			bgra = append(bgra, byte(g>>8))
+			bgra = append(bgra, byte(r>>8))
+			bgra = append(bgra, byte(a>>8))
+		}
+	}
+	const XA_CARDINAL = 6
+
+	xproto.ChangeProperty(w.s.xc, xproto.PropModeReplace, w.xw,
+		w.s.atoms["_NET_WM_ICON"], XA_CARDINAL,
+		32, uint32(len(bgra))/4, bgra)
+	return nil
+}
