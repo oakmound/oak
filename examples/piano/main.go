@@ -230,6 +230,8 @@ func main() {
 				key.P: src.PulsePCM(2),
 			}
 			for kc, synfn := range codeKinds {
+				synfn := synfn
+				kc := kc
 				event.GlobalBind(ctx, key.Down(kc), func(ev key.Event) event.Response {
 					if ev.Modifiers&key.ModShift == key.ModShift {
 						synthKind = synfn
