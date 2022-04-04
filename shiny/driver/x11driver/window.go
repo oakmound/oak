@@ -203,6 +203,10 @@ func (w *Window) SetTitle(title string) error {
 	return nil
 }
 
+func (w *Window) SetTopMost(topMost bool) error {
+	return x11.SetTopMost(w.s.XUtil, w.xw, topMost)
+}
+
 func (w *Window) SetIcon(icon image.Image) error {
 	bds := icon.Bounds()
 	wd := bds.Max.X
