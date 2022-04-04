@@ -195,3 +195,10 @@ func (w *windowImpl) MoveWindow(x, y, width, height int32) error {
 	})
 	return nil
 }
+
+func (w *Window) SetTitle(title string) error {
+	xproto.ChangeProperty(w.s.xc, xproto.PropModeReplace, w.xw,
+		w.s.atoms["_NET_WM_NAME"], w.s.atoms["UTF8_STRING"],
+		8, uint32(len(title)), []byte(title))
+	return nil
+}
