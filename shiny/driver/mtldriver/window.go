@@ -8,7 +8,6 @@
 package mtldriver
 
 import (
-	"fmt"
 	"image"
 	"log"
 
@@ -161,12 +160,10 @@ func (w *Window) SetTopMost(topMost bool) error {
 	return nil
 }
 
-func (w *Window) SetIcon(image.Image) error {
-	// TODO: the problem here is that this ^ takes a path, because windows
-	// wants a path, where glfw wants an image.Image (or set of them).
-	// for v4, standardize this interface.
-	// w.window.SetIcon()
-	return fmt.Errorf("unimplemented")
+// BUG: this doesn't work, and it doesn't error either
+func (w *Window) SetIcon(img image.Image) error {
+	w.window.SetIcon([]image.Image{img})
+	return nil
 }
 
 func (w *Window) NextEvent() interface{} {
