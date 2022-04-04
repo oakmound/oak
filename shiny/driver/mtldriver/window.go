@@ -16,7 +16,6 @@ import (
 	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
 	"github.com/oakmound/oak/v3/shiny/driver/internal/lifecycler"
 	"github.com/oakmound/oak/v3/shiny/driver/mtldriver/internal/coreanim"
-	"github.com/oakmound/oak/v3/shiny/screen"
 	"golang.org/x/mobile/event/size"
 )
 
@@ -185,7 +184,7 @@ func (w *Window) NextEvent() interface{} {
 	return e
 }
 
-func (w *Window) Publish() screen.PublishResult {
+func (w *Window) Publish() {
 	// Copy w.rgba pixels into a texture.
 	region := mtl.RegionMake2D(0, 0, w.texture.Width, w.texture.Height)
 	bytesPerRow := 4 * w.texture.Width
@@ -194,7 +193,7 @@ func (w *Window) Publish() screen.PublishResult {
 	drawable, err := w.ml.NextDrawable()
 	if err != nil {
 		log.Println("Window.Publish: couldn't get the next drawable:", err)
-		return screen.PublishResult{}
+		return
 	}
 
 	cb := w.cq.MakeCommandBuffer()
@@ -213,5 +212,5 @@ func (w *Window) Publish() screen.PublishResult {
 	cb.PresentDrawable(drawable)
 	cb.Commit()
 
-	return screen.PublishResult{}
+	return
 }

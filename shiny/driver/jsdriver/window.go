@@ -29,9 +29,7 @@ func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangl
 }
 func (w *Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {}
 
-func (w *Window) Publish() screen.PublishResult {
-	return screen.PublishResult{}
-}
+func (w *Window) Publish() {}
 
 func (w *Window) sendMouseEvent(mouseEvent js.Value, dir mouse.Direction) {
 	x, y := mouseEvent.Get("offsetX"), mouseEvent.Get("offsetY")

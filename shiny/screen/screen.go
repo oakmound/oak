@@ -109,14 +109,7 @@ type Window interface {
 
 	// Publish flushes any pending Upload and Draw calls to the window, and
 	// swaps the back buffer to the front.
-	Publish() PublishResult
-}
-
-// PublishResult is the result of an Window.Publish call.
-type PublishResult struct {
-	// BackBufferPreserved is whether the contents of the back buffer was
-	// preserved. If false, the contents are undefined.
-	BackBufferPreserved bool
+	Publish()
 }
 
 type SimpleDrawer interface {

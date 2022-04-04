@@ -76,6 +76,4 @@ func (*Window) Release()                                                        
 func (*Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {}
 func (*Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle)                  {}
 
-func (*Window) Publish() screen.PublishResult {
-	return screen.PublishResult{}
-}
+func (*Window) Publish() {}

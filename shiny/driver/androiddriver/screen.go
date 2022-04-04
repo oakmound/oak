@@ -51,9 +51,7 @@ func (s *Screen) NewWindow(opts screen.WindowGenerator) (screen.Window, error) {
 	return s, nil
 }
 
-func (w *Screen) Publish() screen.PublishResult {
-	return screen.PublishResult{}
-}
+func (w *Screen) Publish() {}
 
 func (w *Screen) Release()                                                    {}
 func (w *Screen) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {}

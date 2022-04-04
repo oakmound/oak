@@ -360,10 +360,7 @@ func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangl
 	drawer.Scale(w, dr, src, sr, op)
 }
 
-func (w *Window) Publish() screen.PublishResult {
-	// NOP
-	return screen.PublishResult{}
-}
+func (w *Window) Publish() {}
 
 func init() {
 	send := func(hwnd win32.HWND, e interface{}) {

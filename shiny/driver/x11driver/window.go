@@ -95,7 +95,7 @@ func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangl
 	drawer.Scale(w, dr, src, sr, op)
 }
 
-func (w *Window) Publish() screen.PublishResult {
+func (w *Window) Publish() {
 	// TODO: implement a back buffer, and copy or flip that here to the front
 	// buffer.
 
@@ -107,8 +107,6 @@ func (w *Window) Publish() screen.PublishResult {
 	// client could easily end up sending work at a faster rate than the X11
 	// server can serve.
 	w.s.xc.Sync()
-
-	return screen.PublishResult{}
 }
 
 func (w *Window) SetFullScreen(fullscreen bool) error {
