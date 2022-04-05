@@ -10,7 +10,7 @@ import (
 	"sync"
 
 	"github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/audio/klang"
+	"github.com/oakmound/oak/v3/audio"
 	"github.com/oakmound/oak/v3/audio/pcm"
 	"github.com/oakmound/oak/v3/audio/synth"
 	"github.com/oakmound/oak/v3/dlog"
@@ -142,7 +142,7 @@ var keycharOrder = []key.Code{
 var playLock sync.Mutex
 var cancelFuncs = map[synth.Pitch]func(){}
 
-var synthKind func(...synth.Option) (pcm.Reader, error)
+var synthKind synth.Wave
 
 func playPitch(ctx *scene.Context, pitch synth.Pitch) {
 	playLock.Lock()
@@ -150,10 +150,10 @@ func playPitch(ctx *scene.Context, pitch synth.Pitch) {
 	if cancel, ok := cancelFuncs[pitch]; ok {
 		cancel()
 	}
-	a, _ := synthKind(synth.AtPitch(pitch))
-	toPlay := pcm.LoopReader(a)
+	a := synthKind(synth.AtPitch(pitch))
+	toPlay := audio.LoopReader(a)
 	format := toPlay.PCMFormat()
-	speaker, err := pcm.NewWriter(format)
+	speaker, err := audio.NewWriter(format)
 	if err != nil {
 		fmt.Println("new writer failed:", err)
 		return
@@ -163,7 +163,7 @@ func playPitch(ctx *scene.Context, pitch synth.Pitch) {
 	render.Draw(monitor)
 	gctx, cancel := context.WithCancel(ctx)
 	go func() {
-		err = pcm.Play(gctx, monitor, toPlay)
+		err = audio.Play(gctx, monitor, toPlay)
 		if err != nil {
 			fmt.Println("play error:", err)
 		}
@@ -183,7 +183,7 @@ func releasePitch(pitch synth.Pitch) {
 }
 
 func main() {
-	err := pcm.InitDefault()
+	err := audio.InitDefault()
 	if err != nil {
 		fmt.Println("init failed:", err)
 		os.Exit(1)
@@ -192,12 +192,12 @@ func main() {
 	oak.AddScene("piano", scene.Scene{
 		Start: func(ctx *scene.Context) {
 			src := synth.Int16
-			src.Format = klang.Format{
-				SampleRate: 40000,
+			src.Format = pcm.Format{
+				SampleRate: 80000,
 				Channels:   2,
 				Bits:       32,
 			}
-			synthKind = src.SinPCM
+			synthKind = src.Sin
 			pitch := synth.C3
 			kc := keyColorWhite
 			x := 20.0
@@ -223,16 +223,18 @@ func main() {
 				i++
 			}
 			// Consider: Adding volume control
-			codeKinds := map[key.Code]func(...synth.Option) (pcm.Reader, error){
-				key.S: src.SinPCM,
-				key.W: src.SawPCM,
-				key.T: src.TrianglePCM,
-				key.P: src.PulsePCM(2),
+			codeKinds := map[key.Code]func(src synth.Source) synth.Wave{
+				key.S: func(src synth.Source) synth.Wave { return src.Sin },
+				key.W: func(src synth.Source) synth.Wave { return src.Saw },
+				key.T: func(src synth.Source) synth.Wave { return src.Triangle },
+				key.P: func(src synth.Source) synth.Wave { return src.Pulse(2) },
 			}
 			for kc, synfn := range codeKinds {
+				kc := kc
+				synfn := synfn
 				event.GlobalBind(ctx, key.Down(kc), func(ev key.Event) event.Response {
 					if ev.Modifiers&key.ModShift == key.ModShift {
-						synthKind = synfn
+						synthKind = synfn(src)
 					}
 					return 0
 				})
@@ -253,6 +255,19 @@ func main() {
 			})
 			event.GlobalBind(ctx, mouse.ScrollUp, func(_ *mouse.Event) event.Response {
 				globalMagnification += 0.05
+				return 0
+			})
+			event.GlobalBind(ctx, key.Down(key.Keypad0), func(_ key.Event) event.Response {
+				// TODO: synth all sound like pulse waves at 8 bit
+				src.Bits = 8
+				return 0
+			})
+			event.GlobalBind(ctx, key.Down(key.Keypad1), func(_ key.Event) event.Response {
+				src.Bits = 16
+				return 0
+			})
+			event.GlobalBind(ctx, key.Down(key.Keypad2), func(_ key.Event) event.Response {
+				src.Bits = 32
 				return 0
 			})
 		},
@@ -282,7 +297,7 @@ func newPCMMonitor(ctx *scene.Context, w pcm.Writer) *pcmMonitor {
 		Writer:       w,
 		Format:       w.PCMFormat(),
 		LayeredPoint: render.NewLayeredPoint(0, 0, 0),
-		written:      make([]byte, fmt.BytesPerSecond()*pcm.WriterBufferLengthInSeconds),
+		written:      make([]byte, fmt.BytesPerSecond()*audio.WriterBufferLengthInSeconds),
 	}
 	return pm
 }
@@ -316,6 +331,9 @@ func (pm *pcmMonitor) Draw(buf draw.Image, xOff, yOff float64) {
 
 		var val int16
 		switch pm.Format.Bits {
+		case 8:
+			val8 := pm.written[wIndex]
+			val = int16(val8) << 8
 		case 16:
 			wIndex -= wIndex % 2
 			val = int16(pm.written[wIndex+1])<<8 +

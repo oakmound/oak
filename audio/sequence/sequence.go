@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	audio "github.com/oakmound/oak/v3/audio/klang"
+	"github.com/oakmound/oak/v3/audio"
 )
 
 // A Sequence is a timed pattern of simultaneously played audios.
@@ -13,7 +13,7 @@ type Sequence struct {
 	// Sequences play patterns of audio
 	// everything at Pattern[0] will be simultaneously Play()ed at
 	// Sequence.Play()
-	Pattern      []*audio.Multi
+	Pattern      []audio.Reader
 	patternIndex int
 	// Every tick, the next index in Pattern will be played by a Sequence
 	// until the pattern is over.
@@ -51,36 +51,8 @@ func (s *Sequence) Play() <-chan error {
 	return ch
 }
 
-// Filter for a sequence does nothing yet
-func (s *Sequence) Filter(fs ...audio.Filter) (audio.Audio, error) {
-	// Filter on a sequence just applies the filter to all audios..
-	// but it can't do that always, what if the filter is Loop?
-	// this implies two kinds of filters?
-	// this doesn't work because FIlter is not an interface
-	// for _, f := range fs {
-	// 	if _, ok := f.(audio.Loop); ok {
-	// 		s.loop = true
-	// 	} else if _, ok := f.(audio.NoLoop); ok {
-	// 		s.loop = false
-	// 	} else {
-	// 		for _, col := range s.Pattern {
-	// 			for _, a := range col {
-	// 				a.Filter(f)
-	// 			}
-	// 		}
-	// 	}
-	// }
-	return s, nil
-}
-
 func (s *Sequence) SetVolume(int32) error {
 	return errors.New("unsupported")
-}
-
-// MustFilter acts as filter, but does not respect errors.
-func (s *Sequence) MustFilter(fs ...audio.Filter) audio.Audio {
-	a, _ := s.Filter(fs...)
-	return a
 }
 
 // Stop stops a sequence
