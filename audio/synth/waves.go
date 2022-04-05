@@ -3,9 +3,18 @@ package synth
 
 import (
 	"math"
+	"math/rand"
 
 	"github.com/oakmound/oak/v3/audio/pcm"
 )
+
+// TODO: for super saw
+// De   tune
+// Fine tune
+// Voice unison
+// Pitch up
+// High pass filter
+// Noise generator
 
 // Wave functions take a set of options and return an audio
 type Wave func(opts ...Option) pcm.Reader
@@ -69,6 +78,12 @@ func (s Source) Triangle(opts ...Option) pcm.Reader {
 			return -s.Volume + m
 		}
 		return 3*s.Volume - m
+	}, opts...)
+}
+
+func (s Source) Noise(opts ...Option) pcm.Reader {
+	return s.Wave(func(s Source, idx int) float64 {
+		return ((rand.Float64() * 2) - 1) * s.Volume
 	}, opts...)
 }
 

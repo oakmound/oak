@@ -230,6 +230,7 @@ func main() {
 				key.W: func(src synth.Source) synth.Wave { return src.Saw },
 				key.T: func(src synth.Source) synth.Wave { return src.Triangle },
 				key.P: func(src synth.Source) synth.Wave { return src.Pulse(2) },
+				key.N: func(src synth.Source) synth.Wave { return src.Noise },
 			}
 			for kc, synfn := range codeKinds {
 				kc := kc
