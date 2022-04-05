@@ -10,12 +10,14 @@ import (
 
 	"github.com/jfreymuth/pulse"
 	"github.com/jfreymuth/pulse/proto"
+
+	"github.com/oakmound/oak/v3/audio/pcm"
 )
 
 // This mutex may be unneeded
 var newWriterMutex sync.Mutex
 
-func newWriter(f Format) (Writer, error) {
+func newPulseWriter(f pcm.Format) (pcm.Writer, error) {
 	newWriterMutex.Lock()
 	defer newWriterMutex.Unlock()
 	// TODO:
@@ -89,7 +91,7 @@ func (m *eofFReader) Read(b []byte) (n int, err error) {
 
 type pulseWriter struct {
 	sync.Mutex
-	Format
+	pcm.Format
 	handOver      *eofFReader
 	playBack      *pulse.PlaybackStream
 	client        *pulse.Client

@@ -10,12 +10,14 @@ const (
 	DriverDefault Driver = iota
 	DriverPulse
 	DriverDirectSound
+	DriverALSA
 )
 
 var driverNames = map[Driver]string{
 	DriverPulse:       "pulseaudio",
 	DriverDirectSound: "directsound",
 	DriverDefault:     "default",
+	DriverALSA:        "alsa",
 }
 
 func (d Driver) String() string {

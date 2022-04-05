@@ -7,6 +7,7 @@ func TestDriver_String(t *testing.T) {
 		DriverDefault,
 		DriverDirectSound,
 		DriverPulse,
+		DriverALSA,
 	}
 	for _, d := range drivers {
 		if d.String() == "" {
