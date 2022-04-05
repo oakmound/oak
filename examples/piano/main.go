@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/audio"
@@ -163,7 +164,8 @@ func playPitch(ctx *scene.Context, pitch synth.Pitch) {
 	render.Draw(monitor)
 	gctx, cancel := context.WithCancel(ctx)
 	go func() {
-		err = audio.Play(gctx, monitor, toPlay)
+		fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
+		err = audio.Play(gctx, monitor, fadeIn)
 		if err != nil {
 			fmt.Println("play error:", err)
 		}
@@ -297,7 +299,7 @@ func newPCMMonitor(ctx *scene.Context, w pcm.Writer) *pcmMonitor {
 		Writer:       w,
 		Format:       w.PCMFormat(),
 		LayeredPoint: render.NewLayeredPoint(0, 0, 0),
-		written:      make([]byte, fmt.BytesPerSecond()*audio.WriterBufferLengthInSeconds),
+		written:      make([]byte, int(float64(fmt.BytesPerSecond())*audio.WriterBufferLengthInSeconds)),
 	}
 	return pm
 }

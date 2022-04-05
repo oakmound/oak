@@ -42,7 +42,7 @@ func newWriter(f pcm.Format) (pcm.Writer, error) {
 	}
 
 	blockAlign := f.Channels * f.Bits / 8
-	bufferSize := f.BytesPerSecond() * WriterBufferLengthInSeconds
+	bufferSize := uint32(float64(f.BytesPerSecond()) * WriterBufferLengthInSeconds)
 
 	dsbuff, err := directSoundInterface.CreateSoundBuffer(&dsound.BufferDesc{
 		// These flags cover everything we should ever want to do

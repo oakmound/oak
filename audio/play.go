@@ -12,7 +12,7 @@ import (
 
 // WriterBufferLengthInSeconds defines how much data os-level writers provided by this package will rotate through
 // in a theoretical circular buffer.
-const WriterBufferLengthInSeconds = 1
+const WriterBufferLengthInSeconds float64 = 1
 
 // InitDefault calls Init with the following value by OS:
 // windows: DriverDirectSound
@@ -45,12 +45,15 @@ type PlayOptions struct {
 	// If AllowMismatchedFormats is false, Play will error when a reader's PCM format
 	// disagrees with a writer's expected PCM format. Defaults to false.
 	AllowMismatchedFormats bool
+
+	FadeOutOnStop time.Duration
 }
 
 func defaultPlayOptions() PlayOptions {
 	return PlayOptions{
 		CopyIncrement:   125 * time.Millisecond,
 		ChaseIncrements: 2,
+		FadeOutOnStop:   200 * time.Millisecond,
 	}
 }
 
@@ -98,7 +101,31 @@ func Play(ctx context.Context, dst pcm.Writer, src pcm.Reader, options ...PlayOp
 	for {
 		select {
 		case <-ctx.Done():
-			return nil
+			if opts.FadeOutOnStop == 0 {
+				return nil
+			} else {
+				src = FadeOut(opts.FadeOutOnStop, src)
+				stopAt := time.NewTimer(opts.FadeOutOnStop * 2)
+				defer stopAt.Stop()
+				for {
+					select {
+					case <-stopAt.C:
+						return nil
+					case <-tick.C:
+						_, err := ReadFull(src, buf)
+						if errors.Is(err, io.EOF) {
+							return nil
+						}
+						if err != nil {
+							return fmt.Errorf("failed to read: %w", err)
+						}
+						_, err = dst.WritePCM(buf)
+						if err != nil {
+							return fmt.Errorf("failed to write: %w", err)
+						}
+					}
+				}
+			}
 		case <-tick.C:
 			_, err := ReadFull(src, buf)
 			if errors.Is(err, io.EOF) {
