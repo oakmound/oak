@@ -13,7 +13,6 @@ import (
 	"errors"
 	"fmt"
 	"image"
-	"image/color"
 	"image/draw"
 	"math"
 	"math/rand"
@@ -92,16 +91,11 @@ func (w *Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
 }
 
 func (w *Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
-	if op != draw.Src && op != draw.Over {
-		// TODO:
-		return
-	}
 	w.execCmd(&cmd{
 		id:      cmdDraw,
 		src2dst: src2dst,
 		texture: src.(*textureImpl).bitmap,
 		sr:      sr,
-		op:      op,
 	})
 }
 
@@ -290,7 +284,7 @@ func (w *Window) MoveWindow(x, y, wd, ht int) error {
 	return win32.MoveWindow(w.hwnd, int32(x), int32(y), int32(wd), int32(ht), true)
 }
 
-func drawWindow(dc win32.HDC, src2dst f64.Aff3, src interface{}, sr image.Rectangle, op draw.Op) (retErr error) {
+func drawWindow(dc win32.HDC, src2dst f64.Aff3, src syscall.Handle, sr image.Rectangle) (retErr error) {
 	var dr image.Rectangle
 	if src2dst[1] != 0 || src2dst[3] != 0 {
 		// general drawing
@@ -347,13 +341,7 @@ func drawWindow(dc win32.HDC, src2dst f64.Aff3, src interface{}, sr image.Rectan
 			image.Point{int(math.Ceil(dstXMax)), int(math.Ceil(dstYMax))},
 		}
 	}
-	switch s := src.(type) {
-	case syscall.Handle:
-		return copyBitmapToDC(dc, dr, s, sr, op)
-	case color.Color:
-		return fill(dc, dr, s, op)
-	}
-	return fmt.Errorf("unsupported type %T", src)
+	return copyBitmapToDC(dc, dr, src, sr)
 }
 
 func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
@@ -418,17 +406,13 @@ type cmd struct {
 	sr      image.Rectangle
 	dp      image.Point
 	dr      image.Rectangle
-	color   color.Color
-	op      draw.Op
 	texture syscall.Handle
 	buffer  *bufferImpl
 }
 
 const (
 	cmdDraw = iota
-	cmdFill
 	cmdUpload
-	cmdDrawUniform
 )
 
 // msgCmd is the stored value for our handleCmd function for syscalls.
@@ -453,15 +437,11 @@ func handleCmd(hwnd win32.HWND, uMsg uint32, wParam, lParam uintptr) {
 
 	switch c.id {
 	case cmdDraw:
-		c.err = drawWindow(dc, c.src2dst, c.texture, c.sr, c.op)
-	case cmdDrawUniform:
-		c.err = drawWindow(dc, c.src2dst, c.color, c.sr, c.op)
-	case cmdFill:
-		c.err = fill(dc, c.dr, c.color, c.op)
+		c.err = drawWindow(dc, c.src2dst, c.texture, c.sr)
 	case cmdUpload:
 		// TODO: adjust if dp is outside dst bounds, or sr is outside buffer bounds.
 		dr := c.sr.Add(c.dp.Sub(c.sr.Min))
-		c.err = copyBitmapToDC(dc, dr, c.buffer.hbitmap, c.sr, draw.Src)
+		c.err = copyBitmapToDC(dc, dr, c.buffer.hbitmap, c.sr)
 	default:
 		c.err = fmt.Errorf("unknown command id=%d", c.id)
 	}

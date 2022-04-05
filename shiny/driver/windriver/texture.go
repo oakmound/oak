@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package windriver
@@ -90,12 +91,6 @@ func (t *textureImpl) Bounds() image.Rectangle {
 }
 
 func (t *textureImpl) Fill(r image.Rectangle, c color.Color, op draw.Op) {
-	err := t.update(func(dc syscall.Handle) error {
-		return fill(win32.HDC(dc), r, c, op)
-	})
-	if err != nil {
-		panic(err) // TODO handle error
-	}
 }
 
 func (t *textureImpl) Release() {

@@ -11,6 +11,7 @@ import (
 	"image"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
+	"github.com/oakmound/oak/v3/shiny/driver/common"
 	"github.com/oakmound/oak/v3/shiny/screen"
 )
 
@@ -20,9 +21,7 @@ type screenImpl struct {
 }
 
 func (*screenImpl) NewImage(size image.Point) (screen.Image, error) {
-	return &bufferImpl{
-		rgba: image.NewRGBA(image.Rectangle{Max: size}),
-	}, nil
+	return common.NewImage(size), nil
 }
 
 func (*screenImpl) NewTexture(size image.Point) (screen.Texture, error) {

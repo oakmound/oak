@@ -8,6 +8,7 @@ import (
 	"image"
 	"syscall/js"
 
+	"github.com/oakmound/oak/v3/shiny/driver/common"
 	"github.com/oakmound/oak/v3/shiny/screen"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/mouse"
@@ -23,9 +24,8 @@ type screenImpl struct {
 
 func (s *screenImpl) NewImage(size image.Point) (screen.Image, error) {
 	return imageImpl{
+		Image:  common.NewImage(size),
 		screen: s,
-		size:   size,
-		rgba:   image.NewRGBA(image.Rect(0, 0, size.X, size.Y)),
 	}, nil
 }
 

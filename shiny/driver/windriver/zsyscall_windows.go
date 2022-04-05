@@ -207,8 +207,16 @@ func _StretchBlt(dcdest syscall.Handle, xdest int32, ydest int32, wdest int32, h
 	return
 }
 
+var (
+	deviceCapCache = map[int32]int32{}
+)
+
 func _GetDeviceCaps(dc syscall.Handle, index int32) (ret int32) {
+	if cached, ok := deviceCapCache[index]; ok {
+		return cached
+	}
 	r0, _, _ := syscall.Syscall(procGetDeviceCaps.Addr(), 2, uintptr(dc), uintptr(index), 0)
 	ret = int32(r0)
+	deviceCapCache[index] = ret
 	return
 }
