@@ -7,9 +7,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/oakmound/oak/v3/audio/sequence"
-	"github.com/oakmound/oak/v3/audio/synth"
 )
 
 // Raw Ceol types, holds all information in ceol file
@@ -66,24 +63,24 @@ type Filter struct {
 
 // ChordPattern converts a Ceol's patterns and arrangement into a playable chord
 // pattern for sequences
-func (c Ceol) ChordPattern() sequence.ChordPattern {
-	chp := sequence.ChordPattern{}
-	chp.Pitches = make([][]synth.Pitch, c.PatternLength*len(c.Arrangement))
-	chp.Holds = make([][]time.Duration, c.PatternLength*len(c.Arrangement))
-	for i, m := range c.Arrangement {
-		for _, p := range m {
-			if p != -1 {
-				for _, n := range c.Patterns[p].Notes {
-					chp.Pitches[n.Offset+i*c.PatternLength] =
-						append(chp.Pitches[n.Offset+i*c.PatternLength], synth.NoteFromIndex(n.PitchIndex))
-					chp.Holds[n.Offset+i*c.PatternLength] =
-						append(chp.Holds[n.Offset+i*c.PatternLength], DurationFromQuarters(c.Bpm, n.Length))
-				}
-			}
-		}
-	}
-	return chp
-}
+// func (c Ceol) ChordPattern() sequence.ChordPattern {
+// 	chp := sequence.ChordPattern{}
+// 	chp.Pitches = make([][]synth.Pitch, c.PatternLength*len(c.Arrangement))
+// 	chp.Holds = make([][]time.Duration, c.PatternLength*len(c.Arrangement))
+// 	for i, m := range c.Arrangement {
+// 		for _, p := range m {
+// 			if p != -1 {
+// 				for _, n := range c.Patterns[p].Notes {
+// 					chp.Pitches[n.Offset+i*c.PatternLength] =
+// 						append(chp.Pitches[n.Offset+i*c.PatternLength], synth.NoteFromIndex(n.PitchIndex))
+// 					chp.Holds[n.Offset+i*c.PatternLength] =
+// 						append(chp.Holds[n.Offset+i*c.PatternLength], DurationFromQuarters(c.Bpm, n.Length))
+// 				}
+// 			}
+// 		}
+// 	}
+// 	return chp
+// }
 
 // DurationFromQuarters should not be here, should be in a package
 // managing bpm and time
