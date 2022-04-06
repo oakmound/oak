@@ -34,13 +34,9 @@ func TestLoopingWav(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to read wav header in file: %v", err)
 	}
-	w, err := audio.NewWriter(wavReader.PCMFormat())
-	if err != nil {
-		t.Fatalf("failed to create pcm writer: %v", err)
-	}
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
-		err = audio.Play(ctx, w, audio.LoopReader(wavReader))
+		err = audio.Play(ctx, audio.LoopReader(wavReader))
 		if err != nil {
 			t.Errorf("failed to play: %v", err)
 		}
@@ -61,11 +57,6 @@ func TestLoopingSin(t *testing.T) {
 		Channels:   2,
 		Bits:       16,
 	}
-	w, err := audio.NewWriter(format)
-	if err != nil {
-		t.Fatalf("failed to create pcm writer: %v", err)
-	}
-
 	s := synth.Int16
 
 	s.Volume *= 65535 / 4
@@ -80,7 +71,7 @@ func TestLoopingSin(t *testing.T) {
 	})
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
-		err = audio.Play(ctx, w, r)
+		err := audio.Play(ctx, r)
 		if err != nil {
 			t.Errorf("failed to play: %v", err)
 		}

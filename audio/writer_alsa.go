@@ -129,13 +129,6 @@ func (aw *alsaWriter) Close() error {
 	return err
 }
 
-func (aw *alsaWriter) Reset() error {
-	aw.Lock()
-	defer aw.Unlock()
-	// ???
-	return nil
-}
-
 func (aw *alsaWriter) WritePCM(data []byte) (n int, err error) {
 	aw.Lock()
 	defer aw.Unlock()

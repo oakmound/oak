@@ -83,46 +83,10 @@ func (dsw *directSoundWriter) Close() error {
 
 	var err error
 	if dsw.playing {
-		dsw.capOffAudio()
 		err = dsw.buff.Stop()
 		dsw.playing = false
 	}
 	dsw.buff.Release()
-	return err
-}
-
-// this attempts to reduce the amount of noise incurred by stopping a playing audio
-// it is not completely effective, a blip can still be heard
-func (dsw *directSoundWriter) capOffAudio() {
-	// 10k zero bytes
-	cap := make([]byte, 10000)
-	a, b, err := dsw.buff.LockBytes(dsw.lockedOffset, 10000, 0)
-	if err != nil {
-		// should not happen, but if it does, we can't proceed
-		return
-	}
-	copy(a, cap)
-	if len(b) != 0 {
-		copy(b, cap[len(a):])
-	}
-	dsw.buff.UnlockBytes(a, b)
-	dsw.buff.SetCurrentPosition(dsw.lockedOffset)
-}
-
-func (dsw *directSoundWriter) Reset() error {
-	dsw.Lock()
-	defer dsw.Unlock()
-	emptyBuff := make([]byte, dsw.bufferSize)
-	a, b, err := dsw.buff.LockBytes(0, dsw.bufferSize, 0)
-	if err != nil {
-		return err
-	}
-	copy(a, emptyBuff)
-	if len(b) != 0 {
-		copy(b, emptyBuff)
-	}
-	err = dsw.buff.UnlockBytes(a, b)
-	dsw.Seek(0, io.SeekStart)
 	return err
 }
 

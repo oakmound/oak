@@ -27,9 +27,6 @@ type Writer interface {
 	// WritePCM expects PCM bytes matching the format this speaker was initialized with.
 	// WritePCM will block until all of the bytes are consumed.
 	WritePCM([]byte) (n int, err error)
-	// Reset must clear out any written data from buffers, without stopping playback
-	// TODO: do we need this?
-	Reset() error
 }
 
 // The Formatted interface represents types that are aware of a PCM Format they expect or provide.

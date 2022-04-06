@@ -116,13 +116,6 @@ func (dsw *pulseWriter) Close() error {
 	return err
 }
 
-func (dsw *pulseWriter) Reset() error {
-	dsw.Lock()
-	defer dsw.Unlock()
-	// ???
-	return nil
-}
-
 func (dsw *pulseWriter) WritePCM(data []byte) (n int, err error) {
 	dsw.Lock()
 	defer dsw.Unlock()

@@ -143,7 +143,7 @@ var keycharOrder = []key.Code{
 var playLock sync.Mutex
 var cancelFuncs = map[synth.Pitch]func(){}
 
-var synthKind synth.Wave
+var makeSynth func(ctx context.Context, pitch synth.Pitch)
 
 func playPitch(ctx *scene.Context, pitch synth.Pitch) {
 	playLock.Lock()
@@ -151,26 +151,10 @@ func playPitch(ctx *scene.Context, pitch synth.Pitch) {
 	if cancel, ok := cancelFuncs[pitch]; ok {
 		cancel()
 	}
-	a := synthKind(synth.AtPitch(pitch))
-	toPlay := audio.LoopReader(a)
-	format := toPlay.PCMFormat()
-	speaker, err := audio.NewWriter(format)
-	if err != nil {
-		fmt.Println("new writer failed:", err)
-		return
-	}
-	monitor := newPCMMonitor(ctx, speaker)
-	monitor.SetPos(0, 0)
-	render.Draw(monitor)
+
 	gctx, cancel := context.WithCancel(ctx)
 	go func() {
-		fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
-		err = audio.Play(gctx, monitor, fadeIn)
-		if err != nil {
-			fmt.Println("play error:", err)
-		}
-		speaker.Close()
-		monitor.Undraw()
+		makeSynth(gctx, pitch)
 	}()
 	cancelFuncs[pitch] = cancel
 }
@@ -193,13 +177,34 @@ func main() {
 
 	oak.AddScene("piano", scene.Scene{
 		Start: func(ctx *scene.Context) {
-			src := synth.Int16
+			var src = new(synth.Source)
+			*src = synth.Int16
 			src.Format = pcm.Format{
 				SampleRate: 80000,
 				Channels:   2,
 				Bits:       32,
 			}
-			synthKind = src.Sin
+			playWithMonitor := func(gctx context.Context, r pcm.Reader) {
+				speaker, err := audio.NewWriter(r.PCMFormat())
+				if err != nil {
+					fmt.Println("new writer failed:", err)
+					return
+				}
+				monitor := newPCMMonitor(ctx, speaker)
+				monitor.SetPos(0, 0)
+				render.Draw(monitor)
+
+				audio.Play(gctx, r, func(po *audio.PlayOptions) {
+					po.Destination = monitor
+				})
+				speaker.Close()
+				monitor.Undraw()
+			}
+			makeSynth = func(gctx context.Context, pitch synth.Pitch) {
+				toPlay := audio.LoopReader(src.Sin(synth.AtPitch(pitch)))
+				fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
+				playWithMonitor(gctx, fadeIn)
+			}
 			pitch := synth.C3
 			kc := keyColorWhite
 			x := 20.0
@@ -225,19 +230,50 @@ func main() {
 				i++
 			}
 			// Consider: Adding volume control
-			codeKinds := map[key.Code]func(src synth.Source) synth.Wave{
-				key.S: func(src synth.Source) synth.Wave { return src.Sin },
-				key.W: func(src synth.Source) synth.Wave { return src.Saw },
-				key.T: func(src synth.Source) synth.Wave { return src.Triangle },
-				key.P: func(src synth.Source) synth.Wave { return src.Pulse(2) },
-				key.N: func(src synth.Source) synth.Wave { return src.Noise },
+			codeKinds := map[key.Code]func(ctx context.Context, pitch synth.Pitch){
+				key.S: func(gctx context.Context, pitch synth.Pitch) {
+					toPlay := audio.LoopReader(src.Sin(synth.AtPitch(pitch)))
+					fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
+					playWithMonitor(gctx, fadeIn)
+				},
+				key.W: func(gctx context.Context, pitch synth.Pitch) {
+					toPlay := audio.LoopReader(src.Saw(synth.AtPitch(pitch)))
+					fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
+					playWithMonitor(gctx, fadeIn)
+				},
+				key.Q: func(gctx context.Context, pitch synth.Pitch) {
+					unison := 4
+					for i := 0; i < unison; i++ {
+						go playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Saw(synth.AtPitch(pitch)))))
+						go playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Saw(synth.AtPitch(pitch), synth.Detune(.04)))))
+						go playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Saw(synth.AtPitch(pitch), synth.Detune(-.05)))))
+					}
+					playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Saw(synth.AtPitch(pitch)))))
+
+					//playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Noise())))
+				},
+				key.T: func(gctx context.Context, pitch synth.Pitch) {
+					toPlay := audio.LoopReader(src.Triangle(synth.AtPitch(pitch)))
+					fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
+					playWithMonitor(gctx, fadeIn)
+				},
+				key.P: func(gctx context.Context, pitch synth.Pitch) {
+					toPlay := audio.LoopReader(src.Pulse(2)(synth.AtPitch(pitch)))
+					fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
+					playWithMonitor(gctx, fadeIn)
+				},
+				key.N: func(gctx context.Context, pitch synth.Pitch) {
+					toPlay := audio.LoopReader(src.Noise(synth.AtPitch(pitch)))
+					fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
+					playWithMonitor(gctx, fadeIn)
+				},
 			}
 			for kc, synfn := range codeKinds {
 				kc := kc
 				synfn := synfn
 				event.GlobalBind(ctx, key.Down(kc), func(ev key.Event) event.Response {
 					if ev.Modifiers&key.ModShift == key.ModShift {
-						synthKind = synfn(src)
+						makeSynth = synfn
 					}
 					return 0
 				})

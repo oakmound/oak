@@ -12,7 +12,7 @@ import (
 
 // WriterBufferLengthInSeconds defines how much data os-level writers provided by this package will rotate through
 // in a theoretical circular buffer.
-const WriterBufferLengthInSeconds float64 = 1
+const WriterBufferLengthInSeconds float64 = .5
 
 // InitDefault calls Init with the following value by OS:
 // windows: DriverDirectSound
@@ -31,6 +31,10 @@ type PlayOption func(*PlayOptions)
 
 // PlayOptions define ways to configure how playback of some audio proceeds
 type PlayOptions struct {
+	FadeOutOnStop time.Duration
+
+	Destination pcm.Writer
+
 	// The span of data that should be copied from reader to writer
 	// at a time. If too low, may lose accuracy on windows. If too high,
 	// may require manual resets when changing audio sources.
@@ -46,14 +50,15 @@ type PlayOptions struct {
 	// disagrees with a writer's expected PCM format. Defaults to false.
 	AllowMismatchedFormats bool
 
-	FadeOutOnStop time.Duration
+	ClearBufferOnStop bool
 }
 
 func defaultPlayOptions() PlayOptions {
 	return PlayOptions{
-		CopyIncrement:   125 * time.Millisecond,
-		ChaseIncrements: 2,
-		FadeOutOnStop:   200 * time.Millisecond,
+		CopyIncrement:     50 * time.Millisecond,
+		ChaseIncrements:   2,
+		FadeOutOnStop:     75 * time.Millisecond,
+		ClearBufferOnStop: true,
 	}
 }
 
@@ -66,18 +71,25 @@ var ErrMismatchedPCMFormat = fmt.Errorf("source and destination have differing P
 // cursor and write cursor; immediately upon this write, the writer should begin playback. Following this setup, a
 // sub-second amount of data will streamed from src to dst after waiting that same duration. These wait times can
 // be configured via PlayOptions.
-func Play(ctx context.Context, dst pcm.Writer, src pcm.Reader, options ...PlayOption) error {
+func Play(ctx context.Context, src pcm.Reader, options ...PlayOption) error {
 	opts := defaultPlayOptions()
 	for _, o := range options {
 		o(&opts)
 	}
-	format := dst.PCMFormat()
+	if opts.Destination == nil {
+		var err error
+		opts.Destination, err = NewWriter(src.PCMFormat())
+		if err != nil {
+			return err
+		}
+		defer opts.Destination.Close()
+	}
+	format := opts.Destination.PCMFormat()
 	if !opts.AllowMismatchedFormats {
 		if srcFormat := src.PCMFormat(); srcFormat != format {
 			return ErrMismatchedPCMFormat
 		}
 	}
-	defer dst.Reset()
 	buf := make([]byte, format.BytesPerSecond()/uint32(time.Second/opts.CopyIncrement))
 	for i := 0; i < opts.ChaseIncrements; i++ {
 		// TODO: some formats may expect a minimum buffer size (synth waveforms expect a buffer size of
@@ -90,7 +102,7 @@ func Play(ctx context.Context, dst pcm.Writer, src pcm.Reader, options ...PlayOp
 		if err != nil {
 			return fmt.Errorf("failed to read: %w", err)
 		}
-		_, err = dst.WritePCM(buf)
+		_, err = opts.Destination.WritePCM(buf)
 		if err != nil {
 			return fmt.Errorf("failed to write: %w", err)
 		}
@@ -98,6 +110,17 @@ func Play(ctx context.Context, dst pcm.Writer, src pcm.Reader, options ...PlayOp
 
 	tick := time.NewTicker(opts.CopyIncrement)
 	defer tick.Stop()
+	// Once we're done, keep writing empty data until the buffer is cleared, unless told not to
+	// Do not clear this buffer immediately! You will clear audio data that is actively playing, which will clip!
+	if opts.ClearBufferOnStop {
+		defer func() {
+			buf = make([]byte, format.BytesPerSecond()/uint32(time.Second/opts.CopyIncrement))
+			for totalDur := time.Duration(0); totalDur < time.Duration(float64(time.Second)*WriterBufferLengthInSeconds); totalDur += opts.CopyIncrement {
+				<-tick.C
+				opts.Destination.WritePCM(buf)
+			}
+		}()
+	}
 	for {
 		select {
 		case <-ctx.Done():
@@ -119,7 +142,7 @@ func Play(ctx context.Context, dst pcm.Writer, src pcm.Reader, options ...PlayOp
 						if err != nil {
 							return fmt.Errorf("failed to read: %w", err)
 						}
-						_, err = dst.WritePCM(buf)
+						_, err = opts.Destination.WritePCM(buf)
 						if err != nil {
 							return fmt.Errorf("failed to write: %w", err)
 						}
@@ -134,7 +157,7 @@ func Play(ctx context.Context, dst pcm.Writer, src pcm.Reader, options ...PlayOp
 			if err != nil {
 				return fmt.Errorf("failed to read: %w", err)
 			}
-			_, err = dst.WritePCM(buf)
+			_, err = opts.Destination.WritePCM(buf)
 			if err != nil {
 				return fmt.Errorf("failed to write: %w", err)
 			}
