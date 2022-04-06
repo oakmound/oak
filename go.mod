@@ -7,10 +7,10 @@ require (
 	github.com/BurntSushi/xgb v0.0.0-20210121224620-deaf085860bc // linux, shiny
 	github.com/BurntSushi/xgbutil v0.0.0-20190907113008-ad855c713046 // linux, shiny
 	github.com/disintegration/gift v1.2.0 // render
-	github.com/eaburns/flac v0.0.0-20171003200620-9a6fb92396d1 
+	github.com/eaburns/flac v0.0.0-20171003200620-9a6fb92396d1
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210410170116-ea3d685f79fb // osx, shiny
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
-	github.com/hajimehoshi/go-mp3 v0.3.1 
+	github.com/hajimehoshi/go-mp3 v0.3.1
 	github.com/jfreymuth/pulse v0.1.0 // linux, audio
 	github.com/oakmound/alsa v0.0.2 // linux, audio
 	github.com/oakmound/libudev v0.2.1 // linux, joystick

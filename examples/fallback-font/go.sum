@@ -7,7 +7,9 @@ github.com/BurntSushi/xgbutil v0.0.0-20190907113008-ad855c713046 h1:O/r2Sj+8QcMF
 github.com/BurntSushi/xgbutil v0.0.0-20190907113008-ad855c713046/go.mod h1:uw9h2sd4WWHOPdJ13MQpwK5qYWKYDumDqxWWIknEQ+k=
 github.com/disintegration/gift v1.2.0 h1:VMQeei2F+ZtsHjMgP6Sdt1kFjRhs2lGz8ljEOPeIR50=
 github.com/disintegration/gift v1.2.0/go.mod h1:Jh2i7f7Q2BM7Ezno3PhfezbR1xpUg9dUg3/RlKGr4HI=
+github.com/eaburns/bit v0.0.0-20131029213740-7bd5cd37375d h1:HB5J9+f1xpkYLgWQ/RqEcbp3SEufyOIMYLoyKNKiG7E=
 github.com/eaburns/bit v0.0.0-20131029213740-7bd5cd37375d/go.mod h1:CHkHWWZ4kbGY6jEy1+qlitDaCtRgNvCOQdakj/1Yl/Q=
+github.com/eaburns/flac v0.0.0-20171003200620-9a6fb92396d1 h1:wl/ggSfTHqAy46hyzw1IlrUYwjqmXYvbJyPdH3rT7YE=
 github.com/eaburns/flac v0.0.0-20171003200620-9a6fb92396d1/go.mod h1:frG94byMNy+1CgGrQ25dZ+17tf98EN+OYBQL4Zh612M=
 github.com/flopp/go-findfont v0.0.0-20201114153133-e7393a00c15b h1:/wqXgpZNTP8qV1dPEApjJXlDQd5N/F9U/WEvy5SawUI=
 github.com/flopp/go-findfont v0.0.0-20201114153133-e7393a00c15b/go.mod h1:wKKxRDjD024Rh7VMwoU90i6ikQRCr+JTHB5n4Ejkqvw=
