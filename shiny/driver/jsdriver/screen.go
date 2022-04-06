@@ -18,7 +18,7 @@ func Main(f func(screen.Screen)) {
 }
 
 type screenImpl struct {
-	windows []*windowImpl
+	windows []*Window
 }
 
 func (s *screenImpl) NewImage(size image.Point) (screen.Image, error) {
@@ -42,7 +42,7 @@ func (s *screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, erro
 	}
 	cvs := NewCanvas2d(opts.Width, opts.Height)
 
-	w := &windowImpl{
+	w := &Window{
 		cvs:    cvs,
 		screen: s,
 	}

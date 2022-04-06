@@ -21,10 +21,11 @@ import (
 	"github.com/oakmound/oak/v3/window"
 )
 
-var _ window.Window = &Window{}
+var _ window.App = &Window{}
 
-func (w *Window) windowController(s screen.Screen, x, y int32, width, height int) (screen.Window, error) {
-	return s.NewWindow(screen.NewWindowGenerator(
+func (w *Window) windowController(s screen.Screen, x, y, width, height int) (*driver.Window, error) {
+	// TODO v4: can we update this interface to return our concrete driver.Window?
+	dwin, err := s.NewWindow(screen.NewWindowGenerator(
 		screen.Dimensions(width, height),
 		screen.Title(w.config.Title),
 		screen.Position(x, y),
@@ -32,6 +33,7 @@ func (w *Window) windowController(s screen.Screen, x, y int32, width, height int
 		screen.Borderless(w.config.Borderless),
 		screen.TopMost(w.config.TopMost),
 	))
+	return dwin.(*driver.Window), err
 }
 
 // the number of rgba buffers oak's draw loop swaps between
@@ -39,6 +41,10 @@ const bufferCount = 2
 
 type Window struct {
 	key.State
+
+	// the driver.Window embedded in this window exposes at compile time the OS level
+	// options one has to manipulate this.
+	*driver.Window
 
 	// TODO: most of these channels are not closed cleanly
 	transitionCh chan struct{}
@@ -79,9 +85,9 @@ type Window struct {
 
 	// The window buffer represents the subsection of the world which is available to
 	// be shown in a window.
-	winBuffers     [bufferCount]screen.Image
-	screenControl  screen.Screen
-	windowControl  screen.Window
+	winBuffers    [bufferCount]screen.Image
+	screenControl screen.Screen
+
 	windowTextures [bufferCount]screen.Texture
 	bufferIdx      uint8
 

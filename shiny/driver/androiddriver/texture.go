@@ -12,12 +12,12 @@ import (
 )
 
 type textureImpl struct {
-	screen *screenImpl
+	screen *Screen
 	size   image.Point
 	img    *imageImpl
 }
 
-func NewTexture(s *screenImpl, size image.Point) *textureImpl {
+func NewTexture(s *Screen, size image.Point) *textureImpl {
 	return &textureImpl{
 		screen: s,
 		size:   size,

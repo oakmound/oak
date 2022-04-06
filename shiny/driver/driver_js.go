@@ -1,5 +1,5 @@
 //go:build js && !nooswindow && !windows && !darwin && !linux
-// +build js,!nooswindow,!windows,!darwin,!linux,!android
+// +build js,!nooswindow,!windows,!darwin,!linux
 
 package driver
 
@@ -15,3 +15,5 @@ func main(f func(screen.Screen)) {
 func monitorSize() (int, int) {
 	return 0, 0
 }
+
+type Window = jsdriver.Window

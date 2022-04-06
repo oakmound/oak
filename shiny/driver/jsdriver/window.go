@@ -5,41 +5,33 @@ package jsdriver
 
 import (
 	"image"
-	"image/color"
 	"image/draw"
 	"syscall/js"
 
 	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
 	"github.com/oakmound/oak/v3/shiny/screen"
-	"golang.org/x/image/math/f64"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/mouse"
 )
 
-type windowImpl struct {
+type Window struct {
 	screen *screenImpl
 	cvs    *Canvas2D
 	event.Deque
 }
 
-func (w *windowImpl) Release()                                                                      {}
-func (w *windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op)     {}
-func (w *windowImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {}
-func (w *windowImpl) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op)       {}
-func (w *windowImpl) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Release() {}
+func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	rgba := src.(*textureImpl).rgba
 	js.CopyBytesToJS(w.cvs.copybuff, rgba.Pix)
 	w.cvs.imgData.Get("data").Call("set", w.cvs.copybuff)
 	w.cvs.ctx.Call("putImageData", w.cvs.imgData, 0, 0)
 }
-func (w *windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {}
-func (w *windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op)        {}
+func (w *Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {}
 
-func (w *windowImpl) Publish() screen.PublishResult {
-	return screen.PublishResult{}
-}
+func (w *Window) Publish() {}
 
-func (w *windowImpl) sendMouseEvent(mouseEvent js.Value, dir mouse.Direction) {
+func (w *Window) sendMouseEvent(mouseEvent js.Value, dir mouse.Direction) {
 	x, y := mouseEvent.Get("offsetX"), mouseEvent.Get("offsetY")
 	button := mouseEvent.Get("button")
 	var mButton mouse.Button
@@ -61,7 +53,7 @@ func (w *windowImpl) sendMouseEvent(mouseEvent js.Value, dir mouse.Direction) {
 	})
 }
 
-func (w *windowImpl) sendKeyEvent(keyEvent js.Value, dir key.Direction) {
+func (w *Window) sendKeyEvent(keyEvent js.Value, dir key.Direction) {
 	var mods key.Modifiers
 	if keyEvent.Get("shiftKey").Bool() {
 		mods |= key.ModShift

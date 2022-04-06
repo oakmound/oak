@@ -11,7 +11,7 @@ import (
 )
 
 type imageImpl struct {
-	screen   *screenImpl
+	screen   *Screen
 	size     image.Point
 	img      *glutil.Image
 	deadLock sync.Mutex

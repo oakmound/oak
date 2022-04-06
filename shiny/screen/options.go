@@ -30,7 +30,7 @@ type WindowGenerator struct {
 	// X and Y determine the location the new window should be created at. If
 	// either are zero, a driver-dependant default will be used for each zero
 	// value. If Fullscreen is true, these values will be ignored.
-	X, Y int32
+	X, Y int
 }
 
 // A WindowOption is any function that sets up a WindowGenerator.
@@ -54,7 +54,7 @@ func Dimensions(w, h int) WindowOption {
 }
 
 // Position sets the starting position of the new window
-func Position(x, y int32) WindowOption {
+func Position(x, y int) WindowOption {
 	return func(g *WindowGenerator) {
 		g.X = x
 		g.Y = y
