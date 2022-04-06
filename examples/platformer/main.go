@@ -8,14 +8,11 @@ import (
 
 	"github.com/oakmound/oak/v3/collision"
 
-	"github.com/oakmound/oak/v3/physics"
-
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/key"
 
 	oak "github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/entities"
-	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
 )
 
@@ -28,56 +25,54 @@ const (
 func main() {
 	oak.AddScene("platformer", scene.Scene{Start: func(ctx *scene.Context) {
 
-		char := entities.NewMoving(100, 100, 16, 32,
-			render.NewColorBox(16, 32, color.RGBA{255, 0, 0, 255}),
-			nil, 0, 0)
+		char := entities.New(ctx,
+			entities.WithRect(floatgeom.NewRect2WH(100, 100, 16, 32)),
+			entities.WithColor(color.RGBA{255, 0, 0, 255}),
+			entities.WithDrawLayers([]int{0}),
+			entities.WithSpeed(floatgeom.Point2{3, 7}),
+		)
 
-		render.Draw(char.R)
+		const fallSpeed = .2
 
-		char.Speed = physics.NewVector(3, 7)
-
-		fallSpeed := .2
-
-		event.Bind(ctx, event.Enter, char, func(c *entities.Moving, ev event.EnterPayload) event.Response {
+		event.Bind(ctx, event.Enter, char, func(c *entities.Entity, ev event.EnterPayload) event.Response {
 
 			// Move left and right with A and D
 			if oak.IsDown(key.A) {
-				char.Delta.SetX(-char.Speed.X())
+				char.Delta[0] = -char.Speed.X()
 			} else if oak.IsDown(key.D) {
-				char.Delta.SetX(char.Speed.X())
+				char.Delta[0] = char.Speed.X()
 			} else {
-				char.Delta.SetX(0)
+				char.Delta[0] = (0)
 			}
-			oldX, oldY := char.GetPos()
-			char.ShiftPos(char.Delta.X(), char.Delta.Y())
-
+			oldX, oldY := char.X(), char.Y()
+			char.ShiftDelta()
 			aboveGround := false
 
 			hit := collision.HitLabel(char.Space, Ground)
 
 			// If we've moved in y value this frame and in the last frame,
 			// we were below what we're trying to hit, we are still falling
-			if hit != nil && !(oldY != char.Y() && oldY+char.H > hit.Y()) {
+			if hit != nil && !(oldY != char.Y() && oldY+char.H() > hit.Y()) {
 				// Correct our y if we started falling into the ground
-				char.SetY(hit.Y() - char.H)
+				char.SetY(hit.Y() - char.H())
 				// Stop falling
-				char.Delta.SetY(0)
+				char.Delta[1] = 0
 				// Jump with Space when on the ground
 				if oak.IsDown(key.Spacebar) {
-					char.Delta.ShiftY(-char.Speed.Y())
+					char.Delta[1] -= char.Speed.Y()
 				}
 				aboveGround = true
 			} else {
 				//Restart when is below ground
 				if char.Y() > 500 {
-					char.Delta.SetY(0)
+					char.Delta[1] = 0
 					char.SetY(100)
 					char.SetX(100)
 
 				}
 
 				// Fall if there's no ground
-				char.Delta.ShiftY(fallSpeed)
+				char.Delta[1] += fallSpeed
 			}
 
 			if hit != nil {
@@ -102,7 +97,7 @@ func main() {
 					}
 					char.SetX(oldX + xbump)
 					if char.Delta.Y() < 0 {
-						char.Delta.SetY(0)
+						char.Delta[1] = 0
 					}
 				}
 
@@ -112,7 +107,7 @@ func main() {
 				if !aboveGround && math.Abs(xover) > 1 {
 					// We add a buffer so this doesn't retrigger immediately
 					char.SetY(oldY + 1)
-					char.Delta.SetY(fallSpeed)
+					char.Delta[1] = fallSpeed
 				}
 
 			}
@@ -127,12 +122,12 @@ func main() {
 		}
 
 		for _, p := range platforms {
-			ground := entities.NewSolid(p.Min.X(), p.Min.Y(), p.W(), p.H(),
-				render.NewColorBox(int(p.W()), int(p.H()), color.RGBA{0, 0, 255, 255}),
-				nil, 0)
-			ground.UpdateLabel(Ground)
-
-			render.Draw(ground.R)
+			entities.New(ctx,
+				entities.WithRect(p),
+				entities.WithColor(color.RGBA{0, 0, 255, 255}),
+				entities.WithLabel(Ground),
+				entities.WithDrawLayers([]int{0}),
+			)
 		}
 
 	}})

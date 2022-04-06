@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"embed"
 	"image/color"
 	"math/rand"
 	"time"
@@ -18,23 +18,17 @@ import (
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/physics"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
 )
 
-// Collision labels
 const (
 	Enemy collision.Label = 1
 )
 
 var (
-	// Vectors are backed by pointers,
-	// so despite this not being a pointer,
-	// this does update according to the player's
-	// position so long as we don't reset
-	// the player's position vector
-	playerPos physics.Vector
+	playerX *float64
+	playerY *float64
 
 	destroy = event.RegisterEvent[struct{}]()
 
@@ -49,6 +43,10 @@ const (
 func main() {
 
 	oak.AddScene("tds", scene.Scene{Start: func(ctx *scene.Context) {
+		render.Draw(render.NewDrawFPS(0, nil, 10, 10), 2, 0)
+		render.Draw(render.NewLogicFPS(0, nil, 10, 20), 2, 0)
+		// render.Draw(debugtools.NewThickRTree(ctx, collision.DefaultTree, 5), 2, 3)
+
 		// Initialization
 		sprites, err := render.GetSheet("sheet.png")
 		dlog.ErrorCheck(err)
@@ -58,60 +56,68 @@ func main() {
 
 		// Player setup
 		eggplant, err := render.GetSprite("eggplant-fish.png")
+		dlog.ErrorCheck(err)
 		playerR := render.NewSwitch("left", map[string]render.Modifiable{
 			"left": eggplant,
 			// We must copy the sprite before we modify it, or "left"
 			// will also be flipped.
 			"right": eggplant.Copy().Modify(mod.FlipX),
 		})
-		if err != nil {
-			fmt.Println(err)
+		char := entities.New(ctx,
+			entities.WithRect(floatgeom.NewRect2WH(100, 100, 32, 32)),
+			entities.WithRenderable(playerR),
+			entities.WithSpeed(floatgeom.Point2{3, 3}),
+			entities.WithDrawLayers([]int{1, 2}),
+		)
+
+		playerX = &char.Rect.Min[0]
+		playerY = &char.Rect.Min[1]
+
+		screenCenter := floatgeom.Point2{
+			float64(ctx.Window.Width()) / 2,
+			float64(ctx.Window.Height()) / 2,
 		}
-		char := entities.NewMoving(100, 100, 32, 32,
-			playerR,
-			nil, 0, 0)
 
-		char.Speed = physics.NewVector(5, 5)
-		playerPos = char.Point.Vector
-		render.Draw(char.R, 2)
-
-		event.Bind(ctx, event.Enter, char, func(char *entities.Moving, ev event.EnterPayload) event.Response {
-			char.Delta.Zero()
+		event.Bind(ctx, event.Enter, char, func(char *entities.Entity, ev event.EnterPayload) event.Response {
 			if oak.IsDown(key.W) {
-				char.Delta.ShiftY(-char.Speed.Y())
+				char.Delta[1] += (-char.Speed.Y() * ev.TickPercent)
 			}
 			if oak.IsDown(key.A) {
-				char.Delta.ShiftX(-char.Speed.X())
+				char.Delta[0] += (-char.Speed.X() * ev.TickPercent)
 			}
 			if oak.IsDown(key.S) {
-				char.Delta.ShiftY(char.Speed.Y())
+				char.Delta[1] += (char.Speed.Y() * ev.TickPercent)
 			}
 			if oak.IsDown(key.D) {
-				char.Delta.ShiftX(char.Speed.X())
+				char.Delta[0] += (char.Speed.X() * ev.TickPercent)
 			}
-			char.ShiftPos(char.Delta.X(), char.Delta.Y())
+			ctx.Window.(*oak.Window).DoBetweenDraws(func() {
+				char.ShiftDelta()
+				oak.SetScreen(
+					int(char.X()-screenCenter.X()),
+					int(char.Y()-screenCenter.Y()),
+				)
+				char.Delta = floatgeom.Point2{}
+			})
 			// Don't go out of bounds
 			if char.X() < 0 {
 				char.SetX(0)
-			} else if char.X() > fieldWidth-char.W {
-				char.SetX(fieldWidth - char.W)
+			} else if char.X() > fieldWidth-char.W() {
+				char.SetX(fieldWidth - char.W())
 			}
 			if char.Y() < 0 {
 				char.SetY(0)
-			} else if char.Y() > fieldHeight-char.H {
-				char.SetY(fieldHeight - char.H)
+			} else if char.Y() > fieldHeight-char.H() {
+				char.SetY(fieldHeight - char.H())
 			}
-			oak.SetScreen(
-				int(char.R.X())-ctx.Window.Width()/2,
-				int(char.R.Y())-ctx.Window.Height()/2,
-			)
+
 			hit := char.HitLabel(Enemy)
 			if hit != nil {
 				ctx.Window.NextScene()
 			}
 
 			// update animation
-			swtch := char.R.(*render.Switch)
+			swtch := char.Renderable.(*render.Switch)
 			if char.Delta.X() > 0 {
 				if swtch.Get() == "left" {
 					swtch.Set("right")
@@ -125,9 +131,9 @@ func main() {
 			return 0
 		})
 
-		event.Bind(ctx, mouse.Press, char, func(char *entities.Moving, mevent *mouse.Event) event.Response {
-			x := char.X() + char.W/2
-			y := char.Y() + char.H/2
+		event.Bind(ctx, mouse.Press, char, func(char *entities.Entity, mevent *mouse.Event) event.Response {
+			x := char.X() + char.W()/2
+			y := char.Y() + char.H()/2
 			vp := ctx.Window.Viewport()
 			mx := mevent.X() + float64(vp.X())
 			my := mevent.Y() + float64(vp.Y())
@@ -139,7 +145,7 @@ func main() {
 			ctx.DrawForTime(
 				render.NewLine(x, y, mx, my, color.RGBA{0, 128, 0, 128}),
 				time.Millisecond*50,
-				2)
+				1, 2)
 			return 0
 		})
 
@@ -158,20 +164,31 @@ func main() {
 				// Get a random tile to draw in this position
 				sp := sheet[i/2][i%2].Copy()
 				sp.SetPos(float64(x), float64(y))
-				render.Draw(sp, 1)
+				render.Draw(sp, 0, 1)
 			}
 		}
 
 	}})
 
+	render.SetDrawStack(
+		render.NewCompositeR(),
+		render.NewDynamicHeap(),
+		render.NewStaticHeap(),
+	)
+
+	oak.SetFS(assets)
 	oak.Init("tds", func(c oak.Config) (oak.Config, error) {
 		c.BatchLoad = true
 		c.Assets.ImagePath = "assets/images"
-
+		//c.FrameRate = 30
 		return c, nil
 	})
 }
 
+//go:embed assets
+var assets embed.FS
+
+// Top down shooter consts
 const (
 	EnemyRefresh = 25
 	EnemySpeed   = 2
@@ -186,24 +203,23 @@ func NewEnemy(ctx *scene.Context) {
 		"left":  enemyFrame,
 		"right": enemyFrame.Copy().Modify(mod.FlipX),
 	})
-	enemy := entities.NewSolid(x, y, 16, 16,
-		enemyR,
-		nil, 0)
+	enemy := entities.New(ctx,
+		entities.WithRect(floatgeom.NewRect2WH(x, y, 16, 16)),
+		entities.WithRenderable(enemyR),
+		entities.WithDrawLayers([]int{1, 2}),
+		entities.WithLabel(Enemy),
+	)
 
-	render.Draw(enemy.R, 2)
-
-	enemy.UpdateLabel(Enemy)
-
-	event.Bind(ctx, event.Enter, enemy, func(e *entities.Solid, ev event.EnterPayload) event.Response {
+	event.Bind(ctx, event.Enter, enemy, func(e *entities.Entity, ev event.EnterPayload) event.Response {
 		// move towards the player
-		x, y := enemy.GetPos()
+		x, y := enemy.X(), enemy.Y()
 		pt := floatgeom.Point2{x, y}
-		pt2 := floatgeom.Point2{playerPos.X(), playerPos.Y()}
-		delta := pt2.Sub(pt).Normalize().MulConst(EnemySpeed)
-		enemy.ShiftPos(delta.X(), delta.Y())
+		pt2 := floatgeom.Point2{*playerX, *playerY}
+		delta := pt2.Sub(pt).Normalize().MulConst(EnemySpeed * ev.TickPercent)
+		enemy.Shift(delta)
 
 		// update animation
-		swtch := enemy.R.(*render.Switch)
+		swtch := enemy.Renderable.(*render.Switch)
 		if delta.X() > 0 {
 			if swtch.Get() == "left" {
 				swtch.Set("right")
@@ -216,7 +232,7 @@ func NewEnemy(ctx *scene.Context) {
 		return 0
 	})
 
-	event.Bind(ctx, destroy, enemy, func(e *entities.Solid, nothing struct{}) event.Response {
+	event.Bind(ctx, destroy, enemy, func(e *entities.Entity, nothing struct{}) event.Response {
 		e.Destroy()
 		return 0
 	})

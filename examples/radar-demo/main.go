@@ -10,10 +10,8 @@ import (
 
 	oak "github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/entities"
-	"github.com/oakmound/oak/v3/entities/x/move"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/examples/radar-demo/radar"
-	"github.com/oakmound/oak/v3/physics"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
 )
@@ -33,21 +31,26 @@ func main() {
 	oak.AddScene("demo", scene.Scene{Start: func(ctx *scene.Context) {
 		render.Draw(render.NewDrawFPS(0.03, nil, 10, 10))
 
-		char := entities.NewMoving(200, 200, 50, 50, render.NewColorBox(50, 50, color.RGBA{125, 125, 0, 255}), nil, 0, 1)
-		char.Speed = physics.NewVector(3, 3)
+		char := entities.New(ctx,
+			entities.WithRect(floatgeom.NewRect2WH(200, 200, 50, 50)),
+			entities.WithColor(color.RGBA{125, 125, 0, 255}),
+			entities.WithSpeed(floatgeom.Point2{3, 3}),
+			entities.WithDrawLayers([]int{1, 2}),
+		)
 
 		oak.SetViewportBounds(intgeom.NewRect2(0, 0, xLimit, yLimit))
 		moveRect := floatgeom.NewRect2(0, 0, xLimit, yLimit)
-		event.Bind(ctx, event.Enter, char, func(char *entities.Moving, ev event.EnterPayload) event.Response {
-			move.WASD(char)
-			move.Limit(char, moveRect)
-			move.CenterScreenOn(char)
+		event.Bind(ctx, event.Enter, char, func(char *entities.Entity, ev event.EnterPayload) event.Response {
+			entities.WASD(char)
+			entities.Limit(char, moveRect)
+			entities.CenterScreenOn(char)
 			return 0
 		})
-		render.Draw(char.R, 1, 2)
 
 		// Create the Radar
-		center := radar.Point{X: char.Xp(), Y: char.Yp()}
+		xp := &char.Rect.Min[0]
+		yp := &char.Rect.Min[1]
+		center := radar.Point{X: xp, Y: yp}
 		points := make(map[radar.Point]color.Color)
 		w := 100
 		h := 100
@@ -58,8 +61,9 @@ func main() {
 			x, y := rand.Float64()*400, rand.Float64()*400
 			enemy := newEnemyOnRadar(ctx, x, y)
 			event.Bind(ctx, event.Enter, enemy, standardEnemyMove)
-			render.Draw(enemy.R, 1, 1)
-			r.AddPoint(radar.Point{X: enemy.Xp(), Y: enemy.Yp()}, color.RGBA{255, 255, 0, 255})
+			xp := &enemy.Rect.Min[0]
+			yp := &enemy.Rect.Min[1]
+			r.AddPoint(radar.Point{X: xp, Y: yp}, color.RGBA{255, 255, 0, 255})
 		}
 
 		render.Draw(r, 2)
@@ -84,32 +88,30 @@ func main() {
 	oak.Init("demo")
 }
 
-type enemyOnRadar struct {
-	*entities.Moving
-}
-
-func newEnemyOnRadar(ctx *scene.Context, x, y float64) *enemyOnRadar {
-	eor := new(enemyOnRadar)
-	eor.Moving = entities.NewMoving(50, y, 50, 50, render.NewColorBox(25, 25, color.RGBA{0, 200, 0, 0}), nil, ctx.Register(eor), 0)
-	eor.Speed = physics.NewVector(-1*(rand.Float64()*2+1), rand.Float64()*2-1)
+func newEnemyOnRadar(ctx *scene.Context, x, y float64) *entities.Entity {
+	eor := entities.New(ctx,
+		entities.WithRect(floatgeom.NewRect2WH(50, y, 50, 50)),
+		entities.WithColor(color.RGBA{0, 200, 0, 200}),
+		entities.WithSpeed(floatgeom.Point2{-1 * (rand.Float64()*2 + 1), rand.Float64()*2 - 1}),
+		entities.WithDrawLayers([]int{1, 1}),
+	)
 	eor.Delta = eor.Speed
 	return eor
 }
 
-func standardEnemyMove(eor *enemyOnRadar, ev event.EnterPayload) event.Response {
+func standardEnemyMove(eor *entities.Entity, ev event.EnterPayload) event.Response {
 	if eor.X() < 0 {
-		eor.Delta.SetPos(math.Abs(eor.Speed.X()), (eor.Speed.Y()))
+		eor.Delta = floatgeom.Point2{math.Abs(eor.Speed.X()), (eor.Speed.Y())}
 	}
-	if eor.X() > xLimit-eor.W {
-		eor.Delta.SetPos(-1*math.Abs(eor.Speed.X()), (eor.Speed.Y()))
+	if eor.X() > xLimit-eor.W() {
+		eor.Delta = floatgeom.Point2{-1 * math.Abs(eor.Speed.X()), (eor.Speed.Y())}
 	}
 	if eor.Y() < 0 {
-		eor.Delta.SetPos(eor.Speed.X(), math.Abs(eor.Speed.Y()))
+		eor.Delta = floatgeom.Point2{eor.Speed.X(), math.Abs(eor.Speed.Y())}
 	}
-	if eor.Y() > yLimit-eor.H {
-		eor.Delta.SetPos(eor.Speed.X(), -1*math.Abs(eor.Speed.Y()))
+	if eor.Y() > yLimit-eor.H() {
+		eor.Delta = floatgeom.Point2{eor.Speed.X(), -1 * math.Abs(eor.Speed.Y())}
 	}
-	eor.ShiftX(eor.Delta.X())
-	eor.ShiftY(eor.Delta.Y())
+	eor.ShiftDelta()
 	return 0
 }

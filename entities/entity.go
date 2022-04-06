@@ -86,6 +86,18 @@ func (e Entity) W() float64 {
 func (e Entity) H() float64 {
 	return e.Rect.H()
 }
+func (e Entity) Top() float64 {
+	return e.Y()
+}
+func (e Entity) Bottom() float64 {
+	return e.Y() + e.H()
+}
+func (e Entity) Left() float64 {
+	return e.X()
+}
+func (e Entity) Right() float64 {
+	return e.X() + e.W()
+}
 
 func (e *Entity) ShiftDelta() {
 	e.Shift(e.Delta)
@@ -102,6 +114,14 @@ func (e *Entity) Shift(delta floatgeom.Point2) {
 			e.X(), e.Y(), e.W(), e.H(), e.Space,
 		)
 	}
+}
+
+func (e *Entity) SetX(x float64) {
+	e.ShiftX(x - e.X())
+}
+
+func (e *Entity) SetY(y float64) {
+	e.ShiftY(y - e.Y())
 }
 
 func (e *Entity) ShiftX(x float64) {
@@ -133,6 +153,10 @@ func (e *Entity) SetPos(p floatgeom.Point2) {
 			e.X(), e.Y(), e.W(), e.H(), e.Space,
 		)
 	}
+}
+
+func (e *Entity) HitLabel(label collision.Label) *collision.Space {
+	return e.Tree.HitLabel(e.Space, label)
 }
 
 func (e *Entity) Destroy() {
