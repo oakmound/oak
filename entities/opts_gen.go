@@ -63,6 +63,13 @@ func WithScaleRenderable(v *mod.Resampling) Option {
 	}
 }
 
+func WithMod(v mod.Mod) Option {
+	return func(s Generator) Generator {
+		s.Mod = v
+		return s
+	}
+}
+
 func WithLabel(v collision.Label) Option {
 	return func(s Generator) Generator {
 		s.Label = v
@@ -87,6 +94,13 @@ func WithUseMouseTree(v bool) Option {
 func WithWithoutCollision(v bool) Option {
 	return func(s Generator) Generator {
 		s.WithoutCollision = v
+		return s
+	}
+}
+
+func WithChildren(v []Generator) Option {
+	return func(s Generator) Generator {
+		s.Children = v
 		return s
 	}
 }

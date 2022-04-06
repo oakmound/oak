@@ -28,7 +28,6 @@ func main() {
 		char := entities.New(ctx,
 			entities.WithRect(floatgeom.NewRect2WH(100, 100, 16, 32)),
 			entities.WithColor(color.RGBA{255, 0, 0, 255}),
-			entities.WithDrawLayers([]int{0}),
 			entities.WithSpeed(floatgeom.Point2{3, 7}),
 		)
 
@@ -126,7 +125,6 @@ func main() {
 				entities.WithRect(p),
 				entities.WithColor(color.RGBA{0, 0, 255, 255}),
 				entities.WithLabel(Ground),
-				entities.WithDrawLayers([]int{0}),
 			)
 		}
 

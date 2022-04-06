@@ -75,7 +75,6 @@ func main() {
 		player := entities.New(ctx,
 			entities.WithRect(floatgeom.NewRect2WH(100, 100, 32, 32)),
 			entities.WithColor(color.RGBA{0, 0, 255, 255}),
-			entities.WithDrawLayers([]int{0}),
 		)
 
 		controlsText := render.NewText("WASD to move, ESC to return to titlescreen", 5, 20)

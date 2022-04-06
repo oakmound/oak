@@ -24,12 +24,16 @@ type Generator struct {
 
 	ScaleRenderable *mod.Resampling
 
+	Mod mod.Mod
+
 	Label collision.Label
 
 	DrawLayers []int
 
 	UseMouseTree     bool
 	WithoutCollision bool
+
+	Children []Generator
 }
 
 func And(opts ...Option) Option {
@@ -38,6 +42,17 @@ func And(opts ...Option) Option {
 			g = o(g)
 		}
 		return g
+	}
+}
+
+func WithChild(opts ...Option) Option {
+	return func(s Generator) Generator {
+		g2 := defaultGenerator
+		for _, o := range opts {
+			g2 = o(g2)
+		}
+		s.Children = append(s.Children, g2)
+		return s
 	}
 }
 
@@ -51,6 +66,7 @@ func WithRect(v floatgeom.Rect2) Option {
 
 var defaultGenerator = Generator{
 	Dimensions: floatgeom.Point2{1, 1},
+	DrawLayers: []int{0},
 }
 
 type Entity struct {
@@ -68,6 +84,10 @@ type Entity struct {
 
 	Space *collision.Space
 	Tree  *collision.Tree
+
+	metadata map[string]string
+
+	Attached []*Entity
 }
 
 func (e Entity) CID() event.CallerID {
@@ -165,6 +185,22 @@ func (e *Entity) Destroy() {
 	e.ctx.UnbindAllFrom(e.CallerID)
 }
 
+// SetMetadata sets the metadata for some key to some value. Empty value strings
+// will not be stored.
+func (e *Entity) SetMetadata(k, v string) {
+	if v == "" {
+		delete(e.metadata, k)
+	} else {
+		e.metadata[k] = v
+	}
+}
+
+// Metadata accesses the value, and whether it existed, for a given metadata key
+func (e *Entity) Metadata(k string) (v string, ok bool) {
+	v, ok = e.metadata[k]
+	return v, ok
+}
+
 func New(ctx *scene.Context, opts ...Option) *Entity {
 	g := defaultGenerator
 	for _, o := range opts {
@@ -185,6 +221,10 @@ func New(ctx *scene.Context, opts ...Option) *Entity {
 
 	if g.Renderable == nil && g.Color != nil {
 		e.Renderable = render.NewColorBox(int(e.W()), int(e.H()), g.Color)
+	}
+
+	if m, isMod := e.Renderable.(render.Modifiable); g.Mod != nil && isMod {
+		e.Renderable = m.Modify(g.Mod)
 	}
 
 	if g.ScaleRenderable != nil {
