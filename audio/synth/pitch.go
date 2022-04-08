@@ -1,5 +1,11 @@
 package synth
 
+import (
+	"sort"
+
+	"github.com/oakmound/oak/v3/audio/pcm"
+)
+
 // A Pitch is a helper type for synth functions so
 // a user can write A4 instead of a frequency value
 // for a desired tone
@@ -387,7 +393,123 @@ var (
 		A8s: 106,
 		B8:  107,
 	}
+
+	pitchStrings = map[Pitch]string{
+		Rest: "Rest",
+		C0:   "C0",
+		C0s:  "C0#",
+		D0:   "D0",
+		D0s:  "D0#",
+		E0:   "E0",
+		F0:   "F0",
+		F0s:  "F0#",
+		G0:   "G0",
+		G0s:  "G0#",
+		A0:   "A0",
+		A0s:  "A0#",
+		B0:   "B0",
+		C1:   "C1",
+		C1s:  "C1#",
+		D1:   "D1",
+		D1s:  "D1#",
+		E1:   "E1",
+		F1:   "F1",
+		F1s:  "F1#",
+		G1:   "G1",
+		G1s:  "G1#",
+		A1:   "A1",
+		A1s:  "A1#",
+		B1:   "B1",
+		C2:   "C2",
+		C2s:  "C2#",
+		D2:   "D2",
+		D2s:  "D2#",
+		E2:   "E2",
+		F2:   "F2",
+		F2s:  "F2#",
+		G2:   "G2",
+		G2s:  "G2#",
+		A2:   "A2",
+		A2s:  "A2#",
+		B2:   "B2",
+		C3:   "C3",
+		C3s:  "C3#",
+		D3:   "D3",
+		D3s:  "D3#",
+		E3:   "E3",
+		F3:   "F3",
+		F3s:  "F3#",
+		G3:   "G3",
+		G3s:  "G3#",
+		A3:   "A3",
+		A3s:  "A3#",
+		B3:   "B3",
+		C4:   "C4",
+		C4s:  "C4#",
+		D4:   "D4",
+		D4s:  "D4#",
+		E4:   "E4",
+		F4:   "F4",
+		F4s:  "F4#",
+		G4:   "G4",
+		G4s:  "G4#",
+		A4:   "A4",
+		A4s:  "A4#",
+		B4:   "B4",
+		C5:   "C5",
+		C5s:  "C5#",
+		D5:   "D5",
+		D5s:  "D5#",
+		E5:   "E5",
+		F5:   "F5",
+		F5s:  "F5#",
+		G5:   "G5",
+		G5s:  "G5#",
+		A5:   "A5",
+		A5s:  "A5#",
+		B5:   "B5",
+		C6:   "C6",
+		C6s:  "C6#",
+		D6:   "D6",
+		D6s:  "D6#",
+		E6:   "E6",
+		F6:   "F6",
+		F6s:  "F6#",
+		G6:   "G6",
+		G6s:  "G6#",
+		A6:   "A6",
+		A6s:  "A6#",
+		B6:   "B6",
+		C7:   "C7",
+		C7s:  "C7#",
+		D7:   "D7",
+		D7s:  "D7#",
+		E7:   "E7",
+		F7:   "F7",
+		F7s:  "F7#",
+		G7:   "G7",
+		G7s:  "G7#",
+		A7:   "A7",
+		A7s:  "A7#",
+		B7:   "B7",
+		C8:   "C8",
+		C8s:  "C8#",
+		D8:   "D8",
+		D8s:  "D8#",
+		E8:   "E8",
+		F8:   "F8",
+		F8s:  "F8#",
+		G8:   "G8",
+		G8s:  "G8#",
+		A8:   "A8",
+		A8s:  "A8#",
+		B8:   "B8",
+	}
 )
+
+func (p Pitch) String() string {
+	return pitchStrings[p]
+}
 
 var accidentals = map[Pitch]struct{}{
 	C0s: {},
@@ -476,4 +598,78 @@ func NoteFromIndex(i int) Pitch {
 func (p Pitch) IsAccidental() bool {
 	_, ok := accidentals[p]
 	return ok
+}
+
+type PitchDetector struct {
+	pcm.Reader
+
+	format pcm.Format
+
+	// Will be 0 if unknown
+	DetectedPitch Pitch
+
+	// Channel defines which audio channel (0 for mono, 0-1 for stereo) should
+	// be analyzed. ReadPCM will panic if this value is invalid. If this scares you,
+	// don't change this value-- the consequence is that a specific channel for stereo
+	// audio will be analyzed, which won't be a problem unless you're running this on
+	// Queen's The Prophet's Song
+	Channel int
+
+	index       int
+	lastValue   float64
+	crossedZero bool
+}
+
+func NewPitchDetector(r pcm.Reader) *PitchDetector {
+	return &PitchDetector{
+		Reader: r,
+		format: r.PCMFormat(),
+	}
+}
+
+func (pd *PitchDetector) ReadPCM(b []byte) (n int, err error) {
+	n, err = pd.Reader.ReadPCM(b)
+	if err != nil {
+		return n, err
+	}
+	var lastValue float64
+	var read int
+	sampleSize := pd.format.SampleSize()
+	for len(b[read:]) > sampleSize {
+		pd.index++
+		vals, valReadBytes, err := pd.format.SampleFloat(b[read:])
+		if err != nil {
+			break
+		}
+		read += valReadBytes
+		// ignore stereo audio; sorry it makes this really complicated
+		val := vals[pd.Channel]
+		if lastValue < 0 && val > 0 || val < 0 && lastValue > 0 {
+			// we've crossed zero
+			if !pd.crossedZero {
+				pd.crossedZero = true
+			} else {
+				// assuming this is pitched audio (if it isn't we can't give a correct answer),
+				// pd.index is now half of the number of samples before the last time this audio
+				// stream crossed zero. The last time this audio stream crossed zero defines how
+				// frequently this audio is cycling-- the speed the audio cycles at defines the pitch
+				// of the audio in hertz; our pitch constants above are also defined in hertz.
+				periodLength := pd.index * 2
+				samplesPerSecond := pd.format.SampleRate
+				periodHz := 1 / (float64(periodLength) / float64(samplesPerSecond))
+				pd.DetectedPitch = HertzToPitch(periodHz)
+			}
+			pd.index = 0
+		}
+		lastValue = val
+	}
+	pd.lastValue = lastValue
+	return
+}
+
+func HertzToPitch(hz float64) Pitch {
+	i := sort.Search(len(allPitches), func(i int) bool {
+		return Pitch(hz) < allPitches[i]
+	})
+	return allPitches[i]
 }

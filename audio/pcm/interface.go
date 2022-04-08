@@ -45,6 +45,7 @@ type Format struct {
 	// 1 for mono and 2 for stereo.
 	Channels uint16
 	// Bits determines how many bits a single sample value takes up. 8, 16, and 32 are common values.
+	// TODO: Do we need LE vs BE, float vs int representation?
 	Bits uint16
 }
 
@@ -55,6 +56,44 @@ func (f Format) PCMFormat() Format {
 
 // BytesPerSecond returns how many bytes this format would be encoded into per second in an audio stream.
 func (f Format) BytesPerSecond() uint32 {
-	blockAlign := f.Channels * f.Bits / 8
-	return f.SampleRate * uint32(blockAlign)
+	return f.SampleRate * uint32(f.SampleSize())
+}
+
+func (f Format) SampleSize() int {
+	return int(f.Channels) * int(f.Bits/8)
+}
+
+// ReadFloat reads a single sample from an audio stream, respecting bits and channels:
+// f.Bits / 8 bytes * f.Channels bytes will be read from b, and this count will be returned as 'read'.
+// the length of values will be equal to f.Channels, if no error is returned. If an error is returned,
+// it will be io.ErrUnexpectedEOF. If bits is an unexpected value
+func (f Format) SampleFloat(b []byte) (values []float64, read int, err error) {
+	values = make([]float64, 0, f.Channels)
+	read = f.SampleSize()
+	if len(b) < read {
+		return nil, 0, io.ErrUnexpectedEOF
+	}
+	_ = b[read-1]
+	switch f.Bits {
+	case 8:
+		for i := 0; i < int(f.Channels); i++ {
+			v := int8(b[i])
+			values = append(values, float64(v))
+		}
+	case 16:
+		for i := 0; i < int(f.Channels)*2; i += 2 {
+			v := int16(b[i]) +
+				int16(b[i+1])<<8
+			values = append(values, float64(v))
+		}
+	case 32:
+		for i := 0; i < int(f.Channels)*4; i += 4 {
+			v := int32(b[i]) +
+				int32(b[i+1])<<8 +
+				int32(b[i+2])<<16 +
+				int32(b[i+3])<<24
+			values = append(values, float64(v))
+		}
+	}
+	return
 }

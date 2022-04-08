@@ -172,6 +172,17 @@ func releasePitch(pitch synth.Pitch) {
 	}
 }
 
+type pitchText struct {
+	pitch *synth.Pitch
+}
+
+func (pt *pitchText) String() string {
+	if pt.pitch == nil {
+		return ""
+	}
+	return pt.pitch.String()
+}
+
 func main() {
 	err := audio.InitDefault()
 	if err != nil {
@@ -188,6 +199,7 @@ func main() {
 				Channels:   2,
 				Bits:       32,
 			}
+			pt := &pitchText{}
 			playWithMonitor := func(gctx context.Context, r pcm.Reader) {
 				speaker, err := audio.NewWriter(r.PCMFormat())
 				if err != nil {
@@ -198,7 +210,10 @@ func main() {
 				monitor.SetPos(0, 0)
 				render.Draw(monitor)
 
-				audio.Play(gctx, r, func(po *audio.PlayOptions) {
+				pitchDetector := synth.NewPitchDetector(r)
+				pt.pitch = &pitchDetector.DetectedPitch
+
+				audio.Play(gctx, pitchDetector, func(po *audio.PlayOptions) {
 					po.Destination = monitor
 				})
 				speaker.Close()
@@ -209,6 +224,8 @@ func main() {
 				fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
 				playWithMonitor(gctx, fadeIn)
 			}
+			render.Draw(render.NewStringerText(pt, 10, 10))
+
 			pitch := synth.C3
 			kc := keyColorWhite
 			x := 20.0
