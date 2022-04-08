@@ -246,6 +246,7 @@ func main() {
 					playWithMonitor(gctx, fadeIn)
 				},
 				key.Q: func(gctx context.Context, pitch synth.Pitch) {
+					// demonstrate adding waveforms to play in unison
 					unison := 4
 					for i := 0; i < unison; i++ {
 						go playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Saw(synth.AtPitch(pitch)))))
@@ -253,8 +254,6 @@ func main() {
 						go playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Saw(synth.AtPitch(pitch), synth.Detune(-.05)))))
 					}
 					playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Saw(synth.AtPitch(pitch)))))
-
-					//playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Noise())))
 				},
 				key.T: func(gctx context.Context, pitch synth.Pitch) {
 					toPlay := audio.LoopReader(src.Triangle(synth.AtPitch(pitch)))
@@ -270,6 +269,17 @@ func main() {
 					toPlay := audio.LoopReader(src.Noise(synth.AtPitch(pitch)))
 					fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
 					playWithMonitor(gctx, fadeIn)
+				},
+				key.X: func(gctx context.Context, pitch synth.Pitch) {
+					// demonstrate combining multiple wave forms in place
+					toPlay := src.MultiWave([]synth.Waveform{
+						synth.Source.SinWave,
+						synth.Source.TriangleWave,
+						synth.PulseWave(2),
+					}, synth.AtPitch(pitch))
+					fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
+					playWithMonitor(gctx, fadeIn)
+
 				},
 			}
 			for kc, synfn := range codeKinds {
