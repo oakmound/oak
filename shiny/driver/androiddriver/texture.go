@@ -5,8 +5,6 @@ package androiddriver
 
 import (
 	"image"
-	"image/color"
-	"image/draw"
 
 	"github.com/oakmound/oak/v3/shiny/screen"
 )
@@ -35,5 +33,4 @@ func (ti *textureImpl) Bounds() image.Rectangle {
 func (ti *textureImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
 	ti.img, _ = src.(*imageImpl)
 }
-func (*textureImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {}
 func (*textureImpl) Release()                                             {}

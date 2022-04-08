@@ -2,8 +2,6 @@ package screen
 
 import (
 	"image"
-	"image/color"
-	"image/draw"
 )
 
 // Texture is a pixel buffer, but not one that is directly accessible as a
@@ -35,13 +33,6 @@ type Texture interface {
 	// When uploading to a Window, there will not be any visible effect until
 	// Publish is called.
 	Upload(dp image.Point, src Image, sr image.Rectangle)
-
-	// Fill fills that part of the destination (the method receiver) defined by
-	// dr with the given color.
-	//
-	// When filling a Window, there will not be any visible effect until
-	// Publish is called.
-	Fill(dr image.Rectangle, src color.Color, op draw.Op)
 
 	// Release releases the Texture's resources, after all pending uploads and
 	// draws resolve.

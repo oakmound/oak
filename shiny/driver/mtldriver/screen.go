@@ -25,9 +25,7 @@ func (*screenImpl) NewImage(size image.Point) (screen.Image, error) {
 }
 
 func (*screenImpl) NewTexture(size image.Point) (screen.Texture, error) {
-	return &textureImpl{
-		rgba: image.NewRGBA(image.Rectangle{Max: size}),
-	}, nil
+	return common.NewImage(size), nil
 }
 
 func (s *screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, error) {

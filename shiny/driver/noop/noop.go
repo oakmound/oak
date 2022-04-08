@@ -3,7 +3,6 @@ package noop
 
 import (
 	"image"
-	"image/color"
 	"image/draw"
 
 	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
@@ -65,7 +64,6 @@ func (ti textureImpl) Bounds() image.Rectangle {
 }
 
 func (textureImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {}
-func (textureImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op)        {}
 func (textureImpl) Release()                                                    {}
 
 type Window struct {

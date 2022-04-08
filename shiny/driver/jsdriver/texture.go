@@ -5,8 +5,6 @@ package jsdriver
 
 import (
 	"image"
-	"image/color"
-	"image/draw"
 
 	"github.com/oakmound/oak/v3/shiny/screen"
 )
@@ -29,5 +27,4 @@ func (ti *textureImpl) Upload(dp image.Point, src screen.Image, sr image.Rectang
 	rgba := src.RGBA()
 	ti.rgba = rgba
 }
-func (*textureImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {}
-func (*textureImpl) Release()                                             {}
+func (*textureImpl) Release() {}
