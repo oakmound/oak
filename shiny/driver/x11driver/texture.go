@@ -6,7 +6,6 @@ package x11driver
 
 import (
 	"image"
-	"image/color"
 	"image/draw"
 	"math"
 	"sync"
@@ -60,13 +59,6 @@ func (t *textureImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangl
 		return
 	}
 	src.(*bufferImpl).upload(xproto.Drawable(t.xm), t.s.gcontext32, textureDepth, dp, sr)
-}
-
-func (t *textureImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
-	if t.degenerate() {
-		return
-	}
-	fill(t.s.xc, t.xp, dr, src, op)
 }
 
 // f64ToFixed converts from float64 to X11/Render's 16.16 fixed point.

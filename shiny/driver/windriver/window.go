@@ -23,6 +23,7 @@ import (
 	"syscall"
 	"unsafe"
 
+	"github.com/oakmound/oak/v3/shiny/driver/common"
 	"github.com/oakmound/oak/v3/shiny/driver/internal/drawer"
 	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
 	"github.com/oakmound/oak/v3/shiny/driver/internal/win32"
@@ -78,23 +79,77 @@ func (w *Window) Release() {
 	win32.Release(win32.HWND(w.hwnd))
 }
 
-func (w *Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
-	src.(*bufferImpl).preUpload()
-	defer src.(*bufferImpl).postUpload()
+var sizeImages = map[image.Rectangle]winBuff{}
 
+type winBuff struct {
+	rgba   *common.BGRA
+	handle syscall.Handle
+}
+
+func (w *Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
+	buff, ok := sizeImages[sr]
+	if !ok {
+		size := sr.Max
+		bm, bitvalues, _ := mkbitmap(size)
+
+		const (
+			maxInt32  = 0x7fffffff
+			maxBufLen = maxInt32
+		)
+
+		bufLen := 4 * size.X * size.Y
+		array := (*[maxBufLen]byte)(unsafe.Pointer(bitvalues))
+		buf := (*array)[:bufLen:bufLen]
+		buff = winBuff{
+			rgba: &common.BGRA{
+				Pix:    buf,
+				Stride: 4 * size.X,
+				Rect:   sr,
+			},
+			handle: bm,
+		}
+		sizeImages[sr] = buff
+	}
+
+	common.CopyToBGRAFromRGBA(buff.rgba, image.ZP, src.RGBA(), sr)
 	w.execCmd(&cmd{
-		id:     cmdUpload,
-		dp:     dp,
-		buffer: src.(*bufferImpl),
-		sr:     sr,
+		id:  cmdUpload,
+		dp:  dp,
+		src: buff.handle,
+		sr:  sr,
 	})
 }
 
 func (w *Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
+	buff, ok := sizeImages[sr]
+	if !ok {
+		size := sr.Max
+		bm, bitvalues, _ := mkbitmap(size)
+
+		const (
+			maxInt32  = 0x7fffffff
+			maxBufLen = maxInt32
+		)
+
+		bufLen := 4 * size.X * size.Y
+		array := (*[maxBufLen]byte)(unsafe.Pointer(bitvalues))
+		buf := (*array)[:bufLen:bufLen]
+		buff = winBuff{
+			rgba: &common.BGRA{
+				Pix:    buf,
+				Stride: 4 * size.X,
+				Rect:   sr,
+			},
+			handle: bm,
+		}
+		sizeImages[sr] = buff
+	}
+
+	common.CopyToBGRAFromRGBA(buff.rgba, image.ZP, src.(*common.Image).RGBA(), sr)
 	w.execCmd(&cmd{
 		id:      cmdDraw,
 		src2dst: src2dst,
-		texture: src.(*textureImpl).bitmap,
+		src:     buff.handle,
 		sr:      sr,
 	})
 }
@@ -406,8 +461,7 @@ type cmd struct {
 	sr      image.Rectangle
 	dp      image.Point
 	dr      image.Rectangle
-	texture syscall.Handle
-	buffer  *bufferImpl
+	src     syscall.Handle
 }
 
 const (
@@ -421,7 +475,7 @@ var msgCmd = win32.AddWindowMsg(handleCmd)
 func (w *Window) execCmd(c *cmd) {
 	win32.SendMessage(win32.HWND(w.hwnd), msgCmd, 0, uintptr(unsafe.Pointer(c)))
 	if c.err != nil {
-		panic(fmt.Sprintf("execCmd faild for cmd.id=%d: %v", c.id, c.err)) // TODO handle errors
+		panic(fmt.Sprintf("execCmd failed for cmd.id=%d: %v", c.id, c.err)) // TODO handle errors
 	}
 }
 
@@ -437,11 +491,11 @@ func handleCmd(hwnd win32.HWND, uMsg uint32, wParam, lParam uintptr) {
 
 	switch c.id {
 	case cmdDraw:
-		c.err = drawWindow(dc, c.src2dst, c.texture, c.sr)
+		c.err = drawWindow(dc, c.src2dst, c.src, c.sr)
 	case cmdUpload:
 		// TODO: adjust if dp is outside dst bounds, or sr is outside buffer bounds.
 		dr := c.sr.Add(c.dp.Sub(c.sr.Min))
-		c.err = copyBitmapToDC(dc, dr, c.buffer.hbitmap, c.sr)
+		c.err = copyBitmapToDC(dc, dr, c.src, c.sr)
 	default:
 		c.err = fmt.Errorf("unknown command id=%d", c.id)
 	}

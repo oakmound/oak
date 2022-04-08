@@ -14,7 +14,7 @@ func (i *Image) Size() image.Point {
 }
 
 func (i *Image) Bounds() image.Rectangle {
-	return i.Bounds()
+	return (*image.RGBA)(i).Bounds()
 }
 
 func (Image) Release() {}

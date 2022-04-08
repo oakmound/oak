@@ -1,7 +1,4 @@
-//go:build arm64 && darwin
-// +build arm64,darwin
-
-package mtldriver
+package common
 
 import (
 	"image"
@@ -14,7 +11,7 @@ import (
 
 // This file is a copy of much of x/image/draw and draw/image
 // To enable fast conversions from RGBA (which Oak uses everywhere internally)
-// and BGRA (which metal refuses not to use for windows)
+// and BGRA (which every OS uses internally for some reason)
 
 var _ image.Image = &BGRA{}
 
@@ -191,7 +188,7 @@ func mul3NonNeg(x int, y int, z int) int {
 // clip clips r against each image's bounds (after translating into the
 // destination image's coordinate space) and shifts the points sp and mp by
 // the same amount as the change in r.Min.
-func clip(dst *BGRA, r *image.Rectangle, src *image.RGBA, sp *image.Point, mask image.Image, mp *image.Point) {
+func ClipBGRA(dst *BGRA, r *image.Rectangle, src *image.RGBA, sp *image.Point, mask image.Image, mp *image.Point) {
 	orig := r.Min
 	*r = r.Intersect(dst.Bounds())
 	*r = r.Intersect(src.Bounds().Add(orig.Sub(*sp)))
@@ -211,19 +208,7 @@ func clip(dst *BGRA, r *image.Rectangle, src *image.RGBA, sp *image.Point, mask 
 	}
 }
 
-type nnInterpolator struct{}
-
-func (z nnInterpolator) Transform(dst *BGRA, s2d f64.Aff3, src *image.RGBA, sr image.Rectangle) {
-	// Try to simplify a Transform to a Copy.
-	// if s2d[0] == 1 && s2d[1] == 0 && s2d[3] == 0 && s2d[4] == 1 {
-	// 	dx := int(s2d[2])
-	// 	dy := int(s2d[5])
-	// 	if float64(dx) == s2d[2] && float64(dy) == s2d[5] {
-	// 		Copy(dst, image.Point{X: sr.Min.X + dx, Y: sr.Min.X + dy}, src, sr, op, opts)
-	// 		return
-	// 	}
-	// }
-
+func TransformToBGRAFromRGBA(dst *BGRA, s2d f64.Aff3, src *image.RGBA, sr image.Rectangle) {
 	dr := transformRect(&s2d, &sr)
 	// adr is the affected destination pixels.
 	adr := dst.Bounds().Intersect(dr)
@@ -250,10 +235,10 @@ func (z nnInterpolator) Transform(dst *BGRA, s2d f64.Aff3, src *image.RGBA, sr i
 	// the Pix fields directly without bounds checking.
 	//
 	// Similarly, the fast paths assume that the masks are nil.
-	z.transform_BGRA_RGBA_Over(dst, dr, adr, &d2s, src, sr, bias)
+	transform_BGRA_RGBA_Over(dst, dr, adr, &d2s, src, sr, bias)
 }
 
-func (nnInterpolator) transform_BGRA_RGBA_Over(dst *BGRA, dr, adr image.Rectangle, d2s *f64.Aff3, src *image.RGBA, sr image.Rectangle, bias image.Point) {
+func transform_BGRA_RGBA_Over(dst *BGRA, dr, adr image.Rectangle, d2s *f64.Aff3, src *image.RGBA, sr image.Rectangle, bias image.Point) {
 	for dy := int32(adr.Min.Y); dy < int32(adr.Max.Y); dy++ {
 		dyf := float64(dr.Min.Y+int(dy)) + 0.5
 		d := (dr.Min.Y+int(dy)-dst.Rect.Min.Y)*dst.Stride + (dr.Min.X+adr.Min.X-dst.Rect.Min.X)*4
@@ -350,5 +335,35 @@ func invert(m *f64.Aff3) f64.Aff3 {
 		m10 / det,
 		m11 / det,
 		m12 / det,
+	}
+}
+
+func CopyToBGRAFromRGBA(dst *BGRA, dp image.Point, src *image.RGBA, sr image.Rectangle) {
+	r := sr.Sub(sr.Min).Add(dp)
+	sp := sr.Min
+	ClipBGRA(dst, &r, src, &sp, nil, &image.Point{})
+	if r.Empty() {
+		return
+	}
+
+	i0 := (r.Min.X - dst.Rect.Min.X) * 4
+	i1 := (r.Max.X - dst.Rect.Min.X) * 4
+	si0 := (sp.X - src.Rect.Min.X) * 4
+	yMax := r.Max.Y - dst.Rect.Min.Y
+
+	y := r.Min.Y - dst.Rect.Min.Y
+	sy := sp.Y - src.Rect.Min.Y
+	for ; y != yMax; y, sy = y+1, sy+1 {
+		dpix := dst.Pix[y*dst.Stride:]
+		spix := src.Pix[sy*src.Stride:]
+
+		for i, si := i0, si0; i < i1; i, si = i+4, si+4 {
+			s := spix[si : si+4 : si+4] // Small cap improves performance, see https://golang.org/issue/27857
+			d := dpix[i : i+4 : i+4]
+			d[0] = s[2]
+			d[1] = s[1]
+			d[2] = s[0]
+			d[3] = s[3]
+		}
 	}
 }

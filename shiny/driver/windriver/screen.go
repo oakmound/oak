@@ -10,8 +10,8 @@ package windriver
 import (
 	"fmt"
 	"image"
-	"unsafe"
 
+	"github.com/oakmound/oak/v3/shiny/driver/common"
 	"github.com/oakmound/oak/v3/shiny/driver/internal/win32"
 	"github.com/oakmound/oak/v3/shiny/screen"
 )
@@ -27,38 +27,11 @@ func newScreen(hwnd win32.HWND) *screenImpl {
 }
 
 func (*screenImpl) NewImage(size image.Point) (screen.Image, error) {
-	// Buffer length must fit in BITMAPINFO.Header.SizeImage (uint32), as
-	// well as in Go slice length (int). It's easiest to be consistent
-	// between 32-bit and 64-bit, so we just use int32.
-	const (
-		maxInt32  = 0x7fffffff
-		maxBufLen = maxInt32
-	)
-	if size.X < 0 || size.X > maxInt32 || size.Y < 0 || size.Y > maxInt32 || int64(size.X)*int64(size.Y)*4 > maxBufLen {
-		return nil, fmt.Errorf("windriver: invalid buffer size %v", size)
-	}
-
-	hbitmap, bitvalues, err := mkbitmap(size)
-	if err != nil {
-		return nil, err
-	}
-	bufLen := 4 * size.X * size.Y
-	array := (*[maxBufLen]byte)(unsafe.Pointer(bitvalues))
-	buf := (*array)[:bufLen:bufLen]
-	return &bufferImpl{
-		hbitmap: hbitmap,
-		buf:     buf,
-		rgba: image.RGBA{
-			Pix:    buf,
-			Stride: 4 * size.X,
-			Rect:   image.Rectangle{Max: size},
-		},
-		size: size,
-	}, nil
+	return common.NewImage(size), nil
 }
 
 func (s *screenImpl) NewTexture(size image.Point) (screen.Texture, error) {
-	return newTexture(size, s.screenHWND)
+	return common.NewImage(size), nil
 }
 
 func (s *screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, error) {
