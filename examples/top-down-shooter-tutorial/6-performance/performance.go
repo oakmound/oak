@@ -183,6 +183,7 @@ func main() {
 	oak.Init("tds", func(c oak.Config) (oak.Config, error) {
 		c.BatchLoad = true
 		c.Assets.ImagePath = "assets/images"
+		c.UnlimitedDrawFrameRate = true
 		//c.FrameRate = 30
 		return c, nil
 	})

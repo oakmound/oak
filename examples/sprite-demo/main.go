@@ -64,7 +64,10 @@ func main() {
 	)
 
 	oak.SetFS(assets)
-	oak.Init("demo")
+	oak.Init("demo", func(c oak.Config) (oak.Config, error) {
+		c.UnlimitedDrawFrameRate = true
+		return c, nil
+	})
 }
 
 //go:embed assets

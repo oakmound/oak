@@ -23,5 +23,8 @@ func main() {
 			ctx.DrawStack.Draw(render.NewLogicFPS(0, nil, 10, 20))
 		},
 	})
-	oak.Init("blank")
+	oak.Init("blank", func(c oak.Config) (oak.Config, error) {
+		c.UnlimitedDrawFrameRate = true
+		return c, nil
+	})
 }

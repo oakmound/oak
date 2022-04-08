@@ -38,6 +38,9 @@ func main() {
 
 		fallSpeed := .2
 
+		render.Draw(render.NewDrawFPS(0, nil, 10, 10))
+		render.Draw(render.NewLogicFPS(0, nil, 10, 20))
+
 		event.Bind(ctx, event.Enter, char, func(c *entities.Moving, ev event.EnterPayload) event.Response {
 
 			// Move left and right with A and D
@@ -136,5 +139,8 @@ func main() {
 		}
 
 	}})
-	oak.Init("platformer")
+	oak.Init("platformer", func(c oak.Config) (oak.Config, error) {
+		c.UnlimitedDrawFrameRate = true
+		return c, nil
+	})
 }
