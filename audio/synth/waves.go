@@ -3,33 +3,25 @@ package synth
 
 import (
 	"math"
+	"math/rand"
 
-	audio "github.com/oakmound/oak/v3/audio/klang"
 	"github.com/oakmound/oak/v3/audio/pcm"
-	"github.com/oakmound/oak/v3/oakerr"
 )
 
+// TODO: for super saw
+// De   tune
+// Fine tune
+// Voice unison
+// Pitch up
+// High pass filter
+// Noise generator
+
 // Wave functions take a set of options and return an audio
-type Wave func(opts ...Option) (audio.Audio, error)
+type Wave func(opts ...Option) pcm.Reader
 
 // Sourced from https://en.wikibooks.org/wiki/Sound_Synthesis_Theory/Oscillators_and_Wavetables
 func phase(freq Pitch, i int, sampleRate uint32) float64 {
 	return float64(freq) * (float64(i) / float64(sampleRate)) * 2 * math.Pi
-}
-
-func bytesFromInts(is []int16, channels int) []byte {
-	wave := make([]byte, len(is)*channels*2)
-	for i := 0; i < len(wave); i += channels * 2 {
-		wave[i] = byte(is[i/4] % 256)
-		wave[i+1] = byte(is[i/4] >> 8)
-		// duplicate the contents across all channels
-		for c := 1; c < channels; c++ {
-			wave[i+(2*c)] = wave[i]
-			wave[i+(2*c)+1] = wave[i+1]
-		}
-	}
-	wave = append(wave, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-	return wave
 }
 
 // Sin produces a Sin wave
@@ -37,46 +29,10 @@ func bytesFromInts(is []int16, channels int) []byte {
 //       --  --
 //      /      \
 //--__--        --__--
-func (s Source) Sin(opts ...Option) (audio.Audio, error) {
-	s = s.Update(opts...)
-	var b []byte
-	switch s.Bits {
-	case 16:
-		s.Volume *= math.MaxInt16
-		wave := make([]int16, int(s.Seconds*float64(s.SampleRate)))
-		for i := 0; i < len(wave); i++ {
-			wave[i] = int16(s.sinAtIndex(i))
-		}
-		b = bytesFromInts(wave, int(s.Channels))
-	}
-	return s.Wave(b)
-}
-
-// SinPCM acts like Sin, but returns a PCM type instead of a klang type.
-func (s Source) SinPCM(opts ...Option) (pcm.Reader, error) {
-	switch s.Bits {
-	case 16:
-		s.Volume *= math.MaxInt16
-		return &Wave16Reader{
-			Source: s.Update(opts...),
-			waveFunc: func(s Source, idx int) int16 {
-				return int16(s.sinAtIndex(idx))
-			},
-		}, nil
-	case 32:
-		s.Volume *= math.MaxInt32
-		return &Wave32Reader{
-			Source: s.Update(opts...),
-			waveFunc: func(s Source, idx int) int32 {
-				return int32(s.sinAtIndex(idx))
-			},
-		}, nil
-	}
-	return nil, oakerr.InvalidInput{InputName: "s.Bits"}
-}
-
-func (s Source) sinAtIndex(idx int) float64 {
-	return s.Volume * math.Sin(s.modPhase(idx))
+func (s Source) Sin(opts ...Option) pcm.Reader {
+	return s.Wave(func(s Source, idx int) float64 {
+		return s.Volume * math.Sin(s.modPhase(idx))
+	}, opts...)
 }
 
 // Pulse acts like Square when given a pulse of 2, when given any lesser
@@ -86,72 +42,16 @@ func (s Source) sinAtIndex(idx int) float64 {
 //     __    __
 //     ||    ||
 // ____||____||____
-func (s Source) Pulse(pulse float64) Wave {
+func (s Source) Pulse(pulse float64) func(opts ...Option) pcm.Reader {
 	pulseSwitch := 1 - 2/pulse
-	return func(opts ...Option) (audio.Audio, error) {
-		s = s.Update(opts...)
-
-		var b []byte
-		switch s.Bits {
-		case 16:
-			wave := make([]int16, int(s.Seconds*float64(s.SampleRate)))
-			for i := range wave {
-				// alternatively phase % 2pi
-				if math.Sin(s.Phase(i)) > pulseSwitch {
-					wave[i] = int16(s.Volume)
-				} else {
-					wave[i] = int16(-s.Volume)
-				}
+	return func(opts ...Option) pcm.Reader {
+		return s.Wave(func(s Source, idx int) float64 {
+			if math.Sin(s.Phase(idx)) > pulseSwitch {
+				return s.Volume
 			}
-			b = bytesFromInts(wave, int(s.Channels))
-		}
-		return s.Wave(b)
+			return -s.Volume
+		}, opts...)
 	}
-}
-
-// PulsePCM acts like Pulse, but returns a PCM type instead of a klang type.
-func (s Source) PulsePCM(pulse float64) func(opts ...Option) (pcm.Reader, error) {
-	switch s.Bits {
-	case 16:
-		s.Volume *= math.MaxInt16
-	case 32:
-		s.Volume *= math.MaxInt32
-	}
-	pulseSwitch := 1 - 2/pulse
-	return func(opts ...Option) (pcm.Reader, error) {
-		switch s.Bits {
-		case 16:
-			return &Wave16Reader{
-				Source: s.Update(opts...),
-				waveFunc: func(s Source, idx int) int16 {
-					if math.Sin(s.Phase(idx)) > pulseSwitch {
-						return int16(s.Volume)
-					}
-					return int16(-s.Volume)
-				},
-			}, nil
-		case 32:
-			return &Wave32Reader{
-				Source: s.Update(opts...),
-				waveFunc: func(s Source, idx int) int32 {
-					if math.Sin(s.Phase(idx)) > pulseSwitch {
-						return int32(s.Volume)
-					}
-					return int32(-s.Volume)
-				},
-			}, nil
-		}
-		return nil, oakerr.InvalidInput{InputName: "s.Bits"}
-	}
-}
-
-// Square produces a Square wave
-//
-//       _________
-//       |       |
-// ______|       |________
-func (s Source) Square(opts ...Option) (audio.Audio, error) {
-	return s.Pulse(2)(opts...)
 }
 
 // Saw produces a saw wave
@@ -159,43 +59,10 @@ func (s Source) Square(opts ...Option) (audio.Audio, error) {
 //   ^   ^   ^
 //  / | / | /
 // /  |/  |/
-func (s Source) Saw(opts ...Option) (audio.Audio, error) {
-	s = s.Update(opts...)
-
-	var b []byte
-	switch s.Bits {
-	case 16:
-		s.Volume *= math.MaxInt16
-		wave := make([]int16, int(s.Seconds*float64(s.SampleRate)))
-		for i := range wave {
-			wave[i] = int16(s.Volume - (s.Volume / math.Pi * math.Mod(s.Phase(i), 2*math.Pi)))
-		}
-		b = bytesFromInts(wave, int(s.Channels))
-	}
-	return s.Wave(b)
-}
-
-// SawPCM acts like Saw, but returns a PCM type instead of a klang type.
-func (s Source) SawPCM(opts ...Option) (pcm.Reader, error) {
-	switch s.Bits {
-	case 16:
-		s.Volume *= math.MaxInt16
-		return &Wave16Reader{
-			Source: s.Update(opts...),
-			waveFunc: func(s Source, idx int) int16 {
-				return int16(s.Volume - (s.Volume / math.Pi * math.Mod(s.Phase(idx), 2*math.Pi)))
-			},
-		}, nil
-	case 32:
-		s.Volume *= math.MaxInt32
-		return &Wave32Reader{
-			Source: s.Update(opts...),
-			waveFunc: func(s Source, idx int) int32 {
-				return int32(s.Volume - (s.Volume / math.Pi * math.Mod(s.Phase(idx), 2*math.Pi)))
-			},
-		}, nil
-	}
-	return nil, oakerr.InvalidInput{InputName: "s.Bits"}
+func (s Source) Saw(opts ...Option) pcm.Reader {
+	return s.Wave(func(s Source, idx int) float64 {
+		return s.Volume - (s.Volume / math.Pi * math.Mod(s.Phase(idx), 2*math.Pi))
+	}, opts...)
 }
 
 // Triangle produces a Triangle wave
@@ -203,51 +70,21 @@ func (s Source) SawPCM(opts ...Option) (pcm.Reader, error) {
 //   ^   ^
 //  / \ / \
 // v   v   v
-func (s Source) Triangle(opts ...Option) (audio.Audio, error) {
-	s = s.Update(opts...)
-	var b []byte
-	switch s.Bits {
-	case 16:
-		s.Volume *= math.MaxInt16
-		wave := make([]int16, int(s.Seconds*float64(s.SampleRate)))
-		for i := range wave {
-			wave[i] = int16(s.triangleAtIndex(i))
+func (s Source) Triangle(opts ...Option) pcm.Reader {
+	return s.Wave(func(s Source, idx int) float64 {
+		p := s.modPhase(idx)
+		m := p * (2 * s.Volume / math.Pi)
+		if math.Sin(p) > 0 {
+			return -s.Volume + m
 		}
-		b = bytesFromInts(wave, int(s.Channels))
-	}
-	return s.Wave(b)
+		return 3*s.Volume - m
+	}, opts...)
 }
 
-// TrianglePCM acts like Triangle, but returns a PCM type instead of a klang type.
-func (s Source) TrianglePCM(opts ...Option) (pcm.Reader, error) {
-	switch s.Bits {
-	case 16:
-		s.Volume *= math.MaxInt16
-		return &Wave16Reader{
-			Source: s.Update(opts...),
-			waveFunc: func(s Source, idx int) int16 {
-				return int16(s.triangleAtIndex(idx))
-			},
-		}, nil
-	case 32:
-		s.Volume *= math.MaxInt32
-		return &Wave32Reader{
-			Source: s.Update(opts...),
-			waveFunc: func(s Source, idx int) int32 {
-				return int32(s.triangleAtIndex(idx))
-			},
-		}, nil
-	}
-	return nil, oakerr.InvalidInput{InputName: "s.Bits"}
-}
-
-func (s Source) triangleAtIndex(idx int) float64 {
-	p := s.modPhase(idx)
-	m := p * (2 * s.Volume / math.Pi)
-	if math.Sin(p) > 0 {
-		return -s.Volume + m
-	}
-	return 3*s.Volume - m
+func (s Source) Noise(opts ...Option) pcm.Reader {
+	return s.Wave(func(s Source, idx int) float64 {
+		return ((rand.Float64() * 2) - 1) * s.Volume
+	}, opts...)
 }
 
 func (s Source) modPhase(idx int) float64 {
@@ -255,6 +92,56 @@ func (s Source) modPhase(idx int) float64 {
 }
 
 // Could have pulse triangle
+
+type Wave8Reader struct {
+	Source
+	lastIndex int
+	waveFunc  func(s Source, idx int) int8
+}
+
+func (pr *Wave8Reader) ReadPCM(b []byte) (n int, err error) {
+	bytesPerI8 := int(pr.Channels)
+	for i := 0; i+bytesPerI8 <= len(b); i += bytesPerI8 {
+		i8 := pr.waveFunc(pr.Source, pr.lastIndex)
+		pr.lastIndex++
+		for c := 0; c < int(pr.Channels); c++ {
+			b[i+c] = byte(i8)
+		}
+		n += bytesPerI8
+	}
+	return
+}
+
+func (s Source) Wave(waveFn func(s Source, idx int) float64, opts ...Option) pcm.Reader {
+	switch s.Bits {
+	case 8:
+		s.Volume *= math.MaxInt8
+		return &Wave8Reader{
+			Source: s.Update(opts...),
+			waveFunc: func(s Source, idx int) int8 {
+				return int8(waveFn(s, idx))
+			},
+		}
+	case 32:
+		s.Volume *= math.MaxInt32
+		return &Wave32Reader{
+			Source: s.Update(opts...),
+			waveFunc: func(s Source, idx int) int32 {
+				return int32(waveFn(s, idx))
+			},
+		}
+	case 16:
+		fallthrough
+	default:
+		s.Volume *= math.MaxInt16
+		return &Wave16Reader{
+			Source: s.Update(opts...),
+			waveFunc: func(s Source, idx int) int16 {
+				return int16(waveFn(s, idx))
+			},
+		}
+	}
+}
 
 type Wave16Reader struct {
 	Source
@@ -274,14 +161,6 @@ func (pr *Wave16Reader) ReadPCM(b []byte) (n int, err error) {
 		n += bytesPerI16
 	}
 	return
-}
-
-func (pr *Wave16Reader) PCMFormat() pcm.Format {
-	return pcm.Format{
-		SampleRate: pr.SampleRate,
-		Channels:   pr.Channels,
-		Bits:       pr.Bits,
-	}
 }
 
 type Wave32Reader struct {
@@ -304,12 +183,4 @@ func (pr *Wave32Reader) ReadPCM(b []byte) (n int, err error) {
 		n += bytesPerF32
 	}
 	return
-}
-
-func (pr *Wave32Reader) PCMFormat() pcm.Format {
-	return pcm.Format{
-		SampleRate: pr.SampleRate,
-		Channels:   pr.Channels,
-		Bits:       pr.Bits,
-	}
 }
