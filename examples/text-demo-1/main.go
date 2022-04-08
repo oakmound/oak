@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/oakmound/oak/v3/alg/range/floatrange"
-	"github.com/oakmound/oak/v3/dlog"
 
 	"image"
 
@@ -44,9 +43,7 @@ func main() {
 				},
 			}
 			r = 255
-			var err error
-			font, err = fg.Generate()
-			dlog.ErrorCheck(err)
+			font, _ = fg.Generate()
 			font.Unsafe = true
 			txts := []*render.Text{
 				font.NewText("Rainbow", 200, 200),

@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/entities"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/render"
@@ -75,7 +74,8 @@ var assets embed.FS
 
 // Gopher is a basic bouncing renderable
 type Gopher struct {
-	*entities.Doodad
+	*render.Switch
+	event.CallerID
 	deltaX, deltaY float64
 	rotation       int
 }
@@ -83,24 +83,26 @@ type Gopher struct {
 // NewGopher creates a gopher sprite to bounce around
 func NewGopher(ctx *scene.Context, layer int) {
 	goph := new(Gopher)
-	goph.Doodad = entities.NewDoodad(
+
+	goph.Switch = render.NewSwitch("goph", map[string]render.Modifiable{"goph": render.EmptyRenderable()})
+	goph.Switch.SetLayer(layer)
+	goph.Switch.SetPos(
 		rand.Float64()*576,
 		rand.Float64()*416,
-		render.NewSwitch("goph", map[string]render.Modifiable{"goph": render.EmptyRenderable()}),
-		ctx.Register(goph))
-	goph.R.SetLayer(layer)
+	)
+	goph.CallerID = ctx.Register(goph)
 	event.Bind(ctx, event.Enter, goph, gophEnter)
 	goph.deltaX = 4 * float64(rand.Intn(2)*2-1)
 	goph.deltaY = 4 * float64(rand.Intn(2)*2-1)
 	goph.rotation = rand.Intn(360)
-	render.Draw(goph.R, 0)
+	render.Draw(goph.Switch, 0)
 }
 
 func gophEnter(goph *Gopher, ev event.EnterPayload) event.Response {
 	// Compare against this version of rotation
 	// (also swap the comments on lines in goph.Doodad's renderable)
 	//goph.R.(*render.Reverting).RevertAndModify(1, render.Rotate(goph.rotation))
-	goph.R.(*render.Switch).Add("goph", render.NewSprite(0, 0, cache[goph.rotation]))
+	goph.Switch.Add("goph", render.NewSprite(0, 0, cache[goph.rotation]))
 	if goph.X() < minX || goph.X() > maxX {
 		goph.deltaX *= -1
 	}
