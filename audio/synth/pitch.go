@@ -606,7 +606,8 @@ type PitchDetector struct {
 	format pcm.Format
 
 	// Will be 0 if unknown
-	DetectedPitch Pitch
+	DetectedPitch    Pitch
+	DetectedRawPitch float64
 
 	// Channel defines which audio channel (0 for mono, 0-1 for stereo) should
 	// be analyzed. ReadPCM will panic if this value is invalid. If this scares you,
@@ -650,14 +651,15 @@ func (pd *PitchDetector) ReadPCM(b []byte) (n int, err error) {
 				pd.crossedZero = true
 			} else {
 				// assuming this is pitched audio (if it isn't we can't give a correct answer),
-				// pd.index is now half of the number of samples before the last time this audio
-				// stream crossed zero. The last time this audio stream crossed zero defines how
+				// pd.index is now the number of samples since the last time this audio
+				// stream crossed zero. The second last time this audio stream crossed zero defines how
 				// frequently this audio is cycling-- the speed the audio cycles at defines the pitch
 				// of the audio in hertz; our pitch constants above are also defined in hertz.
 				periodLength := pd.index * 2
 				samplesPerSecond := pd.format.SampleRate
 				periodHz := 1 / (float64(periodLength) / float64(samplesPerSecond))
-				pd.DetectedPitch = HertzToPitch(periodHz)
+				pd.DetectedRawPitch = periodHz
+				pd.DetectedPitch = Pitch(periodHz).Round()
 			}
 			pd.index = 0
 		}
@@ -667,9 +669,25 @@ func (pd *PitchDetector) ReadPCM(b []byte) (n int, err error) {
 	return
 }
 
-func HertzToPitch(hz float64) Pitch {
-	i := sort.Search(len(allPitches), func(i int) bool {
+// Round rounds a pitch value to the closest predefined pitch value in hertz:
+//	func main() {
+//		hz := synth.Pitch(1024)
+// 		hz2 := hz.Round()
+// 		fmt.Println(hz2, int(hz2))) // "C6", 1047
+//	}
+//
+func (hz Pitch) Round() Pitch {
+	// binary search
+	i := sort.Search(len(allPitches)-1, func(i int) bool {
 		return Pitch(hz) < allPitches[i]
 	})
+	// adjust for near matches
+	// we know hz < allPitches[i]
+	if i == 0 {
+		return allPitches[i]
+	}
+	if hz-allPitches[i-1] < allPitches[i]-hz {
+		return allPitches[i-1]
+	}
 	return allPitches[i]
 }

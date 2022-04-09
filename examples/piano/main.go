@@ -7,6 +7,7 @@ import (
 	"image/draw"
 	"math"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -180,7 +181,18 @@ func (pt *pitchText) String() string {
 	if pt.pitch == nil {
 		return ""
 	}
-	return pt.pitch.String()
+	return pt.pitch.String() + " - " + strconv.Itoa(int(*pt.pitch))
+}
+
+type f64Text struct {
+	f64 *float64
+}
+
+func (ft *f64Text) String() string {
+	if ft.f64 == nil {
+		return ""
+	}
+	return fmt.Sprint(*ft.f64)
 }
 
 func main() {
@@ -200,6 +212,7 @@ func main() {
 				Bits:       32,
 			}
 			pt := &pitchText{}
+			ft := &f64Text{}
 			playWithMonitor := func(gctx context.Context, r pcm.Reader) {
 				speaker, err := audio.NewWriter(r.PCMFormat())
 				if err != nil {
@@ -212,6 +225,7 @@ func main() {
 
 				pitchDetector := synth.NewPitchDetector(r)
 				pt.pitch = &pitchDetector.DetectedPitch
+				ft.f64 = &pitchDetector.DetectedRawPitch
 
 				audio.Play(gctx, pitchDetector, func(po *audio.PlayOptions) {
 					po.Destination = monitor
@@ -225,6 +239,7 @@ func main() {
 				playWithMonitor(gctx, fadeIn)
 			}
 			render.Draw(render.NewStringerText(pt, 10, 10))
+			render.Draw(render.NewStringerText(ft, 10, 20))
 
 			pitch := synth.C3
 			kc := keyColorWhite
