@@ -24,5 +24,5 @@ require (
 
 require (
 	github.com/eaburns/bit v0.0.0-20131029213740-7bd5cd37375d // indirect
-	golang.org/x/exp v0.0.0-20220328175248-053ad81199eb // indirect
+	golang.org/x/exp/shiny v0.0.0-20220407100705-7b9b53b0aca4 // indirect
 )
