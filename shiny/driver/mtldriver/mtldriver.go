@@ -187,6 +187,8 @@ func newWindow(device mtl.Device, chans windowRequestChannels, opts screen.Windo
 
 	ml := coreanim.MakeMetalLayer()
 	ml.SetDevice(device)
+	// Newer (m1) macs appear to not support rgba window formats.
+	// See bgra.go for the consequences of this.
 	ml.SetPixelFormat(mtl.PixelFormatBGRA8UNorm)
 	ml.SetMaximumDrawableCount(3)
 	ml.SetDisplaySyncEnabled(true)
@@ -203,7 +205,7 @@ func newWindow(device mtl.Device, chans windowRequestChannels, opts screen.Windo
 		chans:  chans,
 		ml:     ml,
 		cq:     device.MakeCommandQueue(),
-		rgba:   image.NewRGBA(image.Rectangle{Max: image.Point{X: opts.Width, Y: opts.Height}}),
+		bgra:   NewBGRA(image.Rectangle{Max: image.Point{X: opts.Width, Y: opts.Height}}),
 		texture: device.MakeTexture(mtl.TextureDescriptor{
 			PixelFormat: mtl.PixelFormatRGBA8UNorm,
 			Width:       opts.Width,
