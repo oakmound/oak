@@ -27,7 +27,7 @@ var (
 
 func (w *Window) inputLoop() {
 	for {
-		switch e := w.windowControl.NextEvent().(type) {
+		switch e := w.Window.NextEvent().(type) {
 		// We only currently respond to death lifecycle events.
 		case lifecycle.Event:
 			switch e.To {

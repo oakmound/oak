@@ -2,33 +2,40 @@
 package window
 
 import (
+	"image"
+
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/event"
 )
 
-// Window is an interface of methods on an oak.Window used
-// to avoid circular imports
+// Window is an interface of methods on an oak.Window available on platforms which have distinct app windows
+// (osx, linux, windows). It is not available on other platforms (js, android)
 type Window interface {
+	App
+
 	SetFullScreen(bool) error
 	SetBorderless(bool) error
 	SetTopMost(bool) error
 	SetTitle(string) error
-	SetTrayIcon(string) error
-	ShowNotification(title, msg string, icon bool) error
+	SetIcon(image.Image) error
 	MoveWindow(x, y, w, h int) error
 	HideCursor() error
+}
 
+// App is an interface of methods available to all oak programs.
+type App interface {
 	Width() int
 	Height() int
 	Viewport() intgeom.Point2
 	SetViewportBounds(intgeom.Rect2)
 
+	ShiftScreen(int, int)
+	SetScreen(int, int)
+
 	NextScene()
 	GoToScene(string)
 
 	InFocus() bool
-	ShiftScreen(int, int)
-	SetScreen(int, int)
 	Quit()
 
 	EventHandler() event.Handler

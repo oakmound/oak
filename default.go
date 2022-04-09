@@ -67,52 +67,10 @@ func SetScreen(x, y int) {
 	defaultWindow.SetScreen(x, y)
 }
 
-// MoveWindow calls MoveWindow on the default window.
-func MoveWindow(x, y, w, h int) error {
-	initDefaultWindow()
-	return defaultWindow.MoveWindow(x, y, w, h)
-}
-
 // UpdateViewSize calls UpdateViewSize on the default window.
 func UpdateViewSize(w, h int) error {
 	initDefaultWindow()
 	return defaultWindow.UpdateViewSize(w, h)
-}
-
-// SetFullScreen calls SetFullScreen on the default window.
-func SetFullScreen(fs bool) error {
-	initDefaultWindow()
-	return defaultWindow.SetFullScreen(fs)
-}
-
-// SetBorderless calls SetBorderless on the default window.
-func SetBorderless(bs bool) error {
-	initDefaultWindow()
-	return defaultWindow.SetBorderless(bs)
-}
-
-// SetTopMost calls SetTopMost on the default window.
-func SetTopMost(on bool) error {
-	initDefaultWindow()
-	return defaultWindow.SetTopMost(on)
-}
-
-// SetTitle calls SetTitle on the default window.
-func SetTitle(title string) error {
-	initDefaultWindow()
-	return defaultWindow.SetTitle(title)
-}
-
-// SetTrayIcon calls SetTrayIcon on the default window.
-func SetTrayIcon(icon string) error {
-	initDefaultWindow()
-	return defaultWindow.SetTrayIcon(icon)
-}
-
-// ShowNotification calls ShowNotification on the default window.
-func ShowNotification(title, msg string, icon bool) error {
-	initDefaultWindow()
-	return defaultWindow.ShowNotification(title, msg, icon)
 }
 
 // ScreenShot calls ScreenShot on the default window.
@@ -155,16 +113,4 @@ func Width() int {
 func Height() int {
 	initDefaultWindow()
 	return defaultWindow.Height()
-}
-
-// HideCursor calls HideCursor on the default window.
-func HideCursor() error {
-	initDefaultWindow()
-	return defaultWindow.HideCursor()
-}
-
-// GetCursorPosition calls GetCursorPosition on the default window.
-func GetCursorPosition() (x, y float64, err error) {
-	initDefaultWindow()
-	return defaultWindow.GetCursorPosition()
 }

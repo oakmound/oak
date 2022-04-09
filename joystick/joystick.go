@@ -52,7 +52,7 @@ func Init() error {
 // A Triggerer can either be an event bus or event CID, allowing
 // joystick triggers to be listened to globally or sent to particular entities.
 type Triggerer interface {
-	Trigger(eventID event.UnsafeEventID, data interface{}) chan struct{}
+	Trigger(eventID event.UnsafeEventID, data interface{}) <-chan struct{}
 }
 
 // A Joystick represents a (usually) physical controller connected to the machine.

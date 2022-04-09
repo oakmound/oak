@@ -20,3 +20,5 @@ func monitorSize() (int, int) {
 	// GetSystemMetrics syscall
 	return 0, 0
 }
+
+type Window = windriver.Window

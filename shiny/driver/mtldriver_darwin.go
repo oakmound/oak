@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build darwin
-// +build !noop
+//go:build darwin && !noop
+// +build darwin,!noop
 
 package driver
 
@@ -54,3 +54,5 @@ func monitorSize() (int, int) {
 	}
 	return w, h
 }
+
+type Window = mtldriver.Window
