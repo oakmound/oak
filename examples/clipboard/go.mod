@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/oakmound/oak/v3 v3.0.0-alpha.1
-	golang.org/x/mobile v0.0.0-20220325161704-447654d348e3
 )
 
 require (
@@ -30,6 +29,7 @@ require (
 	github.com/eaburns/flac v0.0.0-20171003200620-9a6fb92396d1 // indirect
 	github.com/jfreymuth/pulse v0.1.0 // indirect
 	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
+	golang.org/x/mobile v0.0.0-20220325161704-447654d348e3 // indirect
 )
 
 replace github.com/oakmound/oak/v3 => ../..
