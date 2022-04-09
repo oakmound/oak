@@ -11,7 +11,6 @@ import (
 	"github.com/oakmound/oak/v3/mouse"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
-	gokey "golang.org/x/mobile/event/key"
 )
 
 func main() {
@@ -54,7 +53,7 @@ func newClipboardPaster(placeholder string, x, y float64) {
 		btn.FitText(20),
 		btn.Binding(key.Down(key.V), func(b btn.Btn, kv key.Event) event.Response {
 
-			if kv.Modifiers&gokey.ModControl == gokey.ModControl {
+			if kv.Modifiers&key.ModControl == key.ModControl {
 				got, err := clipboard.ReadAll()
 				if err != nil {
 					fmt.Println(err)
