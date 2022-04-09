@@ -20,9 +20,6 @@ type Window interface {
 	SetIcon(image.Image) error
 	MoveWindow(x, y, w, h int) error
 	HideCursor() error
-
-	ShiftScreen(int, int)
-	SetScreen(int, int)
 }
 
 // App is an interface of methods available to all oak programs.
@@ -31,6 +28,9 @@ type App interface {
 	Height() int
 	Viewport() intgeom.Point2
 	SetViewportBounds(intgeom.Rect2)
+
+	ShiftScreen(int, int)
+	SetScreen(int, int)
 
 	NextScene()
 	GoToScene(string)
