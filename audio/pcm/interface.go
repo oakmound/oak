@@ -1,3 +1,4 @@
+// Package pcm provides a interface for interacting with PCM audio streams
 package pcm
 
 import "io"

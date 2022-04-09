@@ -1,3 +1,4 @@
+// Package btn provides constructors for UI buttons
 package btn
 
 import (

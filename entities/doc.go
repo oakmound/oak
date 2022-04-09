@@ -1,2 +1,2 @@
-// Package entities stores common, useful object and entity combinations.
+// Package entities provides common entity constructor functions
 package entities

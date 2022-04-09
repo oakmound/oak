@@ -1,3 +1,4 @@
+// Package audio provides utilities for playing or writing audio streams to OS consumers
 package audio
 
 import (

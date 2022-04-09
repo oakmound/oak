@@ -1,3 +1,4 @@
+// Package grid provides structures for aligning grids of buttons
 package grid
 
 import "github.com/oakmound/oak/v3/entities/x/btn"

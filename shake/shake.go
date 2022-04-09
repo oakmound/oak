@@ -1,3 +1,4 @@
+// Package shake provides methods for rapidly shifting graphical components' positions
 package shake
 
 import (

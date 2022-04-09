@@ -1,6 +1,7 @@
 //go:build js
 // +build js
 
+// Package jsdriver provides a WASM/JS driver for accessing a screen.
 package jsdriver
 
 import (

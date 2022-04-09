@@ -1,6 +1,7 @@
 //go:build android
 // +build android
 
+// Package androiddriver provides a Android driver for accessing a screen.
 package androiddriver
 
 import (
