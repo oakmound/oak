@@ -249,8 +249,6 @@ func main() {
 						go playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Saw(synth.AtPitch(pitch), synth.Detune(-.05)))))
 					}
 					playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Saw(synth.AtPitch(pitch)))))
-
-					//playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Noise())))
 				},
 				key.T: func(gctx context.Context, pitch synth.Pitch) {
 					toPlay := audio.LoopReader(src.Triangle(synth.AtPitch(pitch)))

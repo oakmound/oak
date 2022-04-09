@@ -8,14 +8,6 @@ import (
 	"github.com/oakmound/oak/v3/audio/pcm"
 )
 
-// TODO: for super saw
-// De   tune
-// Fine tune
-// Voice unison
-// Pitch up
-// High pass filter
-// Noise generator
-
 // Wave functions take a set of options and return an audio
 type Wave func(opts ...Option) pcm.Reader
 

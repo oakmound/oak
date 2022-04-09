@@ -38,7 +38,7 @@ type PlayOptions struct {
 	// The span of data that should be copied from reader to writer
 	// at a time. If too low, may lose accuracy on windows. If too high,
 	// may require manual resets when changing audio sources.
-	// Defaults to 125 Milliseconds.
+	// Defaults to 50 Milliseconds.
 	CopyIncrement time.Duration
 	// How many increments should make up the time between our read and write
 	// cursors-- i.e. the audio will be playing at X and we will be writing to
