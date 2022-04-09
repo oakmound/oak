@@ -21,3 +21,5 @@ func main(f func(screen.Screen)) {
 func monitorSize() (int, int) {
 	return 0, 0
 }
+
+type Window = struct{}

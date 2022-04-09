@@ -54,11 +54,8 @@ type joyHandler struct {
 	handler event.Handler
 }
 
-func (jh *joyHandler) Trigger(eventID event.UnsafeEventID, data interface{}) chan struct{} {
-	jh.handler.Trigger(trackingJoystickChange.UnsafeEventID, struct{}{})
-	ch := make(chan struct{})
-	close(ch)
-	return ch
+func (jh *joyHandler) Trigger(eventID event.UnsafeEventID, data interface{}) <-chan struct{} {
+	return event.TriggerOn(jh.handler, trackingJoystickChange, struct{}{})
 }
 
 func trackJoystickChanges(handler event.Handler) {

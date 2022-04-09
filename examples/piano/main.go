@@ -267,8 +267,8 @@ func main() {
 				},
 			}
 			for kc, synfn := range codeKinds {
-				kc := kc
 				synfn := synfn
+				kc := kc
 				event.GlobalBind(ctx, key.Down(kc), func(ev key.Event) event.Response {
 					if ev.Modifiers&key.ModShift == key.ModShift {
 						makeSynth = synfn

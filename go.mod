@@ -19,10 +19,10 @@ require (
 	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
 	golang.org/x/mobile v0.0.0-20220112015953-858099ff7816
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20220111092808-5a964db01320
+	golang.org/x/sys v0.0.0-20220403205710-6acee93ad0eb
 )
 
 require (
 	github.com/eaburns/bit v0.0.0-20131029213740-7bd5cd37375d // indirect
-	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
+	golang.org/x/exp/shiny v0.0.0-20220407100705-7b9b53b0aca4 // indirect
 )

@@ -1,3 +1,4 @@
+//go:build nooswindow
 // +build nooswindow
 
 package driver
@@ -14,3 +15,5 @@ func main(f func(screen.Screen)) {
 func monitorSize() (int, int) {
 	return 0, 0
 }
+
+type Window = noop.Window

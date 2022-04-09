@@ -5,7 +5,6 @@ package mtldriver
 
 import (
 	"image"
-	"image/color"
 
 	"github.com/oakmound/oak/v3/shiny/driver/internal/drawer"
 	"github.com/oakmound/oak/v3/shiny/screen"
@@ -13,7 +12,7 @@ import (
 	"golang.org/x/image/math/f64"
 )
 
-func (w *windowImpl) Upload(dp image.Point, srcImg screen.Image, sr image.Rectangle) {
+func (w *Window) Upload(dp image.Point, srcImg screen.Image, sr image.Rectangle) {
 	dst := w.bgra
 	r := sr.Sub(sr.Min).Add(dp)
 	src := srcImg.RGBA()
@@ -45,22 +44,10 @@ func (w *windowImpl) Upload(dp image.Point, srcImg screen.Image, sr image.Rectan
 	}
 }
 
-func (w *windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
-	// Unimplemented
-}
-
-func (w *windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	nnInterpolator{}.Transform(w.bgra, src2dst, src.(*textureImpl).rgba, sr)
 }
 
-func (w *windowImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
-	// Unimplemented
-}
-
-func (w *windowImpl) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
-	drawer.Copy(w, dp, src, sr, draw.Over)
-}
-
-func (w *windowImpl) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	drawer.Scale(w, dr, src, sr, draw.Over)
 }

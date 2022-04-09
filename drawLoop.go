@@ -117,8 +117,8 @@ func (w *Window) drawLoop() {
 func (w *Window) publish() {
 	w.prePublish(w, w.windowTextures[w.bufferIdx])
 	w.windowTextures[w.bufferIdx].Upload(zeroPoint, w.winBuffers[w.bufferIdx], w.winBuffers[w.bufferIdx].Bounds())
-	w.windowControl.Scale(w.windowRect, w.windowTextures[w.bufferIdx], w.windowTextures[w.bufferIdx].Bounds(), draw.Src)
-	w.windowControl.Publish()
+	w.Window.Scale(w.windowRect, w.windowTextures[w.bufferIdx], w.windowTextures[w.bufferIdx].Bounds(), draw.Src)
+	w.Window.Publish()
 	// every frame, swap buffers. This enables drivers which might hold on to the rgba buffers we publish as if they
 	// were immutable.
 	w.bufferIdx = (w.bufferIdx + 1) % bufferCount
