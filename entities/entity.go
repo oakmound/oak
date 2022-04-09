@@ -33,7 +33,7 @@ type Generator struct {
 	UseMouseTree     bool
 	WithoutCollision bool
 
-	Children []Generator
+	Children [][]Option
 }
 
 func And(opts ...Option) Option {
@@ -47,11 +47,7 @@ func And(opts ...Option) Option {
 
 func WithChild(opts ...Option) Option {
 	return func(s Generator) Generator {
-		g2 := defaultGenerator
-		for _, o := range opts {
-			g2 = o(g2)
-		}
-		s.Children = append(s.Children, g2)
+		s.Children = append(s.Children, opts)
 		return s
 	}
 }
@@ -61,6 +57,13 @@ func WithRect(v floatgeom.Rect2) Option {
 		s.Position = v.Min
 		s.Dimensions = v.Max.Sub(v.Min)
 		return s
+	}
+}
+
+func WithOffset(p floatgeom.Point2) Option {
+	return func(g Generator) Generator {
+		g.Position = g.Position.Add(p)
+		return g
 	}
 }
 
@@ -87,7 +90,7 @@ type Entity struct {
 
 	metadata map[string]string
 
-	Attached []*Entity
+	Children []*Entity
 }
 
 func (e Entity) CID() event.CallerID {
@@ -207,6 +210,12 @@ func New(ctx *scene.Context, opts ...Option) *Entity {
 		g = o(g)
 	}
 
+	children := make([]*Entity, len(g.Children))
+	for i, childOpts := range g.Children {
+		childOpts = append(childOpts, WithOffset(g.Position))
+		children[i] = New(ctx, childOpts...)
+	}
+
 	e := &Entity{
 		ctx: ctx,
 		Rect: floatgeom.NewRect2WH(
@@ -217,6 +226,7 @@ func New(ctx *scene.Context, opts ...Option) *Entity {
 		),
 		Renderable: g.Renderable,
 		Speed:      g.Speed,
+		Children:   children,
 	}
 
 	if g.Renderable == nil && g.Color != nil {

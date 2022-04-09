@@ -4,8 +4,9 @@ import (
 	"image/color"
 
 	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v3/entities"
 	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/shape"
+	"github.com/oakmound/oak/v3/scene"
 
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/render"
@@ -127,61 +128,21 @@ func Renderable(r render.Modifiable) Option {
 	}
 }
 
-// Toggle sets that the type of the button toggles between two
-// modifiables when it is clicked. The boolean behind isChecked
-// is updated according to the state of the button.
-// Todo: the copies here should be optional
-func Toggle(r1, r2 render.Modifiable, isChecked *bool) Option {
-	return func(g Generator) Generator {
-		g.R1 = r1.Copy()
-		g.R2 = r2.Copy()
-		g.Toggle = isChecked
-		return g
-	}
-}
-
-// ToggleList sets the togglable choices for a button
-func ToggleList(chosen *int, rs ...render.Modifiable) Option {
-	return func(g Generator) Generator {
-		g.ListChoice = chosen
-		g.RS = rs
-		return g
-	}
-}
-
 // Binding appends a function to be called when a specific event
 // is triggered.
-func Binding[Payload any](ev event.EventID[Payload], bnd event.Bindable[Btn, Payload]) Option {
+func Binding[Payload any](ev event.EventID[Payload], bnd event.Bindable[*entities.Entity, Payload]) Option {
 	return func(g Generator) Generator {
-		g.Bindings = append(g.Bindings, func(caller Btn) event.Binding {
+		g.Bindings = append(g.Bindings, func(ctx *scene.Context, caller *entities.Entity) event.Binding {
 			// TODO: not default
-			return event.Bind(event.DefaultBus, ev, caller, bnd)
+			return event.Bind(ctx, ev, caller, bnd)
 		})
 		return g
 	}
 }
 
 // Click appends a function to be called when the button is clicked on.
-func Click(bnd event.Bindable[Btn, *mouse.Event]) Option {
+func Click(bnd event.Bindable[*entities.Entity, *mouse.Event]) Option {
 	return Binding(mouse.ClickOn, bnd)
-}
-
-// AllowRevert wraps a button in a Reverting renderable, enabling phase changes
-// through modifications and reversion
-func AllowRevert() Option {
-	return func(g Generator) Generator {
-		g.AllowRevert = true
-		return g
-	}
-}
-
-// Shape sets the underlying mouse collision to only be respected if in shape.
-// If color is responsible for arendering then it will be formed to this shape as well.
-func Shape(s shape.Shape) Option {
-	return func(g Generator) Generator {
-		g.Shape = s
-		return g
-	}
 }
 
 func Label(l collision.Label) Option {

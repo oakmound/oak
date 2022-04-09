@@ -98,9 +98,10 @@ func WithWithoutCollision(v bool) Option {
 	}
 }
 
-func WithChildren(v []Generator) Option {
+func WithChildren(v [][]Option) Option {
 	return func(s Generator) Generator {
 		s.Children = v
 		return s
 	}
 }
+ 
