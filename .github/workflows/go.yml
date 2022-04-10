@@ -21,6 +21,7 @@ jobs:
 
     - name: Test
       run: ./test_examples.sh
+      shell: bash
 
   test-linux-arm:
     name: Test (linux arm)
