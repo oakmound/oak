@@ -1,10 +1,14 @@
 // Package grid provides structures for aligning grids of buttons
 package grid
 
-import "github.com/oakmound/oak/v3/entities/x/btn"
+import (
+	"github.com/oakmound/oak/v3/entities"
+	"github.com/oakmound/oak/v3/entities/x/btn"
+	"github.com/oakmound/oak/v3/scene"
+)
 
-// A Grid is a 2D slice of buttons
-type Grid [][]btn.Btn
+// A Grid is a 2D slice of entities
+type Grid [][]*entities.Entity
 
 // A Generator defines the variables used to create grids from optional arguments
 type Generator struct {
@@ -29,12 +33,12 @@ var (
 )
 
 // Generate creates a Grid from a Generator
-func (g *Generator) Generate() Grid {
-	grid := make([][]btn.Btn, len(g.Content))
+func (g *Generator) Generate(ctx *scene.Context) Grid {
+	grid := make([][]*entities.Entity, len(g.Content))
 	for x := 0; x < len(g.Content); x++ {
-		grid[x] = make([]btn.Btn, len(g.Content[x]))
+		grid[x] = make([]*entities.Entity, len(g.Content[x]))
 		for y := 0; y < len(g.Content[x]); y++ {
-			grid[x][y] = btn.New(
+			grid[x][y] = btn.New(ctx,
 				g.Defaults,
 				g.Content[x][y],
 				btn.Offset(float64(x)*g.XGap, float64(y)*g.YGap),
@@ -45,7 +49,7 @@ func (g *Generator) Generate() Grid {
 }
 
 // New creates a grid of buttons from a set of options
-func New(opts ...Option) Grid {
+func New(ctx *scene.Context, opts ...Option) Grid {
 	g := defaultGenerator
 	for _, opt := range opts {
 		if opt == nil {
@@ -53,5 +57,5 @@ func New(opts ...Option) Grid {
 		}
 		g = opt(g)
 	}
-	return g.Generate()
+	return g.Generate(ctx)
 }
