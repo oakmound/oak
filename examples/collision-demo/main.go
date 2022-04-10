@@ -2,6 +2,7 @@ package main
 
 import (
 	"image/color"
+	"time"
 
 	"github.com/oakmound/oak/v3"
 	"github.com/oakmound/oak/v3/alg/floatgeom"
@@ -11,6 +12,7 @@ import (
 	"github.com/oakmound/oak/v3/key"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v3/shake"
 )
 
 const (
@@ -20,6 +22,9 @@ const (
 	BLUE
 	TEAL
 )
+
+// if true, shake the screen on certain collisions
+var demoShake bool = true
 
 func main() {
 	oak.AddScene("demo", scene.Scene{Start: func(ctx *scene.Context) {
@@ -54,6 +59,35 @@ func main() {
 
 		collision.PhaseCollision(act.Space, ctx.CollisionTree)
 
+		commonOpts := entities.And(
+			entities.WithDrawLayers([]int{0, 0}),
+			entities.WithDimensions(floatgeom.Point2{320, 240}),
+		)
+
+		upLeft := entities.New(ctx, commonOpts,
+			entities.WithColor(color.RGBA{100, 0, 0, 100}),
+			entities.WithLabel(RED),
+		)
+
+		upRight := entities.New(ctx, commonOpts,
+			entities.WithPosition(floatgeom.Point2{320, 0}),
+			entities.WithColor(color.RGBA{0, 100, 0, 100}),
+			entities.WithLabel(GREEN),
+		)
+		_ = upRight
+
+		botLeft := entities.New(ctx, commonOpts,
+			entities.WithPosition(floatgeom.Point2{0, 240}),
+			entities.WithColor(color.RGBA{0, 0, 100, 100}),
+			entities.WithLabel(BLUE),
+		)
+
+		botRight := entities.New(ctx, commonOpts,
+			entities.WithPosition(floatgeom.Point2{320, 240}),
+			entities.WithColor(color.RGBA{0, 100, 100, 100}),
+			entities.WithLabel(TEAL),
+		)
+
 		event.Bind(ctx, collision.Start, act, func(act *AttachCollisionTest, l collision.Label) event.Response {
 			switch l {
 			case RED:
@@ -62,13 +96,24 @@ func main() {
 			case GREEN:
 				act.g += 125
 				act.UpdateR()
+				if demoShake {
+					shake.DefaultShaker.Shake(upLeft, time.Second)
+					shake.DefaultShaker.Shake(botLeft, time.Second)
+					shake.DefaultShaker.Shake(botRight, time.Second)
+				}
 			case BLUE:
 				act.b += 125
 				act.UpdateR()
+				if demoShake {
+					shake.DefaultShaker.Shake(act, time.Second*2)
+				}
 			case TEAL:
 				act.b += 125
 				act.g += 125
 				act.UpdateR()
+				if demoShake {
+					shake.DefaultShaker.ShakeScreen(ctx, time.Second)
+				}
 			}
 			return 0
 		})
@@ -91,33 +136,6 @@ func main() {
 			return 0
 		})
 
-		commonOpts := entities.And(
-			entities.WithDrawLayers([]int{0, 0}),
-			entities.WithDimensions(floatgeom.Point2{320, 240}),
-		)
-
-		entities.New(ctx, commonOpts,
-			entities.WithColor(color.RGBA{100, 0, 0, 100}),
-			entities.WithLabel(RED),
-		)
-
-		entities.New(ctx, commonOpts,
-			entities.WithPosition(floatgeom.Point2{320, 0}),
-			entities.WithColor(color.RGBA{0, 100, 0, 100}),
-			entities.WithLabel(GREEN),
-		)
-
-		entities.New(ctx, commonOpts,
-			entities.WithPosition(floatgeom.Point2{0, 240}),
-			entities.WithColor(color.RGBA{0, 0, 100, 100}),
-			entities.WithLabel(BLUE),
-		)
-
-		entities.New(ctx, commonOpts,
-			entities.WithPosition(floatgeom.Point2{320, 240}),
-			entities.WithColor(color.RGBA{0, 100, 100, 100}),
-			entities.WithLabel(TEAL),
-		)
 	}})
 	render.SetDrawStack(
 		render.NewDynamicHeap(),

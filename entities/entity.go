@@ -178,6 +178,12 @@ func (e *Entity) SetPos(p floatgeom.Point2) {
 	}
 }
 
+// TODO: take a point, not floats
+func (e *Entity) ShiftPos(x, y float64) {
+	p := e.Rect.Min
+	e.SetPos(p.Add(floatgeom.Point2{x, y}))
+}
+
 func (e *Entity) HitLabel(label collision.Label) *collision.Space {
 	return e.Tree.HitLabel(e.Space, label)
 }
