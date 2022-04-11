@@ -8,28 +8,39 @@ import (
 	"github.com/oakmound/oak/v3/shiny/driver"
 )
 
-// Config stores initialization settings for oak.
+// A Config defines the settings oak accepts on initialization. Some of these settings may be ignored depending
+// on the target platform.
 type Config struct {
-	Driver                 Driver           `json:"-"`
-	Assets                 Assets           `json:"assets"`
-	Debug                  Debug            `json:"debug"`
-	Screen                 Screen           `json:"screen"`
-	BatchLoadOptions       BatchLoadOptions `json:"batchLoadOptions"`
-	FrameRate              int              `json:"frameRate"`
-	DrawFrameRate          int              `json:"drawFrameRate"`
-	IdleDrawFrameRate      int              `json:"idleDrawFrameRate"`
-	Language               string           `json:"language"`
-	Title                  string           `json:"title"`
-	BatchLoad              bool             `json:"batchLoad"`
-	GestureSupport         bool             `json:"gestureSupport"`
-	LoadBuiltinCommands    bool             `json:"loadBuiltinCommands"`
-	TrackInputChanges      bool             `json:"trackInputChanges"`
-	EnableDebugConsole     bool             `json:"enableDebugConsole"`
-	TopMost                bool             `json:"topmost"`
-	Borderless             bool             `json:"borderless"`
-	Fullscreen             bool             `json:"fullscreen"`
-	SkipRNGSeed            bool             `json:"skip_rng_seed"`
-	UnlimitedDrawFrameRate bool             `json:"unlimitedDrawFrameRate"`
+	Driver Driver `json:"-"`
+	// Assets defines where assets should be loaded from by default. Defaults to
+	// 'assets/audio' and 'assets/images'.
+	Assets           Assets           `json:"assets"`
+	Debug            Debug            `json:"debug"`
+	Screen           Screen           `json:"screen"`
+	BatchLoadOptions BatchLoadOptions `json:"batchLoadOptions"`
+	// FrameRate, representing the rate enter frame events are triggered, defaults to 60.
+	FrameRate int `json:"frameRate"`
+	// DrawFrameRate is ignored on JS. It defaults to 60.
+	DrawFrameRate int `json:"drawFrameRate"`
+	// IdleDrawFrameRate defaults to 60. When a window goes out of focus, this setting can be lowered to
+	// reduce resource consumption by drawing.
+	IdleDrawFrameRate int `json:"idleDrawFrameRate"`
+	// Language defines the language oak logs are attempted to be translated to. Defaults to English.
+	Language string `json:"language"`
+	// Title defaults to 'Oak Window'.
+	Title               string `json:"title"`
+	BatchLoad           bool   `json:"batchLoad"`
+	GestureSupport      bool   `json:"gestureSupport"`
+	LoadBuiltinCommands bool   `json:"loadBuiltinCommands"`
+	TrackInputChanges   bool   `json:"trackInputChanges"`
+	// EnableDebugConsole is ignored on JS.
+	EnableDebugConsole bool `json:"enableDebugConsole"`
+	TopMost            bool `json:"topmost"`
+	Borderless         bool `json:"borderless"`
+	Fullscreen         bool `json:"fullscreen"`
+	SkipRNGSeed        bool `json:"skip_rng_seed"`
+	// UnlimitedDrawFrameRate is ignored on JS (it is effectively always true).
+	UnlimitedDrawFrameRate bool `json:"unlimitedDrawFrameRate"`
 }
 
 // NewConfig creates a config from a set of transformation options.
@@ -90,7 +101,7 @@ type Screen struct {
 }
 
 // BatchLoadOptions is a json type storing customizations for batch loading.
-// These settings do not take effect unless batch load is true.
+// These settings do not take effect unless Config.BatchLoad is true.
 type BatchLoadOptions struct {
 	BlankOutAudio    bool  `json:"blankOutAudio"`
 	MaxImageFileSize int64 `json:"maxImageFileSize"`

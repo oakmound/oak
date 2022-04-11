@@ -18,8 +18,11 @@ var (
 )
 
 // Init initializes the oak engine.
-// It spawns off an event loop of several goroutines
-// and loops through scenes after initialization.
+// After the configuration options have been parsed and validated, this will run concurrent
+// routines drawing to an OS window or app, forwarding OS inputs to this window's configured
+// event handler, and running scenes: first the predefined 'loading' scene, then firstScene
+// as provided here, then scenes following commands sent to the window or returned by ending
+// scenes.
 func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 
 	var err error

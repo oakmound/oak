@@ -10,7 +10,7 @@ import (
 
 // SetPalette tells oak to conform the screen to the input color palette before drawing.
 func (w *Window) SetPalette(palette color.Palette) {
-	w.SetScreenFilter(mod.ConformToPallete(palette))
+	w.SetScreenFilter(mod.ConformToPalette(palette))
 }
 
 // SetScreenFilter will filter the screen by the given modification function prior

@@ -51,6 +51,7 @@ func (w *Window) windowController(s screen.Screen, x, y, width, height int) (*dr
 const bufferCount = 2
 
 type Window struct {
+	// The keyboard state this window is aware of.
 	key.State
 
 	// the driver.Window embedded in this window exposes at compile time the OS level
@@ -73,6 +74,8 @@ type Window struct {
 	// drawing should cease (or resume)
 	drawCh chan struct{}
 
+	// The between draw channel receives a signal when
+	// a function is provided to Window.DoBetweenDraws.
 	betweenDrawCh chan func()
 
 	// ScreenWidth is the width of the screen

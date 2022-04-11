@@ -124,9 +124,9 @@ func (w *Window) publish() {
 	w.bufferIdx = (w.bufferIdx + 1) % bufferCount
 }
 
-// DoBetweenDraws will execute the given function in-between draw frames
+// DoBetweenDraws will execute the given function in-between draw frames. It will prevent draws from happening until
+// the provided function has terminated. DoBetweenDraws will block until the provided function is called within the
+// draw loop's schedule, but will not wait for that function itself to terminate.
 func (w *Window) DoBetweenDraws(f func()) {
-	go func() {
-		w.betweenDrawCh <- f
-	}()
+	w.betweenDrawCh <- f
 }

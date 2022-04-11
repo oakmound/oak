@@ -70,7 +70,7 @@ func TestAllModifications(t *testing.T) {
 		*image.RGBA
 	}
 	filterList := []filterCase{{
-		ConformToPallete(color.Palette{color.RGBA{64, 0, 0, 128}}),
+		ConformToPalette(color.Palette{color.RGBA{64, 0, 0, 128}}),
 		setAll(newrgba(3, 3), color.RGBA{64, 0, 0, 128}),
 	}, {
 		Fade(10),

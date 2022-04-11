@@ -16,7 +16,7 @@ type InputType int32
 
 var trackingJoystickChange = event.RegisterEvent[struct{}]()
 
-// Supported Input Types
+// The following constants define valid types of input sent via the InputChange event.
 const (
 	InputKeyboard InputType = iota
 	InputMouse

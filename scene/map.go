@@ -41,7 +41,6 @@ func (m *Map) GetCurrent() (Scene, bool) {
 // conflict with an existing name in the map, and then adds it to the map.
 // If a conflict occurs, the scene will not be overwritten.
 // Checks if the Scene's start is nil, sets to noop if so.
-// Checks if the Scene's loop is nil, sets to infinite if so.
 // Checks if the Scene's end is nil, sets to loop to this scene if so.
 func (m *Map) AddScene(name string, s Scene) error {
 

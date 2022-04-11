@@ -20,9 +20,9 @@ func AndFilter(fs ...Filter) Filter {
 	}
 }
 
-// ConformToPallete is not a modification, but acts like ConformToPallete
+// ConformToPalette( is not a modification, but acts like ConformToPalette(
 // without allocating a new *image.RGBA
-func ConformToPallete(p color.Model) Filter {
+func ConformToPalette(p color.Model) Filter {
 	return func(rgba *image.RGBA) {
 		bounds := rgba.Bounds()
 		w := bounds.Max.X

@@ -16,7 +16,7 @@ import (
 const oakLoadingScene = "oak:loading"
 
 func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
-	w.SceneMap.AddScene(oakLoadingScene, scene.Scene{
+	err := w.SceneMap.AddScene(oakLoadingScene, scene.Scene{
 		Start: func(ctx *scene.Context) {
 			if batchLoad {
 				go func() {
@@ -33,11 +33,16 @@ func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 			}
 		},
 	})
+	if err != nil {
+		go w.exitWithError(err)
+		return
+	}
 
 	var prevScene string
 
 	result := new(scene.Result)
 
+	// kick start the draw loop
 	w.drawCh <- struct{}{}
 	w.drawCh <- struct{}{}
 
