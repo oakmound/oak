@@ -14,9 +14,6 @@ import (
 // InputType expresses some form of input to the engine to represent a player
 type InputType int32
 
-// InputChange is triggered when the most recent input device changes (e.g. keyboard to joystick or vice versa)
-var InputChange = event.RegisterEvent[InputType]()
-
 var trackingJoystickChange = event.RegisterEvent[struct{}]()
 
 // Supported Input Types
