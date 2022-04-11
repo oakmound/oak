@@ -12,8 +12,4 @@ func main(f func(screen.Screen)) {
 	noop.Main(f)
 }
 
-func monitorSize() (int, int) {
-	return 0, 0
-}
-
 type Window = noop.Window

@@ -18,8 +18,4 @@ func main(f func(screen.Screen)) {
 	f(errscreen.Stub(errors.New("no driver for accessing a screen")))
 }
 
-func monitorSize() (int, int) {
-	return 0, 0
-}
-
 type Window = struct{}
