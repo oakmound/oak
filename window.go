@@ -1,3 +1,15 @@
+// Package oak is a game engine. It provides scene control, control over windows
+// and what is drawn to them, propagates regular events to evaluate game logic,
+// and so on.
+//
+// A minimal oak app follows:
+//
+// 	func main() {
+//		oak.AddScene("myApp", scene.Scene{Start: func(ctx *scene.Context) {
+//			// ... ctx.Draw(...), event.Bind(ctx, ...)
+//		}})
+//		oak.Init("myApp")
+//	}
 package oak
 
 import (
@@ -24,7 +36,6 @@ import (
 var _ window.App = &Window{}
 
 func (w *Window) windowController(s screen.Screen, x, y, width, height int) (*driver.Window, error) {
-	// TODO v4: can we update this interface to return our concrete driver.Window?
 	dwin, err := s.NewWindow(screen.NewWindowGenerator(
 		screen.Dimensions(width, height),
 		screen.Title(w.config.Title),
