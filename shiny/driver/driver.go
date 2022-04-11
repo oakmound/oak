@@ -23,8 +23,3 @@ import (
 func Main(f func(screen.Screen)) {
 	main(f)
 }
-
-// MonitorSize reports the size in pixels of the primary monitor.
-func MonitorSize() (width int, height int) {
-	return monitorSize()
-}

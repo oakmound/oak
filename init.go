@@ -28,13 +28,6 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 		return fmt.Errorf("failed to create config: %w", err)
 	}
 
-	// if c.config.Screen.TargetWidth != 0 && c.config.Screen.TargetHeight != 0 {
-	// 	w, h := driver.MonitorSize()
-	// 	if w != 0 || h != 0 {
-	// 		// Todo: Modify conf.Screen.Scale
-	// 	}
-	// }
-
 	lvl, err := dlog.ParseDebugLevel(w.config.Debug.Level)
 	if err != nil {
 		return fmt.Errorf("failed to parse debug config: %w", err)

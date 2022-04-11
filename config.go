@@ -87,12 +87,6 @@ type Screen struct {
 	Height int     `json:"height"`
 	Width  int     `json:"width"`
 	Scale  float64 `json:"scale"`
-	// Target sets the expected dimensions of the monitor the game will be opened on, in pixels.
-	// If Fullscreen is false, then a scaling will be applied to correct the game screen size to be
-	// appropriate for the Target size. If no TargetWidth or Height is provided, scaling will not
-	// be adjusted.
-	TargetWidth  int `json:"targetHeight"`
-	TargetHeight int `json:"targetWidth"`
 }
 
 // BatchLoadOptions is a json type storing customizations for batch loading.
@@ -163,12 +157,6 @@ func (c Config) overwriteFrom(c2 Config) Config {
 	}
 	if c2.Screen.Scale != 0 {
 		c.Screen.Scale = c2.Screen.Scale
-	}
-	if c2.Screen.TargetWidth != 0 {
-		c.Screen.TargetWidth = c2.Screen.TargetWidth
-	}
-	if c2.Screen.TargetHeight != 0 {
-		c.Screen.TargetHeight = c2.Screen.TargetHeight
 	}
 	c.BatchLoadOptions.BlankOutAudio = c2.BatchLoadOptions.BlankOutAudio
 	if c2.BatchLoadOptions.MaxImageFileSize != 0 {

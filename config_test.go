@@ -109,10 +109,8 @@ func TestConfig_overwriteFrom(t *testing.T) {
 			Filter: "filter",
 		},
 		Screen: Screen{
-			X:            1,
-			Y:            1,
-			TargetWidth:  1,
-			TargetHeight: 1,
+			X: 1,
+			Y: 1,
 		},
 		BatchLoadOptions: BatchLoadOptions{
 			MaxImageFileSize: 10000,
