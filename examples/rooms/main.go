@@ -4,12 +4,11 @@ import (
 	"image/color"
 	"math/rand"
 
-	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
 	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/entities"
-	"github.com/oakmound/oak/v3/entities/x/move"
 	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/physics"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
 )
@@ -18,7 +17,7 @@ import (
 // moving the camera to center on even-sized rooms arranged in a grid
 // once the player enters them.
 
-func isOffScreen(ctx *scene.Context, char *entities.Moving) (intgeom.Dir2, bool) {
+func isOffScreen(ctx *scene.Context, char *entities.Entity) (intgeom.Dir2, bool) {
 	x := int(char.X())
 	y := int(char.Y())
 	if x > ctx.Window.Viewport().X()+ctx.Window.Width() {
@@ -27,10 +26,10 @@ func isOffScreen(ctx *scene.Context, char *entities.Moving) (intgeom.Dir2, bool)
 	if y > ctx.Window.Viewport().Y()+ctx.Window.Height() {
 		return intgeom.Down, true
 	}
-	if x+int(char.W) < ctx.Window.Viewport().X() {
+	if int(char.Right()) < ctx.Window.Viewport().X() {
 		return intgeom.Left, true
 	}
-	if y+int(char.H) < ctx.Window.Viewport().Y() {
+	if int(char.Bottom()) < ctx.Window.Viewport().Y() {
 		return intgeom.Up, true
 	}
 	return intgeom.Dir2{}, false
@@ -43,13 +42,16 @@ const (
 func main() {
 
 	oak.AddScene("rooms", scene.Scene{Start: func(ctx *scene.Context) {
-		char := entities.NewMoving(200, 200, 50, 50, render.NewColorBox(50, 50, color.RGBA{255, 255, 255, 255}), nil, 0, 1)
-		char.Speed = physics.NewVector(3, 3)
-
+		char := entities.New(ctx,
+			entities.WithRect(floatgeom.NewRect2WH(200, 200, 50, 50)),
+			entities.WithColor(color.RGBA{255, 255, 255, 255}),
+			entities.WithSpeed(floatgeom.Point2{3, 3}),
+			entities.WithDrawLayers([]int{1, 2}),
+		)
 		var transitioning bool
 		var totalTransitionDelta intgeom.Point2
 		var transitionDelta intgeom.Point2
-		event.Bind(ctx, event.Enter, char, func(c *entities.Moving, ev event.EnterPayload) event.Response {
+		event.Bind(ctx, event.Enter, char, func(c *entities.Entity, ev event.EnterPayload) event.Response {
 			dir, ok := isOffScreen(ctx, char)
 			if !transitioning && ok {
 				transitioning = true
@@ -66,13 +68,11 @@ func main() {
 					transitioning = false
 				}
 			} else {
-				move.WASD(char)
+				entities.WASD(char)
 			}
 
 			return 0
 		})
-		render.Draw(char.R, 1, 2)
-
 		for x := 0; x < 2000; x += 12 {
 			for y := 0; y < 2000; y += 12 {
 				r := uint8(rand.Intn(120))
@@ -82,7 +82,6 @@ func main() {
 				render.Draw(cb, 0)
 			}
 		}
-
 	}})
 
 	oak.Init("rooms")

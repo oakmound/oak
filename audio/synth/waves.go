@@ -22,9 +22,15 @@ func phase(freq Pitch, i int, sampleRate uint32) float64 {
 //      /      \
 //--__--        --__--
 func (s Source) Sin(opts ...Option) pcm.Reader {
-	return s.Wave(func(s Source, idx int) float64 {
-		return s.Volume * math.Sin(s.modPhase(idx))
-	}, opts...)
+	return s.Wave(Source.SinWave, opts...)
+}
+
+func (s Source) SinWave(idx int) float64 {
+	return s.Volume * math.Sin(s.modPhase(idx))
+}
+
+func (s Source) Square(opts ...Option) pcm.Reader {
+	return s.Pulse(2)(opts...)
 }
 
 // Pulse acts like Square when given a pulse of 2, when given any lesser
@@ -35,14 +41,18 @@ func (s Source) Sin(opts ...Option) pcm.Reader {
 //     ||    ||
 // ____||____||____
 func (s Source) Pulse(pulse float64) func(opts ...Option) pcm.Reader {
-	pulseSwitch := 1 - 2/pulse
 	return func(opts ...Option) pcm.Reader {
-		return s.Wave(func(s Source, idx int) float64 {
-			if math.Sin(s.Phase(idx)) > pulseSwitch {
-				return s.Volume
-			}
-			return -s.Volume
-		}, opts...)
+		return s.Wave(PulseWave(pulse), opts...)
+	}
+}
+
+func PulseWave(pulse float64) Waveform {
+	pulseSwitch := 1 - 2/pulse
+	return func(s Source, idx int) float64 {
+		if math.Sin(s.Phase(idx)) > pulseSwitch {
+			return s.Volume
+		}
+		return -s.Volume
 	}
 }
 
@@ -52,9 +62,11 @@ func (s Source) Pulse(pulse float64) func(opts ...Option) pcm.Reader {
 //  / | / | /
 // /  |/  |/
 func (s Source) Saw(opts ...Option) pcm.Reader {
-	return s.Wave(func(s Source, idx int) float64 {
-		return s.Volume - (s.Volume / math.Pi * math.Mod(s.Phase(idx), 2*math.Pi))
-	}, opts...)
+	return s.Wave(Source.SawWave, opts...)
+}
+
+func (s Source) SawWave(idx int) float64 {
+	return s.Volume - (s.Volume / math.Pi * math.Mod(s.Phase(idx), 2*math.Pi))
 }
 
 // Triangle produces a Triangle wave
@@ -63,20 +75,26 @@ func (s Source) Saw(opts ...Option) pcm.Reader {
 //  / \ / \
 // v   v   v
 func (s Source) Triangle(opts ...Option) pcm.Reader {
-	return s.Wave(func(s Source, idx int) float64 {
-		p := s.modPhase(idx)
-		m := p * (2 * s.Volume / math.Pi)
-		if math.Sin(p) > 0 {
-			return -s.Volume + m
-		}
-		return 3*s.Volume - m
-	}, opts...)
+	return s.Wave(Source.TriangleWave, opts...)
+}
+
+func (s Source) TriangleWave(idx int) float64 {
+	p := s.modPhase(idx)
+	m := p * (2 * s.Volume / math.Pi)
+	if math.Sin(p) > 0 {
+		return -s.Volume + m
+	}
+	return 3*s.Volume - m
 }
 
 func (s Source) Noise(opts ...Option) pcm.Reader {
-	return s.Wave(func(s Source, idx int) float64 {
-		return ((rand.Float64() * 2) - 1) * s.Volume
-	}, opts...)
+	return s.Wave(Source.NoiseWave, opts...)
+}
+
+var _ Waveform = Source.NoiseWave
+
+func (s Source) NoiseWave(idx int) float64 {
+	return ((rand.Float64() * 2) - 1) * s.Volume
 }
 
 func (s Source) modPhase(idx int) float64 {
@@ -104,7 +122,9 @@ func (pr *Wave8Reader) ReadPCM(b []byte) (n int, err error) {
 	return
 }
 
-func (s Source) Wave(waveFn func(s Source, idx int) float64, opts ...Option) pcm.Reader {
+type Waveform func(s Source, idx int) float64
+
+func (s Source) Wave(waveFn Waveform, opts ...Option) pcm.Reader {
 	switch s.Bits {
 	case 8:
 		s.Volume *= math.MaxInt8
@@ -133,6 +153,17 @@ func (s Source) Wave(waveFn func(s Source, idx int) float64, opts ...Option) pcm
 			},
 		}
 	}
+}
+
+func (s Source) MultiWave(waveFns []Waveform, opts ...Option) pcm.Reader {
+	return s.Wave(func(s Source, idx int) float64 {
+		var out float64
+		for _, wv := range waveFns {
+			v := wv(s, idx)
+			out += v / float64(len(waveFns))
+		}
+		return out
+	}, opts...)
 }
 
 type Wave16Reader struct {

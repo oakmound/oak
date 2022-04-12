@@ -25,7 +25,7 @@ type Context struct {
 	SceneInput    interface{}
 	Window        Window
 
-	DrawStack *render.DrawStack
+	*render.DrawStack
 
 	MouseTree     *collision.Tree
 	CollisionTree *collision.Tree

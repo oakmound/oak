@@ -23,7 +23,7 @@ require (
 	github.com/oakmound/libudev v0.2.1 // indirect
 	github.com/oakmound/w32 v2.1.0+incompatible // indirect
 	github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf // indirect
-	golang.org/x/exp/shiny v0.0.0-20220407100705-7b9b53b0aca4 // indirect
+	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
 	golang.org/x/image v0.0.0-20220321031419-a8550c1d254a // indirect
 	golang.org/x/mobile v0.0.0-20220325161704-447654d348e3 // indirect
 	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d // indirect

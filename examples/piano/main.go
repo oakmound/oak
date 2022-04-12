@@ -7,10 +7,12 @@ import (
 	"image/draw"
 	"math"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
 	"github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/alg/floatgeom"
 	"github.com/oakmound/oak/v3/audio"
 	"github.com/oakmound/oak/v3/audio/pcm"
 	"github.com/oakmound/oak/v3/audio/synth"
@@ -61,7 +63,7 @@ func (kc keyColor) Color() color.RGBA {
 	return color.RGBA{255, 255, 255, 255}
 }
 
-func newKey(ctx *scene.Context, note synth.Pitch, c keyColor, k key.Code) *entities.Solid {
+func newKey(ctx *scene.Context, note synth.Pitch, c keyColor, k key.Code) *entities.Entity {
 	w := c.Width()
 	h := c.Height()
 	clr := c.Color()
@@ -85,7 +87,11 @@ func newKey(ctx *scene.Context, note synth.Pitch, c keyColor, k key.Code) *entit
 			render.NewLine(w, 0, 0, 0, color.RGBA{0, 0, 0, 255}),
 		).ToSprite(),
 	})
-	s := entities.NewSolid(0, 0, w, h, sw, mouse.DefaultTree, 0)
+	s := entities.New(ctx,
+		entities.WithUseMouseTree(true),
+		entities.WithDimensions(floatgeom.Point2{w, h}),
+		entities.WithRenderable(sw),
+	)
 	if c == keyColorBlack {
 		s.Space.SetZLayer(1)
 		s.Space.Label = labelBlackKey
@@ -93,7 +99,6 @@ func newKey(ctx *scene.Context, note synth.Pitch, c keyColor, k key.Code) *entit
 		s.Space.SetZLayer(2)
 		s.Space.Label = labelWhiteKey
 	}
-	mouse.UpdateSpace(s.X(), s.Y(), s.W, s.H, s.Space)
 	event.GlobalBind(ctx, key.Down(k), func(ev key.Event) event.Response {
 		// TODO: add helper function for this?
 		if ev.Modifiers&key.ModShift == key.ModShift {
@@ -111,13 +116,13 @@ func newKey(ctx *scene.Context, note synth.Pitch, c keyColor, k key.Code) *entit
 		sw.Set("up")
 		return 0
 	})
-	event.Bind(ctx, mouse.PressOn, s, func(_ *entities.Solid, me *mouse.Event) event.Response {
+	event.Bind(ctx, mouse.PressOn, s, func(_ *entities.Entity, me *mouse.Event) event.Response {
 		playPitch(ctx, note)
 		me.StopPropagation = true
 		sw.Set("down")
 		return 0
 	})
-	event.Bind(ctx, mouse.Release, s, func(_ *entities.Solid, me *mouse.Event) event.Response {
+	event.Bind(ctx, mouse.Release, s, func(_ *entities.Entity, me *mouse.Event) event.Response {
 		releasePitch(note)
 		sw.Set("up")
 		return 0
@@ -168,6 +173,28 @@ func releasePitch(pitch synth.Pitch) {
 	}
 }
 
+type pitchText struct {
+	pitch *synth.Pitch
+}
+
+func (pt *pitchText) String() string {
+	if pt.pitch == nil {
+		return ""
+	}
+	return pt.pitch.String() + " - " + strconv.Itoa(int(*pt.pitch))
+}
+
+type f64Text struct {
+	f64 *float64
+}
+
+func (ft *f64Text) String() string {
+	if ft.f64 == nil {
+		return ""
+	}
+	return fmt.Sprint(*ft.f64)
+}
+
 func main() {
 	err := audio.InitDefault()
 	if err != nil {
@@ -184,6 +211,8 @@ func main() {
 				Channels:   2,
 				Bits:       32,
 			}
+			pt := &pitchText{}
+			ft := &f64Text{}
 			playWithMonitor := func(gctx context.Context, r pcm.Reader) {
 				speaker, err := audio.NewWriter(r.PCMFormat())
 				if err != nil {
@@ -194,7 +223,11 @@ func main() {
 				monitor.SetPos(0, 0)
 				render.Draw(monitor)
 
-				audio.Play(gctx, r, func(po *audio.PlayOptions) {
+				pitchDetector := synth.NewPitchDetector(r)
+				pt.pitch = &pitchDetector.DetectedPitch
+				ft.f64 = &pitchDetector.DetectedRawPitch
+
+				audio.Play(gctx, pitchDetector, func(po *audio.PlayOptions) {
 					po.Destination = monitor
 				})
 				speaker.Close()
@@ -205,6 +238,9 @@ func main() {
 				fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
 				playWithMonitor(gctx, fadeIn)
 			}
+			render.Draw(render.NewStringerText(pt, 10, 10))
+			render.Draw(render.NewStringerText(ft, 10, 20))
+
 			pitch := synth.C3
 			kc := keyColorWhite
 			x := 20.0
@@ -212,12 +248,12 @@ func main() {
 			i := 0
 			for i < len(keycharOrder) && x+kc.Width() < float64(ctx.Window.Width()-10) {
 				ky := newKey(ctx, pitch, kc, keycharOrder[i])
-				ky.SetPos(x, y)
+				ky.SetPos(floatgeom.Point2{x, y})
 				layer := 0
 				if kc == keyColorBlack {
 					layer = 1
 				}
-				render.Draw(ky.R, layer)
+				render.Draw(ky.Renderable, layer)
 				x += kc.Width()
 				pitch = pitch.Up(synth.HalfStep)
 				if pitch.IsAccidental() {
@@ -242,6 +278,7 @@ func main() {
 					playWithMonitor(gctx, fadeIn)
 				},
 				key.Q: func(gctx context.Context, pitch synth.Pitch) {
+					// demonstrate adding waveforms to play in unison
 					unison := 4
 					for i := 0; i < unison; i++ {
 						go playWithMonitor(gctx, audio.FadeIn(100*time.Millisecond, audio.LoopReader(src.Saw(synth.AtPitch(pitch)))))
@@ -264,6 +301,17 @@ func main() {
 					toPlay := audio.LoopReader(src.Noise(synth.AtPitch(pitch)))
 					fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
 					playWithMonitor(gctx, fadeIn)
+				},
+				key.X: func(gctx context.Context, pitch synth.Pitch) {
+					// demonstrate combining multiple wave forms in place
+					toPlay := src.MultiWave([]synth.Waveform{
+						synth.Source.SinWave,
+						synth.Source.TriangleWave,
+						synth.PulseWave(2),
+					}, synth.AtPitch(pitch))
+					fadeIn := audio.FadeIn(100*time.Millisecond, toPlay)
+					playWithMonitor(gctx, fadeIn)
+
 				},
 			}
 			for kc, synfn := range codeKinds {

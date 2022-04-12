@@ -1,3 +1,4 @@
+// Package inputviz provides components that enable visualization of user input (e.g. mouse, keyboard) for debugging
 package inputviz
 
 import (

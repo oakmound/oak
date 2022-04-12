@@ -1,14 +1,13 @@
-package mods
+package mod
 
 import (
 	"image"
 	"image/color"
 
 	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/render/mod"
 )
 
-func HighlightOff(c color.Color, thickness, xOff, yOff int) mod.Mod {
+func HighlightOff(c color.Color, thickness, xOff, yOff int) Mod {
 	return func(img image.Image) *image.RGBA {
 		bds := img.Bounds()
 
@@ -48,7 +47,7 @@ func HighlightOff(c color.Color, thickness, xOff, yOff int) mod.Mod {
 	}
 }
 
-func InnerHighlightOff(c color.Color, thickness, xOff, yOff int) mod.Mod {
+func InnerHighlightOff(c color.Color, thickness, xOff, yOff int) Mod {
 	return func(img image.Image) *image.RGBA {
 		bds := img.Bounds()
 
@@ -88,17 +87,17 @@ func InnerHighlightOff(c color.Color, thickness, xOff, yOff int) mod.Mod {
 	}
 }
 
-func InnerHighlight(c color.Color, thickness int) mod.Mod {
+func InnerHighlight(c color.Color, thickness int) Mod {
 	return InnerHighlightOff(c, thickness, 0, 0)
 }
 
-func Highlight(c color.Color, thickness int) mod.Mod {
+func Highlight(c color.Color, thickness int) Mod {
 	return HighlightOff(c, thickness, 0, 0)
 }
 
-type Filter func(color.Color) color.Color
+type InsetFilter func(color.Color) color.Color
 
-func Inset(fn Filter, dir intgeom.Dir2) mod.Mod {
+func Inset(fn InsetFilter, dir intgeom.Dir2) Mod {
 	return func(img image.Image) *image.RGBA {
 		bds := img.Bounds()
 
@@ -161,8 +160,8 @@ func Lighter(c color.Color, f float64) color.Color {
 	return color.RGBA64{uint16(r), uint16(g), uint16(b), uint16(a)}
 }
 
-// Fade produces a color with more transparency by f percentage (0 to 1)
-func Fade(c color.Color, f float64) color.Color {
+// FadeColor produces a color with more transparency by f percentage (0 to 1)
+func FadeColor(c color.Color, f float64) color.Color {
 	r, g, b, a := c.RGBA()
 	diff := uint32(65535 * f)
 	r -= diff
