@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/event"
 
 	"image"
 
@@ -32,7 +33,7 @@ func (fs floatStringer) String() string {
 
 func main() {
 	oak.AddScene("demo",
-		scene.Scene{Start: func(*scene.Context) {
+		scene.Scene{Start: func(ctx *scene.Context) {
 			render.Draw(render.NewDrawFPS(0.25, nil, 10, 10))
 			fg := render.FontGenerator{
 				File:  path.Join("assets", "font", "luxisbi.ttf"),
@@ -62,21 +63,20 @@ func main() {
 			render.Draw(font2.NewText("g", 280, 260), 0)
 			render.Draw(font2.NewText("b", 400, 260), 0)
 
-			go func() {
-				for {
-					r = limit.EnforceRange(r + diff.Poll())
-					g = limit.EnforceRange(g + diff.Poll())
-					b = limit.EnforceRange(b + diff.Poll())
-					font.Drawer.Src = image.NewUniform(
-						color.RGBA{
-							uint8(r),
-							uint8(g),
-							uint8(b),
-							255,
-						},
-					)
-				}
-			}()
+			event.GlobalBind(ctx, event.Enter, func(_ event.EnterPayload) event.Response {
+				r = limit.EnforceRange(r + diff.Poll())
+				g = limit.EnforceRange(g + diff.Poll())
+				b = limit.EnforceRange(b + diff.Poll())
+				font.Drawer.Src = image.NewUniform(
+					color.RGBA{
+						uint8(r),
+						uint8(g),
+						uint8(b),
+						255,
+					},
+				)
+				return 0
+			})
 		},
 		})
 	oak.SetFS(assets)

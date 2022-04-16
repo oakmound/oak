@@ -6,6 +6,7 @@ import (
 
 	"github.com/oakmound/oak/v3/alg/range/floatrange"
 	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v3/event"
 
 	"image"
 
@@ -40,7 +41,7 @@ func randomStr(chars int) string {
 
 func main() {
 	oak.AddScene("demo",
-		scene.Scene{Start: func(*scene.Context) {
+		scene.Scene{Start: func(ctx *scene.Context) {
 			render.Draw(render.NewDrawFPS(.25, nil, 10, 10))
 
 			r = 255
@@ -61,26 +62,23 @@ func main() {
 				render.Draw(strs[len(strs)-1], 0)
 			}
 
-			go func() {
-				for {
-					r = limit.EnforceRange(r + diff.Poll())
-					g = limit.EnforceRange(g + diff.Poll())
-					b = limit.EnforceRange(b + diff.Poll())
-					// This should be a function in oak to just set color source
-					// (or texture source)
-					font.Drawer.Src = image.NewUniform(
-						color.RGBA{
-							uint8(r),
-							uint8(g),
-							uint8(b),
-							255,
-						},
-					)
-					for _, st := range strs {
-						st.SetString(randomStr(strlen))
-					}
+			event.GlobalBind(ctx, event.Enter, func(_ event.EnterPayload) event.Response {
+				r = limit.EnforceRange(r + diff.Poll())
+				g = limit.EnforceRange(g + diff.Poll())
+				b = limit.EnforceRange(b + diff.Poll())
+				font.Drawer.Src = image.NewUniform(
+					color.RGBA{
+						uint8(r),
+						uint8(g),
+						uint8(b),
+						255,
+					},
+				)
+				for _, st := range strs {
+					st.SetString(randomStr(strlen))
 				}
-			}()
+				return 0
+			})
 		},
 		})
 	render.SetDrawStack(
