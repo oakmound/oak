@@ -6,8 +6,13 @@ import (
 
 	"encoding/binary"
 
+	"github.com/oakmound/oak/v3/audio/format"
 	"github.com/oakmound/oak/v3/audio/pcm"
 )
+
+func init() {
+	format.Register(".wav", Load)
+}
 
 // Read reads a WAV header from the provided reader, returning the PCM format and
 // leaving the PCM data in the reader available for consumption.

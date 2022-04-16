@@ -4,10 +4,15 @@ package mp3
 import (
 	"io"
 
+	"github.com/oakmound/oak/v3/audio/format"
 	"github.com/oakmound/oak/v3/audio/pcm"
 
 	"github.com/hajimehoshi/go-mp3"
 )
+
+func init() {
+	format.Register(".mp3", Load)
+}
 
 // Load loads an mp3-encoded reader into an audio
 func Load(r io.Reader) (pcm.Reader, error) {

@@ -6,8 +6,13 @@ import (
 	"io"
 
 	"github.com/eaburns/flac"
+	"github.com/oakmound/oak/v3/audio/format"
 	"github.com/oakmound/oak/v3/audio/pcm"
 )
+
+func init() {
+	format.Register(".flac", Load)
+}
 
 // Load loads flac data from the incoming reader as an audio
 func Load(r io.Reader) (pcm.Reader, error) {

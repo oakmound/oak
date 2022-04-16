@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/oakmound/oak/v3/audio/format"
 	"github.com/oakmound/oak/v3/audio/pcm"
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/fileutil"
@@ -38,9 +39,19 @@ func (c *Cache) Load(file string) (pcm.Reader, error) {
 
 	ext := filepath.Ext(file)
 	ext = strings.ToLower(ext)
-	reader, ok := LoaderForExtension(ext)
+	reader, ok := format.LoaderForExtension(ext)
 	if !ok {
-		return nil, oakerr.UnsupportedFormat{Format: filepath.Ext(file)}
+		// provide an error message suggesting a missing import for cases where we know about a
+		// common provider
+		knownFormats := map[string]string{
+			".mp3":  "github.com/oakmound/oak/v4/audio/format/mp3",
+			".flac": "github.com/oakmound/oak/v4/audio/format/flac",
+			".wav":  "github.com/oakmound/oak/v4/audio/format/wav",
+		}
+		if path, ok := knownFormats[ext]; ok {
+			dlog.Error("unable to parse audio format %v, did you mean to import %v?", ext, path)
+		}
+		return nil, oakerr.UnsupportedFormat{Format: ext}
 	}
 	r, err := reader(f)
 	if err != nil {
