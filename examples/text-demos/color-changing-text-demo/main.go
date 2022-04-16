@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/oakmound/oak/v3/alg/range/floatrange"
-	"github.com/oakmound/oak/v3/event"
 
 	"image"
 
@@ -63,7 +62,7 @@ func main() {
 			render.Draw(font2.NewText("g", 280, 260), 0)
 			render.Draw(font2.NewText("b", 400, 260), 0)
 
-			event.GlobalBind(ctx, event.Enter, func(_ event.EnterPayload) event.Response {
+			ctx.DoEachFrame(func(){
 				r = limit.EnforceRange(r + diff.Poll())
 				g = limit.EnforceRange(g + diff.Poll())
 				b = limit.EnforceRange(b + diff.Poll())
@@ -75,7 +74,6 @@ func main() {
 						255,
 					},
 				)
-				return 0
 			})
 		},
 		})

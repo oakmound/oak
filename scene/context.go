@@ -31,3 +31,11 @@ type Context struct {
 	CollisionTree *collision.Tree
 	KeyState      *key.State
 }
+
+// DoEachFrame is a helper method to call a function on each frame for the duration of this scene.
+func (ctx *Context) DoEachFrame(f func()) {
+	event.GlobalBind(ctx, event.Enter, func(_ event.EnterPayload) event.Response {
+		f()
+		return 0
+	})
+}

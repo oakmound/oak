@@ -26,7 +26,7 @@ type Shaker struct {
 }
 
 var (
-	// DefaultShaker is the global default shaker, used when ShakeScreen is called.
+	// DefaultShaker is the global default shaker, used when shake.Screen or shake.Shake are called.
 	DefaultShaker = &Shaker{
 		Random:        false,
 		Magnitude:     floatgeom.Point2{3.0, 3.0},
