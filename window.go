@@ -129,7 +129,7 @@ type Window struct {
 	// Driver is the driver oak will call during initialization
 	Driver Driver
 
-	// prePublish is a function called each draw frame prior to
+	// prePublish is a function called each draw frame prior to publishing frames to the OS
 	prePublish func(w *Window, tx screen.Texture)
 
 	// LoadingR is a renderable that is displayed during loading screens.
@@ -269,27 +269,10 @@ func (w *Window) Propagate(ev event.EventID[*mouse.Event], me mouse.Event) {
 	}
 }
 
-// Width returns the absolute width of the window in pixels.
-func (w *Window) Width() int {
-	return w.ScreenWidth
-}
-
-// Height returns the absolute height of the window in pixels.
-func (w *Window) Height() int {
-	return w.ScreenHeight
-}
-
-// Viewport returns the viewport's position. Its width and height are the window's
-// width and height. This position plus width/height cannot exceed ViewportBounds.
-func (w *Window) Viewport() intgeom.Point2 {
-	return w.viewPos
-}
-
-// ViewportBounds returns the boundary of this window's viewport, or the rectangle
-// that the viewport is not allowed to exit as it moves around. It often represents
-// the total size of the world within a given scene.
-func (w *Window) ViewportBounds() intgeom.Rect2 {
-	return w.viewBounds
+// Width returns the absolute bounds of a window in pixels. It does not include window elements outside
+// of the client area (OS provided title bars).
+func (w *Window) Bounds() intgeom.Point2 {
+	return intgeom.Point2{w.ScreenWidth, w.ScreenHeight}
 }
 
 // SetLoadingRenderable sets what renderable should display between scenes
@@ -369,8 +352,4 @@ func (w *Window) exitWithError(err error) {
 func (w *Window) debugConsole(input io.Reader, output io.Writer) {
 	debugstream.AttachToStream(w.ParentContext, input, output)
 	debugstream.AddDefaultsForScope(w.ControllerID, w)
-}
-
-func (w *Window) GetCallerMap() *event.CallerMap {
-	return w.CallerMap
 }

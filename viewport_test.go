@@ -24,7 +24,7 @@ func TestViewport(t *testing.T) {
 	if (c1.viewPos) != (intgeom.Point2{0, 0}) {
 		t.Fatalf("expected %v got %v", c1.viewPos, intgeom.Point2{0, 0})
 	}
-	c1.SetScreen(5, 5)
+	c1.SetViewport(intgeom.Point2{5, 5})
 	if (c1.viewPos) != (intgeom.Point2{5, 5}) {
 		t.Fatalf("expected %v got %v", c1.viewPos, intgeom.Point2{5, 5})
 	}
@@ -37,20 +37,20 @@ func TestViewport(t *testing.T) {
 	if (c1.viewPos) != (intgeom.Point2{5, 5}) {
 		t.Fatalf("expected %v got %v", c1.viewPos, intgeom.Point2{5, 5})
 	}
-	c1.SetScreen(-1, -1)
+	c1.SetViewport(intgeom.Point2{-1, -1})
 	if (c1.viewPos) != (intgeom.Point2{0, 0}) {
 		t.Fatalf("expected %v got %v", c1.viewPos, intgeom.Point2{0, 0})
 	}
-	c1.SetScreen(6, 6)
+	c1.SetViewport(intgeom.Point2{6, 6})
 	if (c1.viewPos) != (intgeom.Point2{0, 0}) {
 		t.Fatalf("expected %v got %v", c1.viewPos, intgeom.Point2{0, 0})
 	}
 	c1.SetViewportBounds(intgeom.NewRect2(0, 0, 1000, 1000))
-	c1.SetScreen(20, 20)
+	c1.SetViewport(intgeom.Point2{20, 20})
 	if (c1.viewPos) != (intgeom.Point2{20, 20}) {
 		t.Fatalf("expected %v got %v", c1.viewPos, intgeom.Point2{20, 20})
 	}
-	c1.ShiftScreen(-1, -1)
+	c1.ShiftViewport(intgeom.Point2{-1, -1})
 	if (c1.viewPos) != (intgeom.Point2{19, 19}) {
 		t.Fatalf("expected %v got %v", c1.viewPos, intgeom.Point2{19, 19})
 	}
@@ -58,7 +58,7 @@ func TestViewport(t *testing.T) {
 	if (c1.viewPos) != (intgeom.Point2{21, 21}) {
 		t.Fatalf("expected %v got %v", c1.viewPos, intgeom.Point2{21, 21})
 	}
-	c1.SetScreen(1000, 1000)
+	c1.SetViewport(intgeom.Point2{1000, 1000})
 	c1.SetViewportBounds(intgeom.NewRect2(0, 0, 900, 900))
 	bds, ok := c1.GetViewportBounds()
 	if !ok {
@@ -67,8 +67,9 @@ func TestViewport(t *testing.T) {
 	if bds != intgeom.NewRect2(0, 0, 900, 900) {
 		t.Fatalf("viewport bounds were not set: expected %v got %v", intgeom.NewRect2(0, 0, 900, 900), bds)
 	}
-	if (c1.viewPos) != (intgeom.Point2{900 - c1.Width(), 900 - c1.Height()}) {
-		t.Fatalf("expected %v got %v", c1.viewPos, intgeom.Point2{900 - c1.Width(), 900 - c1.Height()})
+	mx := intgeom.Point2{900, 900}
+	if (c1.viewPos) != mx.Sub(c1.Bounds()) {
+		t.Fatalf("expected %v got %v", c1.viewPos, mx.Sub(c1.Bounds()))
 	}
 	c1.RemoveViewportBounds()
 	_, ok = c1.GetViewportBounds()

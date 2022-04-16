@@ -326,3 +326,19 @@ func (r Rect2) Intersects(r2 Rect2) bool {
 	return !((r2.Max.X() <= r.Min.X() || r.Max.X() <= r2.Min.X()) ||
 		(r2.Max.Y() <= r.Min.Y() || r.Max.Y() <= r2.Min.Y()))
 }
+
+// Clamp returns a version of the provided point such that it is contained within r. If it was already contained in
+// r, it will not be changed.
+func (r Rect2) Clamp(pt Point2) Point2 {
+	if pt.X() < r.Min[0] {
+		pt[0] = r.Min[0]
+	} else if pt.X() > r.Max[0] {
+		pt[0] = r.Max[0]
+	}
+	if pt.Y() < r.Min[1] {
+		pt[1] = r.Min[1]
+	} else if pt.Y() > r.Max[1] {
+		pt[1] = r.Max[1]
+	}
+	return pt
+}

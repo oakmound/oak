@@ -51,7 +51,7 @@ func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 	w.SceneMap.CurrentScene = oakLoadingScene
 
 	for {
-		w.setViewport(intgeom.Point2{0, 0})
+		w.SetViewport(intgeom.Point2{0, 0})
 		w.RemoveViewportBounds()
 
 		dlog.Info(dlog.SceneStarting, w.SceneMap.CurrentScene)

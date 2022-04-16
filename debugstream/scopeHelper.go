@@ -39,8 +39,9 @@ func moveWindow(w window.Window) func([]string) string {
 				InputName: "coordinates",
 			}.Error()
 		}
-		width := parseTokenAsInt(sub, 2, w.Width())
-		height := parseTokenAsInt(sub, 3, w.Height())
+		bds := w.Bounds()
+		width := parseTokenAsInt(sub, 2, bds.X())
+		height := parseTokenAsInt(sub, 3, bds.Y())
 		v := w.Viewport()
 		x := parseTokenAsInt(sub, 0, v.X())
 		y := parseTokenAsInt(sub, 1, v.Y())
@@ -85,7 +86,7 @@ func mouseDetails(w window.Window) func(*mouse.Event) event.Response {
 		if len(results) == 0 {
 			results = mouse.Hits(loc)
 		}
-		cm := w.GetCallerMap()
+		cm := w.EventHandler().GetCallerMap()
 
 		if len(results) > 0 {
 			i := results[0].CID

@@ -2,6 +2,7 @@ package entities
 
 import (
 	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/key"
 )
 
@@ -36,10 +37,10 @@ func TopDown(mvr *Entity, up, down, left, right key.Code) {
 // CenterScreenOn will cause the screen to center on the given mover, obeying
 // viewport limits if they have been set previously
 func CenterScreenOn(mvr *Entity) {
-	mvr.ctx.Window.SetScreen(
-		int(mvr.X())-mvr.ctx.Window.Width()/2,
-		int(mvr.Y())-mvr.ctx.Window.Height()/2,
-	)
+	bds := mvr.ctx.Window.Bounds()
+	pos := intgeom.Point2{int(mvr.X()), int(mvr.Y())}
+	target := pos.Sub(bds).DivConst(2)
+	mvr.ctx.Window.SetViewport(target)
 }
 
 // Limit restricts the movement of the mover to stay within a given rectangle

@@ -55,16 +55,16 @@ func SetViewportBounds(rect intgeom.Rect2) {
 	defaultWindow.SetViewportBounds(rect)
 }
 
-// ShiftScreen calls ShiftScreen on the default window.
-func ShiftScreen(x, y int) {
+// ShiftViewport calls ShiftViewport on the default window.
+func ShiftViewport(pt intgeom.Point2) {
 	initDefaultWindow()
-	defaultWindow.ShiftScreen(x, y)
+	defaultWindow.ShiftViewport(pt)
 }
 
-// SetScreen calls SetScreen on the default window.
-func SetScreen(x, y int) {
+// SetViewport calls SetViewport on the default window.
+func SetViewport(pt intgeom.Point2) {
 	initDefaultWindow()
-	defaultWindow.SetScreen(x, y)
+	defaultWindow.SetViewport(pt)
 }
 
 // UpdateViewSize calls UpdateViewSize on the default window.
@@ -103,14 +103,8 @@ func GetBackgroundImage() image.Image {
 	return defaultWindow.GetBackgroundImage()
 }
 
-// Width calls Width on the default window.
-func Width() int {
+// Bounds returns the default window's boundary.
+func Bounds() intgeom.Point2 {
 	initDefaultWindow()
-	return defaultWindow.Width()
-}
-
-// Height calls Height on the default window.
-func Height() int {
-	initDefaultWindow()
-	return defaultWindow.Height()
+	return defaultWindow.Bounds()
 }

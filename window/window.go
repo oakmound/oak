@@ -24,13 +24,12 @@ type Window interface {
 
 // App is an interface of methods available to all oak programs.
 type App interface {
-	Width() int
-	Height() int
+	Bounds() intgeom.Point2
+
 	Viewport() intgeom.Point2
 	SetViewportBounds(intgeom.Rect2)
-
-	ShiftScreen(int, int)
-	SetScreen(int, int)
+	ShiftViewport(intgeom.Point2)
+	SetViewport(intgeom.Point2)
 
 	NextScene()
 	GoToScene(string)
@@ -39,5 +38,4 @@ type App interface {
 	Quit()
 
 	EventHandler() event.Handler
-	GetCallerMap() *event.CallerMap
 }

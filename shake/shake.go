@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v3/alg/intgeom"
 	"github.com/oakmound/oak/v3/scene"
 	"github.com/oakmound/oak/v3/window"
 )
@@ -111,7 +112,7 @@ type screenToPoser struct {
 }
 
 func (stp screenToPoser) ShiftPos(x, y float64) {
-	stp.ShiftScreen(int(x), int(y))
+	stp.ShiftViewport(intgeom.Point2{int(x), int(y)})
 }
 
 // Screen shakes the screen that the context controls for the given duration.

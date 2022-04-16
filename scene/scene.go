@@ -6,7 +6,7 @@ import (
 )
 
 // A Scene is a set of functions defining what needs to happen when a scene
-// starts, loops, and ends.
+// starts and ends.
 type Scene struct {
 	// Start is called when a scene begins, including contextual information like
 	// what scene came before this one and a direct reference to clean data structures
