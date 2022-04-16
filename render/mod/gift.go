@@ -1,8 +1,12 @@
+//go:build !nogift
+// +build !nogift
+
 package mod
 
 import (
 	"image"
 	"image/color"
+	"math"
 
 	"github.com/disintegration/gift"
 )
@@ -124,3 +128,17 @@ var Transpose = GiftTransform(gift.Transpose())
 
 // Transverse flips vertically and rotates 90 degrees counter clockwise.
 var Transverse = GiftTransform(gift.Transverse())
+
+// Scale returns a scaled rgba.
+func Scale(xRatio, yRatio float64) Mod {
+	return func(rgba image.Image) *image.RGBA {
+		bounds := rgba.Bounds()
+		w := int(math.Floor(float64(bounds.Max.X) * xRatio))
+		h := int(math.Floor(float64(bounds.Max.Y) * yRatio))
+		filter := gift.New(
+			gift.Resize(w, h, gift.CubicResampling))
+		dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
+		filter.Draw(dst, rgba)
+		return dst
+	}
+}

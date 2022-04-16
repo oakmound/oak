@@ -22,8 +22,6 @@ type Generator struct {
 	Color      color.Color
 	Renderable render.Renderable
 
-	ScaleRenderable *mod.Resampling
-
 	Mod mod.Mod
 
 	Label collision.Label
@@ -241,12 +239,6 @@ func New(ctx *scene.Context, opts ...Option) *Entity {
 
 	if m, isMod := e.Renderable.(render.Modifiable); g.Mod != nil && isMod {
 		e.Renderable = m.Modify(g.Mod)
-	}
-
-	if g.ScaleRenderable != nil {
-		if m, ok := g.Renderable.(render.Modifiable); ok {
-			e.Renderable = m.Modify(mod.Resize(int(g.Dimensions[0]), int(g.Dimensions[1]), *g.ScaleRenderable))
-		}
 	}
 
 	e.Renderable.SetPos(e.X(), e.Y())

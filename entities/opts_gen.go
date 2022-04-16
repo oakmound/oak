@@ -56,13 +56,6 @@ func WithRenderable(v render.Renderable) Option {
 	}
 }
 
-func WithScaleRenderable(v *mod.Resampling) Option {
-	return func(s Generator) Generator {
-		s.ScaleRenderable = v
-		return s
-	}
-}
-
 func WithMod(v mod.Mod) Option {
 	return func(s Generator) Generator {
 		s.Mod = v
