@@ -15,14 +15,14 @@ type Loader func(r io.Reader) (pcm.Reader, error)
 var fileLoadersLock sync.RWMutex
 var fileLoaders = map[string]func(r io.Reader) (pcm.Reader, error){}
 
-// Register registers a format by file extension with its preceding period to a parsing function.
+// Register registers a format by file extension (eg '.mp3') with its parsing function.
 func Register(extension string, fn Loader) {
 	fileLoadersLock.Lock()
 	fileLoaders[extension] = fn
 	fileLoadersLock.Unlock()
 }
 
-// LoaderForExtension returns a previously registered loader for a given extension string.
+// LoaderForExtension returns a previously registered loader.
 func LoaderForExtension(extension string) (Loader, bool) {
 	fileLoadersLock.RLock()
 	defer fileLoadersLock.RUnlock()

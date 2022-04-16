@@ -224,8 +224,8 @@ func main() {
 				render.Draw(monitor)
 
 				pitchDetector := synth.NewPitchDetector(r)
-				pt.pitch = &pitchDetector.DetectedPitch
-				ft.f64 = &pitchDetector.DetectedRawPitch
+				pt.pitch = &pitchDetector.DetectedPitches[0]
+				ft.f64 = &pitchDetector.DetectedRawPitches[0]
 
 				audio.Play(gctx, pitchDetector, func(po *audio.PlayOptions) {
 					po.Destination = monitor

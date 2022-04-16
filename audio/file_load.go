@@ -61,8 +61,8 @@ func (c *Cache) Load(file string) (pcm.Reader, error) {
 	return r, nil
 }
 
-// BatchLoad attempts to load all files within a given directory
-// depending on their file ending
+// BatchLoad attempts to load all audio files within a given directory
+// should their file ending match a registered audio file parser
 func BatchLoad(baseFolder string) error {
 	return batchLoad(baseFolder, false)
 }
