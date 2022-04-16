@@ -28,7 +28,7 @@ func AddCommand(c Command) error {
 }
 
 // AttachToStream if possible to start consuming the stream
-// and executing commands per the stored infomraiton in the ScopeCommands.
+// and executing commands per the stored information in the ScopeCommands.
 func AttachToStream(ctx context.Context, input io.Reader, output io.Writer) {
 	checkOrCreateDefaults()
 	DefaultCommands.AttachToStream(ctx, input, output)

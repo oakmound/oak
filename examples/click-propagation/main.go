@@ -18,6 +18,8 @@ import (
 // mouse event payloads to prevent mouse interactions from falling
 // through to lower UI elements after interacting with a higher layer
 
+// TODO: make the boxes here more real, more like a real UI
+
 func main() {
 	oak.AddScene("click-propagation", scene.Scene{
 		Start: func(ctx *scene.Context) {
