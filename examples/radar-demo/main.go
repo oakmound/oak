@@ -55,7 +55,7 @@ func main() {
 		w := 100
 		h := 100
 		r := radar.NewRadar(w, h, points, center, 10)
-		r.SetPos(float64(ctx.Window.Width()-w), 0)
+		r.SetPos(float64(ctx.Window.Bounds().X()-w), 0)
 
 		for i := 0; i < 5; i++ {
 			x, y := rand.Float64()*400, rand.Float64()*400

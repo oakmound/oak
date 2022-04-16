@@ -10,8 +10,9 @@ import (
 func main() {
 	oak.AddScene("mouseviz", scene.Scene{
 		Start: func(ctx *scene.Context) {
+			bds := ctx.Window.Bounds()
 			m := inputviz.Mouse{
-				Rect:      floatgeom.NewRect2(0, 0, float64(ctx.Window.Width()), float64(ctx.Window.Height())),
+				Rect:      floatgeom.NewRect2(0, 0, float64(bds.X()), float64(bds.Y())),
 				BaseLayer: -1,
 			}
 			m.RenderAndListen(ctx, 0)

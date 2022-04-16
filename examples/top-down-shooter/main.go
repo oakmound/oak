@@ -73,10 +73,7 @@ func main() {
 		playerX = &char.Rect.Min[0]
 		playerY = &char.Rect.Min[1]
 
-		screenCenter := floatgeom.Point2{
-			float64(ctx.Window.Width()) / 2,
-			float64(ctx.Window.Height()) / 2,
-		}
+		screenCenter := ctx.Window.Bounds().DivConst(2)
 
 		event.Bind(ctx, event.Enter, char, func(char *entities.Entity, ev event.EnterPayload) event.Response {
 			if oak.IsDown(key.W) {
@@ -93,9 +90,10 @@ func main() {
 			}
 			ctx.Window.(*oak.Window).DoBetweenDraws(func() {
 				char.ShiftDelta()
-				oak.SetScreen(
-					int(char.X()-screenCenter.X()),
-					int(char.Y()-screenCenter.Y()),
+				oak.SetViewport(
+					screenCenter.Sub(intgeom.Point2{
+						int(char.X()), int(char.Y()),
+					}),
 				)
 				char.Delta = floatgeom.Point2{}
 			})

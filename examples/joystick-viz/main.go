@@ -36,8 +36,7 @@ func main() {
 			return 0
 		})
 		go func() {
-			rWidth := float64(ctx.Window.Width()) / 2
-			rHeight := float64(ctx.Window.Height()) / 2
+			rBounds := ctx.Window.Bounds().DivConst(2)
 			jCh, cancel := joystick.WaitForJoysticks(1 * time.Second)
 			defer cancel()
 			for joy := range jCh {
@@ -47,15 +46,15 @@ func main() {
 				case 0:
 					// 0,0
 				case 1:
-					x = rWidth
+					x = float64(rBounds.X())
 				case 2:
-					y = rHeight
+					y = float64(rBounds.Y())
 				case 3:
-					x = rWidth
-					y = rHeight
+					x = float64(rBounds.X())
+					y = float64(rBounds.Y())
 				}
 				jrend := inputviz.Joystick{
-					Rect:          floatgeom.NewRect2WH(x, y, rWidth, rHeight),
+					Rect:          floatgeom.NewRect2WH(x, y, float64(rBounds.X()), float64(rBounds.Y())),
 					StickDeadzone: 4000,
 					BaseLayer:     -1,
 				}

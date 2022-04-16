@@ -102,11 +102,12 @@ func Start(width, height int, slides ...Slide) {
 			Start: func(ctx *scene.Context) {
 				oldBackground = oak.GetBackgroundImage()
 				oak.SetColorBackground(image.NewUniform(color.RGBA{0, 0, 0, 255}))
+				wbds := ctx.Window.Bounds()
 				render.Draw(
 					Express.NewText(
 						"Spacebar to restart show ...",
-						float64(ctx.Window.Width()/2),
-						float64(ctx.Window.Height()-50),
+						float64(wbds.X()/2),
+						float64(wbds.Y()-50),
 					),
 				)
 				event.GlobalBind(ctx, key.Down(key.Spacebar), func(key.Event) event.Response {

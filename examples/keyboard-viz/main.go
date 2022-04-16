@@ -22,8 +22,9 @@ func main() {
 				fg.Size = 13
 				return fg
 			})
+			bds := ctx.Window.Bounds()
 			m := inputviz.Keyboard{
-				Rect:             floatgeom.NewRect2(0, 0, float64(ctx.Window.Width()), float64(ctx.Window.Height())),
+				Rect:             floatgeom.NewRect2(0, 0, float64(bds.X()), float64(bds.Y())),
 				BaseLayer:        -1,
 				RenderCharacters: true,
 				Font:             fnt,

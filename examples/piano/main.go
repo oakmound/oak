@@ -246,7 +246,7 @@ func main() {
 			x := 20.0
 			y := 200.0
 			i := 0
-			for i < len(keycharOrder) && x+kc.Width() < float64(ctx.Window.Width()-10) {
+			for i < len(keycharOrder) && x+kc.Width() < float64(ctx.Window.Bounds().X()-10) {
 				ky := newKey(ctx, pitch, kc, keycharOrder[i])
 				ky.SetPos(floatgeom.Point2{x, y})
 				layer := 0
