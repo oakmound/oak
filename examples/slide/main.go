@@ -459,10 +459,10 @@ func addParticles(i int, sslides []*static.Slide) {
 		go particle.NewColorGenerator(
 			particle.Size(span.NewConstant(4)),
 			particle.EndSize(span.NewConstant(7)),
-			particle.Angle(span.NewLinear(0, 359)),
+			particle.Angle(span.NewLinear(0.0, 359.0)),
 			particle.Pos(width/2, height/2),
-			particle.Speed(span.NewSpread(5, 2)),
-			particle.NewPerFrame(span.NewSpread(5, 5)),
+			particle.Speed(span.NewSpread(5.0, 2.0)),
+			particle.NewPerFrame(span.NewSpread(5.0, 5.0)),
 			particle.Color(
 				color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 0},
 				color.RGBA{255, 255, 255, 255}, color.RGBA{0, 0, 0, 0},
