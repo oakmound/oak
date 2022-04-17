@@ -130,7 +130,7 @@ type Window struct {
 	Driver Driver
 
 	// prePublish is a function called each draw frame prior to publishing frames to the OS
-	prePublish func(w *Window, tx screen.Texture)
+	prePublish func(*image.RGBA)
 
 	// LoadingR is a renderable that is displayed during loading screens.
 	LoadingR render.Renderable
@@ -161,8 +161,6 @@ type Window struct {
 
 	FirstSceneInput interface{}
 
-	commands map[string]func([]string)
-
 	ControllerID int32
 
 	config Config
@@ -186,30 +184,27 @@ var (
 
 // NewWindow creates a window with default settings.
 func NewWindow() *Window {
-	c := &Window{
+	return &Window{
 		State:         key.NewState(),
 		transitionCh:  make(chan struct{}),
 		skipSceneCh:   make(chan string),
 		quitCh:        make(chan struct{}),
 		drawCh:        make(chan struct{}),
 		betweenDrawCh: make(chan func()),
+		SceneMap:      scene.NewMap(),
+		Driver:        driver.Main,
+		prePublish:    func(*image.RGBA) {},
+		bkgFn: func() image.Image {
+			return image.Black
+		},
+		eventHandler:  event.DefaultBus,
+		MouseTree:     mouse.DefaultTree,
+		CollisionTree: collision.DefaultTree,
+		CallerMap:     event.DefaultCallerMap,
+		DrawStack:     render.GlobalDrawStack,
+		ControllerID:  atomic.AddInt32(nextControllerID, 1),
+		ParentContext: context.Background(),
 	}
-
-	c.SceneMap = scene.NewMap()
-	c.Driver = driver.Main
-	c.prePublish = func(*Window, screen.Texture) {}
-	c.bkgFn = func() image.Image {
-		return image.Black
-	}
-	c.eventHandler = event.DefaultBus
-	c.MouseTree = mouse.DefaultTree
-	c.CollisionTree = collision.DefaultTree
-	c.CallerMap = event.DefaultCallerMap
-	c.DrawStack = render.GlobalDrawStack
-	c.commands = make(map[string]func([]string))
-	c.ControllerID = atomic.AddInt32(nextControllerID, 1)
-	c.ParentContext = context.Background()
-	return c
 }
 
 // Propagate triggers direct mouse events on entities which are clicked
@@ -288,7 +283,7 @@ func (w *Window) SetBackground(b Background) {
 	}
 }
 
-// SetColorBackground sets this window's background to be a standar image.Image,
+// SetColorBackground sets this window's background to be a standard image.Image,
 // commonly a uniform color.
 func (w *Window) SetColorBackground(img image.Image) {
 	w.bkgFn = func() image.Image {
@@ -309,9 +304,7 @@ func (w *Window) SetLogicHandler(h event.Handler) {
 
 // NextScene  causes this window to immediately end the current scene.
 func (w *Window) NextScene() {
-	go func() {
-		w.skipSceneCh <- ""
-	}()
+	w.GoToScene("")
 }
 
 // GoToScene causes this window to skip directly to the given scene.
@@ -324,12 +317,6 @@ func (w *Window) GoToScene(nextScene string) {
 // InFocus returns whether this window is currently in focus.
 func (w *Window) InFocus() bool {
 	return w.inFocus
-}
-
-// CollisionTrees helps access the mouse and collision trees from the controller.
-// These trees together detail how a controller can drive mouse and entity interactions.
-func (w *Window) CollisionTrees() (mouseTree, collisionTree *collision.Tree) {
-	return w.MouseTree, w.CollisionTree
 }
 
 // EventHandler returns this window's event handler.

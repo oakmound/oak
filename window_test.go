@@ -1,12 +1,15 @@
 package oak
 
 import (
+	"image"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/oakmound/oak/v3/collision"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v3/render"
 )
 
 func TestMouseClicks(t *testing.T) {
@@ -89,5 +92,33 @@ func TestPropagate(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Fatalf("propagation failed to trigger press binding")
 	case <-ch:
+	}
+}
+
+func TestWindowGetters(t *testing.T) {
+	c1 := NewWindow()
+	c1.debugConsole(os.Stdin, os.Stdout)
+	if c1.InFocus() {
+		t.Errorf("new windows should not be in focus")
+	}
+	if c1.EventHandler() != event.DefaultBus {
+		t.Errorf("new windows should have the default event bus")
+	}
+	if c1.GetBackgroundImage() != image.Black {
+		t.Errorf("new windows should have a black background")
+	}
+	c1.SetColorBackground(image.White)
+	if c1.GetBackgroundImage() != image.White {
+		t.Errorf("set color background failed")
+	}
+	rend := render.EmptyRenderable()
+	c1.SetLoadingRenderable(rend)
+	if c1.LoadingR != rend {
+		t.Errorf("Set loading renderable failed")
+	}
+	c1.SetBackground(rend)
+	r, g, b, a := c1.bkgFn().At(0, 0).RGBA()
+	if r != 0 || g != 0 || b != 0 || a != 0 {
+		t.Errorf("background was not set to empty renderable")
 	}
 }

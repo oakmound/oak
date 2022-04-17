@@ -57,8 +57,6 @@ func (w *Window) drawLoop() {
 			loadingSelectUnlimited:
 				for {
 					select {
-					case <-w.ParentContext.Done():
-						return
 					case <-w.quitCh:
 						return
 					case <-w.drawCh:
@@ -92,8 +90,6 @@ func (w *Window) drawLoop() {
 		loadingSelect:
 			for {
 				select {
-				case <-w.ParentContext.Done():
-					return
 				case <-w.quitCh:
 					return
 				case <-w.drawCh:
@@ -115,7 +111,7 @@ func (w *Window) drawLoop() {
 }
 
 func (w *Window) publish() {
-	w.prePublish(w, w.windowTextures[w.bufferIdx])
+	w.prePublish(w.winBuffers[w.bufferIdx].RGBA())
 	w.windowTextures[w.bufferIdx].Upload(zeroPoint, w.winBuffers[w.bufferIdx], w.winBuffers[w.bufferIdx].Bounds())
 	w.Window.Scale(w.windowRect, w.windowTextures[w.bufferIdx], w.windowTextures[w.bufferIdx].Bounds(), draw.Src)
 	w.Window.Publish()

@@ -6,8 +6,6 @@ import (
 	"image/draw"
 	"image/gif"
 	"time"
-
-	"github.com/oakmound/oak/v3/shiny/screen"
 )
 
 // ScreenShot takes a snap shot of the window's image content.
@@ -17,9 +15,8 @@ func (w *Window) ScreenShot() *image.RGBA {
 	shotCh := make(chan *image.RGBA)
 	// We need to take the shot when the screen is not being redrawn
 	// We know the screen has everything drawn on it when it is published
-	w.prePublish = func(w *Window, tx screen.Texture) {
+	w.prePublish = func(rgba *image.RGBA) {
 		// Copy the buffer
-		rgba := w.winBuffers[w.bufferIdx].RGBA()
 		bds := rgba.Bounds()
 		copy := image.NewRGBA(bds)
 		for x := bds.Min.X; x < bds.Max.X; x++ {
@@ -39,9 +36,8 @@ func (w *Window) gifShot() *image.Paletted {
 	shotCh := make(chan *image.Paletted)
 	// We need to take the shot when the screen is not being redrawn
 	// We know the screen has everything drawn on it when it is published
-	w.prePublish = func(w *Window, tx screen.Texture) {
+	w.prePublish = func(rgba *image.RGBA) {
 		// Copy the buffer
-		rgba := w.winBuffers[w.bufferIdx].RGBA()
 		bds := rgba.Bounds()
 		copy := image.NewPaletted(bds, palette.Plan9)
 		draw.Draw(copy, bds, rgba, zeroPoint, draw.Src)

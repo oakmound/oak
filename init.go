@@ -10,6 +10,7 @@ import (
 
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v3/scene"
 	"github.com/oakmound/oak/v3/timing"
 )
 
@@ -38,10 +39,8 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 	dlog.SetFilter(func(msg string) bool {
 		return strings.Contains(msg, w.config.Debug.Filter)
 	})
-	err = dlog.SetLogLevel(lvl)
-	if err != nil {
-		return err
-	}
+	// This error cannot happen as it would surface in Parse above
+	_ = dlog.SetLogLevel(lvl)
 	err = oakerr.SetLanguageString(w.config.Language)
 	if err != nil {
 		return err
@@ -70,7 +69,27 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 
 	overrideInit(w)
 
-	go w.sceneLoop(firstScene, w.config.TrackInputChanges, w.config.BatchLoad)
+	err = w.SceneMap.AddScene(oakLoadingScene, scene.Scene{
+		Start: func(ctx *scene.Context) {
+			if w.config.BatchLoad {
+				go func() {
+					w.loadAssets(w.config.Assets.ImagePath, w.config.Assets.AudioPath)
+					w.endLoad()
+				}()
+			} else {
+				go w.endLoad()
+			}
+		},
+		End: func() (string, *scene.Result) {
+			return w.firstScene, &scene.Result{
+				NextSceneInput: w.FirstSceneInput,
+			}
+		},
+	})
+	if err != nil {
+		return err
+	}
+	go w.sceneLoop(firstScene, w.config.TrackInputChanges)
 	if w.config.EnableDebugConsole {
 		go w.debugConsole(os.Stdin, os.Stdout)
 	}

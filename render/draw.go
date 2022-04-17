@@ -10,8 +10,7 @@ var (
 	emptyRenderable = NewColorBox(1, 1, color.RGBA{0, 0, 0, 0})
 )
 
-// EmptyRenderable returns a minimal, 1-width and height pseudo-nil
-// Renderable (and Modifiable)
+// EmptyRenderable returns a minimal, 1-width and height pseudo-nil Renderable
 func EmptyRenderable() Modifiable {
 	return emptyRenderable.Copy()
 }

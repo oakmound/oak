@@ -15,29 +15,7 @@ import (
 // for preloading assets
 const oakLoadingScene = "oak:loading"
 
-func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
-	err := w.SceneMap.AddScene(oakLoadingScene, scene.Scene{
-		Start: func(ctx *scene.Context) {
-			if batchLoad {
-				go func() {
-					w.loadAssets(w.config.Assets.ImagePath, w.config.Assets.AudioPath)
-					w.endLoad()
-				}()
-			} else {
-				go w.endLoad()
-			}
-		},
-		End: func() (string, *scene.Result) {
-			return w.firstScene, &scene.Result{
-				NextSceneInput: w.FirstSceneInput,
-			}
-		},
-	})
-	if err != nil {
-		go w.exitWithError(err)
-		return
-	}
-
+func (w *Window) sceneLoop(first string, trackingInputs bool) {
 	var prevScene string
 
 	result := new(scene.Result)
@@ -91,7 +69,6 @@ func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 		}()
 
 		w.sceneTransition(result)
-
 		// Post transition, begin loading animation
 		w.drawCh <- struct{}{}
 		<-w.transitionCh
@@ -99,21 +76,19 @@ func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 		w.drawCh <- struct{}{}
 
 		dlog.Info(dlog.SceneLooping)
-		cont := true
 
 		enterCancel := event.EnterLoop(w.eventHandler, timing.FPSToFrameDelay(w.FrameRate))
-
 		nextSceneOverride := ""
 
-		for cont {
-			select {
-			case <-w.ParentContext.Done():
-			case <-w.quitCh:
-				cancel()
-				return
-			case nextSceneOverride = <-w.skipSceneCh:
-				cont = false
-			}
+		select {
+		case <-w.ParentContext.Done():
+			w.Quit()
+			cancel()
+			return
+		case <-w.quitCh:
+			cancel()
+			return
+		case nextSceneOverride = <-w.skipSceneCh:
 		}
 		cancel()
 		dlog.Info(dlog.SceneEnding, w.SceneMap.CurrentScene)

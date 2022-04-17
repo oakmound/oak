@@ -97,12 +97,6 @@ func SetColorBackground(img image.Image) {
 	defaultWindow.SetColorBackground(img)
 }
 
-// GetBackgroundImage calls GetBackgroundImage on the default window.
-func GetBackgroundImage() image.Image {
-	initDefaultWindow()
-	return defaultWindow.GetBackgroundImage()
-}
-
 // Bounds returns the default window's boundary.
 func Bounds() intgeom.Point2 {
 	initDefaultWindow()

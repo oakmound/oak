@@ -39,8 +39,11 @@ func (w *Window) SetViewport(pt intgeom.Point2) {
 	event.TriggerOn(w.eventHandler, ViewportUpdate, w.viewPos)
 }
 
-// GetViewportBounds reports what bounds the viewport has been set to, if any.
-func (w *Window) GetViewportBounds() (rect intgeom.Rect2, ok bool) {
+// ViewportBounds returns the boundary of this window's viewport, or the rectangle
+// that the viewport is not allowed to exit as it moves around. It often represents
+// the total size of the world within a given scene. If bounds are not enforced, ok will
+// be false.
+func (w *Window) ViewportBounds() (rect intgeom.Rect2, ok bool) {
 	return w.viewBounds, w.useViewBounds
 }
 
@@ -72,11 +75,4 @@ func (w *Window) SetViewportBounds(rect intgeom.Rect2) {
 // width and height. This position plus width/height cannot exceed ViewportBounds.
 func (w *Window) Viewport() intgeom.Point2 {
 	return w.viewPos
-}
-
-// ViewportBounds returns the boundary of this window's viewport, or the rectangle
-// that the viewport is not allowed to exit as it moves around. It often represents
-// the total size of the world within a given scene.
-func (w *Window) ViewportBounds() intgeom.Rect2 {
-	return w.viewBounds
 }

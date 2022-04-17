@@ -11,6 +11,8 @@ import (
 )
 
 func TestTrackInputChanges(t *testing.T) {
+	inputChangeFailed := make(chan bool)
+
 	c1 := NewWindow()
 	c1.SetLogicHandler(event.NewBus(event.NewCallerMap()))
 	c1.AddScene("1", scene.Scene{})
@@ -21,35 +23,29 @@ func TestTrackInputChanges(t *testing.T) {
 	time.Sleep(2 * time.Second)
 	expectedType := new(InputType)
 	*expectedType = InputKeyboard
-	failed := false
 	event.GlobalBind(c1.eventHandler, InputChange, func(mode InputType) event.Response {
-		if mode != *expectedType {
-			failed = true
-		}
+		inputChangeFailed <- mode != *expectedType
 		return 0
 	})
 	c1.TriggerKeyDown(key.Event{})
-	time.Sleep(2 * time.Second)
-	if failed {
+	if <-inputChangeFailed {
 		t.Fatalf("keyboard change failed")
 	}
 	*expectedType = InputJoystick
 	event.TriggerOn(c1.eventHandler, trackingJoystickChange, struct{}{})
-	time.Sleep(2 * time.Second)
-	if failed {
+	if <-inputChangeFailed {
 		t.Fatalf("joystick change failed")
 	}
+	c1.mostRecentInput = int32(InputJoystick)
 	*expectedType = InputMouse
 	c1.TriggerMouseEvent(mouse.Event{EventType: mouse.Press})
-	time.Sleep(2 * time.Second)
-	if failed {
+	if <-inputChangeFailed {
 		t.Fatalf("mouse change failed")
 	}
 	*expectedType = InputKeyboard
 	c1.mostRecentInput = int32(InputJoystick)
 	c1.TriggerKeyDown(key.Event{})
-	time.Sleep(2 * time.Second)
-	if failed {
+	if <-inputChangeFailed {
 		t.Fatalf("keyboard change failed")
 	}
 }

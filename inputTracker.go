@@ -18,7 +18,8 @@ var trackingJoystickChange = event.RegisterEvent[struct{}]()
 
 // The following constants define valid types of input sent via the InputChange event.
 const (
-	InputKeyboard InputType = iota
+	InputNone InputType = iota
+	InputKeyboard
 	InputMouse
 	InputJoystick
 )
