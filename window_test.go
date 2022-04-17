@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oakmound/oak/v3/alg/floatgeom"
 	"github.com/oakmound/oak/v3/collision"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/mouse"
@@ -92,6 +93,66 @@ func TestPropagate(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Fatalf("propagation failed to trigger press binding")
 	case <-ch:
+	}
+}
+
+func TestPropagate_StopPropagation(t *testing.T) {
+	c1 := NewWindow()
+	c1.eventHandler = event.NewBus(event.NewCallerMap())
+	c1.MouseTree = collision.NewTree()
+
+	e1 := ent{}
+	e1.CallerID = c1.eventHandler.GetCallerMap().Register(e1)
+	e2 := ent{}
+	e2.CallerID = c1.eventHandler.GetCallerMap().Register(e2)
+
+	s1 := collision.NewSpace(10, 10, 10, 10, e1.CallerID)
+	s1.SetZLayer(10)
+	c1.MouseTree.Insert(s1)
+	s2 := collision.NewSpace(10, 10, 10, 10, e2.CallerID)
+	s2.SetZLayer(1)
+	c1.MouseTree.Insert(s2)
+	var failed bool
+	<-event.Bind(c1.eventHandler, mouse.PressOn, e1, func(_ ent, ev *mouse.Event) event.Response {
+		ev.StopPropagation = true
+		return 0
+	}).Bound
+	<-event.Bind(c1.eventHandler, mouse.PressOn, e2, func(_ ent, ev *mouse.Event) event.Response {
+		failed = true
+		return 0
+	}).Bound
+	<-event.Bind(c1.eventHandler, mouse.ClickOn, e1, func(_ ent, ev *mouse.Event) event.Response {
+		ev.StopPropagation = true
+		return 0
+	}).Bound
+	<-event.Bind(c1.eventHandler, mouse.ClickOn, e2, func(_ ent, ev *mouse.Event) event.Response {
+		failed = true
+		return 0
+	}).Bound
+	<-event.Bind(c1.eventHandler, mouse.RelativeClickOn, e1, func(_ ent, ev *mouse.Event) event.Response {
+		ev.StopPropagation = true
+		return 0
+	}).Bound
+	<-event.Bind(c1.eventHandler, mouse.RelativeClickOn , e2, func(_ ent, ev *mouse.Event) event.Response {
+		failed = true
+		return 0
+	}).Bound
+	c1.TriggerMouseEvent(mouse.Event{
+		Point2: floatgeom.Point2{
+			15, 15,
+		},
+		Button:    mouse.ButtonLeft,
+		EventType: mouse.Press,
+	})
+	c1.TriggerMouseEvent(mouse.Event{
+		Point2: floatgeom.Point2{
+			15, 15,
+		},
+		Button:    mouse.ButtonLeft,
+		EventType: mouse.Release,
+	})
+	if failed {
+		t.Fatal("stop propagation failed")
 	}
 }
 
