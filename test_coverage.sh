@@ -18,6 +18,11 @@ if [ -f profile.out ]; then
     cat profile.out >> coverage.txt
     rm profile.out
 fi
+go test -coverprofile=profile.out -covermode=atomic ./alg/span
+if [ -f profile.out ]; then
+    cat profile.out >> coverage.txt
+    rm profile.out
+fi
 go test -coverprofile=profile.out -covermode=atomic ./collision
 if [ -f profile.out ]; then
     cat profile.out >> coverage.txt
