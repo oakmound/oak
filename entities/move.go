@@ -19,16 +19,16 @@ func Arrows(mvr *Entity) {
 // TopDown moves the given mover based on its speed as the given keys are pressed
 func TopDown(mvr *Entity, up, down, left, right key.Code) {
 	mvr.Delta = floatgeom.Point2{}
-	if mvr.ctx.KeyState.IsDown(up) {
+	if mvr.ctx.IsDown(up) {
 		mvr.Delta[1] -= mvr.Speed[1]
 	}
-	if mvr.ctx.KeyState.IsDown(down) {
+	if mvr.ctx.IsDown(down) {
 		mvr.Delta[1] += mvr.Speed[1]
 	}
-	if mvr.ctx.KeyState.IsDown(left) {
+	if mvr.ctx.IsDown(left) {
 		mvr.Delta[0] -= mvr.Speed[0]
 	}
-	if mvr.ctx.KeyState.IsDown(right) {
+	if mvr.ctx.IsDown(right) {
 		mvr.Delta[0] += mvr.Speed[0]
 	}
 	mvr.ShiftDelta()
