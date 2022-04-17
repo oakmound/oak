@@ -26,6 +26,10 @@ func TestDrawStack(t *testing.T) {
 	if len(GlobalDrawStack.as) != 1 {
 		t.Fatalf("global draw stack did not have one length after pop")
 	}
+	cp := GlobalDrawStack.Copy()
+	if len(cp.toPush) != len(GlobalDrawStack.toPush) {
+		t.Fatalf("copy failed to copy push length")
+	}
 }
 
 func TestDrawStack_Draw(t *testing.T) {

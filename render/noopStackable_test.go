@@ -20,4 +20,5 @@ func TestNoopStackable(t *testing.T) {
 	if noop2 != noop {
 		t.Fatalf("expected equal noop stackables")
 	}
+	noop.Clear()
 }
