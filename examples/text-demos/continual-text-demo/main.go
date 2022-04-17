@@ -63,9 +63,9 @@ func main() {
 			}
 
 			event.GlobalBind(ctx, event.Enter, func(_ event.EnterPayload) event.Response {
-				r = limit.EnforceRange(r + diff.Poll())
-				g = limit.EnforceRange(g + diff.Poll())
-				b = limit.EnforceRange(b + diff.Poll())
+				r = limit.Clamp(r + diff.Poll())
+				g = limit.Clamp(g + diff.Poll())
+				b = limit.Clamp(b + diff.Poll())
 				font.Drawer.Src = image.NewUniform(
 					color.RGBA{
 						uint8(r),

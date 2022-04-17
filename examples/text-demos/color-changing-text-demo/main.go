@@ -62,9 +62,9 @@ func main() {
 			render.Draw(font2.NewText("b", 400, 260), 0)
 
 			ctx.DoEachFrame(func() {
-				r = limit.EnforceRange(r + diff.Poll())
-				g = limit.EnforceRange(g + diff.Poll())
-				b = limit.EnforceRange(b + diff.Poll())
+				r = limit.Clamp(r + diff.Poll())
+				g = limit.Clamp(g + diff.Poll())
+				b = limit.Clamp(b + diff.Poll())
 				font.Drawer.Src = image.NewUniform(
 					color.RGBA{
 						uint8(r),

@@ -53,15 +53,15 @@ func TestLinear(t *testing.T) {
 		}
 		underMin := (rand.Intn(maxInt-minInt) + minInt) - (maxInt - minInt)
 		if linear.Clamp(underMin) != min {
-			t.Fatal("Linear.EnforceRange under min did not return min")
+			t.Fatal("Linear.Clamp under min did not return min")
 		}
 		overMax := (rand.Intn(maxInt-minInt) + minInt) + (maxInt - minInt)
 		if linear.Clamp(overMax) != max {
-			t.Fatal("Linear.EnforceRange over max did not return max")
+			t.Fatal("Linear.Clamp over max did not return max")
 		}
 		within := rand.Intn(max-min) + min
 		if linear.Clamp(within) != within {
-			t.Fatal("Linear.EnforceRange within range did not return input")
+			t.Fatal("Linear.Clamp within range did not return input")
 		}
 		percent := rand.Float64()
 		if !flipped {
@@ -93,7 +93,7 @@ func TestConstant(t *testing.T) {
 			t.Fatal("Constant.Mult result did not match expected Poll")
 		}
 		if cons.Clamp(rand.Intn(maxInt)) != val {
-			t.Fatal("Constant.EnforceRange did not return initialized value")
+			t.Fatal("Constant.Clamp did not return initialized value")
 		}
 		if cons.Percentile(rand.Float64()) != val {
 			t.Fatal("Constant.Percentile did not return initialized value")
