@@ -333,6 +333,7 @@ func (r Rect2) Intersects(r2 Rect2) bool {
 		(r2.Max.Y() <= r.Min.Y() || r.Max.Y() <= r2.Min.Y()))
 }
 
+// MulConst multiplies the boundary points of this rectangle by i.
 func (r Rect2) MulConst(i int) Rect2 {
 	return Rect2{
 		r.Min.MulConst(i),
@@ -361,6 +362,9 @@ func (r Rect2) Clamp(pt Point2) Point2 {
 	return pt
 }
 
+// Percentile returns a point within this rectangle along the vector from the top left to the bottom right of the
+// rectangle, where for example, 0.0 will be r.Min, 1.0 will be r.Max, and 2.0 will be project the vector beyond r
+// and return r.Min + {r.W()*2, r.H()*2}
 func (r Rect2) Percentile(f float64) Point2 {
 	return Point2{
 		r.Min.X() + int(f*float64(r.W())),
@@ -368,10 +372,12 @@ func (r Rect2) Percentile(f float64) Point2 {
 	}
 }
 
+// MulSpan returns this rectangle as a Point2 Span after multiplying the boundary points of the rectangle by f.
 func (r Rect2) MulSpan(f float64) span.Span[Point2] {
 	return r.MulConst(int(f))
 }
 
+// MulConst multiplies the boundary points of this rectangle by i.
 func (r Rect3) MulConst(i int) Rect3 {
 	return Rect3{
 		r.Min.MulConst(i),
@@ -401,6 +407,9 @@ func (r Rect3) Clamp(pt Point3) Point3 {
 	return pt
 }
 
+// Percentile returns a point within this rectangle along the vector from the top left to the bottom right of the
+// rectangle, where for example, 0.0 will be r.Min, 1.0 will be r.Max, and 2.0 will be project the vector beyond r
+// and return r.Min + {r.W()*2, r.H()*2, r.D()*2}
 func (r Rect3) Percentile(f float64) Point3 {
 	return Point3{
 		r.Min.X() + int(f*float64(r.W())),
@@ -409,6 +418,7 @@ func (r Rect3) Percentile(f float64) Point3 {
 	}
 }
 
+// MulConst multiplies the boundary points of this rectangle by i.
 func (r Rect3) MulSpan(f float64) span.Span[Point3] {
 	return r.MulConst(int(f))
 }
