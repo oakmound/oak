@@ -85,7 +85,7 @@ func (w *Window) sceneLoop(first string, trackingInputs, batchLoad bool) {
 				MouseTree:     w.MouseTree,
 				CollisionTree: w.CollisionTree,
 				Window:        w,
-				KeyState:      &w.State,
+				State:         &w.State,
 			})
 			w.transitionCh <- struct{}{}
 		}()

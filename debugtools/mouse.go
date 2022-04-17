@@ -12,7 +12,7 @@ import (
 // key is held down at the time. If 0 is given, it will always be printed
 func DebugMouseRelease(ctx *scene.Context, k key.Code) {
 	event.GlobalBind(ctx, mouse.Release, func(mev *mouse.Event) event.Response {
-		if k == 0 || ctx.KeyState.IsDown(k) {
+		if k == 0 || ctx.IsDown(k) {
 			dlog.Info(mev)
 		}
 		return 0

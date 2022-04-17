@@ -13,23 +13,21 @@ import (
 // the draw stack, event bus, known event callers, collision trees, keyboard state,
 // and a reference to the OS window itself. When a scene ends, modifications made
 // to these structures will be reset, excluding window modifications.
-// TODO oak v4: consider embedding these system objects on the context to change
-// ctx.DrawStack.Draw to ctx.Draw and ctx.Handler.Bind to ctx.Bind
 type Context struct {
 	// This context will be canceled when the scene ends
 	context.Context
 
-	*event.CallerMap
-	event.Handler
 	PreviousScene string
 	SceneInput    interface{}
 	Window        Window
 
+	*event.CallerMap
+	event.Handler
 	*render.DrawStack
+	*key.State
 
 	MouseTree     *collision.Tree
 	CollisionTree *collision.Tree
-	KeyState      *key.State
 }
 
 // DoEachFrame is a helper method to call a function on each frame for the duration of this scene.

@@ -45,12 +45,8 @@ func (f *fakeWindow) MoveWindow(x, y, w, h int) error {
 	return nil
 }
 
-func (f *fakeWindow) Width() int {
-	return 1
-}
-
-func (f *fakeWindow) Height() int {
-	return 1
+func (f *fakeWindow) Bounds() intgeom.Point2 {
+	return intgeom.Point2{1, 1}
 }
 
 func (f *fakeWindow) Viewport() intgeom.Point2 {
