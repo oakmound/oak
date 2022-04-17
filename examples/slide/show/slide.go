@@ -100,7 +100,7 @@ func Start(width, height int, slides ...Slide) {
 	oak.AddScene("slide"+strconv.Itoa(len(slides)),
 		scene.Scene{
 			Start: func(ctx *scene.Context) {
-				oldBackground = oak.GetBackgroundImage()
+				oldBackground = ctx.Window.(*oak.Window).GetBackgroundImage()
 				oak.SetColorBackground(image.NewUniform(color.RGBA{0, 0, 0, 255}))
 				wbds := ctx.Window.Bounds()
 				render.Draw(
