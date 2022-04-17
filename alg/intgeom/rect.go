@@ -1,5 +1,11 @@
 package intgeom
 
+import (
+	"math/rand"
+
+	"github.com/oakmound/oak/v3/alg/span"
+)
+
 // A Rect2 represents a span from one point in 2D space to another.
 // If Min is less than max on any axis, it will return undefined results
 // for methods.
@@ -327,18 +333,82 @@ func (r Rect2) Intersects(r2 Rect2) bool {
 		(r2.Max.Y() <= r.Min.Y() || r.Max.Y() <= r2.Min.Y()))
 }
 
+func (r Rect2) MulConst(i int) Rect2 {
+	return Rect2{
+		r.Min.MulConst(i),
+		r.Max.MulConst(i),
+	}
+}
+
+// Poll returns a pseudorandom point from within this rectangle
+func (r Rect2) Poll() Point2 {
+	return Point2{
+		r.Min.X() + int(rand.Float64()*float64(r.W())),
+		r.Min.Y() + int(rand.Float64()*float64(r.H())),
+	}
+}
+
 // Clamp returns a version of the provided point such that it is contained within r. If it was already contained in
 // r, it will not be changed.
 func (r Rect2) Clamp(pt Point2) Point2 {
-	if pt.X() < r.Min[0] {
-		pt[0] = r.Min[0]
-	} else if pt.X() > r.Max[0] {
-		pt[0] = r.Max[0]
-	}
-	if pt.Y() < r.Min[1] {
-		pt[1] = r.Min[1]
-	} else if pt.Y() > r.Max[1] {
-		pt[1] = r.Max[1]
+	for i := 0; i < r.MaxDimensions(); i++ {
+		if pt[i] < r.Min[i] {
+			pt[i] = r.Min[i]
+		} else if pt[i] > r.Max[i] {
+			pt[i] = r.Max[i]
+		}
 	}
 	return pt
+}
+
+func (r Rect2) Percentile(f float64) Point2 {
+	return Point2{
+		r.Min.X() + int(f*float64(r.W())),
+		r.Min.Y() + int(f*float64(r.H())),
+	}
+}
+
+func (r Rect2) MulSpan(f float64) span.Span[Point2] {
+	return r.MulConst(int(f))
+}
+
+func (r Rect3) MulConst(i int) Rect3 {
+	return Rect3{
+		r.Min.MulConst(i),
+		r.Max.MulConst(i),
+	}
+}
+
+// Poll returns a pseudorandom point from within this rectangle
+func (r Rect3) Poll() Point3 {
+	return Point3{
+		r.Min.X() + int(rand.Float64()*float64(r.W())),
+		r.Min.Y() + int(rand.Float64()*float64(r.H())),
+		r.Min.Z() + int(rand.Float64()*float64(r.D())),
+	}
+}
+
+// Clamp returns a version of the provided point such that it is contained within r. If it was already contained in
+// r, it will not be changed.
+func (r Rect3) Clamp(pt Point3) Point3 {
+	for i := 0; i < r.MaxDimensions(); i++ {
+		if pt[i] < r.Min[i] {
+			pt[i] = r.Min[i]
+		} else if pt[i] > r.Max[i] {
+			pt[i] = r.Max[i]
+		}
+	}
+	return pt
+}
+
+func (r Rect3) Percentile(f float64) Point3 {
+	return Point3{
+		r.Min.X() + int(f*float64(r.W())),
+		r.Min.Y() + int(f*float64(r.H())),
+		r.Min.Z() + int(f*float64(r.D())),
+	}
+}
+
+func (r Rect3) MulSpan(f float64) span.Span[Point3] {
+	return r.MulConst(int(f))
 }

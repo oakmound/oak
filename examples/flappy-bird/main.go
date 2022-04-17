@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/alg/span"
 	"github.com/oakmound/oak/v3/mouse"
 
 	oak "github.com/oakmound/oak/v3"
@@ -35,7 +35,7 @@ func main() {
 		// 1. Make Player
 		newFlappy(ctx, 90, 140)
 		// 2. Make scrolling repeating pillars
-		pillarFreq := floatrange.NewLinear(1, 5)
+		pillarFreq := span.NewLinear(1.0, 5.0)
 		var pillarLoop func()
 		pillarLoop = func() {
 			newPillarPair(ctx)
@@ -92,8 +92,8 @@ func newFlappy(ctx *scene.Context, x, y float64) {
 }
 
 var (
-	gapPosition = floatrange.NewLinear(10, 370)
-	gapSpan     = floatrange.NewLinear(100, 250)
+	gapPosition = span.NewLinear(10.0, 370.0)
+	gapSpan     = span.NewLinear(100.0, 250.0)
 )
 
 func newPillarPair(ctx *scene.Context) {

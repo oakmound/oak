@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"math/rand"
 
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v3/alg/span"
 	"github.com/oakmound/oak/v3/dlog"
 	"github.com/oakmound/oak/v3/event"
 
@@ -25,8 +25,8 @@ const (
 var (
 	font    *render.Font
 	r, g, b float64
-	diff    = floatrange.NewSpread(0, 10)
-	limit   = floatrange.NewLinear(0, 255)
+	diff    = span.NewSpread(0.0, 10.0)
+	limit   = span.NewLinear(0.0, 255.0)
 	strs    []*render.Text
 )
 

@@ -6,8 +6,7 @@ import (
 	"image/color"
 	"log"
 
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/alg/span"
 	"github.com/oakmound/oak/v3/render/mod"
 	"github.com/oakmound/oak/v3/render/particle"
 
@@ -458,12 +457,12 @@ func addParticles(i int, sslides []*static.Slide) {
 	sslides[i].Append(show.Title("Particles"))
 	sslides[i].OnClick = func() {
 		go particle.NewColorGenerator(
-			particle.Size(intrange.NewConstant(4)),
-			particle.EndSize(intrange.NewConstant(7)),
-			particle.Angle(floatrange.NewLinear(0, 359)),
+			particle.Size(span.NewConstant(4)),
+			particle.EndSize(span.NewConstant(7)),
+			particle.Angle(span.NewLinear(0, 359)),
 			particle.Pos(width/2, height/2),
-			particle.Speed(floatrange.NewSpread(5, 2)),
-			particle.NewPerFrame(floatrange.NewSpread(5, 5)),
+			particle.Speed(span.NewSpread(5, 2)),
+			particle.NewPerFrame(span.NewSpread(5, 5)),
 			particle.Color(
 				color.RGBA{0, 0, 0, 255}, color.RGBA{0, 0, 0, 0},
 				color.RGBA{255, 255, 255, 255}, color.RGBA{0, 0, 0, 0},

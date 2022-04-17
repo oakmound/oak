@@ -43,7 +43,7 @@ func (gg *GradientGenerator) setDefaults() {
 func (gg *GradientGenerator) Generate(layer int) *Source {
 	// Convert rotation from degrees to radians
 	if gg.Rotation != nil {
-		gg.Rotation = gg.Rotation.Mult(alg.DegToRad)
+		gg.Rotation = gg.Rotation.MulSpan(alg.DegToRad)
 	}
 	return NewDefaultSource(gg, layer)
 }

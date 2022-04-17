@@ -6,11 +6,10 @@ import (
 	"path"
 	"strconv"
 
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-
 	"image"
 
 	oak "github.com/oakmound/oak/v3"
+	"github.com/oakmound/oak/v3/alg/span"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/scene"
 )
@@ -18,8 +17,8 @@ import (
 var (
 	font    *render.Font
 	r, g, b float64
-	diff    = floatrange.NewSpread(0, 10)
-	limit   = floatrange.NewLinear(0, 255)
+	diff    = span.NewSpread(0.0, 10.0)
+	limit   = span.NewLinear(0.0, 255.0)
 )
 
 type floatStringer struct {
@@ -62,7 +61,7 @@ func main() {
 			render.Draw(font2.NewText("g", 280, 260), 0)
 			render.Draw(font2.NewText("b", 400, 260), 0)
 
-			ctx.DoEachFrame(func(){
+			ctx.DoEachFrame(func() {
 				r = limit.EnforceRange(r + diff.Poll())
 				g = limit.EnforceRange(g + diff.Poll())
 				b = limit.EnforceRange(b + diff.Poll())

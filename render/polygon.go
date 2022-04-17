@@ -6,7 +6,7 @@ import (
 	"math"
 
 	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/alg/range/colorrange"
+	"github.com/oakmound/oak/v3/alg/span"
 )
 
 // A Polygon is a renderable that is represented by a set of in order points
@@ -45,7 +45,7 @@ func (pg *Polygon) GetThickOutline(c color.Color, thickness int) *CompositeM {
 // GetGradientOutline returns a set of lines of the given color along this polygon's outline,
 // at the given thickness, ranging from c1 to c2 in color
 func (pg *Polygon) GetGradientOutline(c1, c2 color.Color, thickness int) *CompositeM {
-	return pg.GetColoredOutline(colorrange.NewLinear(c1, c2).Percentile, thickness)
+	return pg.GetColoredOutline(span.NewLinearColor(c1, c2).Percentile, thickness)
 }
 
 // GetColoredOutline returns a set of lines of the given color along this polygon's outline

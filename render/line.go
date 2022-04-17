@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/oakmound/oak/v3/alg/range/colorrange"
+	"github.com/oakmound/oak/v3/alg/span"
 )
 
 // Todo:
@@ -30,7 +30,7 @@ func NewThickLine(x1, y1, x2, y2 float64, c color.Color, thickness int) *Sprite 
 
 // NewGradientLine returns a Line that has some value of thickness along with a start and end color
 func NewGradientLine(x1, y1, x2, y2 float64, c1, c2 color.Color, thickness int) *Sprite {
-	colorer := colorrange.NewLinear(c1, c2).Percentile
+	colorer := span.NewLinearColor(c1, c2).Percentile
 	return NewColoredLine(x1, y1, x2, y2, colorer, thickness)
 }
 
@@ -57,7 +57,7 @@ func DrawThickLine(rgba *image.RGBA, x1, y1, x2, y2 int, c color.Color, thicknes
 
 //DrawGradientLine acts like DrawThickLine but also applies a gradient to the line
 func DrawGradientLine(rgba *image.RGBA, x1, y1, x2, y2 int, c1, c2 color.Color, thickness int) {
-	colorer := colorrange.NewLinear(c1, c2).Percentile
+	colorer := span.NewLinearColor(c1, c2).Percentile
 	DrawLineColored(rgba, x1, y1, x2, y2, thickness, colorer)
 }
 

@@ -4,8 +4,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/alg/span"
 	"github.com/oakmound/oak/v3/event"
 	"github.com/oakmound/oak/v3/physics"
 	"github.com/oakmound/oak/v3/render"
@@ -14,25 +13,25 @@ import (
 
 func TestSource(t *testing.T) {
 	g := NewGradientGenerator(
-		Rotation(floatrange.NewConstant(1)),
+		Rotation(span.NewConstant(1.0)),
 		Color(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255},
 			color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
 		Color2(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255},
 			color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
-		Size(intrange.NewConstant(5)),
-		EndSize(intrange.NewConstant(10)),
+		Size(span.NewConstant(5)),
+		EndSize(span.NewConstant(10)),
 		Shape(shape.Heart),
 		Progress(render.HorizontalProgress),
 		And(
-			NewPerFrame(floatrange.NewConstant(200)),
+			NewPerFrame(span.NewConstant(200.0)),
 		),
 		Pos(20, 20),
-		LifeSpan(floatrange.NewConstant(10)),
+		LifeSpan(span.NewConstant(10.0)),
 		Limit(2047),
-		Angle(floatrange.NewConstant(0)),
-		Speed(floatrange.NewConstant(0)),
+		Angle(span.NewConstant(0.0)),
+		Speed(span.NewConstant(0.0)),
 		Spread(10, 10),
-		Duration(intrange.NewConstant(10)),
+		Duration(span.NewConstant(10)),
 		Gravity(10, 10),
 		SpeedDecay(1, 1),
 		End(func(_ Particle) {}),

@@ -1,9 +1,10 @@
 package particle
 
 import (
+	"math"
+
 	"github.com/oakmound/oak/v3/alg"
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/alg/span"
 	"github.com/oakmound/oak/v3/physics"
 )
 
@@ -18,7 +19,7 @@ func And(as ...func(Generator)) func(Generator) {
 }
 
 // NewPerFrame sets how many particles should be produced per frame
-func NewPerFrame(npf floatrange.Range) func(Generator) {
+func NewPerFrame(npf span.Span[float64]) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().NewPerFrame = npf
 	}
@@ -32,7 +33,7 @@ func Pos(x, y float64) func(Generator) {
 }
 
 // LifeSpan sets how long a particle should last before dying
-func LifeSpan(ls floatrange.Range) func(Generator) {
+func LifeSpan(ls span.Span[float64]) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().LifeSpan = ls
 	}
@@ -41,19 +42,19 @@ func LifeSpan(ls floatrange.Range) func(Generator) {
 // InfiniteLifeSpan will set particles to never die over time.
 func InfiniteLifeSpan() func(Generator) {
 	return func(g Generator) {
-		g.GetBaseGenerator().LifeSpan = floatrange.NewInfinite()
+		g.GetBaseGenerator().LifeSpan = span.NewConstant(math.MaxFloat64)
 	}
 }
 
 // Angle sets the initial angle of a particle in degrees
-func Angle(a floatrange.Range) func(Generator) {
+func Angle(a span.Span[float64]) func(Generator) {
 	return func(g Generator) {
-		g.GetBaseGenerator().Angle = a.Mult(alg.DegToRad)
+		g.GetBaseGenerator().Angle = a.MulSpan(alg.DegToRad)
 	}
 }
 
 // Speed sets the initial speed of a particle
-func Speed(s floatrange.Range) func(Generator) {
+func Speed(s span.Span[float64]) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().Speed = s
 	}
@@ -67,14 +68,14 @@ func Spread(x, y float64) func(Generator) {
 }
 
 // Duration sets how long a generator should produce particles for
-func Duration(i intrange.Range) func(Generator) {
+func Duration(i span.Span[int]) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().Duration = i
 	}
 }
 
 // Rotation rotates particles by a variable amount per frame
-func Rotation(a floatrange.Range) func(Generator) {
+func Rotation(a span.Span[float64]) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().Rotation = a
 	}

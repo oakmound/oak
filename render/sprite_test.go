@@ -6,8 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/oakmound/oak/v3/alg/range/colorrange"
-	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/alg/span"
 	"github.com/oakmound/oak/v3/render/mod"
 )
 
@@ -15,9 +14,9 @@ var (
 	// this is excessive for a lot of tests
 	// but it takes away some decision making
 	// and could reveal problems that probably aren't there
-	widths  = intrange.NewLinear(1, 10)
-	heights = intrange.NewLinear(1, 10)
-	colors  = colorrange.NewLinear(color.RGBA{0, 0, 0, 0}, color.RGBA{255, 255, 255, 255})
+	widths  = span.NewLinear(1, 10)
+	heights = span.NewLinear(1, 10)
+	colors  = span.NewLinearColor(color.RGBA{0, 0, 0, 0}, color.RGBA{255, 255, 255, 255})
 )
 
 const (

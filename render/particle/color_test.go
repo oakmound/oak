@@ -5,18 +5,17 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v3/alg/span"
 	"github.com/oakmound/oak/v3/render"
 	"github.com/oakmound/oak/v3/shape"
 )
 
 func TestColorParticle(t *testing.T) {
 	g := NewColorGenerator(
-		Rotation(floatrange.NewConstant(1)),
+		Rotation(span.NewConstant(1.0)),
 		Color(color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}, color.RGBA{255, 0, 0, 255}),
-		Size(intrange.NewConstant(5)),
-		EndSize(intrange.NewConstant(10)),
+		Size(span.NewConstant(5)),
+		EndSize(span.NewConstant(10)),
 		Shape(shape.Heart),
 	)
 	src := g.Generate(0)
