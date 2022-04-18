@@ -97,7 +97,7 @@ func bezierDrawRec(b shape.Bezier, list *render.CompositeM, alpha uint8) {
 		bezierDrawRec(bzn.Right, list, uint8(float64(alpha)*.5))
 	case shape.BezierPoint:
 		sp := render.NewColorBox(5, 5, color.RGBA{255, 255, 255, 255})
-		sp.SetPos(bzn.X()-2, bzn.Y()-2)
+		sp.SetPos(bzn[0]-2, bzn[1]-2)
 		list.Append(sp)
 	}
 }
