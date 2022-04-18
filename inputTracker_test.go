@@ -48,4 +48,7 @@ func TestTrackInputChanges(t *testing.T) {
 	if <-inputChangeFailed {
 		t.Fatalf("keyboard change failed")
 	}
+	if c1.MostRecentInput() != InputKeyboard {
+		t.Fatalf("most recent input getter failed")
+	}
 }

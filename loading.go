@@ -27,11 +27,8 @@ func (w *Window) loadAssets(imageDir, audioDir string) {
 		} else {
 			err = audio.BatchLoad(audioDir)
 		}
-		if err != nil {
-			return err
-		}
 		dlog.Verb("Done Loading Audio")
-		return nil
+		return err
 	})
 	dlog.ErrorCheck(eg.Wait())
 }

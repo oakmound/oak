@@ -64,13 +64,3 @@ type BezierPoint floatgeom.Point2
 func (bp BezierPoint) Pos(float64) (x, y float64) {
 	return bp[0], bp[1]
 }
-
-// X returns bp's value on the X axis.
-func (bp BezierPoint) X() float64 {
-	return bp[0]
-}
-
-// Y returns bp's value on the Y axis.
-func (bp BezierPoint) Y() float64 {
-	return bp[1]
-}

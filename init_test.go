@@ -36,3 +36,11 @@ func TestInitFailures(t *testing.T) {
 		}
 	})
 }
+
+func TestInitDebugConsole(t *testing.T) {
+	c1 := NewWindow()
+	c1.Init("bad", func(c Config) (Config, error) {
+		c.EnableDebugConsole = true
+		return c, nil
+	})
+}

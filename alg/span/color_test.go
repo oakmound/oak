@@ -42,4 +42,15 @@ func TestLinearColor(t *testing.T) {
 	if rng.Clamp(color.RGBA{175, 175, 175, 175}) != (color.RGBA{175, 175, 175, 175}) {
 		t.Fatal("linear color range did not pass through value within range")
 	}
+
+	rng = rng.MulSpan(1.1)
+	if rng.Clamp(color.RGBA{100, 100, 100, 100}) != (color.RGBA{137, 137, 137, 137}) {
+		t.Fatal("linear color range did not enforce minimum color")
+	}
+	if rng.Clamp(color.RGBA{225, 225, 225, 225}) != (color.RGBA{220, 220, 220, 220}) {
+		t.Fatal("linear color range did not enforce maximum color")
+	}
+	if rng.Clamp(color.RGBA{175, 175, 175, 175}) != (color.RGBA{175, 175, 175, 175}) {
+		t.Fatal("linear color range did not pass through value within range")
+	}
 }
