@@ -3,7 +3,7 @@ package intgeom
 import (
 	"math/rand"
 
-	"github.com/oakmound/oak/v3/alg/span"
+	"github.com/oakmound/oak/v4/alg/span"
 )
 
 // A Rect2 represents a span from one point in 2D space to another.

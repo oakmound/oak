@@ -3,10 +3,10 @@ package scene
 import (
 	"context"
 
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/render"
 )
 
 // A Context contains all transient engine components used in a scene, including

@@ -1,8 +1,8 @@
 package render
 
 import (
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/render/mod"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/render/mod"
 )
 
 // The Reverting structure lets modifications be made to a Modifiable and then

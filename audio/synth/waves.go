@@ -5,7 +5,7 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
 // Wave functions take a set of options and return an audio

@@ -1,11 +1,11 @@
 package debugtools
 
 import (
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 // DebugMouseRelease will print the position and button pressed of the mouse when the mouse is released, if the given

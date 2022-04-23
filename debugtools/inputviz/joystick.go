@@ -9,14 +9,14 @@ import (
 	"math"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/joystick"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/render/mod"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/joystick"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/render/mod"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 //go:embed controllerOutline.png

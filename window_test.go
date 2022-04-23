@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/render"
 )
 
 func TestMouseClicks(t *testing.T) {
@@ -133,7 +133,7 @@ func TestPropagate_StopPropagation(t *testing.T) {
 		ev.StopPropagation = true
 		return 0
 	}).Bound
-	<-event.Bind(c1.eventHandler, mouse.RelativeClickOn , e2, func(_ ent, ev *mouse.Event) event.Response {
+	<-event.Bind(c1.eventHandler, mouse.RelativeClickOn, e2, func(_ ent, ev *mouse.Event) event.Response {
 		failed = true
 		return 0
 	}).Bound

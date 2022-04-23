@@ -8,7 +8,7 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 type textureImpl struct {

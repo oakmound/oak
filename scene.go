@@ -3,8 +3,8 @@ package oak
 import (
 	"time"
 
-	"github.com/oakmound/oak/v3/scene"
-	"github.com/oakmound/oak/v3/timing"
+	"github.com/oakmound/oak/v4/scene"
+	"github.com/oakmound/oak/v4/timing"
 )
 
 // AddScene is shorthand for w.SceneMap.AddScene

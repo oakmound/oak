@@ -6,15 +6,15 @@ import (
 	"image/color"
 	"log"
 
-	"github.com/oakmound/oak/v3/alg/span"
-	"github.com/oakmound/oak/v3/render/mod"
-	"github.com/oakmound/oak/v3/render/particle"
+	"github.com/oakmound/oak/v4/alg/span"
+	"github.com/oakmound/oak/v4/render/mod"
+	"github.com/oakmound/oak/v4/render/particle"
 
-	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/examples/slide/show"
-	"github.com/oakmound/oak/v3/examples/slide/show/static"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/shape"
+	oak "github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/examples/slide/show"
+	"github.com/oakmound/oak/v4/examples/slide/show/static"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/shape"
 	"golang.org/x/image/colornames"
 )
 

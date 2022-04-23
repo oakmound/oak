@@ -5,7 +5,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/oakmound/oak/v3/window"
+	"github.com/oakmound/oak/v4/window"
 )
 
 var (

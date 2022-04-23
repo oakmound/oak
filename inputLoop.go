@@ -1,13 +1,13 @@
 package oak
 
 import (
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/timing"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/timing"
 
-	"github.com/oakmound/oak/v3/dlog"
-	okey "github.com/oakmound/oak/v3/key"
-	omouse "github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v4/dlog"
+	okey "github.com/oakmound/oak/v4/key"
+	omouse "github.com/oakmound/oak/v4/mouse"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
 	"golang.org/x/mobile/event/mouse"

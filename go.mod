@@ -1,4 +1,4 @@
-module github.com/oakmound/oak/v3
+module github.com/oakmound/oak/v4
 
 go 1.18
 

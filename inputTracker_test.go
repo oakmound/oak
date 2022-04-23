@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 func TestTrackInputChanges(t *testing.T) {

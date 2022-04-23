@@ -3,7 +3,7 @@ package audio
 import (
 	"time"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
 // FadeIn wraps a reader such that it will linearly fades in over the given duration.

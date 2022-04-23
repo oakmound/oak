@@ -13,8 +13,8 @@ import (
 
 	"encoding/binary"
 
-	"github.com/oakmound/oak/v3/audio/format"
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/format"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
 func init() {

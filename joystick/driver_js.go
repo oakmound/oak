@@ -1,17 +1,17 @@
 package joystick
 
 import (
+	"errors"
 	"reflect"
 	"syscall/js"
-	"errors"
 
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/oakerr"
-	"github.com/oakmound/oak/v3/timing"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/oakerr"
+	"github.com/oakmound/oak/v4/timing"
 )
 
-func osinit() error { 
-	// TODO: listen to joystick connected and joystick disconnected? We'd still need to 
+func osinit() error {
+	// TODO: listen to joystick connected and joystick disconnected? We'd still need to
 	// list from getGamepads every frame, it seems, to get new button presses.
 	return nil
 }
@@ -63,19 +63,19 @@ type jsGamepadState struct {
 	connected bool
 	// osID      string
 	// index     int
-	mapping   string
+	mapping string
 }
 
 type jsButton struct {
-	value   float64
+	value float64
 	//touched bool
 	pressed bool
 }
 
 type osJoystick struct {
-	cache State
-	jsState      jsGamepadState
-	newJSState      jsGamepadState
+	cache      State
+	jsState    jsGamepadState
+	newJSState jsGamepadState
 	newButtons map[string]bool
 }
 

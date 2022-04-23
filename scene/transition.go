@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/oakmound/oak/v3/render/mod"
+	"github.com/oakmound/oak/v4/render/mod"
 )
 
 // Transition functions can be set to occur at the end of a scene.

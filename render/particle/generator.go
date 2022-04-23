@@ -3,8 +3,8 @@ package particle
 import (
 	"math"
 
-	"github.com/oakmound/oak/v3/alg/span"
-	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v4/alg/span"
+	"github.com/oakmound/oak/v4/physics"
 )
 
 var (

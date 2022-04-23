@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v4/event"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/mouse"
 )

@@ -5,8 +5,8 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/oakmound/oak/v3/alg"
-	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
 )
 
 // NewCircle creates a sprite and draws a circle onto it

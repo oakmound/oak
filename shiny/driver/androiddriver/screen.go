@@ -7,8 +7,8 @@ package androiddriver
 import (
 	"image"
 
-	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/event"
+	"github.com/oakmound/oak/v4/shiny/screen"
 	"golang.org/x/image/draw"
 	"golang.org/x/mobile/app"
 	"golang.org/x/mobile/event/size"

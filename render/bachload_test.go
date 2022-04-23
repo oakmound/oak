@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 func TestBlankBatchLoad_BadBaseFolder(t *testing.T) {

@@ -13,9 +13,9 @@ import (
 
 	"dmitri.shuralyov.com/gpu/mtl"
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
-	"github.com/oakmound/oak/v3/shiny/driver/internal/lifecycler"
-	"github.com/oakmound/oak/v3/shiny/driver/mtldriver/internal/coreanim"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/event"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/lifecycler"
+	"github.com/oakmound/oak/v4/shiny/driver/mtldriver/internal/coreanim"
 	"golang.org/x/mobile/event/size"
 )
 

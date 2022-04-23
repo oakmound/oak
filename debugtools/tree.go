@@ -4,10 +4,10 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 
-	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v4/collision"
 )
 
 // NewRTree creates a wrapper around a tree that supports coloring the spaces

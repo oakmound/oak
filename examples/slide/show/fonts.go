@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"path"
 
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/render"
 )
 
 func InitFonts() (err error) {

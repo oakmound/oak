@@ -8,7 +8,7 @@ package errscreen
 import (
 	"image"
 
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 // Stub returns a Screen whose methods all return the given error.

@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/oakmound/oak/v3/render/mod"
+	"github.com/oakmound/oak/v4/render/mod"
 )
 
 // SetPalette tells oak to conform the screen to the input color palette before drawing.

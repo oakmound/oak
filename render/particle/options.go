@@ -3,9 +3,9 @@ package particle
 import (
 	"math"
 
-	"github.com/oakmound/oak/v3/alg"
-	"github.com/oakmound/oak/v3/alg/span"
-	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v4/alg"
+	"github.com/oakmound/oak/v4/alg/span"
+	"github.com/oakmound/oak/v4/physics"
 )
 
 // And chains together particle options into a single option

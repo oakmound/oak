@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"syscall/js"
 
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 func initOS() error {

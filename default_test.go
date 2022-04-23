@@ -3,10 +3,10 @@ package oak
 import (
 	"testing"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 func TestDefaultFunctions(t *testing.T) {

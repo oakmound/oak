@@ -4,15 +4,15 @@ import (
 	"image/color"
 	"time"
 
-	"github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/entities"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
-	"github.com/oakmound/oak/v3/shake"
+	"github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/entities"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
+	"github.com/oakmound/oak/v4/shake"
 )
 
 const (

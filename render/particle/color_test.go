@@ -5,9 +5,9 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/oakmound/oak/v3/alg/span"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/shape"
+	"github.com/oakmound/oak/v4/alg/span"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/shape"
 )
 
 func TestColorParticle(t *testing.T) {

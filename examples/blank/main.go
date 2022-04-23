@@ -5,9 +5,9 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 // This example is a blank, default scene with a pprof server. Useful for

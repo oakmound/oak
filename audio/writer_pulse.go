@@ -11,7 +11,7 @@ import (
 	"github.com/jfreymuth/pulse"
 	"github.com/jfreymuth/pulse/proto"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
 // This mutex may be unneeded

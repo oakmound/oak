@@ -1,6 +1,6 @@
 package mouse
 
-import "github.com/oakmound/oak/v3/event"
+import "github.com/oakmound/oak/v4/event"
 
 var (
 	// Press is triggered when a mouse key is pressed down

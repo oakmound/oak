@@ -3,7 +3,7 @@ package synth
 import (
 	"sort"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
 // A Pitch is a frequency value which represents how fast a wave should oscillate to produce a specific tone.

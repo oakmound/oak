@@ -1,7 +1,7 @@
 package particle
 
 import (
-	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v4/event"
 )
 
 const (

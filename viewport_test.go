@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 func sleep() {

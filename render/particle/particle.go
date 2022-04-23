@@ -5,8 +5,8 @@ package particle
 import (
 	"image/draw"
 
-	"github.com/oakmound/oak/v3/physics"
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/physics"
+	"github.com/oakmound/oak/v4/render"
 )
 
 // A Particle is a renderable that is spawned by a generator, usually very fast,

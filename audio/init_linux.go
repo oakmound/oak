@@ -7,8 +7,8 @@ import (
 	"os"
 
 	"github.com/jfreymuth/pulse"
-	"github.com/oakmound/oak/v3/audio/pcm"
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/audio/pcm"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 func initOS(driver Driver) error {

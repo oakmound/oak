@@ -5,7 +5,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
 // A Loader can parse the data from an io.Reader and convert it into PCM encoded audio data with

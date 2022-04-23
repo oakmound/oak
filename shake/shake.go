@@ -6,10 +6,10 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/scene"
-	"github.com/oakmound/oak/v3/window"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/scene"
+	"github.com/oakmound/oak/v4/window"
 )
 
 // A Shaker knows how to shake something by a (or up to a) given magnitude.

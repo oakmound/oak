@@ -6,7 +6,7 @@ package scene
 import (
 	"image"
 
-	"github.com/oakmound/oak/v3/render/mod"
+	"github.com/oakmound/oak/v4/render/mod"
 )
 
 // Fade is a scene transition that fades to black at a given rate for

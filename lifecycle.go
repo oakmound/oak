@@ -4,11 +4,11 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/oakmound/oak/v3/alg"
-	"github.com/oakmound/oak/v3/debugstream"
+	"github.com/oakmound/oak/v4/alg"
+	"github.com/oakmound/oak/v4/debugstream"
 	"golang.org/x/mobile/event/lifecycle"
 
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 func (w *Window) lifecycleLoop(s screen.Screen) {

@@ -17,7 +17,7 @@ import (
 	"github.com/BurntSushi/xgb/shm"
 	"github.com/BurntSushi/xgb/xproto"
 
-	"github.com/oakmound/oak/v3/shiny/driver/internal/swizzle"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/swizzle"
 )
 
 type bufferImpl struct {

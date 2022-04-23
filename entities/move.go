@@ -1,9 +1,9 @@
 package entities
 
 import (
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/key"
 )
 
 // WASD moves the given mover based on its speed as W,A,S, and D are pressed

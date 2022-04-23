@@ -4,8 +4,8 @@ import (
 	"image"
 	"path/filepath"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 // LoadSheet loads a file in some directory with sheets of (w,h) sized sprites.

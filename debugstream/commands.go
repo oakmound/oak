@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 // ScopedCommands for the debug stream commands.

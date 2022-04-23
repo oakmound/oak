@@ -3,7 +3,7 @@ package key
 import (
 	"sync"
 
-	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v4/event"
 	"golang.org/x/mobile/event/key"
 )
 

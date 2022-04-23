@@ -5,15 +5,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/debugtools"
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/oakerr"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/render/mod"
-	"github.com/oakmound/oak/v3/window"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/debugtools"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/oakerr"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/render/mod"
+	"github.com/oakmound/oak/v4/window"
 )
 
 // AddDefaultsForScope for debugging.

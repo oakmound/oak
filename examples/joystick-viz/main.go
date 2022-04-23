@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/oakmound/oak/v3/debugtools/inputviz"
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/debugtools/inputviz"
+	"github.com/oakmound/oak/v4/render"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/event"
 
-	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/joystick"
-	"github.com/oakmound/oak/v3/scene"
+	oak "github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/joystick"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 func main() {

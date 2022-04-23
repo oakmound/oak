@@ -6,11 +6,11 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/oakmound/oak/v3/audio/format"
-	"github.com/oakmound/oak/v3/audio/pcm"
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/fileutil"
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/audio/format"
+	"github.com/oakmound/oak/v4/audio/pcm"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/fileutil"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 // Get will read cached audio data from Load, or error if the given
