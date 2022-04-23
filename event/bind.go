@@ -46,8 +46,9 @@ type BindID int64
 
 // UnsafeBind registers a callback function to be called whenever the provided event is triggered
 // against this bus. The binding is concurrently bound, and therefore may not be immediately
-// available to be triggered. When Reset is called on a Bus, all prior bindings are unbound. This
-// call is 'unsafe' because UnsafeBindables use bare interface{} types.
+// available to be triggered. When Reset is called on a Bus, all prior bindings are unbound and any
+// concurrent calls to UnsafeBind will not take effect. This call is 'unsafe' because UnsafeBindables
+// use bare interface{} types.
 func (bus *Bus) UnsafeBind(eventID UnsafeEventID, callerID CallerID, fn UnsafeBindable) Binding {
 	expectedResetCount := bus.resetCount
 	bindID := BindID(atomic.AddInt64(bus.nextBindID, 1))
@@ -73,7 +74,7 @@ func (bus *Bus) UnsafeBind(eventID UnsafeEventID, callerID CallerID, fn UnsafeBi
 	}
 }
 
-// PersistentBind acts like UnsafeBind, but cause Bind to be called with these inputs after a Bus is Reset, i.e.
+// PersistentBind calls UnsafeBind, and causes UnsafeBind to be called with these inputs when a Bus is Reset, i.e.
 // persisting the binding through bus resets. Unbinding this will not stop it from being rebound on the next
 // Bus Reset-- ClearPersistentBindings will. If called concurrently during a bus Reset, the request may not be
 // bound until the next bus Reset.
