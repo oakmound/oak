@@ -11,18 +11,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/audio"
-	"github.com/oakmound/oak/v3/audio/pcm"
-	"github.com/oakmound/oak/v3/audio/synth"
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/entities"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/audio"
+	"github.com/oakmound/oak/v4/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/synth"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/entities"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 const (
@@ -224,8 +224,8 @@ func main() {
 				render.Draw(monitor)
 
 				pitchDetector := synth.NewPitchDetector(r)
-				pt.pitch = &pitchDetector.DetectedPitch
-				ft.f64 = &pitchDetector.DetectedRawPitch
+				pt.pitch = &pitchDetector.DetectedPitches[0]
+				ft.f64 = &pitchDetector.DetectedRawPitches[0]
 
 				audio.Play(gctx, pitchDetector, func(po *audio.PlayOptions) {
 					po.Destination = monitor
@@ -246,7 +246,7 @@ func main() {
 			x := 20.0
 			y := 200.0
 			i := 0
-			for i < len(keycharOrder) && x+kc.Width() < float64(ctx.Window.Width()-10) {
+			for i < len(keycharOrder) && x+kc.Width() < float64(ctx.Window.Bounds().X()-10) {
 				ky := newKey(ctx, pitch, kc, keycharOrder[i])
 				ky.SetPos(floatgeom.Point2{x, y})
 				layer := 0

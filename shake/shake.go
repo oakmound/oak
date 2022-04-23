@@ -6,9 +6,10 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/scene"
-	"github.com/oakmound/oak/v3/window"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/scene"
+	"github.com/oakmound/oak/v4/window"
 )
 
 // A Shaker knows how to shake something by a (or up to a) given magnitude.
@@ -25,7 +26,7 @@ type Shaker struct {
 }
 
 var (
-	// DefaultShaker is the global default shaker, used when ShakeScreen is called.
+	// DefaultShaker is the global default shaker, used when shake.Screen or shake.Shake are called.
 	DefaultShaker = &Shaker{
 		Random:        false,
 		Magnitude:     floatgeom.Point2{3.0, 3.0},
@@ -111,7 +112,7 @@ type screenToPoser struct {
 }
 
 func (stp screenToPoser) ShiftPos(x, y float64) {
-	stp.ShiftScreen(int(x), int(y))
+	stp.ShiftViewport(intgeom.Point2{int(x), int(y)})
 }
 
 // Screen shakes the screen that the context controls for the given duration.

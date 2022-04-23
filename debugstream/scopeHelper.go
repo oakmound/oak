@@ -5,15 +5,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/debugtools"
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/oakerr"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/render/mod"
-	"github.com/oakmound/oak/v3/window"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/debugtools"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/oakerr"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/render/mod"
+	"github.com/oakmound/oak/v4/window"
 )
 
 // AddDefaultsForScope for debugging.
@@ -39,8 +39,9 @@ func moveWindow(w window.Window) func([]string) string {
 				InputName: "coordinates",
 			}.Error()
 		}
-		width := parseTokenAsInt(sub, 2, w.Width())
-		height := parseTokenAsInt(sub, 3, w.Height())
+		bds := w.Bounds()
+		width := parseTokenAsInt(sub, 2, bds.X())
+		height := parseTokenAsInt(sub, 3, bds.Y())
 		v := w.Viewport()
 		x := parseTokenAsInt(sub, 0, v.X())
 		y := parseTokenAsInt(sub, 1, v.Y())
@@ -85,7 +86,7 @@ func mouseDetails(w window.Window) func(*mouse.Event) event.Response {
 		if len(results) == 0 {
 			results = mouse.Hits(loc)
 		}
-		cm := w.GetCallerMap()
+		cm := w.EventHandler().GetCallerMap()
 
 		if len(results) > 0 {
 			i := results[0].CID

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v4/event"
 )
 
 func TestBindingResponses(t *testing.T) {

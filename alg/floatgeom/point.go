@@ -3,7 +3,7 @@ package floatgeom
 import (
 	"math"
 
-	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v4/alg"
 )
 
 // Point2 represents a 2D point on a plane.

@@ -3,9 +3,10 @@ package audio
 import (
 	"time"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
+// FadeIn wraps a reader such that it will linearly fades in over the given duration.
 func FadeIn(dur time.Duration, in pcm.Reader) pcm.Reader {
 	perSec := in.PCMFormat().BytesPerSecond()
 	bytesToFadeIn := int((time.Duration(perSec) / 1000) * (dur / time.Millisecond))
@@ -74,6 +75,7 @@ func (fir *fadeInReader) ReadPCM(b []byte) (n int, err error) {
 	return read, nil
 }
 
+// FadeOut wraps a reader such that it will linearly fades out over the given duration.
 func FadeOut(dur time.Duration, in pcm.Reader) pcm.Reader {
 	perSec := in.PCMFormat().BytesPerSecond()
 	bytestoFadeOut := int((time.Duration(perSec) / 1000) * (dur / time.Millisecond))

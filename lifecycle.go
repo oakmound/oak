@@ -4,11 +4,11 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/oakmound/oak/v3/alg"
-	"github.com/oakmound/oak/v3/debugstream"
+	"github.com/oakmound/oak/v4/alg"
+	"github.com/oakmound/oak/v4/debugstream"
 	"golang.org/x/mobile/event/lifecycle"
 
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 func (w *Window) lifecycleLoop(s screen.Screen) {
@@ -102,10 +102,15 @@ func (w *Window) ChangeWindow(width, height int) error {
 	return nil
 }
 
-// UpdateViewSize updates the size of this window's viewport.
+// UpdateViewSize updates the size of this window's viewport. If the window has yet
+// to be initialized, it will update ScreenWidth and ScreenHeight, and then exit.
 func (w *Window) UpdateViewSize(width, height int) error {
 	w.ScreenWidth = width
 	w.ScreenHeight = height
+	// this is being called before Init
+	if w.screenControl == nil {
+		return nil
+	}
 	for i := 0; i < bufferCount; i++ {
 		newBuffer, err := w.screenControl.NewImage(image.Point{width, height})
 		if err != nil {

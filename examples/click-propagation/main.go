@@ -6,17 +6,19 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 // This example demonstrates the use of the Propagated boolean on
 // mouse event payloads to prevent mouse interactions from falling
 // through to lower UI elements after interacting with a higher layer
+
+// TODO: make the boxes here more real, more like a real UI
 
 func main() {
 	oak.AddScene("click-propagation", scene.Scene{

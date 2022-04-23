@@ -5,8 +5,8 @@ import (
 	"image/draw"
 	"sync"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg/intgeom"
 )
 
 // A CompositeR is equivalent to a CompositeM for Renderables instead of

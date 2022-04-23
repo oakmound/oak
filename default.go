@@ -5,11 +5,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 var defaultWindow *Window
@@ -55,16 +55,16 @@ func SetViewportBounds(rect intgeom.Rect2) {
 	defaultWindow.SetViewportBounds(rect)
 }
 
-// ShiftScreen calls ShiftScreen on the default window.
-func ShiftScreen(x, y int) {
+// ShiftViewport calls ShiftViewport on the default window.
+func ShiftViewport(pt intgeom.Point2) {
 	initDefaultWindow()
-	defaultWindow.ShiftScreen(x, y)
+	defaultWindow.ShiftViewport(pt)
 }
 
-// SetScreen calls SetScreen on the default window.
-func SetScreen(x, y int) {
+// SetViewport calls SetViewport on the default window.
+func SetViewport(pt intgeom.Point2) {
 	initDefaultWindow()
-	defaultWindow.SetScreen(x, y)
+	defaultWindow.SetViewport(pt)
 }
 
 // UpdateViewSize calls UpdateViewSize on the default window.
@@ -97,20 +97,8 @@ func SetColorBackground(img image.Image) {
 	defaultWindow.SetColorBackground(img)
 }
 
-// GetBackgroundImage calls GetBackgroundImage on the default window.
-func GetBackgroundImage() image.Image {
+// Bounds returns the default window's boundary.
+func Bounds() intgeom.Point2 {
 	initDefaultWindow()
-	return defaultWindow.GetBackgroundImage()
-}
-
-// Width calls Width on the default window.
-func Width() int {
-	initDefaultWindow()
-	return defaultWindow.Width()
-}
-
-// Height calls Height on the default window.
-func Height() int {
-	initDefaultWindow()
-	return defaultWindow.Height()
+	return defaultWindow.Bounds()
 }

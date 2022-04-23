@@ -3,10 +3,10 @@ package particle
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/v3/alg"
-	"github.com/oakmound/oak/v3/shape"
+	"github.com/oakmound/oak/v4/alg"
+	"github.com/oakmound/oak/v4/shape"
 
-	"github.com/oakmound/oak/v3/alg/range/intrange"
+	"github.com/oakmound/oak/v4/alg/span"
 )
 
 // A ColorGenerator generates ColorParticles
@@ -15,8 +15,8 @@ type ColorGenerator struct {
 	StartColor, StartColorRand color.Color
 	EndColor, EndColorRand     color.Color
 	// The size, in pixel radius, of spawned particles
-	Size    intrange.Range
-	EndSize intrange.Range
+	Size    span.Span[int]
+	EndSize span.Span[int]
 	//
 	// Some sort of particle type, for rendering triangles or squares or circles...
 	Shape shape.Shape
@@ -40,8 +40,8 @@ func (cg *ColorGenerator) setDefaults() {
 	cg.StartColorRand = color.RGBA{0, 0, 0, 0}
 	cg.EndColor = color.RGBA{0, 0, 0, 0}
 	cg.EndColorRand = color.RGBA{0, 0, 0, 0}
-	cg.Size = intrange.NewConstant(1)
-	cg.EndSize = intrange.NewConstant(1)
+	cg.Size = span.NewConstant(1)
+	cg.EndSize = span.NewConstant(1)
 	cg.Shape = shape.Square
 }
 
@@ -49,7 +49,7 @@ func (cg *ColorGenerator) setDefaults() {
 func (cg *ColorGenerator) Generate(layer int) *Source {
 	// Convert rotation from degrees to radians
 	if cg.Rotation != nil {
-		cg.Rotation = cg.Rotation.Mult(alg.DegToRad)
+		cg.Rotation = cg.Rotation.MulSpan(alg.DegToRad)
 	}
 	return NewDefaultSource(cg, layer)
 }
@@ -66,7 +66,7 @@ func (cg *ColorGenerator) GenerateParticle(bp *baseParticle) Particle {
 }
 
 // GetParticleSize on a color generator returns that the particles
-// are per-particle specificially sized
+// are per-particle specifically sized
 func (cg *ColorGenerator) GetParticleSize() (w float64, h float64, perParticle bool) {
 	return 0, 0, true
 }
@@ -92,12 +92,12 @@ func (cg *ColorGenerator) SetEndColor(ec, ecr color.Color) {
 
 // A Sizeable is a generator that can have some size set to it
 type Sizeable interface {
-	SetSize(i intrange.Range)
-	SetEndSize(i intrange.Range)
+	SetSize(i span.Span[int])
+	SetEndSize(i span.Span[int])
 }
 
 // Size is an option to set a Sizeable size
-func Size(i intrange.Range) func(Generator) {
+func Size(i span.Span[int]) func(Generator) {
 	return func(g Generator) {
 		if g2, ok := g.(Sizeable); ok {
 			g2.SetSize(i)
@@ -106,7 +106,7 @@ func Size(i intrange.Range) func(Generator) {
 }
 
 // EndSize sets the end size of a Sizeable
-func EndSize(i intrange.Range) func(Generator) {
+func EndSize(i span.Span[int]) func(Generator) {
 	return func(g Generator) {
 		if g2, ok := g.(Sizeable); ok {
 			g2.SetEndSize(i)
@@ -115,12 +115,12 @@ func EndSize(i intrange.Range) func(Generator) {
 }
 
 // SetSize satisfies Sizeable
-func (cg *ColorGenerator) SetSize(i intrange.Range) {
+func (cg *ColorGenerator) SetSize(i span.Span[int]) {
 	cg.Size = i
 }
 
 // SetEndSize stasfies Sizeable
-func (cg *ColorGenerator) SetEndSize(i intrange.Range) {
+func (cg *ColorGenerator) SetEndSize(i span.Span[int]) {
 	cg.EndSize = i
 }
 

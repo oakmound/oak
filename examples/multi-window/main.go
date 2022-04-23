@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"image/color"
 
-	"github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 func main() {

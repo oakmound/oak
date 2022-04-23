@@ -2,14 +2,9 @@ package render
 
 import (
 	"image"
-	"image/gif"
-	"image/jpeg"
-	"image/png"
 	"io"
 
-	"github.com/oakmound/oak/v3/oakerr"
-
-	"golang.org/x/image/bmp"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 // Decoder functions convert arbitrary readers to images.
@@ -22,20 +17,8 @@ type Decoder func(io.Reader) (image.Image, error)
 type CfgDecoder func(io.Reader) (image.Config, error)
 
 var (
-	fileDecoders = map[string]Decoder{
-		".jpeg": jpeg.Decode,
-		".jpg":  jpeg.Decode,
-		".gif":  gif.Decode,
-		".png":  png.Decode,
-		".bmp":  bmp.Decode,
-	}
-	cfgDecoders = map[string]CfgDecoder{
-		".jpeg": jpeg.DecodeConfig,
-		".jpg":  jpeg.DecodeConfig,
-		".gif":  gif.DecodeConfig,
-		".png":  png.DecodeConfig,
-		".bmp":  bmp.DecodeConfig,
-	}
+	fileDecoders = map[string]Decoder{}
+	cfgDecoders  = map[string]CfgDecoder{}
 )
 
 // RegisterDecoder adds a decoder to the set of image decoders

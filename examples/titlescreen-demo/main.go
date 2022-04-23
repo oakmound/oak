@@ -3,13 +3,13 @@ package main
 import (
 	"image/color"
 
-	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/entities"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	oak "github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/entities"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 // Axes are the plural of axis
@@ -24,15 +24,15 @@ const (
 
 func center(ctx *scene.Context, obj render.Renderable, ax Axes) {
 	objWidth, objHeight := obj.GetDims()
-
+	wbds := ctx.Window.Bounds()
 	switch ax {
 	case Both:
-		obj.SetPos(float64(ctx.Window.Width()/2-objWidth/2),
-			float64(ctx.Window.Height()-objHeight)/2) //distributive property
+		obj.SetPos(float64(wbds.X()/2-objWidth/2),
+			float64(wbds.Y()-objHeight)/2) //distributive property
 	case X:
-		obj.SetPos(float64(ctx.Window.Width()-objWidth)/2, obj.Y())
+		obj.SetPos(float64(wbds.X()-objWidth)/2, obj.Y())
 	case Y:
-		obj.SetPos(obj.X(), float64(ctx.Window.Height()-objHeight)/2)
+		obj.SetPos(obj.X(), float64(wbds.Y()-objHeight)/2)
 	}
 }
 
@@ -49,8 +49,10 @@ func main() {
 		//tell the draw loop to draw titleText
 		render.Draw(titleText)
 
+		wbds := ctx.Window.Bounds()
+
 		//do the same for the text with button instructions, but this time Y position is not a placeholder (X still is)
-		instructionText := render.NewText("press Enter to start, or press Q to quit", 0, float64(ctx.Window.Height()*3/4))
+		instructionText := render.NewText("press Enter to start, or press Q to quit", 0, float64(wbds.Y()*3/4))
 		//this time we only center the X axis, otherwise it would overlap titleText
 		center(ctx, instructionText, X)
 		render.Draw(instructionText)

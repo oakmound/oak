@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v4/event"
 )
 
 func TestNewBus(t *testing.T) {
@@ -90,7 +90,7 @@ func TestBus_EnterLoop(t *testing.T) {
 		})
 		<-b1.Bound
 		cancel := event.EnterLoop(b, 50*time.Millisecond)
-		time.Sleep(1 * time.Second)
+		time.Sleep(1*time.Second + 15*time.Millisecond)
 		cancel()
 		if calls != 20 {
 			t.Fatal(expectedError("calls", 20, calls))

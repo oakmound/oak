@@ -4,32 +4,43 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/oakmound/oak/v3/fileutil"
-	"github.com/oakmound/oak/v3/shiny/driver"
+	"github.com/oakmound/oak/v4/fileutil"
+	"github.com/oakmound/oak/v4/shiny/driver"
 )
 
-// Config stores initialization settings for oak.
+// A Config defines the settings oak accepts on initialization. Some of these settings may be ignored depending
+// on the target platform.
 type Config struct {
-	Driver                 Driver           `json:"-"`
-	Assets                 Assets           `json:"assets"`
-	Debug                  Debug            `json:"debug"`
-	Screen                 Screen           `json:"screen"`
-	BatchLoadOptions       BatchLoadOptions `json:"batchLoadOptions"`
-	FrameRate              int              `json:"frameRate"`
-	DrawFrameRate          int              `json:"drawFrameRate"`
-	IdleDrawFrameRate      int              `json:"idleDrawFrameRate"`
-	Language               string           `json:"language"`
-	Title                  string           `json:"title"`
-	BatchLoad              bool             `json:"batchLoad"`
-	GestureSupport         bool             `json:"gestureSupport"`
-	LoadBuiltinCommands    bool             `json:"loadBuiltinCommands"`
-	TrackInputChanges      bool             `json:"trackInputChanges"`
-	EnableDebugConsole     bool             `json:"enableDebugConsole"`
-	TopMost                bool             `json:"topmost"`
-	Borderless             bool             `json:"borderless"`
-	Fullscreen             bool             `json:"fullscreen"`
-	SkipRNGSeed            bool             `json:"skip_rng_seed"`
-	UnlimitedDrawFrameRate bool             `json:"unlimitedDrawFrameRate"`
+	Driver Driver `json:"-"`
+	// Assets defines where assets should be loaded from by default. Defaults to
+	// 'assets/audio' and 'assets/images'.
+	Assets           Assets           `json:"assets"`
+	Debug            Debug            `json:"debug"`
+	Screen           Screen           `json:"screen"`
+	BatchLoadOptions BatchLoadOptions `json:"batchLoadOptions"`
+	// FrameRate, representing the rate enter frame events are triggered, defaults to 60.
+	FrameRate int `json:"frameRate"`
+	// DrawFrameRate is ignored on JS. It defaults to 60.
+	DrawFrameRate int `json:"drawFrameRate"`
+	// IdleDrawFrameRate defaults to 60. When a window goes out of focus, this setting can be lowered to
+	// reduce resource consumption by drawing.
+	IdleDrawFrameRate int `json:"idleDrawFrameRate"`
+	// Language defines the language oak logs are attempted to be translated to. Defaults to English.
+	Language string `json:"language"`
+	// Title defaults to 'Oak Window'.
+	Title               string `json:"title"`
+	BatchLoad           bool   `json:"batchLoad"`
+	GestureSupport      bool   `json:"gestureSupport"`
+	LoadBuiltinCommands bool   `json:"loadBuiltinCommands"`
+	TrackInputChanges   bool   `json:"trackInputChanges"`
+	// EnableDebugConsole is ignored on JS.
+	EnableDebugConsole bool `json:"enableDebugConsole"`
+	TopMost            bool `json:"topmost"`
+	Borderless         bool `json:"borderless"`
+	Fullscreen         bool `json:"fullscreen"`
+	SkipRNGSeed        bool `json:"skip_rng_seed"`
+	// UnlimitedDrawFrameRate is ignored on JS (it is effectively always true).
+	UnlimitedDrawFrameRate bool `json:"unlimitedDrawFrameRate"`
 }
 
 // NewConfig creates a config from a set of transformation options.
@@ -87,16 +98,10 @@ type Screen struct {
 	Height int     `json:"height"`
 	Width  int     `json:"width"`
 	Scale  float64 `json:"scale"`
-	// Target sets the expected dimensions of the monitor the game will be opened on, in pixels.
-	// If Fullscreen is false, then a scaling will be applied to correct the game screen size to be
-	// appropriate for the Target size. If no TargetWidth or Height is provided, scaling will not
-	// be adjusted.
-	TargetWidth  int `json:"targetHeight"`
-	TargetHeight int `json:"targetWidth"`
 }
 
 // BatchLoadOptions is a json type storing customizations for batch loading.
-// These settings do not take effect unless batch load is true.
+// These settings do not take effect unless Config.BatchLoad is true.
 type BatchLoadOptions struct {
 	BlankOutAudio    bool  `json:"blankOutAudio"`
 	MaxImageFileSize int64 `json:"maxImageFileSize"`
@@ -163,12 +168,6 @@ func (c Config) overwriteFrom(c2 Config) Config {
 	}
 	if c2.Screen.Scale != 0 {
 		c.Screen.Scale = c2.Screen.Scale
-	}
-	if c2.Screen.TargetWidth != 0 {
-		c.Screen.TargetWidth = c2.Screen.TargetWidth
-	}
-	if c2.Screen.TargetHeight != 0 {
-		c.Screen.TargetHeight = c2.Screen.TargetHeight
 	}
 	c.BatchLoadOptions.BlankOutAudio = c2.BatchLoadOptions.BlankOutAudio
 	if c2.BatchLoadOptions.MaxImageFileSize != 0 {

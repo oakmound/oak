@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"image"
 
-	"github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 	"github.com/srwiley/oksvg"
 	"github.com/srwiley/rasterx"
 )

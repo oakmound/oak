@@ -1,12 +1,12 @@
 package scene
 
 import (
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 // A Scene is a set of functions defining what needs to happen when a scene
-// starts, loops, and ends.
+// starts and ends.
 type Scene struct {
 	// Start is called when a scene begins, including contextual information like
 	// what scene came before this one and a direct reference to clean data structures

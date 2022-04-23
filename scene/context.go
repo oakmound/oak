@@ -3,31 +3,37 @@ package scene
 import (
 	"context"
 
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/render"
 )
 
 // A Context contains all transient engine components used in a scene, including
 // the draw stack, event bus, known event callers, collision trees, keyboard state,
 // and a reference to the OS window itself. When a scene ends, modifications made
 // to these structures will be reset, excluding window modifications.
-// TODO oak v4: consider embedding these system objects on the context to change
-// ctx.DrawStack.Draw to ctx.Draw and ctx.Handler.Bind to ctx.Bind
 type Context struct {
 	// This context will be canceled when the scene ends
 	context.Context
 
-	*event.CallerMap
-	event.Handler
 	PreviousScene string
 	SceneInput    interface{}
 	Window        Window
 
+	*event.CallerMap
+	event.Handler
 	*render.DrawStack
+	*key.State
 
 	MouseTree     *collision.Tree
 	CollisionTree *collision.Tree
-	KeyState      *key.State
+}
+
+// DoEachFrame is a helper method to call a function on each frame for the duration of this scene.
+func (ctx *Context) DoEachFrame(f func()) {
+	event.GlobalBind(ctx, event.Enter, func(_ event.EnterPayload) event.Response {
+		f()
+		return 0
+	})
 }

@@ -3,7 +3,7 @@ package synth
 import (
 	"time"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
 // A Source stores necessary information for generating waveform data

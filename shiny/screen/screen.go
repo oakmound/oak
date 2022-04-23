@@ -15,8 +15,8 @@
 //	package main
 //
 //	import (
-//		"github.com/oakmound/oak/v3/shiny/driver"
-//		"github.com/oakmound/oak/v3/shiny/screen"
+//		"github.com/oakmound/oak/v4/shiny/driver"
+//		"github.com/oakmound/oak/v4/shiny/screen"
 //		"golang.org/x/mobile/event/lifecycle"
 //	)
 //
@@ -68,8 +68,6 @@ type Screen interface {
 	NewTexture(size image.Point) (Texture, error)
 
 	// NewWindow returns a new Window for this screen.
-	//
-	// A nil opts is valid and means to use the default option values.
 	NewWindow(opts WindowGenerator) (Window, error)
 }
 

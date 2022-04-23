@@ -5,17 +5,16 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/alg/span"
+	"github.com/oakmound/oak/v4/render"
 )
 
 func TestSpriteParticle(t *testing.T) {
 	s := render.NewColorBox(10, 10, color.RGBA{255, 0, 0, 255})
 	g := NewSpriteGenerator(
 		Sprite(s),
-		Rotation(floatrange.NewConstant(1)),
-		SpriteRotation(floatrange.NewConstant(1)),
+		Rotation(span.NewConstant(1.0)),
+		SpriteRotation(span.NewConstant(1.0)),
 	)
 	src := g.Generate(0)
 	src.addParticles()

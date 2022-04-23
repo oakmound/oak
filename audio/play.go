@@ -8,7 +8,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
 // WriterBufferLengthInSeconds defines how much data os-level writers provided by this package will rotate through
@@ -32,8 +32,11 @@ type PlayOption func(*PlayOptions)
 
 // PlayOptions define ways to configure how playback of some audio proceeds
 type PlayOptions struct {
+	// If FadeOutOnStop is non-zero, when this play is stopped early it will fade out for this duration.
 	FadeOutOnStop time.Duration
 
+	// If Destination is not provided, Play will create a new writer which will be
+	// closed after Play is complete.
 	Destination pcm.Writer
 
 	// The span of data that should be copied from reader to writer

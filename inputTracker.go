@@ -4,24 +4,22 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/joystick"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/joystick"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/mouse"
 )
 
 // InputType expresses some form of input to the engine to represent a player
 type InputType int32
 
-// InputChange is triggered when the most recent input device changes (e.g. keyboard to joystick or vice versa)
-var InputChange = event.RegisterEvent[InputType]()
-
 var trackingJoystickChange = event.RegisterEvent[struct{}]()
 
-// Supported Input Types
+// The following constants define valid types of input sent via the InputChange event.
 const (
-	InputKeyboard InputType = iota
+	InputNone InputType = iota
+	InputKeyboard
 	InputMouse
 	InputJoystick
 )

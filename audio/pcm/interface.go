@@ -1,7 +1,10 @@
 // Package pcm provides a interface for interacting with PCM audio streams
 package pcm
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
 var _ Reader = &IOReader{}
 
@@ -25,7 +28,7 @@ func (ior *IOReader) ReadPCM(p []byte) (n int, err error) {
 type Writer interface {
 	io.Closer
 	Formatted
-	// WritePCM expects PCM bytes matching the format this speaker was initialized with.
+	// WritePCM expects PCM bytes matching this Writer's format.
 	// WritePCM will block until all of the bytes are consumed.
 	WritePCM([]byte) (n int, err error)
 }
@@ -67,7 +70,7 @@ func (f Format) SampleSize() int {
 // ReadFloat reads a single sample from an audio stream, respecting bits and channels:
 // f.Bits / 8 bytes * f.Channels bytes will be read from b, and this count will be returned as 'read'.
 // the length of values will be equal to f.Channels, if no error is returned. If an error is returned,
-// it will be io.ErrUnexpectedEOF. If bits is an unexpected value
+// it will be io.ErrUnexpectedEOF or ErrUnsupportedBits
 func (f Format) SampleFloat(b []byte) (values []float64, read int, err error) {
 	values = make([]float64, 0, f.Channels)
 	read = f.SampleSize()
@@ -95,6 +98,11 @@ func (f Format) SampleFloat(b []byte) (values []float64, read int, err error) {
 				int32(b[i+3])<<24
 			values = append(values, float64(v))
 		}
+	default:
+		return nil, read, ErrUnsupportedBits
 	}
 	return
 }
+
+// ErrUnsupportedBits represents that the Bits value for a Format was not supported for some operation.
+var ErrUnsupportedBits = fmt.Errorf("unsupported bits in pcm format")

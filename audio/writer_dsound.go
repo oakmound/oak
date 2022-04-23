@@ -7,9 +7,9 @@ import (
 	"io"
 	"sync"
 
-	intdsound "github.com/oakmound/oak/v3/audio/internal/dsound"
-	"github.com/oakmound/oak/v3/audio/pcm"
-	"github.com/oakmound/oak/v3/oakerr"
+	intdsound "github.com/oakmound/oak/v4/audio/internal/dsound"
+	"github.com/oakmound/oak/v4/audio/pcm"
+	"github.com/oakmound/oak/v4/oakerr"
 	"github.com/oov/directsound-go/dsound"
 )
 

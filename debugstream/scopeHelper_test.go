@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/debugtools"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/window"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/debugtools"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/window"
 )
 
 type fakeWindow struct {
@@ -45,12 +45,8 @@ func (f *fakeWindow) MoveWindow(x, y, w, h int) error {
 	return nil
 }
 
-func (f *fakeWindow) Width() int {
-	return 1
-}
-
-func (f *fakeWindow) Height() int {
-	return 1
+func (f *fakeWindow) Bounds() intgeom.Point2 {
+	return intgeom.Point2{1, 1}
 }
 
 func (f *fakeWindow) Viewport() intgeom.Point2 {

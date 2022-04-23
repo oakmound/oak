@@ -6,12 +6,12 @@ import (
 	"image/color"
 	"strconv"
 
-	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/debugstream"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	oak "github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/debugstream"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 type Slide interface {
@@ -100,13 +100,14 @@ func Start(width, height int, slides ...Slide) {
 	oak.AddScene("slide"+strconv.Itoa(len(slides)),
 		scene.Scene{
 			Start: func(ctx *scene.Context) {
-				oldBackground = oak.GetBackgroundImage()
+				oldBackground = ctx.Window.(*oak.Window).GetBackgroundImage()
 				oak.SetColorBackground(image.NewUniform(color.RGBA{0, 0, 0, 255}))
+				wbds := ctx.Window.Bounds()
 				render.Draw(
 					Express.NewText(
 						"Spacebar to restart show ...",
-						float64(ctx.Window.Width()/2),
-						float64(ctx.Window.Height()-50),
+						float64(wbds.X()/2),
+						float64(wbds.Y()-50),
 					),
 				)
 				event.GlobalBind(ctx, key.Down(key.Spacebar), func(key.Event) event.Response {

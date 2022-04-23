@@ -6,10 +6,11 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/fileutil"
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/audio/format"
+	"github.com/oakmound/oak/v4/audio/pcm"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/fileutil"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 // Get will read cached audio data from Load, or error if the given
@@ -38,9 +39,19 @@ func (c *Cache) Load(file string) (pcm.Reader, error) {
 
 	ext := filepath.Ext(file)
 	ext = strings.ToLower(ext)
-	reader, ok := LoaderForExtension(ext)
+	reader, ok := format.LoaderForExtension(ext)
 	if !ok {
-		return nil, oakerr.UnsupportedFormat{Format: filepath.Ext(file)}
+		// provide an error message suggesting a missing import for cases where we know about a
+		// common provider
+		knownFormats := map[string]string{
+			".mp3":  "github.com/oakmound/oak/v4/audio/format/mp3",
+			".flac": "github.com/oakmound/oak/v4/audio/format/flac",
+			".wav":  "github.com/oakmound/oak/v4/audio/format/wav",
+		}
+		if path, ok := knownFormats[ext]; ok {
+			dlog.Error("unable to parse audio format %v, did you mean to import %v?", ext, path)
+		}
+		return nil, oakerr.UnsupportedFormat{Format: ext}
 	}
 	r, err := reader(f)
 	if err != nil {
@@ -50,8 +61,8 @@ func (c *Cache) Load(file string) (pcm.Reader, error) {
 	return r, nil
 }
 
-// BatchLoad attempts to load all files within a given directory
-// depending on their file ending
+// BatchLoad attempts to load all audio files within a given directory
+// should their file ending match a registered audio file parser
 func BatchLoad(baseFolder string) error {
 	return batchLoad(baseFolder, false)
 }

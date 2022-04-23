@@ -7,7 +7,7 @@ package collision
 import (
 	"math"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
 )
 
 // minDist computes the square of the distance from a point to a rectangle.

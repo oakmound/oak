@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oakmound/oak/v3/render/mod"
+	"github.com/oakmound/oak/v4/render/mod"
 
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/render"
 )
 
 var (

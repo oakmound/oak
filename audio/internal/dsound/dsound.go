@@ -7,8 +7,8 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/oakerr"
 	"github.com/oov/directsound-go/dsound"
 )
 
@@ -23,7 +23,6 @@ var cfg Config
 var initLock sync.Mutex
 
 // Init initializes directsound or returns an already intialized direct sound instance.
-// It may (but should probably not) be called outside of other oakmound/oak/* packages.
 func Init() (Config, error) {
 	initLock.Lock()
 	defer initLock.Unlock()

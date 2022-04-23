@@ -1,8 +1,9 @@
 package entities
 
 import (
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/key"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/key"
 )
 
 // WASD moves the given mover based on its speed as W,A,S, and D are pressed
@@ -18,16 +19,16 @@ func Arrows(mvr *Entity) {
 // TopDown moves the given mover based on its speed as the given keys are pressed
 func TopDown(mvr *Entity, up, down, left, right key.Code) {
 	mvr.Delta = floatgeom.Point2{}
-	if mvr.ctx.KeyState.IsDown(up) {
+	if mvr.ctx.IsDown(up) {
 		mvr.Delta[1] -= mvr.Speed[1]
 	}
-	if mvr.ctx.KeyState.IsDown(down) {
+	if mvr.ctx.IsDown(down) {
 		mvr.Delta[1] += mvr.Speed[1]
 	}
-	if mvr.ctx.KeyState.IsDown(left) {
+	if mvr.ctx.IsDown(left) {
 		mvr.Delta[0] -= mvr.Speed[0]
 	}
-	if mvr.ctx.KeyState.IsDown(right) {
+	if mvr.ctx.IsDown(right) {
 		mvr.Delta[0] += mvr.Speed[0]
 	}
 	mvr.ShiftDelta()
@@ -36,10 +37,10 @@ func TopDown(mvr *Entity, up, down, left, right key.Code) {
 // CenterScreenOn will cause the screen to center on the given mover, obeying
 // viewport limits if they have been set previously
 func CenterScreenOn(mvr *Entity) {
-	mvr.ctx.Window.SetScreen(
-		int(mvr.X())-mvr.ctx.Window.Width()/2,
-		int(mvr.Y())-mvr.ctx.Window.Height()/2,
-	)
+	bds := mvr.ctx.Window.Bounds()
+	pos := intgeom.Point2{int(mvr.X()), int(mvr.Y())}
+	target := pos.Sub(bds).DivConst(2)
+	mvr.ctx.Window.SetViewport(target)
 }
 
 // Limit restricts the movement of the mover to stay within a given rectangle

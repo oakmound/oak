@@ -1,7 +1,6 @@
 package audio
 
-// A Driver defines the underlying interface that should be used for initializing PCM audio writers
-// by this package.
+// A Driver defines the underlying interface that should be used for initializing PCM audio writers.
 type Driver int
 
 const (

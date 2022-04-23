@@ -57,8 +57,6 @@ func (w *Window) drawLoop() {
 			loadingSelectUnlimited:
 				for {
 					select {
-					case <-w.ParentContext.Done():
-						return
 					case <-w.quitCh:
 						return
 					case <-w.drawCh:
@@ -92,8 +90,6 @@ func (w *Window) drawLoop() {
 		loadingSelect:
 			for {
 				select {
-				case <-w.ParentContext.Done():
-					return
 				case <-w.quitCh:
 					return
 				case <-w.drawCh:
@@ -115,7 +111,7 @@ func (w *Window) drawLoop() {
 }
 
 func (w *Window) publish() {
-	w.prePublish(w, w.windowTextures[w.bufferIdx])
+	w.prePublish(w.winBuffers[w.bufferIdx].RGBA())
 	w.windowTextures[w.bufferIdx].Upload(zeroPoint, w.winBuffers[w.bufferIdx], w.winBuffers[w.bufferIdx].Bounds())
 	w.Window.Scale(w.windowRect, w.windowTextures[w.bufferIdx], w.windowTextures[w.bufferIdx].Bounds(), draw.Src)
 	w.Window.Publish()
@@ -124,9 +120,9 @@ func (w *Window) publish() {
 	w.bufferIdx = (w.bufferIdx + 1) % bufferCount
 }
 
-// DoBetweenDraws will execute the given function in-between draw frames
+// DoBetweenDraws will execute the given function in-between draw frames. It will prevent draws from happening until
+// the provided function has terminated. DoBetweenDraws will block until the provided function is called within the
+// draw loop's schedule, but will not wait for that function itself to terminate.
 func (w *Window) DoBetweenDraws(f func()) {
-	go func() {
-		w.betweenDrawCh <- f
-	}()
+	w.betweenDrawCh <- f
 }

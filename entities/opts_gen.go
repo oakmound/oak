@@ -5,11 +5,11 @@ package entities
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/render/mod"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/render/mod"
 )
 
 type Option func(Generator) Generator
@@ -52,13 +52,6 @@ func WithColor(v color.Color) Option {
 func WithRenderable(v render.Renderable) Option {
 	return func(s Generator) Generator {
 		s.Renderable = v
-		return s
-	}
-}
-
-func WithScaleRenderable(v *mod.Resampling) Option {
-	return func(s Generator) Generator {
-		s.ScaleRenderable = v
 		return s
 	}
 }

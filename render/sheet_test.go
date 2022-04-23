@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/fileutil"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/fileutil"
 )
 
 //go:embed testdata/assets/*

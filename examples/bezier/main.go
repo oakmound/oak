@@ -5,13 +5,13 @@ import (
 	"image/color"
 	"strconv"
 
-	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/debugstream"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
-	"github.com/oakmound/oak/v3/shape"
+	oak "github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/debugstream"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
+	"github.com/oakmound/oak/v4/shape"
 )
 
 var (
@@ -97,7 +97,7 @@ func bezierDrawRec(b shape.Bezier, list *render.CompositeM, alpha uint8) {
 		bezierDrawRec(bzn.Right, list, uint8(float64(alpha)*.5))
 	case shape.BezierPoint:
 		sp := render.NewColorBox(5, 5, color.RGBA{255, 255, 255, 255})
-		sp.SetPos(bzn.X()-2, bzn.Y()-2)
+		sp.SetPos(bzn[0]-2, bzn[1]-2)
 		list.Append(sp)
 	}
 }

@@ -1,9 +1,9 @@
 package mouse
 
 import (
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/event"
 )
 
 var (

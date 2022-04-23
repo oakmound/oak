@@ -5,9 +5,9 @@ import (
 	"image/draw"
 	"time"
 
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/render/mod"
-	"github.com/oakmound/oak/v3/timing"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/render/mod"
+	"github.com/oakmound/oak/v4/timing"
 )
 
 // A Sequence is a series of modifiables drawn as an animation. It is more

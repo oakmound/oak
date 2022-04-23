@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oakmound/oak/v3/fileutil"
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/fileutil"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 func loadSpriteNoCache(file string, maxFileSize int64) (*image.RGBA, error) {

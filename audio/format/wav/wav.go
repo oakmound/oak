@@ -1,4 +1,11 @@
 // Package wav provides functionality to handle .wav files and .wav encoded data.
+//
+// This package may be imported solely to register wavs as a parseable file type within oak:
+//
+//     import (
+//         _ "github.com/oakmound/oak/v4/audio/format/wav"
+//     )
+//
 package wav
 
 import (
@@ -6,11 +13,18 @@ import (
 
 	"encoding/binary"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/format"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
-// Read reads a WAV header from the provided reader, returning the PCM format and
-// leaving the PCM data in the reader available for consumption.
+func init() {
+	format.Register(".wav", Load)
+}
+
+// Load reads a WAV header from a reader, parsing it's PCM format and returning
+// a pcm Reader for the data following the header. It will error if the reader
+// does not contain enough data to fill a WAV header. It does not validate that the
+// WAV header makes sense.
 func Load(r io.Reader) (pcm.Reader, error) {
 	data, err := readData(r)
 	if err != nil {

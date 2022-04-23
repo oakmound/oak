@@ -3,15 +3,15 @@ package ray
 import (
 	"testing"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg/span"
+	"github.com/oakmound/oak/v4/collision"
 )
 
 func TestEmptyRaycasts(t *testing.T) {
 	t.Skip()
 	collision.DefaultTree.Clear()
-	vRange := floatrange.NewLinear(3, 359)
+	vRange := span.NewLinear(3.0, 359.0)
 	tests := 100
 	for i := 0; i < tests; i++ {
 		p1 := floatgeom.Point2{vRange.Poll(), vRange.Poll()}

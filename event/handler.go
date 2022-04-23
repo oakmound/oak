@@ -16,4 +16,6 @@ type Handler interface {
 	UnbindAllFrom(CallerID) <-chan struct{}
 	SetCallerMap(*CallerMap)
 	GetCallerMap() *CallerMap
+	PersistentBind(eventID UnsafeEventID, callerID CallerID, fn UnsafeBindable) Binding
+	ClearPersistentBindings()
 }

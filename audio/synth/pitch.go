@@ -3,17 +3,16 @@ package synth
 import (
 	"sort"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
-// A Pitch is a helper type for synth functions so
-// a user can write A4 instead of a frequency value
-// for a desired tone
+// A Pitch is a frequency value which represents how fast a wave should oscillate to produce a specific tone.
 type Pitch uint16
 
-// Pitch frequencies
-// Values taken from http://peabody.sapp.org/class/st2/lab/notehz/
+// Pitch frequencies, taken from http://peabody.sapp.org/class/st2/lab/notehz/
+// These span octave 0 through octave 8, with sharps suffixed 's' and flats suffixed 'b'
 const (
+	// 0 is reserved as representing a 'rest' for the purpose of composition
 	Rest Pitch = 0
 	C0   Pitch = 16
 	C0s  Pitch = 17
@@ -588,12 +587,6 @@ func (p Pitch) Down(s Step) Pitch {
 	return allPitches[i-int(s)]
 }
 
-// NoteFromIndex is a utility for pitch converters that for some reason have
-// integers representing their notes to get a pitch from said integer
-func NoteFromIndex(i int) Pitch {
-	return allPitches[i]
-}
-
 // IsAccidental reports true if this pitch is represented with a single sharp or a flat, usually.
 func (p Pitch) IsAccidental() bool {
 	_, ok := accidentals[p]
@@ -605,26 +598,25 @@ type PitchDetector struct {
 
 	format pcm.Format
 
-	// Will be 0 if unknown
-	DetectedPitch    Pitch
-	DetectedRawPitch float64
+	// DetectedPitches and DetectedRawPitches store the calculated pitch values as this reader parses data. The length
+	// of these slices will be equal to this reader's format's channel count. Consumers should not modify these slices.
+	DetectedPitches    []Pitch
+	DetectedRawPitches []float64
 
-	// Channel defines which audio channel (0 for mono, 0-1 for stereo) should
-	// be analyzed. ReadPCM will panic if this value is invalid. If this scares you,
-	// don't change this value-- the consequence is that a specific channel for stereo
-	// audio will be analyzed, which won't be a problem unless you're running this on
-	// Queen's The Prophet's Song
-	Channel int
-
-	index       int
-	lastValue   float64
-	crossedZero bool
+	indices     []int
+	lastValues  []float64
+	crossedZero []bool
 }
 
 func NewPitchDetector(r pcm.Reader) *PitchDetector {
 	return &PitchDetector{
-		Reader: r,
-		format: r.PCMFormat(),
+		Reader:             r,
+		format:             r.PCMFormat(),
+		DetectedPitches:    make([]Pitch, r.PCMFormat().Channels),
+		DetectedRawPitches: make([]float64, r.PCMFormat().Channels),
+		indices:            make([]int, r.PCMFormat().Channels),
+		lastValues:         make([]float64, r.PCMFormat().Channels),
+		crossedZero:        make([]bool, r.PCMFormat().Channels),
 	}
 }
 
@@ -633,39 +625,37 @@ func (pd *PitchDetector) ReadPCM(b []byte) (n int, err error) {
 	if err != nil {
 		return n, err
 	}
-	var lastValue float64
 	var read int
 	sampleSize := pd.format.SampleSize()
 	for len(b[read:]) > sampleSize {
-		pd.index++
 		vals, valReadBytes, err := pd.format.SampleFloat(b[read:])
 		if err != nil {
 			break
 		}
 		read += valReadBytes
-		// ignore stereo audio; sorry it makes this really complicated
-		val := vals[pd.Channel]
-		if lastValue < 0 && val > 0 || val < 0 && lastValue > 0 {
-			// we've crossed zero
-			if !pd.crossedZero {
-				pd.crossedZero = true
-			} else {
-				// assuming this is pitched audio (if it isn't we can't give a correct answer),
-				// pd.index is now the number of samples since the last time this audio
-				// stream crossed zero. The second last time this audio stream crossed zero defines how
-				// frequently this audio is cycling-- the speed the audio cycles at defines the pitch
-				// of the audio in hertz; our pitch constants above are also defined in hertz.
-				periodLength := pd.index * 2
-				samplesPerSecond := pd.format.SampleRate
-				periodHz := 1 / (float64(periodLength) / float64(samplesPerSecond))
-				pd.DetectedRawPitch = periodHz
-				pd.DetectedPitch = Pitch(periodHz).Round()
+		for i, val := range vals {
+			pd.indices[i]++
+			if pd.lastValues[i] < 0 && val > 0 || val < 0 && pd.lastValues[i] > 0 {
+				// we've crossed zero
+				if !pd.crossedZero[i] {
+					pd.crossedZero[i] = true
+				} else {
+					// assuming this is pitched audio (if it isn't we can't give a correct answer),
+					// pd.index is now the number of samples since the last time this audio
+					// stream crossed zero. The second last time this audio stream crossed zero defines how
+					// frequently this audio is cycling-- the speed the audio cycles at defines the pitch
+					// of the audio in hertz; our pitch constants above are also defined in hertz.
+					periodLength := pd.indices[i] * 2
+					samplesPerSecond := pd.format.SampleRate
+					periodHz := 1 / (float64(periodLength) / float64(samplesPerSecond))
+					pd.DetectedRawPitches[i] = periodHz
+					pd.DetectedPitches[i] = Pitch(periodHz).Round()
+				}
+				pd.indices[i] = 0
 			}
-			pd.index = 0
+			pd.lastValues[i] = val
 		}
-		lastValue = val
 	}
-	pd.lastValue = lastValue
 	return
 }
 
@@ -676,17 +666,17 @@ func (pd *PitchDetector) ReadPCM(b []byte) (n int, err error) {
 // 		fmt.Println(hz2, int(hz2))) // "C6", 1047
 //	}
 //
-func (hz Pitch) Round() Pitch {
+func (p Pitch) Round() Pitch {
 	// binary search
 	i := sort.Search(len(allPitches)-1, func(i int) bool {
-		return Pitch(hz) < allPitches[i]
+		return p < allPitches[i]
 	})
 	// adjust for near matches
 	// we know hz < allPitches[i]
 	if i == 0 {
 		return allPitches[i]
 	}
-	if hz-allPitches[i-1] < allPitches[i]-hz {
+	if p-allPitches[i-1] < allPitches[i]-p {
 		return allPitches[i-1]
 	}
 	return allPitches[i]

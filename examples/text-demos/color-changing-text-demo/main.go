@@ -6,20 +6,19 @@ import (
 	"path"
 	"strconv"
 
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-
 	"image"
 
-	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	oak "github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/alg/span"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 var (
 	font    *render.Font
 	r, g, b float64
-	diff    = floatrange.NewSpread(0, 10)
-	limit   = floatrange.NewLinear(0, 255)
+	diff    = span.NewSpread(0.0, 10.0)
+	limit   = span.NewLinear(0.0, 255.0)
 )
 
 type floatStringer struct {
@@ -32,7 +31,7 @@ func (fs floatStringer) String() string {
 
 func main() {
 	oak.AddScene("demo",
-		scene.Scene{Start: func(*scene.Context) {
+		scene.Scene{Start: func(ctx *scene.Context) {
 			render.Draw(render.NewDrawFPS(0.25, nil, 10, 10))
 			fg := render.FontGenerator{
 				File:  path.Join("assets", "font", "luxisbi.ttf"),
@@ -62,21 +61,19 @@ func main() {
 			render.Draw(font2.NewText("g", 280, 260), 0)
 			render.Draw(font2.NewText("b", 400, 260), 0)
 
-			go func() {
-				for {
-					r = limit.EnforceRange(r + diff.Poll())
-					g = limit.EnforceRange(g + diff.Poll())
-					b = limit.EnforceRange(b + diff.Poll())
-					font.Drawer.Src = image.NewUniform(
-						color.RGBA{
-							uint8(r),
-							uint8(g),
-							uint8(b),
-							255,
-						},
-					)
-				}
-			}()
+			ctx.DoEachFrame(func() {
+				r = limit.Clamp(r + diff.Poll())
+				g = limit.Clamp(g + diff.Poll())
+				b = limit.Clamp(b + diff.Poll())
+				font.Drawer.Src = image.NewUniform(
+					color.RGBA{
+						uint8(r),
+						uint8(g),
+						uint8(b),
+						255,
+					},
+				)
+			})
 		},
 		})
 	oak.SetFS(assets)

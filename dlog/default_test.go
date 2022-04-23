@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v4/dlog"
 )
 
 func TestLogger(t *testing.T) {

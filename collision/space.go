@@ -1,9 +1,9 @@
 package collision
 
 import (
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/physics"
 )
 
 // ID Types constant

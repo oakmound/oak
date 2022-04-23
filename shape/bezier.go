@@ -1,8 +1,8 @@
 package shape
 
 import (
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 // BezierCurve will form a Bezier on the given coordinates, expected in (x,y)
@@ -63,14 +63,4 @@ type BezierPoint floatgeom.Point2
 // Pos returns this point.
 func (bp BezierPoint) Pos(float64) (x, y float64) {
 	return bp[0], bp[1]
-}
-
-// X returns bp's value on the X axis.
-func (bp BezierPoint) X() float64 {
-	return bp[0]
-}
-
-// Y returns bp's value on the Y axis.
-func (bp BezierPoint) Y() float64 {
-	return bp[1]
 }

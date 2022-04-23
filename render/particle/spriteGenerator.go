@@ -1,16 +1,16 @@
 package particle
 
 import (
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v4/alg/span"
 
-	"github.com/oakmound/oak/v3/alg"
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/alg"
+	"github.com/oakmound/oak/v4/render"
 )
 
 // A SpriteGenerator generate SpriteParticles
 type SpriteGenerator struct {
 	BaseGenerator
-	SpriteRotation floatrange.Range
+	SpriteRotation span.Span[float64]
 	Base           *render.Sprite
 }
 
@@ -28,14 +28,14 @@ func NewSpriteGenerator(options ...func(Generator)) Generator {
 
 func (sg *SpriteGenerator) setDefaults() {
 	sg.BaseGenerator.setDefaults()
-	sg.SpriteRotation = floatrange.NewConstant(0)
+	sg.SpriteRotation = span.NewConstant(0.0)
 }
 
 // Generate creates a source using this generator
 func (sg *SpriteGenerator) Generate(layer int) *Source {
 	// Convert rotation from degrees to radians
 	if sg.Rotation != nil {
-		sg.Rotation = sg.Rotation.Mult(alg.DegToRad)
+		sg.Rotation = sg.Rotation.MulSpan(alg.DegToRad)
 	}
 	return NewDefaultSource(sg, layer)
 }
@@ -51,7 +51,7 @@ func (sg *SpriteGenerator) GenerateParticle(bp *baseParticle) Particle {
 // A Sprited can have a sprite set to it
 type Sprited interface {
 	SetSprite(*render.Sprite)
-	SetSpriteRotation(f floatrange.Range)
+	SetSpriteRotation(f span.Span[float64])
 }
 
 // Sprite sets a Sprited's sprite
@@ -68,14 +68,14 @@ func (sg *SpriteGenerator) SetSprite(s *render.Sprite) {
 }
 
 // SpriteRotation sets a Sprited's rotation
-func SpriteRotation(f floatrange.Range) func(Generator) {
+func SpriteRotation(f span.Span[float64]) func(Generator) {
 	return func(g Generator) {
 		g.(Sprited).SetSpriteRotation(f)
 	}
 }
 
 // SetSpriteRotation satisfied Sprited for SpriteGenerators
-func (sg *SpriteGenerator) SetSpriteRotation(f floatrange.Range) {
+func (sg *SpriteGenerator) SetSpriteRotation(f span.Span[float64]) {
 	sg.SpriteRotation = f
 }
 

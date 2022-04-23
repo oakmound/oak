@@ -4,7 +4,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/oakmound/oak/v3/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
 var _ pcm.Reader = &LoopingReader{}
@@ -127,4 +127,3 @@ func ReadAtLeast(r pcm.Reader, buf []byte, min int) (n int, err error) {
 	}
 	return
 }
-

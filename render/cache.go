@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/golang/freetype/truetype"
-	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v4/alg/intgeom"
 )
 
 // DefaultCache is the receiver for package level sprites, sheets, and font loading operations.

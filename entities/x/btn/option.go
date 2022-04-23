@@ -3,14 +3,14 @@ package btn
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/entities"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/entities"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/scene"
 
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/render/mod"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/render/mod"
 )
 
 // And combines a variadic number of options

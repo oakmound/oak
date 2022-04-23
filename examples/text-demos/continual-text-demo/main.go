@@ -4,14 +4,15 @@ import (
 	"image/color"
 	"math/rand"
 
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v4/alg/span"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/event"
 
 	"image"
 
-	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	oak "github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 // ~60 fps draw rate with these examples in testing
@@ -24,8 +25,8 @@ const (
 var (
 	font    *render.Font
 	r, g, b float64
-	diff    = floatrange.NewSpread(0, 10)
-	limit   = floatrange.NewLinear(0, 255)
+	diff    = span.NewSpread(0.0, 10.0)
+	limit   = span.NewLinear(0.0, 255.0)
 	strs    []*render.Text
 )
 
@@ -40,7 +41,7 @@ func randomStr(chars int) string {
 
 func main() {
 	oak.AddScene("demo",
-		scene.Scene{Start: func(*scene.Context) {
+		scene.Scene{Start: func(ctx *scene.Context) {
 			render.Draw(render.NewDrawFPS(.25, nil, 10, 10))
 
 			r = 255
@@ -61,26 +62,23 @@ func main() {
 				render.Draw(strs[len(strs)-1], 0)
 			}
 
-			go func() {
-				for {
-					r = limit.EnforceRange(r + diff.Poll())
-					g = limit.EnforceRange(g + diff.Poll())
-					b = limit.EnforceRange(b + diff.Poll())
-					// This should be a function in oak to just set color source
-					// (or texture source)
-					font.Drawer.Src = image.NewUniform(
-						color.RGBA{
-							uint8(r),
-							uint8(g),
-							uint8(b),
-							255,
-						},
-					)
-					for _, st := range strs {
-						st.SetString(randomStr(strlen))
-					}
+			event.GlobalBind(ctx, event.Enter, func(_ event.EnterPayload) event.Response {
+				r = limit.Clamp(r + diff.Poll())
+				g = limit.Clamp(g + diff.Poll())
+				b = limit.Clamp(b + diff.Poll())
+				font.Drawer.Src = image.NewUniform(
+					color.RGBA{
+						uint8(r),
+						uint8(g),
+						uint8(b),
+						255,
+					},
+				)
+				for _, st := range strs {
+					st.SetString(randomStr(strlen))
 				}
-			}()
+				return 0
+			})
 		},
 		})
 	render.SetDrawStack(

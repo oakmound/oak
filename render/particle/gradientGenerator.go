@@ -3,8 +3,8 @@ package particle
 import (
 	"image/color"
 
-	"github.com/oakmound/oak/v3/alg"
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/alg"
+	"github.com/oakmound/oak/v4/render"
 )
 
 // A GradientGenerator is a ColorGenerator with a patterned gradient
@@ -43,7 +43,7 @@ func (gg *GradientGenerator) setDefaults() {
 func (gg *GradientGenerator) Generate(layer int) *Source {
 	// Convert rotation from degrees to radians
 	if gg.Rotation != nil {
-		gg.Rotation = gg.Rotation.Mult(alg.DegToRad)
+		gg.Rotation = gg.Rotation.MulSpan(alg.DegToRad)
 	}
 	return NewDefaultSource(gg, layer)
 }

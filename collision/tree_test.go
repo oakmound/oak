@@ -4,8 +4,8 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg/span"
 )
 
 func TestNewTreeInvalidChildren(t *testing.T) {
@@ -150,8 +150,8 @@ func randomSpace() *Space {
 }
 
 var (
-	xRange = floatrange.NewLinear(0, 10000)
-	yRange = floatrange.NewLinear(0, 10000)
-	wRange = floatrange.NewLinear(1, 50)
-	hRange = floatrange.NewLinear(1, 50)
+	xRange = span.NewLinear(0.0, 10000.0)
+	yRange = span.NewLinear(0.0, 10000.0)
+	wRange = span.NewLinear(1.0, 50.0)
+	hRange = span.NewLinear(1.0, 50.0)
 )

@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 func TestDefaultConfigFileMatchesEmptyConfig(t *testing.T) {
@@ -109,14 +111,13 @@ func TestConfig_overwriteFrom(t *testing.T) {
 			Filter: "filter",
 		},
 		Screen: Screen{
-			X:            1,
-			Y:            1,
-			TargetWidth:  1,
-			TargetHeight: 1,
+			X: 1,
+			Y: 1,
 		},
 		BatchLoadOptions: BatchLoadOptions{
 			MaxImageFileSize: 10000,
 		},
+		Driver: func(f func(screen.Screen)) { panic("fake") },
 	}
 	c1 := Config{}
 	c1.overwriteFrom(c2)

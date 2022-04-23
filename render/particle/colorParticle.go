@@ -4,8 +4,8 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/v3/physics"
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/physics"
+	"github.com/oakmound/oak/v4/render"
 )
 
 // A ColorParticle is a particle with a defined color and size

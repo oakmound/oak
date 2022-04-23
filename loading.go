@@ -3,10 +3,10 @@ package oak
 import (
 	"io/fs"
 
-	"github.com/oakmound/oak/v3/audio"
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/fileutil"
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/audio"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/fileutil"
+	"github.com/oakmound/oak/v4/render"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -27,11 +27,8 @@ func (w *Window) loadAssets(imageDir, audioDir string) {
 		} else {
 			err = audio.BatchLoad(audioDir)
 		}
-		if err != nil {
-			return err
-		}
 		dlog.Verb("Done Loading Audio")
-		return nil
+		return err
 	})
 	dlog.ErrorCheck(eg.Wait())
 }

@@ -2,14 +2,15 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package windriver
 
 import (
-	"github.com/oakmound/oak/v3/shiny/driver/internal/errscreen"
-	"github.com/oakmound/oak/v3/shiny/driver/internal/win32"
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/errscreen"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/win32"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 // Main is called by the program's main function to run the graphical

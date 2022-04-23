@@ -1,4 +1,4 @@
-module github.com/oakmound/oak/v3
+module github.com/oakmound/oak/v4
 
 go 1.18
 
@@ -16,6 +16,7 @@ require (
 	github.com/oakmound/libudev v0.2.1 // linux, joystick
 	github.com/oakmound/w32 v2.1.0+incompatible // windows, shiny
 	github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf // windows, audio
+	golang.org/x/exp v0.0.0-20220414153411-bcd21879b8fd
 	golang.org/x/image v0.0.0-20220321031419-a8550c1d254a
 	golang.org/x/mobile v0.0.0-20220325161704-447654d348e3
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
@@ -24,5 +25,4 @@ require (
 
 require (
 	github.com/eaburns/bit v0.0.0-20131029213740-7bd5cd37375d // indirect
-	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
 )

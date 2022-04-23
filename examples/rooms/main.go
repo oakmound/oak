@@ -4,13 +4,13 @@ import (
 	"image/color"
 	"math/rand"
 
-	"github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/entities"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/entities"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 // Rooms exercises shifting the camera in a zelda-esque fashion,
@@ -20,10 +20,10 @@ import (
 func isOffScreen(ctx *scene.Context, char *entities.Entity) (intgeom.Dir2, bool) {
 	x := int(char.X())
 	y := int(char.Y())
-	if x > ctx.Window.Viewport().X()+ctx.Window.Width() {
+	if x > ctx.Window.Viewport().X()+ctx.Window.Bounds().X() {
 		return intgeom.Right, true
 	}
-	if y > ctx.Window.Viewport().Y()+ctx.Window.Height() {
+	if y > ctx.Window.Viewport().Y()+ctx.Window.Bounds().Y() {
 		return intgeom.Down, true
 	}
 	if int(char.Right()) < ctx.Window.Viewport().X() {
@@ -55,14 +55,14 @@ func main() {
 			dir, ok := isOffScreen(ctx, char)
 			if !transitioning && ok {
 				transitioning = true
-				totalTransitionDelta = intgeom.Point2{ctx.Window.Width(), ctx.Window.Height()}.Mul(intgeom.Point2{dir.X(), dir.Y()})
+				totalTransitionDelta = ctx.Window.Bounds().Mul(intgeom.Point2{dir.X(), dir.Y()})
 				transitionDelta = totalTransitionDelta.DivConst(transitionFrameCount)
 			}
 			if transitioning {
 				// disable movement
 				// move camera one size towards the player
 				if totalTransitionDelta.X() != 0 || totalTransitionDelta.Y() != 0 {
-					oak.ShiftScreen(transitionDelta.X(), transitionDelta.Y())
+					oak.ShiftViewport(transitionDelta)
 					totalTransitionDelta = totalTransitionDelta.Sub(transitionDelta)
 				} else {
 					transitioning = false

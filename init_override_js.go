@@ -4,7 +4,7 @@
 package oak
 
 import (
-	"github.com/oakmound/oak/v3/dlog"
+	"github.com/oakmound/oak/v4/dlog"
 	"syscall/js"
 )
 
@@ -15,11 +15,11 @@ func overrideInit(w *Window) {
 	}
 	if w.config.EnableDebugConsole {
 		dlog.Info("Debug console is not supported in JS")
-		w.config.EnableDebugConsole = false 
+		w.config.EnableDebugConsole = false
 	}
 	if w.config.UnlimitedDrawFrameRate {
 		dlog.Info("Unlimited draw frame rate is not supported in JS")
-		w.config.UnlimitedDrawFrameRate = false 
+		w.config.UnlimitedDrawFrameRate = false
 	}
 	w.animationFrame = make(chan struct{})
 	js.Global().Call("requestAnimationFrame", js.FuncOf(w.requestFrame))

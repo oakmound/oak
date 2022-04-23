@@ -1,7 +1,7 @@
 package physics
 
 import (
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 const frozen = -64

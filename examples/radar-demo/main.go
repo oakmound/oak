@@ -5,15 +5,15 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg/intgeom"
 
-	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/entities"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/examples/radar-demo/radar"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	oak "github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/entities"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/examples/radar-demo/radar"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 const (
@@ -55,7 +55,7 @@ func main() {
 		w := 100
 		h := 100
 		r := radar.NewRadar(w, h, points, center, 10)
-		r.SetPos(float64(ctx.Window.Width()-w), 0)
+		r.SetPos(float64(ctx.Window.Bounds().X()-w), 0)
 
 		for i := 0; i < 5; i++ {
 			x, y := rand.Float64()*400, rand.Float64()*400

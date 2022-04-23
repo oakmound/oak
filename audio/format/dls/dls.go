@@ -1,7 +1,7 @@
 // Package dls contains data structures for DLS (.dls) file types.
 package dls
 
-import "github.com/oakmound/oak/v3/audio/format/riff"
+import "github.com/oakmound/oak/v4/audio/format/riff"
 
 // The DLS is the major struct we care about in this package
 // DLS files contain instrument and wave sample information, and

@@ -4,17 +4,17 @@ import (
 	"image/color"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/alg/span"
+	"github.com/oakmound/oak/v4/mouse"
 
-	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/entities"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	oak "github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/entities"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 var (
@@ -35,7 +35,7 @@ func main() {
 		// 1. Make Player
 		newFlappy(ctx, 90, 140)
 		// 2. Make scrolling repeating pillars
-		pillarFreq := floatrange.NewLinear(1, 5)
+		pillarFreq := span.NewLinear(1.0, 5.0)
 		var pillarLoop func()
 		pillarLoop = func() {
 			newPillarPair(ctx)
@@ -92,8 +92,8 @@ func newFlappy(ctx *scene.Context, x, y float64) {
 }
 
 var (
-	gapPosition = floatrange.NewLinear(10, 370)
-	gapSpan     = floatrange.NewLinear(100, 250)
+	gapPosition = span.NewLinear(10.0, 370.0)
+	gapSpan     = span.NewLinear(100.0, 250.0)
 )
 
 func newPillarPair(ctx *scene.Context) {

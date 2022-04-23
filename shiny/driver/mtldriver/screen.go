@@ -11,7 +11,7 @@ import (
 	"image"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 // screenImpl implements screen.Screen.
