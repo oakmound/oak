@@ -37,8 +37,19 @@ func center(ctx *scene.Context, obj render.Renderable, ax Axes) {
 }
 
 func main() {
+	win := oak.NewWindow()
+	win.ErrorScene = "error"
+	win.AddScene("error", scene.Scene{Start: func(ctx *scene.Context) {
+		ctx.DrawStack.Draw(render.NewText("Bad input! Any key to return to title", 100, 100))
+		event.GlobalBind(ctx, key.AnyDown, func(key.Event) event.Response {
+			ctx.Window.GoToScene("titlescreen")
+			return 0
+		})
+	}})
+
 	//make the scene for the titlescreen
-	oak.AddScene("titlescreen", scene.Scene{Start: func(ctx *scene.Context) {
+	win.AddScene("titlescreen", scene.Scene{Start: func(ctx *scene.Context) {
+		ctx.Window.(*oak.Window).ErrorScene = "error"
 
 		//create text saying titlescreen in placeholder position
 		titleText := render.NewText("titlescreen", 0, 0)
@@ -66,13 +77,20 @@ func main() {
 			ctx.Window.Quit()
 			return 0
 		})
+		event.GlobalBind(ctx, key.AnyDown, func(k key.Event) event.Response {
+			if k.Code == key.Q || k.Code == key.ReturnEnter {
+				return 0
+			}
+			ctx.Window.GoToScene("whatthe!")
+			return 0
+		})
 
 	}, End: func() (string, *scene.Result) {
 		return "game", nil //set the next scene to "game"
 	}})
 
 	//define the "game" (it's just a square that can be moved with WASD)
-	oak.AddScene("game", scene.Scene{Start: func(ctx *scene.Context) {
+	win.AddScene("game", scene.Scene{Start: func(ctx *scene.Context) {
 		//create the player, a blue 32x32 square at 100,100
 		player := entities.New(ctx,
 			entities.WithRect(floatgeom.NewRect2WH(100, 100, 32, 32)),
@@ -89,10 +107,10 @@ func main() {
 			return 0
 		})
 		event.Bind(ctx, event.Enter, player, func(player *entities.Entity, _ event.EnterPayload) event.Response {
-			if oak.IsDown(key.S) {
+			if ctx.IsDown(key.S) {
 				//if S is pressed, set the player's vertical speed to 2 (positive == down)
 				player.Delta[1] = 2
-			} else if oak.IsDown(key.W) {
+			} else if ctx.IsDown(key.W) {
 				player.Delta[1] = -2
 			} else {
 				//if the now buttons are pressed for vertical movement, don't move vertically
@@ -100,9 +118,9 @@ func main() {
 			}
 
 			//do the same thing as before, but horizontally
-			if oak.IsDown(key.D) {
+			if ctx.IsDown(key.D) {
 				player.Delta[0] = 2
-			} else if oak.IsDown(key.A) {
+			} else if ctx.IsDown(key.A) {
 				player.Delta[0] = -2
 			} else {
 				player.Delta[0] = 0
@@ -115,5 +133,5 @@ func main() {
 		return "titlescreen", nil //set the next scene to be titlescreen
 	}})
 	//start the game on the titlescreen
-	oak.Init("titlescreen")
+	win.Init("titlescreen")
 }

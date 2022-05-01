@@ -1,9 +1,9 @@
-module github.com/oakmound/oak/examples/clipboard
+module github.com/oakmound/oak/examples/text-demo
 
 go 1.18
 
 require (
-	github.com/atotto/clipboard v0.1.4
+	github.com/flopp/go-findfont v0.0.0-20201114153133-e7393a00c15b
 	github.com/oakmound/oak/v4 v4.0.0-alpha.1
 )
 
@@ -20,6 +20,7 @@ require (
 	github.com/oakmound/w32 v2.1.0+incompatible // indirect
 	github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf // indirect
 	golang.org/x/exp v0.0.0-20220414153411-bcd21879b8fd // indirect
+	golang.org/x/exp/shiny v0.0.0-20220428152302-39d4317da171 // indirect
 	golang.org/x/image v0.0.0-20220321031419-a8550c1d254a // indirect
 	golang.org/x/mobile v0.0.0-20220325161704-447654d348e3 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
