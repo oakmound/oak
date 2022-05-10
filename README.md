@@ -85,9 +85,8 @@ See below or the [examples](examples) folder for longer demos, [godoc](https://p
 
 | | | |
 |:-------------------------:|:-------------------------:|:-------------------------:|
-|<img width="1400"  src="examples/platformer-tutorial/6-complete/example.gif" a=examples/platformer-tutorial>  [Platformer](examples/platformer-tutorial) |  <img width="1400"  src="examples/top-down-shooter-tutorial/6-performance/example.gif"> [Top down shooter](examples/top-down-shooter-tutorial)|<img width="1400"  src="examples/radar-demo/example.gif"> [Radar](examples/radar-demo) |
-|<img width="1400"  src="examples/slide/example.gif"> [Slideshow](examples/slide) |  <img width="1400"  src="examples/bezier/example.PNG"> [Bezier Curves](examples/bezier) |<img width="1400"  src="examples/joystick-viz/example.gif"> [Joysticks](examples/joystick-viz)|
-|<img width="1400"  src="examples/collision-demo/example.PNG"> [Collision Demo](examples/collision-demo)  |  <img width="1400"  src="examples/custom-cursor/example.PNG"> [Custom Mouse Cursor](examples/custom-cursor) |<img width="1400"  src="examples/fallback-font/example.PNG"> [Fallback Fonts](examples/fallback-font)| 
+|<img width="1400"  src="examples/platformer/example.gif" a=examples/platformer>  [Platformer](examples/platformer) |  <img width="1400"  src="examples/top-down-shooter//example.gif"> [Top down shooter](examples/top-down-shooter)|
+|  <img width="1400"  src="examples/bezier/example.PNG"> [Bezier Curves](examples/bezier) |<img width="1400"  src="examples/joystick-viz/example.gif"> [Joysticks](examples/joystick-viz)| |<img width="1400"  src="examples/text/example.PNG"> [Text](examples/text)| 
 |<img width="1400"  src="examples/screenopts/example.PNG"> [Screen Options](examples/screenopts)  |  <img width="1400"  src="examples/multi-window/example.PNG"> [Multi Window](examples/multi-window) |<img width="1400"  src="examples/particle-demo/overviewExample.gif"> [Particle Demo](examples/particle-demo)| 
 
 ## Games using Oak <a name="finished-games"/>
