@@ -70,11 +70,13 @@ func TestLoopingSin(t *testing.T) {
 		Format: format,
 	})
 	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
 	go func() {
 		err := audio.Play(ctx, r)
 		if err != nil {
 			t.Errorf("failed to play: %v", err)
 		}
+		close(done)
 	}()
 	if testing.Short() {
 		time.Sleep(100 * time.Millisecond)
@@ -83,7 +85,12 @@ func TestLoopingSin(t *testing.T) {
 	}
 	fmt.Println("stopping")
 	cancel()
-	time.Sleep(1 * time.Second)
+	select {
+	case <-done:
+	case <-time.After(1 * time.Second):
+		t.Errorf("play did not exit on cancel")
+	}
+
 }
 
 func bytesFromInts(is []int16, channels int) []byte {

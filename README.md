@@ -3,7 +3,7 @@
 ## A Pure Go game engine
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/oakmound/oak/v4.svg)](https://pkg.go.dev/github.com/oakmound/oak/v4)
-[![Code Coverage](https://codecov.io/gh/oakmound/oak/branch/develop/graph/badge.svg)](https://codecov.io/gh/oakmound/oak)
+[![Code Coverage](https://codecov.io/gh/oakmound/oak/branch/master/graph/badge.svg)](https://codecov.io/gh/oakmound/oak)
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge-flat.svg)](https://github.com/avelino/awesome-go)
 
 ## Table of Contents
