@@ -5,15 +5,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/debugtools"
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/oakerr"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/render/mod"
-	"github.com/oakmound/oak/v3/window"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/debugtools"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/oakerr"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/render/mod"
+	"github.com/oakmound/oak/v4/window"
 )
 
 // AddDefaultsForScope for debugging.
@@ -39,8 +39,9 @@ func moveWindow(w window.Window) func([]string) string {
 				InputName: "coordinates",
 			}.Error()
 		}
-		width := parseTokenAsInt(sub, 2, w.Width())
-		height := parseTokenAsInt(sub, 3, w.Height())
+		bds := w.Bounds()
+		width := parseTokenAsInt(sub, 2, bds.X())
+		height := parseTokenAsInt(sub, 3, bds.Y())
 		v := w.Viewport()
 		x := parseTokenAsInt(sub, 0, v.X())
 		y := parseTokenAsInt(sub, 1, v.Y())
@@ -69,14 +70,13 @@ const explainMouseDetails = "the mext mouse click on the given window will print
 
 func mouseCommands(w window.Window) func([]string) string {
 	return func(tokenString []string) string {
-		w.EventHandler().GlobalBind("MouseRelease", mouseDetails(w))
+		event.GlobalBind(w.EventHandler(), mouse.Release, mouseDetails(w))
 		return ""
 	}
 }
 
-func mouseDetails(w window.Window) func(event.CID, interface{}) int {
-	return func(nothing event.CID, mevent interface{}) int {
-		me := mevent.(mouse.Event)
+func mouseDetails(w window.Window) func(*mouse.Event) event.Response {
+	return func(me *mouse.Event) event.Response {
 		viewPos := w.Viewport()
 		x := int(me.X()) + viewPos[0]
 		y := int(me.Y()) + viewPos[1]
@@ -86,17 +86,19 @@ func mouseDetails(w window.Window) func(event.CID, interface{}) int {
 		if len(results) == 0 {
 			results = mouse.Hits(loc)
 		}
+		cm := w.EventHandler().GetCallerMap()
+
 		if len(results) > 0 {
-			i := int(results[0].CID)
-			if i > 0 && event.HasEntity(event.CID(i)) {
-				e := event.GetEntity(event.CID(i))
+			i := results[0].CID
+			if i > 0 && cm.HasEntity(i) {
+				e := cm.HasEntity(i)
 				fmt.Printf("%+v\n", e)
 			} else {
 				fmt.Println("No entity ", i)
 			}
 		}
 
-		return event.UnbindSingle
+		return event.ResponseUnbindThisBinding
 	}
 }
 

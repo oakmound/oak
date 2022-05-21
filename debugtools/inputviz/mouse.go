@@ -1,3 +1,4 @@
+// Package inputviz provides components that enable visualization of user input (e.g. mouse, keyboard) for debugging
 package inputviz
 
 import (
@@ -6,18 +7,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 type Mouse struct {
 	Rect      floatgeom.Rect2
 	BaseLayer int
 
-	event.CID
+	event.CallerID
 	ctx *scene.Context
 
 	rs map[mouse.Button]*render.Switch
@@ -27,16 +28,17 @@ type Mouse struct {
 
 	stateIncLock sync.RWMutex
 	stateInc     map[mouse.Button]int
+
+	bindings []event.Binding
 }
 
-func (m *Mouse) Init() event.CID {
-	m.CID = m.ctx.CallerMap.NextID(m)
-	return m.CID
+func (m *Mouse) CID() event.CallerID {
+	return m.CallerID
 }
 
 func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 	m.ctx = ctx
-	m.Init()
+	m.CallerID = ctx.Register(m)
 
 	if m.Rect.W() == 0 || m.Rect.H() == 0 {
 		m.Rect.Max = m.Rect.Min.Add(floatgeom.Point2{60, 100})
@@ -98,24 +100,21 @@ func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 		ctx.DrawStack.Draw(m.posText, m.BaseLayer, layer+2)
 	}
 
-	m.Bind(mouse.Press, mouse.Binding(func(id event.CID, ev *mouse.Event) int {
-		m, _ := m.ctx.CallerMap.GetEntity(id).(*Mouse)
+	b1 := event.Bind(ctx, mouse.Press, m, func(m *Mouse, ev *mouse.Event) event.Response {
 		m.rs[ev.Button].Set("pressed")
 		m.stateIncLock.Lock()
 		m.stateInc[ev.Button]++
 		m.stateIncLock.Unlock()
 		return 0
-	}))
-	m.Bind(mouse.Release, mouse.Binding(func(id event.CID, ev *mouse.Event) int {
-		m, _ := m.ctx.CallerMap.GetEntity(id).(*Mouse)
+	})
+	b2 := event.Bind(ctx, mouse.Release, m, func(m *Mouse, ev *mouse.Event) event.Response {
 		m.rs[ev.Button].Set("released")
 		m.stateIncLock.Lock()
 		m.stateInc[ev.Button]++
 		m.stateIncLock.Unlock()
 		return 0
-	}))
-	m.Bind(mouse.ScrollDown, mouse.Binding(func(id event.CID, e *mouse.Event) int {
-		m, _ := m.ctx.CallerMap.GetEntity(id).(*Mouse)
+	})
+	b3 := event.Bind(ctx, mouse.ScrollDown, m, func(m *Mouse, ev *mouse.Event) event.Response {
 		m.rs[mouse.ButtonMiddle].Set("scrolldown")
 		m.stateIncLock.Lock()
 		m.stateInc[mouse.ButtonMiddle]++
@@ -129,9 +128,8 @@ func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 			m.stateIncLock.Unlock()
 		})
 		return 0
-	}))
-	m.Bind(mouse.ScrollUp, mouse.Binding(func(id event.CID, e *mouse.Event) int {
-		m, _ := m.ctx.CallerMap.GetEntity(id).(*Mouse)
+	})
+	b4 := event.Bind(ctx, mouse.ScrollUp, m, func(m *Mouse, ev *mouse.Event) event.Response {
 		m.rs[mouse.ButtonMiddle].Set("scrollup")
 		m.stateIncLock.Lock()
 		m.stateInc[mouse.ButtonMiddle]++
@@ -145,13 +143,12 @@ func (m *Mouse) RenderAndListen(ctx *scene.Context, layer int) error {
 			m.stateIncLock.Unlock()
 		})
 		return 0
-	}))
-	m.Bind(mouse.Drag, mouse.Binding(func(id event.CID, e *mouse.Event) int {
-		m, _ := m.ctx.CallerMap.GetEntity(id).(*Mouse)
-		m.lastMousePos.Point2 = e.Point2
+	})
+	b5 := event.Bind(ctx, mouse.Drag, m, func(m *Mouse, ev *mouse.Event) event.Response {
+		m.lastMousePos.Point2 = ev.Point2
 		return 0
-	}))
-
+	})
+	m.bindings = []event.Binding{b1, b2, b3, b4, b5}
 	return nil
 }
 
@@ -164,7 +161,10 @@ func (ps *posStringer) String() string {
 }
 
 func (m *Mouse) Destroy() {
-	m.UnbindAll()
+	// TODO: this is a lot of code to write to track and unbind all of an entity's bindings
+	for _, b := range m.bindings {
+		b.Unbind()
+	}
 	for _, r := range m.rs {
 		r.Undraw()
 	}

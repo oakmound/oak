@@ -4,10 +4,10 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 
-	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v4/collision"
 )
 
 // NewRTree creates a wrapper around a tree that supports coloring the spaces
@@ -46,7 +46,8 @@ type Rtree struct {
 
 // GetDims returns the total possible area to draw this on.
 func (r *Rtree) GetDims() (int, int) {
-	return r.Context.Window.Width(), r.Context.Window.Height()
+	bds := r.Context.Window.Bounds()
+	return bds.X(), bds.Y()
 }
 
 // Draw will draw the collision outlines
@@ -55,12 +56,13 @@ func (r *Rtree) Draw(buff draw.Image, xOff, yOff float64) {
 		return
 	}
 	vp := r.Context.Window.Viewport()
+	bds := r.Context.Window.Bounds()
 	// Get all spaces on screen
 	screen := collision.NewUnassignedSpace(
 		float64(vp.X()),
 		float64(vp.Y()),
-		float64(r.Context.Window.Width()+vp.X()),
-		float64(r.Context.Window.Height()+vp.Y()))
+		float64(bds.X()+vp.X()),
+		float64(bds.Y()+vp.Y()))
 	hits := r.Tree.Hits(screen)
 	// Draw spaces that are on screen (as outlines)
 	for _, h := range hits {

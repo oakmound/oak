@@ -8,9 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/oakerr"
-	"github.com/oakmound/oak/v3/timing"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/oakerr"
+	"github.com/oakmound/oak/v4/scene"
+	"github.com/oakmound/oak/v4/timing"
 )
 
 var (
@@ -18,8 +19,11 @@ var (
 )
 
 // Init initializes the oak engine.
-// It spawns off an event loop of several goroutines
-// and loops through scenes after initialization.
+// After the configuration options have been parsed and validated, this will run concurrent
+// routines drawing to an OS window or app, forwarding OS inputs to this window's configured
+// event handler, and running scenes: first the predefined 'loading' scene, then firstScene
+// as provided here, then scenes following commands sent to the window or returned by ending
+// scenes.
 func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 
 	var err error
@@ -28,13 +32,6 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 		return fmt.Errorf("failed to create config: %w", err)
 	}
 
-	// if c.config.Screen.TargetWidth != 0 && c.config.Screen.TargetHeight != 0 {
-	// 	w, h := driver.MonitorSize()
-	// 	if w != 0 || h != 0 {
-	// 		// Todo: Modify conf.Screen.Scale
-	// 	}
-	// }
-
 	lvl, err := dlog.ParseDebugLevel(w.config.Debug.Level)
 	if err != nil {
 		return fmt.Errorf("failed to parse debug config: %w", err)
@@ -42,10 +39,8 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 	dlog.SetFilter(func(msg string) bool {
 		return strings.Contains(msg, w.config.Debug.Filter)
 	})
-	err = dlog.SetLogLevel(lvl)
-	if err != nil {
-		return err
-	}
+	// This error cannot happen as it would surface in Parse above
+	_ = dlog.SetLogLevel(lvl)
 	err = oakerr.SetLanguageString(w.config.Language)
 	if err != nil {
 		return err
@@ -65,9 +60,6 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 	if w.config.TrackInputChanges {
 		trackJoystickChanges(w.eventHandler)
 	}
-	if w.config.EventRefreshRate != 0 {
-		w.eventHandler.SetRefreshRate(time.Duration(w.config.EventRefreshRate))
-	}
 
 	if !w.config.SkipRNGSeed {
 		// seed math/rand with time.Now, useful for minimal examples
@@ -77,14 +69,27 @@ func (w *Window) Init(firstScene string, configOptions ...ConfigOption) error {
 
 	overrideInit(w)
 
-	go w.sceneLoop(firstScene, w.config.TrackInputChanges)
-	if w.config.BatchLoad {
-		w.startupLoading = true
-		go func() {
-			w.loadAssets(w.config.Assets.ImagePath, w.config.Assets.AudioPath)
-			w.endLoad()
-		}()
+	err = w.SceneMap.AddScene(oakLoadingScene, scene.Scene{
+		Start: func(ctx *scene.Context) {
+			if w.config.BatchLoad {
+				go func() {
+					w.loadAssets(w.config.Assets.ImagePath, w.config.Assets.AudioPath)
+					w.endLoad()
+				}()
+			} else {
+				go w.endLoad()
+			}
+		},
+		End: func() (string, *scene.Result) {
+			return w.firstScene, &scene.Result{
+				NextSceneInput: w.FirstSceneInput,
+			}
+		},
+	})
+	if err != nil {
+		return err
 	}
+	go w.sceneLoop(firstScene, w.config.TrackInputChanges)
 	if w.config.EnableDebugConsole {
 		go w.debugConsole(os.Stdin, os.Stdout)
 	}

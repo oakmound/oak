@@ -4,11 +4,11 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/oakmound/oak/v3/alg"
-	"github.com/oakmound/oak/v3/debugstream"
+	"github.com/oakmound/oak/v4/alg"
+	"github.com/oakmound/oak/v4/debugstream"
 	"golang.org/x/mobile/event/lifecycle"
 
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 func (w *Window) lifecycleLoop(s screen.Screen) {
@@ -23,8 +23,8 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 	// Apply that factor to the scale
 
 	err = w.newWindow(
-		int32(w.config.Screen.X),
-		int32(w.config.Screen.Y),
+		w.config.Screen.X,
+		w.config.Screen.Y,
 		int(float64(w.ScreenWidth)*w.config.Screen.Scale),
 		int(float64(w.ScreenHeight)*w.config.Screen.Scale),
 	)
@@ -37,7 +37,7 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 	go w.inputLoop()
 
 	<-w.quitCh
-	w.windowControl.Release()
+	w.Window.Release()
 }
 
 // Quit sends a signal to the window to close itself, closing the window and
@@ -45,24 +45,24 @@ func (w *Window) lifecycleLoop(s screen.Screen) {
 // it must not be called again.
 func (w *Window) Quit() {
 	// We could have hit this before the window was created
-	if w.windowControl == nil {
+	if w.Window == nil {
 		close(w.quitCh)
 	} else {
-		w.windowControl.Send(lifecycle.Event{To: lifecycle.StageDead})
+		w.Window.Send(lifecycle.Event{To: lifecycle.StageDead})
 	}
 	if w.config.EnableDebugConsole {
 		debugstream.DefaultCommands.RemoveScope(w.ControllerID)
 	}
 }
 
-func (w *Window) newWindow(x, y int32, width, height int) error {
+func (w *Window) newWindow(x, y, width, height int) error {
 	// The window controller handles incoming hardware or platform events and
 	// publishes image data to the screen.
 	wC, err := w.windowController(w.screenControl, x, y, width, height)
 	if err != nil {
 		return err
 	}
-	w.windowControl = wC
+	w.Window = wC
 	return w.ChangeWindow(width, height)
 }
 
@@ -77,13 +77,11 @@ func (w *Window) SetAspectRatio(xToY float64) {
 // ChangeWindow sets the width and height of the game window. Although exported,
 // calling it without a size event will probably not act as expected.
 func (w *Window) ChangeWindow(width, height int) error {
-	// Draw a black frame to cover up smears
-	// Todo: could restrict the black to -just- the area not covered by the
-	// scaled screen buffer
+	// Draw the background to cover up smears
 	buff, err := w.screenControl.NewImage(image.Point{width, height})
 	if err == nil {
 		draw.Draw(buff.RGBA(), buff.Bounds(), w.bkgFn(), zeroPoint, draw.Src)
-		w.windowControl.Upload(zeroPoint, buff, buff.Bounds())
+		w.Window.Upload(zeroPoint, buff, buff.Bounds())
 	} else {
 		return err
 	}
@@ -104,10 +102,15 @@ func (w *Window) ChangeWindow(width, height int) error {
 	return nil
 }
 
-// UpdateViewSize updates the size of this window's viewport.
+// UpdateViewSize updates the size of this window's viewport. If the window has yet
+// to be initialized, it will update ScreenWidth and ScreenHeight, and then exit.
 func (w *Window) UpdateViewSize(width, height int) error {
 	w.ScreenWidth = width
 	w.ScreenHeight = height
+	// this is being called before Init
+	if w.screenControl == nil {
+		return nil
+	}
 	for i := 0; i < bufferCount; i++ {
 		newBuffer, err := w.screenControl.NewImage(image.Point{width, height})
 		if err != nil {

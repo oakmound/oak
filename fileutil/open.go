@@ -1,7 +1,6 @@
 package fileutil
 
 import (
-	"bytes"
 	"io"
 	"io/fs"
 	"os"
@@ -29,11 +28,11 @@ func Open(file string) (io.ReadCloser, error) {
 	fixedPath := fixWindowsPath(file)
 	f, readErr := FS.Open(fixedPath)
 	if readErr != nil && OSFallback {
-		byt, err := os.ReadFile(file)
+		osFile, err := os.Open(file)
 		if err != nil {
 			return nil, err
 		}
-		return io.NopCloser(bytes.NewReader(byt)), nil
+		return osFile, nil
 	}
 	return f, readErr
 }

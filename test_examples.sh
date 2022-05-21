@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 examples=$(find ./examples | grep main.go$)
+root=$(pwd)
 for ex in $examples 
 do
     echo $ex
@@ -12,5 +13,5 @@ do
     if [ $retVal -ne 124 ]; then
         exit 1
     fi
-    cd ../..
+    cd $root
 done

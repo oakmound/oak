@@ -16,12 +16,12 @@ import (
 	"github.com/BurntSushi/xgb/render"
 	"github.com/BurntSushi/xgb/xproto"
 
-	"github.com/oakmound/oak/v3/shiny/driver/internal/drawer"
-	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
-	"github.com/oakmound/oak/v3/shiny/driver/internal/lifecycler"
-	"github.com/oakmound/oak/v3/shiny/driver/internal/x11"
-	"github.com/oakmound/oak/v3/shiny/driver/internal/x11key"
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/drawer"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/event"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/lifecycler"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/x11"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/x11key"
+	"github.com/oakmound/oak/v4/shiny/screen"
 	"golang.org/x/image/math/f64"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/mouse"
@@ -30,7 +30,7 @@ import (
 	"golang.org/x/mobile/geom"
 )
 
-type windowImpl struct {
+type Window struct {
 	s *screenImpl
 
 	xw xproto.Window
@@ -48,11 +48,13 @@ type windowImpl struct {
 
 	mu sync.Mutex
 
+	lastMouseX, lastMouseY int16
+
 	x, y     uint32
 	released bool
 }
 
-func (w *windowImpl) Release() {
+func (w *Window) Release() {
 	w.mu.Lock()
 	released := w.released
 	w.released = true
@@ -69,31 +71,31 @@ func (w *windowImpl) Release() {
 	xproto.DestroyWindow(w.s.xc, w.xw)
 }
 
-func (w *windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
+func (w *Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
 	src.(*bufferImpl).upload(xproto.Drawable(w.xw), w.xg, w.s.xsi.RootDepth, dp, sr)
 }
 
-func (w *windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
+func (w *Window) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
 	fill(w.s.xc, w.xp, dr, src, op)
 }
 
-func (w *windowImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
+func (w *Window) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
 	w.s.drawUniform(w.xp, &src2dst, src, sr, op)
 }
 
-func (w *windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	src.(*textureImpl).draw(w.xp, &src2dst, sr, op)
 }
 
-func (w *windowImpl) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	drawer.Copy(w, dp, src, sr, op)
 }
 
-func (w *windowImpl) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	drawer.Scale(w, dr, src, sr, op)
 }
 
-func (w *windowImpl) Publish() screen.PublishResult {
+func (w *Window) Publish() {
 	// TODO: implement a back buffer, and copy or flip that here to the front
 	// buffer.
 
@@ -105,19 +107,17 @@ func (w *windowImpl) Publish() screen.PublishResult {
 	// client could easily end up sending work at a faster rate than the X11
 	// server can serve.
 	w.s.xc.Sync()
-
-	return screen.PublishResult{}
 }
 
-func (w *windowImpl) SetFullScreen(fullscreen bool) error {
+func (w *Window) SetFullScreen(fullscreen bool) error {
 	return x11.SetFullScreen(w.s.XUtil, w.xw, fullscreen)
 }
 
-func (w *windowImpl) SetBorderless(borderless bool) error {
+func (w *Window) SetBorderless(borderless bool) error {
 	return x11.SetBorderless(w.s.XUtil, w.xw, borderless)
 }
 
-func (w *windowImpl) handleConfigureNotify(ev xproto.ConfigureNotifyEvent) {
+func (w *Window) handleConfigureNotify(ev xproto.ConfigureNotifyEvent) {
 	// TODO: does the order of these lifecycle and size events matter? Should
 	// they really be a single, atomic event?
 	w.lifecycler.SetVisible((int(ev.X)+int(ev.Width)) > 0 && (int(ev.Y)+int(ev.Height)) > 0)
@@ -137,11 +137,11 @@ func (w *windowImpl) handleConfigureNotify(ev xproto.ConfigureNotifyEvent) {
 	})
 }
 
-func (w *windowImpl) handleExpose() {
+func (w *Window) handleExpose() {
 	w.Send(paint.Event{})
 }
 
-func (w *windowImpl) handleKey(detail xproto.Keycode, state uint16, dir key.Direction) {
+func (w *Window) handleKey(detail xproto.Keycode, state uint16, dir key.Direction) {
 	r, c := w.s.keysyms.Lookup(uint8(detail), state, w.s.numLockMod)
 	w.Send(key.Event{
 		Rune:      r,
@@ -151,7 +151,9 @@ func (w *windowImpl) handleKey(detail xproto.Keycode, state uint16, dir key.Dire
 	})
 }
 
-func (w *windowImpl) handleMouse(x, y int16, b xproto.Button, state uint16, dir mouse.Direction) {
+func (w *Window) handleMouse(x, y int16, b xproto.Button, state uint16, dir mouse.Direction) {
+	w.lastMouseX = x
+	w.lastMouseY = y
 	// TODO: should a mouse.Event have a separate MouseModifiers field, for
 	// which buttons are pressed during a mouse move?
 	btn := mouse.Button(b)
@@ -180,7 +182,7 @@ func (w *windowImpl) handleMouse(x, y int16, b xproto.Button, state uint16, dir 
 	})
 }
 
-func (w *windowImpl) MoveWindow(x, y, width, height int32) error {
+func (w *Window) MoveWindow(x, y, width, height int) error {
 	newX, newY, newW, newH := x11.MoveWindow(w.s.xc, w.xw, x, y, width, height)
 	w.x = uint32(newX)
 	w.y = uint32(newY)
@@ -194,4 +196,96 @@ func (w *windowImpl) MoveWindow(x, y, width, height int32) error {
 		PixelsPerPt: w.s.pixelsPerPt,
 	})
 	return nil
+}
+
+func (w *Window) SetTitle(title string) error {
+	xproto.ChangeProperty(w.s.xc, xproto.PropModeReplace, w.xw,
+		w.s.atoms["_NET_WM_NAME"], w.s.atoms["UTF8_STRING"],
+		8, uint32(len(title)), []byte(title))
+	return nil
+}
+
+func (w *Window) SetTopMost(topMost bool) error {
+	return x11.SetTopMost(w.s.XUtil, w.xw, topMost)
+}
+
+func (w *Window) HideCursor() error {
+	// ask X for a pixmap id
+	px, err := xproto.NewPixmapId(w.s.xc)
+	if err != nil {
+		return err
+	}
+
+	// Create a 1x1 pixmap with that pixmap id
+	// depth has to be 1, otherwise you get BadMatch
+	// the drawable has to be this root window. I don't know why.
+	// You can't make a pixmap with less than 1x1 dimensions.
+	// I don't even know if this pixmap is black or transparent
+	xproto.CreatePixmap(w.s.xc, 1, px, xproto.Drawable(w.s.XUtil.RootWin()), 1, 1)
+
+	// ask X for a cursor id
+	cursorId, err := xproto.NewCursorId(w.s.xc)
+	if err != nil {
+		return err
+	}
+
+	// create a cursor from the pixmap with that cursor id.
+	// the zeros are colors (r,g,b,r,g,b) and the hotspot of the cursor (x,y)
+	// the second px is a mask which we ignore.
+	xproto.CreateCursor(w.s.xc, cursorId, px, px, 0, 0, 0, 0, 0, 0, 0, 0)
+
+	// change the cursor of the window to be the created cursor.
+	xproto.ChangeWindowAttributes(w.s.xc, w.xw,
+		xproto.CwBackPixel|xproto.CwCursor, []uint32{0xffffffff, uint32(cursorId)})
+
+	// free the things we created
+	// it does not make sense to me that we can free these, and still persist our created
+	// cursor, but it works
+	xproto.FreeCursor(w.s.xc, cursorId)
+	xproto.FreePixmap(w.s.xc, px)
+
+	return nil
+}
+
+func (w *Window) SetIcon(icon image.Image) error {
+	bds := icon.Bounds()
+	wd := bds.Max.X
+	h := bds.Max.Y
+	u32w := uint32(wd)
+	u32h := uint32(h)
+	// 4 bytes, b/g/r/a, per pixel
+	bgra := make([]byte, 8, 8+wd*h*4)
+	// prepend width and height
+	bgra[0] = byte(u32w)
+	bgra[1] = byte(u32w >> 8)
+	bgra[2] = byte(u32w >> 16)
+	bgra[3] = byte(u32w >> 24)
+	bgra[4] = byte(u32h)
+	bgra[5] = byte(u32h >> 8)
+	bgra[6] = byte(u32h >> 16)
+	bgra[7] = byte(u32h >> 24)
+	for x := 0; x < wd; x++ {
+		for y := 0; y < h; y++ {
+			c := icon.At(x, (h-1)-y)
+			r, g, b, a := c.RGBA()
+			bgra = append(bgra, byte(b>>8))
+			bgra = append(bgra, byte(g>>8))
+			bgra = append(bgra, byte(r>>8))
+			bgra = append(bgra, byte(a>>8))
+		}
+	}
+	const XA_CARDINAL = 6
+	// 32 here is the bit size of a cardinal, which is a bgra pixel
+	// we divide our length by 4 because we're sending a byte slice,
+	// not a cardinal slice
+	xproto.ChangeProperty(w.s.xc, xproto.PropModeReplace, w.xw,
+		w.s.atoms["_NET_WM_ICON"], XA_CARDINAL,
+		32, uint32(len(bgra))/4, bgra)
+	return nil
+}
+
+func (w *Window) GetCursorPosition() (x, y float64) {
+	// it's really not easy to do this with X
+	// we're just caching the last values we got
+	return float64(w.lastMouseX), float64(w.lastMouseY)
 }

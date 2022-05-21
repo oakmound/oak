@@ -10,14 +10,12 @@ package driver
 import (
 	"errors"
 
-	"github.com/oakmound/oak/v3/shiny/driver/internal/errscreen"
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/errscreen"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 func main(f func(screen.Screen)) {
 	f(errscreen.Stub(errors.New("no driver for accessing a screen")))
 }
 
-func monitorSize() (int, int) {
-	return 0, 0
-}
+type Window = struct{}

@@ -1,14 +1,15 @@
 package particle
 
 import (
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-	"github.com/oakmound/oak/v3/alg/range/intrange"
-	"github.com/oakmound/oak/v3/physics"
+	"math"
+
+	"github.com/oakmound/oak/v4/alg/span"
+	"github.com/oakmound/oak/v4/physics"
 )
 
 var (
 	// Inf represents Infinite duration
-	Inf = intrange.NewInfinite()
+	Inf = span.NewConstant(math.MaxInt32)
 )
 
 // A Generator holds settings for generating particles
@@ -33,14 +34,14 @@ type BaseGenerator struct {
 	// to something along the lines of 'new per 30 frames',
 	// or allow low fractional values to be meaningful,
 	// so that more fine-tuned particle generation speeds are possible.
-	NewPerFrame floatrange.Range
+	NewPerFrame span.Span[float64]
 	// The number of frames each particle should persist
 	// before being removed.
-	LifeSpan floatrange.Range
+	LifeSpan span.Span[float64]
 	// 0 - between quadrant 1 and 4
 	// 90 - between quadrant 2 and 1
-	Angle  floatrange.Range
-	Speed  floatrange.Range
+	Angle  span.Span[float64]
+	Speed  span.Span[float64]
 	Spread physics.Vector
 	// Duration in milliseconds for the particle source.
 	// After this many milliseconds have passed, it will
@@ -48,9 +49,9 @@ type BaseGenerator struct {
 	// not be removed until their individual lifespans run
 	// out.
 	// A duration of -1 represents never stopping.
-	Duration intrange.Range
+	Duration span.Span[int]
 	// Rotational acceleration, to change angle over time
-	Rotation floatrange.Range
+	Rotation span.Span[float64]
 	// Gravity X() and Gravity Y() represent particle acceleration per frame.
 	Gravity       physics.Vector
 	SpeedDecay    physics.Vector
@@ -67,10 +68,10 @@ func (bg *BaseGenerator) GetBaseGenerator() *BaseGenerator {
 func (bg *BaseGenerator) setDefaults() {
 	*bg = BaseGenerator{
 		Vector:      physics.NewVector(0, 0),
-		NewPerFrame: floatrange.NewConstant(1),
-		LifeSpan:    floatrange.NewConstant(60),
-		Angle:       floatrange.NewConstant(0),
-		Speed:       floatrange.NewConstant(1),
+		NewPerFrame: span.NewConstant(1.0),
+		LifeSpan:    span.NewConstant(60.0),
+		Angle:       span.NewConstant(0.0),
+		Speed:       span.NewConstant(1.0),
 		Spread:      physics.NewVector(0, 0),
 		Duration:    Inf,
 		Rotation:    nil,

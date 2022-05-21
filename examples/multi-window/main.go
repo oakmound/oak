@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"image/color"
 
-	"github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 func main() {
@@ -26,10 +26,10 @@ func main() {
 			ctx.DrawStack.Draw(cb, 0)
 			dFPS := render.NewDrawFPS(0.1, nil, 600, 10)
 			ctx.DrawStack.Draw(dFPS, 1)
-			ctx.EventHandler.GlobalBind(mouse.Press, mouse.Binding(func(_ event.CID, me *mouse.Event) int {
+			event.GlobalBind(ctx, mouse.Press, func(me *mouse.Event) event.Response {
 				cb.SetPos(me.X(), me.Y())
 				return 0
-			}))
+			})
 		},
 	})
 	go func() {
@@ -55,10 +55,10 @@ func main() {
 			ctx.DrawStack.Draw(cb, 0)
 			dFPS := render.NewDrawFPS(0.1, nil, 600, 10)
 			ctx.DrawStack.Draw(dFPS, 1)
-			ctx.EventHandler.GlobalBind(mouse.Press, mouse.Binding(func(_ event.CID, me *mouse.Event) int {
+			event.GlobalBind(ctx, mouse.Press, func(me *mouse.Event) event.Response {
 				cb.SetPos(me.X(), me.Y())
 				return 0
-			}))
+			})
 		},
 	})
 	c2.Init("scene2", func(c oak.Config) (oak.Config, error) {

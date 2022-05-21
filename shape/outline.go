@@ -4,7 +4,7 @@ import (
 	"errors"
 	"math"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v4/alg/intgeom"
 )
 
 const (

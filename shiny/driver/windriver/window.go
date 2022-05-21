@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package windriver
@@ -15,14 +16,18 @@ import (
 	"image/color"
 	"image/draw"
 	"math"
+	"math/rand"
+	"os"
+	"path/filepath"
+	"strconv"
 	"sync"
 	"syscall"
 	"unsafe"
 
-	"github.com/oakmound/oak/v3/shiny/driver/internal/drawer"
-	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
-	"github.com/oakmound/oak/v3/shiny/driver/internal/win32"
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/drawer"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/event"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/win32"
+	"github.com/oakmound/oak/v4/shiny/screen"
 	"golang.org/x/image/math/f64"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
@@ -34,11 +39,13 @@ import (
 
 var (
 	windowLock sync.RWMutex
-	allWindows = make(map[win32.HWND]*windowImpl)
+	allWindows = make(map[win32.HWND]*Window)
 )
 
-type windowImpl struct {
+type Window struct {
 	hwnd win32.HWND
+
+	changeLock sync.RWMutex
 
 	event.Deque
 
@@ -50,6 +57,7 @@ type windowImpl struct {
 	fullscreen     bool
 	borderless     bool
 	maximized      bool
+	topMost        bool
 	windowRect     *win32.RECT
 	clientRect     *win32.RECT
 
@@ -59,7 +67,7 @@ type windowImpl struct {
 	trayGUID *win32.GUID
 }
 
-func (w *windowImpl) Release() {
+func (w *Window) Release() {
 	if w.trayGUID != nil {
 		iconData := win32.NOTIFYICONDATA{}
 		iconData.CbSize = uint32(unsafe.Sizeof(iconData))
@@ -71,7 +79,7 @@ func (w *windowImpl) Release() {
 	win32.Release(win32.HWND(w.hwnd))
 }
 
-func (w *windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
+func (w *Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle) {
 	src.(*bufferImpl).preUpload()
 	defer src.(*bufferImpl).postUpload()
 
@@ -83,16 +91,7 @@ func (w *windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle
 	})
 }
 
-func (w *windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op) {
-	w.execCmd(&cmd{
-		id:    cmdFill,
-		dr:    dr,
-		color: src,
-		op:    op,
-	})
-}
-
-func (w *windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	if op != draw.Src && op != draw.Over {
 		// TODO:
 		return
@@ -106,25 +105,12 @@ func (w *windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectang
 	})
 }
 
-func (w *windowImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {
-	if op != draw.Src && op != draw.Over {
-		return
-	}
-	w.execCmd(&cmd{
-		id:      cmdDrawUniform,
-		src2dst: src2dst,
-		color:   src,
-		sr:      sr,
-		op:      op,
-	})
-}
-
-func (w *windowImpl) SetTitle(title string) error {
+func (w *Window) SetTitle(title string) error {
 	win32.SetWindowText(w.hwnd, title)
 	return nil
 }
 
-func (w *windowImpl) SetBorderless(borderless bool) error {
+func (w *Window) SetBorderless(borderless bool) error {
 	// Don't set borderless if currently fullscreen.
 	if !w.fullscreen && borderless != w.borderless {
 		if !w.borderless {
@@ -169,7 +155,7 @@ func (w *windowImpl) SetBorderless(borderless bool) error {
 	return nil
 }
 
-func (w *windowImpl) SetFullScreen(fullscreen bool) error {
+func (w *Window) SetFullScreen(fullscreen bool) error {
 	if w.borderless {
 		return errors.New("cannot combine borderless and fullscreen")
 	}
@@ -232,7 +218,7 @@ func (w *windowImpl) SetFullScreen(fullscreen bool) error {
 }
 
 // HideCursor turns the OS cursor into a 1x1 transparent image.
-func (w *windowImpl) HideCursor() error {
+func (w *Window) HideCursor() error {
 	emptyCursor := win32.GetEmptyCursor()
 	success := win32.SetClassLongPtr(w.hwnd, win32.GCLP_HCURSOR, uintptr(emptyCursor))
 	if !success {
@@ -241,74 +227,67 @@ func (w *windowImpl) HideCursor() error {
 	return nil
 }
 
-func (w *windowImpl) SetTrayIcon(iconPath string) error {
-	if w.trayGUID == nil {
-		if err := w.createTrayItem(); err != nil {
-			return err
-		}
+// SetIcon sets this window's taskbar (and top left corner) icon
+func (w *Window) SetIcon(icon image.Image) error {
+	// windows supports four modes of setting icons:
+	// 1. loading internal resources embedded into binaries in a windows-specific fashion
+	// 2. loading from file
+	// 3. using windows-os built in icons like question marks
+	// 4. hand crafting black and white icons via combining AND and XOR masks
+	//
+	// note, none of these are 'use an icon held in application memory'
+	//
+	// 1 is not an option for a multiplatform app.
+	// 3 is not an option because icons are usually not built in windows icons.
+	// 4 is not an option because icons are usually colorful.
+	//
+	// so we're left with 2: take the image given, write it as an icon to a temporary
+	// file, load that file, set it as the icon, delete that file.
+	iconPath := filepath.Join(os.TempDir(), "oakicon"+strconv.Itoa(rand.Int())+".ico")
+	f, err := os.Create(iconPath)
+	if err != nil {
+		return fmt.Errorf("failed to create icon: %w", err)
 	}
-	iconData := win32.NOTIFYICONDATA{}
-	iconData.CbSize = uint32(unsafe.Sizeof(iconData))
-	iconData.UFlags = win32.NIF_GUID | win32.NIF_MESSAGE
-	iconData.HWnd = w.hwnd
-	iconData.GUIDItem = *w.trayGUID
-	iconData.UFlags = win32.NIF_GUID | win32.NIF_ICON
-	var err error
-	iconData.HIcon, err = win32.LoadImage(
+	defer os.Remove(iconPath)
+	err = encodeIco(f, icon)
+	if err != nil {
+		return err
+	}
+	f.Close()
+
+	hicon, err := win32.LoadImage(
 		0,
 		windows.StringToUTF16Ptr(iconPath),
 		win32.IMAGE_ICON,
 		0, 0,
 		win32.LR_DEFAULTSIZE|win32.LR_LOADFROMFILE)
 	if err != nil {
-		return fmt.Errorf("failed to load icon: %w", err)
+		if isWindowsSuccessError(err) {
+			return fmt.Errorf("failed to reload image")
+		}
+		return fmt.Errorf("failed to reload image: %v", err)
 	}
-	if !win32.Shell_NotifyIcon(win32.NIM_MODIFY, &iconData) {
-		return fmt.Errorf("failed to create notification icon")
-	}
+
+	win32.SendMessage(w.hwnd, win32.WM_SETICON, win32.ICON_SMALL, hicon)
+	win32.SendMessage(w.hwnd, win32.WM_SETICON, win32.ICON_BIG, hicon)
 	return nil
 }
 
-func (w *windowImpl) ShowNotification(title, msg string, icon bool) error {
-	if w.trayGUID == nil {
-		if err := w.createTrayItem(); err != nil {
-			return err
+func isWindowsSuccessError(err error) bool {
+	var errno syscall.Errno
+	if errors.As(err, &errno) {
+		if errno == 0 {
+			// we got a confusing 'this operation completed successfully'
+			// no, this does not actually mean the operation necessarily succeeded
+			// no, win32.GetLastError will not necessarily return a real error to clarify things
+			return true
 		}
 	}
-	iconData := win32.NOTIFYICONDATA{}
-	iconData.CbSize = uint32(unsafe.Sizeof(iconData))
-	iconData.UFlags = win32.NIF_GUID | win32.NIF_INFO
-	iconData.HWnd = w.hwnd
-	iconData.GUIDItem = *w.trayGUID
-	copy(iconData.SzInfoTitle[:], windows.StringToUTF16(title))
-	copy(iconData.SzInfo[:], windows.StringToUTF16(msg))
-	if icon {
-		iconData.DwInfoFlags = win32.NIIF_USER | win32.NIIF_LARGE_ICON
-	}
-
-	if !win32.Shell_NotifyIcon(win32.NIM_MODIFY, &iconData) {
-		return fmt.Errorf("failed to create notification icon")
-	}
-	return nil
+	return false
 }
 
-func (w *windowImpl) createTrayItem() error {
-	w.trayGUID = new(win32.GUID)
-	*w.trayGUID = win32.MakeGUID(w.guid)
-	iconData := win32.NOTIFYICONDATA{}
-	iconData.CbSize = uint32(unsafe.Sizeof(iconData))
-	iconData.UFlags = win32.NIF_GUID | win32.NIF_MESSAGE
-	iconData.HWnd = w.hwnd
-	iconData.GUIDItem = *w.trayGUID
-	iconData.UCallbackMessage = win32.WM_APP + 1
-	if !win32.Shell_NotifyIcon(win32.NIM_ADD, &iconData) {
-		return fmt.Errorf("failed to create notification")
-	}
-	return nil
-}
-
-func (w *windowImpl) MoveWindow(x, y, wd, ht int32) error {
-	return win32.MoveWindow(w.hwnd, x, y, wd, ht, true)
+func (w *Window) MoveWindow(x, y, wd, ht int) error {
+	return win32.MoveWindow(w.hwnd, int32(x), int32(y), int32(wd), int32(ht), true)
 }
 
 func drawWindow(dc win32.HDC, src2dst f64.Aff3, src interface{}, sr image.Rectangle, op draw.Op) (retErr error) {
@@ -377,18 +356,11 @@ func drawWindow(dc win32.HDC, src2dst f64.Aff3, src interface{}, sr image.Rectan
 	return fmt.Errorf("unsupported type %T", src)
 }
 
-func (w *windowImpl) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op) {
-	drawer.Copy(w, dp, src, sr, op)
-}
-
-func (w *windowImpl) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
+func (w *Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {
 	drawer.Scale(w, dr, src, sr, op)
 }
 
-func (w *windowImpl) Publish() screen.PublishResult {
-	// TODO
-	return screen.PublishResult{}
-}
+func (w *Window) Publish() {}
 
 func init() {
 	send := func(hwnd win32.HWND, e interface{}) {
@@ -462,7 +434,7 @@ const (
 // msgCmd is the stored value for our handleCmd function for syscalls.
 var msgCmd = win32.AddWindowMsg(handleCmd)
 
-func (w *windowImpl) execCmd(c *cmd) {
+func (w *Window) execCmd(c *cmd) {
 	win32.SendMessage(win32.HWND(w.hwnd), msgCmd, 0, uintptr(unsafe.Pointer(c)))
 	if c.err != nil {
 		panic(fmt.Sprintf("execCmd faild for cmd.id=%d: %v", c.id, c.err)) // TODO handle errors
@@ -495,8 +467,37 @@ func handleCmd(hwnd win32.HWND, uMsg uint32, wParam, lParam uintptr) {
 	}
 }
 
-func (w *windowImpl) GetCursorPosition() (x, y float64) {
+func (w *Window) GetCursorPosition() (x, y float64) {
+	w.changeLock.RLock()
+	defer w.changeLock.RUnlock()
+
 	w.windowRect, _ = win32.GetWindowRect(w.hwnd)
 	xint, yint, _ := win32.GetCursorPos()
 	return float64(xint) - float64(w.windowRect.Left), float64(yint) - float64(w.windowRect.Top)
+}
+
+func (w *Window) SetTopMost(topMost bool) error {
+	w.changeLock.Lock()
+	defer w.changeLock.Unlock()
+
+	if w.topMost == topMost {
+		return nil
+	}
+
+	// Note: although you can change a window's ex style to include EX_TOPMOST
+	// this will not work after window creation. The following is what you need to
+	// do instead.
+
+	var ok bool
+	if topMost {
+		ok = win32.SetWindowPos(w.hwnd, win32.HWND_TOPMOST, 0, 0, 0, 0, win32.SWP_NOMOVE|win32.SWP_NOSIZE)
+	} else {
+		ok = win32.SetWindowPos(w.hwnd, win32.HWND_NOTOPMOST, 0, 0, 0, 0, win32.SWP_NOMOVE|win32.SWP_NOSIZE)
+	}
+	if !ok {
+		// TODO: extract and parse os error
+		return fmt.Errorf("failed to set top most")
+	}
+	w.topMost = topMost
+	return nil
 }

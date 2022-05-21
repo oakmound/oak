@@ -1,6 +1,7 @@
 package mouse
 
 import (
+	"github.com/oakmound/oak/v4/event"
 	"golang.org/x/mobile/event/mouse"
 )
 
@@ -21,7 +22,7 @@ const (
 )
 
 // GetEventName returns a string event name given some mobile/mouse information
-func GetEventName(d mouse.Direction, b mouse.Button) string {
+func GetEvent(d mouse.Direction, b mouse.Button) event.EventID[*Event] {
 	switch d {
 	case mouse.DirPress:
 		return Press

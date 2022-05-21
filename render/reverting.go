@@ -1,8 +1,8 @@
 package render
 
 import (
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/render/mod"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/render/mod"
 )
 
 // The Reverting structure lets modifications be made to a Modifiable and then
@@ -119,7 +119,7 @@ func (rv *Reverting) update() {
 }
 
 // SetTriggerID sets the ID AnimationEnd will trigger on for animating subtypes.
-func (rv *Reverting) SetTriggerID(cid event.CID) {
+func (rv *Reverting) SetTriggerID(cid event.CallerID) {
 	if t, ok := rv.Modifiable.(Triggerable); ok {
 		t.SetTriggerID(cid)
 	}

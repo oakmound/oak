@@ -1,7 +1,7 @@
 package particle
 
 import (
-	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v4/event"
 )
 
 const (
@@ -10,24 +10,24 @@ const (
 
 // An Allocator can allocate ids for particles
 type Allocator struct {
-	particleBlocks map[int]event.CID
+	particleBlocks map[int]event.CallerID
 	nextOpenCh     chan int
 	freeCh         chan int
-	allocCh        chan event.CID
+	allocCh        chan event.CallerID
 	requestCh      chan int
-	responseCh     chan event.CID
+	responseCh     chan event.CallerID
 	stopCh         chan struct{}
 }
 
 // NewAllocator creates a new allocator
 func NewAllocator() *Allocator {
 	return &Allocator{
-		particleBlocks: make(map[int]event.CID),
+		particleBlocks: make(map[int]event.CallerID),
 		nextOpenCh:     make(chan int),
 		freeCh:         make(chan int),
-		allocCh:        make(chan event.CID),
+		allocCh:        make(chan event.CallerID),
 		requestCh:      make(chan int),
-		responseCh:     make(chan event.CID),
+		responseCh:     make(chan event.CallerID),
 		stopCh:         make(chan struct{}),
 	}
 }
@@ -82,7 +82,7 @@ func (a *Allocator) freereceive(i int) int {
 }
 
 // Allocate requests a new block in the particle space for the given cid
-func (a *Allocator) Allocate(id event.CID) int {
+func (a *Allocator) Allocate(id event.CallerID) int {
 	nextOpen := <-a.nextOpenCh
 	a.allocCh <- id
 	return nextOpen
@@ -97,7 +97,8 @@ func (a *Allocator) Deallocate(block int) {
 func (a *Allocator) LookupSource(id int) *Source {
 	a.requestCh <- id
 	owner := <-a.responseCh
-	return event.GetEntity(owner).(*Source)
+	// TODO: not default?
+	return event.DefaultCallerMap.GetEntity(owner).(*Source)
 }
 
 // Lookup requests a specific particle in the particle space

@@ -1,19 +1,19 @@
 package mouse
 
 import (
-	"github.com/oakmound/oak/v3/alg/floatgeom"
-	"github.com/oakmound/oak/v3/collision"
+	"github.com/oakmound/oak/v4/alg/floatgeom"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/event"
 )
 
 var (
 	// LastEvent is the last triggered mouse event,
 	// tracked for continuous mouse responsiveness on events
 	// that don't take in a mouse event
-	LastEvent = NewZeroEvent(0, 0)
+	LastEvent = Event{}
 	// LastPress is the last triggered mouse event,
 	// where the mouse event was a press.
-	// If TrackMouseClicks is set to false then this will not be tracked
-	LastPress = NewZeroEvent(0, 0)
+	LastPress = Event{}
 )
 
 // An Event is passed in through all Mouse related event bindings to
@@ -22,7 +22,7 @@ var (
 type Event struct {
 	floatgeom.Point2
 	Button
-	Event string
+	EventType event.EventID[*Event]
 
 	// Set StopPropagation on a mouse event to prevent it from triggering on
 	// lower layers of mouse collision spaces while in flight
@@ -30,17 +30,12 @@ type Event struct {
 }
 
 // NewEvent creates an event.
-func NewEvent(x, y float64, button Button, event string) Event {
+func NewEvent(x, y float64, button Button, ev event.EventID[*Event]) Event {
 	return Event{
-		Point2: floatgeom.Point2{x, y},
-		Button: button,
-		Event:  event,
+		Point2:    floatgeom.Point2{x, y},
+		Button:    button,
+		EventType: ev,
 	}
-}
-
-// NewZeroEvent creates an event with no button or event name.
-func NewZeroEvent(x, y float64) Event {
-	return NewEvent(x, y, ButtonNone, "")
 }
 
 // ToSpace converts a mouse event into a collision space

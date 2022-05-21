@@ -3,9 +3,6 @@ package mod
 import (
 	"image"
 	"image/color"
-	"math"
-
-	"github.com/disintegration/gift"
 )
 
 // A Mod takes an image and returns that image transformed in some way.
@@ -42,20 +39,6 @@ func SafeAnd(ms ...Mod) Mod {
 		}
 	}
 	return And(ms...)
-}
-
-// Scale returns a scaled rgba.
-func Scale(xRatio, yRatio float64) Mod {
-	return func(rgba image.Image) *image.RGBA {
-		bounds := rgba.Bounds()
-		w := int(math.Floor(float64(bounds.Max.X) * xRatio))
-		h := int(math.Floor(float64(bounds.Max.Y) * yRatio))
-		filter := gift.New(
-			gift.Resize(w, h, gift.CubicResampling))
-		dst := image.NewRGBA(filter.Bounds(rgba.Bounds()))
-		filter.Draw(dst, rgba)
-		return dst
-	}
 }
 
 // TrimColor will trim inputs so that any rows or columns where each pixel is

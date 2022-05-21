@@ -1,3 +1,15 @@
+// Package oak is a game engine. It provides scene control, control over windows
+// and what is drawn to them, propagates regular events to evaluate game logic,
+// and so on.
+//
+// A minimal oak app follows:
+//
+// 	func main() {
+//		oak.AddScene("myApp", scene.Scene{Start: func(ctx *scene.Context) {
+//			// ... ctx.Draw(...), event.Bind(ctx, ...)
+//		}})
+//		oak.Init("myApp")
+//	}
 package oak
 
 import (
@@ -8,23 +20,23 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/debugstream"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
-	"github.com/oakmound/oak/v3/shiny/driver"
-	"github.com/oakmound/oak/v3/shiny/screen"
-	"github.com/oakmound/oak/v3/window"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/debugstream"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
+	"github.com/oakmound/oak/v4/shiny/driver"
+	"github.com/oakmound/oak/v4/shiny/screen"
+	"github.com/oakmound/oak/v4/window"
 )
 
-var _ window.Window = &Window{}
+var _ window.App = &Window{}
 
-func (w *Window) windowController(s screen.Screen, x, y int32, width, height int) (screen.Window, error) {
-	return s.NewWindow(screen.NewWindowGenerator(
+func (w *Window) windowController(s screen.Screen, x, y, width, height int) (*driver.Window, error) {
+	dwin, err := s.NewWindow(screen.NewWindowGenerator(
 		screen.Dimensions(width, height),
 		screen.Title(w.config.Title),
 		screen.Position(x, y),
@@ -32,21 +44,22 @@ func (w *Window) windowController(s screen.Screen, x, y int32, width, height int
 		screen.Borderless(w.config.Borderless),
 		screen.TopMost(w.config.TopMost),
 	))
+	return dwin.(*driver.Window), err
 }
 
 // the number of rgba buffers oak's draw loop swaps between
 const bufferCount = 2
 
 type Window struct {
+	// The keyboard state this window is aware of.
 	key.State
+
+	// the driver.Window embedded in this window exposes at compile time the OS level
+	// options one has to manipulate this.
+	*driver.Window
 
 	// TODO: most of these channels are not closed cleanly
 	transitionCh chan struct{}
-
-	// The Scene channel receives a signal
-	// when a scene's .loop() function should
-	// be called.
-	sceneCh chan struct{}
 
 	// The skip scene channel receives a debug
 	// signal to forcibly go to the next
@@ -61,6 +74,8 @@ type Window struct {
 	// drawing should cease (or resume)
 	drawCh chan struct{}
 
+	// The between draw channel receives a signal when
+	// a function is provided to Window.DoBetweenDraws.
 	betweenDrawCh chan func()
 
 	// ScreenWidth is the width of the screen
@@ -84,9 +99,9 @@ type Window struct {
 
 	// The window buffer represents the subsection of the world which is available to
 	// be shown in a window.
-	winBuffers     [bufferCount]screen.Image
-	screenControl  screen.Screen
-	windowControl  screen.Window
+	winBuffers    [bufferCount]screen.Image
+	screenControl screen.Screen
+
 	windowTextures [bufferCount]screen.Texture
 	bufferIdx      uint8
 
@@ -114,8 +129,8 @@ type Window struct {
 	// Driver is the driver oak will call during initialization
 	Driver Driver
 
-	// prePublish is a function called each draw frame prior to
-	prePublish func(w *Window, tx screen.Texture)
+	// prePublish is a function called each draw frame prior to publishing frames to the OS
+	prePublish func(*image.RGBA)
 
 	// LoadingR is a renderable that is displayed during loading screens.
 	LoadingR render.Renderable
@@ -146,20 +161,16 @@ type Window struct {
 
 	FirstSceneInput interface{}
 
-	commands map[string]func([]string)
-
 	ControllerID int32
 
 	config Config
 
-	mostRecentInput InputType
+	mostRecentInput int32
 
 	exitError     error
 	ParentContext context.Context
 
-	TrackMouseClicks bool
-	startupLoading   bool
-	useViewBounds    bool
+	useViewBounds bool
 	// UseAspectRatio determines whether new window changes will distort or
 	// maintain the relative width to height ratio of the screen buffer.
 	UseAspectRatio bool
@@ -173,84 +184,78 @@ var (
 
 // NewWindow creates a window with default settings.
 func NewWindow() *Window {
-	c := &Window{
+	return &Window{
 		State:         key.NewState(),
 		transitionCh:  make(chan struct{}),
-		sceneCh:       make(chan struct{}),
 		skipSceneCh:   make(chan string),
 		quitCh:        make(chan struct{}),
 		drawCh:        make(chan struct{}),
 		betweenDrawCh: make(chan func()),
+		SceneMap:      scene.NewMap(),
+		Driver:        driver.Main,
+		prePublish:    func(*image.RGBA) {},
+		bkgFn: func() image.Image {
+			return image.Black
+		},
+		eventHandler:  event.DefaultBus,
+		MouseTree:     mouse.DefaultTree,
+		CollisionTree: collision.DefaultTree,
+		CallerMap:     event.DefaultCallerMap,
+		DrawStack:     render.GlobalDrawStack,
+		ControllerID:  atomic.AddInt32(nextControllerID, 1),
+		ParentContext: context.Background(),
 	}
-
-	c.SceneMap = scene.NewMap()
-	c.Driver = driver.Main
-	c.prePublish = func(*Window, screen.Texture) {}
-	c.bkgFn = func() image.Image {
-		return image.Black
-	}
-	c.eventHandler = event.DefaultBus
-	c.MouseTree = mouse.DefaultTree
-	c.CollisionTree = collision.DefaultTree
-	c.CallerMap = event.DefaultCallerMap
-	c.DrawStack = render.GlobalDrawStack
-	c.TrackMouseClicks = true
-	c.commands = make(map[string]func([]string))
-	c.ControllerID = atomic.AddInt32(nextControllerID, 1)
-	c.ParentContext = context.Background()
-	return c
 }
 
 // Propagate triggers direct mouse events on entities which are clicked
-func (w *Window) Propagate(eventName string, me mouse.Event) {
+func (w *Window) Propagate(ev event.EventID[*mouse.Event], me mouse.Event) {
 	hits := w.MouseTree.SearchIntersect(me.ToSpace().Bounds())
 	sort.Slice(hits, func(i, j int) bool {
-		return hits[i].Location.Min.Z() < hits[i].Location.Max.Z()
+		return hits[i].Location.Min.Z() > hits[j].Location.Max.Z()
 	})
 	for _, sp := range hits {
-		<-sp.CID.TriggerBus(eventName, &me, w.eventHandler)
+		<-event.TriggerForCallerOn(w.eventHandler, sp.CID, ev, &me)
 		if me.StopPropagation {
 			break
 		}
 	}
 	me.StopPropagation = false
 
-	if w.TrackMouseClicks {
-		if eventName == mouse.PressOn+"Relative" {
-			w.lastRelativePress = me
-		} else if eventName == mouse.PressOn {
-			w.LastMousePress = me
-		} else if eventName == mouse.ReleaseOn {
-			if me.Button == w.LastMousePress.Button {
-				pressHits := w.MouseTree.SearchIntersect(w.LastMousePress.ToSpace().Bounds())
-				sort.Slice(pressHits, func(i, j int) bool {
-					return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
-				})
-				for _, sp1 := range pressHits {
-					for _, sp2 := range hits {
-						if sp1.CID == sp2.CID {
-							w.eventHandler.Trigger(mouse.Click, &me)
-							<-sp1.CID.TriggerBus(mouse.ClickOn, &me, w.eventHandler)
-							if me.StopPropagation {
-								return
-							}
+	if ev == mouse.RelativePressOn {
+		w.lastRelativePress = me
+	} else if ev == mouse.PressOn {
+		w.LastMousePress = me
+	} else if ev == mouse.ReleaseOn {
+		if me.Button == w.LastMousePress.Button {
+			event.TriggerOn(w.eventHandler, mouse.Click, &me)
+
+			pressHits := w.MouseTree.SearchIntersect(w.LastMousePress.ToSpace().Bounds())
+			sort.Slice(pressHits, func(i, j int) bool {
+				return pressHits[i].Location.Min.Z() > pressHits[j].Location.Max.Z()
+			})
+			for _, sp1 := range pressHits {
+				for _, sp2 := range hits {
+					if sp1.CID == sp2.CID {
+						<-event.TriggerForCallerOn(w.eventHandler, sp1.CID, mouse.ClickOn, &me)
+						if me.StopPropagation {
+							return
 						}
 					}
 				}
 			}
-		} else if eventName == mouse.ReleaseOn+"Relative" {
-			if me.Button == w.lastRelativePress.Button {
-				pressHits := w.MouseTree.SearchIntersect(w.lastRelativePress.ToSpace().Bounds())
-				sort.Slice(pressHits, func(i, j int) bool {
-					return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
-				})
-				for _, sp1 := range pressHits {
-					for _, sp2 := range hits {
-						if sp1.CID == sp2.CID {
-							sp1.CID.Trigger(mouse.ClickOn+"Relative", &me)
-							if me.StopPropagation {
-								return
-							}
+		}
+	} else if ev == mouse.RelativeReleaseOn {
+		if me.Button == w.lastRelativePress.Button {
+			pressHits := w.MouseTree.SearchIntersect(w.lastRelativePress.ToSpace().Bounds())
+			sort.Slice(pressHits, func(i, j int) bool {
+				return pressHits[i].Location.Min.Z() > pressHits[j].Location.Max.Z()
+			})
+			for _, sp1 := range pressHits {
+				for _, sp2 := range hits {
+					if sp1.CID == sp2.CID {
+						<-event.TriggerForCallerOn(w.eventHandler, sp1.CID, mouse.RelativeClickOn, &me)
+						if me.StopPropagation {
+							return
 						}
 					}
 				}
@@ -259,27 +264,10 @@ func (w *Window) Propagate(eventName string, me mouse.Event) {
 	}
 }
 
-// Width returns the absolute width of the window in pixels.
-func (w *Window) Width() int {
-	return w.ScreenWidth
-}
-
-// Height returns the absolute height of the window in pixels.
-func (w *Window) Height() int {
-	return w.ScreenHeight
-}
-
-// Viewport returns the viewport's position. Its width and height are the window's
-// width and height. This position plus width/height cannot exceed ViewportBounds.
-func (w *Window) Viewport() intgeom.Point2 {
-	return w.viewPos
-}
-
-// ViewportBounds returns the boundary of this window's viewport, or the rectangle
-// that the viewport is not allowed to exit as it moves around. It often represents
-// the total size of the world within a given scene.
-func (w *Window) ViewportBounds() intgeom.Rect2 {
-	return w.viewBounds
+// Width returns the absolute bounds of a window in pixels. It does not include window elements outside
+// of the client area (OS provided title bars).
+func (w *Window) Bounds() intgeom.Point2 {
+	return intgeom.Point2{w.ScreenWidth, w.ScreenHeight}
 }
 
 // SetLoadingRenderable sets what renderable should display between scenes
@@ -295,7 +283,7 @@ func (w *Window) SetBackground(b Background) {
 	}
 }
 
-// SetColorBackground sets this window's background to be a standar image.Image,
+// SetColorBackground sets this window's background to be a standard image.Image,
 // commonly a uniform color.
 func (w *Window) SetColorBackground(img image.Image) {
 	w.bkgFn = func() image.Image {
@@ -316,9 +304,7 @@ func (w *Window) SetLogicHandler(h event.Handler) {
 
 // NextScene  causes this window to immediately end the current scene.
 func (w *Window) NextScene() {
-	go func() {
-		w.skipSceneCh <- ""
-	}()
+	w.GoToScene("")
 }
 
 // GoToScene causes this window to skip directly to the given scene.
@@ -333,22 +319,16 @@ func (w *Window) InFocus() bool {
 	return w.inFocus
 }
 
-// CollisionTrees helps access the mouse and collision trees from the controller.
-// These trees together detail how a controller can drive mouse and entity interactions.
-func (w *Window) CollisionTrees() (mouseTree, collisionTree *collision.Tree) {
-	return w.MouseTree, w.CollisionTree
-}
-
 // EventHandler returns this window's event handler.
 func (w *Window) EventHandler() event.Handler {
 	return w.eventHandler
 }
 
 // MostRecentInput returns the most recent input type (e.g keyboard/mouse or joystick)
-// recognized by the window. This value will only change if the controller's Config is
+// recognized by the window. This value will only change if the window is
 // set to TrackInputChanges
 func (w *Window) MostRecentInput() InputType {
-	return w.mostRecentInput
+	return InputType(w.mostRecentInput)
 }
 
 func (w *Window) exitWithError(err error) {

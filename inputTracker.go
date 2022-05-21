@@ -4,41 +4,45 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/joystick"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/mouse"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/joystick"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/mouse"
 )
 
 // InputType expresses some form of input to the engine to represent a player
-type InputType = int32
+type InputType int32
 
-// Supported Input Types
+var trackingJoystickChange = event.RegisterEvent[struct{}]()
+
+// The following constants define valid types of input sent via the InputChange event.
 const (
-	InputKeyboardMouse InputType = iota
-	InputJoystick      InputType = iota
+	InputNone InputType = iota
+	InputKeyboard
+	InputMouse
+	InputJoystick
 )
 
 func (w *Window) trackInputChanges() {
-	w.eventHandler.GlobalBind(key.Down, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&w.mostRecentInput, InputKeyboardMouse)
-		if old != InputKeyboardMouse {
-			w.eventHandler.Trigger(event.InputChange, InputKeyboardMouse)
+	event.GlobalBind(w.eventHandler, key.AnyDown, func(key.Event) event.Response {
+		old := atomic.SwapInt32(&w.mostRecentInput, int32(InputKeyboard))
+		if InputType(old) != InputKeyboard {
+			event.TriggerOn(w.eventHandler, InputChange, InputKeyboard)
 		}
 		return 0
 	})
-	w.eventHandler.GlobalBind(mouse.Press, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&w.mostRecentInput, InputKeyboardMouse)
-		if old != InputKeyboardMouse {
-			w.eventHandler.Trigger(event.InputChange, InputKeyboardMouse)
+	event.GlobalBind(w.eventHandler, mouse.Press, func(*mouse.Event) event.Response {
+		old := atomic.SwapInt32(&w.mostRecentInput, int32(InputMouse))
+		if InputType(old) != InputMouse {
+			event.TriggerOn(w.eventHandler, InputChange, InputMouse)
 		}
 		return 0
 	})
-	w.eventHandler.GlobalBind("Tracking"+joystick.Change, func(event.CID, interface{}) int {
-		old := atomic.SwapInt32(&w.mostRecentInput, InputJoystick)
-		if old != InputJoystick {
-			w.eventHandler.Trigger(event.InputChange, InputJoystick)
+	event.GlobalBind(w.eventHandler, trackingJoystickChange, func(struct{}) event.Response {
+		old := atomic.SwapInt32(&w.mostRecentInput, int32(InputMouse))
+		if InputType(old) != InputJoystick {
+			event.TriggerOn(w.eventHandler, InputChange, InputJoystick)
 		}
 		return 0
 	})
@@ -48,8 +52,8 @@ type joyHandler struct {
 	handler event.Handler
 }
 
-func (jh *joyHandler) Trigger(ev string, state interface{}) {
-	jh.handler.Trigger("Tracking"+ev, state)
+func (jh *joyHandler) Trigger(eventID event.UnsafeEventID, data interface{}) <-chan struct{} {
+	return event.TriggerOn(jh.handler, trackingJoystickChange, struct{}{})
 }
 
 func trackJoystickChanges(handler event.Handler) {

@@ -21,10 +21,10 @@ import (
 
 	"dmitri.shuralyov.com/gpu/mtl"
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/oakmound/oak/v3/shiny/driver/internal/errscreen"
-	"github.com/oakmound/oak/v3/shiny/driver/mtldriver/internal/appkit"
-	"github.com/oakmound/oak/v3/shiny/driver/mtldriver/internal/coreanim"
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/errscreen"
+	"github.com/oakmound/oak/v4/shiny/driver/mtldriver/internal/appkit"
+	"github.com/oakmound/oak/v4/shiny/driver/mtldriver/internal/coreanim"
+	"github.com/oakmound/oak/v4/shiny/screen"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/mouse"
 	"golang.org/x/mobile/event/paint"
@@ -106,10 +106,15 @@ func main(f func(screen.Screen)) error {
 			case req := <-glfwChans.updateCh:
 				// this is not functionalized to prevent methods from accidentally
 				// calling this outside of the main thread
+				if req.title != nil {
+					req.window.SetTitle(*req.title)
+				}
+				for _, atr := range req.attribs {
+					req.window.SetAttrib(atr.key, atr.val)
+				}
 				if req.setPos {
 					req.window.SetPos(int(req.x), int(req.y))
 					req.window.SetSize(int(req.width), int(req.height))
-					req.respCh <- struct{}{}
 				}
 				if req.setBorderless != nil {
 					if *req.setBorderless {
@@ -162,6 +167,8 @@ type updateWindowReq struct {
 	setBorderless       *bool
 	setPos              bool
 	x, y, width, height int
+	title               *string
+	attribs             []attribPair
 	respCh              chan struct{}
 }
 
@@ -199,7 +206,7 @@ func newWindow(device mtl.Device, chans windowRequestChannels, opts screen.Windo
 		window.SetAttrib(glfw.Decorated, 0)
 	}
 
-	w := &windowImpl{
+	w := &Window{
 		device: device,
 		window: window,
 		chans:  chans,

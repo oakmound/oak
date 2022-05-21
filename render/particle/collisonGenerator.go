@@ -1,8 +1,8 @@
 package particle
 
 import (
-	"github.com/oakmound/oak/v3/collision"
-	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v4/collision"
+	"github.com/oakmound/oak/v4/event"
 )
 
 // A CollisionGenerator generates collision particles
@@ -49,7 +49,7 @@ func (cg *CollisionGenerator) GenerateParticle(bp *baseParticle) Particle {
 	pos := p.GetPos()
 	return &CollisionParticle{
 		p,
-		collision.NewReactiveSpace(collision.NewFullSpace(pos.X(), pos.Y(), w, h, 0, event.CID(bp.pID)), cg.HitMap),
+		collision.NewReactiveSpace(collision.NewFullSpace(pos.X(), pos.Y(), w, h, 0, event.CallerID(bp.pID)), cg.HitMap),
 	}
 }
 

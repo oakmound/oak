@@ -57,12 +57,3 @@ func (q *Deque) Send(event interface{}) {
 	q.back = append(q.back, event)
 	q.cond.Signal()
 }
-
-// SendFirst implements the screen.EventDeque interface.
-func (q *Deque) SendFirst(event interface{}) {
-	q.lockAndInit()
-	defer q.mu.Unlock()
-
-	q.front = append(q.front, event)
-	q.cond.Signal()
-}

@@ -1,6 +1,6 @@
 package collision
 
-import "github.com/oakmound/oak/v3/event"
+import "github.com/oakmound/oak/v4/event"
 
 // A Filter will take a set of collision spaces
 // and return the subset that match some requirement
@@ -43,7 +43,7 @@ func Without(tossFn func(*Space) bool) Filter {
 }
 
 // WithoutCIDs will return no spaces with a CID in the input
-func WithoutCIDs(cids ...event.CID) Filter {
+func WithoutCIDs(cids ...event.CallerID) Filter {
 	return Without(func(s *Space) bool {
 		for _, c := range cids {
 			if s.CID == c {

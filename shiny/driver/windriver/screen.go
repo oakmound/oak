@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package windriver
@@ -11,8 +12,8 @@ import (
 	"image"
 	"unsafe"
 
-	"github.com/oakmound/oak/v3/shiny/driver/internal/win32"
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/win32"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 type screenImpl struct {
@@ -61,7 +62,7 @@ func (s *screenImpl) NewTexture(size image.Point) (screen.Texture, error) {
 }
 
 func (s *screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, error) {
-	w := &windowImpl{}
+	w := &Window{}
 
 	var err error
 	w.hwnd, err = win32.NewWindow(s.screenHWND, opts)
@@ -69,6 +70,7 @@ func (s *screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, erro
 	w.exStyle = win32.WS_EX_WINDOWEDGE
 	if opts.TopMost {
 		w.exStyle |= win32.WS_EX_TOPMOST
+		w.topMost = true
 	}
 
 	if err != nil {

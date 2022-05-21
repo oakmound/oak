@@ -1,38 +1,109 @@
-package audio
+package audio_test
 
 import (
+	"context"
+	"fmt"
+	"math"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/oakmound/oak/v4/audio"
+	"github.com/oakmound/oak/v4/audio/format/wav"
+	"github.com/oakmound/oak/v4/audio/pcm"
+	"github.com/oakmound/oak/v4/audio/synth"
 )
 
-func TestPlayAndLoad(t *testing.T) {
-	_, err := Load(filepath.Join("testdata", "test.wav"))
+func TestMain(m *testing.M) {
+	err := audio.InitDefault()
 	if err != nil {
-		t.Fatalf("failed to load test.wav")
+		fmt.Println(err)
+		os.Exit(1)
 	}
-	_, err = Load("badfile.wav")
-	if err == nil {
-		t.Fatalf("expected loading badfile to fail")
-	}
-	_, err = Load("play_test.go")
-	if err == nil {
-		t.Fatalf("expected loading non-wav file to fail")
-	}
-	err = Play(DefaultFont, "test.wav")
+	os.Exit(m.Run())
+}
+
+func TestLoopingWav(t *testing.T) {
+	f, err := os.Open(filepath.Join("testdata", "test.wav"))
 	if err != nil {
-		t.Fatalf("failed to play test.wav (1)")
+		t.Fatalf("failed to open test file: %v", err)
 	}
+	defer f.Close()
+	wavReader, err := wav.Load(f)
+	if err != nil {
+		t.Fatalf("failed to read wav header in file: %v", err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		err = audio.Play(ctx, audio.LoopReader(wavReader))
+		if err != nil {
+			t.Errorf("failed to play: %v", err)
+		}
+	}()
+	if testing.Short() {
+		time.Sleep(100 * time.Millisecond)
+	} else {
+		time.Sleep(10 * time.Second)
+	}
+	fmt.Println("stopping")
+	cancel()
 	time.Sleep(1 * time.Second)
-	err = DefaultPlay("test.wav")
-	if err != nil {
-		t.Fatalf("failed to play test.wav (2)")
+}
+
+func TestLoopingSin(t *testing.T) {
+	format := pcm.Format{
+		SampleRate: 44100,
+		Channels:   2,
+		Bits:       16,
 	}
-	time.Sleep(1 * time.Second)
-	// Assert something was played twice
-	DefaultCache.Clear("test.wav")
-	err = Play(DefaultFont, "test.wav")
-	if err == nil {
-		t.Fatalf("expected playing unloaded test.wav to fail")
+	s := synth.Int16
+
+	s.Volume *= 65535 / 4
+	wave := make([]int16, int(s.Seconds*float64(s.SampleRate)))
+	for i := 0; i < len(wave); i++ {
+		wave[i] = int16(s.Volume * math.Sin(s.Phase(i)))
 	}
+	b := bytesFromInts(wave, int(s.Channels))
+	r := audio.LoopReader(&audio.BytesReader{
+		Buffer: b,
+		Format: format,
+	})
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	go func() {
+		err := audio.Play(ctx, r)
+		if err != nil {
+			t.Errorf("failed to play: %v", err)
+		}
+		close(done)
+	}()
+	if testing.Short() {
+		time.Sleep(100 * time.Millisecond)
+	} else {
+		time.Sleep(10 * time.Second)
+	}
+	fmt.Println("stopping")
+	cancel()
+	select {
+	case <-done:
+	case <-time.After(1 * time.Second):
+		t.Errorf("play did not exit on cancel")
+	}
+
+}
+
+func bytesFromInts(is []int16, channels int) []byte {
+	var ratio = channels * 2
+	wave := make([]byte, len(is)*ratio)
+	for i := 0; i < len(wave); i += ratio {
+		wave[i] = byte(is[i/ratio])
+		wave[i+1] = byte(is[i/ratio] >> 8)
+		// duplicate the contents across all channels
+		for c := 1; c < channels; c++ {
+			wave[i+(2*c)] = wave[i]
+			wave[i+(2*c)+1] = wave[i+1]
+		}
+	}
+	return wave
 }

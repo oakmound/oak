@@ -6,7 +6,7 @@ package androiddriver
 import (
 	"sync"
 
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/screen"
 
 	"golang.org/x/mobile/app"
 	"golang.org/x/mobile/event/lifecycle"
@@ -20,7 +20,7 @@ import (
 
 func Main(f func(screen.Screen)) {
 	app.Main(func(a app.App) {
-		s := &screenImpl{
+		s := &Screen{
 			app: a,
 		}
 		screenOnce := sync.Once{}

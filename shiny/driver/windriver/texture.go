@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package windriver
@@ -15,8 +16,8 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/oakmound/oak/v3/shiny/driver/internal/win32"
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/win32"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 type textureImpl struct {

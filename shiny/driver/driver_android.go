@@ -10,15 +10,12 @@
 package driver
 
 import (
-	"github.com/oakmound/oak/v3/shiny/driver/androiddriver"
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/driver/androiddriver"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 func main(f func(screen.Screen)) {
 	androiddriver.Main(f)
 }
 
-func monitorSize() (int, int) {
-	// GetSystemMetrics syscall
-	return 0, 0
-}
+type Window = androiddriver.Screen

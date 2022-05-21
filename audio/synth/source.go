@@ -3,12 +3,12 @@ package synth
 import (
 	"time"
 
-	audio "github.com/oakmound/oak/v3/audio/klang"
+	"github.com/oakmound/oak/v4/audio/pcm"
 )
 
-// A Source stores necessary information for generating audio and waveform data
+// A Source stores necessary information for generating waveform data
 type Source struct {
-	audio.Format
+	pcm.Format
 	Pitch Pitch
 	// Volume, between 0.0 -> 1.0
 	Volume  float64
@@ -38,10 +38,11 @@ func (s Source) Update(opts ...Option) Source {
 var (
 	// Int16 is a default source for building 16-bit audio
 	Int16 = Source{
-		Format: audio.Format{
+		Format: pcm.Format{
 			SampleRate: 44100,
 			Channels:   2,
-			Bits:       16,
+			// within a source, if Bits is not specified, it'll default to 16.
+			Bits: 16,
 		},
 		Pitch:   A4,
 		Volume:  .25,

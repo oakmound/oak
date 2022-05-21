@@ -6,19 +6,18 @@ import (
 	"log"
 	"strconv"
 
-	oak "github.com/oakmound/oak/v3"
-	"github.com/oakmound/oak/v3/alg"
-	"github.com/oakmound/oak/v3/alg/range/floatrange"
-	"github.com/oakmound/oak/v3/alg/range/intrange"
-	"github.com/oakmound/oak/v3/debugstream"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/oakerr"
-	"github.com/oakmound/oak/v3/physics"
-	"github.com/oakmound/oak/v3/render"
-	pt "github.com/oakmound/oak/v3/render/particle"
-	"github.com/oakmound/oak/v3/scene"
-	"github.com/oakmound/oak/v3/shape"
+	oak "github.com/oakmound/oak/v4"
+	"github.com/oakmound/oak/v4/alg"
+	"github.com/oakmound/oak/v4/alg/span"
+	"github.com/oakmound/oak/v4/debugstream"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/oakerr"
+	"github.com/oakmound/oak/v4/physics"
+	"github.com/oakmound/oak/v4/render"
+	pt "github.com/oakmound/oak/v4/render/particle"
+	"github.com/oakmound/oak/v4/scene"
+	"github.com/oakmound/oak/v4/shape"
 )
 
 var (
@@ -56,7 +55,7 @@ func parseShape(args []string) shape.Shape {
 func main() {
 
 	debugstream.AddCommand(debugstream.Command{Name: "followMouse", Operation: func(args []string) string {
-		event.GlobalBind(event.Enter, func(event.CID, interface{}) int {
+		event.GlobalBind(event.DefaultBus, event.Enter, func(ev event.EnterPayload) event.Response {
 			// It'd be interesting to attach to the mouse position
 			src.SetPos(float64(mouse.LastEvent.X()), float64(mouse.LastEvent.Y()))
 			return 0
@@ -80,9 +79,9 @@ func main() {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
 		}
 		if !two {
-			src.Generator.(pt.Sizeable).SetSize(intrange.NewConstant(f1))
+			src.Generator.(pt.Sizeable).SetSize(span.NewConstant(f1))
 		} else {
-			src.Generator.(pt.Sizeable).SetSize(intrange.NewLinear(f1, f2))
+			src.Generator.(pt.Sizeable).SetSize(span.NewLinear(f1, f2))
 		}
 
 		return ""
@@ -94,9 +93,9 @@ func main() {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
 		}
 		if !two {
-			src.Generator.(pt.Sizeable).SetEndSize(intrange.NewConstant(f1))
+			src.Generator.(pt.Sizeable).SetEndSize(span.NewConstant(f1))
 		} else {
-			src.Generator.(pt.Sizeable).SetEndSize(intrange.NewLinear(f1, f2))
+			src.Generator.(pt.Sizeable).SetEndSize(span.NewLinear(f1, f2))
 		}
 		return ""
 	}})
@@ -107,9 +106,9 @@ func main() {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
 		}
 		if !two {
-			src.Generator.GetBaseGenerator().NewPerFrame = floatrange.NewConstant(npf)
+			src.Generator.GetBaseGenerator().NewPerFrame = span.NewConstant(npf)
 		} else {
-			src.Generator.GetBaseGenerator().NewPerFrame = floatrange.NewLinear(npf, npf2)
+			src.Generator.GetBaseGenerator().NewPerFrame = span.NewLinear(npf, npf2)
 		}
 		return ""
 	}})
@@ -120,9 +119,9 @@ func main() {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
 		}
 		if !two {
-			src.Generator.GetBaseGenerator().LifeSpan = floatrange.NewConstant(npf)
+			src.Generator.GetBaseGenerator().LifeSpan = span.NewConstant(npf)
 		} else {
-			src.Generator.GetBaseGenerator().LifeSpan = floatrange.NewLinear(npf, npf2)
+			src.Generator.GetBaseGenerator().LifeSpan = span.NewLinear(npf, npf2)
 		}
 		return ""
 	}})
@@ -133,9 +132,9 @@ func main() {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
 		}
 		if !two {
-			src.Generator.GetBaseGenerator().Rotation = floatrange.NewConstant(npf)
+			src.Generator.GetBaseGenerator().Rotation = span.NewConstant(npf)
 		} else {
-			src.Generator.GetBaseGenerator().Rotation = floatrange.NewLinear(npf, npf2)
+			src.Generator.GetBaseGenerator().Rotation = span.NewLinear(npf, npf2)
 		}
 		return ""
 	}})
@@ -146,9 +145,9 @@ func main() {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
 		}
 		if !two {
-			src.Generator.GetBaseGenerator().Angle = floatrange.NewConstant(npf * alg.DegToRad)
+			src.Generator.GetBaseGenerator().Angle = span.NewConstant(npf * alg.DegToRad)
 		} else {
-			src.Generator.GetBaseGenerator().Angle = floatrange.NewLinear(npf*alg.DegToRad, npf2*alg.DegToRad)
+			src.Generator.GetBaseGenerator().Angle = span.NewLinear(npf*alg.DegToRad, npf2*alg.DegToRad)
 		}
 		return ""
 	}})
@@ -159,9 +158,9 @@ func main() {
 			return oakerr.UnsupportedFormat{Format: err.Error()}.Error()
 		}
 		if !two {
-			src.Generator.GetBaseGenerator().Speed = floatrange.NewConstant(npf)
+			src.Generator.GetBaseGenerator().Speed = span.NewConstant(npf)
 		} else {
-			src.Generator.GetBaseGenerator().Speed = floatrange.NewLinear(npf, npf2)
+			src.Generator.GetBaseGenerator().Speed = span.NewLinear(npf, npf2)
 		}
 		return ""
 	}})
@@ -271,11 +270,11 @@ func main() {
 		render.Draw(render.NewDrawFPS(0, nil, 10, 10))
 		x := 320.0
 		y := 240.0
-		newPf := floatrange.NewLinear(1, 2)
-		life := floatrange.NewLinear(100, 120)
-		angle := floatrange.NewLinear(0, 360)
-		speed := floatrange.NewLinear(1, 5)
-		size := intrange.NewConstant(1)
+		newPf := span.NewLinear(1.0, 2.0)
+		life := span.NewLinear(100.0, 120.0)
+		angle := span.NewLinear(0.0, 360.0)
+		speed := span.NewLinear(1.0, 5.0)
+		size := span.NewConstant(1)
 		layerFn := func(v physics.Vector) int {
 			return 1
 		}
@@ -284,6 +283,7 @@ func main() {
 		endColor = color.RGBA{255, 255, 255, 255}
 		endColorRand = color.RGBA{0, 0, 0, 0}
 		shape := shape.Square
+
 		src = pt.NewColorGenerator(
 			pt.Pos(x, y),
 			pt.Duration(pt.Inf),

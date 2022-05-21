@@ -3,11 +3,12 @@ package oak
 import (
 	"context"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/dlog"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/oakerr"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/dlog"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/oakerr"
+	"github.com/oakmound/oak/v4/scene"
+	"github.com/oakmound/oak/v4/timing"
 )
 
 // the oak loading scene is a reserved scene
@@ -15,21 +16,11 @@ import (
 const oakLoadingScene = "oak:loading"
 
 func (w *Window) sceneLoop(first string, trackingInputs bool) {
-	w.SceneMap.AddScene(oakLoadingScene, scene.Scene{
-		Loop: func() bool {
-			return w.startupLoading
-		},
-		End: func() (string, *scene.Result) {
-			return w.firstScene, &scene.Result{
-				NextSceneInput: w.FirstSceneInput,
-			}
-		},
-	})
-
 	var prevScene string
 
 	result := new(scene.Result)
 
+	// kick start the draw loop
 	w.drawCh <- struct{}{}
 	w.drawCh <- struct{}{}
 
@@ -38,7 +29,7 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 	w.SceneMap.CurrentScene = oakLoadingScene
 
 	for {
-		w.setViewport(intgeom.Point2{0, 0})
+		w.SetViewport(intgeom.Point2{0, 0})
 		w.RemoveViewportBounds()
 
 		dlog.Info(dlog.SceneStarting, w.SceneMap.CurrentScene)
@@ -67,18 +58,17 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 				PreviousScene: prevScene,
 				SceneInput:    result.NextSceneInput,
 				DrawStack:     w.DrawStack,
-				EventHandler:  w.eventHandler,
+				Handler:       w.eventHandler,
 				CallerMap:     w.CallerMap,
 				MouseTree:     w.MouseTree,
 				CollisionTree: w.CollisionTree,
 				Window:        w,
-				KeyState:      &w.State,
+				State:         &w.State,
 			})
 			w.transitionCh <- struct{}{}
 		}()
 
 		w.sceneTransition(result)
-
 		// Post transition, begin loading animation
 		w.drawCh <- struct{}{}
 		<-w.transitionCh
@@ -86,29 +76,25 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		w.drawCh <- struct{}{}
 
 		dlog.Info(dlog.SceneLooping)
-		cont := true
 
-		dlog.ErrorCheck(w.eventHandler.UpdateLoop(w.FrameRate, w.sceneCh))
-
+		enterCancel := event.EnterLoop(w.eventHandler, timing.FPSToFrameDelay(w.FrameRate))
 		nextSceneOverride := ""
 
-		for cont {
-			select {
-			case <-w.ParentContext.Done():
-			case <-w.quitCh:
-				cancel()
-				return
-			case <-w.sceneCh:
-				cont = scen.Loop()
-			case nextSceneOverride = <-w.skipSceneCh:
-				cont = false
-			}
+		select {
+		case <-w.ParentContext.Done():
+			w.Quit()
+			cancel()
+			return
+		case <-w.quitCh:
+			cancel()
+			return
+		case nextSceneOverride = <-w.skipSceneCh:
 		}
 		cancel()
 		dlog.Info(dlog.SceneEnding, w.SceneMap.CurrentScene)
 
 		// We don't want enterFrames going off between scenes
-		dlog.ErrorCheck(w.eventHandler.Stop())
+		enterCancel()
 		prevScene = w.SceneMap.CurrentScene
 
 		// Send a signal to stop drawing
@@ -124,15 +110,8 @@ func (w *Window) sceneLoop(first string, trackingInputs bool) {
 		// be triggered and attempt to access an entity
 		w.CollisionTree.Clear()
 		w.MouseTree.Clear()
-		if w.CallerMap == event.DefaultCallerMap {
-			event.ResetCallerMap()
-			w.CallerMap = event.DefaultCallerMap
-		} else {
-			w.CallerMap = event.NewCallerMap()
-		}
-		if cmr, ok := w.eventHandler.(event.CallerMapper); ok {
-			cmr.SetCallerMap(w.CallerMap)
-		}
+		w.CallerMap.Clear()
+		w.eventHandler.SetCallerMap(w.CallerMap)
 		w.DrawStack.Clear()
 		w.DrawStack.PreDraw()
 

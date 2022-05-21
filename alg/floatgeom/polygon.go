@@ -1,7 +1,7 @@
 package floatgeom
 
 import (
-	"github.com/oakmound/oak/v3/alg"
+	"github.com/oakmound/oak/v4/alg"
 )
 
 // A Polygon2 is a series of points in 2D space.

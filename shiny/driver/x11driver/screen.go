@@ -21,8 +21,8 @@ import (
 	"github.com/BurntSushi/xgb/shm"
 	"github.com/BurntSushi/xgb/xproto"
 
-	"github.com/oakmound/oak/v3/shiny/driver/internal/x11key"
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/x11key"
+	"github.com/oakmound/oak/v4/shiny/screen"
 	"golang.org/x/image/math/f64"
 	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/mouse"
@@ -57,7 +57,7 @@ type screenImpl struct {
 	mu              sync.Mutex
 	buffers         map[shm.Seg]*bufferImpl
 	uploads         map[uint16]chan struct{}
-	windows         map[xproto.Window]*windowImpl
+	windows         map[xproto.Window]*Window
 	nPendingUploads int
 	completionKeys  []uint16
 }
@@ -69,6 +69,7 @@ var (
 		"WM_DELETE_WINDOW",
 		"WM_PROTOCOLS",
 		"WM_TAKE_FOCUS",
+		"_NET_WM_ICON",
 	}
 )
 
@@ -85,7 +86,7 @@ func newScreenImpl(xutil *xgbutil.XUtil) (s *screenImpl, err error) {
 		xsi:     xutil.Setup().DefaultScreen(xutil.Conn()),
 		buffers: map[shm.Seg]*bufferImpl{},
 		uploads: map[uint16]chan struct{}{},
-		windows: map[xproto.Window]*windowImpl{},
+		windows: map[xproto.Window]*Window{},
 	}
 	for _, atom := range initialAtoms {
 		s.atoms[atom], err = xprop.Atm(s.XUtil, atom)
@@ -294,7 +295,7 @@ func (s *screenImpl) findBuffer(key shm.Seg) *bufferImpl {
 	return b
 }
 
-func (s *screenImpl) findWindow(key xproto.Window) *windowImpl {
+func (s *screenImpl) findWindow(key xproto.Window) *Window {
 	s.mu.Lock()
 	w := s.windows[key]
 	s.mu.Unlock()
@@ -447,7 +448,7 @@ func (s *screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, erro
 		pictformat = s.pictformat32
 	}
 
-	w := &windowImpl{
+	w := &Window{
 		s:       s,
 		xw:      xw,
 		xg:      xg,
@@ -489,7 +490,7 @@ func (s *screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, erro
 	render.CreatePicture(s.xc, xp, xproto.Drawable(xw), pictformat, 0, nil)
 	xproto.MapWindow(s.xc, xw)
 
-	err = w.MoveWindow(opts.X, opts.Y, int32(width), int32(height))
+	err = w.MoveWindow(opts.X, opts.Y, width, height)
 	if opts.Fullscreen {
 		err = w.SetFullScreen(true)
 		if err != nil {

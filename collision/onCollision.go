@@ -3,7 +3,7 @@ package collision
 import (
 	"errors"
 
-	"github.com/oakmound/oak/v3/event"
+	"github.com/oakmound/oak/v4/event"
 )
 
 // A Phase is a struct that other structs who want to use PhaseCollision
@@ -22,6 +22,10 @@ func (cp *Phase) getCollisionPhase() *Phase {
 	return cp
 }
 
+func (cp *Phase) CID() event.CallerID {
+	return cp.OnCollisionS.CID
+}
+
 type collisionPhase interface {
 	getCollisionPhase() *Phase
 }
@@ -31,13 +35,12 @@ type collisionPhase interface {
 // entities begin to collide or stop colliding with the space.
 // If tree is nil, it uses DefTree
 func PhaseCollision(s *Space, tree *Tree) error {
-	return PhaseCollisionWithBus(s, tree, event.DefaultBus, event.DefaultCallerMap)
+	return PhaseCollisionWithBus(s, tree, event.DefaultBus)
 }
 
-// PhaseCollisionWithBus allows for a non-default bus and non-default entity mapping
-// in a phase collision binding.
-func PhaseCollisionWithBus(s *Space, tree *Tree, bus event.Handler, entities *event.CallerMap) error {
-	en := entities.GetEntity(s.CID)
+// PhaseCollisionWithBus allows for a non-default bus in a phase collision binding.
+func PhaseCollisionWithBus(s *Space, tree *Tree, bus event.Handler) error {
+	en := bus.GetCallerMap().GetEntity(s.CID)
 	if cp, ok := en.(collisionPhase); ok {
 		oc := cp.getCollisionPhase()
 		oc.OnCollisionS = s
@@ -46,46 +49,43 @@ func PhaseCollisionWithBus(s *Space, tree *Tree, bus event.Handler, entities *ev
 		if oc.tree == nil {
 			oc.tree = DefaultTree
 		}
-		bus.Bind(event.Enter, s.CID, phaseCollisionEnter(entities))
+		bus.UnsafeBind(event.Enter.UnsafeEventID, s.CID, phaseCollisionEnter)
 		return nil
 	}
 	return errors.New("This space's entity does not implement collisionPhase")
 }
 
 // CollisionStart/Stop: when a PhaseCollision entity starts/stops touching some label.
-// Payload: (Label) the label the entity has started/stopped touching
-const (
-	Start = "CollisionStart"
-	Stop  = "CollisionStop"
+var (
+	Start = event.RegisterEvent[Label]()
+	Stop  = event.RegisterEvent[Label]()
 )
 
-func phaseCollisionEnter(entities *event.CallerMap) func(id event.CID, nothing interface{}) int {
-	return func(id event.CID, nothing interface{}) int {
-		e := entities.GetEntity(id).(collisionPhase)
-		oc := e.getCollisionPhase()
+func phaseCollisionEnter(id event.CallerID, handler event.Handler, _ interface{}) event.Response {
+	e := handler.GetCallerMap().GetEntity(id).(collisionPhase)
+	oc := e.getCollisionPhase()
 
-		// check hits
-		hits := oc.tree.Hits(oc.OnCollisionS)
-		newTouching := map[Label]bool{}
+	// check hits
+	hits := oc.tree.Hits(oc.OnCollisionS)
+	newTouching := map[Label]bool{}
 
-		// if any are new, trigger on collision
-		for _, h := range hits {
-			l := h.Label
-			if _, ok := oc.Touching[l]; !ok {
-				id.TriggerBus(Start, l, oc.bus)
-			}
-			newTouching[l] = true
+	// if any are new, trigger on collision
+	for _, h := range hits {
+		l := h.Label
+		if _, ok := oc.Touching[l]; !ok {
+			event.TriggerForCallerOn(oc.bus, id, Start, l)
 		}
-
-		// if we lost any, trigger off collision
-		for l := range oc.Touching {
-			if _, ok := newTouching[l]; !ok {
-				id.TriggerBus(Stop, l, oc.bus)
-			}
-		}
-
-		oc.Touching = newTouching
-
-		return 0
+		newTouching[l] = true
 	}
+
+	// if we lost any, trigger off collision
+	for l := range oc.Touching {
+		if _, ok := newTouching[l]; !ok {
+			event.TriggerForCallerOn(handler, id, Stop, l)
+		}
+	}
+
+	oc.Touching = newTouching
+
+	return 0
 }

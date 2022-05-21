@@ -6,9 +6,8 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/v3/shiny/driver/internal/event"
-	"github.com/oakmound/oak/v3/shiny/screen"
-	"golang.org/x/image/math/f64"
+	"github.com/oakmound/oak/v4/shiny/driver/internal/event"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 func Main(f func(screen.Screen)) {
@@ -31,7 +30,7 @@ func (screenImpl) NewTexture(size image.Point) (screen.Texture, error) {
 }
 
 func (screenImpl) NewWindow(opts screen.WindowGenerator) (screen.Window, error) {
-	return &windowImpl{}, nil
+	return &Window{}, nil
 }
 
 type imageImpl struct {
@@ -69,18 +68,12 @@ func (textureImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle) 
 func (textureImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op)        {}
 func (textureImpl) Release()                                                    {}
 
-type windowImpl struct {
+type Window struct {
 	event.Deque
 }
 
-func (*windowImpl) Release()                                                                      {}
-func (*windowImpl) Draw(src2dst f64.Aff3, src screen.Texture, sr image.Rectangle, op draw.Op)     {}
-func (*windowImpl) DrawUniform(src2dst f64.Aff3, src color.Color, sr image.Rectangle, op draw.Op) {}
-func (*windowImpl) Copy(dp image.Point, src screen.Texture, sr image.Rectangle, op draw.Op)       {}
-func (*windowImpl) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op)  {}
-func (*windowImpl) Upload(dp image.Point, src screen.Image, sr image.Rectangle)                   {}
-func (*windowImpl) Fill(dr image.Rectangle, src color.Color, op draw.Op)                          {}
+func (*Window) Release()                                                                     {}
+func (*Window) Scale(dr image.Rectangle, src screen.Texture, sr image.Rectangle, op draw.Op) {}
+func (*Window) Upload(dp image.Point, src screen.Image, sr image.Rectangle)                  {}
 
-func (*windowImpl) Publish() screen.PublishResult {
-	return screen.PublishResult{}
-}
+func (*Window) Publish() {}

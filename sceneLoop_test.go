@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 func TestSceneLoopUnknownScene(t *testing.T) {

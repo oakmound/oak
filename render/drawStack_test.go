@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
+	"github.com/oakmound/oak/v4/alg/intgeom"
 )
 
 func TestDrawStack(t *testing.T) {
@@ -25,6 +25,10 @@ func TestDrawStack(t *testing.T) {
 	GlobalDrawStack.PreDraw()
 	if len(GlobalDrawStack.as) != 1 {
 		t.Fatalf("global draw stack did not have one length after pop")
+	}
+	cp := GlobalDrawStack.Copy()
+	if len(cp.toPush) != len(GlobalDrawStack.toPush) {
+		t.Fatalf("copy failed to copy push length")
 	}
 }
 

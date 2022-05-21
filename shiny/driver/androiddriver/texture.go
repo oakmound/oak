@@ -8,16 +8,16 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 type textureImpl struct {
-	screen *screenImpl
+	screen *Screen
 	size   image.Point
 	img    *imageImpl
 }
 
-func NewTexture(s *screenImpl, size image.Point) *textureImpl {
+func NewTexture(s *Screen, size image.Point) *textureImpl {
 	return &textureImpl{
 		screen: s,
 		size:   size,

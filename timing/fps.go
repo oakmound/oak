@@ -1,3 +1,4 @@
+// Package timing provides utilities for time.
 package timing
 
 import (
@@ -16,7 +17,7 @@ const (
 func FPS(lastTime, now time.Time) float64 {
 	fps := 1 / now.Sub(lastTime).Seconds()
 	// This indicates that we recorded two times within
-	// the innacuracy of the OS's system clock, so the values
+	// the inaccuracy of the OS's system clock, so the values
 	// were the same. 1200 is chosen because on windows,
 	// fps will be 1200 instead of a negative value.
 	if int(fps) < 0 {

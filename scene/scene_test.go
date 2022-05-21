@@ -5,21 +5,6 @@ import (
 	"testing"
 )
 
-func TestBooleanLoop(t *testing.T) {
-	v := true
-	l := BooleanLoop(&v)
-	if !l() {
-		t.Fatalf("boolean loop should loop when true")
-	}
-	v = false
-	if l() {
-		t.Fatalf("boolean loop should not loop when false")
-	}
-	if !l() {
-		t.Fatalf("boolean loop should resume looping after returning false")
-	}
-}
-
 func randString() string {
 	length := rand.Intn(100)
 	data := make([]byte, length)

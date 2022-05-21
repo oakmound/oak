@@ -5,10 +5,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/oakmound/oak/v3/alg/intgeom"
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/render"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/alg/intgeom"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/render"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 var defaultWindow *Window
@@ -37,27 +38,15 @@ func AddScene(name string, sc scene.Scene) error {
 }
 
 // IsDown calls IsDown on the default window.
-func IsDown(key string) bool {
+func IsDown(k key.Code) bool {
 	initDefaultWindow()
-	return defaultWindow.IsDown(key)
+	return defaultWindow.IsDown(k)
 }
 
 // IsHeld calls IsHeld on the default window.
-func IsHeld(key string) (bool, time.Duration) {
+func IsHeld(k key.Code) (bool, time.Duration) {
 	initDefaultWindow()
-	return defaultWindow.IsHeld(key)
-}
-
-// SetUp calls SetUp on the default window.
-func SetUp(key string) {
-	initDefaultWindow()
-	defaultWindow.SetUp(key)
-}
-
-// SetDown calls SetDown on the default window.
-func SetDown(key string) {
-	initDefaultWindow()
-	defaultWindow.SetDown(key)
+	return defaultWindow.IsHeld(k)
 }
 
 // SetViewportBounds calls SetViewportBounds on the default window.
@@ -66,64 +55,22 @@ func SetViewportBounds(rect intgeom.Rect2) {
 	defaultWindow.SetViewportBounds(rect)
 }
 
-// ShiftScreen calls ShiftScreen on the default window.
-func ShiftScreen(x, y int) {
+// ShiftViewport calls ShiftViewport on the default window.
+func ShiftViewport(pt intgeom.Point2) {
 	initDefaultWindow()
-	defaultWindow.ShiftScreen(x, y)
+	defaultWindow.ShiftViewport(pt)
 }
 
-// SetScreen calls SetScreen on the default window.
-func SetScreen(x, y int) {
+// SetViewport calls SetViewport on the default window.
+func SetViewport(pt intgeom.Point2) {
 	initDefaultWindow()
-	defaultWindow.SetScreen(x, y)
-}
-
-// MoveWindow calls MoveWindow on the default window.
-func MoveWindow(x, y, w, h int) error {
-	initDefaultWindow()
-	return defaultWindow.MoveWindow(x, y, w, h)
+	defaultWindow.SetViewport(pt)
 }
 
 // UpdateViewSize calls UpdateViewSize on the default window.
 func UpdateViewSize(w, h int) error {
 	initDefaultWindow()
 	return defaultWindow.UpdateViewSize(w, h)
-}
-
-// SetFullScreen calls SetFullScreen on the default window.
-func SetFullScreen(fs bool) error {
-	initDefaultWindow()
-	return defaultWindow.SetFullScreen(fs)
-}
-
-// SetBorderless calls SetBorderless on the default window.
-func SetBorderless(bs bool) error {
-	initDefaultWindow()
-	return defaultWindow.SetBorderless(bs)
-}
-
-// SetTopMost calls SetTopMost on the default window.
-func SetTopMost(on bool) error {
-	initDefaultWindow()
-	return defaultWindow.SetTopMost(on)
-}
-
-// SetTitle calls SetTitle on the default window.
-func SetTitle(title string) error {
-	initDefaultWindow()
-	return defaultWindow.SetTitle(title)
-}
-
-// SetTrayIcon calls SetTrayIcon on the default window.
-func SetTrayIcon(icon string) error {
-	initDefaultWindow()
-	return defaultWindow.SetTrayIcon(icon)
-}
-
-// ShowNotification calls ShowNotification on the default window.
-func ShowNotification(title, msg string, icon bool) error {
-	initDefaultWindow()
-	return defaultWindow.ShowNotification(title, msg, icon)
 }
 
 // ScreenShot calls ScreenShot on the default window.
@@ -150,32 +97,8 @@ func SetColorBackground(img image.Image) {
 	defaultWindow.SetColorBackground(img)
 }
 
-// GetBackgroundImage calls GetBackgroundImage on the default window.
-func GetBackgroundImage() image.Image {
+// Bounds returns the default window's boundary.
+func Bounds() intgeom.Point2 {
 	initDefaultWindow()
-	return defaultWindow.GetBackgroundImage()
-}
-
-// Width calls Width on the default window.
-func Width() int {
-	initDefaultWindow()
-	return defaultWindow.Width()
-}
-
-// Height calls Height on the default window.
-func Height() int {
-	initDefaultWindow()
-	return defaultWindow.Height()
-}
-
-// HideCursor calls HideCursor on the default window.
-func HideCursor() error {
-	initDefaultWindow()
-	return defaultWindow.HideCursor()
-}
-
-// GetCursorPosition calls GetCursorPosition on the default window.
-func GetCursorPosition() (x, y float64, err error) {
-	initDefaultWindow()
-	return defaultWindow.GetCursorPosition()
+	return defaultWindow.Bounds()
 }

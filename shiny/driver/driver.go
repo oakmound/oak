@@ -11,7 +11,7 @@ package driver
 // or OpenGL library.
 
 import (
-	"github.com/oakmound/oak/v3/shiny/screen"
+	"github.com/oakmound/oak/v4/shiny/screen"
 )
 
 // Main is called by the program's main function to run the graphical
@@ -22,9 +22,4 @@ import (
 // returns.
 func Main(f func(screen.Screen)) {
 	main(f)
-}
-
-// MonitorSize reports the size in pixels of the primary monitor.
-func MonitorSize() (width int, height int) {
-	return monitorSize()
 }

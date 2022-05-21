@@ -8,8 +8,8 @@ import (
 // A State tracks what keys of a keyboard are currently pressed and for how long they have been
 // pressed if they are held down.
 type State struct {
-	state        map[string]bool
-	durations    map[string]time.Time
+	state        map[Code]bool
+	durations    map[Code]time.Time
 	stateLock    sync.RWMutex
 	durationLock sync.RWMutex
 }
@@ -17,8 +17,8 @@ type State struct {
 // NewState creates a state object for tracking keyboard state.
 func NewState() State {
 	return State{
-		state:     make(map[string]bool),
-		durations: make(map[string]time.Time),
+		state:     make(map[Code]bool),
+		durations: make(map[Code]time.Time),
 	}
 }
 
@@ -27,7 +27,7 @@ func NewState() State {
 // events are sent from the real keyboard and mouse.
 // Calling this can interrupt real input or cause
 // unintended behavior and should be done cautiously.
-func (ks *State) SetUp(key string) {
+func (ks *State) SetUp(key Code) {
 	ks.stateLock.Lock()
 	ks.durationLock.Lock()
 	delete(ks.state, key)
@@ -41,7 +41,7 @@ func (ks *State) SetUp(key string) {
 // events are sent from the real keyboard and mouse.
 // Calling this can interrupt real input or cause
 // unintended behavior and should be done cautiously.
-func (ks *State) SetDown(key string) {
+func (ks *State) SetDown(key Code) {
 	ks.stateLock.Lock()
 	ks.state[key] = true
 	ks.durations[key] = time.Now()
@@ -49,7 +49,7 @@ func (ks *State) SetDown(key string) {
 }
 
 // IsDown returns whether a key is held down
-func (ks *State) IsDown(key string) (k bool) {
+func (ks *State) IsDown(key Code) (k bool) {
 	ks.stateLock.RLock()
 	k = ks.state[key]
 	ks.stateLock.RUnlock()
@@ -58,7 +58,7 @@ func (ks *State) IsDown(key string) (k bool) {
 
 // IsHeld returns whether a key is held down, and for how long
 // it has been held.
-func (ks *State) IsHeld(key string) (k bool, d time.Duration) {
+func (ks *State) IsHeld(key Code) (k bool, d time.Duration) {
 	ks.stateLock.RLock()
 	k = ks.state[key]
 	ks.stateLock.RUnlock()

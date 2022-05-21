@@ -4,16 +4,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/joystick"
-	"github.com/oakmound/oak/v3/key"
-	"github.com/oakmound/oak/v3/mouse"
-	"github.com/oakmound/oak/v3/scene"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/key"
+	"github.com/oakmound/oak/v4/mouse"
+	"github.com/oakmound/oak/v4/scene"
 )
 
 func TestTrackInputChanges(t *testing.T) {
+	inputChangeFailed := make(chan bool)
+
 	c1 := NewWindow()
-	c1.SetLogicHandler(event.NewBus(nil))
+	c1.SetLogicHandler(event.NewBus(event.NewCallerMap()))
 	c1.AddScene("1", scene.Scene{})
 	go c1.Init("1", func(c Config) (Config, error) {
 		c.TrackInputChanges = true
@@ -21,36 +22,33 @@ func TestTrackInputChanges(t *testing.T) {
 	})
 	time.Sleep(2 * time.Second)
 	expectedType := new(InputType)
-	*expectedType = InputKeyboardMouse
-	failed := false
-	c1.eventHandler.GlobalBind(event.InputChange, func(_ event.CID, payload interface{}) int {
-		mode := payload.(InputType)
-		if mode != *expectedType {
-			failed = true
-		}
+	*expectedType = InputKeyboard
+	event.GlobalBind(c1.eventHandler, InputChange, func(mode InputType) event.Response {
+		inputChangeFailed <- mode != *expectedType
 		return 0
 	})
 	c1.TriggerKeyDown(key.Event{})
-	time.Sleep(2 * time.Second)
-	if failed {
+	if <-inputChangeFailed {
 		t.Fatalf("keyboard change failed")
 	}
 	*expectedType = InputJoystick
-	c1.eventHandler.Trigger("Tracking"+joystick.Change, &joystick.State{})
-	time.Sleep(2 * time.Second)
-	if failed {
+	event.TriggerOn(c1.eventHandler, trackingJoystickChange, struct{}{})
+	if <-inputChangeFailed {
 		t.Fatalf("joystick change failed")
 	}
-	*expectedType = InputKeyboardMouse
-	c1.TriggerMouseEvent(mouse.Event{Event: mouse.Press})
-	time.Sleep(2 * time.Second)
-	if failed {
+	c1.mostRecentInput = int32(InputJoystick)
+	*expectedType = InputMouse
+	c1.TriggerMouseEvent(mouse.Event{EventType: mouse.Press})
+	if <-inputChangeFailed {
 		t.Fatalf("mouse change failed")
 	}
-	c1.mostRecentInput = InputJoystick
+	*expectedType = InputKeyboard
+	c1.mostRecentInput = int32(InputJoystick)
 	c1.TriggerKeyDown(key.Event{})
-	time.Sleep(2 * time.Second)
-	if failed {
+	if <-inputChangeFailed {
 		t.Fatalf("keyboard change failed")
+	}
+	if c1.MostRecentInput() != InputKeyboard {
+		t.Fatalf("most recent input getter failed")
 	}
 }

@@ -1,35 +1,34 @@
 package collision
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
-	"github.com/oakmound/oak/v3/event"
-	"github.com/oakmound/oak/v3/physics"
+	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/physics"
 )
 
 type aspace struct {
 	AttachSpace
 }
 
-func (as *aspace) Init() event.CID {
-	return event.NextID(as)
-}
-
 func TestAttachSpace(t *testing.T) {
 	Clear()
-	go event.ResolveChanges()
+	b := event.NewBus(event.NewCallerMap())
 	go func() {
 		for {
 			<-time.After(5 * time.Millisecond)
-			<-event.TriggerBack(event.Enter, nil)
+			<-event.TriggerOn(b, event.Enter, event.EnterPayload{})
 		}
 	}()
-	as := aspace{}
+	as := &aspace{}
+	cid := b.GetCallerMap().Register(as)
 	v := physics.NewVector(0, 0)
-	s := NewSpace(100, 100, 10, 10, as.Init())
+	s := NewSpace(100, 100, 10, 10, cid)
 	Add(s)
-	err := Attach(v, s, nil, 4, 4)
+	fmt.Println(s.CID)
+	err := AttachWithBus(v, s, nil, b, 4, 4)
 	if err != nil {
 		t.Fatalf("attach failed: %v", err)
 	}
@@ -42,7 +41,7 @@ func TestAttachSpace(t *testing.T) {
 		t.Fatalf("expected attached space to have y of 9, was %v", s.Y())
 	}
 
-	err = Detach(s)
+	err = DetachWithBus(s, b)
 	if err != nil {
 		t.Fatalf("detach failed: %v", err)
 	}
@@ -60,10 +59,10 @@ func TestAttachSpace(t *testing.T) {
 	s = NewUnassignedSpace(0, 0, 1, 1)
 	err = Attach(v, s, nil)
 	if err == nil {
-		t.Fatalf("unassinged space attach should have failed: %v", err)
+		t.Fatalf("unassigned space attach should have failed: %v", err)
 	}
 	err = Detach(s)
 	if err == nil {
-		t.Fatalf("unassinged space detach should have failed: %v", err)
+		t.Fatalf("unassigned space detach should have failed: %v", err)
 	}
 }

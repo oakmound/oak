@@ -11,7 +11,7 @@ import (
 	"github.com/BurntSushi/xgbutil/motif"
 )
 
-func MoveWindow(xc *xgb.Conn, xw xproto.Window, x, y, width, height int32) (int32, int32, int32, int32) {
+func MoveWindow(xc *xgb.Conn, xw xproto.Window, x, y, width, height int) (int, int, int, int) {
 	vals := []uint32{}
 
 	flags := xproto.ConfigWindowHeight |
@@ -51,10 +51,22 @@ func SetFullScreen(xutil *xgbutil.XUtil, win xproto.Window, fullscreen bool) err
 	return ewmh.WmStateReq(xutil, win, action, "_NET_WM_STATE_FULLSCREEN")
 }
 
+func ToggleTopMost(xutil *xgbutil.XUtil, win xproto.Window) error {
+	return ewmh.WmStateReq(xutil, win, ewmh.StateToggle, "_NET_WM_STATE_ABOVE")
+}
+
+func SetTopMost(xutil *xgbutil.XUtil, win xproto.Window, topMost bool) error {
+	action := ewmh.StateRemove
+	if topMost {
+		action = ewmh.StateAdd
+	}
+	return ewmh.WmStateReq(xutil, win, action, "_NET_WM_STATE_ABOVE")
+}
+
 func SetBorderless(xutil *xgbutil.XUtil, win xproto.Window, borderless bool) error {
 	hints := &motif.Hints{
-		Flags: motif.HintDecorations,
-		Decoration: motif.DecorationNone, 
+		Flags:      motif.HintDecorations,
+		Decoration: motif.DecorationNone,
 	}
 	if !borderless {
 		hints.Decoration = motif.DecorationAll

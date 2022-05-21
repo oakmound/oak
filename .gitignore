@@ -15,3 +15,6 @@
 *.out
 
 coverage.txt
+
+# Workspace configuration
+.vscode

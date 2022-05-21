@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/oakmound/oak/v3/render"
+	"github.com/oakmound/oak/v4/render"
 )
 
 // DoAfter will execute the given function after some duration. When the scene

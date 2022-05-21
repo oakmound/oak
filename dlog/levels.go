@@ -3,7 +3,7 @@ package dlog
 import (
 	"strings"
 
-	"github.com/oakmound/oak/v3/oakerr"
+	"github.com/oakmound/oak/v4/oakerr"
 )
 
 // Level represents the levels a debug message can have
