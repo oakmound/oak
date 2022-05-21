@@ -85,9 +85,9 @@ See below or the [examples](examples) folder for longer demos, [godoc](https://p
 
 | | | |
 |:-------------------------:|:-------------------------:|:-------------------------:|
-|<img width="1400"  src="examples/platformer/example.gif" a=examples/platformer>  [Platformer](examples/platformer) |  <img width="1400"  src="examples/top-down-shooter//example.gif"> [Top down shooter](examples/top-down-shooter)|
-|  <img width="1400"  src="examples/bezier/example.PNG"> [Bezier Curves](examples/bezier) |<img width="1400"  src="examples/joystick-viz/example.gif"> [Joysticks](examples/joystick-viz)| |<img width="1400"  src="examples/text/example.PNG"> [Text](examples/text)| 
-|<img width="1400"  src="examples/screenopts/example.PNG"> [Screen Options](examples/screenopts)  |  <img width="1400"  src="examples/multi-window/example.PNG"> [Multi Window](examples/multi-window) |<img width="1400"  src="examples/particle-demo/overviewExample.gif"> [Particle Demo](examples/particle-demo)| 
+|<img width="1400"  src="examples/platformer/example.gif" a=examples/platformer>  [Platformer](examples/platformer) |  <img width="1400"  src="examples/top-down-shooter//example.gif"> [Top down shooter](examples/top-down-shooter)|<img width="1400"  src="examples/flappy-bird//example.gif"> [Flappy Bird](examples/flappy-bird/)
+|  <img width="1400"  src="examples/bezier/example.PNG"> [Bezier Curves](examples/bezier) |<img width="1400"  src="examples/joystick-viz/example.gif"> [Joysticks](examples/joystick-viz)|<img width="1400"  src="examples/piano/example.gif"> [Piano](examples/piano)|
+|<img width="1400"  src="examples/screenopts/example.PNG"> [Screen Options](examples/screenopts)  |  <img width="1400"  src="examples/multi-window/example.PNG"> [Multi Window](examples/multi-window) |<img width="1400"  src="examples/particle-demo/overviewExample.gif"> [Particles](examples/particle-demo)|
 
 ## Games using Oak <a name="finished-games"/>
 
