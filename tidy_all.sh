@@ -2,11 +2,5 @@
 
 go mod tidy 
 
-cd examples/fallback-font 
-go mod tidy 
-
-cd ../clipboard 
-go mod tidy 
-
-cd ../svg
+cd examples/text
 go mod tidy 
