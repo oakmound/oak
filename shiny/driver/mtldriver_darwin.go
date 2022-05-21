@@ -8,12 +8,6 @@
 package driver
 
 import (
-	"bytes"
-	"fmt"
-	"os/exec"
-	"regexp"
-	"strconv"
-
 	"github.com/oakmound/oak/v4/shiny/driver/mtldriver"
 	"github.com/oakmound/oak/v4/shiny/screen"
 )
