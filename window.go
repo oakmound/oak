@@ -211,7 +211,7 @@ func NewWindow() *Window {
 func (w *Window) Propagate(ev event.EventID[*mouse.Event], me mouse.Event) {
 	hits := w.MouseTree.SearchIntersect(me.ToSpace().Bounds())
 	sort.Slice(hits, func(i, j int) bool {
-		return hits[i].Location.Min.Z() < hits[i].Location.Max.Z()
+		return hits[i].Location.Min.Z() > hits[j].Location.Max.Z()
 	})
 	for _, sp := range hits {
 		<-event.TriggerForCallerOn(w.eventHandler, sp.CID, ev, &me)
@@ -231,7 +231,7 @@ func (w *Window) Propagate(ev event.EventID[*mouse.Event], me mouse.Event) {
 
 			pressHits := w.MouseTree.SearchIntersect(w.LastMousePress.ToSpace().Bounds())
 			sort.Slice(pressHits, func(i, j int) bool {
-				return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
+				return pressHits[i].Location.Min.Z() > pressHits[j].Location.Max.Z()
 			})
 			for _, sp1 := range pressHits {
 				for _, sp2 := range hits {
@@ -248,7 +248,7 @@ func (w *Window) Propagate(ev event.EventID[*mouse.Event], me mouse.Event) {
 		if me.Button == w.lastRelativePress.Button {
 			pressHits := w.MouseTree.SearchIntersect(w.lastRelativePress.ToSpace().Bounds())
 			sort.Slice(pressHits, func(i, j int) bool {
-				return pressHits[i].Location.Min.Z() < pressHits[i].Location.Max.Z()
+				return pressHits[i].Location.Min.Z() > pressHits[j].Location.Max.Z()
 			})
 			for _, sp1 := range pressHits {
 				for _, sp2 := range hits {
