@@ -91,9 +91,7 @@ func main() {
 			ctx.Window.(*oak.Window).DoBetweenDraws(func() {
 				char.ShiftDelta()
 				oak.SetViewport(
-					screenCenter.Sub(intgeom.Point2{
-						int(char.X()), int(char.Y()),
-					}),
+					intgeom.Point2{int(char.X()), int(char.Y())}.Sub(screenCenter),
 				)
 				char.Delta = floatgeom.Point2{}
 			})
