@@ -36,7 +36,7 @@ func (bus *Bus) trigger(binds bindableList, eventID UnsafeEventID, callerID Call
 					// A: This goroutine does not own a write lock on the bus, and should therefore
 					//    not modify its contents. We do not have a simple way of promoting our read lock
 					//    to a write lock.
-					bus.Unbind(Binding{EventID: eventID, CallerID: callerID, BindID: bindID})
+					bus.Unbind(Binding{EventID: eventID, CallerID: callerID, BindID: bindID, busResetCount: bus.resetCount})
 				case ResponseUnbindThisCaller:
 					bus.UnbindAllFrom(callerID)
 				}

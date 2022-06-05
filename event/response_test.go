@@ -12,6 +12,9 @@ func TestBindingResponses(t *testing.T) {
 	t.Run("UnbindThisBinding", func(t *testing.T) {
 		b := event.NewBus(event.NewCallerMap())
 
+		// bus reset counts are checked against bindings
+		b.Reset()
+
 		var calls int32
 		b1 := b.UnsafeBind(1, 0, func(ci event.CallerID, h event.Handler, i interface{}) event.Response {
 			atomic.AddInt32(&calls, 1)
