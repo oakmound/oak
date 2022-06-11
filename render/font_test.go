@@ -120,6 +120,19 @@ func TestFont_Height(t *testing.T) {
 	if f.Height() != ht {
 		t.Fatalf("size did not match height: got %v expected %v", f.Height(), ht)
 	}
+
+	fgEmpty := FontGenerator{
+		File:  "testdata/assets/fonts/luxisr.ttf",
+		Color: image.NewUniform(color.RGBA{255, 0, 0, 255}),
+	}
+	f, err = fgEmpty.Generate()
+	if err != nil {
+		t.Fatalf("generate failed: %v", err)
+	}
+	if f.Height() != defFontSize {
+		t.Fatalf("size did not match height: got %v expected %v", f.Height(), ht)
+	}
+
 }
 
 func TestFont_RegenerateWith(t *testing.T) {

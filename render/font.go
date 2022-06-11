@@ -29,6 +29,8 @@ var (
 	// DefaultFontGenerator is a default font generator, using an internally
 	// compiled font colored white by default.
 	DefaultFontGenerator = DefFontGenerator
+
+	defFontSize = 12.0
 )
 
 // A Font can create text renderables. It should be constructed from
@@ -100,7 +102,7 @@ func (fg *FontGenerator) Generate() (*Font, error) {
 	}
 
 	// This logic is copied from truetype for their face scaling
-	size := 12.0
+	size := defFontSize
 	if fg.FontOptions.Size != 0 {
 		size = fg.FontOptions.Size
 	}
@@ -217,6 +219,9 @@ func (f *Font) drawString(s string) {
 
 // Height returns the height or size of the font
 func (f *Font) Height() float64 {
+	if f.gen.Size == 0 {
+		return defFontSize
+	}
 	return f.gen.Size
 }
 
