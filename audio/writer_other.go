@@ -2,7 +2,10 @@
 
 package audio
 
-import "github.com/oakmound/oak/v4/oakerr"
+import (
+	"github.com/oakmound/oak/v4/audio/pcm"
+	"github.com/oakmound/oak/v4/oakerr"
+)
 
 func initOS(driver Driver) error {
 	return oakerr.UnsupportedPlatform{
@@ -10,7 +13,7 @@ func initOS(driver Driver) error {
 	}
 }
 
-func newWriter(f Format) (Writer, error) {
+func newWriter(f pcm.Format) (pcm.Writer, error) {
 	return nil, oakerr.UnsupportedPlatform{
 		Operation: "pcm.NewWriter",
 	}
