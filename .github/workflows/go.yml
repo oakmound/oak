@@ -1,4 +1,6 @@
 name: Go
+env:
+  GO_VERSION: 1.18
 on: [push]
 jobs:
   test-windows-x64:
@@ -6,10 +8,10 @@ jobs:
     runs-on: [self-hosted, windows, x64]
     steps:
 
-    - name: Set up Go 1.18
+    - name: Set up Go ${{ env.GO_VERSION }}
       uses: actions/setup-go@v1
       with:
-        go-version: 1.18
+        go-version: ${{ env.GO_VERSION }}
       id: go
 
     - name: Check out code into the Go module directory
@@ -28,10 +30,10 @@ jobs:
     runs-on: [self-hosted, linux, ARM64]
     steps:
 
-    - name: Set up Go 1.18
+    - name: Set up Go ${{ env.GO_VERSION }}
       uses: actions/setup-go@v1
       with:
-        go-version: 1.18
+        go-version: ${{ env.GO_VERSION }}
       id: go
 
     - name: Check out code into the Go module directory
@@ -49,10 +51,10 @@ jobs:
     runs-on: [self-hosted, linux, x64]
     steps:
 
-    - name: Set up Go 1.18
+    - name: Set up Go ${{ env.GO_VERSION }}
       uses: actions/setup-go@v1
       with:
-        go-version: 1.18
+        go-version: ${{ env.GO_VERSION }}
       id: go
 
     - name: Check out code into the Go module directory
@@ -65,15 +67,36 @@ jobs:
     - name: Test
       run: ./test_examples.sh
 
+  test-js-compilation:
+    name: Test Examples (JS Compilation)
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Set up Go ${{ env.GO_VERSION }}
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ env.GO_VERSION }}
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+
+      - name: Get dependencies
+        run: |
+          go get -v -t -d ./...
+
+      - name: Test
+        run: ./test_examples_js.sh
+
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up Go 1.18
+    - name: Set up Go ${{ env.GO_VERSION }}
       uses: actions/setup-go@v1
       with:
-        go-version: 1.18
+        go-version: ${{ env.GO_VERSION }}
       id: go
 
     - name: Check out code into the Go module directory

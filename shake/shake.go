@@ -108,7 +108,7 @@ func (sk *Shaker) ShakeContext(ctx context.Context, sp ShiftPoser, dur time.Dura
 }
 
 type screenToPoser struct {
-	window.Window
+	window.App
 }
 
 func (stp screenToPoser) ShiftPos(x, y float64) {
