@@ -241,7 +241,9 @@ func New(ctx *scene.Context, opts ...Option) *Entity {
 		e.Renderable = m.Modify(g.Mod)
 	}
 
-	e.Renderable.SetPos(e.X(), e.Y())
+	if e.Renderable != nil {
+		e.Renderable.SetPos(e.X(), e.Y())
+	}
 
 	if g.Parent == nil {
 		cid := ctx.CallerMap.Register(e)
@@ -265,7 +267,7 @@ func New(ctx *scene.Context, opts ...Option) *Entity {
 		e.Tree.Add(e.Space)
 	}
 
-	if len(g.DrawLayers) != 0 {
+	if len(g.DrawLayers) != 0 && e.Renderable != nil {
 		ctx.Draw(e.Renderable, g.DrawLayers...)
 	}
 
