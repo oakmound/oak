@@ -31,7 +31,8 @@ type Generator struct {
 	UseMouseTree     bool
 	WithoutCollision bool
 
-	Children [][]Option
+	Children         [][]Option
+	ExplicitChildren []*Entity
 }
 
 func And(opts ...Option) Option {
@@ -46,6 +47,13 @@ func And(opts ...Option) Option {
 func WithChild(opts ...Option) Option {
 	return func(s Generator) Generator {
 		s.Children = append(s.Children, opts)
+		return s
+	}
+}
+
+func WithExplicitChild(e *Entity) Option {
+	return func(s Generator) Generator {
+		s.ExplicitChildren = append(s.ExplicitChildren, e)
 		return s
 	}
 }
@@ -135,6 +143,9 @@ func (e *Entity) Shift(delta floatgeom.Point2) {
 			e.X(), e.Y(), e.W(), e.H(), e.Space,
 		)
 	}
+	for _, c := range e.Children {
+		c.Shift(delta)
+	}
 }
 
 func (e *Entity) SetX(x float64) {
@@ -153,6 +164,9 @@ func (e *Entity) ShiftX(x float64) {
 			e.X(), e.Y(), e.W(), e.H(), e.Space,
 		)
 	}
+	for _, c := range e.Children {
+		c.ShiftX(x)
+	}
 }
 
 func (e *Entity) ShiftY(y float64) {
@@ -163,23 +177,17 @@ func (e *Entity) ShiftY(y float64) {
 			e.X(), e.Y(), e.W(), e.H(), e.Space,
 		)
 	}
-}
-
-func (e *Entity) SetPos(p floatgeom.Point2) {
-	w, h := e.W(), e.H()
-	e.Rect = floatgeom.NewRect2WH(p.X(), p.Y(), w, h)
-	e.Renderable.SetPos(p.X(), p.Y())
-	if e.Tree != nil {
-		e.Tree.UpdateSpace(
-			e.X(), e.Y(), e.W(), e.H(), e.Space,
-		)
+	for _, c := range e.Children {
+		c.ShiftY(y)
 	}
 }
 
-// TODO: take a point, not floats
+func (e *Entity) SetPos(p floatgeom.Point2) {
+	e.Shift(p.Sub(e.Rect.Min))
+}
+
 func (e *Entity) ShiftPos(x, y float64) {
-	p := e.Rect.Min
-	e.SetPos(p.Add(floatgeom.Point2{x, y}))
+	e.Shift(floatgeom.Point2{x, y})
 }
 
 func (e *Entity) HitLabel(label collision.Label) *collision.Space {
@@ -214,10 +222,15 @@ func New(ctx *scene.Context, opts ...Option) *Entity {
 		g = o(g)
 	}
 
-	children := make([]*Entity, len(g.Children))
+	children := make([]*Entity, len(g.Children)+len(g.ExplicitChildren))
 	for i, childOpts := range g.Children {
 		childOpts = append(childOpts, WithOffset(g.Position))
 		children[i] = New(ctx, childOpts...)
+	}
+	for i, explicitChild := range g.ExplicitChildren {
+		child := explicitChild
+		child.ShiftPos(g.Position.X(), g.Position.Y())
+		children[i+len(g.Children)] = child
 	}
 
 	e := &Entity{
@@ -240,7 +253,6 @@ func New(ctx *scene.Context, opts ...Option) *Entity {
 	if m, isMod := e.Renderable.(render.Modifiable); g.Mod != nil && isMod {
 		e.Renderable = m.Modify(g.Mod)
 	}
-
 	if e.Renderable != nil {
 		e.Renderable.SetPos(e.X(), e.Y())
 	}
