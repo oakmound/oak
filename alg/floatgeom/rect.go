@@ -175,29 +175,29 @@ func (r Rect3) D() float64 {
 }
 
 // Midpoint returns the midpoint of this rectangle's span over a given dimension.
-func (r Rect2) Midpoint(i int) float64 {
+func (r Rect2) Midpoi int) float64 {
 	return (r.Min[i] + r.Max[i]) / 2
 }
 
 // Midpoint returns the midpoint of this rectangle's span over a given dimension.
-func (r Rect3) Midpoint(i int) float64 {
+func (r Rect3) Midpoi int) float64 {
 	return (r.Min[i] + r.Max[i]) / 2
 }
 
 // Center returns the center of this rectangle
 func (r Rect2) Center() Point2 {
 	return Point2{
-		r.Midpoint(0),
-		r.Midpoint(1),
+		r.Midpo0),
+		r.Midpo1),
 	}
 }
 
 // Center returns the center of this rectangle
 func (r Rect3) Center() Point3 {
 	return Point3{
-		r.Midpoint(0),
-		r.Midpoint(1),
-		r.Midpoint(2),
+		r.Midpo0),
+		r.Midpo1),
+		r.Midpo2),
 	}
 }
 
@@ -348,4 +348,43 @@ func (r Rect3) ProjectZ() Rect2 {
 		Min: r.Min.ProjectZ(),
 		Max: r.Max.ProjectZ(),
 	}
+}
+
+
+
+
+// Poll returns a pseudorandom point from within this rectangle
+func (r Rect2) Poll() Point2 {
+	return Point2{
+		r.Min.X() + rand.Float64()*float64(r.W()),
+		r.Min.Y() + rand.Float64()*float64(r.H()),
+	}
+}
+
+// Clamp returns a version of the provided point such that it is contained within r. If it was already contained in
+// r, it will not be changed.
+func (r Rect2) Clamp(pt Point2) Point2 {
+	for i := 0; i < r.MaxDimensions(); i++ {
+		if pt[i] < r.Min[i] {
+			pt[i] = r.Min[i]
+		} else if pt[i] > r.Max[i] {
+			pt[i] = r.Max[i]
+		}
+	}
+	return pt
+}
+
+// Percentile returns a point within this rectangle along the vector from the top left to the bottom right of the
+// rectangle, where for example, 0.0 will be r.Min, 1.0 will be r.Max, and 2.0 will be project the vector beyond r
+// and return r.Min + {r.W()*2, r.H()*2}
+func (r Rect2) Percentile(f float64) Point2 {
+	return Point2{
+		r.Min.X() + f*float64(r.W()),
+		r.Min.Y() + f*float64(r.H()),
+	}
+}
+
+// MulSpan returns this rectangle as a Point2 Span after multiplying the boundary points of the rectangle by f.
+func (r Rect2) MulSpan(f float64) span.Span[Point2] {
+	return r.MulConst(f))
 }
