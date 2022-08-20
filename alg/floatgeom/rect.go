@@ -1,5 +1,11 @@
 package floatgeom
 
+import (
+	"math/rand"
+
+	"github.com/oakmound/oak/v4/alg/span"
+)
+
 // A Rect2 represents a span from one point in 2D space to another.
 // If Min is less than max on any axis, it will return undefined results
 // for methods.
@@ -175,29 +181,29 @@ func (r Rect3) D() float64 {
 }
 
 // Midpoint returns the midpoint of this rectangle's span over a given dimension.
-func (r Rect2) Midpoi int) float64 {
+func (r Rect2) Midpoint(i int) float64 {
 	return (r.Min[i] + r.Max[i]) / 2
 }
 
 // Midpoint returns the midpoint of this rectangle's span over a given dimension.
-func (r Rect3) Midpoi int) float64 {
+func (r Rect3) Midpoint(i int) float64 {
 	return (r.Min[i] + r.Max[i]) / 2
 }
 
 // Center returns the center of this rectangle
 func (r Rect2) Center() Point2 {
 	return Point2{
-		r.Midpo0),
-		r.Midpo1),
+		r.Midpoint(0),
+		r.Midpoint(1),
 	}
 }
 
 // Center returns the center of this rectangle
 func (r Rect3) Center() Point3 {
 	return Point3{
-		r.Midpo0),
-		r.Midpo1),
-		r.Midpo2),
+		r.Midpoint(0),
+		r.Midpoint(1),
+		r.Midpoint(2),
 	}
 }
 
@@ -350,8 +356,13 @@ func (r Rect3) ProjectZ() Rect2 {
 	}
 }
 
-
-
+// MulConst multiplies the boundary points of this rectangle by i.
+func (r Rect2) MulConst(i float64) Rect2 {
+	return Rect2{
+		r.Min.MulConst(i),
+		r.Max.MulConst(i),
+	}
+}
 
 // Poll returns a pseudorandom point from within this rectangle
 func (r Rect2) Poll() Point2 {
@@ -386,5 +397,51 @@ func (r Rect2) Percentile(f float64) Point2 {
 
 // MulSpan returns this rectangle as a Point2 Span after multiplying the boundary points of the rectangle by f.
 func (r Rect2) MulSpan(f float64) span.Span[Point2] {
-	return r.MulConst(f))
+	return r.MulConst(f)
+}
+
+// MulConst multiplies the boundary points of this rectangle by i.
+func (r Rect3) MulConst(i float64) Rect3 {
+	return Rect3{
+		r.Min.MulConst(i),
+		r.Max.MulConst(i),
+	}
+}
+
+// Poll returns a pseudorandom point from within this rectangle
+func (r Rect3) Poll() Point3 {
+	return Point3{
+		r.Min.X() + (rand.Float64() * float64(r.W())),
+		r.Min.Y() + (rand.Float64() * float64(r.H())),
+		r.Min.Z() + (rand.Float64() * float64(r.D())),
+	}
+}
+
+// Clamp returns a version of the provided point such that it is contained within r. If it was already contained in
+// r, it will not be changed.
+func (r Rect3) Clamp(pt Point3) Point3 {
+	for i := 0; i < r.MaxDimensions(); i++ {
+		if pt[i] < r.Min[i] {
+			pt[i] = r.Min[i]
+		} else if pt[i] > r.Max[i] {
+			pt[i] = r.Max[i]
+		}
+	}
+	return pt
+}
+
+// Percentile returns a point within this rectangle along the vector from the top left to the bottom right of the
+// rectangle, where for example, 0.0 will be r.Min, 1.0 will be r.Max, and 2.0 will be project the vector beyond r
+// and return r.Min + {r.W()*2, r.H()*2, r.D()*2}
+func (r Rect3) Percentile(f float64) Point3 {
+	return Point3{
+		r.Min.X() + (f * float64(r.W())),
+		r.Min.Y() + (f * float64(r.H())),
+		r.Min.Z() + (f * float64(r.D())),
+	}
+}
+
+// MulConst multiplies the boundary points of this rectangle by i.
+func (r Rect3) MulSpan(f float64) span.Span[Point3] {
+	return r.MulConst(f)
 }
