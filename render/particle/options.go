@@ -6,6 +6,7 @@ import (
 	"github.com/oakmound/oak/v4/alg"
 	"github.com/oakmound/oak/v4/alg/span"
 	"github.com/oakmound/oak/v4/physics"
+	"github.com/oakmound/oak/v4/render"
 )
 
 // And chains together particle options into a single option
@@ -114,5 +115,12 @@ func Layer(l func(physics.Vector) int) func(Generator) {
 func Limit(limit int) func(Generator) {
 	return func(g Generator) {
 		g.GetBaseGenerator().ParticleLimit = limit
+	}
+}
+
+// DrawStack sets the current drawstack so that we dont use the globaldrawstack
+func DrawStack(drawStack *render.DrawStack) func(Generator) {
+	return func(g Generator) {
+		g.GetBaseGenerator().DrawStack = drawStack
 	}
 }
