@@ -269,3 +269,67 @@ func projectZHolds(x1, y1, z1, x2, y2, z2 float64) bool {
 	projected := r.ProjectZ()
 	return expected == projected
 }
+
+func TestRect2Span(t *testing.T) {
+	t.Run("Basic", func(t *testing.T) {
+		r := NewRect2WH(1, 1, 9, 9)
+		p1 := r.Percentile(1.0)
+		if p1 != r.Max {
+			t.Errorf("Percentile(1.0) did not return max point: got %v expected %v", p1, r.Max)
+		}
+		p2 := r.Percentile(0.0)
+		if p2 != r.Min {
+			t.Errorf("Percentile(0.0) did not return min point: got %v expected %v", p2, r.Min)
+		}
+		const pollTries = 100
+		for i := 0; i < pollTries; i++ {
+			if !r.Contains(r.Poll()) {
+				t.Fatalf("polled point did not lie within the creating rectangle")
+			}
+		}
+		p3 := r.Clamp(Point2{0, 5})
+		if p3 != (Point2{1, 5}) {
+			t.Errorf("Clamp(0,5) did not return {1,5}: got %v", p3)
+		}
+		p4 := r.Clamp(Point2{2, 11})
+		if p4 != (Point2{2, 10}) {
+			t.Errorf("Clamp(2,11) did not return {2,10}: got %v", p4)
+		}
+		r2 := r.MulSpan(4)
+		if r2 != NewRect2(4, 4, 40, 40) {
+			t.Errorf("MulSpan did not return {4,4,40,40}: got %v", r2)
+		}
+	})
+}
+
+func TestRect3Span(t *testing.T) {
+	t.Run("Basic", func(t *testing.T) {
+		r := NewRect3WH(1, 1, 1, 9, 9, 9)
+		p1 := r.Percentile(1.0)
+		if p1 != r.Max {
+			t.Errorf("Percentile(1.0) did not return max point: got %v expected %v", p1, r.Max)
+		}
+		p2 := r.Percentile(0.0)
+		if p2 != r.Min {
+			t.Errorf("Percentile(0.0) did not return min point: got %v expected %v", p2, r.Min)
+		}
+		const pollTries = 100
+		for i := 0; i < pollTries; i++ {
+			if !r.Contains(r.Poll()) {
+				t.Fatalf("polled point did not lie within the creating rectangle")
+			}
+		}
+		p3 := r.Clamp(Point3{0, -1, 5})
+		if p3 != (Point3{1, 1, 5}) {
+			t.Errorf("Clamp(0,-1,5) did not return {1,1,5}: got %v", p3)
+		}
+		p4 := r.Clamp(Point3{20, 2, 11})
+		if p4 != (Point3{10, 2, 10}) {
+			t.Errorf("Clamp(20, 2,11) did not return {10,2,10}: got %v", p4)
+		}
+		r2 := r.MulSpan(4)
+		if r2 != NewRect3(4, 4, 4, 40, 40, 40) {
+			t.Errorf("MulSpan did not return {4,4,4,40,40,40}: got %v", r2)
+		}
+	})
+}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/oakmound/oak/v4/alg/span"
 	"github.com/oakmound/oak/v4/physics"
+	"github.com/oakmound/oak/v4/render"
 )
 
 var (
@@ -29,6 +30,7 @@ type Generator interface {
 // Modeled after Parcycle
 type BaseGenerator struct {
 	physics.Vector
+	DrawStack *render.DrawStack
 	// This float is currently forced to an integer
 	// at new particle rotation. This should be changed
 	// to something along the lines of 'new per 30 frames',
@@ -68,6 +70,7 @@ func (bg *BaseGenerator) GetBaseGenerator() *BaseGenerator {
 func (bg *BaseGenerator) setDefaults() {
 	*bg = BaseGenerator{
 		Vector:      physics.NewVector(0, 0),
+		DrawStack:   nil,
 		NewPerFrame: span.NewConstant(1.0),
 		LifeSpan:    span.NewConstant(60.0),
 		Angle:       span.NewConstant(0.0),

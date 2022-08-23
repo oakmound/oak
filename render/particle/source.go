@@ -177,7 +177,11 @@ func (ps *Source) addParticles() {
 		ps.particles[ps.nextPID] = p
 		ps.nextPID++
 		p.SetLayer(ps.Layer(bp.GetPos()))
-		render.Draw(p, ps.stackLevel)
+		if pg.DrawStack == nil {
+			render.Draw(p, ps.stackLevel)
+		} else {
+			pg.DrawStack.Draw(p, ps.stackLevel)
+		}
 	}
 
 }
