@@ -171,3 +171,13 @@ func BenchmarkPolygonConvexContains(b *testing.B) {
 		benchContains = poly.ConvexContains(x, y)
 	}
 }
+
+func Test_orient(t *testing.T) {
+	t.Parallel()
+	t.Run("3 empty points", func(t *testing.T) {
+		v := orient(Point2{}, Point2{}, Point2{})
+		if v != 0 {
+			t.Fatal("expected orient to return 0 for 3 empty points")
+		}
+	})
+}
