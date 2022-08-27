@@ -203,6 +203,9 @@ func (e *Entity) Destroy() {
 // SetMetadata sets the metadata for some key to some value. Empty value strings
 // will not be stored.
 func (e *Entity) SetMetadata(k, v string) {
+	if e.metadata == nil {
+		e.metadata = map[string]string{}
+	}
 	if v == "" {
 		delete(e.metadata, k)
 	} else {
