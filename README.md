@@ -85,9 +85,9 @@ See below or navigate to the [examples](examples) folder for demos. For more exa
 
 | | | |
 |:-------------------------:|:-------------------------:|:-------------------------:|
-|<img width="1400"  src="examples/platformer/example.gif" a=examples/platformer>  [Platformer](examples/platformer) |  <img width="1400"  src="examples/top-down-shooter//example.gif"> [Top down shooter](examples/top-down-shooter)|<img width="1400"  src="examples/flappy-bird//example.gif"> [Flappy Bird](examples/flappy-bird/)
-|  <img width="1400"  src="examples/bezier/example.PNG"> [Bezier Curves](examples/bezier) |<img width="1400"  src="examples/joystick-viz/example.gif"> [Joysticks](examples/joystick-viz)|<img width="1400"  src="examples/piano/example.gif"> [Piano](examples/piano)|
-|<img width="1400"  src="examples/screenopts/example.PNG"> [Screen Options](examples/screenopts)  |  <img width="1400"  src="examples/multi-window/example.PNG"> [Multi Window](examples/multi-window) |<img width="1400"  src="examples/particle-demo/overviewExample.gif"> [Particles](examples/particle-demo)|
+|<img width="200"  src="examples/platformer/example.gif" a=examples/platformer>  [Platformer](examples/platformer) |  <img width="200"  src="examples/top-down-shooter//example.gif"> [Top down shooter](examples/top-down-shooter)|<img width="200"  src="examples/flappy-bird//example.gif"> [Flappy Bird](examples/flappy-bird/)
+|  <img width="200"  src="examples/bezier/example.PNG"> [Bezier Curves](examples/bezier) |<img width="200"  src="examples/joystick-viz/example.gif"> [Joysticks](examples/joystick-viz)|<img width="200"  src="examples/piano/example.gif"> [Piano](examples/piano)|
+|<img width="200"  src="examples/screenopts/example.PNG"> [Screen Options](examples/screenopts)  |  <img width="200"  src="examples/multi-window/example.PNG"> [Multi Window](examples/multi-window) |<img width="200"  src="examples/particle-demo/overviewExample.gif"> [Particles](examples/particle-demo)|
 
 ## Games using Oak <a name="finished-games"></a>
 
@@ -95,9 +95,9 @@ To kick off a larger game project you can get started with [game-template](https
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img width="1400"  src="https://img.itch.zone/aW1hZ2UvMTk4MjIxLzkyNzUyOC5wbmc=/original/aRusLc.png" a=examples/platformer-tutorial>  [Agent Blue](https://oakmound.itch.io/agent-blue) |  <img width="1400"  src="https://img.itch.zone/aW1hZ2UvMTY4NDk1Lzc4MDk1Mi5wbmc=/original/hIjzFm.png"> [Fantastic Doctor](https://github.com/oakmound/lowrez17)
-|<img width="1400"  src="https://img.itch.zone/aW1hZ2UvMzkwNjM5LzI2NzU0ODMucG5n/original/eaoFrd.png">  [Hiring Now: Looters](https://oakmound.itch.io/cheststacker) |  <img width="1400"  src="https://img.itch.zone/aW1hZ2UvMTYzNjgyLzc1NDkxOS5wbmc=/original/%2BwvZ7j.png"> [Jeremy The Clam](https://github.com/200sc/jeremy)
-|<img width="1400"  src="https://img.itch.zone/aW1hZ2UvOTE0MjYzLzUxNjg3NDEucG5n/original/5btfEr.png">  [Diamond Deck Championship](https://oakmound.itch.io/diamond-deck-championship) |  <img width="1400"  src="https://img.itch.zone/aW1nLzgzMDM5MjcucG5n/105x83%23/oA19CL.png">  [SokoPic](https://oakmound.itch.io/sokopic) 
+|<img width="200"  src="https://img.itch.zone/aW1hZ2UvMTk4MjIxLzkyNzUyOC5wbmc=/original/aRusLc.png" a=examples/platformer-tutorial>  [Agent Blue](https://oakmound.itch.io/agent-blue) |  <img width="200"  src="https://img.itch.zone/aW1hZ2UvMTY4NDk1Lzc4MDk1Mi5wbmc=/original/hIjzFm.png"> [Fantastic Doctor](https://github.com/oakmound/lowrez17)
+|<img width="200"  src="https://img.itch.zone/aW1hZ2UvMzkwNjM5LzI2NzU0ODMucG5n/original/eaoFrd.png">  [Hiring Now: Looters](https://oakmound.itch.io/cheststacker) |  <img width="200"  src="https://img.itch.zone/aW1hZ2UvMTYzNjgyLzc1NDkxOS5wbmc=/original/%2BwvZ7j.png"> [Jeremy The Clam](https://github.com/200sc/jeremy)
+|<img width="200"  src="https://img.itch.zone/aW1hZ2UvOTE0MjYzLzUxNjg3NDEucG5n/original/5btfEr.png">  [Diamond Deck Championship](https://oakmound.itch.io/diamond-deck-championship) |  <img width="200"  src="https://img.itch.zone/aW1nLzgzMDM5MjcucG5n/105x83%23/oA19CL.png">  [SokoPic](https://oakmound.itch.io/sokopic) 
 
 ## On Pure Go <a name="pure-go"/>
 
