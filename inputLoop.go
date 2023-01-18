@@ -28,6 +28,9 @@ var (
 	// InputChange is triggered when the most recent input device changes (e.g. keyboard to joystick or vice versa). It
 	// is only sent if Config.TrackInputChanges is true when Init is called.
 	InputChange = event.RegisterEvent[InputType]()
+	// WindowSizeChange is triggered when a desktop window is resized automatically or via user request.
+	// A call to ChangeWindow does not trigger this.
+	WindowSizeChange = event.RegisterEvent[intgeom.Point2]()
 )
 
 func (w *Window) inputLoop() {
@@ -106,6 +109,7 @@ func (w *Window) inputLoop() {
 
 		// Size events update what we scale the screen to
 		case size.Event:
+			event.TriggerOn(w.eventHandler, WindowSizeChange, intgeom.Point2{e.WidthPx, e.HeightPx})
 			err := w.ChangeWindow(e.WidthPx, e.HeightPx)
 			dlog.ErrorCheck(err)
 		}
