@@ -17,10 +17,10 @@ require (
 	github.com/oakmound/w32 v2.1.0+incompatible // windows, shiny
 	github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf // windows, audio
 	golang.org/x/exp v0.0.0-20220414153411-bcd21879b8fd
-	golang.org/x/image v0.0.0-20220321031419-a8550c1d254a
+	golang.org/x/image v0.5.0
 	golang.org/x/mobile v0.0.0-20220325161704-447654d348e3
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20220403205710-6acee93ad0eb
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f
 )
 
 require (
