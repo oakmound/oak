@@ -6,7 +6,7 @@ import (
 	"github.com/oakmound/oak/v4/render"
 )
 
-//Text sets the text of the button to be generated
+// Text sets the text of the button to be generated
 func Text(s string) Option {
 	return func(g Generator) Generator {
 		g.TextPtr = nil
@@ -38,7 +38,7 @@ func TextStringer(s fmt.Stringer) Option {
 	}
 }
 
-//Font sets the font for the text of the button to be generated
+// Font sets the font for the text of the button to be generated
 func Font(f *render.Font) Option {
 	return func(g Generator) Generator {
 		g.Font = f
@@ -46,7 +46,7 @@ func Font(f *render.Font) Option {
 	}
 }
 
-//TxtOff sets the text offset  of the button generator from the bottom left
+// TxtOff sets the text offset  of the button generator from the bottom left
 func TxtOff(x, y float64) Option {
 	return func(g Generator) Generator {
 		g.TxtX = x

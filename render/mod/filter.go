@@ -179,7 +179,7 @@ func StripOuterAlpha(m *image.RGBA, level int) Filter {
 
 		mr := m
 
-		//get an image
+		// get an image
 		bounds := mr.Bounds()
 		w := bounds.Max.X
 		h := bounds.Max.Y

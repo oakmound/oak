@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	//IgnoreEnd refers to the life value given to particles that want to skip their source's end function.
+	// IgnoreEnd refers to the life value given to particles that want to skip their source's end function.
 	IgnoreEnd = -2000 / 2
 )
 

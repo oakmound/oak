@@ -55,7 +55,7 @@ func (rh *RenderableHeap) Clear() {
 	*rh = *newHeap(rh.static)
 }
 
-//Add stages a new Renderable to add to the heap
+// Add stages a new Renderable to add to the heap
 func (rh *RenderableHeap) Add(r Renderable, layers ...int) Renderable {
 	if len(layers) > 0 {
 		r.SetLayer(layers[0])
@@ -200,7 +200,7 @@ func (h *layerHeap) down(i0, n int) bool {
 	return i > i0
 }
 
-//Less returns whether a renderable at index i is at a lower layer than the one at index j
+// Less returns whether a renderable at index i is at a lower layer than the one at index j
 func (h *layerHeap) less(i, j int) bool {
 	return h.rs[i].GetLayer() < h.rs[j].GetLayer()
 }

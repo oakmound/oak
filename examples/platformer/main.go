@@ -62,7 +62,7 @@ func main() {
 				}
 				aboveGround = true
 			} else {
-				//Restart when is below ground
+				// Restart when is below ground
 				if char.Y() > 500 {
 					char.Delta[1] = 0
 					char.SetY(100)

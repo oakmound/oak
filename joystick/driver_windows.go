@@ -104,7 +104,7 @@ func (j *Joystick) vibrate(left, right uint16) error {
 func (j *Joystick) close() error {
 	// It seemingly makes sense to do this, but doing this disables
 	// detection of future joysticks
-	//return w32.XInputEnable(false)
+	// return w32.XInputEnable(false)
 	return nil
 }
 

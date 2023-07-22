@@ -1,6 +1,6 @@
 package floatgeom
 
-//Tri3 is a triangle of Point3s
+// Tri3 is a triangle of Point3s
 type Tri3 [3]Point3
 
 // Barycentric finds the barycentric coordinates of the given x,y cartesian

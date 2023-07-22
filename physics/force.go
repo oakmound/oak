@@ -47,7 +47,7 @@ func (m *Mass) SetMass(inMass float64) error {
 	return oakerr.InvalidInput{InputName: "inMass"}
 }
 
-//GetMass returns the mass of an object
+// GetMass returns the mass of an object
 func (m *Mass) GetMass() float64 {
 	return m.mass
 }
@@ -78,7 +78,7 @@ func Push(a Pushes, b Pushable) error {
 		}
 		return nil
 	}
-	//Copy a's force so that we dont change the original when we scale it later
+	// Copy a's force so that we dont change the original when we scale it later
 	fdirection := a.GetForce().Copy()
 	totalF := *a.GetForce().Force / b.GetMass()
 	b.GetDelta().Add(fdirection.Normalize().Scale(totalF))

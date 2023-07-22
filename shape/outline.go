@@ -63,7 +63,7 @@ func parseSizes(sizes []int) (int, int) {
 func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point2, error) {
 	w, h := parseSizes(sizes)
 
-	//First decrement on diagonal to find start of outline
+	// First decrement on diagonal to find start of outline
 	startX := 0.0
 	startY := 0.0
 	fw := float64(w)
@@ -84,7 +84,7 @@ func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point2, error) 
 	}
 	startY++
 
-	//Here we have found a point on the outline
+	// Here we have found a point on the outline
 	sx := int(startX)
 	sy := int(startY)
 	x := sx
@@ -115,7 +115,7 @@ func toOutline(shape Shape, dirInc int, sizes ...int) ([]intgeom.Point2, error) 
 }
 
 func followOutline(shape Shape, dirInc, x, y, sx, sy, w, h, direction int, outline []intgeom.Point2) []intgeom.Point2 {
-	//Follow the outline point by point
+	// Follow the outline point by point
 	for x != sx || y != sy {
 		outline = append(outline, intgeom.Point2{x, y})
 		direction -= 2
@@ -124,7 +124,7 @@ func followOutline(shape Shape, dirInc, x, y, sx, sy, w, h, direction int, outli
 		}
 		x += xyMods[direction*2]
 		y += xyMods[direction*2+1]
-		//From a point on the outline look clockwise around for next direction
+		// From a point on the outline look clockwise around for next direction
 		for !inOutline(shape, x, y, w, h) {
 			for i := 0; i < dirInc; i++ {
 				x += pointDeltas[direction*2]

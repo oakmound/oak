@@ -30,7 +30,7 @@ func Clear() Option {
 	}
 }
 
-//Width sets the Width of the button to be generated
+// Width sets the Width of the button to be generated
 func Width(w float64) Option {
 	return func(g Generator) Generator {
 		g.W = w
@@ -38,7 +38,7 @@ func Width(w float64) Option {
 	}
 }
 
-//Height sets the Height of the button to be generated
+// Height sets the Height of the button to be generated
 func Height(h float64) Option {
 	return func(g Generator) Generator {
 		g.H = h
@@ -46,7 +46,7 @@ func Height(h float64) Option {
 	}
 }
 
-//Pos sets the position of the button  to be generated
+// Pos sets the position of the button  to be generated
 func Pos(x, y float64) Option {
 	return func(g Generator) Generator {
 		g.X = x
@@ -55,7 +55,7 @@ func Pos(x, y float64) Option {
 	}
 }
 
-//Offset increments the position of the button to be generated
+// Offset increments the position of the button to be generated
 func Offset(x, y float64) Option {
 	return func(g Generator) Generator {
 		g.X += x
@@ -64,7 +64,7 @@ func Offset(x, y float64) Option {
 	}
 }
 
-//CID sets the starting CID of the button to be generated
+// CID sets the starting CID of the button to be generated
 func CID(c event.CallerID) Option {
 	return func(g Generator) Generator {
 		g.Cid = c
@@ -72,7 +72,7 @@ func CID(c event.CallerID) Option {
 	}
 }
 
-//Color sets the colorboxes color for the button to be generated
+// Color sets the colorboxes color for the button to be generated
 func Color(c color.Color) Option {
 	return func(g Generator) Generator {
 		g.Color = c
@@ -90,7 +90,7 @@ func VGradient(c1, c2 color.Color) Option {
 	}
 }
 
-//Mod sets the modifications to apply to the initial color box for the button to be generated
+// Mod sets the modifications to apply to the initial color box for the button to be generated
 func Mod(m mod.Transform) Option {
 	return func(g Generator) Generator {
 		g.Mod = m
@@ -111,7 +111,7 @@ func AndMod(m mod.Transform) Option {
 	}
 }
 
-//Layers sets the layer of the button to be generated
+// Layers sets the layer of the button to be generated
 func Layers(ls ...int) Option {
 	return func(g Generator) Generator {
 		g.Layers = ls

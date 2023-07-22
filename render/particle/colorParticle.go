@@ -31,7 +31,7 @@ func (cp *ColorParticle) DrawOffsetGen(generator Generator, buff draw.Image, xOf
 	// than the enter frame rate than this is doing duplicate work
 	// does that mean every particle is the same struct (
 	//	baseParticle + image
-	//)
+	// )
 	// and different particle types are just different update functions?
 	// -No- because we still need to keep track of variable things on these particles
 	// but it -does- mean that particles should track an image that they all have a function

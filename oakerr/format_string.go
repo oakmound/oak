@@ -49,12 +49,12 @@ var errFmtStrings = map[Language]map[errCode]string{
 	},
 	JPN: {
 		codeNotFound: "%qが見つからない",
-		//codeExistingElement: "%1q%2qはもう存在します"
-		//codeExistingElementOverwritten: "%1q%2qはすでに存在し、古い%2qは上書きされます"
-		//codeInsufficientInputs: "%v%qが要つる",
-		//codeUnsupportedFormat: "対応プロトコルがない:%q",
-		//codeNilInput: "%qはnilであってはなりません",
-		//codeIndivisibleInput: "%qが%vに割り切れない",
+		// codeExistingElement: "%1q%2qはもう存在します"
+		// codeExistingElementOverwritten: "%1q%2qはすでに存在し、古い%2qは上書きされます"
+		// codeInsufficientInputs: "%v%qが要つる",
+		// codeUnsupportedFormat: "対応プロトコルがない:%q",
+		// codeNilInput: "%qはnilであってはなりません",
+		// codeIndivisibleInput: "%qが%vに割り切れない",
 		// These are commented out because I am not confident they are correct
 	},
 }

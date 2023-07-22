@@ -402,7 +402,7 @@ func (s *screenImpl) NewTexture(size image.Point) (screen.Texture, error) {
 	}
 	xproto.CreatePixmap(s.xc, textureDepth, xm, xproto.Drawable(s.window32), uint16(w), uint16(h))
 	render.CreatePicture(s.xc, xp, xproto.Drawable(xm), s.pictformat32, render.CpRepeat, []uint32{render.RepeatPad})
-	//render.SetPictureFilter(s.xc, xp, uint16(len("bilinear")), "bilinear", nil)
+	// render.SetPictureFilter(s.xc, xp, uint16(len("bilinear")), "bilinear", nil)
 	// The X11 server doesn't zero-initialize the pixmap. We do it ourselves.
 	render.FillRectangles(s.xc, render.PictOpSrc, xp, render.Color{}, []xproto.Rectangle{{
 		Width:  uint16(w),

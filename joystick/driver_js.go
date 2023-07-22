@@ -68,7 +68,7 @@ type jsGamepadState struct {
 
 type jsButton struct {
 	value float64
-	//touched bool
+	// touched bool
 	pressed bool
 }
 
@@ -87,8 +87,8 @@ var (
 		3: "Y",
 		4: "LeftShoulder",
 		5: "RightShoulder",
-		//6: LeftTrigger
-		//7: RightTrigger
+		// 6: LeftTrigger
+		// 7: RightTrigger
 		8:  "Back",
 		9:  "Start",
 		10: "LeftStick",
