@@ -215,7 +215,9 @@ func (e *Entity) SetMetadata(k, v string) {
 
 // Metadata accesses the value, and whether it existed, for a given metadata key
 func (e *Entity) Metadata(k string) (v string, ok bool) {
-	v, ok = e.metadata[k]
+	if e.metadata != nil {
+		v, ok = e.metadata[k]
+	}
 	return v, ok
 }
 
