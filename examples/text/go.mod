@@ -21,10 +21,10 @@ require (
 	github.com/oov/directsound-go v0.0.0-20141101201356-e53e59c700bf // indirect
 	golang.org/x/exp v0.0.0-20220414153411-bcd21879b8fd // indirect
 	golang.org/x/exp/shiny v0.0.0-20220518171630-0b5c67f07fdf // indirect
-	golang.org/x/image v0.5.0 // indirect
+	golang.org/x/image v0.10.0 // indirect
 	golang.org/x/mobile v0.0.0-20220325161704-447654d348e3 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 )
 
 replace github.com/oakmound/oak/v4 => ../..
