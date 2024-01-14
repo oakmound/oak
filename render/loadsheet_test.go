@@ -2,6 +2,7 @@ package render
 
 import (
 	"errors"
+	"image"
 	"os"
 	"path/filepath"
 	"testing"
@@ -64,6 +65,29 @@ func TestMakeSheet_BadDimensions(t *testing.T) {
 	}
 
 	_, err = MakeSheet(nil, intgeom.Point2{5, -1})
+	expected = &oakerr.InvalidInput{}
+	if !errors.As(err, expected) {
+		t.Fatalf("expected invalid input error, got %v", err)
+	}
+	if expected.InputName != "cellSize.Y" {
+		t.Fatalf("expected invalid height, got %v", expected.InputName)
+	}
+}
+
+func TestMakeSheet_BadMod(t *testing.T) {
+	rgba := &image.RGBA{
+		Rect: image.Rect(0, 0, 10, 10),
+	}
+	_, err := MakeSheet(rgba, intgeom.Point2{4, 5})
+	expected := &oakerr.InvalidInput{}
+	if !errors.As(err, expected) {
+		t.Fatalf("expected invalid input error, got %v", err)
+	}
+	if expected.InputName != "cellSize.X" {
+		t.Fatalf("expected invalid width, got %v", expected.InputName)
+	}
+
+	_, err = MakeSheet(rgba, intgeom.Point2{5, 4})
 	expected = &oakerr.InvalidInput{}
 	if !errors.As(err, expected) {
 		t.Fatalf("expected invalid input error, got %v", err)

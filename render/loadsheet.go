@@ -51,18 +51,17 @@ func MakeSheet(rgba *image.RGBA, cellSize intgeom.Point2) (*Sheet, error) {
 	bounds := rgba.Bounds()
 
 	sheetW := bounds.Max.X / w
+	wMod := bounds.Max.X % w
+	if wMod != 0 {
+		return nil, oakerr.InvalidInput{InputName: "cellSize.X"}
+	}
 	sheetH := bounds.Max.Y / h
-
+	hMod := bounds.Max.Y % h
+	if hMod != 0 {
+		return nil, oakerr.InvalidInput{InputName: "cellSize.Y"}
+	}
 	if sheetW < 1 || sheetH < 1 {
 		return nil, oakerr.InvalidInput{InputName: "cellSize"}
-	}
-
-	if sheetW*w != sheetW {
-		return nil, oakerr.InvalidInput{InputName: "nondivisibile dimensions x:"}
-	}
-
-	if sheetH*h != sheetH {
-		return nil, oakerr.InvalidInput{InputName: "nondivisibile dimensions y:"}
 	}
 
 	sheet := make(Sheet, sheetW)
