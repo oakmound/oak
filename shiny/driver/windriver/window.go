@@ -501,3 +501,29 @@ func (w *Window) SetTopMost(topMost bool) error {
 	w.topMost = topMost
 	return nil
 }
+
+func (w *Window) GetDesktopPosition() (x, y float64) {
+	w.windowRect, _ = win32.GetWindowRect(w.hwnd)
+	return float64(w.windowRect.Left), float64(w.windowRect.Top)
+}
+
+func (w *Window) Minimize() error {
+	if !win32.Minimize(w.hwnd) {
+		return fmt.Errorf("minimize failed")
+	}
+	return nil
+}
+
+func (w *Window) Maximize() error {
+	if !win32.Maximize(w.hwnd) {
+		return fmt.Errorf("maximize failed")
+	}
+	return nil
+}
+
+func (w *Window) Normalize() error {
+	if !win32.Normalize(w.hwnd) {
+		return fmt.Errorf("normalize failed")
+	}
+	return nil
+}

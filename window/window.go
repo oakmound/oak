@@ -25,7 +25,6 @@ type Window interface {
 	// component.
 	SetIcon(image.Image) error
 	// MoveWindow moves a window to the given x,y coordinates with the given dimensions.
-	// TODO v4: intgeom.Rect2?
 	MoveWindow(x, y, w, h int) error
 	// HideCursor will cause the mouse cursor to not display when it lies within this window.
 	HideCursor() error
