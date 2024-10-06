@@ -244,6 +244,7 @@ func New(ctx *scene.Context, opts ...Option) *Entity {
 		Renderable: g.Renderable,
 		Speed:      g.Speed,
 		Children:   children,
+		metadata:   map[string]string{},
 	}
 
 	if g.Renderable == nil && g.Color != nil {
