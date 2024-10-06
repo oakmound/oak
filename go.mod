@@ -3,7 +3,7 @@ module github.com/oakmound/oak/v4
 go 1.18
 
 require (
-	dmitri.shuralyov.com/gpu/mtl v0.0.0-20201218220906-28db891af037 // osx, shiny
+	dmitri.shuralyov.com/gpu/mtl v0.0.0-20221208032759-85de2813cf6b // osx, shiny
 	github.com/BurntSushi/xgb v0.0.0-20210121224620-deaf085860bc // linux, shiny
 	github.com/BurntSushi/xgbutil v0.0.0-20190907113008-ad855c713046 // linux, shiny
 	github.com/disintegration/gift v1.2.1 // render
