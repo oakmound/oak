@@ -78,6 +78,11 @@ func LoadSheet(file string, cellSize intgeom.Point2) (*Sheet, error) {
 	return DefaultCache.LoadSheet(file, cellSize)
 }
 
+// LoadComplexSheet calls LoadComplexSheet on the Default Cache.
+func LoadComplexSheet(file string, opts ...Option) (*Sheet, error) {
+	return DefaultCache.LoadComplexSheet(file, opts...)
+}
+
 // GetFont calls GetFont on the Default Cache.
 func GetFont(file string) (*truetype.Font, error) {
 	return DefaultCache.GetFont(file)

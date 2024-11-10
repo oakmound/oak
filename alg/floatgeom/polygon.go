@@ -186,3 +186,13 @@ func orient(p1, p2, p3 Point2) int8 {
 		return 0
 	}
 }
+
+func (pg Polygon2) IsEmpty() bool {
+	if pg.Bounding.Area() != 0 {
+		return false
+	}
+	if len(pg.Points) != 0 {
+		return false
+	}
+	return true
+}
