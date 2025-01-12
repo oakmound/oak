@@ -76,6 +76,8 @@ func (pg *Polygon) FillInverse(c color.Color) {
 			}
 		}
 	}
+
+	pg.r = rgba
 }
 
 // FillInverseOnRGBA colors the inverse of the polygon onto the source rgba
