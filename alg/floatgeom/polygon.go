@@ -196,3 +196,17 @@ func (pg Polygon2) IsEmpty() bool {
 	}
 	return true
 }
+
+// ShiftPos of the Polygon2.
+// Move all the points and bounding of the polygon.
+// Note that this does not change whether a polygon is rectangular.
+func (pg Polygon2) ShiftPos(toShift Point2) Polygon2 {
+	for idx, p := range pg.Points {
+		pg.Points[idx] = p.Add(toShift)
+	}
+	// While we could reconstruct the bounding
+	// For now this is simple enough to compute this way
+	pg.Bounding.Min = pg.Bounding.Min.Add(toShift)
+	pg.Bounding.Max = pg.Bounding.Max.Add(toShift)
+	return pg
+}

@@ -76,6 +76,22 @@ func (pg *Polygon) FillInverse(c color.Color) {
 			}
 		}
 	}
+}
+
+// FillInverseOnRGBA colors the inverse of the polygon onto the source rgba
+func (pg *Polygon) FillInverseOnRGBA(rgba *image.RGBA, c color.Color) {
+
+	destXBounds := rgba.Bounds().Max.X
+	destYBounds := rgba.Bounds().Max.Y
+
+	for x := 0; x < destXBounds; x++ {
+		for y := 0; y < destYBounds; y++ {
+			if !pg.ConvexContains(float64(x), float64(y)) {
+				rgba.Set(x, y, c)
+			}
+		}
+	}
+
 	pg.r = rgba
 }
 
