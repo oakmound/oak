@@ -3,6 +3,8 @@ package render
 import (
 	"fmt"
 	"image"
+	"image/color"
+	"image/draw"
 	"path/filepath"
 
 	"github.com/oakmound/oak/v4/alg/floatgeom"
@@ -152,9 +154,10 @@ func MakeComplexSheet(rgba *image.RGBA, opts ...Option) (*Sheet, error) {
 		if g.Bounds == emptyPoint {
 			floatBounds := g.SheetPolygon.Bounding.Max.Sub(g.SheetPolygon.Bounding.Min)
 			cellBounds = intgeom.Point2{int(floatBounds.X()), int(floatBounds.Y())}
+
 		}
 	}
-
+	fmt.Println("bounds", cellBounds)
 	w := cellBounds.X()
 	h := cellBounds.Y()
 
@@ -178,19 +181,24 @@ func MakeComplexSheet(rgba *image.RGBA, opts ...Option) (*Sheet, error) {
 			if x < 0 || y < 0 || x+w > bounds.Max.X || y+h > bounds.Max.Y {
 				continue
 			}
-			fmt.Println(i, j, y+h, bounds.Max.Y)
-			fmt.Println(len(sheet))
-			fmt.Println(len(sheet[i]))
 
 			candidiateImg := subImage(rgba, x, y, w, h)
+			rect := image.Rect(0, 0, w, h)
+			// candidiateImg = image.NewRGBA(rect)
+			// draw.Draw(candidiateImg, rect, image.NewUniform(colornames.Red), image.Point{0, 0}, draw.Src)
 			if !g.SheetPolygon.IsEmpty() {
 				poly := NewPolygon(g.SheetPolygon)
-				poly.Sprite.SetRGBA(candidiateImg)
-				// poly.FillInverse(color.RGBA{})
-				poly.Fill(colornames.Red)
-				candidiateImg = poly.Sprite.GetRGBA()
+				poly.FillInverseOnRGBA(candidiateImg, color.RGBA{})
+
+				draw.Draw(candidiateImg, rect, poly.GetRGBA(), image.Point{0, 0}, draw.Src)
+
+				outline := poly.GetColoredOutline(IdentityColorer(colornames.Red), 1)
+				if outline.GetRGBA() != nil {
+					draw.Draw(candidiateImg, rect, outline.GetRGBA(), image.Point{0, 0}, draw.Src)
+				}
 			}
 			sheet[i][j] = candidiateImg
+
 			j++
 		}
 		i++
