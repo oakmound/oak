@@ -22,10 +22,10 @@ func (c *Cache) LoadSheet(file string, cellSize intgeom.Point2) (*Sheet, error) 
 	return c.loadSheet(file, parseSheet)
 }
 
-// LoadComplexSheet loads a file in some directory with sheets of sprites.
+// LoadSheetWithOptions loads a file in some directory with sheets of sprites.
 // These sprites can be defined by the polgyons and offsets provided.
 // This will blow away any cached sheet with the same fileName.
-func (c *Cache) LoadComplexSheet(file string, opts ...Option) (*Sheet, error) {
+func (c *Cache) LoadSheetWithOptions(file string, opts ...SheetOption) (*Sheet, error) {
 	parseSheet := func(rgba *image.RGBA) (*Sheet, error) {
 		return MakeComplexSheet(rgba, opts...)
 	}
@@ -45,6 +45,9 @@ func (c *Cache) loadSheet(file string, parseSheet func(*image.RGBA) (*Sheet, err
 	}
 
 	sheet, err := parseSheet(rgba)
+	if err != nil {
+		return nil, err
+	}
 
 	c.sheetLock.Lock()
 	c.loadedSheets[file] = sheet
@@ -134,7 +137,7 @@ var emptyPoint intgeom.Point2
 // MakeComplexSheet of sprites from a given image.
 // These sheets or may not have a uniform rows and columns.
 // This is a laxer enforcement than LoadSheet.
-func MakeComplexSheet(rgba *image.RGBA, opts ...Option) (*Sheet, error) {
+func MakeComplexSheet(rgba *image.RGBA, opts ...SheetOption) (*Sheet, error) {
 	g := defaultGenerator
 	for _, o := range opts {
 		g = o(g)
@@ -169,39 +172,50 @@ func MakeComplexSheet(rgba *image.RGBA, opts ...Option) (*Sheet, error) {
 		return nil, oakerr.InvalidInput{InputName: fmt.Sprintf("%s for image size", cellBoundName)}
 	}
 
-	sheet := make(Sheet, sheetW)
+	sheet := Sheet{[]*image.RGBA{}}
+
+	if g.CellPosition == nil {
+		g.CellPosition = func(i, j int, dims intgeom.Point2) (topLeft intgeom.Point2) {
+			return intgeom.Point2{
+				i * dims.X(),
+				j * dims.Y(),
+			}
+		}
+	}
 
 	i := 0
-	for x := 0; x < bounds.Max.X; x += cellBounds.X() {
-
-		sheet[i] = make([]*image.RGBA, sheetH)
-		j := 0
-		for y := 0; y < bounds.Max.Y; y += h {
-
-			if x < 0 || y < 0 || x+w > bounds.Max.X || y+h > bounds.Max.Y {
-				continue
-			}
-
-			candidiateImg := subImage(rgba, x, y, w, h)
-			rect := image.Rect(0, 0, w, h)
-			// candidiateImg = image.NewRGBA(rect)
-			// draw.Draw(candidiateImg, rect, image.NewUniform(colornames.Red), image.Point{0, 0}, draw.Src)
-			if !g.SheetPolygon.IsEmpty() {
-				poly := NewPolygon(g.SheetPolygon)
-				poly.FillInverseOnRGBA(candidiateImg, color.RGBA{})
-
-				draw.Draw(candidiateImg, rect, poly.GetRGBA(), image.Point{0, 0}, draw.Src)
-
-				outline := poly.GetColoredOutline(IdentityColorer(colornames.Red), 1)
-				if outline.GetRGBA() != nil {
-					draw.Draw(candidiateImg, rect, outline.GetRGBA(), image.Point{0, 0}, draw.Src)
-				}
-			}
-			sheet[i][j] = candidiateImg
-
-			j++
+	j := 0
+	for {
+		topLeft := g.CellPosition(i, j, cellBounds)
+		if topLeft.Y()+h > bounds.Max.Y {
+			j = 0
+			i++
+			sheet = append(sheet, []*image.RGBA{})
+			continue
 		}
-		i++
+		if topLeft.X()+w > bounds.Max.X {
+			break
+		}
+
+		candidiateImg := subImage(rgba, topLeft.X(), topLeft.Y(), w, h)
+		rect := image.Rect(0, 0, w, h)
+		if !g.SheetPolygon.IsEmpty() {
+			poly := NewPolygon(g.SheetPolygon)
+			poly.FillInverseOnRGBA(candidiateImg, color.RGBA{})
+
+			draw.Draw(candidiateImg, rect, poly.GetRGBA(), image.Point{0, 0}, draw.Src)
+
+			outline := poly.GetColoredOutline(IdentityColorer(colornames.Red), 1)
+			if outline.GetRGBA() != nil {
+				draw.Draw(candidiateImg, rect, outline.GetRGBA(), image.Point{0, 0}, draw.Src)
+			}
+		}
+
+		sheet[i] = append(sheet[i], candidiateImg)
+		j++
+	}
+	if len(sheet) != 0 && len(sheet[len(sheet)-1]) == 0 {
+		sheet = sheet[:len(sheet)-1]
 	}
 
 	return &sheet, nil
@@ -214,40 +228,48 @@ type SheetGenerator struct {
 	Bounds                intgeom.Point2
 	PerSpriteBuffer       intgeom.Point2
 	PerRowOffsets         []intgeom.Point2
+	CellPosition          func(i, j int, dims intgeom.Point2) (topLeft intgeom.Point2)
 }
 
 // generated via foptgen https://github.com/200sc/foptgen
-type Option func(SheetGenerator) SheetGenerator
+type SheetOption func(SheetGenerator) SheetGenerator
 
-func WithIgnoreInputValidation(v bool) Option {
+func WithCellPosition(v func(i, j int, dims intgeom.Point2) intgeom.Point2) SheetOption {
+	return func(s SheetGenerator) SheetGenerator {
+		s.CellPosition = v
+		return s
+	}
+}
+
+func WithIgnoreInputValidation(v bool) SheetOption {
 	return func(s SheetGenerator) SheetGenerator {
 		s.IgnoreInputValidation = v
 		return s
 	}
 }
 
-func WithSheetPolygon(v floatgeom.Polygon2) Option {
+func WithSheetPolygon(v floatgeom.Polygon2) SheetOption {
 	return func(s SheetGenerator) SheetGenerator {
 		s.SheetPolygon = v
 		return s
 	}
 }
 
-func WithBounds(v intgeom.Point2) Option {
+func WithBounds(v intgeom.Point2) SheetOption {
 	return func(s SheetGenerator) SheetGenerator {
 		s.Bounds = v
 		return s
 	}
 }
 
-func WithPerSpriteBuffer(v intgeom.Point2) Option {
+func WithPerSpriteBuffer(v intgeom.Point2) SheetOption {
 	return func(s SheetGenerator) SheetGenerator {
 		s.PerSpriteBuffer = v
 		return s
 	}
 }
 
-func WithPerRowOffsets(v ...intgeom.Point2) Option {
+func WithPerRowOffsets(v ...intgeom.Point2) SheetOption {
 	return func(s SheetGenerator) SheetGenerator {
 		s.PerRowOffsets = v
 		return s
