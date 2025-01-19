@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/flopp/go-findfont v0.0.0-20201114153133-e7393a00c15b
-	github.com/oakmound/oak/v4 v4.0.0-alpha.1
+	github.com/oakmound/oak/v4 v4.1.1
 )
 
 require (
@@ -24,7 +24,7 @@ require (
 	golang.org/x/image v0.21.0 // indirect
 	golang.org/x/mobile v0.0.0-20220325161704-447654d348e3 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 )
 
 replace github.com/oakmound/oak/v4 => ../..
