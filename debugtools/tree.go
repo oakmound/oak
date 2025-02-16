@@ -70,6 +70,9 @@ func (r *Rtree) Draw(buff draw.Image, xOff, yOff float64) {
 		if found, ok := r.ColorMap[h.Label]; ok {
 			c = found
 		}
+		if c == (color.RGBA{}) {
+			continue
+		}
 		for x := 0; x < int(h.GetW()); x++ {
 			for i := 0; i < r.Thickness; i++ {
 				buff.Set(x+int(h.X()+xOff)-vp.X(), int(h.Y()+yOff)+i-vp.Y(), c)
