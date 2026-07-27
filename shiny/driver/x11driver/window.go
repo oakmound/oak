@@ -264,8 +264,8 @@ func (w *Window) SetIcon(icon image.Image) error {
 	bgra[5] = byte(u32h >> 8)
 	bgra[6] = byte(u32h >> 16)
 	bgra[7] = byte(u32h >> 24)
-	for x := 0; x < wd; x++ {
-		for y := 0; y < h; y++ {
+	for x := range wd {
+		for y := range h {
 			c := icon.At(x, (h-1)-y)
 			r, g, b, a := c.RGBA()
 			bgra = append(bgra, byte(b>>8))
@@ -288,4 +288,24 @@ func (w *Window) GetCursorPosition() (x, y float64) {
 	// it's really not easy to do this with X
 	// we're just caching the last values we got
 	return float64(w.lastMouseX), float64(w.lastMouseY)
+}
+
+func (w *Window) GetDesktopPosition() (x, y float64) {
+	coords, err := xproto.TranslateCoordinates(w.s.xc, w.xw, w.s.RootWin(), 0, 0).Reply()
+	if err != nil {
+		return 0, 0
+	}
+	return float64(coords.DstX), float64(coords.DstY)
+}
+
+func (w *Window) Minimize() error {
+	return x11.Minimize(w.s.XUtil, w.xw)
+}
+
+func (w *Window) Maximize() error {
+	return x11.Maximize(w.s.XUtil, w.xw)
+}
+
+func (w *Window) Normalize() error {
+	return x11.Normalize(w.s.XUtil, w.xw)
 }
