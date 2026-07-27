@@ -30,6 +30,14 @@ type Window interface {
 	HideCursor() error
 }
 
+// temporary until linux has this
+type ExtendedWindow interface {
+	GetDesktopPosition() (x, y float64)
+	Minimize() error
+	Maximize() error
+	Normalize() error
+}
+
 // App is an interface of methods available to all oak programs.
 type App interface {
 	// Bounds returns the boundaries of the application client area measured in pixels. This is not the size

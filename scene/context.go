@@ -18,7 +18,7 @@ type Context struct {
 	context.Context
 
 	PreviousScene string
-	SceneInput    interface{}
+	SceneInput    any
 	Window        Window
 
 	*event.CallerMap
