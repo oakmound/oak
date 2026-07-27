@@ -13,7 +13,6 @@ import (
 	"github.com/oakmound/oak/v4/mouse"
 	"github.com/oakmound/oak/v4/render"
 	"github.com/oakmound/oak/v4/scene"
-	"github.com/oakmound/oak/v4/window"
 )
 
 func main() {
@@ -94,7 +93,7 @@ func main() {
 		})
 		event.GlobalBind(ctx, key.Down(key.M), func(k key.Event) event.Response {
 			fmt.Println("Maximizing")
-			err := ctx.Window.(window.ExtendedWindow).Maximize()
+			err := ctx.Window.Maximize()
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -102,7 +101,7 @@ func main() {
 		})
 		event.GlobalBind(ctx, key.Down(key.Z), func(k key.Event) event.Response {
 			fmt.Println("Minimizing")
-			err := ctx.Window.(window.ExtendedWindow).Minimize()
+			err := ctx.Window.Minimize()
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -110,14 +109,14 @@ func main() {
 		})
 		event.GlobalBind(ctx, key.Down(key.N), func(k key.Event) event.Response {
 			fmt.Println("Normalizing")
-			err := ctx.Window.(window.ExtendedWindow).Normalize()
+			err := ctx.Window.Normalize()
 			if err != nil {
 				fmt.Println(err)
 			}
 			return 0
 		})
 		event.GlobalBind(ctx, key.Down(key.P), func(k key.Event) event.Response {
-			x, y := ctx.Window.(window.ExtendedWindow).GetDesktopPosition()
+			x, y := ctx.Window.GetDesktopPosition()
 			fmt.Println("Position:", x, y)
 			return 0
 		})
