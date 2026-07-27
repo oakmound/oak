@@ -132,6 +132,15 @@ func main(f func(screen.Screen)) error {
 						req.window.SetMonitor(nil, req.x, req.y, req.width, req.height, refreshRate)
 					}
 				}
+				if req.maximize != nil && *req.maximize {
+					req.window.Maximize()
+				}
+				if req.normalize != nil && *req.normalize {
+					req.window.Restore()
+				}
+				if req.minimize != nil && *req.minimize {
+					req.window.Iconify()
+				}
 				req.respCh <- struct{}{}
 			default:
 				glfw.WaitEvents()
@@ -162,14 +171,19 @@ type releaseWindowReq struct {
 }
 
 type updateWindowReq struct {
-	window              *glfw.Window
-	setFullscreen       *bool
-	setBorderless       *bool
+	window        *glfw.Window
+	setFullscreen *bool
+	setBorderless *bool
+	maximize      *bool
+	minimize      *bool
+	normalize     *bool
+	// TODO: set icon?
 	setPos              bool
 	x, y, width, height int
 	title               *string
 	attribs             []attribPair
 	respCh              chan struct{}
+	icon                image.Image
 }
 
 type windowRequestChannels struct {
