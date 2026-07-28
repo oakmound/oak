@@ -73,3 +73,31 @@ func SetBorderless(xutil *xgbutil.XUtil, win xproto.Window, borderless bool) err
 	}
 	return motif.WmHintsSet(xutil, win, hints)
 }
+
+func Maximize(xutil *xgbutil.XUtil, win xproto.Window) error {
+	err := ewmh.WmStateReq(xutil, win, ewmh.StateAdd, "_NET_WM_STATE_MAXIMIZED_VERT")
+	if err != nil {
+		return err
+	}
+	err = ewmh.WmStateReq(xutil, win, ewmh.StateAdd, "_NET_WM_STATE_MAXIMIZED_HORZ")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Minimize(xutil *xgbutil.XUtil, win xproto.Window) error {
+	return fmt.Errorf("unimplemented")
+}
+
+func Normalize(xutil *xgbutil.XUtil, win xproto.Window) error {
+	err := ewmh.WmStateReq(xutil, win, ewmh.StateRemove, "_NET_WM_STATE_MAXIMIZED_VERT")
+	if err != nil {
+		return err
+	}
+	err = ewmh.WmStateReq(xutil, win, ewmh.StateRemove, "_NET_WM_STATE_MAXIMIZED_HORZ")
+	if err != nil {
+		return err
+	}
+	return nil
+}

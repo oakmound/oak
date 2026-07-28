@@ -1,6 +1,6 @@
 name: Go
 env:
-  GO_VERSION: 1.18
+  GO_VERSION: 1.26
 on: [push]
 jobs:
   test-windows-x64:
