@@ -7,6 +7,7 @@ import (
 	"github.com/oakmound/oak/v4/collision"
 	"github.com/oakmound/oak/v4/dlog"
 	"github.com/oakmound/oak/v4/event"
+	"github.com/oakmound/oak/v4/mouse"
 	"github.com/oakmound/oak/v4/render"
 	"github.com/oakmound/oak/v4/render/mod"
 	"github.com/oakmound/oak/v4/scene"
@@ -90,6 +91,7 @@ type Entity struct {
 	Renderable render.Renderable
 
 	collision.Phase
+	mouse.CollisionPhase
 
 	Space *collision.Space
 	Tree  *collision.Tree
