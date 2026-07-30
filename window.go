@@ -4,7 +4,7 @@
 //
 // A minimal oak app follows:
 //
-// 	func main() {
+//	func main() {
 //		oak.AddScene("myApp", scene.Scene{Start: func(ctx *scene.Context) {
 //			// ... ctx.Draw(...), event.Bind(ctx, ...)
 //		}})
@@ -268,6 +268,10 @@ func (w *Window) Propagate(ev event.EventID[*mouse.Event], me mouse.Event) {
 // of the client area (OS provided title bars).
 func (w *Window) Bounds() intgeom.Point2 {
 	return intgeom.Point2{w.ScreenWidth, w.ScreenHeight}
+}
+
+func (w *Window) Scale() float64 {
+	return w.config.Screen.Scale
 }
 
 // SetLoadingRenderable sets what renderable should display between scenes

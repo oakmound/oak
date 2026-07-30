@@ -20,6 +20,7 @@ func main() {
 		borderlessAtStart = false
 		fullscreenAtStart = false
 		topMostAtStart    = false
+		scale             = 1.0
 	)
 
 	oak.AddScene("demo", scene.Scene{Start: func(ctx *scene.Context) {
@@ -29,7 +30,7 @@ func main() {
 		render.Draw(line2)
 		line3 := render.NewText("Press M to maximize the window. Press Z to minimize the window. Press N to normalize the window.", 50, 90)
 		render.Draw(line3)
-		line4 := render.NewText("Press P to print the position of the window.", 50, 110)
+		line4 := render.NewText("Press P to print the position of the window. Press V to move the window.", 50, 110)
 		render.Draw(line4)
 
 		borderless := borderlessAtStart
@@ -120,6 +121,16 @@ func main() {
 			fmt.Println("Position:", x, y)
 			return 0
 		})
+		event.GlobalBind(ctx, key.Down(key.V), func(k key.Event) event.Response {
+			x, y := ctx.Window.GetDesktopPosition()
+			bds := ctx.Window.Bounds()
+			x += float64(rand.Intn(100) - 50)
+			y += float64(rand.Intn(100) - 50)
+			// TODO: MoveWindow should be scale-aware
+			scale := ctx.Window.Scale()
+			ctx.Window.MoveWindow(int(x), int(y), int(float64(bds.X())*scale), int(float64(bds.Y())*scale))
+			return 0
+		})
 		titleCt := 0
 		event.GlobalBind(ctx, key.Down(key.Q), func(k key.Event) event.Response {
 			titleCt++
@@ -160,6 +171,7 @@ func main() {
 		// Both cannot be true at once!
 		c.Borderless = borderlessAtStart
 		c.Fullscreen = fullscreenAtStart
+		c.Screen.Scale = scale
 		return c, nil
 	})
 }

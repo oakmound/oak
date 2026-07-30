@@ -49,6 +49,10 @@ type App interface {
 	// match the scale, this area will be unchanged and the view will be stretched to fit the window.
 	Bounds() intgeom.Point2
 
+	// Scale reports how many on screen pixels will be filled by pixels in-engine;
+	// for high PPI displays a value below 1 can look natural.
+	Scale() float64
+
 	// Viewport relates Bounds() to the entire content available for display. Viewport returns where the top left corner
 	// of the application client area is.
 	Viewport() intgeom.Point2
