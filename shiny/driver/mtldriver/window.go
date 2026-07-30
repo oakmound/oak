@@ -51,18 +51,13 @@ func (w *Window) SetBorderless(borderless bool) error {
 		return nil
 	}
 	w.borderless = borderless
-	respCh := make(chan struct{})
-	w.chans.updateCh <- updateWindowReq{
+	w.doOnMainThread(updateWindowReq{
 		setBorderless: &borderless,
-		window:        w.window,
 		x:             w.x,
 		y:             w.y,
 		width:         w.w,
 		height:        w.h,
-		respCh:        respCh,
-	}
-	glfw.PostEmptyEvent()
-	<-respCh
+	})
 	return nil
 }
 
@@ -74,38 +69,28 @@ func (w *Window) SetFullScreen(full bool) error {
 	if full {
 		w.x, w.y = w.window.GetPos()
 	}
-	respCh := make(chan struct{})
-	w.chans.updateCh <- updateWindowReq{
+	w.doOnMainThread(updateWindowReq{
 		setFullscreen: &full,
-		window:        w.window,
 		x:             w.x,
 		y:             w.y,
 		width:         w.w,
 		height:        w.h,
-		respCh:        respCh,
-	}
-	glfw.PostEmptyEvent()
-	<-respCh
+	})
 	return nil
 }
 
 func (w *Window) MoveWindow(x, y, width, height int) error {
-	respCh := make(chan struct{})
 	w.x = x
 	w.y = y
 	w.w = width
 	w.h = height
-	w.chans.updateCh <- updateWindowReq{
-		window: w.window,
+	w.doOnMainThread(updateWindowReq{
 		setPos: true,
 		x:      w.x,
 		y:      w.y,
 		width:  w.w,
 		height: w.h,
-		respCh: respCh,
-	}
-	glfw.PostEmptyEvent()
-	<-respCh
+	})
 	return nil
 }
 
@@ -124,14 +109,9 @@ func (w *Window) Release() {
 }
 
 func (w *Window) SetTitle(title string) error {
-	respCh := make(chan struct{})
-	w.chans.updateCh <- updateWindowReq{
-		window: w.window,
-		title:  &title,
-		respCh: respCh,
-	}
-	glfw.PostEmptyEvent() // Break main loop out of glfw.WaitEvents so it can receive on releaseWindowCh.
-	<-respCh
+	w.doOnMainThread(updateWindowReq{
+		title: &title,
+	})
 	return nil
 }
 
@@ -141,31 +121,28 @@ type attribPair struct {
 }
 
 func (w *Window) SetTopMost(topMost bool) error {
-	respCh := make(chan struct{})
 	val := glfw.True
 	if !topMost {
 		val = glfw.False
 	}
-	w.chans.updateCh <- updateWindowReq{
-		window: w.window,
+	w.doOnMainThread(updateWindowReq{
 		attribs: []attribPair{{
 			key: glfw.Floating,
 			val: val,
 		}},
-		respCh: respCh,
-	}
-	glfw.PostEmptyEvent() // Break main loop out of glfw.WaitEvents so it can receive on releaseWindowCh.
-	<-respCh
+	})
 	return nil
 }
 
 // BUG: this doesn't work, and it doesn't error either
 func (w *Window) SetIcon(img image.Image) error {
-	w.window.SetIcon([]image.Image{img})
+	w.doOnMainThread(updateWindowReq{
+		icon: img,
+	})
 	return nil
 }
 
-func (w *Window) NextEvent() interface{} {
+func (w *Window) NextEvent() any {
 	e := w.Deque.NextEvent()
 	if sz, ok := e.(size.Event); ok {
 		// TODO(dmitshur): this is the best place/time/frequency to do this
@@ -211,6 +188,39 @@ func (w *Window) Publish() {
 
 	cb.PresentDrawable(drawable)
 	cb.Commit()
+}
 
-	return
+func (w *Window) GetDesktopPosition() (x, y float64) {
+	xi, yi := w.window.GetPos()
+	return float64(xi), float64(yi)
+}
+
+func (w *Window) Minimize() error {
+	w.doOnMainThread(updateWindowReq{
+		minimize: new(true),
+	})
+	return nil
+}
+
+func (w *Window) Maximize() error {
+	w.doOnMainThread(updateWindowReq{
+		maximize: new(true),
+	})
+	return nil
+}
+
+func (w *Window) Normalize() error {
+	w.doOnMainThread(updateWindowReq{
+		normalize: new(true),
+	})
+	return nil
+}
+
+func (w *Window) doOnMainThread(req updateWindowReq) {
+	respCh := make(chan struct{})
+	req.respCh = respCh
+	req.window = w.window
+	w.chans.updateCh <- req
+	glfw.PostEmptyEvent()
+	<-respCh
 }

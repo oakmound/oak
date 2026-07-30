@@ -25,10 +25,19 @@ type Window interface {
 	// component.
 	SetIcon(image.Image) error
 	// MoveWindow moves a window to the given x,y coordinates with the given dimensions.
-	// TODO v4: intgeom.Rect2?
 	MoveWindow(x, y, w, h int) error
 	// HideCursor will cause the mouse cursor to not display when it lies within this window.
 	HideCursor() error
+	// GetDesktopPosition reports the position of the window according to the OS; this can be negative or positive,
+	// 0,0 is sometimes but should not be assumed to be the very top-left most pixel (in particular when multiple)
+	// screens are in use. This is primarily useful to pair with MoveWindow for relative movement
+	GetDesktopPosition() (x, y float64)
+	// Minimize reduces the window to an icon
+	Minimize() error
+	// Maximize expands the window to fill the screen it is on; this does not change pixel scaling
+	Maximize() error
+	// Normalize reverts a Maximize action
+	Normalize() error
 }
 
 // App is an interface of methods available to all oak programs.

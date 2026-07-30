@@ -1,6 +1,6 @@
 module github.com/oakmound/oak/v4
 
-go 1.18
+go 1.26
 
 require (
 	dmitri.shuralyov.com/gpu/mtl v0.0.0-20221208032759-85de2813cf6b // osx, shiny
@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/xgbutil v0.0.0-20190907113008-ad855c713046 // linux, shiny
 	github.com/disintegration/gift v1.2.1 // render
 	github.com/eaburns/flac v0.0.0-20171003200620-9a6fb92396d1
-	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20220320163800-277f93cfa958 // osx, shiny
+	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20260707082822-2a407d02d01a // osx, shiny
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/hajimehoshi/go-mp3 v0.3.2
 	github.com/jfreymuth/pulse v0.1.0 // linux, audio
