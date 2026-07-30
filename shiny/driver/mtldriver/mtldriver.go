@@ -240,7 +240,7 @@ func newWindow(device mtl.Device, chans windowRequestChannels, opts screen.Windo
 	}
 
 	// Set callbacks.
-	framebufferSizeCallback := func(_ *glfw.Window, width, height int) {
+	framebufferSizeCallback := func(win *glfw.Window, width, height int) {
 		w.Send(size.Event{
 			WidthPx:  width,
 			HeightPx: height,
@@ -249,9 +249,12 @@ func newWindow(device mtl.Device, chans windowRequestChannels, opts screen.Windo
 		w.Send(paint.Event{External: true})
 	}
 	window.SetFramebufferSizeCallback(framebufferSizeCallback)
-	window.SetCursorPosCallback(func(_ *glfw.Window, x, y float64) {
-		const scale = 2 // TODO(dmitshur): compute dynamically
-		w.Send(mouse.Event{X: float32(x * scale), Y: float32(y * scale)})
+	window.SetCursorPosCallback(func(win *glfw.Window, x, y float64) {
+		// TODO: it would be nice if we could only get a signal when
+		// the content scale changes; this might only happen when a size
+		// event comes in?
+		scaleX, scaleY := win.GetContentScale()
+		w.Send(mouse.Event{X: float32(x) * scaleX, Y: float32(y) * scaleY})
 	})
 	window.SetScrollCallback(func(_ *glfw.Window, xoff float64, yoff float64) {
 		// TODO horizontal scrolling
@@ -266,15 +269,15 @@ func newWindow(device mtl.Device, chans windowRequestChannels, opts screen.Windo
 			Direction: mouse.DirNone,
 		})
 	})
-	window.SetMouseButtonCallback(func(_ *glfw.Window, b glfw.MouseButton, a glfw.Action, mods glfw.ModifierKey) {
+	window.SetMouseButtonCallback(func(win *glfw.Window, b glfw.MouseButton, a glfw.Action, mods glfw.ModifierKey) {
 		btn := glfwMouseButton(b)
 		if btn == mouse.ButtonNone {
 			return
 		}
-		const scale = 2 // TODO(dmitshur): compute dynamically
+		scaleX, scaleY := win.GetContentScale()
 		x, y := window.GetCursorPos()
 		w.Send(mouse.Event{
-			X: float32(x * scale), Y: float32(y * scale),
+			X: float32(x) * scaleX, Y: float32(y) * scaleY,
 			Button:    btn,
 			Direction: glfwMouseDirection(a),
 			Modifiers: glfwKeyMods(mods),
