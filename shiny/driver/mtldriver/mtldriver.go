@@ -303,6 +303,10 @@ func newWindow(device mtl.Device, chans windowRequestChannels, opts screen.Windo
 			Rune: char,
 		})
 	})
+	window.SetFocusCallback(func(_ *glfw.Window, focused bool) {
+		w.lifecycler.SetFocused(focused)
+		w.lifecycler.SendEvent(w, nil)
+	})
 	window.SetCloseCallback(func(*glfw.Window) {
 		w.lifecycler.SetDead(true)
 		w.lifecycler.SendEvent(w, nil)
